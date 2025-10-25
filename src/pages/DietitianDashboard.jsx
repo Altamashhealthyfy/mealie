@@ -35,8 +35,16 @@ export default function DietitianDashboard() {
   });
 
   const { data: unreadMessages } = useQuery({
-    queryKey: ['unreadMessages'],
-    queryFn: () => base44.entities.Message.filter({ read: false, sender_type: 'client' }),
+    queryKey: ['unreadMessagesList'],
+    queryFn: async () => {
+      try {
+        const messages = await base44.entities.Message.filter({ read: false, sender_type: 'client' });
+        return Array.isArray(messages) ? messages : [];
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+        return [];
+      }
+    },
     initialData: [],
   });
 
@@ -48,6 +56,7 @@ export default function DietitianDashboard() {
 
   const activeClients = clients.filter(c => c.status === 'active');
   const newClients = clients.filter(c => {
+    if (!c.join_date) return false;
     const joinDate = new Date(c.join_date);
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
@@ -150,7 +159,7 @@ export default function DietitianDashboard() {
                     return (
                       <div key={apt.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                         <div className="flex-1">
-                          <p className="font-medium text-gray-900">{client?.full_name}</p>
+                          <p className="font-medium text-gray-900">{client?.full_name || 'Unknown Client'}</p>
                           <p className="text-sm text-gray-600">{apt.title}</p>
                         </div>
                         <div className="text-right">
@@ -192,11 +201,11 @@ export default function DietitianDashboard() {
                       <div key={msg.id} className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg">
                         <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
                           <span className="text-white font-medium text-sm">
-                            {client?.full_name?.charAt(0)}
+                            {client?.full_name?.charAt(0) || '?'}
                           </span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-gray-900">{client?.full_name}</p>
+                          <p className="font-medium text-gray-900">{client?.full_name || 'Unknown Client'}</p>
                           <p className="text-sm text-gray-600 line-clamp-2">{msg.message}</p>
                           <p className="text-xs text-gray-500 mt-1">
                             {format(new Date(msg.created_date), 'MMM d, h:mm a')}
@@ -236,11 +245,11 @@ export default function DietitianDashboard() {
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
                           <span className="text-white font-medium">
-                            {client?.full_name?.charAt(0)}
+                            {client?.full_name?.charAt(0) || '?'}
                           </span>
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{client?.full_name}</p>
+                          <p className="font-medium text-gray-900">{client?.full_name || 'Unknown Client'}</p>
                           <p className="text-sm text-gray-600">
                             {format(new Date(log.date), 'MMM d, yyyy')}
                           </p>
@@ -289,8 +298,12 @@ export default function DietitianDashboard() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Badge className="capitalize">{client.goal?.replace('_', ' ')}</Badge>
-                      <Badge variant="outline" className="capitalize">{client.food_preference}</Badge>
+                      {client.goal && (
+                        <Badge className="capitalize">{client.goal.replace('_', ' ')}</Badge>
+                      )}
+                      {client.food_preference && (
+                        <Badge variant="outline" className="capitalize">{client.food_preference}</Badge>
+                      )}
                     </div>
                   </div>
                 ))}

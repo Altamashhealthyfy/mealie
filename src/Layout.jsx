@@ -118,7 +118,7 @@ export default function Layout({ children, currentPageName }) {
   });
 
   const { data: unreadCount } = useQuery({
-    queryKey: ['unreadMessages'],
+    queryKey: ['unreadMessagesCount'],
     queryFn: async () => {
       const messages = await base44.entities.Message.filter({ read: false });
       return messages.length;
