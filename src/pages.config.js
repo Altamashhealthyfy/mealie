@@ -4,6 +4,7 @@ import MealPlanner from './pages/MealPlanner';
 import Recipes from './pages/Recipes';
 import FoodLookup from './pages/FoodLookup';
 import MPESSTracker from './pages/MPESSTracker';
+import DietitianDashboard from './pages/DietitianDashboard';
 import Layout from './Layout.jsx';
 
 
@@ -14,6 +15,7 @@ export const PAGES = {
     "Recipes": Recipes,
     "FoodLookup": FoodLookup,
     "MPESSTracker": MPESSTracker,
+    "DietitianDashboard": DietitianDashboard,
 }
 
 export const pagesConfig = {

@@ -1,0 +1,66 @@
+{
+  "name": "FoodLog",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "meal_type": {
+      "type": "string",
+      "enum": [
+        "breakfast",
+        "mid_morning",
+        "lunch",
+        "evening_snack",
+        "dinner",
+        "other"
+      ]
+    },
+    "meal_name": {
+      "type": "string",
+      "description": "Name of the meal"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Food items consumed"
+    },
+    "portion_sizes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "calories": {
+      "type": "number"
+    },
+    "protein": {
+      "type": "number"
+    },
+    "carbs": {
+      "type": "number"
+    },
+    "fats": {
+      "type": "number"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Photo of the meal"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "client_id",
+    "date",
+    "meal_type"
+  ]
+}

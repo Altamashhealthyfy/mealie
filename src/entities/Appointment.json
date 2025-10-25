@@ -1,0 +1,63 @@
+{
+  "name": "Appointment",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "title": {
+      "type": "string",
+      "description": "Appointment title"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "time": {
+      "type": "string",
+      "description": "Time of appointment"
+    },
+    "duration": {
+      "type": "number",
+      "description": "Duration in minutes"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "initial_consultation",
+        "follow_up",
+        "review",
+        "other"
+      ]
+    },
+    "meeting_link": {
+      "type": "string",
+      "description": "Video call link"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Appointment notes"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "completed",
+        "cancelled",
+        "rescheduled"
+      ],
+      "default": "scheduled"
+    },
+    "reminder_sent": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "client_id",
+    "title",
+    "date",
+    "time"
+  ]
+}

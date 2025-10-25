@@ -1,0 +1,147 @@
+{
+  "name": "Client",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Client's full name"
+    },
+    "email": {
+      "type": "string",
+      "description": "Client's email"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Client's phone number"
+    },
+    "age": {
+      "type": "number"
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female",
+        "other"
+      ]
+    },
+    "height": {
+      "type": "number",
+      "description": "Height in cm"
+    },
+    "weight": {
+      "type": "number",
+      "description": "Current weight in kg"
+    },
+    "initial_weight": {
+      "type": "number",
+      "description": "Starting weight in kg"
+    },
+    "target_weight": {
+      "type": "number",
+      "description": "Target weight in kg"
+    },
+    "activity_level": {
+      "type": "string",
+      "enum": [
+        "sedentary",
+        "lightly_active",
+        "moderately_active",
+        "very_active",
+        "extremely_active"
+      ]
+    },
+    "goal": {
+      "type": "string",
+      "enum": [
+        "weight_loss",
+        "weight_gain",
+        "maintenance",
+        "muscle_gain",
+        "health_improvement"
+      ]
+    },
+    "food_preference": {
+      "type": "string",
+      "enum": [
+        "veg",
+        "non_veg",
+        "jain",
+        "mixed"
+      ]
+    },
+    "regional_preference": {
+      "type": "string",
+      "enum": [
+        "north",
+        "south",
+        "west",
+        "east",
+        "all"
+      ]
+    },
+    "medical_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Any medical conditions or health issues"
+    },
+    "allergies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Food allergies or intolerances"
+    },
+    "medications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "bmr": {
+      "type": "number"
+    },
+    "tdee": {
+      "type": "number"
+    },
+    "target_calories": {
+      "type": "number"
+    },
+    "target_protein": {
+      "type": "number"
+    },
+    "target_carbs": {
+      "type": "number"
+    },
+    "target_fats": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "completed"
+      ],
+      "default": "active"
+    },
+    "join_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Dietitian's notes about the client"
+    },
+    "dietitian_id": {
+      "type": "string",
+      "description": "ID of the assigned dietitian"
+    }
+  },
+  "required": [
+    "full_name",
+    "email"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "name": "Message",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "sender_type": {
+      "type": "string",
+      "enum": [
+        "dietitian",
+        "client"
+      ],
+      "description": "Who sent the message"
+    },
+    "message": {
+      "type": "string",
+      "description": "Message content"
+    },
+    "attachment_url": {
+      "type": "string",
+      "description": "URL of any attached file"
+    },
+    "read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether message has been read"
+    }
+  },
+  "required": [
+    "client_id",
+    "sender_type",
+    "message"
+  ]
+}
