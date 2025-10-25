@@ -1,0 +1,112 @@
+{
+  "name": "CoachProfile",
+  "type": "object",
+  "properties": {
+    "business_name": {
+      "type": "string",
+      "description": "Coach's business/practice name"
+    },
+    "tagline": {
+      "type": "string",
+      "description": "Business tagline"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "whatsapp": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "Business logo"
+    },
+    "specializations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Areas of expertise"
+    },
+    "certifications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "bio": {
+      "type": "string",
+      "description": "Professional bio"
+    },
+    "consultation_fee": {
+      "type": "number",
+      "description": "Standard consultation fee"
+    },
+    "location": {
+      "type": "string",
+      "description": "City/Location"
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "social_media": {
+      "type": "object",
+      "properties": {
+        "instagram": {
+          "type": "string"
+        },
+        "facebook": {
+          "type": "string"
+        },
+        "linkedin": {
+          "type": "string"
+        },
+        "youtube": {
+          "type": "string"
+        }
+      }
+    },
+    "bank_details": {
+      "type": "object",
+      "properties": {
+        "account_name": {
+          "type": "string"
+        },
+        "account_number": {
+          "type": "string"
+        },
+        "ifsc_code": {
+          "type": "string"
+        },
+        "bank_name": {
+          "type": "string"
+        },
+        "upi_id": {
+          "type": "string"
+        }
+      }
+    },
+    "business_hours": {
+      "type": "string",
+      "description": "Working hours"
+    },
+    "total_clients_served": {
+      "type": "number",
+      "default": 0
+    },
+    "years_of_experience": {
+      "type": "number"
+    },
+    "white_label_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can use own branding"
+    }
+  },
+  "required": []
+}

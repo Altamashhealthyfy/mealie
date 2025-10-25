@@ -1,0 +1,98 @@
+{
+  "name": "Subscription",
+  "type": "object",
+  "properties": {
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the health coach"
+    },
+    "coach_name": {
+      "type": "string",
+      "description": "Name of the health coach"
+    },
+    "plan_type": {
+      "type": "string",
+      "enum": [
+        "student",
+        "professional",
+        "premium",
+        "lifetime"
+      ],
+      "description": "Subscription plan tier"
+    },
+    "billing_cycle": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "yearly",
+        "lifetime"
+      ],
+      "description": "Billing frequency"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Subscription amount"
+    },
+    "currency": {
+      "type": "string",
+      "default": "INR"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "cancelled",
+        "expired",
+        "trial"
+      ],
+      "default": "active"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "razorpay",
+        "stripe",
+        "bank_transfer",
+        "cash"
+      ]
+    },
+    "transaction_id": {
+      "type": "string"
+    },
+    "client_limit": {
+      "type": "number",
+      "description": "Maximum number of clients allowed"
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Features included in this plan"
+    },
+    "auto_renew": {
+      "type": "boolean",
+      "default": true
+    },
+    "discount_code": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "coach_email",
+    "plan_type",
+    "amount",
+    "start_date"
+  ]
+}
