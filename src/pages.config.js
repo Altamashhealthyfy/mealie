@@ -9,6 +9,7 @@ import ClientManagement from './pages/ClientManagement';
 import BusinessPlan from './pages/BusinessPlan';
 import MarketingHub from './pages/MarketingHub';
 import PaymentSetup from './pages/PaymentSetup';
+import Appointments from './pages/Appointments';
 import Layout from './Layout.jsx';
 
 
@@ -24,6 +25,7 @@ export const PAGES = {
     "BusinessPlan": BusinessPlan,
     "MarketingHub": MarketingHub,
     "PaymentSetup": PaymentSetup,
+    "Appointments": Appointments,
 }
 
 export const pagesConfig = {
