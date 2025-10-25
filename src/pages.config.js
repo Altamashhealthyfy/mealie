@@ -8,6 +8,7 @@ import DietitianDashboard from './pages/DietitianDashboard';
 import ClientManagement from './pages/ClientManagement';
 import BusinessPlan from './pages/BusinessPlan';
 import MarketingHub from './pages/MarketingHub';
+import PaymentSetup from './pages/PaymentSetup';
 import Layout from './Layout.jsx';
 
 
@@ -22,6 +23,7 @@ export const PAGES = {
     "ClientManagement": ClientManagement,
     "BusinessPlan": BusinessPlan,
     "MarketingHub": MarketingHub,
+    "PaymentSetup": PaymentSetup,
 }
 
 export const pagesConfig = {
