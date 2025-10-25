@@ -1,0 +1,115 @@
+{
+  "name": "MPESSTracker",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of tracking"
+    },
+    "mind_practices": {
+      "type": "object",
+      "properties": {
+        "affirmations_completed": {
+          "type": "boolean"
+        },
+        "stress_relief_done": {
+          "type": "boolean"
+        },
+        "sleep_guidance_followed": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "physical_practices": {
+      "type": "object",
+      "properties": {
+        "movement_done": {
+          "type": "boolean"
+        },
+        "posture_awareness": {
+          "type": "boolean"
+        },
+        "hydration_met": {
+          "type": "boolean"
+        },
+        "water_intake": {
+          "type": "number"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "emotional_practices": {
+      "type": "object",
+      "properties": {
+        "journaling_done": {
+          "type": "boolean"
+        },
+        "emotion_release_done": {
+          "type": "boolean"
+        },
+        "breathwork_done": {
+          "type": "boolean"
+        },
+        "mood": {
+          "type": "string",
+          "enum": [
+            "great",
+            "good",
+            "okay",
+            "low",
+            "stressed"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "social_practices": {
+      "type": "object",
+      "properties": {
+        "bonding_activity_done": {
+          "type": "boolean"
+        },
+        "connection_made": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "spiritual_practices": {
+      "type": "object",
+      "properties": {
+        "breathwork_done": {
+          "type": "boolean"
+        },
+        "meditation_done": {
+          "type": "boolean"
+        },
+        "gratitude_journaling_done": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "overall_rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Overall day rating"
+    }
+  },
+  "required": [
+    "date"
+  ]
+}

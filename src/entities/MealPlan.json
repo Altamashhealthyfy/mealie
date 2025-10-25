@@ -1,0 +1,99 @@
+{
+  "name": "MealPlan",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the meal plan"
+    },
+    "duration": {
+      "type": "number",
+      "description": "Duration in days"
+    },
+    "meal_pattern": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "3-3-4"
+      ],
+      "description": "Meal plan pattern"
+    },
+    "target_calories": {
+      "type": "number",
+      "description": "Daily calorie target"
+    },
+    "meals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "number"
+          },
+          "meal_type": {
+            "type": "string"
+          },
+          "meal_name": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "portion_sizes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "calories": {
+            "type": "number"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "carbs": {
+            "type": "number"
+          },
+          "fats": {
+            "type": "number"
+          },
+          "nutritional_tip": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "food_preference": {
+      "type": "string",
+      "enum": [
+        "veg",
+        "non_veg",
+        "jain",
+        "mixed"
+      ]
+    },
+    "regional_preference": {
+      "type": "string",
+      "enum": [
+        "north",
+        "south",
+        "west",
+        "east",
+        "all"
+      ]
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this is the active meal plan"
+    }
+  },
+  "required": [
+    "name",
+    "duration",
+    "meals"
+  ]
+}

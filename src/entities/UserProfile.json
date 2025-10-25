@@ -1,0 +1,101 @@
+{
+  "name": "UserProfile",
+  "type": "object",
+  "properties": {
+    "age": {
+      "type": "number",
+      "description": "User's age"
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female",
+        "other"
+      ],
+      "description": "User's gender"
+    },
+    "height": {
+      "type": "number",
+      "description": "Height in cm"
+    },
+    "weight": {
+      "type": "number",
+      "description": "Weight in kg"
+    },
+    "activity_level": {
+      "type": "string",
+      "enum": [
+        "sedentary",
+        "lightly_active",
+        "moderately_active",
+        "very_active",
+        "extremely_active"
+      ],
+      "description": "Daily activity level"
+    },
+    "goal": {
+      "type": "string",
+      "enum": [
+        "weight_loss",
+        "weight_gain",
+        "maintenance",
+        "muscle_gain"
+      ],
+      "description": "Health goal"
+    },
+    "food_preference": {
+      "type": "string",
+      "enum": [
+        "veg",
+        "non_veg",
+        "jain",
+        "mixed"
+      ],
+      "description": "Dietary preference"
+    },
+    "regional_preference": {
+      "type": "string",
+      "enum": [
+        "north",
+        "south",
+        "west",
+        "east",
+        "all"
+      ],
+      "description": "Regional cuisine preference"
+    },
+    "dietary_restrictions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Any dietary restrictions or allergies"
+    },
+    "bmr": {
+      "type": "number",
+      "description": "Basal Metabolic Rate"
+    },
+    "tdee": {
+      "type": "number",
+      "description": "Total Daily Energy Expenditure"
+    },
+    "target_calories": {
+      "type": "number",
+      "description": "Daily calorie target"
+    },
+    "target_protein": {
+      "type": "number",
+      "description": "Daily protein target in grams"
+    },
+    "target_carbs": {
+      "type": "number",
+      "description": "Daily carbs target in grams"
+    },
+    "target_fats": {
+      "type": "number",
+      "description": "Daily fats target in grams"
+    }
+  },
+  "required": []
+}
