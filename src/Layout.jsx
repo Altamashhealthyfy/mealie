@@ -99,23 +99,13 @@ const businessNavigation = [
 const clientNavigation = [
   {
     title: "My Dashboard",
-    url: createPageUrl("ClientDashboard"),
+    url: createPageUrl("Home"),
     icon: Home,
   },
   {
     title: "My Meal Plan",
-    url: createPageUrl("MyMealPlan"),
+    url: createPageUrl("Profile"),
     icon: Calendar,
-  },
-  {
-    title: "Progress Tracker",
-    url: createPageUrl("ProgressTracker"),
-    icon: TrendingUp,
-  },
-  {
-    title: "Food Log",
-    url: createPageUrl("FoodLog"),
-    icon: ClipboardList,
   },
   {
     title: "MPESS Wellness",
@@ -126,11 +116,6 @@ const clientNavigation = [
     title: "Messages",
     url: createPageUrl("ClientCommunication"),
     icon: MessageSquare,
-  },
-  {
-    title: "Recipes",
-    url: createPageUrl("Recipes"),
-    icon: ChefHat,
   },
 ];
 
