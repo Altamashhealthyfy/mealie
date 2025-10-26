@@ -47,6 +47,7 @@ export default function MealPlanner() {
     mutationFn: (planData) => base44.entities.MealPlan.create(planData),
     onSuccess: () => {
       queryClient.invalidateQueries(['mealPlans']);
+      setGeneratedPlan(null);
       alert("Meal plan saved successfully!");
     },
   });
@@ -120,9 +121,9 @@ Return the meal plan in a structured format with all days and meals.`;
     } catch (error) {
       alert("Error generating meal plan. Please try again.");
       console.error(error);
+    } finally {
+      setGenerating(false);
     }
-
-    setGenerating(false);
   };
 
   const handleSavePlan = () => {
@@ -138,6 +139,10 @@ Return the meal plan in a structured format with all days and meals.`;
       regional_preference: generatedPlan.regional_preference,
       active: true,
     });
+  };
+
+  const handleGenerateNew = () => {
+    setGeneratedPlan(null);
   };
 
   if (!userProfile) {
@@ -282,7 +287,7 @@ Return the meal plan in a structured format with all days and meals.`;
               <GeneratedMealPlan 
                 plan={generatedPlan} 
                 onSave={handleSavePlan}
-                onGenerateNew={() => setGeneratedPlan(null)}
+                onGenerateNew={handleGenerateNew}
                 isSaving={savePlanMutation.isPending}
               />
             )}
