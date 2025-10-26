@@ -26,11 +26,9 @@ import {
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { useAuth } from '@/context/AuthContext'; // Assuming AuthContext provides user info
 
 export default function ClientManagement() {
   const queryClient = useQueryClient();
-  const { user } = useAuth(); // Get user from AuthContext, needed for the mealPlans query 'enabled' condition
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -38,6 +36,11 @@ export default function ClientManagement() {
   const [formData, setFormData] = useState({
     status: 'active',
     join_date: format(new Date(), 'yyyy-MM-dd'),
+  });
+
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
   });
 
   const { data: clients } = useQuery({
