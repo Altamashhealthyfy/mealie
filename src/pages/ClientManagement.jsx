@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -25,9 +26,11 @@ import {
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { useAuth } from '@/context/AuthContext'; // Assuming AuthContext provides user info
 
 export default function ClientManagement() {
   const queryClient = useQueryClient();
+  const { user } = useAuth(); // Get user from AuthContext, needed for the mealPlans query 'enabled' condition
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -40,6 +43,13 @@ export default function ClientManagement() {
   const { data: clients } = useQuery({
     queryKey: ['clients'],
     queryFn: () => base44.entities.Client.list('-created_date'),
+    initialData: [],
+  });
+
+  const { data: mealPlans } = useQuery({
+    queryKey: ['mealPlans'],
+    queryFn: () => base44.entities.MealPlan.list('-created_date'),
+    enabled: !!user, // Only fetch meal plans if a user is logged in
     initialData: [],
   });
 
@@ -427,82 +437,106 @@ export default function ClientManagement() {
 
         {/* Clients Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredClients.map((client) => (
-            <Card key={client.id} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
-                      <span className="text-white font-medium text-lg">
-                        {client.full_name.charAt(0)}
-                      </span>
+          {filteredClients.map((client) => {
+            const clientPlans = mealPlans.filter(p => p.client_id === client.id);
+            const activePlan = clientPlans.find(p => p.active);
+            
+            return (
+              <Card key={client.id} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
+                        <span className="text-white font-medium text-lg">
+                          {client.full_name.charAt(0)}
+                        </span>
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">{client.full_name}</CardTitle>
+                        <div className="flex gap-2 mt-1">
+                          <Badge className={
+                            client.status === 'active' ? 'bg-green-100 text-green-700' :
+                            client.status === 'inactive' ? 'bg-gray-100 text-gray-700' :
+                            'bg-blue-100 text-blue-700'
+                          }>
+                            {client.status}
+                          </Badge>
+                          {activePlan && (
+                            <Badge className="bg-purple-100 text-purple-700">
+                              📅 Has Plan
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">{client.full_name}</CardTitle>
-                      <Badge className={
-                        client.status === 'active' ? 'bg-green-100 text-green-700' :
-                        client.status === 'inactive' ? 'bg-gray-100 text-gray-700' :
-                        'bg-blue-100 text-blue-700'
-                      }>
-                        {client.status}
-                      </Badge>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleEdit(client)}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Mail className="w-4 h-4" />
-                  <span className="truncate">{client.email}</span>
-                </div>
-                {client.phone && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Phone className="w-4 h-4" />
-                    <span>{client.phone}</span>
-                  </div>
-                )}
-                
-                {client.weight && client.target_weight && (
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="text-xs text-gray-600">Current</p>
-                      <p className="text-lg font-bold text-gray-900">{client.weight} kg</p>
-                    </div>
-                    <TrendingUp className="w-5 h-5 text-green-500" />
-                    <div>
-                      <p className="text-xs text-gray-600">Target</p>
-                      <p className="text-lg font-bold text-gray-900">{client.target_weight} kg</p>
-                    </div>
-                  </div>
-                )}
-
-                {client.goal && (
-                  <Badge variant="outline" className="capitalize">
-                    {client.goal.replace('_', ' ')}
-                  </Badge>
-                )}
-
-                <div className="flex gap-2 pt-3">
-                  <Link to={`${createPageUrl("Communication")}?client=${client.id}`} className="flex-1">
-                    <Button variant="outline" size="sm" className="w-full">
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      Message
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEdit(client)}
+                    >
+                      <Edit className="w-4 h-4" />
                     </Button>
-                  </Link>
-                  <Button variant="outline" size="sm">
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Mail className="w-4 h-4" />
+                    <span className="truncate">{client.email}</span>
+                  </div>
+                  {client.phone && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Phone className="w-4 h-4" />
+                      <span>{client.phone}</span>
+                    </div>
+                  )}
+                  
+                  {/* Show active meal plan info */}
+                  {activePlan && (
+                    <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
+                      <p className="text-xs text-purple-600 font-medium mb-1">Active Meal Plan</p>
+                      <p className="text-sm font-semibold text-purple-900">{activePlan.name}</p>
+                      <p className="text-xs text-purple-600">{activePlan.duration} days • {activePlan.target_calories} kcal</p>
+                    </div>
+                  )}
+                  
+                  {client.weight && client.target_weight && (
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="text-xs text-gray-600">Current</p>
+                        <p className="text-lg font-bold text-gray-900">{client.weight} kg</p>
+                      </div>
+                      <TrendingUp className="w-5 h-5 text-green-500" />
+                      <div>
+                        <p className="text-xs text-gray-600">Target</p>
+                        <p className="text-lg font-bold text-gray-900">{client.target_weight} kg</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {client.goal && (
+                    <Badge variant="outline" className="capitalize">
+                      {client.goal.replace('_', ' ')}
+                    </Badge>
+                  )}
+
+                  <div className="flex gap-2 pt-3">
+                    <Link to={`${createPageUrl("Communication")}?client=${client.id}`} className="flex-1">
+                      <Button variant="outline" size="sm" className="w-full">
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Message
+                      </Button>
+                    </Link>
+                    <Link to={createPageUrl("MealPlanner")} className="flex-1">
+                      <Button variant="outline" size="sm" className="w-full">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        {activePlan ? 'View Plan' : 'Create Plan'}
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         {filteredClients.length === 0 && (
