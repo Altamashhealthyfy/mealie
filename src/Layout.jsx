@@ -17,7 +17,9 @@ import {
   LayoutDashboard,
   DollarSign,
   Megaphone,
-  BookOpen
+  BookOpen,
+  Utensils,
+  Scale
 } from "lucide-react";
 import {
   Sidebar,
@@ -104,8 +106,18 @@ const clientNavigation = [
   },
   {
     title: "My Meal Plan",
-    url: createPageUrl("Profile"),
+    url: createPageUrl("MyAssignedMealPlan"),
     icon: Calendar,
+  },
+  {
+    title: "Food Log",
+    url: createPageUrl("FoodLog"),
+    icon: Utensils,
+  },
+  {
+    title: "My Progress",
+    url: createPageUrl("ProgressTracking"),
+    icon: Scale,
   },
   {
     title: "MPESS Wellness",
