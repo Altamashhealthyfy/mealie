@@ -29,9 +29,11 @@ export default function MyAssignedMealPlan() {
   const { data: assignedPlan } = useQuery({
     queryKey: ['myAssignedMealPlan', clientProfile?.id],
     queryFn: async () => {
-      // For now, get the most recent active meal plan
-      // Later we'll add client_id filtering
-      const plans = await base44.entities.MealPlan.filter({ active: true });
+      // Get meal plans assigned to this client
+      const plans = await base44.entities.MealPlan.filter({ 
+        client_id: clientProfile?.id,
+        active: true 
+      });
       return plans[0] || null;
     },
     enabled: !!clientProfile,

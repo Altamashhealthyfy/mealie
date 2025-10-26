@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Calendar, ChefHat, Loader2, Plus } from "lucide-react";
+import { Sparkles, Calendar, ChefHat, Loader2, Plus, Users } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -17,6 +17,7 @@ export default function MealPlanner() {
   const queryClient = useQueryClient();
   const [generating, setGenerating] = useState(false);
   const [generatedPlan, setGeneratedPlan] = useState(null);
+  const [selectedClientId, setSelectedClientId] = useState(null);
   const [planConfig, setPlanConfig] = useState({
     duration: 10,
     meal_pattern: 'daily',
@@ -27,13 +28,11 @@ export default function MealPlanner() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: userProfile } = useQuery({
-    queryKey: ['userProfile', user?.email],
-    queryFn: async () => {
-      const profiles = await base44.entities.UserProfile.filter({ created_by: user?.email });
-      return profiles[0] || null;
-    },
+  const { data: clients } = useQuery({
+    queryKey: ['clients'],
+    queryFn: () => base44.entities.Client.list('-created_date'),
     enabled: !!user,
+    initialData: [],
   });
 
   const { data: mealPlans } = useQuery({
@@ -48,13 +47,16 @@ export default function MealPlanner() {
     onSuccess: () => {
       queryClient.invalidateQueries(['mealPlans']);
       setGeneratedPlan(null);
+      setSelectedClientId(null);
       alert("Meal plan saved successfully!");
     },
   });
 
+  const selectedClient = clients.find(c => c.id === selectedClientId);
+
   const generateMealPlan = async () => {
-    if (!userProfile) {
-      alert("Please complete your profile first");
+    if (!selectedClient) {
+      alert("Please select a client first");
       return;
     }
 
@@ -63,12 +65,12 @@ export default function MealPlanner() {
     try {
       const prompt = `Generate a personalized ${planConfig.duration}-day Indian meal plan with the following details:
 
-Food Preference: ${userProfile.food_preference}
-Regional Preference: ${userProfile.regional_preference}
-Daily Calories: ${userProfile.target_calories} kcal
-Protein: ${userProfile.target_protein}g
-Carbs: ${userProfile.target_carbs}g
-Fats: ${userProfile.target_fats}g
+Food Preference: ${selectedClient.food_preference}
+Regional Preference: ${selectedClient.regional_preference}
+Daily Calories: ${selectedClient.target_calories} kcal
+Protein: ${selectedClient.target_protein}g
+Carbs: ${selectedClient.target_carbs}g
+Fats: ${selectedClient.target_fats}g
 Meal Pattern: ${planConfig.meal_pattern}
 
 Create a detailed meal plan with:
@@ -112,11 +114,13 @@ Return the meal plan in a structured format with all days and meals.`;
 
       setGeneratedPlan({
         ...response,
+        client_id: selectedClient.id,
+        client_name: selectedClient.full_name,
         duration: planConfig.duration,
         meal_pattern: planConfig.meal_pattern,
-        food_preference: userProfile.food_preference,
-        regional_preference: userProfile.regional_preference,
-        target_calories: userProfile.target_calories,
+        food_preference: selectedClient.food_preference,
+        regional_preference: selectedClient.regional_preference,
+        target_calories: selectedClient.target_calories,
       });
     } catch (error) {
       alert("Error generating meal plan. Please try again.");
@@ -127,10 +131,10 @@ Return the meal plan in a structured format with all days and meals.`;
   };
 
   const handleSavePlan = () => {
-    console.log("Saving plan...");
     if (!generatedPlan) return;
 
     savePlanMutation.mutate({
+      client_id: generatedPlan.client_id,
       name: generatedPlan.plan_name,
       duration: generatedPlan.duration,
       meal_pattern: generatedPlan.meal_pattern,
@@ -143,22 +147,22 @@ Return the meal plan in a structured format with all days and meals.`;
   };
 
   const handleGenerateNew = () => {
-    console.log("Generate New clicked - resetting to form");
     setGeneratedPlan(null);
     setGenerating(false);
   };
 
-  if (!userProfile) {
+  if (clients.length === 0) {
     return (
       <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-md border-none shadow-xl">
           <CardHeader>
-            <CardTitle>Complete Your Profile</CardTitle>
-            <CardDescription>Please set up your profile before generating meal plans</CardDescription>
+            <CardTitle>No Clients Yet</CardTitle>
+            <CardDescription>Add clients before generating meal plans</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full" onClick={() => window.location.href = '/profile'}>
-              Go to Profile
+            <Button className="w-full" onClick={() => window.location.href = '/client-management'}>
+              <Users className="w-4 h-4 mr-2" />
+              Add Your First Client
             </Button>
           </CardContent>
         </Card>
@@ -172,7 +176,7 @@ Return the meal plan in a structured format with all days and meals.`;
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Meal Planner</h1>
-            <p className="text-gray-600">Generate personalized Indian meal plans based on your profile</p>
+            <p className="text-gray-600">Generate personalized Indian meal plans for your clients</p>
           </div>
           <Calendar className="w-10 h-10 text-orange-500" />
         </div>
@@ -195,11 +199,74 @@ Return the meal plan in a structured format with all days and meals.`;
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-orange-500" />
-                    Configure Your Meal Plan
+                    Configure Meal Plan
                   </CardTitle>
-                  <CardDescription>Choose your preferences for the meal plan</CardDescription>
+                  <CardDescription>Select client and plan preferences</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Client Selector */}
+                  <div className="space-y-2">
+                    <Label htmlFor="client" className="text-base font-semibold flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      Select Client *
+                    </Label>
+                    <Select
+                      value={selectedClientId || ''}
+                      onValueChange={setSelectedClientId}
+                    >
+                      <SelectTrigger id="client" className="h-12">
+                        <SelectValue placeholder="Choose a client..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {clients.map((client) => (
+                          <SelectItem key={client.id} value={client.id}>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{client.full_name}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {client.food_preference}
+                              </Badge>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Show selected client profile */}
+                  {selectedClient && (
+                    <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
+                          <span className="text-white font-medium text-lg">
+                            {selectedClient.full_name.charAt(0)}
+                          </span>
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">{selectedClient.full_name}</h3>
+                          <p className="text-sm text-gray-600">{selectedClient.email}</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <span className="text-gray-600">Food:</span>
+                          <Badge className="ml-2 capitalize">{selectedClient.food_preference}</Badge>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Region:</span>
+                          <Badge className="ml-2 capitalize">{selectedClient.regional_preference}</Badge>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Target Calories:</span>
+                          <span className="ml-2 font-semibold">{selectedClient.target_calories} kcal</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Goal:</span>
+                          <Badge className="ml-2 capitalize">{selectedClient.goal?.replace('_', ' ')}</Badge>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="duration">Duration</Label>
@@ -235,39 +302,15 @@ Return the meal plan in a structured format with all days and meals.`;
                     </div>
                   </div>
 
-                  <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border border-orange-200">
-                    <h3 className="font-semibold text-gray-900 mb-3">Your Profile Summary</h3>
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div>
-                        <span className="text-gray-600">Food:</span>
-                        <Badge className="ml-2 capitalize">{userProfile.food_preference}</Badge>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Region:</span>
-                        <Badge className="ml-2 capitalize">{userProfile.regional_preference}</Badge>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Target Calories:</span>
-                        <span className="ml-2 font-semibold">{userProfile.target_calories} kcal</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Macros:</span>
-                        <span className="ml-2 font-semibold">
-                          P: {userProfile.target_protein}g | C: {userProfile.target_carbs}g | F: {userProfile.target_fats}g
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
                   <Button
                     onClick={generateMealPlan}
-                    disabled={generating}
+                    disabled={generating || !selectedClient}
                     className="w-full h-14 text-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg"
                   >
                     {generating ? (
                       <>
                         <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Generating Your Meal Plan...
+                        Generating Meal Plan...
                       </>
                     ) : (
                       <>
@@ -280,8 +323,8 @@ Return the meal plan in a structured format with all days and meals.`;
                   <Alert className="border-orange-200 bg-orange-50">
                     <Sparkles className="w-4 h-4 text-orange-600" />
                     <AlertDescription className="text-gray-700">
-                      Your meal plan will be generated based on your profile using AI. 
-                      It may take 10-20 seconds to create your personalized plan.
+                      The meal plan will be generated based on the selected client's profile using AI. 
+                      It may take 10-20 seconds to create the personalized plan.
                     </AlertDescription>
                   </Alert>
                 </CardContent>
@@ -307,36 +350,44 @@ Return the meal plan in a structured format with all days and meals.`;
                   </CardContent>
                 </Card>
               ) : (
-                mealPlans.map((plan) => (
-                  <Card key={plan.id} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-shadow">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <CardTitle className="text-2xl mb-2">{plan.name}</CardTitle>
-                          <div className="flex flex-wrap gap-2">
-                            <Badge className="bg-orange-100 text-orange-700">{plan.duration} Days</Badge>
-                            <Badge className="bg-blue-100 text-blue-700 capitalize">{plan.food_preference}</Badge>
-                            <Badge className="bg-green-100 text-green-700 capitalize">{plan.regional_preference}</Badge>
-                            {plan.active && <Badge className="bg-purple-100 text-purple-700">Active</Badge>}
+                mealPlans.map((plan) => {
+                  const planClient = clients.find(c => c.id === plan.client_id);
+                  return (
+                    <Card key={plan.id} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-shadow">
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <CardTitle className="text-2xl mb-2">{plan.name}</CardTitle>
+                            {planClient && (
+                              <p className="text-sm text-gray-600 mb-2">
+                                For: <span className="font-medium text-gray-900">{planClient.full_name}</span>
+                              </p>
+                            )}
+                            <div className="flex flex-wrap gap-2">
+                              <Badge className="bg-orange-100 text-orange-700">{plan.duration} Days</Badge>
+                              <Badge className="bg-blue-100 text-blue-700 capitalize">{plan.food_preference}</Badge>
+                              <Badge className="bg-green-100 text-green-700 capitalize">{plan.regional_preference}</Badge>
+                              {plan.active && <Badge className="bg-purple-100 text-purple-700">Active</Badge>}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-gray-600">Target</p>
+                            <p className="text-2xl font-bold text-orange-600">{plan.target_calories}</p>
+                            <p className="text-xs text-gray-500">kcal/day</p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-sm text-gray-600">Target</p>
-                          <p className="text-2xl font-bold text-orange-600">{plan.target_calories}</p>
-                          <p className="text-xs text-gray-500">kcal/day</p>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-gray-600 mb-4">
-                        {plan.meals?.length || 0} meals planned across {plan.duration} days
-                      </p>
-                      <Button variant="outline" className="w-full">
-                        View Details
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-600 mb-4">
+                          {plan.meals?.length || 0} meals planned across {plan.duration} days
+                        </p>
+                        <Button variant="outline" className="w-full">
+                          View Details
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })
               )}
             </div>
           </TabsContent>
