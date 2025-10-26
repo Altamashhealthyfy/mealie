@@ -16,6 +16,15 @@ export default function GeneratedMealPlan({ plan, onSave, onGenerateNew, isSavin
     groupedMeals[meal.day].push(meal);
   });
 
+  const handleGenerateNewClick = () => {
+    console.log("Generate New button clicked!");
+    if (onGenerateNew) {
+      onGenerateNew();
+    } else {
+      console.error("onGenerateNew function not provided!");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
@@ -44,9 +53,9 @@ export default function GeneratedMealPlan({ plan, onSave, onGenerateNew, isSavin
               {isSaving ? 'Saving...' : 'Save This Plan'}
             </Button>
             <Button
-              onClick={onGenerateNew}
+              onClick={handleGenerateNewClick}
               variant="outline"
-              className="flex-1"
+              className="flex-1 border-2 border-orange-500 text-orange-600 hover:bg-orange-50"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Generate New
