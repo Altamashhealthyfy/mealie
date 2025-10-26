@@ -14,7 +14,10 @@ import {
   MessageSquare,
   TrendingUp,
   ClipboardList,
-  LayoutDashboard
+  LayoutDashboard,
+  DollarSign,
+  Megaphone,
+  BookOpen
 } from "lucide-react";
 import {
   Sidebar,
@@ -67,6 +70,29 @@ const dietitianNavigation = [
     title: "Food Lookup",
     url: createPageUrl("FoodLookup"),
     icon: Search,
+  },
+];
+
+const businessNavigation = [
+  {
+    title: "Business Plan",
+    url: createPageUrl("BusinessPlan"),
+    icon: DollarSign,
+  },
+  {
+    title: "Marketing Hub",
+    url: createPageUrl("MarketingHub"),
+    icon: Megaphone,
+  },
+  {
+    title: "Payment Setup",
+    url: createPageUrl("PaymentSetup"),
+    icon: DollarSign,
+  },
+  {
+    title: "Documentation",
+    url: createPageUrl("Documentation"),
+    icon: BookOpen,
   },
 ];
 
@@ -186,6 +212,33 @@ export default function Layout({ children, currentPageName }) {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+
+            {isDietitian && (
+              <SidebarGroup>
+                <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
+                  Business Tools
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {businessNavigation.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton 
+                          asChild 
+                          className={`hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 rounded-xl mb-1 ${
+                            location.pathname === item.url ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 hover:text-white shadow-md' : ''
+                          }`}
+                        >
+                          <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
+                            <item.icon className="w-5 h-5" />
+                            <span className="font-medium">{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
           </SidebarContent>
 
           <SidebarFooter className="border-t border-orange-100 p-4">
