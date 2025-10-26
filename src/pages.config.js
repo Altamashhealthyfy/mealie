@@ -12,6 +12,7 @@ import PaymentSetup from './pages/PaymentSetup';
 import Appointments from './pages/Appointments';
 import Communication from './pages/Communication';
 import ClientCommunication from './pages/ClientCommunication';
+import Documentation from './pages/Documentation';
 import Layout from './Layout.jsx';
 
 
@@ -30,6 +31,7 @@ export const PAGES = {
     "Appointments": Appointments,
     "Communication": Communication,
     "ClientCommunication": ClientCommunication,
+    "Documentation": Documentation,
 }
 
 export const pagesConfig = {
