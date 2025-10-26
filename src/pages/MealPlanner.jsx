@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -130,18 +131,18 @@ Return the meal plan in a structured format with all days and meals.`;
     }
   };
 
-  const handleSavePlan = () => {
-    if (!generatedPlan) return;
+  const handleSavePlan = (editedPlan) => {
+    if (!editedPlan) return;
 
     savePlanMutation.mutate({
-      client_id: generatedPlan.client_id,
-      name: generatedPlan.plan_name,
-      duration: generatedPlan.duration,
-      meal_pattern: generatedPlan.meal_pattern,
-      target_calories: generatedPlan.target_calories,
-      meals: generatedPlan.meals,
-      food_preference: generatedPlan.food_preference,
-      regional_preference: generatedPlan.regional_preference,
+      client_id: editedPlan.client_id,
+      name: editedPlan.plan_name,
+      duration: editedPlan.duration,
+      meal_pattern: editedPlan.meal_pattern,
+      target_calories: editedPlan.target_calories,
+      meals: editedPlan.meals,
+      food_preference: editedPlan.food_preference,
+      regional_preference: editedPlan.regional_preference,
       active: true,
     });
   };
