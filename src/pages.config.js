@@ -13,6 +13,9 @@ import Appointments from './pages/Appointments';
 import Communication from './pages/Communication';
 import ClientCommunication from './pages/ClientCommunication';
 import Documentation from './pages/Documentation';
+import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
+import FoodLog from './pages/FoodLog';
+import ProgressTracking from './pages/ProgressTracking';
 import Layout from './Layout.jsx';
 
 
@@ -32,6 +35,9 @@ export const PAGES = {
     "Communication": Communication,
     "ClientCommunication": ClientCommunication,
     "Documentation": Documentation,
+    "MyAssignedMealPlan": MyAssignedMealPlan,
+    "FoodLog": FoodLog,
+    "ProgressTracking": ProgressTracking,
 }
 
 export const pagesConfig = {
