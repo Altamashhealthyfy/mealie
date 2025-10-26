@@ -190,7 +190,7 @@ Return the meal plan in a structured format with all days and meals.`;
           </TabsList>
 
           <TabsContent value="generate" className="space-y-6">
-            {!generatedPlan ? (
+            {generatedPlan === null ? (
               <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -202,13 +202,13 @@ Return the meal plan in a structured format with all days and meals.`;
                 <CardContent className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label>Duration</Label>
+                      <Label htmlFor="duration">Duration</Label>
                       <Select
                         value={planConfig.duration.toString()}
                         onValueChange={(value) => setPlanConfig({...planConfig, duration: parseInt(value)})}
                       >
-                        <SelectTrigger>
-                          <SelectValue />
+                        <SelectTrigger id="duration">
+                          <SelectValue placeholder="Select duration" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="10">10 Days</SelectItem>
@@ -219,13 +219,13 @@ Return the meal plan in a structured format with all days and meals.`;
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Meal Pattern</Label>
+                      <Label htmlFor="meal-pattern">Meal Pattern</Label>
                       <Select
                         value={planConfig.meal_pattern}
                         onValueChange={(value) => setPlanConfig({...planConfig, meal_pattern: value})}
                       >
-                        <SelectTrigger>
-                          <SelectValue />
+                        <SelectTrigger id="meal-pattern">
+                          <SelectValue placeholder="Select meal pattern" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="daily">Daily (Unique each day)</SelectItem>
@@ -235,7 +235,7 @@ Return the meal plan in a structured format with all days and meals.`;
                     </div>
                   </div>
 
-                  <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl">
+                  <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border border-orange-200">
                     <h3 className="font-semibold text-gray-900 mb-3">Your Profile Summary</h3>
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
