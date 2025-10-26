@@ -127,6 +127,7 @@ Return the meal plan in a structured format with all days and meals.`;
   };
 
   const handleSavePlan = () => {
+    console.log("Saving plan...");
     if (!generatedPlan) return;
 
     savePlanMutation.mutate({
@@ -142,7 +143,9 @@ Return the meal plan in a structured format with all days and meals.`;
   };
 
   const handleGenerateNew = () => {
+    console.log("Generate New clicked - resetting to form");
     setGeneratedPlan(null);
+    setGenerating(false);
   };
 
   if (!userProfile) {
