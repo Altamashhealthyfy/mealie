@@ -26,6 +26,7 @@ import TaskBoard from './pages/TaskBoard';
 import TeamDashboard from './pages/TeamDashboard';
 import ProjectManagement from './pages/ProjectManagement';
 import CallCenter from './pages/CallCenter';
+import CallCenterAdmin from './pages/CallCenterAdmin';
 import Layout from './Layout.jsx';
 
 
@@ -58,6 +59,7 @@ export const PAGES = {
     "TeamDashboard": TeamDashboard,
     "ProjectManagement": ProjectManagement,
     "CallCenter": CallCenter,
+    "CallCenterAdmin": CallCenterAdmin,
 }
 
 export const pagesConfig = {
