@@ -15,7 +15,10 @@ import {
   CheckCircle2,
   Download,
   AlertTriangle,
-  Info
+  Info,
+  Crown, // Added icon
+  GraduationCap, // Added icon
+  Building2 // Added icon
 } from "lucide-react";
 
 export default function Documentation() {
