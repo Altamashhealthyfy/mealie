@@ -58,8 +58,88 @@
         "weight_gain",
         "maintenance",
         "muscle_gain",
-        "health_improvement"
+        "health_improvement",
+        "disease_reversal"
       ]
+    },
+    "health_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "diabetes_type1",
+          "diabetes_type2",
+          "prediabetes",
+          "hypertension",
+          "pcos",
+          "thyroid_hypo",
+          "thyroid_hyper",
+          "fatty_liver",
+          "high_cholesterol",
+          "ibs",
+          "gerd",
+          "autoimmune",
+          "hormonal_imbalance",
+          "insulin_resistance",
+          "metabolic_syndrome",
+          "none"
+        ]
+      },
+      "description": "Diagnosed health conditions"
+    },
+    "current_medications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of current medications"
+    },
+    "lab_reports": {
+      "type": "object",
+      "description": "Latest lab test results",
+      "properties": {
+        "hba1c": {
+          "type": "number",
+          "description": "HbA1c level"
+        },
+        "fasting_glucose": {
+          "type": "number"
+        },
+        "pp_glucose": {
+          "type": "number",
+          "description": "Post-prandial glucose"
+        },
+        "total_cholesterol": {
+          "type": "number"
+        },
+        "ldl": {
+          "type": "number"
+        },
+        "hdl": {
+          "type": "number"
+        },
+        "triglycerides": {
+          "type": "number"
+        },
+        "tsh": {
+          "type": "number"
+        },
+        "vitamin_d": {
+          "type": "number"
+        },
+        "vitamin_b12": {
+          "type": "number"
+        },
+        "hemoglobin": {
+          "type": "number"
+        },
+        "sgot": {
+          "type": "number"
+        },
+        "sgpt": {
+          "type": "number"
+        }
+      }
     },
     "food_preference": {
       "type": "string",
@@ -117,6 +197,51 @@
     },
     "target_fats": {
       "type": "number"
+    },
+    "plan_tier_eligible": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "advanced"
+      ],
+      "default": "basic",
+      "description": "Which tier of plan they're eligible for"
+    },
+    "mpess_assessment": {
+      "type": "object",
+      "description": "Initial MPESS wellness assessment",
+      "properties": {
+        "mind_score": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "physical_score": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "emotional_score": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "social_score": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "spiritual_score": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10
+        },
+        "overall_wellness": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10
+        }
+      }
     },
     "status": {
       "type": "string",

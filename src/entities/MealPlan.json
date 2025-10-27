@@ -2,9 +2,41 @@
   "name": "MealPlan",
   "type": "object",
   "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client this plan is for"
+    },
     "name": {
       "type": "string",
       "description": "Name of the meal plan"
+    },
+    "plan_tier": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "advanced"
+      ],
+      "default": "basic",
+      "description": "Basic (RDA/Calorie-based) or Advanced (Disease Reversal)"
+    },
+    "disease_focus": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "diabetes_reversal",
+          "hypertension_control",
+          "pcos_management",
+          "thyroid_balance",
+          "fatty_liver_reversal",
+          "cholesterol_management",
+          "gut_health",
+          "hormonal_balance",
+          "autoimmune_support",
+          "general_wellness"
+        ]
+      },
+      "description": "For advanced plans - specific disease focus areas"
     },
     "duration": {
       "type": "number",
@@ -62,6 +94,10 @@
           },
           "nutritional_tip": {
             "type": "string"
+          },
+          "mpess_benefit": {
+            "type": "string",
+            "description": "How this meal supports Mind/Physical/Emotional/Social/Spiritual wellness"
           }
         }
       }
@@ -84,6 +120,86 @@
         "east",
         "all"
       ]
+    },
+    "mpess_integration": {
+      "type": "object",
+      "description": "MPESS wellness guidance with the meal plan",
+      "properties": {
+        "mind_practices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Daily mind wellness practices"
+        },
+        "physical_practices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Daily physical wellness practices"
+        },
+        "emotional_practices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Daily emotional wellness practices"
+        },
+        "social_practices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Daily social wellness practices"
+        },
+        "spiritual_practices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Daily spiritual wellness practices"
+        }
+      }
+    },
+    "advanced_protocols": {
+      "type": "object",
+      "description": "For advanced disease reversal plans",
+      "properties": {
+        "fasting_protocol": {
+          "type": "string"
+        },
+        "supplement_guidance": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "lifestyle_modifications": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "monitoring_parameters": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "expected_outcomes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "precautions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
     },
     "active": {
       "type": "boolean",
