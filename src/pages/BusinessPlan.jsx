@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -44,12 +43,6 @@ const MODULES = [
       "How do you want to deliver (1:1, group, WhatsApp)?",
       "Who would be your dream client?"
     ],
-    outputs: [
-      "1-line niche",
-      "Client avatar (pain, goals, blocks)",
-      "Insta bio (3 options)",
-      "About me paragraph"
-    ],
     prompt: (answers) => `You are a professional AI assistant for health coaches inside Healthyfy Institute.
 
 Based on the following information about a health coach:
@@ -86,11 +79,6 @@ Format with clear section headers and make it specific to the Indian health coac
       "Launch price?",
       "Weekly delivery structure?"
     ],
-    outputs: [
-      "Signature offer layout",
-      "MPESS-based transformation structure",
-      "Value stack + bonus stack"
-    ],
     diamondSeed: "High-ticket signature offers using disease reversal are taught step-by-step in our Diamond Masterclass. Join the Diamond Showcase (check app banner) or contact 8826416947.",
     prompt: (answers) => `You are a professional AI assistant for health coaches inside Healthyfy Institute.
 
@@ -100,17 +88,8 @@ ${answers.map((a, i) => `${i + 1}. ${MODULES[1].questions[i]}\nAnswer: ${a}`).jo
 
 Generate:
 1. A complete signature offer layout with program name, structure, and deliverables
-2. MPESS-based transformation structure showing how each pillar addresses:
-   - Mind wellness
-   - Physical health
-   - Emotional balance
-   - Social connections
-   - Spiritual growth
-3. Value stack breakdown showing:
-   - Each component with its value
-   - Total value
-   - Actual launch price
-   - Savings percentage
+2. MPESS-based transformation structure showing how each pillar addresses Mind/Physical/Emotional/Social/Spiritual wellness
+3. Value stack breakdown showing each component with its value, total value, actual launch price, and savings percentage
 4. Bonus stack that complements the main offer
 
 Make it compelling for the Indian health coaching market with MPESS integration.`
@@ -126,9 +105,6 @@ Make it compelling for the Indian health coaching market with MPESS integration.
       "Features in each level?",
       "Price per level?"
     ],
-    outputs: [
-      "Membership table: Level | Duration | Features | Price"
-    ],
     diamondSeed: "Want to learn the freedom model of group sales and coaching? Join the Diamond Showcase (check app banner) or contact 8826416947.",
     prompt: (answers) => `You are a professional AI assistant for health coaches inside Healthyfy Institute.
 
@@ -136,14 +112,7 @@ Based on these membership preferences:
 
 ${answers.map((a, i) => `${i + 1}. ${MODULES[2].questions[i]}\nAnswer: ${a}`).join('\n\n')}
 
-Create a professional membership table with:
-- Level names (Silver/Gold/Diamond or custom)
-- Duration for each level
-- Detailed features comparison
-- Pricing for each tier
-- Value proposition for upgrading
-
-Format as a clear table and add recommendations for which clients suit which tier.`
+Create a professional membership table with level names, duration, detailed features comparison, pricing, and value proposition for upgrading.`
   },
   {
     id: 4,
@@ -153,31 +122,18 @@ Format as a clear table and add recommendations for which clients suit which tie
     questions: [
       "What's the main pain/problem you solve?"
     ],
-    outputs: [
-      "100 pain points across Physical / Emotional / Lifestyle / Belief / Nutrition"
-    ],
     prompt: (answers) => `You are a professional AI assistant for health coaches inside Healthyfy Institute.
 
 Main problem solved: ${answers[0]}
 
 Generate exactly 100 pain points that your ideal clients experience, categorized as:
+- PHYSICAL (20 pain points)
+- EMOTIONAL (20 pain points)
+- LIFESTYLE (20 pain points)
+- BELIEF (20 pain points)
+- NUTRITION (20 pain points)
 
-PHYSICAL (20 pain points):
-- Specific physical symptoms and conditions
-
-EMOTIONAL (20 pain points):
-- Emotional struggles and feelings
-
-LIFESTYLE (20 pain points):
-- Daily life challenges and habits
-
-BELIEF (20 pain points):
-- Mental blocks and limiting beliefs
-
-NUTRITION (20 pain points):
-- Food and eating related struggles
-
-Make them specific, relatable to Indian context, and written in the client's voice ("I can't...", "I struggle with...", etc.)`
+Make them specific, relatable to Indian context, and written in the client's voice.`
   },
   {
     id: 5,
@@ -189,11 +145,6 @@ Make them specific, relatable to Indian context, and written in the client's voi
       "What type of content? (Reels, carousel, stories)",
       "Do you want captions, hooks, CTAs?"
     ],
-    outputs: [
-      "30-day post plan",
-      "3 reel scripts",
-      "Hashtags + CTAs"
-    ],
     diamondSeed: "Want to learn advance AI Tools and viral reel scripts? Included in Diamond. Check app banner or contact 8826416947.",
     prompt: (answers) => `You are a professional AI assistant for health coaches inside Healthyfy Institute.
 
@@ -201,22 +152,7 @@ Platform: ${answers[0]}
 Content type: ${answers[1]}
 Include captions/hooks: ${answers[2]}
 
-Create a complete 30-day social media content calendar including:
-
-For each day (Day 1-30):
-- Post type (Educational/Engagement/Promotional/Behind-the-scenes)
-- Content idea
-- Caption hook (first line)
-- Full caption (if requested)
-- CTA
-- Relevant hashtags
-
-Also provide:
-- 3 complete reel scripts with hooks, body, and CTAs
-- A mix of content types throughout the month
-- Strategic promotional posts (not too many)
-
-Make it specific to Indian health coaching audience and their niche.`
+Create a complete 30-day social media content calendar with daily post ideas, 3 complete reel scripts, hashtags and CTAs. Make it specific to Indian health coaching audience.`
   },
   {
     id: 6,
@@ -224,9 +160,6 @@ Make it specific to Indian health coaching audience and their niche.`
     icon: Download,
     color: "from-indigo-500 to-purple-500",
     questions: [],
-    outputs: [
-      "Complete strategy summary ready for export"
-    ],
     diamondSeed: "Want expert audit? Join our Diamond Circle. Check app banner or contact 8826416947."
   },
   {
@@ -241,12 +174,6 @@ Make it specific to Indian health coaching audience and their niche.`
       "What's your CTA?",
       "Do you want your clarity call script? (Yes/No)"
     ],
-    outputs: [
-      "Funnel flow",
-      "Google Form copy",
-      "WhatsApp follow-up message",
-      "CONNECT clarity call script (if yes)"
-    ],
     prompt: (answers) => `You are a professional AI assistant for health coaches inside Healthyfy Institute.
 
 Lead magnet: ${answers[0]}
@@ -256,34 +183,10 @@ CTA: ${answers[3]}
 Call script needed: ${answers[4]}
 
 Generate:
-
-1. FUNNEL FLOW:
-   - Traffic source → Lead magnet → Follow-up → Sale
-   - Clear step-by-step journey
-
-2. GOOGLE FORM COPY:
-   - Form title
-   - Welcome message
-   - 5-7 qualifying questions
-   - Thank you message
-
-3. WHATSAPP FOLLOW-UP SEQUENCE:
-   - Message 1 (immediate): Thank you + deliver lead magnet
-   - Message 2 (Day 2): Value-add tip
-   - Message 3 (Day 4): Social proof
-   - Message 4 (Day 7): Call invitation
-
-${answers[4]?.toLowerCase().includes('yes') ? `
-4. CONNECT CLARITY CALL SCRIPT:
-   - Connect: Rapport building opening
-   - Observe: Questions to understand situation
-   - Name pain: Identify and articulate their struggle
-   - Narrate: Share transformation possibility
-   - Explain: Present your solution
-   - Close: Ask for commitment
-   - Thank: Graceful follow-up
-
-Format as a conversational script with specific phrases.` : ''}
+1. FUNNEL FLOW with clear step-by-step journey
+2. GOOGLE FORM COPY with title, welcome message, qualifying questions, thank you message
+3. WHATSAPP FOLLOW-UP SEQUENCE with 4 messages over 7 days
+${answers[4]?.toLowerCase().includes('yes') ? '4. CONNECT CLARITY CALL SCRIPT with all 7 steps' : ''}
 
 Make it specific to Indian health coaching context.`
   }
@@ -403,16 +306,19 @@ export default function AILaunchpad() {
   };
 
   const exportStrategy = () => {
-    let exportText = "🚀 YOUR COMPLETE BUSINESS STRATEGY\n";
+    const separator = "=".repeat(60);
+    const dash = "-".repeat(60);
+    
+    let exportText = "YOUR COMPLETE BUSINESS STRATEGY\n";
     exportText += "Generated by Mealie Pro AI Launchpad\n";
-    exportText += "=".repeat(60) + "\n\n";
+    exportText += separator + "\n\n";
 
     MODULES.forEach((mod, i) => {
       if (allOutputs[i]) {
-        exportText += `MODULE ${mod.id}: ${mod.title.toUpperCase()}\n`;
-        exportText += "-".repeat(60) + "\n\n";
+        exportText += "MODULE " + mod.id + ": " + mod.title.toUpperCase() + "\n";
+        exportText += dash + "\n\n";
         exportText += allOutputs[i] + "\n\n";
-        exportText += "=".repeat(60) + "\n\n";
+        exportText += separator + "\n\n";
       }
     });
 
@@ -428,10 +334,10 @@ export default function AILaunchpad() {
   };
 
   const copyAllOutputs = () => {
-    let copyText = "🚀 YOUR COMPLETE BUSINESS STRATEGY\n\n";
+    let copyText = "YOUR COMPLETE BUSINESS STRATEGY\n\n";
     MODULES.forEach((mod, i) => {
       if (allOutputs[i]) {
-        copyText += `MODULE ${mod.id}: ${mod.title.toUpperCase()}\n\n`;
+        copyText += "MODULE " + mod.id + ": " + mod.title.toUpperCase() + "\n\n";
         copyText += allOutputs[i] + "\n\n";
         copyText += "---\n\n";
       }
@@ -445,7 +351,6 @@ export default function AILaunchpad() {
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-5xl mx-auto space-y-8">
-        {/* Header */}
         <div className="text-center space-y-4">
           <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-lg px-6 py-2">
             <Rocket className="w-5 h-5 mr-2 inline" />
@@ -459,7 +364,6 @@ export default function AILaunchpad() {
           </p>
         </div>
 
-        {/* Progress */}
         <Card className="border-none shadow-xl">
           <CardContent className="p-6">
             <div className="space-y-2">
@@ -472,7 +376,6 @@ export default function AILaunchpad() {
           </CardContent>
         </Card>
 
-        {/* Module Content */}
         <Card className="border-none shadow-2xl">
           <CardHeader className={`bg-gradient-to-r ${module.color} text-white`}>
             <div className="flex items-center gap-4">
@@ -488,12 +391,11 @@ export default function AILaunchpad() {
 
           <CardContent className="p-8 space-y-6">
             {module.id === 6 ? (
-              // Strategy Export Module
               <div className="space-y-6">
                 <Alert className="border-green-500 bg-green-50">
                   <CheckCircle2 className="w-5 h-5 text-green-600" />
                   <AlertDescription className="text-lg">
-                    <strong>Congratulations!</strong> You've completed 5 core modules. Your strategy is ready to export.
+                    <strong>Congratulations!</strong> You have completed 5 core modules. Your strategy is ready to export.
                   </AlertDescription>
                 </Alert>
 
@@ -552,13 +454,12 @@ export default function AILaunchpad() {
                   <Alert className="border-purple-500 bg-purple-50">
                     <Crown className="w-5 h-5 text-purple-600" />
                     <AlertDescription>
-                      <strong>💎 Diamond Seed:</strong> {module.diamondSeed}
+                      <strong>Diamond Seed:</strong> {module.diamondSeed}
                     </AlertDescription>
                   </Alert>
                 )}
               </div>
             ) : module.questions.length > 0 ? (
-              // Question-based modules
               <div className="space-y-6">
                 <div className="p-4 bg-blue-50 rounded-lg">
                   <p className="text-sm text-blue-600 mb-1">Question {currentQuestion + 1} of {module.questions.length}</p>
@@ -631,7 +532,7 @@ export default function AILaunchpad() {
                       <Alert className="border-purple-500 bg-purple-50">
                         <Crown className="w-5 h-5 text-purple-600" />
                         <AlertDescription>
-                          <strong>💎 Diamond Seed:</strong> {module.diamondSeed}
+                          <strong>Diamond Seed:</strong> {module.diamondSeed}
                         </AlertDescription>
                       </Alert>
                     )}
@@ -642,7 +543,6 @@ export default function AILaunchpad() {
           </CardContent>
         </Card>
 
-        {/* Navigation */}
         <div className="flex gap-3">
           <Button
             variant="outline"
