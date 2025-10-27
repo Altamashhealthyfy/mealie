@@ -1,0 +1,86 @@
+{
+  "name": "PaymentRecord",
+  "type": "object",
+  "properties": {
+    "lead_id": {
+      "type": "string",
+      "description": "ID of the lead/client who paid"
+    },
+    "customer_name": {
+      "type": "string"
+    },
+    "customer_email": {
+      "type": "string"
+    },
+    "customer_phone": {
+      "type": "string"
+    },
+    "payment_type": {
+      "type": "string",
+      "enum": [
+        "low_ticket",
+        "high_ticket",
+        "subscription",
+        "upsell",
+        "other"
+      ],
+      "description": "Type of payment"
+    },
+    "product_name": {
+      "type": "string",
+      "description": "What did they buy"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Payment amount"
+    },
+    "currency": {
+      "type": "string",
+      "default": "INR"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "razorpay",
+        "stripe",
+        "bank_transfer",
+        "upi",
+        "cash",
+        "other"
+      ]
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed",
+        "failed",
+        "refunded"
+      ],
+      "default": "completed"
+    },
+    "transaction_id": {
+      "type": "string"
+    },
+    "payment_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "invoice_number": {
+      "type": "string"
+    },
+    "assigned_sales_person": {
+      "type": "string",
+      "description": "Who closed this sale"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "customer_name",
+    "amount",
+    "payment_type",
+    "payment_date"
+  ]
+}

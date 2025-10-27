@@ -1,0 +1,90 @@
+{
+  "name": "CallLog",
+  "type": "object",
+  "properties": {
+    "lead_id": {
+      "type": "string",
+      "description": "ID of the lead called"
+    },
+    "lead_name": {
+      "type": "string"
+    },
+    "lead_phone": {
+      "type": "string"
+    },
+    "agent_email": {
+      "type": "string",
+      "description": "Who made the call"
+    },
+    "call_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "call_duration": {
+      "type": "number",
+      "description": "Duration in seconds"
+    },
+    "call_type": {
+      "type": "string",
+      "enum": [
+        "cold_call",
+        "follow_up",
+        "webinar_followup",
+        "low_ticket_pitch",
+        "high_ticket_pitch",
+        "callback",
+        "other"
+      ],
+      "description": "Type of call"
+    },
+    "call_outcome": {
+      "type": "string",
+      "enum": [
+        "interested",
+        "not_interested",
+        "callback_later",
+        "voicemail",
+        "wrong_number",
+        "dnd",
+        "converted"
+      ],
+      "description": "What happened"
+    },
+    "next_action": {
+      "type": "string",
+      "enum": [
+        "follow_up",
+        "send_info",
+        "schedule_meeting",
+        "close_sale",
+        "mark_dnd",
+        "no_action"
+      ],
+      "description": "What to do next"
+    },
+    "callback_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When to call back"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Call notes"
+    },
+    "script_used": {
+      "type": "string",
+      "description": "Which script was used"
+    },
+    "recording_url": {
+      "type": "string",
+      "description": "Call recording link if available"
+    }
+  },
+  "required": [
+    "lead_id",
+    "lead_name",
+    "lead_phone",
+    "agent_email",
+    "call_outcome"
+  ]
+}

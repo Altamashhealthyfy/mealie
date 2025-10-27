@@ -1,0 +1,65 @@
+{
+  "name": "WebinarRegistration",
+  "type": "object",
+  "properties": {
+    "lead_id": {
+      "type": "string",
+      "description": "ID of the lead who registered"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "webinar_title": {
+      "type": "string",
+      "description": "Which webinar they registered for"
+    },
+    "webinar_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "registration_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "attendance_status": {
+      "type": "string",
+      "enum": [
+        "registered",
+        "attended",
+        "no_show",
+        "watched_replay"
+      ],
+      "default": "registered"
+    },
+    "watch_duration": {
+      "type": "number",
+      "description": "Minutes watched"
+    },
+    "follow_up_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "called",
+        "converted",
+        "not_interested"
+      ],
+      "default": "pending"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "full_name",
+    "email",
+    "phone",
+    "webinar_title",
+    "webinar_date"
+  ]
+}

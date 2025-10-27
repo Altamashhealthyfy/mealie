@@ -1,0 +1,68 @@
+{
+  "name": "TeamMember",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "sales",
+        "marketing",
+        "support",
+        "trainer",
+        "caller",
+        "manager",
+        "admin"
+      ],
+      "description": "Team member role"
+    },
+    "joining_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "on_leave"
+      ],
+      "default": "active"
+    },
+    "daily_call_target": {
+      "type": "number",
+      "description": "Number of calls to make per day"
+    },
+    "monthly_sales_target": {
+      "type": "number",
+      "description": "Sales target amount"
+    },
+    "performance_rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "full_name",
+    "email",
+    "role"
+  ]
+}

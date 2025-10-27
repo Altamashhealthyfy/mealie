@@ -1,0 +1,105 @@
+{
+  "name": "Lead",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Lead's full name"
+    },
+    "email": {
+      "type": "string",
+      "description": "Lead's email"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Lead's phone number"
+    },
+    "lead_source": {
+      "type": "string",
+      "enum": [
+        "facebook_ad",
+        "instagram_ad",
+        "google_ad",
+        "linkedin",
+        "referral",
+        "organic",
+        "webinar",
+        "other"
+      ],
+      "description": "Where did lead come from"
+    },
+    "lead_status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "contacted",
+        "qualified",
+        "interested",
+        "not_interested",
+        "dnd"
+      ],
+      "default": "new",
+      "description": "Current lead status"
+    },
+    "pipeline_stage": {
+      "type": "string",
+      "enum": [
+        "lead",
+        "webinar_registered",
+        "webinar_attended",
+        "low_ticket_buyer",
+        "student",
+        "high_ticket_prospect",
+        "high_ticket_client"
+      ],
+      "default": "lead",
+      "description": "Current stage in sales pipeline"
+    },
+    "lead_score": {
+      "type": "string",
+      "enum": [
+        "hot",
+        "warm",
+        "cold"
+      ],
+      "default": "warm",
+      "description": "Lead temperature"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Email of team member assigned to this lead"
+    },
+    "last_contacted": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When was lead last contacted"
+    },
+    "next_follow_up": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When to follow up next"
+    },
+    "ad_campaign": {
+      "type": "string",
+      "description": "Which ad campaign did they come from"
+    },
+    "city": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string",
+      "description": "All notes about this lead"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for categorization"
+    }
+  },
+  "required": [
+    "full_name",
+    "phone"
+  ]
+}
