@@ -6,16 +6,21 @@
       "type": "string",
       "enum": [
         "super_admin",
-        "team_admin",
+        "team_member",
         "student_coach",
+        "student_team_member",
         "client"
       ],
       "default": "client",
-      "description": "Type of user - super_admin (owner), team_admin (team member), student_coach (health coaches), client"
+      "description": "super_admin = Platform owner, team_member = Owner's team, student_coach = Independent health coach, student_team_member = Student's team, client = End user"
+    },
+    "parent_coach_id": {
+      "type": "string",
+      "description": "For student_team_member - ID of the student_coach they work for. For team_member - ID of super_admin"
     },
     "business_name": {
       "type": "string",
-      "description": "Business name for student coaches"
+      "description": "Business name for student coaches and super admin"
     },
     "whitelabel_enabled": {
       "type": "boolean",

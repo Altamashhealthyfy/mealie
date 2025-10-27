@@ -19,7 +19,8 @@ import {
   Megaphone,
   BookOpen,
   Utensils,
-  Scale
+  Scale,
+  UserPlus
 } from "lucide-react";
 import {
   Sidebar,
@@ -77,21 +78,27 @@ const dietitianNavigation = [
 
 const businessNavigation = [
   {
+    title: "My Team",
+    url: createPageUrl("TeamManagement"),
+    icon: UserPlus,
+    roles: ['super_admin', 'student_coach'], // Only admins and student coaches can manage team
+  },
+  {
     title: "Marketing Hub",
     url: createPageUrl("MarketingHub"),
     icon: Megaphone,
-    roles: ['super_admin', 'team_admin', 'student_coach'], // All coaches can see
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'], // All coaches
   },
   {
     title: "Payment Setup",
     url: createPageUrl("PaymentSetup"),
     icon: DollarSign,
-    roles: ['super_admin', 'team_admin', 'student_coach'], // All coaches can see
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'], // All coaches
   },
   {
     title: "Business Plan",
     url: createPageUrl("BusinessPlan"),
-    icon: DollarSign,
+    icon: TrendingUp,
     roles: ['super_admin'], // Only super admin
   },
   {
@@ -155,7 +162,7 @@ export default function Layout({ children, currentPageName }) {
   });
 
   const isDietitian = user?.role === 'admin';
-  const userType = user?.user_type || (isDietitian ? 'team_admin' : 'client');
+  const userType = user?.user_type || (isDietitian ? 'team_member' : 'client');
   
   // Filter business navigation based on user type
   const filteredBusinessNav = businessNavigation.filter(item => 
@@ -164,12 +171,38 @@ export default function Layout({ children, currentPageName }) {
 
   const navigationItems = isDietitian ? dietitianNavigation : clientNavigation;
 
-  // Get user label
+  // Get user label with proper hierarchy
   const getUserLabel = () => {
     if (!isDietitian) return 'Client Account';
-    if (userType === 'super_admin') return '👑 Super Admin';
-    if (userType === 'student_coach') return '🎓 Health Coach';
-    return '👥 Team Member';
+    
+    switch(userType) {
+      case 'super_admin':
+        return '👑 Platform Owner';
+      case 'team_member':
+        return '👥 Team Member';
+      case 'student_coach':
+        return '🎓 Health Coach';
+      case 'student_team_member':
+        return '👥 Coach Team';
+      default:
+        return '👥 Team Member';
+    }
+  };
+
+  // Get user badge color
+  const getUserBadgeColor = () => {
+    switch(userType) {
+      case 'super_admin':
+        return 'bg-purple-600 text-white';
+      case 'student_coach':
+        return 'bg-green-600 text-white';
+      case 'team_member':
+        return 'bg-blue-600 text-white';
+      case 'student_team_member':
+        return 'bg-cyan-600 text-white';
+      default:
+        return 'bg-gray-600 text-white';
+    }
   };
 
   return (
@@ -270,9 +303,9 @@ export default function Layout({ children, currentPageName }) {
                 <p className="font-medium text-gray-900 text-sm truncate">
                   {user?.full_name || 'User'}
                 </p>
-                <p className="text-xs text-gray-500 truncate">
+                <Badge className={`${getUserBadgeColor()} text-xs`}>
                   {getUserLabel()}
-                </p>
+                </Badge>
               </div>
             </div>
           </SidebarFooter>
