@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -22,7 +23,8 @@ import {
   Scale,
   UserPlus,
   Sparkles,
-  Rocket
+  Rocket,
+  Target // Added Target icon
 } from "lucide-react";
 import {
   Sidebar,
@@ -80,6 +82,12 @@ const dietitianNavigation = [
 
 const businessNavigation = [
   {
+    title: "Business Hub",
+    url: createPageUrl("BusinessHub"),
+    icon: Rocket,
+    roles: ['super_admin', 'team_member'],
+  },
+  {
     title: "My Team",
     url: createPageUrl("TeamManagement"),
     icon: UserPlus,
@@ -104,9 +112,9 @@ const businessNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
-    title: "AI Launchpad",
+    title: "Business Plan",
     url: createPageUrl("BusinessPlan"),
-    icon: Rocket,
+    icon: Target,
     roles: ['super_admin'],
   },
   {
