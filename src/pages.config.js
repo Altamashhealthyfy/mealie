@@ -19,6 +19,9 @@ import ProgressTracking from './pages/ProgressTracking';
 import TeamManagement from './pages/TeamManagement';
 import BusinessGPTs from './pages/BusinessGPTs';
 import BusinessHub from './pages/BusinessHub';
+import LeadsPipeline from './pages/LeadsPipeline';
+import WebinarManagement from './pages/WebinarManagement';
+import PaymentTracking from './pages/PaymentTracking';
 import Layout from './Layout.jsx';
 
 
@@ -44,6 +47,9 @@ export const PAGES = {
     "TeamManagement": TeamManagement,
     "BusinessGPTs": BusinessGPTs,
     "BusinessHub": BusinessHub,
+    "LeadsPipeline": LeadsPipeline,
+    "WebinarManagement": WebinarManagement,
+    "PaymentTracking": PaymentTracking,
 }
 
 export const pagesConfig = {
