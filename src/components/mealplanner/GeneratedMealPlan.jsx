@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,12 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Calendar, Save, RefreshCw, ChefHat, Lightbulb, Edit, Check, X } from "lucide-react";
+import { Calendar, Save, RefreshCw, ChefHat, Lightbulb, Edit, Check, X, Download, Copy, FileText, Printer } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function GeneratedMealPlan({ plan, onSave, onGenerateNew, isSaving }) {
   const [editablePlan, setEditablePlan] = useState(plan);
   const [editingMeal, setEditingMeal] = useState(null);
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [copiedText, setCopiedText] = useState(false);
 
   const mealTypes = ["Early Morning", "Breakfast", "Mid-Morning", "Lunch", "Evening Snack", "Dinner"];
 
@@ -50,12 +52,74 @@ export default function GeneratedMealPlan({ plan, onSave, onGenerateNew, isSavin
     setEditingMeal({...editingMeal, portion_sizes: portions});
   };
 
+  // Export functions
+  const generateTextFormat = () => {
+    let text = `${editablePlan.plan_name}\n`;
+    text += `Client: ${editablePlan.client_name}\n`;
+    text += `Duration: ${editablePlan.duration} Days\n`;
+    text += `Target: ${editablePlan.target_calories} kcal/day\n`;
+    text += `Food Preference: ${editablePlan.food_preference}\n`;
+    text += `Regional: ${editablePlan.regional_preference || 'N/A'}\n\n`;
+    text += `${'='.repeat(60)}\n\n`;
+
+    Object.keys(groupedMeals).sort((a, b) => parseInt(a) - parseInt(b)).forEach(day => {
+      text += `DAY ${day}\n`;
+      text += `${'-'.repeat(60)}\n\n`;
+      
+      groupedMeals[day]
+        .sort((a, b) => mealTypes.indexOf(a.meal_type) - mealTypes.indexOf(b.meal_type))
+        .forEach(meal => {
+          text += `${meal.meal_type.toUpperCase()}: ${meal.meal_name}\n`;
+          text += `Calories: ${meal.calories} | Protein: ${meal.protein}g | Carbs: ${meal.carbs}g | Fats: ${meal.fats}g\n\n`;
+          
+          text += `Food Items:\n`;
+          meal.items?.forEach((item, i) => {
+            text += `  • ${item} - ${meal.portion_sizes?.[i] || 'As needed'}\n`;
+          });
+          
+          if (meal.nutritional_tip) {
+            text += `\n💡 Tip: ${meal.nutritional_tip}\n`;
+          }
+          
+          text += `\n`;
+        });
+      
+      text += `\n`;
+    });
+
+    return text;
+  };
+
+  const copyToClipboard = () => {
+    const text = generateTextFormat();
+    navigator.clipboard.writeText(text);
+    setCopiedText(true);
+    setTimeout(() => setCopiedText(false), 2000);
+  };
+
+  const downloadAsText = () => {
+    const text = generateTextFormat();
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${editablePlan.plan_name.replace(/\s+/g, '_')}_${editablePlan.client_name.replace(/\s+/g, '_')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const printPlan = () => {
+    window.print();
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Actions */}
-      <Card className="border-none shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
+      <Card className="border-none shadow-lg bg-gradient-to-br from-green-50 to-emerald-50 print:shadow-none">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <CardTitle className="text-3xl mb-2">{editablePlan.plan_name}</CardTitle>
               <div className="flex flex-wrap gap-2">
@@ -65,33 +129,79 @@ export default function GeneratedMealPlan({ plan, onSave, onGenerateNew, isSavin
                 <Badge className="bg-purple-500 text-white">{editablePlan.target_calories} kcal/day</Badge>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 print:hidden">
               <Button
                 variant="outline"
-                onClick={onGenerateNew}
-                className="border-orange-500 text-orange-600 hover:bg-orange-50"
+                onClick={copyToClipboard}
+                className="border-green-500 text-green-600 hover:bg-green-50"
               >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Generate New
+                {copiedText ? (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy Text
+                  </>
+                )}
               </Button>
               <Button
-                onClick={handleSavePlan}
-                disabled={isSaving}
-                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                variant="outline"
+                onClick={downloadAsText}
+                className="border-blue-500 text-blue-600 hover:bg-blue-50"
               >
-                <Save className="w-4 h-4 mr-2" />
-                {isSaving ? 'Saving...' : 'Save This Plan'}
+                <Download className="w-4 h-4 mr-2" />
+                Download .txt
+              </Button>
+              <Button
+                variant="outline"
+                onClick={printPlan}
+                className="border-purple-500 text-purple-600 hover:bg-purple-50"
+              >
+                <Printer className="w-4 h-4 mr-2" />
+                Print PDF
               </Button>
             </div>
           </div>
         </CardHeader>
       </Card>
 
+      <Alert className="border-green-500 bg-green-50 print:hidden">
+        <FileText className="w-4 h-4 text-green-600" />
+        <AlertDescription className="text-gray-800">
+          <strong>📋 Export Options:</strong> Copy the text to paste in WhatsApp/Email, download as .txt file to edit further, or print to PDF for professional sharing with clients.
+        </AlertDescription>
+      </Alert>
+
+      {/* Action Buttons */}
+      <div className="flex gap-2 print:hidden">
+        <Button
+          variant="outline"
+          onClick={onGenerateNew}
+          className="border-orange-500 text-orange-600 hover:bg-orange-50"
+        >
+          <RefreshCw className="w-4 h-4 mr-2" />
+          Generate New
+        </Button>
+        {onSave && (
+          <Button
+            onClick={handleSavePlan}
+            disabled={isSaving}
+            className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+          >
+            <Save className="w-4 h-4 mr-2" />
+            {isSaving ? 'Saving...' : 'Save to Client Account'}
+          </Button>
+        )}
+      </div>
+
       {/* Meal Plan Tabs */}
-      <Tabs defaultValue="day-1" className="space-y-4">
+      <Tabs defaultValue="day-1" className="space-y-4 print:hidden">
         <div className="bg-white/80 backdrop-blur rounded-xl p-2 shadow-lg overflow-x-auto">
           <TabsList className="flex flex-nowrap">
-            {Object.keys(groupedMeals).sort((a, b) => a - b).map(day => (
+            {Object.keys(groupedMeals).sort((a, b) => parseInt(a) - parseInt(b)).map(day => (
               <TabsTrigger 
                 key={day} 
                 value={`day-${day}`}
@@ -103,7 +213,7 @@ export default function GeneratedMealPlan({ plan, onSave, onGenerateNew, isSavin
           </TabsList>
         </div>
 
-        {Object.keys(groupedMeals).sort((a, b) => a - b).map(day => (
+        {Object.keys(groupedMeals).sort((a, b) => parseInt(a) - parseInt(b)).map(day => (
           <TabsContent key={day} value={`day-${day}`} className="space-y-4">
             {groupedMeals[day]
               .sort((a, b) => mealTypes.indexOf(a.meal_type) - mealTypes.indexOf(b.meal_type))
@@ -181,6 +291,42 @@ export default function GeneratedMealPlan({ plan, onSave, onGenerateNew, isSavin
           </TabsContent>
         ))}
       </Tabs>
+
+      {/* Printable version */}
+      <div className="hidden print:block">
+        <h1 className="text-3xl font-bold mb-4">{editablePlan.plan_name}</h1>
+        <div className="mb-6">
+          <p><strong>Client:</strong> {editablePlan.client_name}</p>
+          <p><strong>Duration:</strong> {editablePlan.duration} Days</p>
+          <p><strong>Target:</strong> {editablePlan.target_calories} kcal/day</p>
+          <p><strong>Food Preference:</strong> {editablePlan.food_preference}</p>
+          <p><strong>Regional:</strong> {editablePlan.regional_preference || 'N/A'}</p>
+        </div>
+
+        {Object.keys(groupedMeals).sort((a, b) => parseInt(a) - parseInt(b)).map(day => (
+          <div key={day} className="mb-8 page-break-after">
+            <h2 className="text-2xl font-bold mb-4 border-b-2 pb-2">Day {day}</h2>
+            {groupedMeals[day]
+              .sort((a, b) => mealTypes.indexOf(a.meal_type) - mealTypes.indexOf(b.meal_type))
+              .map((meal, idx) => (
+                <div key={idx} className="mb-6 border-l-4 border-orange-500 pl-4">
+                  <h3 className="text-xl font-semibold mb-2">{meal.meal_type}: {meal.meal_name}</h3>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {meal.calories} kcal | Protein: {meal.protein}g | Carbs: {meal.carbs}g | Fats: {meal.fats}g
+                  </p>
+                  <ul className="list-disc list-inside mb-2">
+                    {meal.items?.map((item, i) => (
+                      <li key={i}>{item} - {meal.portion_sizes?.[i] || 'As needed'}</li>
+                    ))}
+                  </ul>
+                  {meal.nutritional_tip && (
+                    <p className="text-sm italic text-green-700">💡 {meal.nutritional_tip}</p>
+                  )}
+                </div>
+              ))}
+          </div>
+        ))}
+      </div>
 
       {/* Edit Meal Dialog */}
       <Dialog open={!!editingMeal} onOpenChange={() => setEditingMeal(null)}>
@@ -297,6 +443,17 @@ export default function GeneratedMealPlan({ plan, onSave, onGenerateNew, isSavin
           )}
         </DialogContent>
       </Dialog>
+
+      <style>{`
+        @media print {
+          @page {
+            margin: 2cm;
+          }
+          .page-break-after {
+            page-break-after: always;
+          }
+        }
+      `}</style>
     </div>
   );
 }
