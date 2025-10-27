@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -22,8 +21,8 @@ import {
   Utensils,
   Scale,
   UserPlus,
-  Sparkles, // Added Sparkles icon
-  Rocket // Added Rocket icon
+  Sparkles,
+  Rocket
 } from "lucide-react";
 import {
   Sidebar,
@@ -84,37 +83,37 @@ const businessNavigation = [
     title: "My Team",
     url: createPageUrl("TeamManagement"),
     icon: UserPlus,
-    roles: ['super_admin', 'student_coach'], // Only admins and student coaches can manage team
+    roles: ['super_admin', 'student_coach'],
   },
   {
     title: "Business GPTs",
     url: createPageUrl("BusinessGPTs"),
     icon: Sparkles,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'], // All coaches
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
     title: "Marketing Hub",
     url: createPageUrl("MarketingHub"),
     icon: Megaphone,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'], // All coaches
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
     title: "Payment Setup",
     url: createPageUrl("PaymentSetup"),
     icon: DollarSign,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'], // All coaches
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
     title: "AI Launchpad",
     url: createPageUrl("BusinessPlan"),
     icon: Rocket,
-    roles: ['super_admin'], // Only super admin
+    roles: ['super_admin'],
   },
   {
     title: "Documentation",
     url: createPageUrl("Documentation"),
     icon: BookOpen,
-    roles: ['super_admin'], // Only super admin
+    roles: ['super_admin'],
   },
 ];
 
@@ -173,14 +172,12 @@ export default function Layout({ children, currentPageName }) {
   const isDietitian = user?.role === 'admin';
   const userType = user?.user_type || (isDietitian ? 'team_member' : 'client');
   
-  // Filter business navigation based on user type
   const filteredBusinessNav = businessNavigation.filter(item => 
     !item.roles || item.roles.includes(userType)
   );
 
   const navigationItems = isDietitian ? dietitianNavigation : clientNavigation;
 
-  // Get user label with proper hierarchy
   const getUserLabel = () => {
     if (!isDietitian) return 'Client Account';
     
@@ -198,7 +195,6 @@ export default function Layout({ children, currentPageName }) {
     }
   };
 
-  // Get user badge color
   const getUserBadgeColor = () => {
     switch(userType) {
       case 'super_admin':
