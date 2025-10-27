@@ -74,8 +74,9 @@ export default function Documentation() {
           </Button>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-6 w-full">
+        <Tabs defaultValue="platform" className="space-y-6">
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-7 w-full">
+            <TabsTrigger value="platform">Platform Setup</TabsTrigger>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="users">User Management</TabsTrigger>
             <TabsTrigger value="roles">Roles & Access</TabsTrigger>
@@ -83,6 +84,276 @@ export default function Documentation() {
             <TabsTrigger value="workflow">Workflows</TabsTrigger>
             <TabsTrigger value="faq">FAQ</TabsTrigger>
           </TabsList>
+
+          {/* Platform Setup - NEW FIRST TAB */}
+          <TabsContent value="platform" className="space-y-6">
+            <Card className="border-none shadow-xl">
+              <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                <CardTitle className="text-3xl">Platform White Label Setup</CardTitle>
+                <CardDescription className="text-white/80 text-lg">Get YOUR own domain and branding</CardDescription>
+              </CardHeader>
+              <CardContent className="p-8 space-y-8">
+                <Alert className="border-orange-500 bg-orange-50">
+                  <Info className="w-5 h-5 text-orange-600" />
+                  <AlertDescription className="text-lg">
+                    <strong>🎯 IMPORTANT:</strong> This is different from student coach white-labeling. This is about YOUR platform running on YOUR domain instead of app.base44.com
+                  </AlertDescription>
+                </Alert>
+
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">🌐 What is Platform White-Labeling?</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-6 bg-red-50 rounded-xl border-l-4 border-red-500">
+                      <h4 className="font-bold text-lg text-red-900 mb-2">❌ WITHOUT Platform White Label:</h4>
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        <li>• URL: <code className="bg-red-100 px-2 py-1 rounded">yourapp.base44.app</code></li>
+                        <li>• Says "Powered by Base44"</li>
+                        <li>• Generic branding</li>
+                        <li>• Shared domain</li>
+                      </ul>
+                    </div>
+
+                    <div className="p-6 bg-green-50 rounded-xl border-l-4 border-green-500">
+                      <h4 className="font-bold text-lg text-green-900 mb-2">✅ WITH Platform White Label:</h4>
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        <li>• URL: <code className="bg-green-100 px-2 py-1 rounded">app.yourdomain.com</code></li>
+                        <li>• Your logo everywhere</li>
+                        <li>• Your brand colors</li>
+                        <li>• Professional credibility</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">📋 Step-by-Step: Get Your Custom Domain</h3>
+                  
+                  <div className="space-y-6">
+                    <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-l-4 border-purple-500">
+                      <h4 className="font-bold text-xl mb-3">STEP 1: Choose Your Domain</h4>
+                      <ol className="space-y-3 ml-6">
+                        <li className="flex gap-2">
+                          <span className="font-bold text-purple-600">1.</span>
+                          <div>
+                            <span className="font-semibold">Decide on your domain name:</span>
+                            <div className="mt-2 space-y-1 text-sm">
+                              <div className="p-2 bg-white rounded">
+                                ✅ <code>app.healthyfy.in</code> (if you own healthyfy.in)
+                              </div>
+                              <div className="p-2 bg-white rounded">
+                                ✅ <code>portal.healthyfy.in</code>
+                              </div>
+                              <div className="p-2 bg-white rounded">
+                                ✅ <code>coach.healthyfy.in</code>
+                              </div>
+                              <div className="p-2 bg-white rounded">
+                                ✅ <code>healthyfy-app.com</code> (if buying new)
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-purple-600">2.</span>
+                          <span>Buy domain from GoDaddy, Namecheap, or any registrar (if you don't have one)</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-purple-600">3.</span>
+                          <span>Cost: Around ₹500-1000/year for .in domain, $10-15/year for .com</span>
+                        </li>
+                      </ol>
+                    </div>
+
+                    <div className="p-6 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-l-4 border-blue-500">
+                      <h4 className="font-bold text-xl mb-3">STEP 2: Contact Base44 Support</h4>
+                      <ol className="space-y-3 ml-6">
+                        <li className="flex gap-2">
+                          <span className="font-bold text-blue-600">1.</span>
+                          <div className="flex-1">
+                            <span className="font-semibold">Email Base44 support with:</span>
+                            <div className="mt-3 p-4 bg-white rounded-lg border border-blue-200">
+                              <p className="text-sm font-mono text-gray-700">
+                                <strong>To:</strong> support@base44.app<br/>
+                                <strong>Subject:</strong> Custom Domain Request - [Your App Name]<br/>
+                                <br/>
+                                <strong>Body:</strong><br/>
+                                Hi Base44 Team,<br/>
+                                <br/>
+                                I would like to set up a custom domain for my app.<br/>
+                                <br/>
+                                App URL: [yourapp.base44.app]<br/>
+                                Desired Domain: [app.yourdomain.com]<br/>
+                                <br/>
+                                Please provide DNS configuration instructions.<br/>
+                                <br/>
+                                Thanks!<br/>
+                                [Your Name]
+                              </p>
+                            </div>
+                          </div>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-blue-600">2.</span>
+                          <span>Base44 will reply with DNS records you need to add</span>
+                        </li>
+                      </ol>
+                    </div>
+
+                    <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-l-4 border-green-500">
+                      <h4 className="font-bold text-xl mb-3">STEP 3: Configure DNS Settings</h4>
+                      <ol className="space-y-3 ml-6">
+                        <li className="flex gap-2">
+                          <span className="font-bold text-green-600">1.</span>
+                          <span>Login to your domain registrar (GoDaddy, Namecheap, etc.)</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-green-600">2.</span>
+                          <span>Go to DNS Management / DNS Settings</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-green-600">3.</span>
+                          <div className="flex-1">
+                            <span>Add the records Base44 provided (usually something like):</span>
+                            <div className="mt-2 p-3 bg-white rounded border text-sm font-mono">
+                              <strong>Type:</strong> CNAME<br/>
+                              <strong>Name:</strong> app (or your subdomain)<br/>
+                              <strong>Value:</strong> [provided by Base44]<br/>
+                              <strong>TTL:</strong> 3600
+                            </div>
+                          </div>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-green-600">4.</span>
+                          <span>Save changes</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-green-600">5.</span>
+                          <span>Wait 15 minutes to 24 hours for DNS propagation</span>
+                        </li>
+                      </ol>
+                    </div>
+
+                    <div className="p-6 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-l-4 border-orange-500">
+                      <h4 className="font-bold text-xl mb-3">STEP 4: Confirm & Launch! 🚀</h4>
+                      <ol className="space-y-3 ml-6">
+                        <li className="flex gap-2">
+                          <span className="font-bold text-orange-600">1.</span>
+                          <span>Base44 will confirm when domain is active</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-orange-600">2.</span>
+                          <span>Test by visiting your new URL: <code className="bg-orange-100 px-2 py-1 rounded">app.yourdomain.com</code></span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-orange-600">3.</span>
+                          <span>Share new URL with your team and students</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-orange-600">4.</span>
+                          <span>Old base44.app URL will still work (redirects automatically)</span>
+                        </li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">💰 Pricing & Plans</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-6 bg-gray-50 rounded-xl border-2 border-gray-200">
+                      <h4 className="font-bold text-lg mb-2">🆓 Free Plan</h4>
+                      <p className="text-3xl font-bold text-gray-900 mb-4">₹0/mo</p>
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        <li>✓ base44.app subdomain</li>
+                        <li>✗ Custom domain</li>
+                        <li>✗ White label branding</li>
+                      </ul>
+                    </div>
+
+                    <div className="p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-300">
+                      <h4 className="font-bold text-lg mb-2">💼 Pro Plan</h4>
+                      <p className="text-3xl font-bold text-blue-900 mb-4">Check with Base44</p>
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        <li>✓ Custom domain</li>
+                        <li>✓ SSL certificate included</li>
+                        <li>✓ White label branding</li>
+                        <li>✓ Priority support</li>
+                      </ul>
+                    </div>
+
+                    <div className="p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border-2 border-purple-300">
+                      <h4 className="font-bold text-lg mb-2">👑 Enterprise</h4>
+                      <p className="text-3xl font-bold text-purple-900 mb-4">Custom</p>
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        <li>✓ Everything in Pro</li>
+                        <li>✓ Multiple domains</li>
+                        <li>✓ Custom logo & colors</li>
+                        <li>✓ Dedicated support</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">📞 Contact Base44 Support</h3>
+                  <div className="p-6 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl text-white">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-bold text-xl mb-2">📧 Email Support</h4>
+                        <p className="text-white/90 mb-2">For custom domain requests:</p>
+                        <code className="bg-white/20 px-3 py-2 rounded block">support@base44.app</code>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-xl mb-2">💬 Live Chat</h4>
+                        <p className="text-white/90 mb-2">Available in Base44 dashboard:</p>
+                        <a href="https://base44.app" target="_blank" rel="noopener noreferrer" className="inline-block">
+                          <Button className="bg-white text-blue-600 hover:bg-white/90">
+                            Open Dashboard →
+                          </Button>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">❓ Common Questions</h3>
+                  <div className="space-y-3">
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <h4 className="font-bold mb-2">Q: How long does setup take?</h4>
+                      <p className="text-gray-700 text-sm">A: Usually 1-2 business days after DNS is configured. DNS propagation can take up to 24 hours.</p>
+                    </div>
+
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <h4 className="font-bold mb-2">Q: Will my old URL still work?</h4>
+                      <p className="text-gray-700 text-sm">A: Yes! Your base44.app URL will automatically redirect to your new domain.</p>
+                    </div>
+
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <h4 className="font-bold mb-2">Q: Can I use my existing domain?</h4>
+                      <p className="text-gray-700 text-sm">A: Yes! You can use a subdomain (app.yourdomain.com) or a completely new domain.</p>
+                    </div>
+
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <h4 className="font-bold mb-2">Q: Is SSL/HTTPS included?</h4>
+                      <p className="text-gray-700 text-sm">A: Yes! Base44 provides free SSL certificates for all custom domains.</p>
+                    </div>
+
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <h4 className="font-bold mb-2">Q: Can I change the domain later?</h4>
+                      <p className="text-gray-700 text-sm">A: Yes, but it's better to choose wisely upfront. Contact support if you need to change.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <Alert className="border-green-500 bg-green-50">
+                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  <AlertDescription>
+                    <strong>✅ Pro Tip:</strong> Once you have your custom domain, update it in your marketing materials, student onboarding emails, and social media bios for maximum brand consistency!
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Overview */}
           <TabsContent value="overview" className="space-y-6">
