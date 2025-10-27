@@ -18,6 +18,7 @@ import FoodLog from './pages/FoodLog';
 import ProgressTracking from './pages/ProgressTracking';
 import TeamManagement from './pages/TeamManagement';
 import BusinessGPTs from './pages/BusinessGPTs';
+import BusinessHub from './pages/BusinessHub';
 import Layout from './Layout.jsx';
 
 
@@ -42,6 +43,7 @@ export const PAGES = {
     "ProgressTracking": ProgressTracking,
     "TeamManagement": TeamManagement,
     "BusinessGPTs": BusinessGPTs,
+    "BusinessHub": BusinessHub,
 }
 
 export const pagesConfig = {
