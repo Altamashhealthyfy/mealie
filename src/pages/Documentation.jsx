@@ -7,19 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  BookOpen,
-  Users,
   Shield,
-  Zap,
   CheckCircle2,
   Download,
   AlertTriangle,
-  Info,
-  Crown,
-  GraduationCap,
-  Building2
+  Info
 } from "lucide-react";
 
+// Documentation page for super admins only
 export default function Documentation() {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
