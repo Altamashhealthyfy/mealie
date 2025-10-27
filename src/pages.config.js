@@ -17,6 +17,7 @@ import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
 import FoodLog from './pages/FoodLog';
 import ProgressTracking from './pages/ProgressTracking';
 import TeamManagement from './pages/TeamManagement';
+import BusinessGPTs from './pages/BusinessGPTs';
 import Layout from './Layout.jsx';
 
 
@@ -40,6 +41,7 @@ export const PAGES = {
     "FoodLog": FoodLog,
     "ProgressTracking": ProgressTracking,
     "TeamManagement": TeamManagement,
+    "BusinessGPTs": BusinessGPTs,
 }
 
 export const pagesConfig = {
