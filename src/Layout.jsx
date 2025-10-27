@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -24,7 +23,7 @@ import {
   UserPlus,
   Sparkles,
   Rocket,
-  Target // Added Target icon
+  Target
 } from "lucide-react";
 import {
   Sidebar,
