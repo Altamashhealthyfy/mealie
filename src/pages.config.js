@@ -23,6 +23,7 @@ import LeadsPipeline from './pages/LeadsPipeline';
 import WebinarManagement from './pages/WebinarManagement';
 import PaymentTracking from './pages/PaymentTracking';
 import TaskBoard from './pages/TaskBoard';
+import TeamDashboard from './pages/TeamDashboard';
 import Layout from './Layout.jsx';
 
 
@@ -52,6 +53,7 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "PaymentTracking": PaymentTracking,
     "TaskBoard": TaskBoard,
+    "TeamDashboard": TeamDashboard,
 }
 
 export const pagesConfig = {
