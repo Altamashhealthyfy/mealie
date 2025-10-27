@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,6 +20,7 @@ export default function MealPlanner() {
   const [generatedPlan, setGeneratedPlan] = useState(null);
   const [viewingPlan, setViewingPlan] = useState(null);
   const [selectedClientId, setSelectedClientId] = useState(null);
+  const [activeTab, setActiveTab] = useState("generate");
   const [planConfig, setPlanConfig] = useState({
     duration: 10,
     meal_pattern: 'daily',
@@ -164,7 +164,9 @@ Return the meal plan in a structured format with all days and meals.`;
       ...plan,
       plan_name: plan.name,
       client_name: client?.full_name || 'Unknown Client',
+      client_id: plan.client_id,
     });
+    setActiveTab("generate"); // Switch to generate tab to show the plan
   };
 
   if (clients.length === 0) {
@@ -205,7 +207,7 @@ Return the meal plan in a structured format with all days and meals.`;
           </div>
         </div>
 
-        <Tabs defaultValue="generate" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-white/80 backdrop-blur">
             <TabsTrigger value="generate" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white">
               <Plus className="w-4 h-4 mr-2" />
@@ -397,7 +399,7 @@ Return the meal plan in a structured format with all days and meals.`;
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">No Saved Plans</h3>
                   <p className="text-gray-600 mb-4">Generate your first meal plan to get started</p>
                   <Button 
-                    onClick={() => document.querySelector('[value="generate"]').click()}
+                    onClick={() => setActiveTab("generate")}
                     className="bg-gradient-to-r from-orange-500 to-red-500"
                   >
                     <Plus className="w-4 h-4 mr-2" />
