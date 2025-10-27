@@ -1,0 +1,30 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "user_type": {
+      "type": "string",
+      "enum": [
+        "super_admin",
+        "team_admin",
+        "student_coach",
+        "client"
+      ],
+      "default": "client",
+      "description": "Type of user - super_admin (owner), team_admin (team member), student_coach (health coaches), client"
+    },
+    "business_name": {
+      "type": "string",
+      "description": "Business name for student coaches"
+    },
+    "whitelabel_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether white-label branding is enabled"
+    },
+    "coach_id": {
+      "type": "string",
+      "description": "For clients - which coach/student owns them"
+    }
+  }
+}

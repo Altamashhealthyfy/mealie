@@ -137,7 +137,11 @@
     },
     "dietitian_id": {
       "type": "string",
-      "description": "ID of the assigned dietitian"
+      "description": "ID of the assigned dietitian (team_admin or student_coach)"
+    },
+    "owner_id": {
+      "type": "string",
+      "description": "ID of the coach who owns this client (for data isolation)"
     }
   },
   "required": [

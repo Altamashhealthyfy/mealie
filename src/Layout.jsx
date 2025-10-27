@@ -77,24 +77,28 @@ const dietitianNavigation = [
 
 const businessNavigation = [
   {
-    title: "Business Plan",
-    url: createPageUrl("BusinessPlan"),
-    icon: DollarSign,
-  },
-  {
     title: "Marketing Hub",
     url: createPageUrl("MarketingHub"),
     icon: Megaphone,
+    roles: ['super_admin', 'team_admin', 'student_coach'], // All coaches can see
   },
   {
     title: "Payment Setup",
     url: createPageUrl("PaymentSetup"),
     icon: DollarSign,
+    roles: ['super_admin', 'team_admin', 'student_coach'], // All coaches can see
+  },
+  {
+    title: "Business Plan",
+    url: createPageUrl("BusinessPlan"),
+    icon: DollarSign,
+    roles: ['super_admin'], // Only super admin
   },
   {
     title: "Documentation",
     url: createPageUrl("Documentation"),
     icon: BookOpen,
+    roles: ['super_admin'], // Only super admin
   },
 ];
 
@@ -151,7 +155,22 @@ export default function Layout({ children, currentPageName }) {
   });
 
   const isDietitian = user?.role === 'admin';
+  const userType = user?.user_type || (isDietitian ? 'team_admin' : 'client');
+  
+  // Filter business navigation based on user type
+  const filteredBusinessNav = businessNavigation.filter(item => 
+    !item.roles || item.roles.includes(userType)
+  );
+
   const navigationItems = isDietitian ? dietitianNavigation : clientNavigation;
+
+  // Get user label
+  const getUserLabel = () => {
+    if (!isDietitian) return 'Client Account';
+    if (userType === 'super_admin') return '👑 Super Admin';
+    if (userType === 'student_coach') return '🎓 Health Coach';
+    return '👥 Team Member';
+  };
 
   return (
     <SidebarProvider>
@@ -173,7 +192,9 @@ export default function Layout({ children, currentPageName }) {
                 <ChefHat className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="font-bold text-xl text-gray-900">Mealie Pro</h2>
+                <h2 className="font-bold text-xl text-gray-900">
+                  {user?.business_name || 'Mealie Pro'}
+                </h2>
                 <p className="text-xs text-orange-600 font-medium">
                   {isDietitian ? 'Dietitian Platform' : 'Client Portal'}
                 </p>
@@ -210,14 +231,14 @@ export default function Layout({ children, currentPageName }) {
               </SidebarGroupContent>
             </SidebarGroup>
 
-            {isDietitian && (
+            {isDietitian && filteredBusinessNav.length > 0 && (
               <SidebarGroup>
                 <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
                   Business Tools
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    {businessNavigation.map((item) => (
+                    {filteredBusinessNav.map((item) => (
                       <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton 
                           asChild 
@@ -250,7 +271,7 @@ export default function Layout({ children, currentPageName }) {
                   {user?.full_name || 'User'}
                 </p>
                 <p className="text-xs text-gray-500 truncate">
-                  {isDietitian ? 'Dietitian Account' : 'Client Account'}
+                  {getUserLabel()}
                 </p>
               </div>
             </div>
@@ -263,7 +284,9 @@ export default function Layout({ children, currentPageName }) {
               <SidebarTrigger className="hover:bg-orange-50 p-2 rounded-lg transition-colors duration-200" />
               <div className="flex items-center gap-2">
                 <ChefHat className="w-6 h-6 text-orange-500" />
-                <h1 className="text-xl font-bold text-gray-900">Mealie Pro</h1>
+                <h1 className="text-xl font-bold text-gray-900">
+                  {user?.business_name || 'Mealie Pro'}
+                </h1>
               </div>
             </div>
           </header>
