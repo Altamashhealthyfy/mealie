@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -20,7 +21,9 @@ import {
   BookOpen,
   Utensils,
   Scale,
-  UserPlus
+  UserPlus,
+  Sparkles, // Added Sparkles icon
+  Rocket // Added Rocket icon
 } from "lucide-react";
 import {
   Sidebar,
@@ -84,6 +87,12 @@ const businessNavigation = [
     roles: ['super_admin', 'student_coach'], // Only admins and student coaches can manage team
   },
   {
+    title: "Business GPTs",
+    url: createPageUrl("BusinessGPTs"),
+    icon: Sparkles,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'], // All coaches
+  },
+  {
     title: "Marketing Hub",
     url: createPageUrl("MarketingHub"),
     icon: Megaphone,
@@ -96,9 +105,9 @@ const businessNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'], // All coaches
   },
   {
-    title: "Business Plan",
+    title: "AI Launchpad",
     url: createPageUrl("BusinessPlan"),
-    icon: TrendingUp,
+    icon: Rocket,
     roles: ['super_admin'], // Only super admin
   },
   {
