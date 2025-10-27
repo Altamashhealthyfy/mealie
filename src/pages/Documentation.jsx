@@ -1,3 +1,4 @@
+
 import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -74,10 +75,11 @@ export default function Documentation() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-5 w-full">
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-6 w-full">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="users">User Management</TabsTrigger>
             <TabsTrigger value="roles">Roles & Access</TabsTrigger>
+            <TabsTrigger value="whitelabel">White Label</TabsTrigger>
             <TabsTrigger value="workflow">Workflows</TabsTrigger>
             <TabsTrigger value="faq">FAQ</TabsTrigger>
           </TabsList>
@@ -384,6 +386,286 @@ Mealie Pro`}
                       </CardContent>
                     </Card>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* White Label - NEW SECTION */}
+          <TabsContent value="whitelabel" className="space-y-6">
+            <Card className="border-none shadow-xl">
+              <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">
+                <CardTitle className="text-3xl">White Label Setup Guide</CardTitle>
+                <CardDescription className="text-white/80 text-lg">How student coaches can use their own branding</CardDescription>
+              </CardHeader>
+              <CardContent className="p-8 space-y-6">
+                <Alert className="border-green-500 bg-green-50">
+                  <Info className="w-5 h-5 text-green-600" />
+                  <AlertDescription>
+                    <strong>What is White Labeling?</strong> It allows your student coaches to use the platform with THEIR business name instead of "Mealie Pro". When they login, they see their brand everywhere.
+                  </AlertDescription>
+                </Alert>
+
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">🎨 What Gets White-Labeled?</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
+                      <h4 className="font-bold text-lg mb-2">✅ Currently White-Labeled:</h4>
+                      <ul className="space-y-1 text-sm text-gray-700">
+                        <li>• Sidebar header (business name)</li>
+                        <li>• Mobile header</li>
+                        <li>• User badge label</li>
+                        <li>• Platform branding text</li>
+                        <li>• Email signatures (if configured)</li>
+                      </ul>
+                    </div>
+
+                    <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                      <h4 className="font-bold text-lg mb-2">🔮 Future White-Label Options:</h4>
+                      <ul className="space-y-1 text-sm text-gray-700">
+                        <li>• Custom logo upload</li>
+                        <li>• Custom color scheme</li>
+                        <li>• Custom domain (studentname.com)</li>
+                        <li>• Custom email templates</li>
+                        <li>• Branded meal plan PDFs</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">📋 Step-by-Step: Enable White Label</h3>
+                  
+                  <div className="space-y-6">
+                    <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-l-4 border-purple-500">
+                      <h4 className="font-bold text-xl mb-3">STEP 1: Invite Student Coach</h4>
+                      <ol className="space-y-2 ml-6">
+                        <li className="flex gap-2">
+                          <span className="font-bold text-purple-600">1.</span>
+                          <span>Go to Base44 Dashboard → Users</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-purple-600">2.</span>
+                          <span>Click "Invite User"</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-purple-600">3.</span>
+                          <span>Enter their email</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-purple-600">4.</span>
+                          <span>Select role: <strong>"Admin"</strong></span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-purple-600">5.</span>
+                          <span>Send invitation</span>
+                        </li>
+                      </ol>
+                    </div>
+
+                    <div className="p-6 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border-l-4 border-blue-500">
+                      <h4 className="font-bold text-xl mb-3">STEP 2: They Accept & Login</h4>
+                      <ol className="space-y-2 ml-6">
+                        <li className="flex gap-2">
+                          <span className="font-bold text-blue-600">1.</span>
+                          <span>They receive invitation email</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-blue-600">2.</span>
+                          <span>Click link and set password</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-blue-600">3.</span>
+                          <span>Login to the app</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-blue-600">4.</span>
+                          <span>At this point, they see "Mealie Pro" branding</span>
+                        </li>
+                      </ol>
+                    </div>
+
+                    <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-l-4 border-green-500">
+                      <h4 className="font-bold text-xl mb-3">STEP 3: Set User Type & Business Name</h4>
+                      <ol className="space-y-2 ml-6">
+                        <li className="flex gap-2">
+                          <span className="font-bold text-green-600">1.</span>
+                          <span>Go to: Base44 Dashboard → Data → User</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-green-600">2.</span>
+                          <span>Find their user record (search by email)</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-green-600">3.</span>
+                          <span>Click "Edit" button</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-green-600">4.</span>
+                          <span>Set these fields:</span>
+                        </li>
+                        <li className="ml-6">
+                          <div className="bg-white p-4 rounded border space-y-2">
+                            <div>
+                              <strong className="text-green-700">user_type:</strong>
+                              <code className="ml-2 bg-green-100 px-2 py-1 rounded">student_coach</code>
+                            </div>
+                            <div>
+                              <strong className="text-green-700">business_name:</strong>
+                              <code className="ml-2 bg-green-100 px-2 py-1 rounded">"Priya's Wellness Hub"</code>
+                              <p className="text-xs text-gray-600 mt-1">↑ Their actual business name</p>
+                            </div>
+                          </div>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-green-600">5.</span>
+                          <span>Click "Save"</span>
+                        </li>
+                      </ol>
+                    </div>
+
+                    <div className="p-6 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-l-4 border-orange-500">
+                      <h4 className="font-bold text-xl mb-3">STEP 4: They Refresh & See Magic! ✨</h4>
+                      <ol className="space-y-2 ml-6">
+                        <li className="flex gap-2">
+                          <span className="font-bold text-orange-600">1.</span>
+                          <span>Student coach refreshes the app</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-orange-600">2.</span>
+                          <span>Sidebar now shows: <strong>"Priya's Wellness Hub"</strong></span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-orange-600">3.</span>
+                          <span>Mobile header shows their business name</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-orange-600">4.</span>
+                          <span>Badge says: <strong>"🎓 Health Coach"</strong></span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-bold text-orange-600">5.</span>
+                          <span>Platform is now fully branded to them!</span>
+                        </li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">💼 Example: Complete Setup</h3>
+                  <div className="p-6 bg-gray-50 rounded-lg border border-gray-300">
+                    <h4 className="font-bold mb-3">Scenario: Onboarding "Priya Sharma" as Student Coach</h4>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <strong>📧 Step 1: Invitation</strong>
+                        <div className="bg-white p-3 rounded mt-2 text-sm font-mono">
+                          Email: priya.sharma@gmail.com<br/>
+                          Role: Admin<br/>
+                          Status: Invitation sent ✅
+                        </div>
+                      </div>
+
+                      <div>
+                        <strong>✅ Step 2: Priya Accepts</strong>
+                        <div className="bg-white p-3 rounded mt-2 text-sm">
+                          • Priya clicks invitation link<br/>
+                          • Sets password: ••••••••<br/>
+                          • Logs into app<br/>
+                          • Sees "Mealie Pro" everywhere (default)
+                        </div>
+                      </div>
+
+                      <div>
+                        <strong>⚙️ Step 3: You Configure</strong>
+                        <div className="bg-white p-3 rounded mt-2 text-sm font-mono">
+                          Dashboard → Data → User → priya.sharma@gmail.com<br/>
+                          <br/>
+                          SET:<br/>
+                          user_type = "student_coach"<br/>
+                          business_name = "Priya's Wellness Hub"<br/>
+                          <br/>
+                          Save ✅
+                        </div>
+                      </div>
+
+                      <div>
+                        <strong>🎉 Step 4: Result</strong>
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded mt-2 text-sm border-l-4 border-green-500">
+                          <strong>Priya's View:</strong><br/>
+                          • Sidebar: "Priya's Wellness Hub" 🎨<br/>
+                          • Header: "Priya's Wellness Hub"<br/>
+                          • Badge: "🎓 Health Coach"<br/>
+                          • All clients she adds: Only visible to her<br/>
+                          • Complete data isolation ✅
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">🚨 Important Notes</h3>
+                  <div className="space-y-3">
+                    <Alert className="border-red-500 bg-red-50">
+                      <AlertTriangle className="w-5 h-5 text-red-600" />
+                      <AlertDescription>
+                        <strong>CRITICAL:</strong> The business_name field is case-sensitive and will display exactly as you type it. Double-check spelling!
+                      </AlertDescription>
+                    </Alert>
+
+                    <Alert className="border-blue-500 bg-blue-50">
+                      <Info className="w-5 h-5 text-blue-600" />
+                      <AlertDescription>
+                        <strong>TIP:</strong> Student coaches don't need to know about the technical setup. Just tell them their business name will appear in the app after you configure it.
+                      </AlertDescription>
+                    </Alert>
+
+                    <Alert className="border-yellow-500 bg-yellow-50">
+                      <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                      <AlertDescription>
+                        <strong>LIMITATION:</strong> Logo upload is not yet available. Coming in future updates. For now, only business name is customizable.
+                      </AlertDescription>
+                    </Alert>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">📧 Sample Email to Student Coach</h3>
+                  <div className="p-6 bg-gray-50 rounded-lg border border-gray-300 font-mono text-sm whitespace-pre-line">
+{`Subject: Your White-Label Platform is Ready! 🎉
+
+Hi Priya,
+
+Great news! Your personalized health coaching platform is now ready with YOUR branding!
+
+🔗 App URL: https://[your-app-url].base44.app
+
+When you login, you'll see:
+✅ "Priya's Wellness Hub" as your platform name
+✅ All features customized for your business
+✅ Only YOUR clients visible to you
+✅ Complete data privacy
+
+LOGIN DETAILS:
+📧 Email: priya.sharma@gmail.com
+🔑 Password: [Check your email for invitation]
+
+NEXT STEPS:
+1. Login to the platform
+2. Add your first client
+3. Create a meal plan
+4. Use Marketing Hub for social media content
+5. Set up your payment links
+
+Need help? Just reply to this email!
+
+Welcome to your coaching platform! 🚀
+
+[Your Name]
+Mealie Pro Admin`}
+                  </div>
                 </div>
               </CardContent>
             </Card>
