@@ -4,12 +4,12 @@ import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { 
-  Home, 
-  Calendar, 
-  ChefHat, 
-  Search, 
-  Heart, 
+import {
+  Home,
+  Calendar,
+  ChefHat,
+  Search,
+  Heart,
   User,
   Users,
   MessageSquare,
@@ -24,7 +24,9 @@ import {
   UserPlus,
   Sparkles,
   Rocket,
-  Target // Added Target icon
+  Target, // Added Target icon
+  FileText, // Added FileText icon
+  Upload // Added Upload icon
 } from "lucide-react";
 import {
   Sidebar,
@@ -69,6 +71,11 @@ const dietitianNavigation = [
     icon: ChefHat,
   },
   {
+    title: "Template Library",
+    url: createPageUrl("TemplateLibrary"),
+    icon: FileText,
+  },
+  {
     title: "Recipes",
     url: createPageUrl("Recipes"),
     icon: ClipboardList,
@@ -92,6 +99,12 @@ const businessNavigation = [
     url: createPageUrl("VerticalManagement"),
     icon: Target,
     roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
+    title: "Template Manager",
+    url: createPageUrl("TemplateLibraryManager"),
+    icon: Upload,
+    roles: ['super_admin'],
   },
   {
     title: "My Team",
@@ -190,7 +203,7 @@ const clientNavigation = [
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
-  
+
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
@@ -209,8 +222,8 @@ export default function Layout({ children, currentPageName }) {
 
   const isDietitian = user?.role === 'admin';
   const userType = user?.user_type || (isDietitian ? 'team_member' : 'client');
-  
-  const filteredBusinessNav = businessNavigation.filter(item => 
+
+  const filteredBusinessNav = businessNavigation.filter(item =>
     !item.roles || item.roles.includes(userType)
   );
 
@@ -218,7 +231,7 @@ export default function Layout({ children, currentPageName }) {
 
   const getUserLabel = () => {
     if (!isDietitian) return 'Client Account';
-    
+
     switch(userType) {
       case 'super_admin':
         return '👑 Platform Owner';
@@ -277,7 +290,7 @@ export default function Layout({ children, currentPageName }) {
               </div>
             </div>
           </SidebarHeader>
-          
+
           <SidebarContent className="p-2">
             <SidebarGroup>
               <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
@@ -287,8 +300,8 @@ export default function Layout({ children, currentPageName }) {
                 <SidebarMenu>
                   {navigationItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton 
-                        asChild 
+                      <SidebarMenuButton
+                        asChild
                         className={`hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 rounded-xl mb-1 ${
                           location.pathname === item.url ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 hover:text-white shadow-md' : ''
                         }`}
@@ -316,8 +329,8 @@ export default function Layout({ children, currentPageName }) {
                   <SidebarMenu>
                     {filteredBusinessNav.map((item) => (
                       <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton 
-                          asChild 
+                        <SidebarMenuButton
+                          asChild
                           className={`hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 rounded-xl mb-1 ${
                             location.pathname === item.url ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 hover:text-white shadow-md' : ''
                           }`}
