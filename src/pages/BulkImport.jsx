@@ -8,39 +8,39 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Upload,
   Download,
-  FileSpreadsheet,
   CheckCircle2,
   XCircle,
   AlertTriangle,
   Users,
-  Calendar
+  Calendar,
+  GraduationCap,
+  Heart,
+  Award
 } from "lucide-react";
 
 export default function BulkImport() {
   const queryClient = useQueryClient();
-  const [leadsFile, setLeadsFile] = useState(null);
-  const [webinarFile, setWebinarFile] = useState(null);
+  const [file, setFile] = useState(null);
   const [importing, setImporting] = useState(false);
   const [result, setResult] = useState(null);
 
-  const handleLeadsImport = async () => {
-    if (!leadsFile) return;
+  const handleImport = async (type, vertical) => {
+    if (!file) return;
 
     setImporting(true);
     setResult(null);
 
     try {
-      // Upload file
-      const uploadResult = await base44.integrations.Core.UploadFile({ file: leadsFile });
+      const uploadResult = await base44.integrations.Core.UploadFile({ file });
       const fileUrl = uploadResult.file_url;
 
-      // Extract data
-      const extractResult = await base44.integrations.Core.ExtractDataFromUploadedFile({
-        file_url: fileUrl,
-        json_schema: {
+      let schema, entityName, processData;
+
+      if (type === 'leads') {
+        schema = {
           type: "object",
           properties: {
-            leads: {
+            data: {
               type: "array",
               items: {
                 type: "object",
@@ -56,63 +56,20 @@ export default function BulkImport() {
               }
             }
           }
-        }
-      });
-
-      if (extractResult.status === "success") {
-        const leads = extractResult.output.leads || [];
-        
-        // Bulk create leads
-        const created = await Promise.all(
-          leads.map(lead => 
-            base44.entities.Lead.create({
-              ...lead,
-              lead_status: "new",
-              pipeline_stage: "lead",
-              lead_score: lead.lead_score || "warm"
-            })
-          )
-        );
-
-        setResult({
-          success: true,
-          count: created.length,
-          message: `Successfully imported ${created.length} leads!`
-        });
-
-        queryClient.invalidateQueries(['leads']);
-      } else {
-        setResult({
-          success: false,
-          message: extractResult.details || "Failed to extract data"
-        });
-      }
-    } catch (error) {
-      setResult({
-        success: false,
-        message: error.message || "Import failed"
-      });
-    } finally {
-      setImporting(false);
-    }
-  };
-
-  const handleWebinarImport = async () => {
-    if (!webinarFile) return;
-
-    setImporting(true);
-    setResult(null);
-
-    try {
-      const uploadResult = await base44.integrations.Core.UploadFile({ file: webinarFile });
-      const fileUrl = uploadResult.file_url;
-
-      const extractResult = await base44.integrations.Core.ExtractDataFromUploadedFile({
-        file_url: fileUrl,
-        json_schema: {
+        };
+        entityName = 'Lead';
+        processData = (data) => data.map(lead => ({
+          ...lead,
+          business_vertical: vertical,
+          lead_status: "new",
+          pipeline_stage: "lead",
+          lead_score: lead.lead_score || "warm"
+        }));
+      } else if (type === 'webinar') {
+        schema = {
           type: "object",
           properties: {
-            registrations: {
+            data: {
               type: "array",
               items: {
                 type: "object",
@@ -126,29 +83,94 @@ export default function BulkImport() {
               }
             }
           }
-        }
+        };
+        entityName = 'WebinarRegistration';
+        processData = (data) => data.map(reg => ({
+          ...reg,
+          registration_date: new Date().toISOString(),
+          attendance_status: "registered"
+        }));
+      } else if (type === 'showcase') {
+        schema = {
+          type: "object",
+          properties: {
+            data: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  full_name: { type: "string" },
+                  email: { type: "string" },
+                  phone: { type: "string" },
+                  showcase_type: { type: "string" },
+                  showcase_date: { type: "string" },
+                  came_from: { type: "string" }
+                }
+              }
+            }
+          }
+        };
+        entityName = 'Showcase';
+        processData = (data) => data.map(s => ({
+          ...s,
+          registration_date: new Date().toISOString(),
+          attendance_status: "registered",
+          purchased: false,
+          follow_up_status: "pending"
+        }));
+      } else if (type === 'challenge') {
+        schema = {
+          type: "object",
+          properties: {
+            data: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  full_name: { type: "string" },
+                  email: { type: "string" },
+                  phone: { type: "string" },
+                  challenge_name: { type: "string" },
+                  challenge_type: { type: "string" },
+                  start_date: { type: "string" }
+                }
+              }
+            }
+          }
+        };
+        entityName = 'Challenge';
+        processData = (data) => data.map(c => ({
+          ...c,
+          registration_date: new Date().toISOString(),
+          attendance_status: "registered",
+          purchased_after_challenge: false,
+          follow_up_status: "pending",
+          days_attended: 0
+        }));
+      }
+
+      const extractResult = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        file_url: fileUrl,
+        json_schema: schema
       });
 
       if (extractResult.status === "success") {
-        const registrations = extractResult.output.registrations || [];
+        const records = extractResult.output.data || [];
+        const processedData = processData(records);
         
         const created = await Promise.all(
-          registrations.map(reg => 
-            base44.entities.WebinarRegistration.create({
-              ...reg,
-              registration_date: new Date().toISOString(),
-              attendance_status: "registered"
-            })
+          processedData.map(record => 
+            base44.entities[entityName].create(record)
           )
         );
 
         setResult({
           success: true,
           count: created.length,
-          message: `Successfully imported ${created.length} webinar registrations!`
+          message: `Successfully imported ${created.length} records!`
         });
 
-        queryClient.invalidateQueries(['webinarRegs']);
+        queryClient.invalidateQueries([entityName.toLowerCase()]);
       } else {
         setResult({
           success: false,
@@ -162,43 +184,52 @@ export default function BulkImport() {
       });
     } finally {
       setImporting(false);
+      setFile(null);
     }
   };
 
-  const downloadLeadsTemplate = () => {
-    const csv = `full_name,email,phone,lead_source,lead_score,city,notes
-Rajesh Kumar,rajesh@example.com,+91 9876543210,facebook_ad,hot,Mumbai,Interested in diabetes program
-Priya Sharma,priya@example.com,+91 9876543211,instagram_ad,warm,Delhi,
-Amit Patel,amit@example.com,+91 9876543212,google_ad,hot,Bangalore,`;
+  const downloadTemplate = (type, vertical) => {
+    let csv = '';
+    let filename = '';
+
+    if (type === 'leads') {
+      csv = `full_name,email,phone,lead_source,lead_score,city,notes
+Rajesh Kumar,rajesh@example.com,+91 9876543210,facebook_ad,hot,Mumbai,Interested in program
+Priya Sharma,priya@example.com,+91 9876543211,google_ad,warm,Delhi,
+Amit Patel,amit@example.com,+91 9876543212,referral,hot,Bangalore,`;
+      filename = `${vertical}_leads_template.csv`;
+    } else if (type === 'webinar') {
+      csv = `full_name,email,phone,webinar_title,webinar_date
+Rajesh Kumar,rajesh@example.com,+91 9876543210,Health Coach Masterclass,2025-02-15 18:00:00
+Priya Sharma,priya@example.com,+91 9876543211,Health Coach Masterclass,2025-02-15 18:00:00`;
+      filename = 'webinar_registrations_template.csv';
+    } else if (type === 'showcase') {
+      csv = `full_name,email,phone,showcase_type,showcase_date,came_from
+Rajesh Kumar,rajesh@example.com,+91 9876543210,diploma_showcase,2025-02-20 18:00:00,silver_buyer
+Priya Sharma,priya@example.com,+91 9876543211,diamond_showcase,2025-02-25 18:00:00,diploma_buyer`;
+      filename = 'showcase_registrations_template.csv';
+    } else if (type === 'challenge') {
+      csv = `full_name,email,phone,challenge_name,challenge_type,start_date
+Rajesh Kumar,rajesh@example.com,+91 9876543210,5 Day Health Challenge,3_7_days_health,2025-02-15
+Priya Sharma,priya@example.com,+91 9876543211,Prosperity Challenge,5_days_prosperity,2025-02-20`;
+      filename = 'challenge_registrations_template.csv';
+    }
 
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'leads_template.csv';
-    a.click();
-  };
-
-  const downloadWebinarTemplate = () => {
-    const csv = `full_name,email,phone,webinar_title,webinar_date
-Rajesh Kumar,rajesh@example.com,+91 9876543210,Disease Reversal Masterclass,2025-02-15 18:00:00
-Priya Sharma,priya@example.com,+91 9876543211,Disease Reversal Masterclass,2025-02-15 18:00:00`;
-
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'webinar_registrations_template.csv';
+    a.download = filename;
     a.click();
   };
 
   return (
     <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Bulk Import Data</h1>
-          <p className="text-gray-600">Upload CSV or Excel files to import leads and webinar registrations</p>
+          <p className="text-gray-600">Upload CSV or Excel files to import data by business vertical</p>
         </div>
 
         {/* Instructions */}
@@ -208,184 +239,282 @@ Priya Sharma,priya@example.com,+91 9876543211,Disease Reversal Masterclass,2025-
           </CardHeader>
           <CardContent>
             <ol className="space-y-2 ml-6 list-decimal">
-              <li className="text-gray-700">Download the template file for leads or webinar registrations</li>
+              <li className="text-gray-700">Select the business vertical tab</li>
+              <li className="text-gray-700">Download the template file</li>
               <li className="text-gray-700">Fill in your data in Excel or Google Sheets</li>
               <li className="text-gray-700">Save as CSV file</li>
-              <li className="text-gray-700">Upload the file below</li>
+              <li className="text-gray-700">Upload the file</li>
             </ol>
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="leads" className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur">
-            <TabsTrigger value="leads">
-              <Users className="w-4 h-4 mr-2" />
-              Import Leads
+        <Tabs defaultValue="coach" className="space-y-6">
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-3">
+            <TabsTrigger value="coach">
+              <GraduationCap className="w-4 h-4 mr-2" />
+              Health Coach Training
             </TabsTrigger>
-            <TabsTrigger value="webinar">
-              <Calendar className="w-4 h-4 mr-2" />
-              Import Webinar Registrations
+            <TabsTrigger value="health">
+              <Heart className="w-4 h-4 mr-2" />
+              Health/Disease Management
+            </TabsTrigger>
+            <TabsTrigger value="prosperity">
+              <Award className="w-4 h-4 mr-2" />
+              Prosperity Program
             </TabsTrigger>
           </TabsList>
 
-          {/* Import Leads */}
-          <TabsContent value="leads">
+          {/* HEALTH COACH TRAINING */}
+          <TabsContent value="coach">
             <div className="space-y-6">
+              {/* Import Leads */}
               <Card className="border-none shadow-xl">
-                <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
-                  <CardTitle className="text-2xl">Import Leads from CSV/Excel</CardTitle>
+                <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
+                  <CardTitle>📥 Import Coach Training Leads</CardTitle>
                 </CardHeader>
-                <CardContent className="p-6 space-y-6">
-                  {/* Step 1: Download Template */}
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <h3 className="font-bold text-lg mb-2">Step 1: Download Template</h3>
-                    <p className="text-sm text-gray-600 mb-3">
-                      Download our template file with the correct column format
-                    </p>
-                    <Button onClick={downloadLeadsTemplate} variant="outline">
+                <CardContent className="p-6 space-y-4">
+                  <div className="p-4 bg-purple-50 rounded-lg">
+                    <Button onClick={() => downloadTemplate('leads', 'health_coach_training')} variant="outline">
                       <Download className="w-4 h-4 mr-2" />
-                      Download Leads Template (CSV)
+                      Download Leads Template
                     </Button>
                   </div>
-
-                  {/* Step 2: Upload File */}
                   <div className="p-4 bg-green-50 rounded-lg">
-                    <h3 className="font-bold text-lg mb-2">Step 2: Upload Your File</h3>
-                    <p className="text-sm text-gray-600 mb-3">
-                      Select your CSV or Excel file with leads data
-                    </p>
-                    <div className="flex items-center gap-4">
-                      <input
-                        type="file"
-                        accept=".csv,.xlsx,.xls"
-                        onChange={(e) => setLeadsFile(e.target.files[0])}
-                        className="flex-1 p-2 border rounded-lg"
-                      />
-                      <Button
-                        onClick={handleLeadsImport}
-                        disabled={!leadsFile || importing}
-                        className="bg-gradient-to-r from-green-500 to-emerald-500"
-                      >
-                        <Upload className="w-4 h-4 mr-2" />
-                        {importing ? 'Importing...' : 'Import Leads'}
-                      </Button>
-                    </div>
-                    {leadsFile && (
-                      <p className="text-sm text-gray-600 mt-2">
-                        Selected: {leadsFile.name}
-                      </p>
-                    )}
+                    <input
+                      type="file"
+                      accept=".csv,.xlsx,.xls"
+                      onChange={(e) => setFile(e.target.files[0])}
+                      className="w-full p-2 border rounded-lg mb-3"
+                    />
+                    <Button
+                      onClick={() => handleImport('leads', 'health_coach_training')}
+                      disabled={!file || importing}
+                      className="bg-gradient-to-r from-green-500 to-emerald-500"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {importing ? 'Importing...' : 'Import Leads'}
+                    </Button>
                   </div>
+                </CardContent>
+              </Card>
 
-                  {/* Column Format Guide */}
-                  <div className="p-4 bg-purple-50 rounded-lg">
-                    <h3 className="font-bold text-lg mb-2">📊 Required Columns</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                      <div>
-                        <p className="font-semibold">full_name</p>
-                        <p className="text-gray-600">Required</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold">phone</p>
-                        <p className="text-gray-600">Required</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold">email</p>
-                        <p className="text-gray-600">Optional</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold">lead_source</p>
-                        <p className="text-gray-600">Optional</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold">lead_score</p>
-                        <p className="text-gray-600">hot/warm/cold</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold">city</p>
-                        <p className="text-gray-600">Optional</p>
-                      </div>
-                    </div>
+              {/* Import Webinar */}
+              <Card className="border-none shadow-xl">
+                <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
+                  <CardTitle>📥 Import Webinar Registrations</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <Button onClick={() => downloadTemplate('webinar', 'health_coach_training')} variant="outline">
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Webinar Template
+                    </Button>
+                  </div>
+                  <div className="p-4 bg-green-50 rounded-lg">
+                    <input
+                      type="file"
+                      accept=".csv,.xlsx,.xls"
+                      onChange={(e) => setFile(e.target.files[0])}
+                      className="w-full p-2 border rounded-lg mb-3"
+                    />
+                    <Button
+                      onClick={() => handleImport('webinar', 'health_coach_training')}
+                      disabled={!file || importing}
+                      className="bg-gradient-to-r from-green-500 to-emerald-500"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {importing ? 'Importing...' : 'Import Webinar Registrations'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Import Showcases */}
+              <Card className="border-none shadow-xl">
+                <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                  <CardTitle>📥 Import Showcase Registrations (Diploma/Diamond)</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="p-4 bg-orange-50 rounded-lg">
+                    <Button onClick={() => downloadTemplate('showcase', 'health_coach_training')} variant="outline">
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Showcase Template
+                    </Button>
+                    <p className="text-xs text-gray-600 mt-2">
+                      Showcase types: diploma_showcase, diamond_showcase<br/>
+                      Came from: silver_buyer, diploma_buyer, outside_lead
+                    </p>
+                  </div>
+                  <div className="p-4 bg-green-50 rounded-lg">
+                    <input
+                      type="file"
+                      accept=".csv,.xlsx,.xls"
+                      onChange={(e) => setFile(e.target.files[0])}
+                      className="w-full p-2 border rounded-lg mb-3"
+                    />
+                    <Button
+                      onClick={() => handleImport('showcase', 'health_coach_training')}
+                      disabled={!file || importing}
+                      className="bg-gradient-to-r from-green-500 to-emerald-500"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {importing ? 'Importing...' : 'Import Showcase Registrations'}
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
 
-          {/* Import Webinar */}
-          <TabsContent value="webinar">
+          {/* HEALTH/DISEASE MANAGEMENT */}
+          <TabsContent value="health">
             <div className="space-y-6">
+              {/* Import 1-2-1 Leads */}
               <Card className="border-none shadow-xl">
-                <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
-                  <CardTitle className="text-2xl">Import Webinar Registrations</CardTitle>
+                <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
+                  <CardTitle>📥 Import 1-2-1 Health Consultation Leads</CardTitle>
                 </CardHeader>
-                <CardContent className="p-6 space-y-6">
-                  {/* Step 1: Download Template */}
-                  <div className="p-4 bg-purple-50 rounded-lg">
-                    <h3 className="font-bold text-lg mb-2">Step 1: Download Template</h3>
-                    <p className="text-sm text-gray-600 mb-3">
-                      Download template for webinar registrations
+                <CardContent className="p-6 space-y-4">
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-gray-700 mb-3">
+                      Import individual consultation leads from Google, Social Media, or Referrals
                     </p>
-                    <Button onClick={downloadWebinarTemplate} variant="outline">
+                    <Button onClick={() => downloadTemplate('leads', 'health_disease_management')} variant="outline">
                       <Download className="w-4 h-4 mr-2" />
-                      Download Webinar Template (CSV)
+                      Download 1-2-1 Leads Template
                     </Button>
                   </div>
-
-                  {/* Step 2: Upload File */}
                   <div className="p-4 bg-green-50 rounded-lg">
-                    <h3 className="font-bold text-lg mb-2">Step 2: Upload Your File</h3>
-                    <p className="text-sm text-gray-600 mb-3">
-                      Select your CSV or Excel file with webinar registrations
-                    </p>
-                    <div className="flex items-center gap-4">
-                      <input
-                        type="file"
-                        accept=".csv,.xlsx,.xls"
-                        onChange={(e) => setWebinarFile(e.target.files[0])}
-                        className="flex-1 p-2 border rounded-lg"
-                      />
-                      <Button
-                        onClick={handleWebinarImport}
-                        disabled={!webinarFile || importing}
-                        className="bg-gradient-to-r from-green-500 to-emerald-500"
-                      >
-                        <Upload className="w-4 h-4 mr-2" />
-                        {importing ? 'Importing...' : 'Import Registrations'}
-                      </Button>
-                    </div>
-                    {webinarFile && (
-                      <p className="text-sm text-gray-600 mt-2">
-                        Selected: {webinarFile.name}
-                      </p>
-                    )}
+                    <input
+                      type="file"
+                      accept=".csv,.xlsx,.xls"
+                      onChange={(e) => setFile(e.target.files[0])}
+                      className="w-full p-2 border rounded-lg mb-3"
+                    />
+                    <Button
+                      onClick={() => handleImport('leads', 'health_disease_management')}
+                      disabled={!file || importing}
+                      className="bg-gradient-to-r from-green-500 to-emerald-500"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {importing ? 'Importing...' : 'Import 1-2-1 Leads'}
+                    </Button>
                   </div>
+                </CardContent>
+              </Card>
 
-                  {/* Column Format Guide */}
+              {/* Import Challenge Leads */}
+              <Card className="border-none shadow-xl">
+                <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">
+                  <CardTitle>📥 Import 3-7 Days Challenge Registrations</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="p-4 bg-green-50 rounded-lg">
+                    <p className="text-sm text-gray-700 mb-3">
+                      Import leads who registered for 3-7 days health challenge (1-2-Many model)
+                    </p>
+                    <Button onClick={() => downloadTemplate('challenge', 'health_disease_management')} variant="outline">
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Challenge Template
+                    </Button>
+                    <p className="text-xs text-gray-600 mt-2">
+                      Challenge type: 3_7_days_health
+                    </p>
+                  </div>
+                  <div className="p-4 bg-green-50 rounded-lg">
+                    <input
+                      type="file"
+                      accept=".csv,.xlsx,.xls"
+                      onChange={(e) => setFile(e.target.files[0])}
+                      className="w-full p-2 border rounded-lg mb-3"
+                    />
+                    <Button
+                      onClick={() => handleImport('challenge', 'health_disease_management')}
+                      disabled={!file || importing}
+                      className="bg-gradient-to-r from-green-500 to-emerald-500"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {importing ? 'Importing...' : 'Import Challenge Registrations'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* PROSPERITY PROGRAM */}
+          <TabsContent value="prosperity">
+            <div className="space-y-6">
+              {/* Import Prosperity Leads */}
+              <Card className="border-none shadow-xl">
+                <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                  <CardTitle>📥 Import Prosperity Program Leads</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
+                  <div className="p-4 bg-purple-50 rounded-lg">
+                    <p className="text-sm text-gray-700 mb-3">
+                      Import leads from existing clients, health coach students, or Archit's community
+                    </p>
+                    <Button onClick={() => downloadTemplate('leads', 'prosperity_program')} variant="outline">
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Prosperity Leads Template
+                    </Button>
+                    <p className="text-xs text-gray-600 mt-2">
+                      Lead sources: existing_client, health_coach_student, archit_community
+                    </p>
+                  </div>
+                  <div className="p-4 bg-green-50 rounded-lg">
+                    <input
+                      type="file"
+                      accept=".csv,.xlsx,.xls"
+                      onChange={(e) => setFile(e.target.files[0])}
+                      className="w-full p-2 border rounded-lg mb-3"
+                    />
+                    <Button
+                      onClick={() => handleImport('leads', 'prosperity_program')}
+                      disabled={!file || importing}
+                      className="bg-gradient-to-r from-green-500 to-emerald-500"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {importing ? 'Importing...' : 'Import Prosperity Leads'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Import 5 Days Challenge */}
+              <Card className="border-none shadow-xl">
+                <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-500 text-white">
+                  <CardTitle>📥 Import 5 Days Prosperity Challenge</CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 space-y-4">
                   <div className="p-4 bg-orange-50 rounded-lg">
-                    <h3 className="font-bold text-lg mb-2">📊 Required Columns</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
-                      <div>
-                        <p className="font-semibold">full_name</p>
-                        <p className="text-gray-600">Required</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold">email</p>
-                        <p className="text-gray-600">Required</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold">phone</p>
-                        <p className="text-gray-600">Required</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold">webinar_title</p>
-                        <p className="text-gray-600">Required</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold">webinar_date</p>
-                        <p className="text-gray-600">YYYY-MM-DD HH:MM</p>
-                      </div>
-                    </div>
+                    <p className="text-sm text-gray-700 mb-3">
+                      Import registrations for 5 Days Prosperity Challenge
+                    </p>
+                    <Button onClick={() => downloadTemplate('challenge', 'prosperity_program')} variant="outline">
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Challenge Template
+                    </Button>
+                    <p className="text-xs text-gray-600 mt-2">
+                      Challenge type: 5_days_prosperity
+                    </p>
+                  </div>
+                  <div className="p-4 bg-green-50 rounded-lg">
+                    <input
+                      type="file"
+                      accept=".csv,.xlsx,.xls"
+                      onChange={(e) => setFile(e.target.files[0])}
+                      className="w-full p-2 border rounded-lg mb-3"
+                    />
+                    <Button
+                      onClick={() => handleImport('challenge', 'prosperity_program')}
+                      disabled={!file || importing}
+                      className="bg-gradient-to-r from-green-500 to-emerald-500"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {importing ? 'Importing...' : 'Import Challenge Registrations'}
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -424,9 +553,10 @@ Priya Sharma,priya@example.com,+91 9876543211,Disease Reversal Masterclass,2025-
             <ul className="space-y-2 ml-6 list-disc text-sm text-gray-700">
               <li>Make sure column names match exactly (case-sensitive)</li>
               <li>Phone numbers should include country code (e.g., +91 9876543210)</li>
-              <li>Date format should be: YYYY-MM-DD HH:MM:SS</li>
-              <li>Remove any special characters from names</li>
-              <li>One row = one record</li>
+              <li>Date format should be: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS</li>
+              <li>Each vertical has its own template - make sure to download the right one</li>
+              <li>For Showcases: came_from options are silver_buyer, diploma_buyer, outside_lead</li>
+              <li>For Challenges: challenge_type is 3_7_days_health or 5_days_prosperity</li>
               <li>Maximum 1000 records per import</li>
             </ul>
           </CardContent>
