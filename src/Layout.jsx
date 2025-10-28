@@ -88,6 +88,12 @@ const businessNavigation = [
     roles: ['super_admin', 'team_member'],
   },
   {
+    title: "Verticals Dashboard",
+    url: createPageUrl("VerticalManagement"),
+    icon: Target,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
     title: "My Team",
     url: createPageUrl("TeamManagement"),
     icon: UserPlus,
