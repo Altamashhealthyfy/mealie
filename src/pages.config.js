@@ -29,6 +29,7 @@ import CallCenter from './pages/CallCenter';
 import CallCenterAdmin from './pages/CallCenterAdmin';
 import BulkImport from './pages/BulkImport';
 import TeamAttendance from './pages/TeamAttendance';
+import IncomeExpense from './pages/IncomeExpense';
 import Layout from './Layout.jsx';
 
 
@@ -64,6 +65,7 @@ export const PAGES = {
     "CallCenterAdmin": CallCenterAdmin,
     "BulkImport": BulkImport,
     "TeamAttendance": TeamAttendance,
+    "IncomeExpense": IncomeExpense,
 }
 
 export const pagesConfig = {
