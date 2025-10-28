@@ -95,6 +95,12 @@ const businessNavigation = [
     roles: ['super_admin', 'team_member'],
   },
   {
+    title: "Usage & Billing",
+    url: createPageUrl("UsageDashboard"),
+    icon: DollarSign,
+    roles: ['super_admin'],
+  },
+  {
     title: "Verticals Dashboard",
     url: createPageUrl("VerticalManagement"),
     icon: Target,
