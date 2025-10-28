@@ -1,0 +1,126 @@
+{
+  "name": "DownloadableTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Template name"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this template contains"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "meal_plan",
+        "recipe",
+        "business_strategy",
+        "marketing_material",
+        "client_tracker",
+        "assessment_form",
+        "other"
+      ],
+      "description": "Template category"
+    },
+    "subcategory": {
+      "type": "string",
+      "enum": [
+        "weight_loss",
+        "weight_gain",
+        "diabetes",
+        "pcos",
+        "thyroid",
+        "pregnancy",
+        "kids",
+        "muscle_gain",
+        "maintenance",
+        "general"
+      ],
+      "description": "For meal plans - specific subcategory"
+    },
+    "target_calories": {
+      "type": "number",
+      "description": "Target calories (for meal plans)"
+    },
+    "food_preference": {
+      "type": "string",
+      "enum": [
+        "veg",
+        "non_veg",
+        "jain",
+        "mixed",
+        "all"
+      ],
+      "description": "Food preference"
+    },
+    "regional_preference": {
+      "type": "string",
+      "enum": [
+        "north",
+        "south",
+        "west",
+        "east",
+        "all"
+      ],
+      "description": "Regional cuisine"
+    },
+    "duration": {
+      "type": "number",
+      "description": "Duration in days (for meal plans)"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL to the Word/PDF file"
+    },
+    "file_type": {
+      "type": "string",
+      "enum": [
+        "docx",
+        "pdf",
+        "xlsx"
+      ],
+      "description": "File type"
+    },
+    "file_size": {
+      "type": "string",
+      "description": "File size (e.g., 2.5 MB)"
+    },
+    "thumbnail_url": {
+      "type": "string",
+      "description": "Preview image URL"
+    },
+    "download_count": {
+      "type": "number",
+      "default": 0,
+      "description": "How many times downloaded"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for easy searching"
+    },
+    "is_premium": {
+      "type": "boolean",
+      "default": false,
+      "description": "Only for premium plans"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0",
+      "description": "Template version"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date",
+      "description": "Last update date"
+    }
+  },
+  "required": [
+    "name",
+    "category",
+    "file_url"
+  ]
+}

@@ -32,6 +32,7 @@ import TeamAttendance from './pages/TeamAttendance';
 import IncomeExpense from './pages/IncomeExpense';
 import InstallmentTracker from './pages/InstallmentTracker';
 import VerticalManagement from './pages/VerticalManagement';
+import TemplateLibraryManager from './pages/TemplateLibraryManager';
 import Layout from './Layout.jsx';
 
 
@@ -70,6 +71,7 @@ export const PAGES = {
     "IncomeExpense": IncomeExpense,
     "InstallmentTracker": InstallmentTracker,
     "VerticalManagement": VerticalManagement,
+    "TemplateLibraryManager": TemplateLibraryManager,
 }
 
 export const pagesConfig = {
