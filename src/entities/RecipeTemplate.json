@@ -1,0 +1,115 @@
+{
+  "name": "RecipeTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Recipe name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description"
+    },
+    "meal_type": {
+      "type": "string",
+      "enum": [
+        "breakfast",
+        "mid_morning",
+        "lunch",
+        "evening_snack",
+        "dinner"
+      ],
+      "description": "Type of meal"
+    },
+    "food_preference": {
+      "type": "string",
+      "enum": [
+        "veg",
+        "non_veg",
+        "jain"
+      ],
+      "description": "Dietary preference"
+    },
+    "regional_cuisine": {
+      "type": "string",
+      "enum": [
+        "north",
+        "south",
+        "west",
+        "east",
+        "fusion"
+      ],
+      "description": "Regional cuisine type"
+    },
+    "ingredients": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "instructions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Step by step instructions"
+    },
+    "prep_time": {
+      "type": "number",
+      "description": "Preparation time in minutes"
+    },
+    "cook_time": {
+      "type": "number",
+      "description": "Cooking time in minutes"
+    },
+    "servings": {
+      "type": "number",
+      "description": "Number of servings"
+    },
+    "calories": {
+      "type": "number",
+      "description": "Calories per serving"
+    },
+    "protein": {
+      "type": "number",
+      "description": "Protein in grams per serving"
+    },
+    "carbs": {
+      "type": "number",
+      "description": "Carbs in grams per serving"
+    },
+    "fats": {
+      "type": "number",
+      "description": "Fats in grams per serving"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Recipe tags like high-protein, low-carb, etc."
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false,
+      "description": "Available to all coaches"
+    },
+    "times_used": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "name",
+    "meal_type",
+    "food_preference"
+  ]
+}

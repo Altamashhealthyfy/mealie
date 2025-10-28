@@ -1,0 +1,70 @@
+{
+  "name": "UsageTracking",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user"
+    },
+    "month": {
+      "type": "string",
+      "description": "Month in YYYY-MM format"
+    },
+    "meal_plans_generated": {
+      "type": "number",
+      "default": 0,
+      "description": "AI meal plans generated this month"
+    },
+    "recipes_generated": {
+      "type": "number",
+      "default": 0,
+      "description": "AI recipes generated this month"
+    },
+    "food_lookups": {
+      "type": "number",
+      "default": 0,
+      "description": "Food lookup queries this month"
+    },
+    "business_gpt_queries": {
+      "type": "number",
+      "default": 0,
+      "description": "Business GPT queries this month"
+    },
+    "emails_sent": {
+      "type": "number",
+      "default": 0,
+      "description": "Emails sent this month"
+    },
+    "plan_limits": {
+      "type": "object",
+      "description": "Monthly limits based on subscription",
+      "properties": {
+        "meal_plans": {
+          "type": "number",
+          "default": 20
+        },
+        "recipes": {
+          "type": "number",
+          "default": 50
+        },
+        "food_lookups": {
+          "type": "number",
+          "default": 50
+        },
+        "business_gpts": {
+          "type": "number",
+          "default": 10
+        }
+      }
+    },
+    "overage_charges": {
+      "type": "number",
+      "default": 0,
+      "description": "Additional charges for exceeding limits"
+    }
+  },
+  "required": [
+    "user_email",
+    "month"
+  ]
+}
