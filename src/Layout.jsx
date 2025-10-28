@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -23,7 +24,7 @@ import {
   UserPlus,
   Sparkles,
   Rocket,
-  Target
+  Target // Added Target icon
 } from "lucide-react";
 import {
   Sidebar,
@@ -91,6 +92,30 @@ const businessNavigation = [
     url: createPageUrl("TeamManagement"),
     icon: UserPlus,
     roles: ['super_admin', 'student_coach'],
+  },
+  {
+    title: "Bulk Import",
+    url: createPageUrl("BulkImport"),
+    icon: Utensils,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
+    title: "Team Attendance",
+    url: createPageUrl("TeamAttendance"),
+    icon: Calendar,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
+    title: "Income & Expense",
+    url: createPageUrl("IncomeExpense"),
+    icon: DollarSign,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
+    title: "Installments",
+    url: createPageUrl("InstallmentTracker"),
+    icon: TrendingUp,
+    roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
     title: "Business GPTs",
