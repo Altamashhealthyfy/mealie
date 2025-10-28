@@ -31,6 +31,7 @@ import BulkImport from './pages/BulkImport';
 import TeamAttendance from './pages/TeamAttendance';
 import IncomeExpense from './pages/IncomeExpense';
 import InstallmentTracker from './pages/InstallmentTracker';
+import VerticalManagement from './pages/VerticalManagement';
 import Layout from './Layout.jsx';
 
 
@@ -68,6 +69,7 @@ export const PAGES = {
     "TeamAttendance": TeamAttendance,
     "IncomeExpense": IncomeExpense,
     "InstallmentTracker": InstallmentTracker,
+    "VerticalManagement": VerticalManagement,
 }
 
 export const pagesConfig = {
