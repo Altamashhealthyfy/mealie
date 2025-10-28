@@ -1,0 +1,223 @@
+{
+  "name": "MasterTemplate",
+  "type": "object",
+  "properties": {
+    "template_type": {
+      "type": "string",
+      "enum": [
+        "meal_plan",
+        "recipe",
+        "food_item",
+        "business_strategy"
+      ],
+      "description": "Type of master template"
+    },
+    "name": {
+      "type": "string",
+      "description": "Template name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Template description"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "weight_loss",
+        "weight_gain",
+        "diabetes",
+        "pcos",
+        "thyroid",
+        "maintenance",
+        "muscle_gain",
+        "pregnancy",
+        "kids_nutrition",
+        "general"
+      ],
+      "description": "Template category"
+    },
+    "target_calories": {
+      "type": "number",
+      "description": "Target calories (for meal plans)"
+    },
+    "food_preference": {
+      "type": "string",
+      "enum": [
+        "veg",
+        "non_veg",
+        "jain",
+        "mixed",
+        "vegan"
+      ],
+      "description": "Food preference"
+    },
+    "regional_preference": {
+      "type": "string",
+      "enum": [
+        "north",
+        "south",
+        "west",
+        "east",
+        "all"
+      ],
+      "description": "Regional cuisine"
+    },
+    "duration": {
+      "type": "number",
+      "description": "Duration in days (for meal plans)"
+    },
+    "meals": {
+      "type": "array",
+      "description": "For meal plan templates",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "number"
+          },
+          "meal_type": {
+            "type": "string"
+          },
+          "meal_name": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "portion_sizes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "calories": {
+            "type": "number"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "carbs": {
+            "type": "number"
+          },
+          "fats": {
+            "type": "number"
+          },
+          "nutritional_tip": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "recipe_data": {
+      "type": "object",
+      "description": "For recipe templates",
+      "properties": {
+        "meal_type": {
+          "type": "string"
+        },
+        "ingredients": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "item": {
+                "type": "string"
+              },
+              "quantity": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "instructions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "prep_time": {
+          "type": "number"
+        },
+        "cook_time": {
+          "type": "number"
+        },
+        "servings": {
+          "type": "number"
+        },
+        "calories": {
+          "type": "number"
+        },
+        "protein": {
+          "type": "number"
+        },
+        "carbs": {
+          "type": "number"
+        },
+        "fats": {
+          "type": "number"
+        }
+      }
+    },
+    "food_data": {
+      "type": "object",
+      "description": "For food database entries",
+      "properties": {
+        "portion_size": {
+          "type": "string"
+        },
+        "calories": {
+          "type": "number"
+        },
+        "protein": {
+          "type": "number"
+        },
+        "carbs": {
+          "type": "number"
+        },
+        "fats": {
+          "type": "number"
+        },
+        "fiber": {
+          "type": "number"
+        }
+      }
+    },
+    "business_strategy": {
+      "type": "string",
+      "description": "For business strategies"
+    },
+    "total_usage_count": {
+      "type": "number",
+      "default": 0,
+      "description": "How many times used across all students"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for filtering"
+    },
+    "is_premium": {
+      "type": "boolean",
+      "default": false,
+      "description": "Only available in premium plans"
+    },
+    "difficulty_level": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "description": "For recipes - difficulty level"
+    }
+  },
+  "required": [
+    "template_type",
+    "name"
+  ]
+}
