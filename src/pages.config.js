@@ -34,6 +34,7 @@ import InstallmentTracker from './pages/InstallmentTracker';
 import VerticalManagement from './pages/VerticalManagement';
 import TemplateLibraryManager from './pages/TemplateLibraryManager';
 import TemplateLibrary from './pages/TemplateLibrary';
+import UsageDashboard from './pages/UsageDashboard';
 import Layout from './Layout.jsx';
 
 
@@ -74,6 +75,7 @@ export const PAGES = {
     "VerticalManagement": VerticalManagement,
     "TemplateLibraryManager": TemplateLibraryManager,
     "TemplateLibrary": TemplateLibrary,
+    "UsageDashboard": UsageDashboard,
 }
 
 export const pagesConfig = {
