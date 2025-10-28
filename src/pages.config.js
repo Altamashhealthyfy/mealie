@@ -30,6 +30,7 @@ import CallCenterAdmin from './pages/CallCenterAdmin';
 import BulkImport from './pages/BulkImport';
 import TeamAttendance from './pages/TeamAttendance';
 import IncomeExpense from './pages/IncomeExpense';
+import InstallmentTracker from './pages/InstallmentTracker';
 import Layout from './Layout.jsx';
 
 
@@ -66,6 +67,7 @@ export const PAGES = {
     "BulkImport": BulkImport,
     "TeamAttendance": TeamAttendance,
     "IncomeExpense": IncomeExpense,
+    "InstallmentTracker": InstallmentTracker,
 }
 
 export const pagesConfig = {
