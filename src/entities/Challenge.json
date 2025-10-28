@@ -1,0 +1,98 @@
+{
+  "name": "Challenge",
+  "type": "object",
+  "properties": {
+    "lead_id": {
+      "type": "string",
+      "description": "ID of the lead"
+    },
+    "full_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "challenge_type": {
+      "type": "string",
+      "enum": [
+        "3_7_days_health",
+        "5_days_prosperity"
+      ],
+      "description": "Type of challenge"
+    },
+    "challenge_name": {
+      "type": "string",
+      "description": "Name of the challenge"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "registration_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "attendance_status": {
+      "type": "string",
+      "enum": [
+        "registered",
+        "active",
+        "completed",
+        "dropped"
+      ],
+      "default": "registered"
+    },
+    "days_attended": {
+      "type": "number",
+      "default": 0,
+      "description": "How many days they attended"
+    },
+    "purchased_after_challenge": {
+      "type": "boolean",
+      "default": false
+    },
+    "product_bought": {
+      "type": "string",
+      "description": "What they bought after challenge"
+    },
+    "amount_paid": {
+      "type": "number"
+    },
+    "came_from_free_program": {
+      "type": "boolean",
+      "default": false,
+      "description": "For Prosperity - came from free 8 weeks?"
+    },
+    "follow_up_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "offer_sent",
+        "called",
+        "not_interested"
+      ],
+      "default": "pending"
+    },
+    "special_offer_sent": {
+      "type": "boolean",
+      "default": false
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "full_name",
+    "phone",
+    "challenge_type",
+    "challenge_name",
+    "start_date"
+  ]
+}

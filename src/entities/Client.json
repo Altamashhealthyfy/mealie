@@ -14,6 +14,62 @@
       "type": "string",
       "description": "Client's phone number"
     },
+    "business_vertical": {
+      "type": "string",
+      "enum": [
+        "health_coach_training",
+        "health_disease_management",
+        "prosperity_program"
+      ],
+      "description": "Which vertical they belong to"
+    },
+    "client_type": {
+      "type": "string",
+      "enum": [
+        "health_client",
+        "health_coach_student",
+        "prosperity_student"
+      ],
+      "description": "Type of client"
+    },
+    "current_program": {
+      "type": "string",
+      "description": "Current program they're enrolled in"
+    },
+    "programs_completed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of completed programs"
+    },
+    "upgrade_history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from_program": {
+            "type": "string"
+          },
+          "to_program": {
+            "type": "string"
+          },
+          "upgrade_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "History of all upgrades"
+    },
+    "total_spent": {
+      "type": "number",
+      "default": 0,
+      "description": "Total lifetime value"
+    },
     "age": {
       "type": "number"
     },

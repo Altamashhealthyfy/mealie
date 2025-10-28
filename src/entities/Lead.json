@@ -14,6 +14,15 @@
       "type": "string",
       "description": "Lead's phone number"
     },
+    "business_vertical": {
+      "type": "string",
+      "enum": [
+        "health_coach_training",
+        "health_disease_management",
+        "prosperity_program"
+      ],
+      "description": "Which business vertical this lead belongs to"
+    },
     "lead_source": {
       "type": "string",
       "enum": [
@@ -24,6 +33,9 @@
         "referral",
         "organic",
         "webinar",
+        "existing_client",
+        "health_coach_student",
+        "archit_community",
         "other"
       ],
       "description": "Where did lead come from"
@@ -47,10 +59,22 @@
         "lead",
         "webinar_registered",
         "webinar_attended",
+        "silver_buyer",
+        "diploma_showcase_registered",
+        "diploma_showcase_attended",
+        "diploma_buyer",
+        "diamond_showcase_registered",
+        "diamond_showcase_attended",
+        "diamond_buyer",
+        "challenge_registered",
+        "challenge_attended",
         "low_ticket_buyer",
-        "student",
         "high_ticket_prospect",
-        "high_ticket_client"
+        "high_ticket_buyer",
+        "upgrade_client",
+        "prosperity_registered",
+        "prosperity_attended",
+        "prosperity_buyer"
       ],
       "default": "lead",
       "description": "Current stage in sales pipeline"
@@ -67,7 +91,16 @@
     },
     "assigned_to": {
       "type": "string",
-      "description": "Email of team member assigned to this lead"
+      "enum": [
+        "sheenu",
+        "sanjeev",
+        "fatima",
+        "sikha",
+        "shweta",
+        "altmash",
+        "rajnee"
+      ],
+      "description": "Team member assigned to this lead"
     },
     "last_contacted": {
       "type": "string",
@@ -78,6 +111,23 @@
       "type": "string",
       "format": "date-time",
       "description": "When to follow up next"
+    },
+    "purchased_products": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of products they bought"
+    },
+    "total_spent": {
+      "type": "number",
+      "default": 0,
+      "description": "Total amount spent"
+    },
+    "upgrade_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of times they upgraded"
     },
     "ad_campaign": {
       "type": "string",
@@ -96,6 +146,15 @@
         "type": "string"
       },
       "description": "Tags for categorization"
+    },
+    "did_not_buy_reason": {
+      "type": "string",
+      "description": "Why they didn't purchase (for follow-up)"
+    },
+    "offer_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Was special offer sent to non-buyer"
     }
   },
   "required": [
