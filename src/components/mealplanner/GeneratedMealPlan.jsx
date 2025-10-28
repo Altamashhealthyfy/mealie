@@ -8,10 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Calendar, Save, RefreshCw, ChefHat, Lightbulb, Edit, Check, X, Download, Copy, FileText, Printer } from "lucide-react";
+import { Calendar, Save, RefreshCw, ChefHat, Lightbulb, Edit, Check, X, Download, Copy, FileText, Printer, Loader2, CheckCircle, Star, Plus } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export default function GeneratedMealPlan({ plan, onSave, onGenerateNew, isSaving }) {
+export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGenerateNew, isSaving }) {
   const [editablePlan, setEditablePlan] = useState(plan);
   const [editingMeal, setEditingMeal] = useState(null);
   const [copiedText, setCopiedText] = useState(false);
@@ -31,7 +31,7 @@ export default function GeneratedMealPlan({ plan, onSave, onGenerateNew, isSavin
   };
 
   const handleSaveMealEdit = () => {
-    const updatedMeals = editablePlan.meals.map(m => 
+    const updatedMeals = editablePlan.meals.map(m =>
       m.day === editingMeal.day && m.meal_type === editingMeal.meal_type ? editingMeal : m
     );
     setEditablePlan({...editablePlan, meals: updatedMeals});
@@ -65,25 +65,25 @@ export default function GeneratedMealPlan({ plan, onSave, onGenerateNew, isSavin
     Object.keys(groupedMeals).sort((a, b) => parseInt(a) - parseInt(b)).forEach(day => {
       text += `DAY ${day}\n`;
       text += `${'-'.repeat(60)}\n\n`;
-      
+
       groupedMeals[day]
         .sort((a, b) => mealTypes.indexOf(a.meal_type) - mealTypes.indexOf(b.meal_type))
         .forEach(meal => {
           text += `${meal.meal_type.toUpperCase()}: ${meal.meal_name}\n`;
           text += `Calories: ${meal.calories} | Protein: ${meal.protein}g | Carbs: ${meal.carbs}g | Fats: ${meal.fats}g\n\n`;
-          
+
           text += `Food Items:\n`;
           meal.items?.forEach((item, i) => {
             text += `  • ${item} - ${meal.portion_sizes?.[i] || 'As needed'}\n`;
           });
-          
+
           if (meal.nutritional_tip) {
             text += `\n💡 Tip: ${meal.nutritional_tip}\n`;
           }
-          
+
           text += `\n`;
         });
-      
+
       text += `\n`;
     });
 
@@ -176,34 +176,71 @@ export default function GeneratedMealPlan({ plan, onSave, onGenerateNew, isSavin
       </Alert>
 
       {/* Action Buttons */}
-      <div className="flex gap-2 print:hidden">
-        <Button
-          variant="outline"
-          onClick={onGenerateNew}
-          className="border-orange-500 text-orange-600 hover:bg-orange-50"
-        >
-          <RefreshCw className="w-4 h-4 mr-2" />
-          Generate New
-        </Button>
-        {onSave && (
-          <Button
-            onClick={handleSavePlan}
-            disabled={isSaving}
-            className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            {isSaving ? 'Saving...' : 'Save to Client Account'}
-          </Button>
-        )}
-      </div>
+      <Card className="border-none shadow-lg bg-gradient-to-br from-green-50 to-emerald-50 print:hidden">
+        <CardContent className="p-6">
+          <div className="flex flex-wrap gap-3">
+            {onSave && (
+              <Button
+                onClick={handleSavePlan}
+                disabled={isSaving}
+                className="flex-1 min-w-[200px] h-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Assigning to Client...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-5 h-5 mr-2" />
+                    Assign to Client
+                  </>
+                )}
+              </Button>
+            )}
+
+            {onSaveAsTemplate && (
+              <Button
+                onClick={onSaveAsTemplate}
+                variant="outline"
+                className="flex-1 min-w-[200px] h-12 border-2 border-purple-500 text-purple-700 hover:bg-purple-50"
+              >
+                <Star className="w-5 h-5 mr-2" />
+                Save as Template (FREE Forever!)
+              </Button>
+            )}
+
+            <Button
+              onClick={onGenerateNew}
+              variant="outline"
+              className="flex-1 min-w-[200px] h-12"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Create Another Plan
+            </Button>
+          </div>
+
+          {onSaveAsTemplate && (
+            <div className="mt-4 p-4 bg-purple-100 border-2 border-purple-300 rounded-lg">
+              <p className="text-sm font-semibold text-purple-900 mb-1">
+                💡 Pro Tip: Save as Template First!
+              </p>
+              <p className="text-xs text-purple-800">
+                Once saved as template, you can use it for unlimited clients for FREE.
+                Just clone and make small tweaks in 5 minutes!
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Meal Plan Tabs */}
       <Tabs defaultValue="day-1" className="space-y-4 print:hidden">
         <div className="bg-white/80 backdrop-blur rounded-xl p-2 shadow-lg overflow-x-auto">
           <TabsList className="flex flex-nowrap">
             {Object.keys(groupedMeals).sort((a, b) => parseInt(a) - parseInt(b)).map(day => (
-              <TabsTrigger 
-                key={day} 
+              <TabsTrigger
+                key={day}
                 value={`day-${day}`}
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white whitespace-nowrap"
               >
