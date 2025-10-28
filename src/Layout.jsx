@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -24,9 +23,9 @@ import {
   UserPlus,
   Sparkles,
   Rocket,
-  Target, // Added Target icon
-  FileText, // Added FileText icon
-  Upload // Added Upload icon
+  Target,
+  FileText,
+  Upload
 } from "lucide-react";
 import {
   Sidebar,
