@@ -1,0 +1,68 @@
+{
+  "name": "Expense",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Expense date"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "marketing",
+        "salary",
+        "software",
+        "office_rent",
+        "utilities",
+        "travel",
+        "training",
+        "other"
+      ],
+      "description": "Expense category"
+    },
+    "description": {
+      "type": "string",
+      "description": "What was the expense for"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Expense amount"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "cash",
+        "bank_transfer",
+        "upi",
+        "credit_card",
+        "debit_card"
+      ],
+      "description": "How was it paid"
+    },
+    "vendor": {
+      "type": "string",
+      "description": "Vendor or supplier name"
+    },
+    "invoice_number": {
+      "type": "string",
+      "description": "Invoice or bill number"
+    },
+    "receipt_url": {
+      "type": "string",
+      "description": "Receipt/invoice file URL"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Who approved this expense"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "date",
+    "category",
+    "amount"
+  ]
+}

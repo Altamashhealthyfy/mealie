@@ -27,6 +27,7 @@ import TeamDashboard from './pages/TeamDashboard';
 import ProjectManagement from './pages/ProjectManagement';
 import CallCenter from './pages/CallCenter';
 import CallCenterAdmin from './pages/CallCenterAdmin';
+import BulkImport from './pages/BulkImport';
 import Layout from './Layout.jsx';
 
 
@@ -60,6 +61,7 @@ export const PAGES = {
     "ProjectManagement": ProjectManagement,
     "CallCenter": CallCenter,
     "CallCenterAdmin": CallCenterAdmin,
+    "BulkImport": BulkImport,
 }
 
 export const pagesConfig = {
