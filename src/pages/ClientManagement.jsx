@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Users,
@@ -200,6 +200,9 @@ export default function ClientManagement() {
                 <DialogTitle className="text-2xl">
                   {selectedClient ? 'Edit Client' : 'Add New Client'}
                 </DialogTitle>
+                <DialogDescription>
+                  {selectedClient ? 'Update client information and health data' : 'Add a new client with their health information and goals'}
+                </DialogDescription>
               </DialogHeader>
               
               <Tabs defaultValue="basic" className="mt-4">
@@ -609,6 +612,9 @@ export default function ClientManagement() {
               <DialogTitle className="text-2xl">
                 {viewingClientPlans?.client?.full_name}'s Meal Plans
               </DialogTitle>
+              <DialogDescription>
+                View all meal plans created for this client. Click "View Details" to see the full plan.
+              </DialogDescription>
             </DialogHeader>
             {viewingClientPlans && (
               <div className="space-y-4 mt-4">
