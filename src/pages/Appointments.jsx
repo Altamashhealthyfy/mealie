@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -42,7 +43,18 @@ export default function Appointments() {
 
   const { data: clients } = useQuery({
     queryKey: ['clients'],
-    queryFn: () => base44.entities.Client.list('-created_date'),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      const allClients = await base44.entities.Client.list('-created_date');
+      
+      // Super admin sees ALL clients
+      if (user?.user_type === 'super_admin') {
+        return allClients;
+      }
+      
+      // Team members, student coaches - only see THEIR OWN clients
+      return allClients.filter(client => client.created_by === user?.email);
+    },
     initialData: [],
   });
 
