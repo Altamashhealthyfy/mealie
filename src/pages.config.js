@@ -35,6 +35,7 @@ import VerticalManagement from './pages/VerticalManagement';
 import TemplateLibraryManager from './pages/TemplateLibraryManager';
 import TemplateLibrary from './pages/TemplateLibrary';
 import UsageDashboard from './pages/UsageDashboard';
+import TeamSetup from './pages/TeamSetup';
 import Layout from './Layout.jsx';
 
 
@@ -76,6 +77,7 @@ export const PAGES = {
     "TemplateLibraryManager": TemplateLibraryManager,
     "TemplateLibrary": TemplateLibrary,
     "UsageDashboard": UsageDashboard,
+    "TeamSetup": TeamSetup,
 }
 
 export const pagesConfig = {
