@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -23,8 +23,8 @@ export default function MealPlanner() {
   const [generatedPlan, setGeneratedPlan] = useState(null);
   const [viewingPlan, setViewingPlan] = useState(null);
   const [selectedClientId, setSelectedClientId] = useState(null);
-  const [activeTab, setActiveTab] = useState("templates"); // Changed initial tab to "templates"
-  const [showAIWarning, setShowAIWarning] = useState(false); // New state for AI generation warning
+  const [activeTab, setActiveTab] = useState("templates");
+  const [showAIWarning, setShowAIWarning] = useState(false);
   const [planConfig, setPlanConfig] = useState({
     duration: 10,
     meal_pattern: 'daily',
@@ -42,9 +42,18 @@ export default function MealPlanner() {
     initialData: [],
   });
 
-  const { data: mealPlans } = useQuery({ // Removed refetch from here
+  const { data: mealPlans } = useQuery({
     queryKey: ['mealPlans'],
-    queryFn: () => base44.entities.MealPlan.list('-created_date'),
+    queryFn: async () => {
+      const allPlans = await base44.entities.MealPlan.list('-created_date');
+      // Filter to only show plans created by current user (for team members)
+      // Super admin sees all
+      if (user?.user_type === 'super_admin') {
+        return allPlans;
+      }
+      // Team members, student coaches - only see their own
+      return allPlans.filter(plan => plan.created_by === user?.email);
+    },
     enabled: !!user,
     initialData: [],
   });
@@ -66,28 +75,27 @@ export default function MealPlanner() {
 
   // New query for usage tracking
   const { data: usage } = useQuery({
-    queryKey: ['usage', user?.email, format(new Date(), 'yyyy-MM')], // Added user?.email and month to queryKey for better invalidation
+    queryKey: ['usage', user?.email, format(new Date(), 'yyyy-MM')],
     queryFn: async () => {
-      if (!user?.email) return null; // Ensure user email is available
+      if (!user?.email) return null;
       const currentMonth = format(new Date(), 'yyyy-MM');
       const usageRecords = await base44.entities.UsageTracking.filter({
         user_email: user?.email,
         month: currentMonth
       });
-      // Return existing record or a default one
       return usageRecords[0] || {
         meal_plans_generated: 0,
-        plan_limits: { meal_plans: 20, recipes: 50, food_lookups: 50, business_gpts: 10 } // Default limits
+        plan_limits: { meal_plans: 20, recipes: 50, food_lookups: 50, business_gpts: 10 }
       };
     },
-    enabled: !!user, // Only run if user is logged in
+    enabled: !!user,
   });
 
   // New mutation to save templates
   const saveTemplateMutation = useMutation({
     mutationFn: (templateData) => base44.entities.MealPlanTemplate.create(templateData),
     onSuccess: () => {
-      queryClient.invalidateQueries(['mealPlanTemplates']); // Invalidate templates cache
+      queryClient.invalidateQueries(['mealPlanTemplates']);
       alert("✅ Template saved! You can now use it unlimited times for FREE!");
     },
   });
@@ -95,10 +103,10 @@ export default function MealPlanner() {
   const savePlanMutation = useMutation({
     mutationFn: (planData) => base44.entities.MealPlan.create(planData),
     onSuccess: async () => {
-      await queryClient.invalidateQueries(['mealPlans']); // Invalidate mealPlans cache
+      await queryClient.invalidateQueries(['mealPlans']);
       setGeneratedPlan(null);
       setSelectedClientId(null);
-      alert(`✅ Meal plan assigned successfully!\n\nClient will see it in their "My Meal Plan" page`); // Updated alert message
+      alert(`✅ Meal plan assigned successfully!\n\nClient will see it in their "My Meal Plan" page`);
     },
   });
 
@@ -116,22 +124,30 @@ export default function MealPlanner() {
         const current = usageRecords[0];
         return await base44.entities.UsageTracking.update(current.id, {
           meal_plans_generated: (current.meal_plans_generated || 0) + (type === 'meal_plan' ? 1 : 0),
-          // Can add other usage types here if needed
         });
       } else {
-        // Create new usage record if none exists for the month
         return await base44.entities.UsageTracking.create({
           user_email: user?.email,
           month: currentMonth,
           meal_plans_generated: type === 'meal_plan' ? 1 : 0,
-          plan_limits: { meal_plans: 20, recipes: 50, food_lookups: 50, business_gpts: 10 } // Set default limits for new month
+          plan_limits: { meal_plans: 20, recipes: 50, food_lookups: 50, business_gpts: 10 }
         });
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['usage']); // Invalidate usage cache
+      queryClient.invalidateQueries(['usage']);
     },
   });
+
+  // Check URL parameters for pre-selected client
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const clientId = urlParams.get('client');
+    if (clientId && clients.length > 0) {
+      setSelectedClientId(clientId);
+      setActiveTab("generate"); // Switch to generate tab
+    }
+  }, [clients]);
 
   const selectedClient = clients.find(c => c.id === selectedClientId);
 
@@ -148,24 +164,21 @@ export default function MealPlanner() {
       client_id: selectedClient.id,
       client_name: selectedClient.full_name,
       duration: template.duration,
-      meal_pattern: 'daily', // Templates are usually daily, can be adjusted
+      meal_pattern: 'daily',
       food_preference: template.food_preference,
       regional_preference: template.regional_preference,
       target_calories: template.target_calories,
-      from_template: true, // Mark this plan as generated from a template
-      template_id: template.id // Store template ID for tracking if needed
+      from_template: true,
+      template_id: template.id
     });
 
-    // Update template usage count
-    // No await needed, fire and forget for UI responsiveness
     base44.entities.MealPlanTemplate.update(template.id, {
       times_used: (template.times_used || 0) + 1
     }).then(() => {
-        queryClient.invalidateQueries(['mealPlanTemplates']); // Invalidate templates to reflect usage update
+        queryClient.invalidateQueries(['mealPlanTemplates']);
     }).catch(console.error);
 
-
-    setActiveTab("generate"); // Switch to generate tab to show the cloned plan
+    setActiveTab("generate");
   };
 
   const generateMealPlan = async () => {
@@ -174,12 +187,11 @@ export default function MealPlanner() {
       return;
     }
 
-    // Check usage limits before proceeding with AI generation
     const currentUsage = usage?.meal_plans_generated || 0;
     const limit = usage?.plan_limits?.meal_plans || 20;
 
     if (currentUsage >= limit) {
-      setShowAIWarning(true); // Show the warning dialog if limit is reached
+      setShowAIWarning(true);
       return;
     }
 
@@ -246,7 +258,6 @@ Return the meal plan in a structured format with all days and meals.`;
         target_calories: selectedClient.target_calories,
       });
 
-      // Update usage count after successful generation
       await updateUsageMutation.mutateAsync({ type: 'meal_plan' });
 
     } catch (error) {
@@ -262,7 +273,7 @@ Return the meal plan in a structured format with all days and meals.`;
     
     savePlanMutation.mutate({
       client_id: editedPlan.client_id,
-      name: editedPlan.plan_name, // Ensure plan_name is passed
+      name: editedPlan.plan_name,
       duration: editedPlan.duration,
       meal_pattern: editedPlan.meal_pattern,
       target_calories: editedPlan.target_calories,
@@ -270,10 +281,10 @@ Return the meal plan in a structured format with all days and meals.`;
       food_preference: editedPlan.food_preference,
       regional_preference: editedPlan.regional_preference,
       active: true,
+      created_by: user?.email, // Ensure this is set for filtering
     });
   };
 
-  // New function to save a generated plan as a template
   const handleSaveAsTemplate = (plan) => {
     const templateName = prompt("Enter template name:", `${plan.food_preference} ${plan.target_calories} cal - ${plan.duration} days`);
     if (!templateName) return;
@@ -287,9 +298,9 @@ Return the meal plan in a structured format with all days and meals.`;
       food_preference: plan.food_preference,
       regional_preference: plan.regional_preference,
       meals: plan.meals,
-      is_public: false, // Default to private
+      is_public: false,
       times_used: 0,
-      created_by: user?.email // Store who created the template
+      created_by: user?.email
     });
   };
 
@@ -307,7 +318,7 @@ Return the meal plan in a structured format with all days and meals.`;
       client_name: client?.full_name || 'Unknown Client',
       client_id: plan.client_id,
     });
-    setActiveTab("generate"); // Switch to generate tab to show the plan
+    setActiveTab("generate");
   };
 
   if (clients.length === 0) {
@@ -342,7 +353,7 @@ Return the meal plan in a structured format with all days and meals.`;
               <Calendar className="w-10 h-10 text-orange-500" />
               <div>
                 <p className="text-2xl font-bold text-gray-900">{mealPlans.length}</p>
-                <p className="text-xs text-gray-600">Total Plans</p>
+                <p className="text-xs text-gray-600">My Plans</p>
               </div>
             </div>
           </div>
@@ -352,7 +363,7 @@ Return the meal plan in a structured format with all days and meals.`;
         <UsageLimitWarning usage={usage} limits={usage?.plan_limits} type="meal_plan" />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-3"> {/* Updated grid cols */}
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-3">
             <TabsTrigger value="templates" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white">
               <Star className="w-4 h-4 mr-2" />
               Templates (FREE!)
@@ -363,7 +374,7 @@ Return the meal plan in a structured format with all days and meals.`;
             </TabsTrigger>
             <TabsTrigger value="saved" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white">
               <Calendar className="w-4 h-4 mr-2" />
-              Assigned Plans ({mealPlans.length})
+              My Plans ({mealPlans.length})
             </TabsTrigger>
           </TabsList>
 
@@ -586,7 +597,7 @@ Return the meal plan in a structured format with all days and meals.`;
                           <SelectValue placeholder="Select duration" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="7">7 Days</SelectItem> {/* Changed values */}
+                          <SelectItem value="7">7 Days</SelectItem>
                           <SelectItem value="10">10 Days</SelectItem>
                           <SelectItem value="15">15 Days</SelectItem>
                         </SelectContent>
@@ -631,7 +642,7 @@ Return the meal plan in a structured format with all days and meals.`;
 
                   <Button
                     onClick={generateMealPlan}
-                    disabled={generating || !selectedClient} // showAIWarning is handled by the dialog
+                    disabled={generating || !selectedClient}
                     className="w-full h-14 text-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg"
                   >
                     {generating ? (
@@ -652,7 +663,7 @@ Return the meal plan in a structured format with all days and meals.`;
               <GeneratedMealPlan 
                 plan={viewingPlan || generatedPlan} 
                 onSave={viewingPlan ? null : handleSavePlan}
-                onSaveAsTemplate={!viewingPlan && generatedPlan?.from_template !== true ? () => handleSaveAsTemplate(generatedPlan) : null} // Only show if not viewing existing plan AND not from template
+                onSaveAsTemplate={!viewingPlan && generatedPlan?.from_template !== true ? () => handleSaveAsTemplate(generatedPlan) : null}
                 onGenerateNew={handleGenerateNew}
                 isSaving={savePlanMutation.isPending}
               />
@@ -665,7 +676,7 @@ Return the meal plan in a structured format with all days and meals.`;
               <Card className="border-none shadow-lg">
                 <CardContent className="p-12 text-center">
                   <Calendar className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Assigned Plans</h3>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Plans Created Yet</h3>
                   <p className="text-gray-600 mb-4">Create a new plan or clone a template to get started</p>
                   <Button 
                     onClick={() => setActiveTab("templates")}
@@ -678,7 +689,6 @@ Return the meal plan in a structured format with all days and meals.`;
               </Card>
             ) : (
               <div className="space-y-4">
-                {/* Summary Card Removed as per outline, only individual plan cards remain */}
                 <div className="grid gap-4">
                   {mealPlans.map((plan) => {
                     const planClient = clients.find(c => c.id === plan.client_id);
@@ -725,7 +735,6 @@ Return the meal plan in a structured format with all days and meals.`;
                           </div>
                         </CardHeader>
                         <CardContent>
-                          {/* `plan.meals?.length || 0} meals planned` was removed as per outline */}
                           <div className="flex gap-2">
                             <Button 
                               variant="outline" 
