@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,7 +22,8 @@ import {
   MessageSquare,
   Edit,
   Eye,
-  Plus
+  Plus,
+  FileText
 } from "lucide-react";
 import { format } from "date-fns";
 import { Link, useNavigate } from "react-router-dom";
@@ -34,6 +36,7 @@ export default function ClientManagement() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
+  const [viewingClientPlans, setViewingClientPlans] = useState(null); // New state for viewing plans dialog
   const [formData, setFormData] = useState({
     status: 'active',
     join_date: format(new Date(), 'yyyy-MM-dd'),
@@ -52,7 +55,15 @@ export default function ClientManagement() {
 
   const { data: mealPlans } = useQuery({
     queryKey: ['mealPlans'],
-    queryFn: () => base44.entities.MealPlan.list('-created_date'),
+    queryFn: async () => {
+      const allPlans = await base44.entities.MealPlan.list('-created_date');
+      // Filter based on user type
+      if (user?.user_type === 'super_admin') {
+        return allPlans;
+      }
+      // Team members and student coaches see only their own plans
+      return allPlans.filter(plan => plan.created_by === user?.email);
+    },
     enabled: !!user,
     initialData: [],
   });
@@ -148,6 +159,11 @@ export default function ClientManagement() {
 
   const handleCreatePlan = (client) => {
     navigate(`${createPageUrl("MealPlanner")}?client=${client.id}`);
+  };
+
+  const handleViewPlans = (client) => {
+    const clientPlans = mealPlans.filter(p => p.client_id === client.id);
+    setViewingClientPlans({ client, plans: clientPlans });
   };
 
   const filteredClients = clients.filter(client => {
@@ -480,9 +496,9 @@ export default function ClientManagement() {
                           }>
                             {client.status}
                           </Badge>
-                          {activePlan && (
+                          {clientPlans.length > 0 && (
                             <Badge className="bg-purple-100 text-purple-700">
-                              📅 Has Plan
+                              📅 {clientPlans.length} {clientPlans.length === 1 ? 'Plan' : 'Plans'}
                             </Badge>
                           )}
                         </div>
@@ -509,10 +525,13 @@ export default function ClientManagement() {
                     </div>
                   )}
                   
-                  {/* Show active meal plan info */}
+                  {/* Show active meal plan info - CLICKABLE */}
                   {activePlan && (
-                    <div className="p-3 bg-purple-50 rounded-lg border border-purple-200">
-                      <p className="text-xs text-purple-600 font-medium mb-1">Active Meal Plan</p>
+                    <div 
+                      className="p-3 bg-purple-50 rounded-lg border border-purple-200 cursor-pointer hover:bg-purple-100 transition-colors"
+                      onClick={() => handleViewPlans(client)}
+                    >
+                      <p className="text-xs text-purple-600 font-medium mb-1">Active Meal Plan (Click to view)</p>
                       <p className="text-sm font-semibold text-purple-900">{activePlan.name}</p>
                       <p className="text-xs text-purple-600">{activePlan.duration} days • {activePlan.target_calories} kcal</p>
                     </div>
@@ -538,21 +557,37 @@ export default function ClientManagement() {
                     </Badge>
                   )}
 
-                  <div className="flex gap-2 pt-3">
-                    <Link to={`${createPageUrl("Communication")}?client=${client.id}`} className="flex-1">
-                      <Button variant="outline" size="sm" className="w-full">
-                        <MessageSquare className="w-4 h-4 mr-2" />
-                        Message
+                  {/* THREE BUTTONS: Message, View Plans, New Plan */}
+                  <div className="grid grid-cols-3 gap-2 pt-3">
+                    <Link to={`${createPageUrl("Communication")}?client=${client.id}`}>
+                      <Button variant="outline" size="sm" className="w-full" title="Message Client">
+                        <MessageSquare className="w-4 h-4" />
                       </Button>
                     </Link>
+                    
+                    {clientPlans.length > 0 ? (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full"
+                        onClick={() => handleViewPlans(client)}
+                        title="View All Plans"
+                      >
+                        <FileText className="w-4 h-4" />
+                      </Button>
+                    ) : (
+                      <div className="col-span-1"></div> // Empty div for spacing if no plans
+                    )}
+                    
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="flex-1"
+                      className={clientPlans.length > 0 ? "w-full" : "col-span-2 w-full"}
                       onClick={() => handleCreatePlan(client)}
+                      title="Create New Plan"
                     >
-                      <Plus className="w-4 h-4 mr-2" />
-                      {activePlan ? 'New Plan' : 'Create Plan'}
+                      <Plus className="w-4 h-4 mr-1" />
+                      {clientPlans.length > 0 ? '' : 'New Plan'}
                     </Button>
                   </div>
                 </CardContent>
@@ -570,6 +605,82 @@ export default function ClientManagement() {
             </CardContent>
           </Card>
         )}
+
+        {/* View Client Plans Dialog */}
+        <Dialog open={!!viewingClientPlans} onOpenChange={() => setViewingClientPlans(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">
+                {viewingClientPlans?.client?.full_name}'s Meal Plans
+              </DialogTitle>
+            </DialogHeader>
+            {viewingClientPlans && (
+              <div className="space-y-4 mt-4">
+                {viewingClientPlans.plans.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Calendar className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                    <p className="text-gray-600 mb-4">No meal plans created yet</p>
+                    <Button onClick={() => {
+                      setViewingClientPlans(null);
+                      handleCreatePlan(viewingClientPlans.client);
+                    }}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create First Plan
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    {viewingClientPlans.plans.map((plan) => (
+                      <Card key={plan.id} className="border-2 hover:border-orange-300 transition-all">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3 className="text-lg font-semibold">{plan.name}</h3>
+                                {plan.active && (
+                                  <Badge className="bg-green-500 text-white">Active</Badge>
+                                )}
+                              </div>
+                              <div className="flex flex-wrap gap-2 mb-3">
+                                <Badge variant="outline">{plan.duration} Days</Badge>
+                                <Badge variant="outline" className="capitalize">{plan.food_preference}</Badge>
+                                <Badge variant="outline">{plan.target_calories} kcal</Badge>
+                              </div>
+                              <p className="text-sm text-gray-600">
+                                Created: {format(new Date(plan.created_date), 'MMM d, yyyy')}
+                              </p>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setViewingClientPlans(null);
+                                navigate(`${createPageUrl("MealPlanner")}?viewPlan=${plan.id}`);
+                              }}
+                            >
+                              <Eye className="w-4 h-4 mr-2" />
+                              View Details
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                    <Button
+                      className="w-full bg-gradient-to-r from-orange-500 to-red-500"
+                      onClick={() => {
+                        setViewingClientPlans(null);
+                        handleCreatePlan(viewingClientPlans.client);
+                      }}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create New Plan for {viewingClientPlans.client.full_name}
+                    </Button>
+                  </>
+                )}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
