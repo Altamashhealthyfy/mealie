@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -31,7 +32,18 @@ export default function Communication() {
 
   const { data: clients } = useQuery({
     queryKey: ['clients'],
-    queryFn: () => base44.entities.Client.list('-created_date'),
+    queryFn: async () => {
+      const allClients = await base44.entities.Client.list('-created_date');
+      
+      // Super admin sees ALL clients
+      if (user?.user_type === 'super_admin') {
+        return allClients;
+      }
+      
+      // Team members, student coaches - only see THEIR OWN clients
+      return allClients.filter(client => client.created_by === user?.email);
+    },
+    enabled: !!user, // Ensure this query only runs once user data is available
     initialData: [],
   });
 
@@ -90,6 +102,8 @@ export default function Communication() {
   // Get last message for each client
   const getLastMessage = (clientId) => {
     const messages = allMessages.filter(m => m.client_id === clientId);
+    // Sort in descending order to get the latest message
+    messages.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
     return messages.length > 0 ? messages[0] : null;
   };
 
@@ -110,8 +124,9 @@ export default function Communication() {
   const sortedClients = filteredClients.sort((a, b) => {
     const lastMsgA = getLastMessage(a.id);
     const lastMsgB = getLastMessage(b.id);
-    if (!lastMsgA) return 1;
-    if (!lastMsgB) return -1;
+    if (!lastMsgA && !lastMsgB) return 0; // Both have no messages, keep original order
+    if (!lastMsgA) return 1; // A has no messages, B does, so B comes first
+    if (!lastMsgB) return -1; // B has no messages, A does, so A comes first
     return new Date(lastMsgB.created_date) - new Date(lastMsgA.created_date);
   });
 
