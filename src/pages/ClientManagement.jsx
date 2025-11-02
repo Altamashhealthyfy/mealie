@@ -565,29 +565,25 @@ export default function ClientManagement() {
                       </Button>
                     </Link>
                     
-                    {clientPlans.length > 0 ? (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full"
-                        onClick={() => handleViewPlans(client)}
-                        title="View All Plans"
-                      >
-                        <FileText className="w-4 h-4" />
-                      </Button>
-                    ) : (
-                      <div className="col-span-1"></div> // Empty div for spacing if no plans
-                    )}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full"
+                      onClick={() => handleViewPlans(client)}
+                      title="View All Plans"
+                      disabled={clientPlans.length === 0}
+                    >
+                      <FileText className="w-4 h-4" />
+                    </Button>
                     
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className={clientPlans.length > 0 ? "w-full" : "col-span-2 w-full"}
+                      className="w-full"
                       onClick={() => handleCreatePlan(client)}
                       title="Create New Plan"
                     >
-                      <Plus className="w-4 h-4 mr-1" />
-                      {clientPlans.length > 0 ? '' : 'New Plan'}
+                      <Plus className="w-4 h-4" />
                     </Button>
                   </div>
                 </CardContent>
