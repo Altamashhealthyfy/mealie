@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -92,6 +93,12 @@ const businessNavigation = [
     url: createPageUrl("BusinessHub"),
     icon: Rocket,
     roles: ['super_admin', 'team_member'],
+  },
+  {
+    title: "Team Setup Guide",
+    url: createPageUrl("TeamSetup"),
+    icon: UserPlus,
+    roles: ['super_admin'],
   },
   {
     title: "Usage & Billing",
