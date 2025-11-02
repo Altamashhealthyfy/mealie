@@ -49,7 +49,18 @@ export default function ClientManagement() {
 
   const { data: clients } = useQuery({
     queryKey: ['clients'],
-    queryFn: () => base44.entities.Client.list('-created_date'),
+    queryFn: async () => {
+      const allClients = await base44.entities.Client.list('-created_date');
+      
+      // Super admin sees ALL clients
+      if (user?.user_type === 'super_admin') {
+        return allClients;
+      }
+      
+      // Team members, student coaches, student team members - only see THEIR OWN clients
+      return allClients.filter(client => client.created_by === user?.email);
+    },
+    enabled: !!user, // Ensure this query only runs once user data is available
     initialData: [],
   });
 
