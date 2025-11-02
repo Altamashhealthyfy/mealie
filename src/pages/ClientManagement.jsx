@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,14 +20,16 @@ import {
   Calendar,
   MessageSquare,
   Edit,
-  Eye
+  Eye,
+  Plus
 } from "lucide-react";
 import { format } from "date-fns";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function ClientManagement() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -52,7 +53,7 @@ export default function ClientManagement() {
   const { data: mealPlans } = useQuery({
     queryKey: ['mealPlans'],
     queryFn: () => base44.entities.MealPlan.list('-created_date'),
-    enabled: !!user, // Only fetch meal plans if a user is logged in
+    enabled: !!user,
     initialData: [],
   });
 
@@ -63,12 +64,23 @@ export default function ClientManagement() {
       }
       return base44.entities.Client.create(data);
     },
-    onSuccess: () => {
+    onSuccess: (savedClient) => {
       queryClient.invalidateQueries(['clients']);
       setShowAddDialog(false);
+      
+      // Show success with option to create meal plan
+      const shouldCreatePlan = window.confirm(
+        `✅ Client saved successfully!\n\n` +
+        `Would you like to create a meal plan for ${savedClient.full_name} now?`
+      );
+      
+      if (shouldCreatePlan) {
+        // Navigate to meal planner with client pre-selected
+        navigate(`${createPageUrl("MealPlanner")}?client=${savedClient.id}`);
+      }
+      
       setSelectedClient(null);
       setFormData({ status: 'active', join_date: format(new Date(), 'yyyy-MM-dd') });
-      alert('Client saved successfully!');
     },
   });
 
@@ -132,6 +144,10 @@ export default function ClientManagement() {
     setSelectedClient(client);
     setFormData(client);
     setShowAddDialog(true);
+  };
+
+  const handleCreatePlan = (client) => {
+    navigate(`${createPageUrl("MealPlanner")}?client=${client.id}`);
   };
 
   const filteredClients = clients.filter(client => {
@@ -529,12 +545,15 @@ export default function ClientManagement() {
                         Message
                       </Button>
                     </Link>
-                    <Link to={createPageUrl("MealPlanner")} className="flex-1">
-                      <Button variant="outline" size="sm" className="w-full">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        {activePlan ? 'View Plan' : 'Create Plan'}
-                      </Button>
-                    </Link>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => handleCreatePlan(client)}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      {activePlan ? 'New Plan' : 'Create Plan'}
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
