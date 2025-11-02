@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -232,9 +231,13 @@ export default function Layout({ children, currentPageName }) {
     initialData: 0,
   });
 
-  const isDietitian = user?.role === 'admin';
-  const userType = user?.user_type || (isDietitian ? 'team_member' : 'client');
-
+  // Determine user type
+  const userType = user?.user_type || 'client';
+  
+  // Check if user should see dietitian interface
+  const isDietitian = ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(userType);
+  
+  // Filter business navigation based on user type
   const filteredBusinessNav = businessNavigation.filter(item =>
     !item.roles || item.roles.includes(userType)
   );
