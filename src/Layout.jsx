@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -10,7 +9,6 @@ import {
   ChefHat,
   Search,
   Heart,
-  User,
   Users,
   MessageSquare,
   TrendingUp,
@@ -27,7 +25,7 @@ import {
   Target,
   FileText,
   Upload,
-  LogOut // Added LogOut icon import
+  LogOut
 } from "lucide-react";
 import {
   Sidebar,
@@ -51,7 +49,7 @@ const dietitianNavigation = [
     title: "Dashboard",
     url: createPageUrl("DietitianDashboard"),
     icon: LayoutDashboard,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'], // Exclude clients
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
     title: "Clients",
@@ -75,7 +73,7 @@ const dietitianNavigation = [
     title: "Meal Plans",
     url: createPageUrl("MealPlanner"),
     icon: ChefHat,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'], // Exclude clients
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
     title: "Template Library",
@@ -132,7 +130,7 @@ const businessNavigation = [
     title: "Template Manager",
     url: createPageUrl("TemplateLibraryManager"),
     icon: Upload,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'], // UPDATED - now team can upload
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
     title: "My Team",
@@ -248,18 +246,13 @@ export default function Layout({ children, currentPageName }) {
     initialData: 0,
   });
 
-  // Determine user type
   const userType = user?.user_type || 'client';
-  
-  // Check if user should see dietitian interface
   const isDietitian = ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(userType);
   
-  // Filter dietitian navigation based on roles
   const filteredDietitianNav = dietitianNavigation.filter(item =>
     !item.roles || item.roles.includes(userType)
   );
   
-  // Filter business navigation based on user type
   const filteredBusinessNav = businessNavigation.filter(item =>
     !item.roles || item.roles.includes(userType)
   );
@@ -299,8 +292,13 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const handleLogout = async () => {
-    if (confirm("Are you sure you want to logout?")) {
-      await base44.auth.logout();
+    if (window.confirm("Are you sure you want to logout?")) {
+      try {
+        await base44.auth.logout();
+      } catch (error) {
+        console.error("Logout error:", error);
+        window.location.reload();
+      }
     }
   };
 
@@ -394,13 +392,13 @@ export default function Layout({ children, currentPageName }) {
           <SidebarFooter className="border-t border-orange-100 p-4">
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
-                  <span className="text-white font-medium text-sm">
-                    {user?.full_name?.charAt(0) || 'U'}
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center shadow-md">
+                  <span className="text-white font-bold text-sm">
+                    {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-gray-900 text-sm truncate">
+                  <p className="font-semibold text-gray-900 text-sm truncate">
                     {user?.full_name || 'User'}
                   </p>
                   <Badge className={`${getUserBadgeColor()} text-xs`}>
@@ -409,13 +407,13 @@ export default function Layout({ children, currentPageName }) {
                 </div>
               </div>
               <Button
+                onClick={handleLogout}
                 variant="outline"
                 size="sm"
-                className="w-full text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200 font-semibold" // Added font-semibold
-                onClick={handleLogout}
+                className="w-full text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200 font-semibold flex items-center justify-center gap-2"
               >
-                <LogOut className="w-4 h-4 mr-2" /> {/* Added LogOut icon */}
-                Logout
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
               </Button>
             </div>
           </SidebarFooter>
