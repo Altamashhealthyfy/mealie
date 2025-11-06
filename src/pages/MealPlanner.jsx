@@ -253,6 +253,32 @@ export default function MealPlanner() {
         ? "1 glass warm water (250ml) with 5-6 soaked almonds + 2 dates\n   - SAME drink every day for all 10 days\n   - NO coconut water, NO green tea for weight gain"
         : "1 glass warm water (250ml) with lemon juice (half lemon)\n   - SAME drink every day for all 10 days\n   - NO coconut water, NO green tea in early morning";
 
+      const dinnerOptions = isWeightLoss
+        ? `**LIGHT DINNER OPTIONS for weight loss (20% calories max):**
+   - Soup + Grilled paneer/tofu tikka (50-100g)
+   - Soup + 1 small roti + sautéed veggies
+   - Plain dosa sautéed with veggies
+   - Small bowl khichdi (1 small katori)
+   - Oats upma/porridge (1 small bowl)
+   - Daliya (broken wheat) upma (1 small katori)
+   - Quinoa upma (1 small katori)
+   - Uttapam (1 small) with veggies
+   - Sautéed paneer/tofu with veggies (100g protein + 1 bowl veggies)
+   - 1 small roti + sabji (1 small katori)
+   - Light khichdi with minimal ghee
+   
+   **CRITICAL: Dinner must be LIGHTEST meal - only 20% of daily calories**`
+        : `**SUBSTANTIAL DINNER OPTIONS for weight gain/maintenance:**
+   - 2 rotis + sabji + dal
+   - Khichdi bowl with ghee + curd
+   - Quinoa/oats upma with nuts
+   - 2 dosas with chutney + sambar
+   - Uttapam with veggies + raita
+   - Paneer tikka + salad + 1 roti
+   - Tofu/paneer curry + 2 rotis
+   - Daliya with milk and dry fruits
+   - Substantial portions for 30% calories`;
+
       const prompt = `Generate a personalized ${planConfig.duration}-day Indian meal plan with the following details:
 
 Food Preference: ${selectedClient.food_preference}
@@ -283,11 +309,15 @@ CRITICAL REQUIREMENTS:
    - Khichdi: "1 medium bowl (250g cooked)"
    - Poha: "1 medium katori (150g cooked)"
    - Upma: "1 small katori (150g cooked)"
+   - Oats: "1 small bowl (150g cooked)"
+   - Daliya: "1 small katori (150g cooked)"
+   - Quinoa: "1 small katori (150g cooked)"
    
    **Drinks - USE CUPS/GLASSES:**
    - Chai/Coffee: "1 cup (240ml)"
    - Milk: "1 glass (200ml)"
    - Buttermilk: "1 glass (200ml)"
+   - Soup: "1 bowl (200-250ml)"
    
    **Salads/Raita:**
    - "1 small bowl salad (100g)"
@@ -298,6 +328,11 @@ CRITICAL REQUIREMENTS:
    - Dhokla: "2 pieces (100g)" NOT katori
    - Pakora: "4-5 pieces (80g)" NOT katori
    - Namkeen: "1 small katori (30g)"
+   
+   **Protein Items:**
+   - Paneer: "50-100g cubes"
+   - Tofu: "50-100g cubes"
+   - Paneer/Tofu Tikka: "4-6 pieces (80-100g)"
    
    ALWAYS mention if raw or cooked: "100g cooked rice" or "50g raw oats"
 
@@ -316,18 +351,15 @@ CRITICAL REQUIREMENTS:
    - DO NOT use green tea in early morning
    - Only warm water with specified ingredients
 
-4. DINNER GUIDELINES - NEVER SERVE PLAIN SOUP:
+4. DINNER GUIDELINES - VARIETY OF LIGHT/SUBSTANTIAL OPTIONS:
    
-   **CRITICAL: If dinner includes soup, ALWAYS add something substantial:**
-   - Soup + 1 bread (multigrain/brown bread)
-   - Soup + 50g paneer (grilled/steamed)
-   - Soup + 1 small roti + side salad
-   - Soup + 100g grilled chicken (for non-veg)
-   - Soup + 2-3 moong dal cheela (small)
-   - Soup + 1 small bowl sprout salad
+   ${dinnerOptions}
    
-   **NEVER give only soup for dinner - it's incomplete and unsatisfying**
-   **Soup must be paired with protein source or carb source**
+   **IMPORTANT: Rotate between different dinner options across ${planConfig.duration} days**
+   - Include mix of roti-sabji, khichdi, oats, daliya, dosa, uttapam, etc.
+   - Include paneer/tofu tikka options 2-3 times
+   - If soup is included, ALWAYS add protein/carb accompaniment
+   - Use quinoa, oats, daliya for modern healthy options
 
 5. MEAL VARIETY (OTHER MEALS):
    - Create DIFFERENT meals for each day (NOT for early morning)
@@ -338,7 +370,7 @@ CRITICAL REQUIREMENTS:
 6. FOOD COMBINATIONS FOR ${selectedClient.goal.toUpperCase().replace('_', ' ')}:
    ${isWeightGain 
      ? '- High-calorie dense foods: dry fruits, full-fat dairy, healthy fats\n   - Protein at every meal: paneer, legumes, eggs, chicken\n   - Avoid: Low-cal drinks, excessive fiber, diet foods'
-     : '- High fiber vegetables and whole grains\n   - Lean proteins\n   - Moderate healthy fats'}
+     : '- High fiber vegetables and whole grains\n   - Lean proteins\n   - Moderate healthy fats\n   - Light dinner with options like khichdi, oats, daliya, quinoa'}
 
 7. MEAL STRUCTURE (6 meals daily):
    - Early Morning (6-7 AM): ${isWeightGain ? 'Warm water with soaked dry fruits/dates (SAME for all days)' : 'Warm lemon water (SAME for all days)'}
@@ -346,7 +378,7 @@ CRITICAL REQUIREMENTS:
    - Mid-Morning (11 AM): Fruit/snack
    - Lunch (1-2 PM): Complete meal - roti + sabji + dal + rice
    - Evening Snack (4-5 PM): Light snack
-   - Dinner (7-8 PM): ${isWeightLoss ? 'LIGHTEST meal (20% calories) but COMPLETE - never just soup alone' : 'Substantial meal'}
+   - Dinner (7-8 PM): ${isWeightLoss ? 'LIGHTEST meal (20% calories) - rotate: khichdi/oats/daliya/dosa/roti-sabji/paneer tikka/quinoa' : 'Substantial meal with variety'}
 
 8. ${selectedClient.food_preference === 'non_veg' ? 'NON-VEG OPTIONS:\n   - Include chicken, fish, eggs across week\n   - Add lamb/mutton options (2-3 times)\n   - Specify cooking method: grilled, boiled, curry, etc.' : ''}
 
@@ -354,11 +386,12 @@ CRITICAL REQUIREMENTS:
    - Include dal-chawal-roti-sabji at least 4 days
    - Regional dishes from ${selectedClient.regional_preference} India
    - Home-style cooking methods
+   - Modern healthy options: quinoa, oats, daliya
 
 Return structured meal plan with:
 - SAME early morning drink for all ${planConfig.duration} days
 - CORRECT portion units (pieces for cheela/roti, katori for dal/sabji)
-- COMPLETE dinners - never plain soup alone, always with accompaniment
+- VARIED dinners - khichdi, oats, daliya, dosa, uttapam, paneer tikka, roti-sabji, quinoa
 - Exact measurements with weight in grams
 - Day-wise variety (except early morning)
 - Proper calorie distribution
