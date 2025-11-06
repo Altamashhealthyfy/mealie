@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Calendar, Save, RefreshCw, ChefHat, Lightbulb, Edit, Check, X, Download, Copy, FileText, Printer, Loader2, CheckCircle, Star, Plus } from "lucide-react";
+import { Calendar, Save, RefreshCw, ChefHat, Lightbulb, Edit, Check, X, Download, Copy, FileText, Printer, Loader2, CheckCircle, Star, Plus, TrendingUp, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGenerateNew, isSaving }) {
@@ -25,6 +25,17 @@ export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGe
     }
     groupedMeals[meal.day].push(meal);
   });
+
+  // Calculate daily totals
+  const calculateDayTotals = (dayNumber) => {
+    const dayMeals = groupedMeals[dayNumber] || [];
+    return dayMeals.reduce((totals, meal) => ({
+      calories: totals.calories + (meal.calories || 0),
+      protein: totals.protein + (meal.protein || 0),
+      carbs: totals.carbs + (meal.carbs || 0),
+      fats: totals.fats + (meal.fats || 0),
+    }), { calories: 0, protein: 0, carbs: 0, fats: 0 });
+  };
 
   const handleEditMeal = (meal) => {
     setEditingMeal({...meal});
@@ -63,7 +74,8 @@ export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGe
     text += `${'='.repeat(60)}\n\n`;
 
     Object.keys(groupedMeals).sort((a, b) => parseInt(a) - parseInt(b)).forEach(day => {
-      text += `DAY ${day}\n`;
+      const dayTotals = calculateDayTotals(day);
+      text += `DAY ${day} - Total: ${Math.round(dayTotals.calories)} kcal\n`;
       text += `${'-'.repeat(60)}\n\n`;
 
       groupedMeals[day]
@@ -238,95 +250,186 @@ export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGe
       <Tabs defaultValue="day-1" className="space-y-4 print:hidden">
         <div className="bg-white/80 backdrop-blur rounded-xl p-2 shadow-lg overflow-x-auto">
           <TabsList className="flex flex-nowrap">
-            {Object.keys(groupedMeals).sort((a, b) => parseInt(a) - parseInt(b)).map(day => (
-              <TabsTrigger
-                key={day}
-                value={`day-${day}`}
-                className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white whitespace-nowrap"
-              >
-                Day {day}
-              </TabsTrigger>
-            ))}
+            {Object.keys(groupedMeals).sort((a, b) => parseInt(a) - parseInt(b)).map(day => {
+              const dayTotals = calculateDayTotals(day);
+              const targetCals = editablePlan.target_calories || 2000;
+              const difference = dayTotals.calories - targetCals;
+              const isOnTrack = Math.abs(difference) <= (targetCals * 0.1); // Within 10%
+              
+              return (
+                <TabsTrigger
+                  key={day}
+                  value={`day-${day}`}
+                  className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white whitespace-nowrap flex flex-col items-center py-2 px-4"
+                >
+                  <span className="font-semibold">Day {day}</span>
+                  <div className="flex items-center gap-1 mt-1 text-xs">
+                    <span>{Math.round(dayTotals.calories)} kcal</span>
+                    {!isOnTrack && (
+                      <AlertCircle className="w-3 h-3 text-red-400" />
+                    )}
+                  </div>
+                </TabsTrigger>
+              );
+            })}
           </TabsList>
         </div>
 
-        {Object.keys(groupedMeals).sort((a, b) => parseInt(a) - parseInt(b)).map(day => (
-          <TabsContent key={day} value={`day-${day}`} className="space-y-4">
-            {groupedMeals[day]
-              .sort((a, b) => mealTypes.indexOf(a.meal_type) - mealTypes.indexOf(b.meal_type))
-              .map((meal, idx) => (
-                <Card key={idx} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
+        {Object.keys(groupedMeals).sort((a, b) => parseInt(a) - parseInt(b)).map(day => {
+          const dayTotals = calculateDayTotals(day);
+          const targetCals = editablePlan.target_calories || 2000;
+          const difference = dayTotals.calories - targetCals;
+          const isOnTrack = Math.abs(difference) <= (targetCals * 0.1);
+          
+          return (
+            <TabsContent key={day} value={`day-${day}`} className="space-y-4">
+              {/* Daily Summary Card */}
+              <Card className={`border-2 ${
+                isOnTrack 
+                  ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-50' 
+                  : difference > 0 
+                  ? 'border-orange-500 bg-gradient-to-br from-orange-50 to-red-50'
+                  : 'border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50'
+              }`}>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className={`w-6 h-6 ${
+                        isOnTrack ? 'text-green-600' : difference > 0 ? 'text-orange-600' : 'text-blue-600'
+                      }`} />
+                      Day {day} Summary
+                    </CardTitle>
+                    <Badge className={`${
+                      isOnTrack 
+                        ? 'bg-green-500' 
+                        : difference > 0 
+                        ? 'bg-orange-500'
+                        : 'bg-blue-500'
+                    } text-white text-lg px-4 py-1`}>
+                      {isOnTrack ? '✓ On Track' : difference > 0 ? `+${Math.round(difference)} kcal` : `${Math.round(difference)} kcal`}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-4 gap-4">
+                    <div className="p-4 bg-white rounded-xl shadow-md text-center">
+                      <p className="text-sm text-gray-600 mb-1">Total Calories</p>
+                      <p className="text-3xl font-bold text-orange-600">{Math.round(dayTotals.calories)}</p>
+                      <p className="text-xs text-gray-500">Target: {targetCals}</p>
+                    </div>
+                    <div className="p-4 bg-white rounded-xl shadow-md text-center">
+                      <p className="text-sm text-gray-600 mb-1">Protein</p>
+                      <p className="text-3xl font-bold text-red-600">{Math.round(dayTotals.protein)}g</p>
+                    </div>
+                    <div className="p-4 bg-white rounded-xl shadow-md text-center">
+                      <p className="text-sm text-gray-600 mb-1">Carbs</p>
+                      <p className="text-3xl font-bold text-yellow-600">{Math.round(dayTotals.carbs)}g</p>
+                    </div>
+                    <div className="p-4 bg-white rounded-xl shadow-md text-center">
+                      <p className="text-sm text-gray-600 mb-1">Fats</p>
+                      <p className="text-3xl font-bold text-purple-600">{Math.round(dayTotals.fats)}g</p>
+                    </div>
+                  </div>
+                  
+                  {!isOnTrack && (
+                    <Alert className={`mt-4 ${
+                      difference > 0 
+                        ? 'border-orange-500 bg-orange-50' 
+                        : 'border-blue-500 bg-blue-50'
+                    }`}>
+                      <AlertCircle className={`w-4 h-4 ${
+                        difference > 0 ? 'text-orange-600' : 'text-blue-600'
+                      }`} />
+                      <AlertDescription className={`ml-2 ${
+                        difference > 0 ? 'text-orange-900' : 'text-blue-900'
+                      }`}>
+                        {difference > 0 
+                          ? `⚠️ Day ${day} is ${Math.round(difference)} calories ABOVE target. Consider reducing portion sizes or swapping high-calorie items.`
+                          : `💡 Day ${day} is ${Math.abs(Math.round(difference))} calories BELOW target. Consider adding snacks or increasing portions.`
+                        }
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Meal Cards */}
+              {groupedMeals[day]
+                .sort((a, b) => mealTypes.indexOf(a.meal_type) - mealTypes.indexOf(b.meal_type))
+                .map((meal, idx) => (
+                  <Card key={idx} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <Badge variant="outline" className="text-orange-600 border-orange-300 mb-2">
+                            {meal.meal_type}
+                          </Badge>
+                          <CardTitle className="text-2xl">{meal.meal_name}</CardTitle>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="text-right">
+                            <p className="text-3xl font-bold text-orange-600">{meal.calories}</p>
+                            <p className="text-xs text-gray-500">kcal</p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditMeal(meal)}
+                            className="text-blue-600 hover:bg-blue-50"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
                       <div>
-                        <Badge variant="outline" className="text-orange-600 border-orange-300 mb-2">
-                          {meal.meal_type}
-                        </Badge>
-                        <CardTitle className="text-2xl">{meal.meal_name}</CardTitle>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="text-right">
-                          <p className="text-3xl font-bold text-orange-600">{meal.calories}</p>
-                          <p className="text-xs text-gray-500">kcal</p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEditMeal(meal)}
-                          className="text-blue-600 hover:bg-blue-50"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                        <ChefHat className="w-4 h-4" />
-                        Meal Items
-                      </h4>
-                      <div className="grid grid-cols-1 gap-2">
-                        {meal.items?.map((item, i) => (
-                          <div key={i} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                            <span className="text-gray-700">{item}</span>
-                            <Badge variant="secondary">{meal.portion_sizes?.[i]}</Badge>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <div className="flex-1 p-3 bg-red-50 rounded-lg">
-                        <p className="text-xs text-gray-600">Protein</p>
-                        <p className="text-lg font-bold text-red-600">{meal.protein}g</p>
-                      </div>
-                      <div className="flex-1 p-3 bg-yellow-50 rounded-lg">
-                        <p className="text-xs text-gray-600">Carbs</p>
-                        <p className="text-lg font-bold text-yellow-600">{meal.carbs}g</p>
-                      </div>
-                      <div className="flex-1 p-3 bg-purple-50 rounded-lg">
-                        <p className="text-xs text-gray-600">Fats</p>
-                        <p className="text-lg font-bold text-purple-600">{meal.fats}g</p>
-                      </div>
-                    </div>
-
-                    {meal.nutritional_tip && (
-                      <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
-                        <div className="flex items-start gap-2">
-                          <Lightbulb className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <p className="text-sm font-medium text-green-900 mb-1">Nutritional Tip</p>
-                            <p className="text-sm text-green-700">{meal.nutritional_tip}</p>
-                          </div>
+                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                          <ChefHat className="w-4 h-4" />
+                          Meal Items
+                        </h4>
+                        <div className="grid grid-cols-1 gap-2">
+                          {meal.items?.map((item, i) => (
+                            <div key={i} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                              <span className="text-gray-700">{item}</span>
+                              <Badge variant="secondary">{meal.portion_sizes?.[i]}</Badge>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-          </TabsContent>
-        ))}
+
+                      <div className="flex gap-2">
+                        <div className="flex-1 p-3 bg-red-50 rounded-lg">
+                          <p className="text-xs text-gray-600">Protein</p>
+                          <p className="text-lg font-bold text-red-600">{meal.protein}g</p>
+                        </div>
+                        <div className="flex-1 p-3 bg-yellow-50 rounded-lg">
+                          <p className="text-xs text-gray-600">Carbs</p>
+                          <p className="text-lg font-bold text-yellow-600">{meal.carbs}g</p>
+                        </div>
+                        <div className="flex-1 p-3 bg-purple-50 rounded-lg">
+                          <p className="text-xs text-gray-600">Fats</p>
+                          <p className="text-lg font-bold text-purple-600">{meal.fats}g</p>
+                        </div>
+                      </div>
+
+                      {meal.nutritional_tip && (
+                        <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                          <div className="flex items-start gap-2">
+                            <Lightbulb className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                            <div>
+                              <p className="text-sm font-medium text-green-900 mb-1">Nutritional Tip</p>
+                              <p className="text-sm text-green-700">{meal.nutritional_tip}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+            </TabsContent>
+          );
+        })}
       </Tabs>
 
       {/* Printable version */}
