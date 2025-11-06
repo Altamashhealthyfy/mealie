@@ -17,6 +17,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import GeneratedMealPlan from "../components/mealplanner/GeneratedMealPlan";
 import UsageLimitWarning from "../components/mealplanner/UsageLimitWarning";
 
+// Helper function for creating page URLs.
+// In a real application, this would likely be a shared utility or part of a routing library.
+const createPageUrl = (pageName) => {
+  switch (pageName) {
+    case 'MyAssignedMealPlan':
+      return '/my-assigned-meal-plan';
+    case 'ClientManagement':
+      return '/client-management';
+    default:
+      console.warn(`createPageUrl: Unknown pageName '${pageName}'. Returning root path.`);
+      return '/';
+  }
+};
+
 export default function MealPlanner() {
   const queryClient = useQueryClient();
   const [generating, setGenerating] = useState(false);
@@ -35,13 +49,52 @@ export default function MealPlanner() {
     queryFn: () => base44.auth.me(),
   });
 
-  // REDIRECT CLIENTS AWAY - they shouldn't access this page
-  useEffect(() => {
-    if (user && user.user_type === 'client') {
-      // Assuming a hardcoded path or a global utility for page URLs
-      window.location.href = '/my-assigned-meal-plan'; 
+  // STRONGEST POSSIBLE BLOCK FOR CLIENTS:
+  // Immediately alert and redirect clients if their user type is 'client'.
+  // This uses React.useEffect to ensure it runs client-side after initial render.
+  React.useEffect(() => {
+    if (user?.user_type === 'client') {
+      alert('⛔ This page is only for dietitians and team members.\n\nClients cannot create meal plans.');
+      window.location.href = createPageUrl('MyAssignedMealPlan');
     }
   }, [user]);
+
+  // DON'T RENDER ANYTHING FOR CLIENTS (or while user data is loading)
+  // Display a loading indicator if user data hasn't loaded yet.
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        <p className="ml-2 text-gray-600">Loading user data...</p>
+      </div>
+    );
+  }
+
+  // If user data is loaded and the user is a client, display an access denied message
+  // and indicate redirection (the useEffect above will handle the actual redirect).
+  if (user.user_type === 'client') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="max-w-md border-none shadow-xl bg-red-50">
+          <CardHeader>
+            <CardTitle className="text-red-900 flex items-center gap-2">
+              <AlertTriangle className="w-6 h-6" />
+              Access Denied
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-red-800 mb-4">
+              ⛔ Clients cannot create meal plans. Only dietitians and team members have access to this page.
+            </p>
+            <p className="text-sm text-red-700">
+              Redirecting you to your meal plan page...
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
 
   const { data: clients } = useQuery({
     queryKey: ['clients'],
@@ -392,11 +445,6 @@ Return structured meal plan with:
     setActiveTab("generate");
   };
 
-  // Don't show anything for clients (they'll be redirected)
-  if (!user || user.user_type === 'client') {
-    return null;
-  }
-
   if (clients.length === 0) {
     return (
       <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
@@ -406,7 +454,7 @@ Return structured meal plan with:
             <CardDescription>Add clients before generating meal plans or using templates</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full" onClick={() => window.location.href = '/client-management'}>
+            <Button className="w-full" onClick={() => window.location.href = createPageUrl('ClientManagement')}>
               <Users className="w-4 h-4 mr-2" />
               Add Your First Client
             </Button>
