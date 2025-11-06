@@ -13,23 +13,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { createPageUrl } from "@/utils";
 
 import GeneratedMealPlan from "../components/mealplanner/GeneratedMealPlan";
 import UsageLimitWarning from "../components/mealplanner/UsageLimitWarning";
-
-// Helper function for creating page URLs.
-// In a real application, this would likely be a shared utility or part of a routing library.
-const createPageUrl = (pageName) => {
-  switch (pageName) {
-    case 'MyAssignedMealPlan':
-      return '/my-assigned-meal-plan';
-    case 'ClientManagement':
-      return '/client-management';
-    default:
-      console.warn(`createPageUrl: Unknown pageName '${pageName}'. Returning root path.`);
-      return '/';
-  }
-};
 
 export default function MealPlanner() {
   const queryClient = useQueryClient();
@@ -44,72 +31,24 @@ export default function MealPlanner() {
     meal_pattern: 'daily',
   });
 
+  // ALL HOOKS MUST BE CALLED AT THE TOP - BEFORE ANY CONDITIONAL RETURNS
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
-
-  // STRONGEST POSSIBLE BLOCK FOR CLIENTS:
-  // Immediately alert and redirect clients if their user type is 'client'.
-  // This uses React.useEffect to ensure it runs client-side after initial render.
-  React.useEffect(() => {
-    if (user?.user_type === 'client') {
-      alert('⛔ This page is only for dietitians and team members.\n\nClients cannot create meal plans.');
-      window.location.href = createPageUrl('MyAssignedMealPlan');
-    }
-  }, [user]);
-
-  // DON'T RENDER ANYTHING FOR CLIENTS (or while user data is loading)
-  // Display a loading indicator if user data hasn't loaded yet.
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
-        <p className="ml-2 text-gray-600">Loading user data...</p>
-      </div>
-    );
-  }
-
-  // If user data is loaded and the user is a client, display an access denied message
-  // and indicate redirection (the useEffect above will handle the actual redirect).
-  if (user.user_type === 'client') {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="max-w-md border-none shadow-xl bg-red-50">
-          <CardHeader>
-            <CardTitle className="text-red-900 flex items-center gap-2">
-              <AlertTriangle className="w-6 h-6" />
-              Access Denied
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-red-800 mb-4">
-              ⛔ Clients cannot create meal plans. Only dietitians and team members have access to this page.
-            </p>
-            <p className="text-sm text-red-700">
-              Redirecting you to your meal plan page...
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
 
   const { data: clients } = useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
       const allClients = await base44.entities.Client.list('-created_date');
       
-      // Super admin sees ALL clients
       if (user?.user_type === 'super_admin') {
         return allClients;
       }
       
-      // Team members, student coaches - only see THEIR OWN clients
       return allClients.filter(client => client.created_by === user?.email);
     },
-    enabled: !!user,
+    enabled: !!user && user?.user_type !== 'client',
     initialData: [],
   });
 
@@ -118,35 +57,27 @@ export default function MealPlanner() {
     queryFn: async () => {
       const allPlans = await base44.entities.MealPlan.list('-created_date');
       
-      // Super admin sees ALL plans
       if (user?.user_type === 'super_admin') {
         return allPlans;
       }
       
-      // Team members, student coaches - only see their own
-      // Filter by created_by to show only plans they created
       return allPlans.filter(plan => plan.created_by === user?.email);
     },
-    enabled: !!user && user?.user_type !== 'client', // Don't run for clients
+    enabled: !!user && user?.user_type !== 'client',
     initialData: [],
   });
 
-  // New query for meal plan templates
   const { data: templates } = useQuery({
     queryKey: ['mealPlanTemplates'],
     queryFn: async () => {
-      // Fetch templates created by the current user
       const myTemplates = await base44.entities.MealPlanTemplate.filter({ created_by: user?.email });
-      // Fetch public templates
       const publicTemplates = await base44.entities.MealPlanTemplate.filter({ is_public: true });
-      // Combine and return
       return [...myTemplates, ...publicTemplates];
     },
-    enabled: !!user,
+    enabled: !!user && user?.user_type !== 'client',
     initialData: [],
   });
 
-  // New query for usage tracking
   const { data: usage } = useQuery({
     queryKey: ['usage', user?.email, format(new Date(), 'yyyy-MM')],
     queryFn: async () => {
@@ -161,10 +92,9 @@ export default function MealPlanner() {
         plan_limits: { meal_plans: 20, recipes: 50, food_lookups: 50, business_gpts: 10 }
       };
     },
-    enabled: !!user,
+    enabled: !!user && user?.user_type !== 'client',
   });
 
-  // New mutation to save templates
   const saveTemplateMutation = useMutation({
     mutationFn: (templateData) => base44.entities.MealPlanTemplate.create(templateData),
     onSuccess: () => {
@@ -183,7 +113,6 @@ export default function MealPlanner() {
     },
   });
 
-  // New mutation to update usage
   const updateUsageMutation = useMutation({
     mutationFn: async ({ type }) => {
       if (!user?.email) throw new Error("User email is not available for usage tracking.");
@@ -212,19 +141,59 @@ export default function MealPlanner() {
     },
   });
 
+  // REDIRECT CLIENTS AWAY - After all hooks are defined
+  React.useEffect(() => {
+    if (user?.user_type === 'client') {
+      alert('⛔ This page is only for dietitians and team members.\n\nClients cannot create meal plans.');
+      window.location.href = createPageUrl('MyAssignedMealPlan');
+    }
+  }, [user]);
+
   // Check URL parameters for pre-selected client
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const clientId = urlParams.get('client');
     if (clientId && clients.length > 0) {
       setSelectedClientId(clientId);
-      setActiveTab("generate"); // Switch to generate tab
+      setActiveTab("generate");
     }
   }, [clients]);
 
+  // NOW CONDITIONAL RETURNS ARE SAFE - After all hooks
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        <p className="ml-2 text-gray-600">Loading...</p>
+      </div>
+    );
+  }
+
+  if (user.user_type === 'client') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="max-w-md border-none shadow-xl bg-red-50">
+          <CardHeader>
+            <CardTitle className="text-red-900 flex items-center gap-2">
+              <AlertTriangle className="w-6 h-6" />
+              Access Denied
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-red-800 mb-4">
+              ⛔ Clients cannot create meal plans. Only dietitians and team members have access to this page.
+            </p>
+            <p className="text-sm text-red-700">
+              Redirecting you to your meal plan page...
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const selectedClient = clients.find(c => c.id === selectedClientId);
 
-  // New function to clone a template
   const cloneTemplate = (template) => {
     if (!selectedClient) {
       alert("Please select a client first");
@@ -271,18 +240,15 @@ export default function MealPlanner() {
     setGenerating(true);
 
     try {
-      // Determine calorie distribution based on goal
       const isWeightGain = selectedClient.goal === 'weight_gain' || selectedClient.goal === 'muscle_gain';
       const isWeightLoss = selectedClient.goal === 'weight_loss';
       
-      // FIXED CALORIE DISTRIBUTION
       const calorieDistribution = isWeightLoss 
         ? "Breakfast: 35%, Lunch: 35%, Dinner: 20% (LIGHTEST), Snacks: 10%"
         : isWeightGain
         ? "Breakfast: 35%, Lunch: 35%, Dinner: 30%, Snacks: 15%"
         : "Breakfast: 30%, Lunch: 35%, Dinner: 25%, Snacks: 10%";
 
-      // FIXED EARLY MORNING DRINK - SAME for all 10 days
       const earlyMorningDrink = isWeightGain
         ? "1 glass warm water (250ml) with 5-6 soaked almonds + 2 dates\n   - SAME drink every day for all 10 days\n   - NO coconut water, NO green tea for weight gain"
         : "1 glass warm water (250ml) with lemon juice (half lemon)\n   - SAME drink every day for all 10 days\n   - NO coconut water, NO green tea in early morning";
@@ -417,7 +383,7 @@ Return structured meal plan with:
       food_preference: editedPlan.food_preference,
       regional_preference: editedPlan.regional_preference,
       active: true,
-      created_by: user?.email, // Ensure this is set for filtering
+      created_by: user?.email,
     });
   };
 
@@ -495,7 +461,6 @@ Return structured meal plan with:
           </div>
         </div>
 
-        {/* Usage Warning component */}
         <UsageLimitWarning usage={usage} limits={usage?.plan_limits} type="meal_plan" />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -514,7 +479,6 @@ Return structured meal plan with:
             </TabsTrigger>
           </TabsList>
 
-          {/* TEMPLATES TAB */}
           <TabsContent value="templates" className="space-y-6">
             {templates.length === 0 ? (
               <Card className="border-none shadow-xl bg-gradient-to-br from-green-50 to-emerald-50">
@@ -537,7 +501,6 @@ Return structured meal plan with:
               </Card>
             ) : (
               <div className="space-y-4">
-                {/* Client Selector for Templates */}
                 <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
                   <CardHeader>
                     <CardTitle className="text-lg">Select Client to Assign Template</CardTitle>
@@ -578,7 +541,6 @@ Return structured meal plan with:
                   </CardContent>
                 </Card>
 
-                {/* Templates Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {templates.map((template) => (
                     <Card key={template.id} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all">
@@ -634,7 +596,6 @@ Return structured meal plan with:
             )}
           </TabsContent>
 
-          {/* GENERATE TAB */}
           <TabsContent value="generate" className="space-y-6">
             {generatedPlan === null && viewingPlan === null ? (
               <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
@@ -648,7 +609,6 @@ Return structured meal plan with:
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* Client Selector */}
                   <div className="space-y-2">
                     <Label htmlFor="client" className="text-base font-semibold flex items-center gap-2">
                       <Users className="w-4 h-4" />
@@ -687,7 +647,6 @@ Return structured meal plan with:
                     </Select>
                   </div>
 
-                  {/* Show selected client profile */}
                   {selectedClient && (
                     <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
                       <div className="flex items-center gap-3 mb-3">
@@ -757,7 +716,6 @@ Return structured meal plan with:
                     </div>
                   </div>
 
-                  {/* Cost Warning */}
                   <Alert className="border-2 border-yellow-500 bg-yellow-50">
                     <AlertTriangle className="w-5 h-5 text-yellow-600" />
                     <AlertDescription className="ml-2">
@@ -806,7 +764,6 @@ Return structured meal plan with:
             )}
           </TabsContent>
 
-          {/* SAVED PLANS TAB */}
           <TabsContent value="saved">
             {mealPlans.length === 0 ? (
               <Card className="border-none shadow-lg">
@@ -891,7 +848,6 @@ Return structured meal plan with:
           </TabsContent>
         </Tabs>
 
-        {/* AI Warning Dialog */}
         <Dialog open={showAIWarning} onOpenChange={setShowAIWarning}>
           <DialogContent>
             <DialogHeader>
@@ -936,7 +892,6 @@ Return structured meal plan with:
                     className="flex-1 bg-red-500 hover:bg-red-600"
                     onClick={() => {
                       setShowAIWarning(false);
-                      // Proceed with generation, this time without the dialog check
                       generateMealPlan(); 
                     }}
                   >
