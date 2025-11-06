@@ -316,28 +316,41 @@ CRITICAL REQUIREMENTS:
    - DO NOT use green tea in early morning
    - Only warm water with specified ingredients
 
-4. MEAL VARIETY (OTHER MEALS):
+4. DINNER GUIDELINES - NEVER SERVE PLAIN SOUP:
+   
+   **CRITICAL: If dinner includes soup, ALWAYS add something substantial:**
+   - Soup + 1 bread (multigrain/brown bread)
+   - Soup + 50g paneer (grilled/steamed)
+   - Soup + 1 small roti + side salad
+   - Soup + 100g grilled chicken (for non-veg)
+   - Soup + 2-3 moong dal cheela (small)
+   - Soup + 1 small bowl sprout salad
+   
+   **NEVER give only soup for dinner - it's incomplete and unsatisfying**
+   **Soup must be paired with protein source or carb source**
+
+5. MEAL VARIETY (OTHER MEALS):
    - Create DIFFERENT meals for each day (NOT for early morning)
    - Include traditional roti-sabji combinations (at least 3-4 days in lunch/dinner)
    - ${selectedClient.food_preference === 'non_veg' ? 'Include chicken, fish, eggs, lamb, mutton options across different days' : ''}
    - Avoid repetition - maximum 2 times for same meal across ${planConfig.duration} days
 
-5. FOOD COMBINATIONS FOR ${selectedClient.goal.toUpperCase().replace('_', ' ')}:
+6. FOOD COMBINATIONS FOR ${selectedClient.goal.toUpperCase().replace('_', ' ')}:
    ${isWeightGain 
      ? '- High-calorie dense foods: dry fruits, full-fat dairy, healthy fats\n   - Protein at every meal: paneer, legumes, eggs, chicken\n   - Avoid: Low-cal drinks, excessive fiber, diet foods'
      : '- High fiber vegetables and whole grains\n   - Lean proteins\n   - Moderate healthy fats'}
 
-6. MEAL STRUCTURE (6 meals daily):
+7. MEAL STRUCTURE (6 meals daily):
    - Early Morning (6-7 AM): ${isWeightGain ? 'Warm water with soaked dry fruits/dates (SAME for all days)' : 'Warm lemon water (SAME for all days)'}
    - Breakfast (8-9 AM): Main meal with protein + carbs
    - Mid-Morning (11 AM): Fruit/snack
    - Lunch (1-2 PM): Complete meal - roti + sabji + dal + rice
    - Evening Snack (4-5 PM): Light snack
-   - Dinner (7-8 PM): ${isWeightLoss ? 'LIGHTEST meal (20% calories only)' : 'Substantial meal'}
+   - Dinner (7-8 PM): ${isWeightLoss ? 'LIGHTEST meal (20% calories) but COMPLETE - never just soup alone' : 'Substantial meal'}
 
-7. ${selectedClient.food_preference === 'non_veg' ? 'NON-VEG OPTIONS:\n   - Include chicken, fish, eggs across week\n   - Add lamb/mutton options (2-3 times)\n   - Specify cooking method: grilled, boiled, curry, etc.' : ''}
+8. ${selectedClient.food_preference === 'non_veg' ? 'NON-VEG OPTIONS:\n   - Include chicken, fish, eggs across week\n   - Add lamb/mutton options (2-3 times)\n   - Specify cooking method: grilled, boiled, curry, etc.' : ''}
 
-8. TRADITIONAL INDIAN MEALS:
+9. TRADITIONAL INDIAN MEALS:
    - Include dal-chawal-roti-sabji at least 4 days
    - Regional dishes from ${selectedClient.regional_preference} India
    - Home-style cooking methods
@@ -345,6 +358,7 @@ CRITICAL REQUIREMENTS:
 Return structured meal plan with:
 - SAME early morning drink for all ${planConfig.duration} days
 - CORRECT portion units (pieces for cheela/roti, katori for dal/sabji)
+- COMPLETE dinners - never plain soup alone, always with accompaniment
 - Exact measurements with weight in grams
 - Day-wise variety (except early morning)
 - Proper calorie distribution
@@ -806,7 +820,7 @@ Return structured meal plan with:
                     className="bg-gradient-to-r from-green-500 to-emerald-500"
                   >
                     <Star className="w-4 h-4 mr-2" />
-                    Browse Templates
+                    Browse Templates (FREE)
                   </Button>
                 </CardContent>
               </Card>
