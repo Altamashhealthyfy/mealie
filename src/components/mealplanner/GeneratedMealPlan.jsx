@@ -8,13 +8,15 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Calendar, Save, RefreshCw, ChefHat, Lightbulb, Edit, Check, X, Download, Copy, FileText, Printer, Loader2, CheckCircle, Star, Plus, TrendingUp, AlertCircle } from "lucide-react";
+import { Calendar, Save, RefreshCw, ChefHat, Lightbulb, Edit, Check, X, Download, Copy, FileText, Printer, Loader2, CheckCircle, Star, Plus, TrendingUp, AlertCircle, Calculator } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { base44 } from "@/api/base44Client";
 
 export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGenerateNew, isSaving }) {
   const [editablePlan, setEditablePlan] = useState(plan);
   const [editingMeal, setEditingMeal] = useState(null);
   const [copiedText, setCopiedText] = useState(false);
+  const [recalculating, setRecalculating] = useState(false);
 
   const mealTypes = ["Early Morning", "Breakfast", "Mid-Morning", "Lunch", "Evening Snack", "Dinner"];
 
@@ -61,6 +63,65 @@ export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGe
   const updateEditingMealPortions = (portionsText) => {
     const portions = portionsText.split('\n').filter(p => p.trim());
     setEditingMeal({...editingMeal, portion_sizes: portions});
+  };
+
+  const recalculateMealMacros = async () => {
+    if (!editingMeal || !editingMeal.items || editingMeal.items.length === 0) {
+      alert("Please add food items first");
+      return;
+    }
+
+    setRecalculating(true);
+
+    try {
+      const itemsWithPortions = editingMeal.items.map((item, i) =>
+        `${item} - ${editingMeal.portion_sizes?.[i] || 'standard portion'}`
+      ).join('\n');
+
+      const prompt = `Calculate the nutritional values for this Indian meal:
+
+Meal Items:
+${itemsWithPortions}
+
+Provide accurate calculations for:
+- Total Calories (kcal)
+- Total Protein (grams)
+- Total Carbohydrates (grams)
+- Total Fats (grams)
+
+Use ICMR data and standard Indian portion sizes. Be precise.`;
+
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            calories: { type: "number" },
+            protein: { type: "number" },
+            carbs: { type: "number" },
+            fats: { type: "number" }
+          },
+          required: ["calories", "protein", "carbs", "fats"]
+        }
+      });
+
+      setEditingMeal({
+        ...editingMeal,
+        calories: Math.round(response.calories),
+        protein: Math.round(response.protein),
+        carbs: Math.round(response.carbs),
+        fats: Math.round(response.fats)
+      });
+
+      alert("✅ Macros recalculated successfully!");
+
+    } catch (error) {
+      alert("Error recalculating macros. Please enter manually.");
+      console.error(error);
+    } finally {
+      setRecalculating(false);
+    }
   };
 
   // Export functions
@@ -254,8 +315,8 @@ export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGe
               const dayTotals = calculateDayTotals(day);
               const targetCals = editablePlan.target_calories || 2000;
               const difference = dayTotals.calories - targetCals;
-              const isOnTrack = Math.abs(difference) <= (targetCals * 0.1); // Within 10%
-              
+              const isOnTrack = Math.abs(difference) <= (targetCals * 0.1);
+
               return (
                 <TabsTrigger
                   key={day}
@@ -280,14 +341,14 @@ export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGe
           const targetCals = editablePlan.target_calories || 2000;
           const difference = dayTotals.calories - targetCals;
           const isOnTrack = Math.abs(difference) <= (targetCals * 0.1);
-          
+
           return (
             <TabsContent key={day} value={`day-${day}`} className="space-y-4">
               {/* Daily Summary Card */}
               <Card className={`border-2 ${
-                isOnTrack 
-                  ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-50' 
-                  : difference > 0 
+                isOnTrack
+                  ? 'border-green-500 bg-gradient-to-br from-green-50 to-emerald-50'
+                  : difference > 0
                   ? 'border-orange-500 bg-gradient-to-br from-orange-50 to-red-50'
                   : 'border-blue-500 bg-gradient-to-br from-blue-50 to-cyan-50'
               }`}>
@@ -300,9 +361,9 @@ export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGe
                       Day {day} Summary
                     </CardTitle>
                     <Badge className={`${
-                      isOnTrack 
-                        ? 'bg-green-500' 
-                        : difference > 0 
+                      isOnTrack
+                        ? 'bg-green-500'
+                        : difference > 0
                         ? 'bg-orange-500'
                         : 'bg-blue-500'
                     } text-white text-lg px-4 py-1`}>
@@ -330,11 +391,11 @@ export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGe
                       <p className="text-3xl font-bold text-purple-600">{Math.round(dayTotals.fats)}g</p>
                     </div>
                   </div>
-                  
+
                   {!isOnTrack && (
                     <Alert className={`mt-4 ${
-                      difference > 0 
-                        ? 'border-orange-500 bg-orange-50' 
+                      difference > 0
+                        ? 'border-orange-500 bg-orange-50'
                         : 'border-blue-500 bg-blue-50'
                     }`}>
                       <AlertCircle className={`w-4 h-4 ${
@@ -343,7 +404,7 @@ export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGe
                       <AlertDescription className={`ml-2 ${
                         difference > 0 ? 'text-orange-900' : 'text-blue-900'
                       }`}>
-                        {difference > 0 
+                        {difference > 0
                           ? `⚠️ Day ${day} is ${Math.round(difference)} calories ABOVE target. Consider reducing portion sizes or swapping high-calorie items.`
                           : `💡 Day ${day} is ${Math.abs(Math.round(difference))} calories BELOW target. Consider adding snacks or increasing portions.`
                         }
@@ -512,10 +573,42 @@ export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGe
                     value={editingMeal.portion_sizes?.join('\n') || ''}
                     onChange={(e) => updateEditingMealPortions(e.target.value)}
                     rows={6}
-                    placeholder="1 katori&#10;1 cup&#10;10 pieces"
+                    placeholder="1 small katori (150g)&#10;1 cup (240ml)&#10;10 pieces"
                   />
                 </div>
               </div>
+
+              {/* AI Recalculate Button */}
+              <Alert className="border-2 border-blue-500 bg-blue-50">
+                <Calculator className="w-5 h-5 text-blue-600" />
+                <AlertDescription className="ml-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="font-semibold text-blue-900 mb-1">🤖 AI Macro Calculator</p>
+                      <p className="text-sm text-blue-800">
+                        Changed the items? Click below to auto-calculate calories & macros using AI
+                      </p>
+                    </div>
+                    <Button
+                      onClick={recalculateMealMacros}
+                      disabled={recalculating}
+                      className="ml-4 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                    >
+                      {recalculating ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Calculating...
+                        </>
+                      ) : (
+                        <>
+                          <Calculator className="w-4 h-4 mr-2" />
+                          Recalculate
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </AlertDescription>
+              </Alert>
 
               <div className="grid grid-cols-4 gap-4">
                 <div className="space-y-2">
