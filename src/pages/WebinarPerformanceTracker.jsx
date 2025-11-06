@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -677,7 +678,7 @@ export default function WebinarPerformanceTracker() {
                           </div>
                           <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
                             <p className="text-3xl font-bold text-blue-600">{stats.coldLeads}</p>
-                            <p className="text-sm text-gray-600">❄️ Cold Leads (<50% attended)</p>
+                            <p className="text-sm text-gray-600">❄️ Cold Leads (&lt;50% attended)</p>
                           </div>
                         </div>
                       </div>
@@ -711,7 +712,7 @@ export default function WebinarPerformanceTracker() {
                             </div>
                           </div>
                           <div>
-                            <Label className="text-xs text-gray-600">Audience Quality</Label>
+                            <Label className="text-xs text-gray-600">Overall Audience Quality</Label>
                             <div className="flex items-center gap-2 mt-1">
                               <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                                 <div
