@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -139,15 +140,18 @@ export default function TemplateLibraryManager() {
 
   const userType = user?.user_type || 'client';
   
-  if (userType !== 'super_admin') {
+  // Allow super_admin, team_member, student_coach, and student_team_member to upload
+  const canUploadTemplates = ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(userType);
+  
+  if (!canUploadTemplates) {
     return (
       <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-md border-none shadow-xl">
           <CardHeader>
             <Shield className="w-16 h-16 mx-auto text-red-500 mb-4" />
-            <CardTitle className="text-center text-2xl">Super Admin Only</CardTitle>
+            <CardTitle className="text-center text-2xl">Access Restricted</CardTitle>
             <CardDescription className="text-center">
-              This page is only accessible to platform administrators
+              This page is only accessible to team members and coaches
             </CardDescription>
           </CardHeader>
         </Card>
@@ -163,7 +167,7 @@ export default function TemplateLibraryManager() {
           <div>
             <Badge className="bg-purple-600 text-white mb-2">
               <Shield className="w-4 h-4 mr-1" />
-              Super Admin
+              {userType.replace('_', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
             </Badge>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Template Library Manager</h1>
             <p className="text-gray-600">Upload templates for students to download</p>

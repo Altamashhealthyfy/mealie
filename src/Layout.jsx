@@ -130,7 +130,7 @@ const businessNavigation = [
     title: "Template Manager",
     url: createPageUrl("TemplateLibraryManager"),
     icon: Upload,
-    roles: ['super_admin'],
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'], // UPDATED - now team can upload
   },
   {
     title: "My Team",
