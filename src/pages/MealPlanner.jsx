@@ -35,6 +35,14 @@ export default function MealPlanner() {
     queryFn: () => base44.auth.me(),
   });
 
+  // REDIRECT CLIENTS AWAY - they shouldn't access this page
+  useEffect(() => {
+    if (user && user.user_type === 'client') {
+      // Assuming a hardcoded path or a global utility for page URLs
+      window.location.href = '/my-assigned-meal-plan'; 
+    }
+  }, [user]);
+
   const { data: clients } = useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
@@ -56,15 +64,17 @@ export default function MealPlanner() {
     queryKey: ['mealPlans'],
     queryFn: async () => {
       const allPlans = await base44.entities.MealPlan.list('-created_date');
-      // Filter to only show plans created by current user (for team members)
-      // Super admin sees all
+      
+      // Super admin sees ALL plans
       if (user?.user_type === 'super_admin') {
         return allPlans;
       }
+      
       // Team members, student coaches - only see their own
+      // Filter by created_by to show only plans they created
       return allPlans.filter(plan => plan.created_by === user?.email);
     },
-    enabled: !!user,
+    enabled: !!user && user?.user_type !== 'client', // Don't run for clients
     initialData: [],
   });
 
@@ -330,6 +340,11 @@ Return the meal plan in a structured format with all days and meals.`;
     });
     setActiveTab("generate");
   };
+
+  // Don't show anything for clients (they'll be redirected)
+  if (!user || user.user_type === 'client') {
+    return null;
+  }
 
   if (clients.length === 0) {
     return (

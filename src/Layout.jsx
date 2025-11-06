@@ -49,41 +49,49 @@ const dietitianNavigation = [
     title: "Dashboard",
     url: createPageUrl("DietitianDashboard"),
     icon: LayoutDashboard,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'], // Exclude clients
   },
   {
     title: "Clients",
     url: createPageUrl("ClientManagement"),
     icon: Users,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
     title: "Messages",
     url: createPageUrl("Communication"),
     icon: MessageSquare,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
     title: "Appointments",
     url: createPageUrl("Appointments"),
     icon: Calendar,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
     title: "Meal Plans",
     url: createPageUrl("MealPlanner"),
     icon: ChefHat,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'], // Exclude clients
   },
   {
     title: "Template Library",
     url: createPageUrl("TemplateLibrary"),
     icon: FileText,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
     title: "Recipes",
     url: createPageUrl("Recipes"),
     icon: ClipboardList,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
     title: "Food Lookup",
     url: createPageUrl("FoodLookup"),
     icon: Search,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
 ];
 
@@ -244,12 +252,17 @@ export default function Layout({ children, currentPageName }) {
   // Check if user should see dietitian interface
   const isDietitian = ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(userType);
   
+  // Filter dietitian navigation based on roles
+  const filteredDietitianNav = dietitianNavigation.filter(item =>
+    !item.roles || item.roles.includes(userType)
+  );
+  
   // Filter business navigation based on user type
   const filteredBusinessNav = businessNavigation.filter(item =>
     !item.roles || item.roles.includes(userType)
   );
 
-  const navigationItems = isDietitian ? dietitianNavigation : clientNavigation;
+  const navigationItems = isDietitian ? filteredDietitianNav : clientNavigation;
 
   const getUserLabel = () => {
     if (!isDietitian) return 'Client Account';

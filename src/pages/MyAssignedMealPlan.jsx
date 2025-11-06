@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -20,8 +21,22 @@ export default function MyAssignedMealPlan() {
   const { data: clientProfile } = useQuery({
     queryKey: ['myClientProfile', user?.email],
     queryFn: async () => {
-      const clients = await base44.entities.Client.filter({ email: user?.email });
-      return clients[0] || null;
+      if (!user?.email) return null;
+      
+      // Try to find client by email match
+      const clients = await base44.entities.Client.filter({ email: user.email });
+      if (clients.length > 0) {
+        return clients[0];
+      }
+      
+      // If not found, try by checking if this user's email is in any client record
+      // (in case email doesn't match exactly)
+      const allClients = await base44.entities.Client.list();
+      const matchingClient = allClients.find(c => 
+        c.email?.toLowerCase() === user.email?.toLowerCase()
+      );
+      
+      return matchingClient || null;
     },
     enabled: !!user,
   });
