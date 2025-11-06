@@ -43,6 +43,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button"; // Added Button import
 
 const dietitianNavigation = [
   {
@@ -296,6 +297,12 @@ export default function Layout({ children, currentPageName }) {
     }
   };
 
+  const handleLogout = async () => {
+    if (confirm("Are you sure you want to logout?")) {
+      await base44.auth.logout();
+    }
+  };
+
   return (
     <SidebarProvider>
       <style>{`
@@ -384,20 +391,30 @@ export default function Layout({ children, currentPageName }) {
           </SidebarContent>
 
           <SidebarFooter className="border-t border-orange-100 p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-medium text-sm">
-                  {user?.full_name?.charAt(0) || 'U'}
-                </span>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
+                  <span className="text-white font-medium text-sm">
+                    {user?.full_name?.charAt(0) || 'U'}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-900 text-sm truncate">
+                    {user?.full_name || 'User'}
+                  </p>
+                  <Badge className={`${getUserBadgeColor()} text-xs`}>
+                    {getUserLabel()}
+                  </Badge>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-gray-900 text-sm truncate">
-                  {user?.full_name || 'User'}
-                </p>
-                <Badge className={`${getUserBadgeColor()} text-xs`}>
-                  {getUserLabel()}
-                </Badge>
-              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200"
+                onClick={handleLogout}
+              >
+                Logout
+              </Button>
             </div>
           </SidebarFooter>
         </Sidebar>

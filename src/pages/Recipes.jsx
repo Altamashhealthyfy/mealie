@@ -1,6 +1,7 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"; // Added useMutation, useQueryClient
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,8 @@ export default function Recipes() {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [generatingRecipe, setGeneratingRecipe] = useState(false);
   const [customRecipeRequest, setCustomRecipeRequest] = useState("");
+
+  const queryClient = useQueryClient(); // Initialize queryClient
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -36,6 +39,19 @@ export default function Recipes() {
       return profiles[0] || null;
     },
     enabled: !!user,
+  });
+
+  const createRecipeMutation = useMutation({
+    mutationFn: (data) => base44.entities.Recipe.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['recipes']);
+      setCustomRecipeRequest("");
+      alert("✅ Recipe generated and saved successfully!");
+    },
+    onError: (error) => {
+      console.error("Error saving generated recipe:", error);
+      alert("Error saving the generated recipe. Please try again.");
+    }
   });
 
   const filteredRecipes = recipes.filter(recipe => {
@@ -107,12 +123,12 @@ Provide:
         }
       });
 
-      await base44.entities.Recipe.create(response);
-      setCustomRecipeRequest("");
-      alert("Recipe generated and saved successfully!");
+      // Use the mutation to create the recipe and handle success/error
+      createRecipeMutation.mutate(response);
+      
     } catch (error) {
-      alert("Error generating recipe. Please try again.");
-      console.error(error);
+      console.error("Error invoking LLM or parsing response:", error);
+      alert("Error generating recipe. Please try again. (LLM issue)");
     }
 
     setGeneratingRecipe(false);
@@ -123,8 +139,8 @@ Provide:
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Recipe Finder</h1>
-            <p className="text-gray-600">Discover authentic Indian recipes</p>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Recipe Library</h1>
+            <p className="text-gray-600">Discover authentic Indian recipes ({recipes.length} total)</p>
           </div>
           <ChefHat className="w-10 h-10 text-orange-500" />
         </div>
@@ -134,23 +150,23 @@ Provide:
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ChefHat className="w-5 h-5 text-orange-500" />
-              Generate Custom Recipe
+              Generate Custom Recipe with AI
             </CardTitle>
-            <CardDescription>Describe what you'd like to cook</CardDescription>
+            <CardDescription>Describe what you'd like to cook and AI will create a detailed recipe</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Input
-              placeholder="E.g., High-protein South Indian breakfast under 400 calories"
+              placeholder="E.g., High-protein South Indian breakfast under 400 calories, or Paneer sabji for lunch"
               value={customRecipeRequest}
               onChange={(e) => setCustomRecipeRequest(e.target.value)}
               className="text-lg"
             />
             <Button
               onClick={generateCustomRecipe}
-              disabled={generatingRecipe}
+              disabled={generatingRecipe || createRecipeMutation.isLoading} // Also disable if mutation is in progress
               className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
             >
-              {generatingRecipe ? (
+              {(generatingRecipe || createRecipeMutation.isLoading) ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Generating Recipe...
@@ -158,10 +174,13 @@ Provide:
               ) : (
                 <>
                   <ChefHat className="w-4 h-4 mr-2" />
-                  Generate Recipe
+                  Generate & Save Recipe
                 </>
               )}
             </Button>
+            <p className="text-xs text-gray-600">
+              💡 Tip: Generated recipes are automatically saved to your library and can be used in meal plans
+            </p>
           </CardContent>
         </Card>
 

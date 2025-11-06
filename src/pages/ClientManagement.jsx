@@ -408,6 +408,7 @@ export default function ClientManagement() {
                         <SelectContent>
                           <SelectItem value="veg">Vegetarian</SelectItem>
                           <SelectItem value="non_veg">Non-Vegetarian</SelectItem>
+                          <SelectItem value="eggetarian">Eggetarian (Veg + Eggs)</SelectItem>
                           <SelectItem value="jain">Jain</SelectItem>
                           <SelectItem value="mixed">Mixed</SelectItem>
                         </SelectContent>

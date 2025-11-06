@@ -218,26 +218,77 @@ export default function MealPlanner() {
     setGenerating(true);
 
     try {
+      // Determine calorie distribution based on goal
+      const isWeightGain = selectedClient.goal === 'weight_gain' || selectedClient.goal === 'muscle_gain';
+      const isWeightLoss = selectedClient.goal === 'weight_loss';
+      
+      const calorieDistribution = isWeightLoss 
+        ? "Breakfast: 35%, Lunch: 35%, Dinner: 20%, Snacks: 10%"
+        : isWeightGain
+        ? "Breakfast: 25%, Lunch: 30%, Dinner: 30%, Snacks: 15%"
+        : "Breakfast: 30%, Lunch: 35%, Dinner: 25%, Snacks: 10%";
+
       const prompt = `Generate a personalized ${planConfig.duration}-day Indian meal plan with the following details:
 
 Food Preference: ${selectedClient.food_preference}
 Regional Preference: ${selectedClient.regional_preference}
+Goal: ${selectedClient.goal}
 Daily Calories: ${selectedClient.target_calories} kcal
 Protein: ${selectedClient.target_protein}g
 Carbs: ${selectedClient.target_carbs}g
 Fats: ${selectedClient.target_fats}g
 Meal Pattern: ${planConfig.meal_pattern}
 
-Create a detailed meal plan with:
-- 6 meals per day: Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner
-- Use household units (katori, roti, cup, tbsp) - NO GRAMS
-- Include macro breakdown (calories, protein, carbs, fats) for each meal
-- Add a small nutritional tip for each meal
-- Use regional Indian foods based on preference
-- Ensure variety - don't repeat meals unless necessary
-- For ${planConfig.meal_pattern === '3-3-4' ? 'pattern 3-3-4: create Plan A (3 days), Plan B (3 days), Plan C (4 days)' : 'daily pattern: create unique meals for each day'}
+CRITICAL REQUIREMENTS:
 
-Return the meal plan in a structured format with all days and meals.`;
+1. PORTION SIZES (MANDATORY):
+   - Use household units: katori, cup, roti, bowl
+   - ALWAYS specify size: "1 small katori (150g cooked)", "2 medium roti (60g total)", "1 cup (240ml)"
+   - Mention if raw or cooked: "100g cooked rice" or "50g raw oats"
+   - Bowl sizes: small (150-200g), medium (200-300g), large (300-400g)
+
+2. CALORIE DISTRIBUTION:
+   ${calorieDistribution}
+   - Dinner should ALWAYS be lightest for weight loss
+   - ${isWeightGain ? 'Weight gain needs higher calories in all meals, especially dinner' : ''}
+
+3. MEAL VARIETY:
+   - Create DIFFERENT meals for each day
+   - Include traditional roti-sabji combinations (at least 3-4 days in lunch/dinner)
+   - ${selectedClient.food_preference === 'non_veg' ? 'Include chicken, fish, eggs, lamb, mutton options across different days' : ''}
+   - Avoid repetition - maximum 2 times for same meal across ${planConfig.duration} days
+
+4. EARLY MORNING (6-7 AM):
+   ${isWeightGain 
+     ? '- Warm water with soaked dry fruits/dates OR Banana shake OR Protein-rich drink\n   - NO lemon water, green tea, or detox drinks for weight gain' 
+     : '- Rotate between: warm water with lemon, jeera water, green tea, tulsi water\n   - Different option each day'}
+
+5. FOOD COMBINATIONS FOR ${selectedClient.goal.toUpperCase().replace('_', ' ')}:
+   ${isWeightGain 
+     ? '- High-calorie dense foods: dry fruits, full-fat dairy, healthy fats\n   - Protein at every meal: paneer, legumes, eggs, chicken\n   - Avoid: Low-cal drinks, excessive fiber, diet foods'
+     : '- High fiber vegetables and whole grains\n   - Lean proteins\n   - Moderate healthy fats'}
+
+6. MEAL STRUCTURE (6 meals daily):
+   - Early Morning (6-7 AM): Light beverage/drink
+   - Breakfast (8-9 AM): Main meal with protein + carbs
+   - Mid-Morning (11 AM): Fruit/snack
+   - Lunch (1-2 PM): Complete meal - roti + sabji + dal + rice
+   - Evening Snack (4-5 PM): Light snack
+   - Dinner (7-8 PM): ${isWeightLoss ? 'Lightest meal of the day' : 'Substantial meal'}
+
+7. ${selectedClient.food_preference === 'non_veg' ? 'NON-VEG OPTIONS:\n   - Include chicken, fish, eggs across week\n   - Add lamb/mutton options (2-3 times)\n   - Specify cooking method: grilled, boiled, curry, etc.' : ''}
+
+8. TRADITIONAL INDIAN MEALS:
+   - Include dal-chawal-roti-sabji at least 4 days
+   - Regional dishes from ${selectedClient.regional_preference} India
+   - Home-style cooking methods
+
+Return structured meal plan with:
+- Exact portion sizes with measurements
+- Day-wise variety
+- Proper calorie distribution
+- Macro breakdown per meal
+- Short nutritional tip for each meal`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
