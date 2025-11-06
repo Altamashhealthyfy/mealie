@@ -26,7 +26,8 @@ import {
   Rocket,
   Target,
   FileText,
-  Upload
+  Upload,
+  LogOut // Added LogOut icon import
 } from "lucide-react";
 import {
   Sidebar,
@@ -43,7 +44,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button"; // Added Button import
+import { Button } from "@/components/ui/button";
 
 const dietitianNavigation = [
   {
@@ -410,9 +411,10 @@ export default function Layout({ children, currentPageName }) {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200"
+                className="w-full text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200 font-semibold" // Added font-semibold
                 onClick={handleLogout}
               >
+                <LogOut className="w-4 h-4 mr-2" /> {/* Added LogOut icon */}
                 Logout
               </Button>
             </div>
