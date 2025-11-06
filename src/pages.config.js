@@ -36,6 +36,7 @@ import TemplateLibraryManager from './pages/TemplateLibraryManager';
 import TemplateLibrary from './pages/TemplateLibrary';
 import UsageDashboard from './pages/UsageDashboard';
 import TeamSetup from './pages/TeamSetup';
+import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import Layout from './Layout.jsx';
 
 
@@ -78,6 +79,7 @@ export const PAGES = {
     "TemplateLibrary": TemplateLibrary,
     "UsageDashboard": UsageDashboard,
     "TeamSetup": TeamSetup,
+    "WebinarPerformanceTracker": WebinarPerformanceTracker,
 }
 
 export const pagesConfig = {
