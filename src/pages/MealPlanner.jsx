@@ -2,21 +2,21 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Calendar, ChefHat, Loader2, Plus, Users, Eye, CheckCircle, Copy, AlertTriangle, Zap, Star } from "lucide-react";
+import { Sparkles, Calendar, Loader2, Plus, Users, Eye, CheckCircle, Copy, AlertTriangle, Zap, Star, Download, Clock, Target, TrendingUp } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { format } = from "date-fns";
+import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { createPageUrl } from "@/utils";
 
-import GeneratedMealPlan from "../components/mealplanner/GeneratedMealPlan";
-import UsageLimitWarning from "../components/mealplanner/UsageLimitWarning";
+import GeneratedMealPlan from "@/components/mealplanner/GeneratedMealPlan";
+import UsageLimitWarning from "@/components/mealplanner/UsageLimitWarning";
 
 export default function MealPlanner() {
   const queryClient = useQueryClient();
@@ -670,6 +670,7 @@ Return structured meal plan with:
                     className="mt-6 bg-gradient-to-r from-green-500 to-emerald-500"
                     onClick={() => setActiveTab("generate")}
                   >
+                    <Zap className="w-4 h-4 mr-2" />
                     Generate Your First Template
                   </Button>
                 </CardContent>
