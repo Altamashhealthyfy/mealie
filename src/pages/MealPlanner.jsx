@@ -351,7 +351,39 @@ CRITICAL REQUIREMENTS:
    - DO NOT use green tea in early morning
    - Only warm water with specified ingredients
 
-4. DINNER GUIDELINES - VARIETY OF LIGHT/SUBSTANTIAL OPTIONS:
+4. LUNCH GUIDELINES - ONLY ROTI-SABJI OR DAL-RICE:
+   
+   **CRITICAL: Lunch MUST be ONLY one of these two patterns:**
+   
+   **Pattern 1: Roti + Sabji**
+   - 2-3 roti (adjust quantity based on calories)
+   - 1 medium katori sabji
+   - Optional: 1 small katori raita OR salad
+   - Examples: 2 roti + aloo gobi + cucumber raita
+             3 roti + palak paneer + onion salad
+             2 roti + bhindi masala + green salad
+   
+   **Pattern 2: Dal + Rice**
+   - 1 small katori dal
+   - 1 small katori rice
+   - Optional: 1 small katori sabji OR raita
+   - Examples: Dal tadka + jeera rice + baingan bharta
+             Moong dal + brown rice + raita
+             Masoor dal + rice + aloo sabji
+   
+   **NEVER give for lunch:**
+   - ❌ Dosa, idli, uttapam (these are breakfast/dinner items)
+   - ❌ Upma, poha, daliya (these are breakfast items)
+   - ❌ Khichdi (this is dinner item)
+   - ❌ Quinoa, oats (these are breakfast/dinner items)
+   - ❌ Soup-based meals (these are dinner items)
+   
+   **ALWAYS for lunch:**
+   - ✅ Roti + Sabji combination OR
+   - ✅ Dal + Rice combination
+   - ✅ Traditional home-style lunch
+
+5. DINNER GUIDELINES - VARIETY OF LIGHT/SUBSTANTIAL OPTIONS:
    
    ${dinnerOptions}
    
@@ -361,36 +393,37 @@ CRITICAL REQUIREMENTS:
    - If soup is included, ALWAYS add protein/carb accompaniment
    - Use quinoa, oats, daliya for modern healthy options
 
-5. MEAL VARIETY (OTHER MEALS):
+6. MEAL VARIETY (OTHER MEALS):
    - Create DIFFERENT meals for each day (NOT for early morning)
-   - Include traditional roti-sabji combinations (at least 3-4 days in lunch/dinner)
+   - Include traditional roti-sabji combinations (MANDATORY for lunch)
    - ${selectedClient.food_preference === 'non_veg' ? 'Include chicken, fish, eggs, lamb, mutton options across different days' : ''}
    - Avoid repetition - maximum 2 times for same meal across ${planConfig.duration} days
 
-6. FOOD COMBINATIONS FOR ${selectedClient.goal.toUpperCase().replace('_', ' ')}:
+7. FOOD COMBINATIONS FOR ${selectedClient.goal.toUpperCase().replace('_', ' ')}:
    ${isWeightGain 
      ? '- High-calorie dense foods: dry fruits, full-fat dairy, healthy fats\n   - Protein at every meal: paneer, legumes, eggs, chicken\n   - Avoid: Low-cal drinks, excessive fiber, diet foods'
      : '- High fiber vegetables and whole grains\n   - Lean proteins\n   - Moderate healthy fats\n   - Light dinner with options like khichdi, oats, daliya, quinoa'}
 
-7. MEAL STRUCTURE (6 meals daily):
+8. MEAL STRUCTURE (6 meals daily):
    - Early Morning (6-7 AM): ${isWeightGain ? 'Warm water with soaked dry fruits/dates (SAME for all days)' : 'Warm lemon water (SAME for all days)'}
-   - Breakfast (8-9 AM): Main meal with protein + carbs
+   - Breakfast (8-9 AM): Main meal with protein + carbs (can be varied - idli/dosa/poha/paratha etc)
    - Mid-Morning (11 AM): Fruit/snack
-   - Lunch (1-2 PM): Complete meal - roti + sabji + dal + rice
+   - Lunch (1-2 PM): ONLY Roti+Sabji OR Dal+Rice - NO OTHER OPTIONS
    - Evening Snack (4-5 PM): Light snack
    - Dinner (7-8 PM): ${isWeightLoss ? 'LIGHTEST meal (20% calories) - rotate: khichdi/oats/daliya/dosa/roti-sabji/paneer tikka/quinoa' : 'Substantial meal with variety'}
 
-8. ${selectedClient.food_preference === 'non_veg' ? 'NON-VEG OPTIONS:\n   - Include chicken, fish, eggs across week\n   - Add lamb/mutton options (2-3 times)\n   - Specify cooking method: grilled, boiled, curry, etc.' : ''}
+9. ${selectedClient.food_preference === 'non_veg' ? 'NON-VEG OPTIONS:\n   - Include chicken, fish, eggs across week\n   - Add lamb/mutton options (2-3 times)\n   - Specify cooking method: grilled, boiled, curry, etc.' : ''}
 
-9. TRADITIONAL INDIAN MEALS:
-   - Include dal-chawal-roti-sabji at least 4 days
+10. TRADITIONAL INDIAN MEALS:
+   - Include dal-chawal-roti-sabji pattern for lunch EVERY DAY
    - Regional dishes from ${selectedClient.regional_preference} India
    - Home-style cooking methods
-   - Modern healthy options: quinoa, oats, daliya
+   - Modern healthy options: quinoa, oats, daliya (for breakfast/dinner ONLY)
 
 Return structured meal plan with:
 - SAME early morning drink for all ${planConfig.duration} days
 - CORRECT portion units (pieces for cheela/roti, katori for dal/sabji)
+- LUNCH: ONLY Roti+Sabji OR Dal+Rice - strictly follow this
 - VARIED dinners - khichdi, oats, daliya, dosa, uttapam, paneer tikka, roti-sabji, quinoa
 - Exact measurements with weight in grams
 - Day-wise variety (except early morning)
