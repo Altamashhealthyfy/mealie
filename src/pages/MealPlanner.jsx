@@ -275,11 +275,17 @@ export default function MealPlanner() {
       const isWeightGain = selectedClient.goal === 'weight_gain' || selectedClient.goal === 'muscle_gain';
       const isWeightLoss = selectedClient.goal === 'weight_loss';
       
+      // FIXED CALORIE DISTRIBUTION
       const calorieDistribution = isWeightLoss 
-        ? "Breakfast: 35%, Lunch: 35%, Dinner: 20%, Snacks: 10%"
+        ? "Breakfast: 35%, Lunch: 35%, Dinner: 20% (LIGHTEST), Snacks: 10%"
         : isWeightGain
-        ? "Breakfast: 25%, Lunch: 30%, Dinner: 30%, Snacks: 15%"
+        ? "Breakfast: 35%, Lunch: 35%, Dinner: 30%, Snacks: 15%"
         : "Breakfast: 30%, Lunch: 35%, Dinner: 25%, Snacks: 10%";
+
+      // FIXED EARLY MORNING DRINK - SAME for all 10 days
+      const earlyMorningDrink = isWeightGain
+        ? "1 glass warm water (250ml) with 5-6 soaked almonds + 2 dates\n   - SAME drink every day for all 10 days\n   - NO coconut water, NO green tea for weight gain"
+        : "1 glass warm water (250ml) with lemon juice (half lemon)\n   - SAME drink every day for all 10 days\n   - NO coconut water, NO green tea in early morning";
 
       const prompt = `Generate a personalized ${planConfig.duration}-day Indian meal plan with the following details:
 
@@ -300,21 +306,26 @@ CRITICAL REQUIREMENTS:
    - Mention if raw or cooked: "100g cooked rice" or "50g raw oats"
    - Bowl sizes: small (150-200g), medium (200-300g), large (300-400g)
 
-2. CALORIE DISTRIBUTION:
+2. CALORIE DISTRIBUTION (STRICTLY FOLLOW):
    ${calorieDistribution}
-   - Dinner should ALWAYS be lightest for weight loss
-   - ${isWeightGain ? 'Weight gain needs higher calories in all meals, especially dinner' : ''}
+   ${isWeightLoss ? '- Dinner MUST be lightest meal - maximum 20% of daily calories' : ''}
+   ${isWeightGain ? '- Weight gain needs substantial dinner - 30% of daily calories' : ''}
 
-3. MEAL VARIETY:
-   - Create DIFFERENT meals for each day
+3. EARLY MORNING (6-7 AM) - SAME FOR ALL ${planConfig.duration} DAYS:
+   ${earlyMorningDrink}
+   
+   CRITICAL RULES:
+   - Give the EXACT SAME early morning drink for ALL ${planConfig.duration} days
+   - DO NOT rotate or change the drink
+   - DO NOT use coconut water in early morning
+   - DO NOT use green tea in early morning
+   - Only warm water with specified ingredients
+
+4. MEAL VARIETY (OTHER MEALS):
+   - Create DIFFERENT meals for each day (NOT for early morning)
    - Include traditional roti-sabji combinations (at least 3-4 days in lunch/dinner)
    - ${selectedClient.food_preference === 'non_veg' ? 'Include chicken, fish, eggs, lamb, mutton options across different days' : ''}
    - Avoid repetition - maximum 2 times for same meal across ${planConfig.duration} days
-
-4. EARLY MORNING (6-7 AM):
-   ${isWeightGain 
-     ? '- Warm water with soaked dry fruits/dates OR Banana shake OR Protein-rich drink\n   - NO lemon water, green tea, or detox drinks for weight gain' 
-     : '- Rotate between: warm water with lemon, jeera water, green tea, tulsi water\n   - Different option each day'}
 
 5. FOOD COMBINATIONS FOR ${selectedClient.goal.toUpperCase().replace('_', ' ')}:
    ${isWeightGain 
@@ -322,12 +333,12 @@ CRITICAL REQUIREMENTS:
      : '- High fiber vegetables and whole grains\n   - Lean proteins\n   - Moderate healthy fats'}
 
 6. MEAL STRUCTURE (6 meals daily):
-   - Early Morning (6-7 AM): Light beverage/drink
+   - Early Morning (6-7 AM): ${isWeightGain ? 'Warm water with soaked dry fruits/dates (SAME for all days)' : 'Warm lemon water (SAME for all days)'}
    - Breakfast (8-9 AM): Main meal with protein + carbs
    - Mid-Morning (11 AM): Fruit/snack
    - Lunch (1-2 PM): Complete meal - roti + sabji + dal + rice
    - Evening Snack (4-5 PM): Light snack
-   - Dinner (7-8 PM): ${isWeightLoss ? 'Lightest meal of the day' : 'Substantial meal'}
+   - Dinner (7-8 PM): ${isWeightLoss ? 'LIGHTEST meal (20% calories only)' : 'Substantial meal'}
 
 7. ${selectedClient.food_preference === 'non_veg' ? 'NON-VEG OPTIONS:\n   - Include chicken, fish, eggs across week\n   - Add lamb/mutton options (2-3 times)\n   - Specify cooking method: grilled, boiled, curry, etc.' : ''}
 
@@ -337,8 +348,9 @@ CRITICAL REQUIREMENTS:
    - Home-style cooking methods
 
 Return structured meal plan with:
+- SAME early morning drink for all ${planConfig.duration} days
 - Exact portion sizes with measurements
-- Day-wise variety
+- Day-wise variety (except early morning)
 - Proper calorie distribution
 - Macro breakdown per meal
 - Short nutritional tip for each meal`;
