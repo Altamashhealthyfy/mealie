@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, Calendar, ChefHat, Loader2, Plus, Users, Eye, CheckCircle, Copy, AlertTriangle, Zap, Star } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { format } from "date-fns";
+import { format } = from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { createPageUrl } from "@/utils";
 
@@ -255,27 +255,26 @@ export default function MealPlanner() {
 
       const dinnerOptions = isWeightLoss
         ? `**LIGHT DINNER OPTIONS for weight loss (20% calories max):**
-   - Soup + Grilled paneer/tofu tikka (50-100g)
+   - Soup + Grilled paneer cubes (50g)
    - Soup + 1 small roti + sautéed veggies
    - Plain dosa sautéed with veggies
    - Small bowl khichdi (1 small katori)
-   - Oats upma/porridge (1 small bowl)
+   - Oats upma (1 small bowl)
    - Daliya (broken wheat) upma (1 small katori)
-   - Quinoa upma (1 small katori)
    - Uttapam (1 small) with veggies
-   - Sautéed paneer/tofu with veggies (100g protein + 1 bowl veggies)
+   - Sautéed paneer with veggies (50g paneer + 1 bowl veggies)
    - 1 small roti + sabji (1 small katori)
    - Light khichdi with minimal ghee
    
+   **CRITICAL: Keep dinners simple and traditional - NO complex items**
    **CRITICAL: Dinner must be LIGHTEST meal - only 20% of daily calories**`
         : `**SUBSTANTIAL DINNER OPTIONS for weight gain/maintenance:**
    - 2 rotis + sabji + dal
    - Khichdi bowl with ghee + curd
-   - Quinoa/oats upma with nuts
+   - Oats upma with nuts
    - 2 dosas with chutney + sambar
    - Uttapam with veggies + raita
-   - Paneer tikka + salad + 1 roti
-   - Tofu/paneer curry + 2 rotis
+   - Paneer curry + 2 rotis
    - Daliya with milk and dry fruits
    - Substantial portions for 30% calories`;
 
@@ -311,37 +310,55 @@ CRITICAL REQUIREMENTS:
    - Upma: "1 small katori (150g cooked)"
    - Oats: "1 small bowl (150g cooked)"
    - Daliya: "1 small katori (150g cooked)"
-   - Quinoa: "1 small katori (150g cooked)"
    
    **Drinks - USE CUPS/GLASSES:**
    - Chai/Coffee: "1 cup (240ml)"
    - Milk: "1 glass (200ml)"
    - Buttermilk: "1 glass (200ml)"
    - Soup: "1 bowl (200-250ml)"
+   - Green tea: "1 cup (200ml)"
+   - Vegetable juice: "1 glass (200ml)"
    
    **Salads/Raita:**
    - "1 small bowl salad (100g)"
    - "1 small katori raita (100g)"
    
-   **Snacks - COUNT IN PIECES:**
+   **Snacks - COUNT IN PIECES OR KATORI:**
    - Idli: "2 idli (100g total)" NOT katori
    - Dhokla: "2 pieces (100g)" NOT katori
-   - Pakora: "4-5 pieces (80g)" NOT katori
-   - Namkeen: "1 small katori (30g)"
+   - Bhuna chana: "1 small katori (30g)"
+   - Murmura: "1 small katori (25g)"
+   - Makhana: "1 small katori (20g)"
+   - Khakra: "2-3 pieces (30g)"
    
    **Protein Items:**
-   - Paneer: "50-100g cubes"
-   - Tofu: "50-100g cubes"
-   - Paneer/Tofu Tikka: "4-6 pieces (80-100g)"
+   - Paneer: "50g cubes (for curry/sabji)"
+   - Grilled paneer: "50g cubes"
    
    ALWAYS mention if raw or cooked: "100g cooked rice" or "50g raw oats"
 
-2. CALORIE DISTRIBUTION (STRICTLY FOLLOW):
+2. KEEP IT SIMPLE - AVOID THESE COMPLEX ITEMS:
+   ❌ NO Paneer tikka
+   ❌ NO Tofu tikka
+   ❌ NO Bread pakora
+   ❌ NO Quinoa (not traditional Indian)
+   ❌ NO Fusion items
+   
+   ✅ ONLY Simple, traditional Indian food
+   ✅ Home-style cooking
+   ✅ Easy to prepare meals
+
+3. CALORIE DISTRIBUTION (STRICTLY FOLLOW):
    ${calorieDistribution}
+   
+   **CRITICAL: Each day's total calories MUST be EXACTLY ${selectedClient.target_calories} kcal**
+   - Calculate meal-wise: Early Morning + Breakfast + Mid-Morning + Lunch + Evening + Dinner = ${selectedClient.target_calories}
+   - Adjust portion sizes to match EXACT daily target
+   - If total is over/under, reduce/increase portions accordingly
    ${isWeightLoss ? '- Dinner MUST be lightest meal - maximum 20% of daily calories' : ''}
    ${isWeightGain ? '- Weight gain needs substantial dinner - 30% of daily calories' : ''}
 
-3. EARLY MORNING (6-7 AM) - SAME FOR ALL ${planConfig.duration} DAYS:
+4. EARLY MORNING (6-7 AM) - SAME FOR ALL ${planConfig.duration} DAYS:
    ${earlyMorningDrink}
    
    CRITICAL RULES:
@@ -351,7 +368,7 @@ CRITICAL REQUIREMENTS:
    - DO NOT use green tea in early morning
    - Only warm water with specified ingredients
 
-4. LUNCH GUIDELINES - ONLY ROTI-SABJI OR DAL-RICE:
+5. LUNCH GUIDELINES - ONLY ROTI-SABJI OR DAL-RICE:
    
    **CRITICAL: Lunch MUST be ONLY one of these two patterns:**
    
@@ -375,7 +392,7 @@ CRITICAL REQUIREMENTS:
    - ❌ Dosa, idli, uttapam (these are breakfast/dinner items)
    - ❌ Upma, poha, daliya (these are breakfast items)
    - ❌ Khichdi (this is dinner item)
-   - ❌ Quinoa, oats (these are breakfast/dinner items)
+   - ❌ Oats (these are breakfast/dinner items)
    - ❌ Soup-based meals (these are dinner items)
    
    **ALWAYS for lunch:**
@@ -383,51 +400,99 @@ CRITICAL REQUIREMENTS:
    - ✅ Dal + Rice combination
    - ✅ Traditional home-style lunch
 
-5. DINNER GUIDELINES - VARIETY OF LIGHT/SUBSTANTIAL OPTIONS:
+6. EVENING SNACK GUIDELINES - SIMPLE & FILLING FOR WEIGHT LOSS:
+   
+   **CRITICAL: Evening snacks MUST be from these options ONLY:**
+   
+   **Hot Drinks with Snacks:**
+   - Green tea (1 cup) + Bhuna chana (1 small katori 30g)
+   - Green tea (1 cup) + Murmura (1 small katori 25g)
+   - Green tea (1 cup) + Makhana (1 small katori 20g)
+   - Green tea (1 cup) + 2-3 Khakra (30g)
+   - Green tea (1 cup) + Mixed seeds (pumpkin/sunflower, 1 tbsp)
+   
+   **Vegetable Juice Options:**
+   - Carrot juice (1 glass 200ml) + handful almonds (5-6 pieces)
+   - Beetroot juice (1 glass 200ml) + bhuna chana (1 small katori)
+   - Mixed veg juice (1 glass 200ml) + makhana (1 small katori)
+   - Cucumber juice (1 glass 200ml) + 2-3 khakra
+   
+   **Fruit Options (occasionally):**
+   - 1 apple + green tea
+   - 1 orange + handful almonds
+   - 1 bowl papaya + green tea
+   
+   **Traditional Options:**
+   - Buttermilk (1 glass) + bhuna chana
+   - Coconut water (1 glass) + makhana
+   - Sprouts salad (1 small bowl)
+   
+   **IMPORTANT:**
+   - These snacks are FILLING and LOW-CALORIE
+   - Perfect for weight loss
+   - Green tea helps boost metabolism
+   - Bhuna chana/makhana/murmura are crunchy and satisfying
+   - Vegetable juices provide nutrients without too many calories
+   - Keep portions SMALL but satisfying
+
+7. DINNER GUIDELINES - VARIETY OF LIGHT/SUBSTANTIAL OPTIONS:
    
    ${dinnerOptions}
    
    **IMPORTANT: Rotate between different dinner options across ${planConfig.duration} days**
-   - Include mix of roti-sabji, khichdi, oats, daliya, dosa, uttapam, etc.
-   - Include paneer/tofu tikka options 2-3 times
+   - Keep dinners SIMPLE and TRADITIONAL
+   - Include mix of roti-sabji, khichdi, oats, daliya, dosa, uttapam
    - If soup is included, ALWAYS add protein/carb accompaniment
-   - Use quinoa, oats, daliya for modern healthy options
+   - NO paneer tikka, NO quinoa, NO fusion items
 
-6. MEAL VARIETY (OTHER MEALS):
+8. MEAL VARIETY (OTHER MEALS):
    - Create DIFFERENT meals for each day (NOT for early morning)
    - Include traditional roti-sabji combinations (MANDATORY for lunch)
    - ${selectedClient.food_preference === 'non_veg' ? 'Include chicken, fish, eggs, lamb, mutton options across different days' : ''}
    - Avoid repetition - maximum 2 times for same meal across ${planConfig.duration} days
+   - Keep everything SIMPLE and HOME-STYLE
 
-7. FOOD COMBINATIONS FOR ${selectedClient.goal.toUpperCase().replace('_', ' ')}:
+9. FOOD COMBINATIONS FOR ${selectedClient.goal.toUpperCase().replace('_', ' ')}:
    ${isWeightGain 
      ? '- High-calorie dense foods: dry fruits, full-fat dairy, healthy fats\n   - Protein at every meal: paneer, legumes, eggs, chicken\n   - Avoid: Low-cal drinks, excessive fiber, diet foods'
-     : '- High fiber vegetables and whole grains\n   - Lean proteins\n   - Moderate healthy fats\n   - Light dinner with options like khichdi, oats, daliya, quinoa'}
+     : '- High fiber vegetables and whole grains\n   - Lean proteins\n   - Moderate healthy fats\n   - Light dinner - keep it simple and traditional\n   - Evening snacks MUST be low-calorie but filling (green tea with chana/murmura/makhana)'}
 
-8. MEAL STRUCTURE (6 meals daily):
+10. MEAL STRUCTURE (6 meals daily):
    - Early Morning (6-7 AM): ${isWeightGain ? 'Warm water with soaked dry fruits/dates (SAME for all days)' : 'Warm lemon water (SAME for all days)'}
-   - Breakfast (8-9 AM): Main meal with protein + carbs (can be varied - idli/dosa/poha/paratha etc)
+   - Breakfast (8-9 AM): Main meal with protein + carbs (varied - idli/dosa/poha/paratha etc)
    - Mid-Morning (11 AM): Fruit/snack
    - Lunch (1-2 PM): ONLY Roti+Sabji OR Dal+Rice - NO OTHER OPTIONS
-   - Evening Snack (4-5 PM): Light snack
-   - Dinner (7-8 PM): ${isWeightLoss ? 'LIGHTEST meal (20% calories) - rotate: khichdi/oats/daliya/dosa/roti-sabji/paneer tikka/quinoa' : 'Substantial meal with variety'}
+   - Evening Snack (4-5 PM): Green tea with chana/murmura/makhana OR vegetable juice options
+   - Dinner (7-8 PM): ${isWeightLoss ? 'LIGHTEST meal (20% calories) - simple options like khichdi/oats/daliya/dosa/roti-sabji' : 'Substantial meal with variety'}
 
-9. ${selectedClient.food_preference === 'non_veg' ? 'NON-VEG OPTIONS:\n   - Include chicken, fish, eggs across week\n   - Add lamb/mutton options (2-3 times)\n   - Specify cooking method: grilled, boiled, curry, etc.' : ''}
+11. ${selectedClient.food_preference === 'non_veg' ? 'NON-VEG OPTIONS:\n   - Include chicken, fish, eggs across week\n   - Add lamb/mutton options (2-3 times)\n   - Specify cooking method: grilled, boiled, curry, etc.\n   - Keep preparations SIMPLE' : ''}
 
-10. TRADITIONAL INDIAN MEALS:
+12. TRADITIONAL INDIAN MEALS:
    - Include dal-chawal-roti-sabji pattern for lunch EVERY DAY
    - Regional dishes from ${selectedClient.regional_preference} India
    - Home-style cooking methods
-   - Modern healthy options: quinoa, oats, daliya (for breakfast/dinner ONLY)
+   - SIMPLE preparations - no fusion, no complex items
+   - Focus on traditional, easy-to-make meals
+
+13. DAILY CALORIE ACCURACY:
+   **CRITICAL: EACH DAY MUST TOTAL EXACTLY ${selectedClient.target_calories} KCAL**
+   - Calculate totals: Early Morning + Breakfast + Mid-Morning + Lunch + Evening + Dinner
+   - Adjust portion sizes to reach EXACT target
+   - If Day 1 = 1850 kcal but target is 1800, reduce portions
+   - If Day 2 = 1750 kcal but target is 1800, increase portions
+   - ALL ${planConfig.duration} DAYS must have SAME total calories (${selectedClient.target_calories} kcal)
 
 Return structured meal plan with:
 - SAME early morning drink for all ${planConfig.duration} days
 - CORRECT portion units (pieces for cheela/roti, katori for dal/sabji)
 - LUNCH: ONLY Roti+Sabji OR Dal+Rice - strictly follow this
-- VARIED dinners - khichdi, oats, daliya, dosa, uttapam, paneer tikka, roti-sabji, quinoa
+- EVENING: Green tea with chana/murmura/makhana OR vegetable juice - strictly follow this
+- DINNER: Simple, traditional, light options
+- SIMPLE meals - NO paneer tikka, NO quinoa, NO fusion items
 - Exact measurements with weight in grams
 - Day-wise variety (except early morning)
 - Proper calorie distribution
+- **CRITICAL: EACH DAY TOTALS EXACTLY ${selectedClient.target_calories} KCAL**
 - Macro breakdown per meal
 - Short nutritional tip for each meal`;
 
