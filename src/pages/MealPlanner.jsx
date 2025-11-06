@@ -266,11 +266,40 @@ Meal Pattern: ${planConfig.meal_pattern}
 
 CRITICAL REQUIREMENTS:
 
-1. PORTION SIZES (MANDATORY):
-   - Use household units: katori, cup, roti, bowl
-   - ALWAYS specify size: "1 small katori (150g cooked)", "2 medium roti (60g total)", "1 cup (240ml)"
-   - Mention if raw or cooked: "100g cooked rice" or "50g raw oats"
-   - Bowl sizes: small (150-200g), medium (200-300g), large (300-400g)
+1. PORTION SIZES (MANDATORY) - USE CORRECT UNITS:
+   
+   **Flatbreads/Pancakes - COUNT IN PIECES:**
+   - Roti/Chapati: "2 medium roti (60g total)" NOT katori
+   - Paratha: "1 stuffed paratha (80g)" NOT katori
+   - Cheela: "1 medium cheela (100g)" NOT katori
+   - Dosa: "1 medium dosa (120g)" NOT katori
+   - Uttapam: "1 uttapam (150g)" NOT katori
+   - Thepla: "2 thepla (70g total)" NOT katori
+   
+   **Cooked Foods - USE KATORI/BOWL:**
+   - Dal: "1 small katori (150g cooked)"
+   - Sabji: "1 medium katori (200g cooked)"
+   - Rice: "1 small katori (100g cooked)"
+   - Khichdi: "1 medium bowl (250g cooked)"
+   - Poha: "1 medium katori (150g cooked)"
+   - Upma: "1 small katori (150g cooked)"
+   
+   **Drinks - USE CUPS/GLASSES:**
+   - Chai/Coffee: "1 cup (240ml)"
+   - Milk: "1 glass (200ml)"
+   - Buttermilk: "1 glass (200ml)"
+   
+   **Salads/Raita:**
+   - "1 small bowl salad (100g)"
+   - "1 small katori raita (100g)"
+   
+   **Snacks - COUNT IN PIECES:**
+   - Idli: "2 idli (100g total)" NOT katori
+   - Dhokla: "2 pieces (100g)" NOT katori
+   - Pakora: "4-5 pieces (80g)" NOT katori
+   - Namkeen: "1 small katori (30g)"
+   
+   ALWAYS mention if raw or cooked: "100g cooked rice" or "50g raw oats"
 
 2. CALORIE DISTRIBUTION (STRICTLY FOLLOW):
    ${calorieDistribution}
@@ -315,7 +344,8 @@ CRITICAL REQUIREMENTS:
 
 Return structured meal plan with:
 - SAME early morning drink for all ${planConfig.duration} days
-- Exact portion sizes with measurements
+- CORRECT portion units (pieces for cheela/roti, katori for dal/sabji)
+- Exact measurements with weight in grams
 - Day-wise variety (except early morning)
 - Proper calorie distribution
 - Macro breakdown per meal
