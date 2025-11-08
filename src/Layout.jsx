@@ -26,7 +26,8 @@ import {
   Target,
   FileText,
   Upload,
-  LogOut
+  LogOut,
+  Stethoscope
 } from "lucide-react";
 import {
   Sidebar,
@@ -75,6 +76,13 @@ const dietitianNavigation = [
     url: createPageUrl("MealPlanner"),
     icon: ChefHat,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
+    title: "Pro Plans 💎",
+    url: createPageUrl("MealPlansPro"),
+    icon: Stethoscope,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+    badge: "Pro"
   },
   {
     title: "Template Library",
@@ -318,7 +326,7 @@ export default function Layout({ children, currentPageName }) {
               </div>
               <div>
                 <h2 className="font-bold text-xl text-gray-900">
-                  {user?.business_name || 'Mealie Pro'}
+                  {user?.business_name || 'Mealie'}
                 </h2>
                 <p className="text-xs text-orange-600 font-medium">
                   {isDietitian ? 'Dietitian Platform' : 'Client Portal'}
@@ -345,6 +353,9 @@ export default function Layout({ children, currentPageName }) {
                         <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
                           <item.icon className="w-5 h-5" />
                           <span className="font-medium">{item.title}</span>
+                          {item.badge && (
+                            <Badge className="ml-auto bg-purple-600 text-white">{item.badge}</Badge>
+                          )}
                           {item.title === 'Messages' && unreadCount > 0 && (
                             <Badge className="ml-auto bg-red-500">{unreadCount}</Badge>
                           )}
@@ -421,7 +432,7 @@ export default function Layout({ children, currentPageName }) {
               <div className="flex items-center gap-2">
                 <ChefHat className="w-6 h-6 text-orange-500" />
                 <h1 className="text-xl font-bold text-gray-900">
-                  {user?.business_name || 'Mealie Pro'}
+                  {user?.business_name || 'Mealie'}
                 </h1>
               </div>
             </div>
