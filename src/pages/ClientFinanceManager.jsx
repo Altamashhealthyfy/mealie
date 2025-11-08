@@ -299,14 +299,151 @@ export default function ClientFinanceManager() {
   const downloadTemplate = () => {
     const csv = `Vertical,Transaction Date,Client Name,Phone,Email,Lead Source,Programme Type,Programme Details,Previous Programme,Customer Type,Payment Type,Total Programme Fee,Amount Received,University Fee,Payment Mode,Payment Mode Other,Next Installment Date,Invoice Number,Transaction Notes
 HFS,2024-11-01,Rahul Sharma,9876543210,rahul@email.com,ScaleX Ad Agency,Silver,,None (New Customer),New Customer,Full Payment,50000,50000,0,HFICICI,,,INV-001,
-HFI,2024-11-02,Priya Verma,9876543211,priya@email.com,Facebook Ad,Gold,Silver,Upgrade,1st Installment,80000,30000,2000,RZPHFI,,2024-12-02,INV-002,
-HFS,2024-11-03,Amit Kumar,9876543212,amit@email.com,Referral,Workshop,Instagram Marketing Workshop,None (New Customer),New Customer,Full Payment,5000,5000,0,CASH,,,INV-003,`;
+HFI,2024-11-02,Priya Verma,9876543211,priya@email.com,Facebook Ad,Gold,,Silver,Upgrade,1st Installment,80000,30000,2000,RZPHFI,,2024-12-02,INV-002,
+HFS,2024-11-03,Amit Kumar,9876543212,amit@email.com,Referral,Workshop,Instagram Marketing Workshop,None (New Customer),New Customer,Full Payment,5000,5000,0,CASH,,,INV-003,
+
+INSTRUCTIONS FOR ADDING DROPDOWNS IN EXCEL:
+,,,,,,,,,,,,,,,,,
+"HOW TO ADD DROPDOWNS IN EXCEL:",,,,,,,,,,,,,,,,,
+"1. Select the entire Vertical column (column A, starting from row 2)",,,,,,,,,,,,,,,,,
+"2. Go to Data > Data Validation > List",,,,,,,,,,,,,,,,,
+"3. Enter: HFS,HFI",,,,,,,,,,,,,,,,,
+"4. Click OK",,,,,,,,,,,,,,,,,
+"5. Repeat for other columns using lists below:",,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+"COLUMN DROPDOWN VALUES:",,,,,,,,,,,,,,,,,
+"Vertical:","HFS,HFI",,,,,,,,,,,,,,,,
+"Programme Type:","Silver,Gold,Diploma,FOP,MOP,Workshop,Affiliate Income,University Fee (Separate),Retreat Fee,Others",,,,,,,,,,,,,,,,
+"Previous Programme:","None (New Customer),Silver,Gold,Diploma,FOP,MOP",,,,,,,,,,,,,,,,
+"Customer Type:","New Customer,Upgrade",,,,,,,,,,,,,,,,
+"Payment Type:","Full Payment,1st Installment,2nd Installment,3rd Installment,4th Installment,Final Installment",,,,,,,,,,,,,,,,
+"Payment Mode:","HFICICI,HFIIDFC,RZPHFI,SKMGPAY,CASH,TAGMANGO,HFSPAYTM,HFSICICI,HFSIDFC,RZPHFS,Others",,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+"IMPORTANT NOTES:",,,,,,,,,,,,,,,,,
+"1. Programme Details - Fill ONLY if Programme Type = Workshop/Affiliate Income/Others",,,,,,,,,,,,,,,,,
+"2. Payment Mode Other - Fill ONLY if Payment Mode = Others",,,,,,,,,,,,,,,,,
+"3. Previous Programme - Fill ONLY if Customer Type = Upgrade",,,,,,,,,,,,,,,,,
+"4. Customer Type = New Customer → System auto-generates Registration Number",,,,,,,,,,,,,,,,,
+"5. Date Format: YYYY-MM-DD (e.g., 2024-11-08)",,,,,,,,,,,,,,,,,
+"6. Delete these instruction rows before uploading!",,,,,,,,,,,,,,,,,`;
 
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'client_finance_template.csv';
+    a.download = 'client_finance_template_with_instructions.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const downloadExcelGuide = () => {
+    const guide = `STEP-BY-STEP GUIDE TO CREATE EXCEL TEMPLATE WITH DROPDOWNS
+
+STEP 1: Open Excel, Create New Workbook
+---------------------------------------
+
+STEP 2: Create Headers in Row 1
+--------------------------------
+A1: Vertical
+B1: Transaction Date
+C1: Client Name
+D1: Phone
+E1: Email
+F1: Lead Source
+G1: Programme Type
+H1: Programme Details
+I1: Previous Programme
+J1: Customer Type
+K1: Payment Type
+L1: Total Programme Fee
+M1: Amount Received
+N1: University Fee
+O1: Payment Mode
+P1: Payment Mode Other
+Q1: Next Installment Date
+R1: Invoice Number
+S1: Transaction Notes
+
+STEP 3: Add Dropdowns (Data Validation)
+----------------------------------------
+
+FOR COLUMN A (Vertical):
+1. Select cells A2:A1000
+2. Go to Data > Data Validation
+3. Allow: List
+4. Source: HFS,HFI
+5. Click OK
+
+FOR COLUMN G (Programme Type):
+1. Select cells G2:G1000
+2. Data > Data Validation > List
+3. Source: Silver,Gold,Diploma,FOP,MOP,Workshop,Affiliate Income,University Fee (Separate),Retreat Fee,Others
+4. Click OK
+
+FOR COLUMN I (Previous Programme):
+1. Select cells I2:I1000
+2. Data > Data Validation > List
+3. Source: None (New Customer),Silver,Gold,Diploma,FOP,MOP
+4. Click OK
+
+FOR COLUMN J (Customer Type):
+1. Select cells J2:J1000
+2. Data > Data Validation > List
+3. Source: New Customer,Upgrade
+4. Click OK
+
+FOR COLUMN K (Payment Type):
+1. Select cells K2:K1000
+2. Data > Data Validation > List
+3. Source: Full Payment,1st Installment,2nd Installment,3rd Installment,4th Installment,Final Installment
+4. Click OK
+
+FOR COLUMN O (Payment Mode):
+1. Select cells O2:O1000
+2. Data > Data Validation > List
+3. Source: HFICICI,HFIIDFC,RZPHFI,SKMGPAY,CASH,TAGMANGO,HFSPAYTM,HFSICICI,HFSIDFC,RZPHFS,Others
+4. Click OK
+
+STEP 4: Format Date Columns
+----------------------------
+1. Select columns B and Q (Transaction Date, Next Installment Date)
+2. Right-click > Format Cells
+3. Category: Date
+4. Type: YYYY-MM-DD
+5. Click OK
+
+STEP 5: Format Number Columns
+------------------------------
+1. Select columns L, M, N (Programme Fee, Amount Received, University Fee)
+2. Right-click > Format Cells
+3. Category: Number
+4. Decimal places: 0
+5. Click OK
+
+STEP 6: Add Sample Data (Optional)
+-----------------------------------
+Row 2: HFS,2024-11-01,Rahul Sharma,9876543210,rahul@email.com,ScaleX,Silver,,None (New Customer),New Customer,Full Payment,50000,50000,0,HFICICI,,,INV-001,
+
+STEP 7: Save Template
+---------------------
+File > Save As > Excel Workbook (.xlsx)
+Name: "Client_Finance_Template_With_Dropdowns.xlsx"
+
+DONE! Now you have a reusable template with dropdowns!
+
+TIPS:
+- Share this file with HFS & HFI teams
+- They just select from dropdowns, no typing needed!
+- Delete sample data before sharing
+- Make a master copy and share copies to teams`;
+
+    const blob = new Blob([guide], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'How_To_Create_Excel_Dropdowns_Guide.txt';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -595,11 +732,31 @@ HFS,2024-11-03,Amit Kumar,9876543212,amit@email.com,Referral,Workshop,Instagram 
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Alert>
+                <Alert className="bg-yellow-50 border-yellow-500">
+                  <AlertTriangle className="w-4 h-4 text-yellow-600" />
                   <AlertDescription>
-                    Download the template first, fill it with your data, then upload here. All calculations (GST, Balance) will be automatic!
+                    <strong>📥 RECOMMENDED:</strong> Download the Excel guide below to create a template with dropdowns. No more typing - just select from dropdowns!
                   </AlertDescription>
                 </Alert>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <Button
+                    onClick={downloadTemplate}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download CSV Template (Basic)
+                  </Button>
+                  <Button
+                    onClick={downloadExcelGuide}
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-500"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download Excel Dropdown Guide (Recommended)
+                  </Button>
+                </div>
+
                 <div className="flex gap-3">
                   <input
                     type="file"
