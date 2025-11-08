@@ -300,150 +300,69 @@ export default function ClientFinanceManager() {
     const csv = `Vertical,Transaction Date,Client Name,Phone,Email,Lead Source,Programme Type,Programme Details,Previous Programme,Customer Type,Payment Type,Total Programme Fee,Amount Received,University Fee,Payment Mode,Payment Mode Other,Next Installment Date,Invoice Number,Transaction Notes
 HFS,2024-11-01,Rahul Sharma,9876543210,rahul@email.com,ScaleX Ad Agency,Silver,,None (New Customer),New Customer,Full Payment,50000,50000,0,HFICICI,,,INV-001,
 HFI,2024-11-02,Priya Verma,9876543211,priya@email.com,Facebook Ad,Gold,,Silver,Upgrade,1st Installment,80000,30000,2000,RZPHFI,,2024-12-02,INV-002,
-HFS,2024-11-03,Amit Kumar,9876543212,amit@email.com,Referral,Workshop,Instagram Marketing Workshop,None (New Customer),New Customer,Full Payment,5000,5000,0,CASH,,,INV-003,
-
-INSTRUCTIONS FOR ADDING DROPDOWNS IN EXCEL:
-,,,,,,,,,,,,,,,,,
-"HOW TO ADD DROPDOWNS IN EXCEL:",,,,,,,,,,,,,,,,,
-"1. Select the entire Vertical column (column A, starting from row 2)",,,,,,,,,,,,,,,,,
-"2. Go to Data > Data Validation > List",,,,,,,,,,,,,,,,,
-"3. Enter: HFS,HFI",,,,,,,,,,,,,,,,,
-"4. Click OK",,,,,,,,,,,,,,,,,
-"5. Repeat for other columns using lists below:",,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,
-"COLUMN DROPDOWN VALUES:",,,,,,,,,,,,,,,,,
-"Vertical:","HFS,HFI",,,,,,,,,,,,,,,,
-"Programme Type:","Silver,Gold,Diploma,FOP,MOP,Workshop,Affiliate Income,University Fee (Separate),Retreat Fee,Others",,,,,,,,,,,,,,,,
-"Previous Programme:","None (New Customer),Silver,Gold,Diploma,FOP,MOP",,,,,,,,,,,,,,,,
-"Customer Type:","New Customer,Upgrade",,,,,,,,,,,,,,,,
-"Payment Type:","Full Payment,1st Installment,2nd Installment,3rd Installment,4th Installment,Final Installment",,,,,,,,,,,,,,,,
-"Payment Mode:","HFICICI,HFIIDFC,RZPHFI,SKMGPAY,CASH,TAGMANGO,HFSPAYTM,HFSICICI,HFSIDFC,RZPHFS,Others",,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,
-"IMPORTANT NOTES:",,,,,,,,,,,,,,,,,
-"1. Programme Details - Fill ONLY if Programme Type = Workshop/Affiliate Income/Others",,,,,,,,,,,,,,,,,
-"2. Payment Mode Other - Fill ONLY if Payment Mode = Others",,,,,,,,,,,,,,,,,
-"3. Previous Programme - Fill ONLY if Customer Type = Upgrade",,,,,,,,,,,,,,,,,
-"4. Customer Type = New Customer → System auto-generates Registration Number",,,,,,,,,,,,,,,,,
-"5. Date Format: YYYY-MM-DD (e.g., 2024-11-08)",,,,,,,,,,,,,,,,,
-"6. Delete these instruction rows before uploading!",,,,,,,,,,,,,,,,,`;
+HFS,2024-11-03,Amit Kumar,9876543212,amit@email.com,Referral,Workshop,Instagram Marketing Workshop,None (New Customer),New Customer,Full Payment,5000,5000,0,CASH,,,INV-003,`;
 
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'client_finance_template_with_instructions.csv';
+    a.download = 'client_finance_template.csv';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
-  const downloadExcelGuide = () => {
-    const guide = `STEP-BY-STEP GUIDE TO CREATE EXCEL TEMPLATE WITH DROPDOWNS
+  const downloadDropdownValues = () => {
+    const dropdownReference = `COPY-PASTE DROPDOWN VALUES FOR EXCEL DATA VALIDATION
+==========================================================
 
-STEP 1: Open Excel, Create New Workbook
----------------------------------------
+HOW TO USE:
+1. Open Excel, paste your data
+2. Select a column (e.g., column A from A2 to A1000)
+3. Go to: Data > Data Validation > Settings
+4. Allow: List
+5. Source: Copy the values from below and paste
+6. Click OK
+7. Repeat for each column
 
-STEP 2: Create Headers in Row 1
---------------------------------
-A1: Vertical
-B1: Transaction Date
-C1: Client Name
-D1: Phone
-E1: Email
-F1: Lead Source
-G1: Programme Type
-H1: Programme Details
-I1: Previous Programme
-J1: Customer Type
-K1: Payment Type
-L1: Total Programme Fee
-M1: Amount Received
-N1: University Fee
-O1: Payment Mode
-P1: Payment Mode Other
-Q1: Next Installment Date
-R1: Invoice Number
-S1: Transaction Notes
+==========================================================
 
-STEP 3: Add Dropdowns (Data Validation)
-----------------------------------------
+COLUMN A - Vertical:
+HFS,HFI
 
-FOR COLUMN A (Vertical):
-1. Select cells A2:A1000
-2. Go to Data > Data Validation
-3. Allow: List
-4. Source: HFS,HFI
-5. Click OK
+COLUMN G - Programme Type:
+Silver,Gold,Diploma,FOP,MOP,Workshop,Affiliate Income,University Fee (Separate),Retreat Fee,Others
 
-FOR COLUMN G (Programme Type):
-1. Select cells G2:G1000
-2. Data > Data Validation > List
-3. Source: Silver,Gold,Diploma,FOP,MOP,Workshop,Affiliate Income,University Fee (Separate),Retreat Fee,Others
-4. Click OK
+COLUMN I - Previous Programme:
+None (New Customer),Silver,Gold,Diploma,FOP,MOP
 
-FOR COLUMN I (Previous Programme):
-1. Select cells I2:I1000
-2. Data > Data Validation > List
-3. Source: None (New Customer),Silver,Gold,Diploma,FOP,MOP
-4. Click OK
+COLUMN J - Customer Type:
+New Customer,Upgrade
 
-FOR COLUMN J (Customer Type):
-1. Select cells J2:J1000
-2. Data > Data Validation > List
-3. Source: New Customer,Upgrade
-4. Click OK
+COLUMN K - Payment Type:
+Full Payment,1st Installment,2nd Installment,3rd Installment,4th Installment,Final Installment
 
-FOR COLUMN K (Payment Type):
-1. Select cells K2:K1000
-2. Data > Data Validation > List
-3. Source: Full Payment,1st Installment,2nd Installment,3rd Installment,4th Installment,Final Installment
-4. Click OK
+COLUMN O - Payment Mode:
+HFICICI,HFIIDFC,RZPHFI,SKMGPAY,CASH,TAGMANGO,HFSPAYTM,HFSICICI,HFSIDFC,RZPHFS,Others
 
-FOR COLUMN O (Payment Mode):
-1. Select cells O2:O1000
-2. Data > Data Validation > List
-3. Source: HFICICI,HFIIDFC,RZPHFI,SKMGPAY,CASH,TAGMANGO,HFSPAYTM,HFSICICI,HFSIDFC,RZPHFS,Others
-4. Click OK
+==========================================================
 
-STEP 4: Format Date Columns
-----------------------------
-1. Select columns B and Q (Transaction Date, Next Installment Date)
-2. Right-click > Format Cells
-3. Category: Date
-4. Type: YYYY-MM-DD
-5. Click OK
+QUICK SETUP (5 MINUTES):
+1. Download CSV template
+2. Open in Excel
+3. For each column above, select cells (e.g., A2:A1000)
+4. Data > Data Validation > List
+5. Copy-paste the values from above
+6. Done!
 
-STEP 5: Format Number Columns
-------------------------------
-1. Select columns L, M, N (Programme Fee, Amount Received, University Fee)
-2. Right-click > Format Cells
-3. Category: Number
-4. Decimal places: 0
-5. Click OK
+==========================================================`;
 
-STEP 6: Add Sample Data (Optional)
------------------------------------
-Row 2: HFS,2024-11-01,Rahul Sharma,9876543210,rahul@email.com,ScaleX,Silver,,None (New Customer),New Customer,Full Payment,50000,50000,0,HFICICI,,,INV-001,
-
-STEP 7: Save Template
----------------------
-File > Save As > Excel Workbook (.xlsx)
-Name: "Client_Finance_Template_With_Dropdowns.xlsx"
-
-DONE! Now you have a reusable template with dropdowns!
-
-TIPS:
-- Share this file with HFS & HFI teams
-- They just select from dropdowns, no typing needed!
-- Delete sample data before sharing
-- Make a master copy and share copies to teams`;
-
-    const blob = new Blob([guide], { type: 'text/plain' });
+    const blob = new Blob([dropdownReference], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'How_To_Create_Excel_Dropdowns_Guide.txt';
+    a.download = 'DROPDOWN_VALUES_COPY_PASTE.txt';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -732,29 +651,57 @@ TIPS:
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Alert className="bg-yellow-50 border-yellow-500">
-                  <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                <Alert className="bg-orange-50 border-orange-500">
+                  <AlertTriangle className="w-4 h-4 text-orange-600" />
                   <AlertDescription>
-                    <strong>📥 RECOMMENDED:</strong> Download the Excel guide below to create a template with dropdowns. No more typing - just select from dropdowns!
+                    <strong>⚠️ IMPORTANT:</strong> I cannot create Excel files with dropdowns directly. But I can give you:<br/>
+                    1️⃣ CSV template to open in Excel<br/>
+                    2️⃣ Dropdown values to copy-paste (takes 5 min to setup)<br/>
+                    <strong>Then you'll have a reusable template forever!</strong>
                   </AlertDescription>
                 </Alert>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <Button
-                    onClick={downloadTemplate}
-                    variant="outline"
-                    className="w-full"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download CSV Template (Basic)
-                  </Button>
-                  <Button
-                    onClick={downloadExcelGuide}
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-500"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download Excel Dropdown Guide (Recommended)
-                  </Button>
+                  <div>
+                    <Button
+                      onClick={downloadTemplate}
+                      className="w-full bg-gradient-to-r from-blue-500 to-cyan-500"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      1. Download CSV Template
+                    </Button>
+                    <p className="text-xs text-gray-600 mt-1">Open this in Excel first</p>
+                  </div>
+                  
+                  <div>
+                    <Button
+                      onClick={downloadDropdownValues}
+                      className="w-full bg-gradient-to-r from-green-500 to-emerald-500"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      2. Download Dropdown Values
+                    </Button>
+                    <p className="text-xs text-gray-600 mt-1">Copy-paste these in Excel</p>
+                  </div>
+                </div>
+
+                <Alert className="bg-blue-50 border-blue-500">
+                  <CheckCircle className="w-4 h-4 text-blue-600" />
+                  <AlertDescription>
+                    <strong>Quick Setup:</strong><br/>
+                    1. Download both files above<br/>
+                    2. Open CSV in Excel<br/>
+                    3. Open dropdown values file<br/>
+                    4. For each column: Select cells → Data → Data Validation → List → Copy-paste values<br/>
+                    5. Save as .xlsx file<br/>
+                    6. Share with team - Done! 🎉
+                  </AlertDescription>
+                </Alert>
+
+                <div className="p-4 bg-white rounded-lg border-2 border-dashed border-blue-300">
+                  <h4 className="font-semibold text-gray-900 mb-2">📹 Video Tutorial (If Needed):</h4>
+                  <p className="text-sm text-gray-600 mb-2">Search YouTube: "How to add dropdown in Excel data validation"</p>
+                  <p className="text-xs text-gray-500">It's super easy - takes literally 5 minutes to setup once!</p>
                 </div>
 
                 <div className="flex gap-3">
@@ -1017,6 +964,7 @@ TIPS:
                           <SelectItem value="HFSICICI">HFSICICI</SelectItem>
                           <SelectItem value="HFSIDFC">HFSIDFC</SelectItem>
                           <SelectItem value="RZPHFS">RZPHFS</SelectItem>
+                          <SelectItem value="Credit Card">Credit Card (Specify Below)</SelectItem>
                           <SelectItem value="Others">Others (Specify Below)</SelectItem>
                         </SelectContent>
                       </Select>
