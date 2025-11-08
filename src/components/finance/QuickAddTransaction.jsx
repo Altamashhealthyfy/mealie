@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, AlertTriangle } from "lucide-react";
+import { CheckCircle, AlertTriangle, Calendar } from "lucide-react";
 import { format } from "date-fns";
 
 export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
@@ -18,9 +17,41 @@ export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
     university_fee: 0,
   });
 
+  const [installmentCount, setInstallmentCount] = useState(null);
+  const [installments, setInstallments] = useState([]);
+
   const needsExtraField = ['Workshop', 'Affiliate Income', 'Others'].includes(formData.programme_type);
   const needsPaymentModeOther = formData.payment_mode === 'Others';
   const needsPreviousProgramme = formData.customer_type === 'Upgrade';
+  const isBookingAmount = formData.payment_type === 'Booking Amount';
+
+  const handlePaymentTypeChange = (value) => {
+    setFormData({...formData, payment_type: value});
+    if (value !== 'Booking Amount') {
+      setInstallmentCount(null);
+      setInstallments([]);
+    }
+  };
+
+  const handleInstallmentCountChange = (count) => {
+    setInstallmentCount(count);
+    // Initialize installment array
+    const newInstallments = Array(count).fill(null).map((_, index) => ({
+      installment_number: index + 1,
+      due_date: '',
+      amount: 0
+    }));
+    setInstallments(newInstallments);
+  };
+
+  const updateInstallment = (index, field, value) => {
+    const updated = [...installments];
+    updated[index] = {
+      ...updated[index],
+      [field]: field === 'amount' ? parseFloat(value) || 0 : value
+    };
+    setInstallments(updated);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -43,8 +74,28 @@ export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
       return;
     }
 
-    onSubmit(formData);
+    // Validate installments if booking amount
+    if (isBookingAmount && installmentCount) {
+      const allFilled = installments.every(inst => inst.due_date && inst.amount > 0);
+      if (!allFilled) {
+        alert("Please fill all installment dates and amounts");
+        return;
+      }
+    }
+
+    // Prepare submission data
+    const submissionData = {
+      ...formData,
+      installments: isBookingAmount ? installments : null,
+      installment_count: isBookingAmount ? installmentCount : null
+    };
+
+    onSubmit(submissionData);
   };
+
+  // Calculate total installment amount
+  const totalInstallmentAmount = installments.reduce((sum, inst) => sum + (inst.amount || 0), 0);
+  const grandTotal = (formData.amount_received || 0) + totalInstallmentAmount;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -216,13 +267,14 @@ export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
             <Label>Payment Type *</Label>
             <Select
               value={formData.payment_type}
-              onValueChange={(value) => setFormData({...formData, payment_type: value})}
+              onValueChange={handlePaymentTypeChange}
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Full Payment">Full Payment</SelectItem>
+                <SelectItem value="Booking Amount">Booking Amount (With Installments)</SelectItem>
                 <SelectItem value="1st Installment">1st Installment</SelectItem>
                 <SelectItem value="2nd Installment">2nd Installment</SelectItem>
                 <SelectItem value="3rd Installment">3rd Installment</SelectItem>
@@ -243,7 +295,7 @@ export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
           </div>
 
           <div className="space-y-2">
-            <Label>Amount Received *</Label>
+            <Label>{isBookingAmount ? 'Booking Amount Received *' : 'Amount Received *'}</Label>
             <Input
               type="number"
               value={formData.amount_received || ''}
@@ -298,14 +350,16 @@ export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
             </div>
           )}
 
-          <div className="space-y-2">
-            <Label>Next Installment Date</Label>
-            <Input
-              type="date"
-              value={formData.next_installment_date || ''}
-              onChange={(e) => setFormData({...formData, next_installment_date: e.target.value})}
-            />
-          </div>
+          {!isBookingAmount && (
+            <div className="space-y-2">
+              <Label>Next Installment Date</Label>
+              <Input
+                type="date"
+                value={formData.next_installment_date || ''}
+                onChange={(e) => setFormData({...formData, next_installment_date: e.target.value})}
+              />
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>Invoice Number</Label>
@@ -316,6 +370,93 @@ export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
             />
           </div>
         </div>
+
+        {/* Installment Details - Only for Booking Amount */}
+        {isBookingAmount && (
+          <div className="mt-6 p-4 bg-purple-50 border-2 border-purple-300 rounded-lg space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Calendar className="w-5 h-5 text-purple-600" />
+              <h4 className="text-lg font-semibold text-purple-900">Installment Details</h4>
+            </div>
+
+            <div className="space-y-2">
+              <Label>How many further installments? *</Label>
+              <Select
+                value={installmentCount?.toString() || ''}
+                onValueChange={(value) => handleInstallmentCountChange(parseInt(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select number of installments" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 Installment</SelectItem>
+                  <SelectItem value="2">2 Installments</SelectItem>
+                  <SelectItem value="3">3 Installments</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {installmentCount && (
+              <div className="space-y-4 mt-4">
+                <Alert className="bg-blue-50 border-blue-500">
+                  <AlertDescription>
+                    <strong>📅 Fill details for each installment:</strong> Enter the due date and amount for all {installmentCount} installment{installmentCount > 1 ? 's' : ''}.
+                  </AlertDescription>
+                </Alert>
+
+                {installments.map((inst, index) => (
+                  <div key={index} className="p-4 bg-white rounded-lg border-2 border-purple-200">
+                    <h5 className="font-semibold text-gray-900 mb-3">Installment {index + 1}</h5>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Due Date *</Label>
+                        <Input
+                          type="date"
+                          value={inst.due_date}
+                          onChange={(e) => updateInstallment(index, 'due_date', e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Amount *</Label>
+                        <Input
+                          type="number"
+                          value={inst.amount || ''}
+                          onChange={(e) => updateInstallment(index, 'amount', e.target.value)}
+                          placeholder="20000"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Installment Summary */}
+                <div className="p-4 bg-green-50 rounded-lg border-2 border-green-300">
+                  <h5 className="font-semibold text-green-900 mb-2">Payment Summary</h5>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span>Booking Amount Received:</span>
+                      <span className="font-bold">₹{(formData.amount_received || 0).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Total Future Installments:</span>
+                      <span className="font-bold">₹{totalInstallmentAmount.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between pt-2 border-t border-green-300">
+                      <span className="font-bold">Grand Total:</span>
+                      <span className="font-bold text-lg text-green-700">₹{grandTotal.toLocaleString()}</span>
+                    </div>
+                    {formData.total_programme_fee && (
+                      <div className="flex justify-between text-xs text-gray-600 mt-2">
+                        <span>Programme Fee:</span>
+                        <span>₹{formData.total_programme_fee.toLocaleString()}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label>Transaction Notes</Label>
@@ -344,10 +485,14 @@ export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
           <CheckCircle className="w-4 h-4 text-green-600" />
           <AlertDescription>
             <strong>Auto-Calculations Preview:</strong><br/>
-            Amount to Company: ₹{Math.round(formData.amount_received - (formData.university_fee || 0))}<br/>
-            Value without GST: ₹{Math.round((formData.amount_received - (formData.university_fee || 0)) / 1.18)}<br/>
-            GST (18%): ₹{Math.round((formData.amount_received - (formData.university_fee || 0)) - ((formData.amount_received - (formData.university_fee || 0)) / 1.18))}<br/>
-            Balance Due: ₹{Math.round((formData.total_programme_fee || 0) - formData.amount_received)}
+            Amount to Company: ₹{Math.round(formData.amount_received - (formData.university_fee || 0)).toLocaleString()}<br/>
+            Value without GST: ₹{Math.round((formData.amount_received - (formData.university_fee || 0)) / 1.18).toLocaleString()}<br/>
+            GST (18%): ₹{Math.round((formData.amount_received - (formData.university_fee || 0)) - ((formData.amount_received - (formData.university_fee || 0)) / 1.18)).toLocaleString()}<br/>
+            {isBookingAmount && grandTotal > 0 ? (
+              <>Balance Due (After all installments): ₹{Math.round((formData.total_programme_fee || 0) - grandTotal).toLocaleString()}</>
+            ) : (
+              <>Balance Due: ₹{Math.round((formData.total_programme_fee || 0) - formData.amount_received).toLocaleString()}</>
+            )}
           </AlertDescription>
         </Alert>
       )}
