@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -151,15 +152,9 @@ const businessNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
-    title: "Income & Expense",
-    url: createPageUrl("IncomeExpense"),
+    title: "Finance Manager",
+    url: createPageUrl("ClientFinanceManager"),
     icon: DollarSign,
-    roles: ['super_admin', 'team_member', 'student_coach'],
-  },
-  {
-    title: "Installments",
-    url: createPageUrl("InstallmentTracker"),
-    icon: TrendingUp,
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
