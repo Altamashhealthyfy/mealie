@@ -5,7 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, AlertTriangle, Calendar } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle, AlertTriangle, Calendar, Award, TrendingUp, Info } from "lucide-react";
 import { format } from "date-fns";
 
 export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
@@ -20,10 +21,44 @@ export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
   const [installmentCount, setInstallmentCount] = useState(null);
   const [installments, setInstallments] = useState([]);
 
+  // Programme Level Definitions
+  const programmeLevels = {
+    L1: {
+      name: "L1 - Entry Level",
+      programmes: ["Silver", "7 Days Detox", "One Month Programme"],
+      priceRange: "₹5,000 - ₹25,000",
+      color: "bg-blue-100 text-blue-700 border-blue-300"
+    },
+    L2: {
+      name: "L2 - Intermediate Level",
+      programmes: ["Gold", "3 Month Programme", "FOP"],
+      priceRange: "₹30,000 - ₹60,000",
+      color: "bg-yellow-100 text-yellow-700 border-yellow-300"
+    },
+    L3: {
+      name: "L3 - Premium Level",
+      programmes: ["Diploma", "Diamond", "MOP", "12 Month Programme"],
+      priceRange: "₹80,000 - ₹2,00,000+",
+      color: "bg-purple-100 text-purple-700 border-purple-300"
+    }
+  };
+
+  // Get current programme level
+  const getCurrentProgrammeLevel = () => {
+    if (!formData.programme_type) return null;
+    for (const [level, data] of Object.entries(programmeLevels)) {
+      if (data.programmes.includes(formData.programme_type)) {
+        return { level, ...data };
+      }
+    }
+    return null;
+  };
+
   const needsExtraField = ['Workshop', 'Affiliate Income', 'Others'].includes(formData.programme_type);
   const needsPaymentModeOther = formData.payment_mode === 'Others';
   const needsPreviousProgramme = formData.customer_type === 'Upgrade';
   const isBookingAmount = formData.payment_type === 'Booking Amount';
+  const currentLevel = getCurrentProgrammeLevel();
 
   const handlePaymentTypeChange = (value) => {
     setFormData({...formData, payment_type: value});
@@ -35,7 +70,6 @@ export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
 
   const handleInstallmentCountChange = (count) => {
     setInstallmentCount(count);
-    // Initialize installment array
     const newInstallments = Array(count).fill(null).map((_, index) => ({
       installment_number: index + 1,
       due_date: '',
@@ -56,7 +90,6 @@ export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Validation
     if (!formData.client_name || !formData.programme_type || !formData.amount_received) {
       alert("Please fill required fields: Client Name, Programme Type, Amount Received");
       return;
@@ -74,7 +107,6 @@ export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
       return;
     }
 
-    // Validate installments if booking amount
     if (isBookingAmount && installmentCount) {
       const allFilled = installments.every(inst => inst.due_date && inst.amount > 0);
       if (!allFilled) {
@@ -83,7 +115,6 @@ export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
       }
     }
 
-    // Prepare submission data
     const submissionData = {
       ...formData,
       installments: isBookingAmount ? installments : null,
@@ -93,7 +124,6 @@ export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
     onSubmit(submissionData);
   };
 
-  // Calculate total installment amount
   const totalInstallmentAmount = installments.reduce((sum, inst) => sum + (inst.amount || 0), 0);
   const grandTotal = (formData.amount_received || 0) + totalInstallmentAmount;
 
@@ -257,6 +287,67 @@ export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
             </div>
           )}
         </div>
+
+        {/* Programme Level Indicator - Shows after programme selection */}
+        {currentLevel && (
+          <div className={`p-4 border-2 rounded-lg ${currentLevel.color}`}>
+            <div className="flex items-start gap-3">
+              <Award className="w-6 h-6 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <h4 className="font-bold text-lg">{currentLevel.level}: {formData.programme_type}</h4>
+                  <Badge variant="outline" className="border-current">
+                    {currentLevel.priceRange}
+                  </Badge>
+                </div>
+                <p className="text-sm mb-3">{currentLevel.name}</p>
+                
+                {/* Upgrade Path Suggestion */}
+                {currentLevel.level === 'L1' && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <TrendingUp className="w-4 h-4" />
+                    <span className="font-medium">Upgrade Path:</span>
+                    <span>L1 → L2 (Gold, 3 Month Programme) → L3 (Diploma, Diamond)</span>
+                  </div>
+                )}
+                {currentLevel.level === 'L2' && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <TrendingUp className="w-4 h-4" />
+                    <span className="font-medium">Upgrade Path:</span>
+                    <span>L2 → L3 (Diploma, Diamond, 12 Month Programme)</span>
+                  </div>
+                )}
+                {currentLevel.level === 'L3' && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Award className="w-4 h-4" />
+                    <span className="font-medium">Premium Level - Highest Tier!</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* All Programme Levels Reference */}
+        {!formData.programme_type && (
+          <Alert className="bg-blue-50 border-blue-500">
+            <Info className="w-4 h-4 text-blue-600" />
+            <AlertDescription>
+              <strong>Programme Levels:</strong><br/>
+              <div className="grid grid-cols-3 gap-2 mt-2 text-xs">
+                <div>
+                  <strong className="text-blue-700">L1 (₹5K-25K):</strong> Silver, 7 Days Detox, One Month
+                </div>
+                <div>
+                  <strong className="text-yellow-700">L2 (₹30K-60K):</strong> Gold, 3 Month, FOP
+                </div>
+                <div>
+                  <strong className="text-purple-700">L3 (₹80K-2L+):</strong> Diploma, Diamond, MOP, 12 Month
+                </div>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
 
       {/* Section 3: Payment Details */}
