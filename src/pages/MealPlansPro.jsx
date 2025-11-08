@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
@@ -77,7 +78,6 @@ export default function MealPlansPro() {
     setGenerating(true);
 
     try {
-      // Construct the Diamond GPT prompt
       const prompt = constructDiamondPrompt(selectedClient, latestIntake);
       
       const response = await base44.integrations.Core.InvokeLLM({
@@ -667,6 +667,15 @@ function constructDiamondPrompt(client, intake) {
 
   const tdee = bmr * activityMultipliers[client.activity_level];
 
+  // Format medications safely without nested template literals
+  const medsText = intake.current_medications
+    .map(m => m.name + ' (' + m.dosage + ')')
+    .join(', ');
+
+  const labValuesText = Object.entries(intake.lab_values)
+    .map(([key, val]) => '- ' + key + ': ' + val)
+    .join('\n');
+
   return `# Diamond Clinical Meal Plan GPT
 
 Generate a **disease-specific holistic 10-day meal plan** with 3-3-4 rotation pattern.
@@ -682,10 +691,10 @@ Activity Level: ${client.activity_level}
 
 Health Conditions: ${intake.health_conditions.join(', ')}
 Stage/Severity: ${intake.stage_severity || 'Not specified'}
-Current Medications: ${intake.current_medications.map(m => \`\${m.name} (\${m.dosage})\`).join(', ')}
+Current Medications: ${medsText}
 
 Lab Values:
-${Object.entries(intake.lab_values).map(([key, val]) => \`- \${key}: \${val}\`).join('\n')}
+${labValuesText}
 
 Diet Type: ${intake.diet_type}
 Likes: ${intake.likes_dislikes_allergies.likes.join(', ')}
