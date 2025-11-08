@@ -37,6 +37,7 @@ import TemplateLibrary from './pages/TemplateLibrary';
 import UsageDashboard from './pages/UsageDashboard';
 import TeamSetup from './pages/TeamSetup';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
+import ClientFinanceManager from './pages/ClientFinanceManager';
 import Layout from './Layout.jsx';
 
 
@@ -80,6 +81,7 @@ export const PAGES = {
     "UsageDashboard": UsageDashboard,
     "TeamSetup": TeamSetup,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
+    "ClientFinanceManager": ClientFinanceManager,
 }
 
 export const pagesConfig = {
