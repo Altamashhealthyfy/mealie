@@ -24,7 +24,8 @@ import {
   Eye,
   Plus,
   FileText,
-  AlertTriangle
+  AlertTriangle,
+  Stethoscope
 } from "lucide-react";
 import { format } from "date-fns";
 import { Link, useNavigate } from "react-router-dom";
@@ -360,6 +361,7 @@ export default function ClientManagement() {
                           <SelectItem value="maintenance">Maintenance</SelectItem>
                           <SelectItem value="muscle_gain">Muscle Gain</SelectItem>
                           <SelectItem value="health_improvement">Health Improvement</SelectItem>
+                          <SelectItem value="disease_reversal">Disease Reversal</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -573,8 +575,8 @@ export default function ClientManagement() {
                     </Badge>
                   )}
 
-                  {/* THREE BUTTONS: Message, View Plans, New Plan */}
-                  <div className="grid grid-cols-3 gap-2 pt-3">
+                  {/* FOUR BUTTONS: Message, View Plans, New Plan, Pro Plan */}
+                  <div className="grid grid-cols-4 gap-2 pt-3">
                     <Link to={`${createPageUrl("Communication")}?client=${client.id}`}>
                       <Button variant="outline" size="sm" className="w-full" title="Message Client">
                         <MessageSquare className="w-4 h-4" />
@@ -597,9 +599,19 @@ export default function ClientManagement() {
                       size="sm" 
                       className="w-full"
                       onClick={() => handleCreatePlan(client)}
-                      title="Create New Plan"
+                      title="Create Basic Plan"
                     >
                       <Plus className="w-4 h-4" />
+                    </Button>
+
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full bg-purple-50 hover:bg-purple-100 border-purple-300"
+                      onClick={() => navigate(createPageUrl(`ClinicalIntake/${client.id}`))}
+                      title="Create Pro Plan"
+                    >
+                      <Stethoscope className="w-4 h-4 text-purple-600" />
                     </Button>
                   </div>
                 </CardContent>
@@ -640,7 +652,7 @@ export default function ClientManagement() {
                       handleCreatePlan(viewingClientPlans.client);
                     }}>
                       <Plus className="w-4 h-4 mr-2" />
-                      Create First Plan
+                      Create Basic Plan
                     </Button>
                   </div>
                 ) : (
@@ -654,6 +666,9 @@ export default function ClientManagement() {
                                 <h3 className="text-lg font-semibold">{plan.name}</h3>
                                 {plan.active && (
                                   <Badge className="bg-green-500 text-white">Active</Badge>
+                                )}
+                                {plan.plan_tier === 'advanced' && (
+                                  <Badge className="bg-purple-600 text-white">💎 Pro</Badge>
                                 )}
                               </div>
                               <div className="flex flex-wrap gap-2 mb-3">
@@ -680,16 +695,28 @@ export default function ClientManagement() {
                         </CardContent>
                       </Card>
                     ))}
-                    <Button
-                      className="w-full bg-gradient-to-r from-orange-500 to-red-500"
-                      onClick={() => {
-                        setViewingClientPlans(null);
-                        handleCreatePlan(viewingClientPlans.client);
-                      }}
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create New Plan for {viewingClientPlans.client.full_name}
-                    </Button>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setViewingClientPlans(null);
+                          handleCreatePlan(viewingClientPlans.client);
+                        }}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Create Basic Plan
+                      </Button>
+                      <Button
+                        className="bg-gradient-to-r from-purple-500 to-indigo-500"
+                        onClick={() => {
+                          setViewingClientPlans(null);
+                          navigate(createPageUrl(`ClinicalIntake/${viewingClientPlans.client.id}`));
+                        }}
+                      >
+                        <Stethoscope className="w-4 h-4 mr-2" />
+                        Create Pro Plan 💎
+                      </Button>
+                    </div>
                   </>
                 )}
               </div>
