@@ -102,22 +102,41 @@ export default function ClientFinanceManager() {
   });
 
   const createIncomeMutation = useMutation({
-    mutationFn: (data) => {
+    mutationFn: async (data) => {
       // Auto-calculate fields
       const amountToCompany = data.amount_received - (data.university_fee || 0);
       const valueWithoutGst = amountToCompany / 1.18;
       const gstAmount = amountToCompany - valueWithoutGst;
       const balanceDue = (data.total_programme_fee || 0) - data.amount_received;
 
+      // Generate Registration Number for New Customers
+      let registrationNumber = null;
+      if (data.customer_type === 'New Customer') {
+        const dateStr = format(new Date(data.transaction_date), 'yyyyMMdd');
+        
+        // Get today's transactions to find next sequence number
+        const todayTransactions = await base44.entities.ClientTransaction.filter({
+          vertical: data.vertical,
+          transaction_date: data.transaction_date,
+          customer_type: 'New Customer'
+        });
+        
+        // Filter out transactions that might have an invalid registration number to ensure correct sequence
+        const validRegistrations = todayTransactions.filter(t => t.registration_number);
+        const sequence = String(validRegistrations.length + 1).padStart(3, '0');
+        registrationNumber = `${data.vertical}-${dateStr}-${sequence}`;
+      }
+
       return base44.entities.ClientTransaction.create({
         ...data,
+        registration_number: registrationNumber,
         amount_to_company: Math.round(amountToCompany),
         value_without_gst: Math.round(valueWithoutGst),
         gst_amount: Math.round(gstAmount),
         balance_due: Math.round(balanceDue),
       });
     },
-    onSuccess: () => {
+    onSuccess: (savedTransaction) => {
       queryClient.invalidateQueries(['clientTransactions']);
       setShowAddForm(false);
       setFormData({
@@ -127,7 +146,12 @@ export default function ClientFinanceManager() {
         payment_type: 'Full Payment',
         university_fee: 0,
       });
-      alert("✅ Transaction added successfully!");
+      
+      if (savedTransaction.registration_number) {
+        alert(`✅ Transaction added successfully!\n\n🆔 Registration Number: ${savedTransaction.registration_number}`);
+      } else {
+        alert("✅ Transaction added successfully!");
+      }
     },
   });
 
@@ -225,6 +249,7 @@ export default function ClientFinanceManager() {
 
       if (extractResult.status === "success") {
         const records = extractResult.output.data || [];
+        let newCustomerCount = 0;
 
         for (const record of records) {
           const amountToCompany = record.amount_received - (record.university_fee || 0);
@@ -232,8 +257,24 @@ export default function ClientFinanceManager() {
           const gstAmount = amountToCompany - valueWithoutGst;
           const balanceDue = (record.total_programme_fee || 0) - record.amount_received;
 
+          // Generate Registration Number for New Customers
+          let registrationNumber = null;
+          if (record.customer_type === 'New Customer') {
+            const dateStr = format(new Date(record.transaction_date), 'yyyyMMdd');
+            const todayTransactions = await base44.entities.ClientTransaction.filter({
+              vertical: record.vertical,
+              transaction_date: record.transaction_date,
+              customer_type: 'New Customer'
+            });
+            const validRegistrations = todayTransactions.filter(t => t.registration_number);
+            const sequence = String(validRegistrations.length + 1).padStart(3, '0');
+            registrationNumber = `${record.vertical}-${dateStr}-${sequence}`;
+            newCustomerCount++;
+          }
+
           await base44.entities.ClientTransaction.create({
             ...record,
+            registration_number: registrationNumber,
             amount_to_company: Math.round(amountToCompany),
             value_without_gst: Math.round(valueWithoutGst),
             gst_amount: Math.round(gstAmount),
@@ -242,7 +283,7 @@ export default function ClientFinanceManager() {
         }
 
         queryClient.invalidateQueries(['clientTransactions']);
-        alert(`✅ Successfully uploaded ${records.length} transactions!`);
+        alert(`✅ Successfully uploaded ${records.length} transactions!\n\n🆔 ${newCustomerCount} new registration numbers generated!`);
         setSelectedFile(null);
       } else {
         alert("Error extracting data from file");
@@ -294,12 +335,12 @@ HFS,2024-11-03,Amit Kumar,9876543212,amit@email.com,Referral,Workshop,Instagram 
       filtered = filtered.filter(t => t.customer_type === customerTypeFilter);
     }
 
-    const csv = `Vertical,Date,Client,Phone,Email,Lead Source,Programme,Details,Previous,Type,Payment Type,Total Fee,Received,Univ Fee,To Company,Value (No GST),GST,Balance,Payment Mode,Next Installment Date,Invoice Number,Notes\n${
+    const csv = `Reg No.,Vertical,Date,Client,Phone,Email,Lead Source,Programme,Details,Previous,Type,Payment Type,Total Fee,Received,Univ Fee,To Company,Value (No GST),GST,Balance,Payment Mode,Next Installment Date,Invoice Number,Notes\n${
       filtered.map(t => {
         const paymentMode = t.payment_mode === 'Others' && t.payment_mode_other
           ? `Others (${t.payment_mode_other})`
           : t.payment_mode || '';
-        return `${t.vertical || ''},${t.transaction_date},"${t.client_name}",${t.phone || ''},${t.email || ''},"${t.lead_source || ''}",${t.programme_type || ''},"${t.programme_details || ''}","${t.previous_programme || ''}",${t.customer_type || ''},${t.payment_type || ''},${t.total_programme_fee || 0},${t.amount_received},${t.university_fee || 0},${t.amount_to_company},${t.value_without_gst},${t.gst_amount},${t.balance_due || 0},"${paymentMode}",${t.next_installment_date || ''},${t.invoice_number || ''},"${t.transaction_notes || ''}"`;
+        return `${t.registration_number || ''},${t.vertical || ''},${t.transaction_date},"${t.client_name}",${t.phone || ''},${t.email || ''},"${t.lead_source || ''}",${t.programme_type || ''},"${t.programme_details || ''}","${t.previous_programme || ''}",${t.customer_type || ''},${t.payment_type || ''},${t.total_programme_fee || 0},${t.amount_received},${t.university_fee || 0},${t.amount_to_company},${t.value_without_gst},${t.gst_amount},${t.balance_due || 0},"${paymentMode}",${t.next_installment_date || ''},${t.invoice_number || ''},"${t.transaction_notes || ''}"`;
       }).join('\n')
     }`;
 
@@ -601,6 +642,14 @@ HFS,2024-11-03,Amit Kumar,9876543212,amit@email.com,Referral,Workshop,Instagram 
                   <CardTitle>Add New Transaction</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 space-y-4">
+                  {/* Customer Type Alert */}
+                  <Alert className="bg-blue-50 border-blue-500">
+                    <CheckCircle className="w-4 h-4 text-blue-600" />
+                    <AlertDescription>
+                      <strong>📋 Select "New Customer"</strong> and system will auto-generate Registration Number like <code className="bg-blue-100 px-2 py-1 rounded">HFS-20241108-001</code>
+                    </AlertDescription>
+                  </Alert>
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label>Vertical *</Label>
@@ -856,6 +905,16 @@ HFS,2024-11-03,Amit Kumar,9876543212,amit@email.com,Referral,Workshop,Instagram 
                     </div>
                   </div>
 
+                  {formData.customer_type === 'New Customer' && formData.vertical && formData.transaction_date && (
+                    <Alert className="bg-green-50 border-green-500">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                      <AlertDescription>
+                        <strong>🆔 Registration Number will be auto-generated:</strong><br/>
+                        Format: <code className="bg-green-100 px-2 py-1 rounded">{formData.vertical}-{format(new Date(formData.transaction_date), 'yyyyMMdd')}-XXX</code>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
                   {formData.amount_received && (
                     <Alert className="bg-green-50 border-green-500">
                       <CheckCircle className="w-4 h-4 text-green-600" />
@@ -1011,6 +1070,7 @@ HFS,2024-11-03,Amit Kumar,9876543212,amit@email.com,Referral,Workshop,Instagram 
                   <table className="w-full">
                     <thead className="bg-gray-50 border-b">
                       <tr>
+                        <th className="p-3 text-left text-sm font-semibold">Reg No.</th>
                         <th className="p-3 text-left text-sm font-semibold">Date</th>
                         <th className="p-3 text-left text-sm font-semibold">Vertical</th>
                         <th className="p-3 text-left text-sm font-semibold">Client</th>
@@ -1018,7 +1078,6 @@ HFS,2024-11-03,Amit Kumar,9876543212,amit@email.com,Referral,Workshop,Instagram 
                         <th className="p-3 text-left text-sm font-semibold">Type</th>
                         <th className="p-3 text-left text-sm font-semibold">Payment</th>
                         <th className="p-3 text-right text-sm font-semibold">Received</th>
-                        <th className="p-3 text-right text-sm font-semibold">Univ Fee</th>
                         <th className="p-3 text-right text-sm font-semibold">To Company</th>
                         <th className="p-3 text-right text-sm font-semibold">GST</th>
                         <th className="p-3 text-right text-sm font-semibold">Balance</th>
@@ -1028,6 +1087,15 @@ HFS,2024-11-03,Amit Kumar,9876543212,amit@email.com,Referral,Workshop,Instagram 
                     <tbody>
                       {filteredTransactions.map((transaction) => (
                         <tr key={transaction.id} className="border-b hover:bg-gray-50">
+                          <td className="p-3">
+                            {transaction.registration_number ? (
+                              <Badge className="bg-indigo-100 text-indigo-700 font-mono text-xs">
+                                {transaction.registration_number}
+                              </Badge>
+                            ) : (
+                              <span className="text-xs text-gray-400">-</span>
+                            )}
+                          </td>
                           <td className="p-3 text-sm">{transaction.transaction_date}</td>
                           <td className="p-3">
                             <Badge className={transaction.vertical === 'HFS' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}>
@@ -1058,7 +1126,6 @@ HFS,2024-11-03,Amit Kumar,9876543212,amit@email.com,Referral,Workshop,Instagram 
                           </td>
                           <td className="p-3 text-sm">{transaction.payment_type}</td>
                           <td className="p-3 text-right font-semibold">₹{transaction.amount_received?.toLocaleString()}</td>
-                          <td className="p-3 text-right text-sm">₹{transaction.university_fee?.toLocaleString() || 0}</td>
                           <td className="p-3 text-right font-semibold text-green-600">₹{transaction.amount_to_company?.toLocaleString()}</td>
                           <td className="p-3 text-right text-sm">₹{transaction.gst_amount?.toLocaleString()}</td>
                           <td className="p-3 text-right">
