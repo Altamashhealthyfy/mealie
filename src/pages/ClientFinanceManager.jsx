@@ -30,7 +30,6 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import QuickAddTransaction from "@/components/finance/QuickAddTransaction";
-import ProgrammeLevelManager from "@/components/finance/ProgrammeLevelManager";
 
 export default function ClientFinanceManager() {
   const queryClient = useQueryClient();
@@ -640,14 +639,10 @@ QUICK SETUP (5 MINUTES):
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-5">
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4">
             <TabsTrigger value="quick-add" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white">
               <Plus className="w-4 h-4 mr-2" />
               Quick Add
-            </TabsTrigger>
-            <TabsTrigger value="programme-levels" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
-              <Target className="w-4 h-4 mr-2" />
-              L1, L2, L3
             </TabsTrigger>
             <TabsTrigger value="bulk-upload">Bulk Upload</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
@@ -662,13 +657,13 @@ QUICK SETUP (5 MINUTES):
                   <Plus className="w-6 h-6" />
                   Add Transaction - All Dropdowns Built-In!
                 </CardTitle>
-                <p className="text-white/90 text-sm">No Excel needed - just fill the form and save!</p>
+                <p className="text-white/90 text-sm">No Excel needed - L1, L2, L3 levels show automatically after programme selection!</p>
               </CardHeader>
               <CardContent className="p-6">
                 <Alert className="bg-blue-50 border-blue-500 mb-6">
                   <CheckCircle className="w-4 h-4 text-blue-600" />
                   <AlertDescription>
-                    <strong>✨ All dropdowns are here!</strong> No more Excel hassle - just select from dropdowns, fill details, and click Save. That's it!
+                    <strong>✨ All dropdowns built-in!</strong> Select programme and see L1/L2/L3 level + upgrade path automatically!
                   </AlertDescription>
                 </Alert>
 
@@ -676,22 +671,6 @@ QUICK SETUP (5 MINUTES):
                   onSubmit={handleQuickAdd}
                   isSubmitting={createIncomeMutation.isPending}
                 />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* PROGRAMME LEVELS TAB - NEW! */}
-          <TabsContent value="programme-levels">
-            <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-              <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-                <CardTitle className="text-2xl flex items-center gap-2">
-                  <Target className="w-6 h-6" />
-                  Programme Levels: L1, L2, L3
-                </CardTitle>
-                <p className="text-white/90 text-sm">Define and manage your programme tiers for better tracking</p>
-              </CardHeader>
-              <CardContent className="p-6">
-                <ProgrammeLevelManager />
               </CardContent>
             </Card>
           </TabsContent>
