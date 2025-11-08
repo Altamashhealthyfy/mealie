@@ -28,10 +28,11 @@ import {
   Building2
 } from "lucide-react";
 import { format } from "date-fns";
+import QuickAddTransaction from "@/components/finance/QuickAddTransaction";
 
 export default function ClientFinanceManager() {
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState("income");
+  const [activeTab, setActiveTab] = useState("quick-add"); // Changed default
   const [showAddForm, setShowAddForm] = useState(false);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showCCPaymentForm, setShowCCPaymentForm] = useState(false);
@@ -197,6 +198,9 @@ export default function ClientFinanceManager() {
     },
   });
 
+  const handleQuickAdd = async (transactionData) => {
+    await createIncomeMutation.mutateAsync(transactionData);
+  };
 
   const handleExcelUpload = async () => {
     if (!selectedFile) {
@@ -344,7 +348,7 @@ COLUMN K - Payment Type:
 Full Payment,1st Installment,2nd Installment,3rd Installment,4th Installment,Final Installment
 
 COLUMN O - Payment Mode:
-HFICICI,HFIIDFC,RZPHFI,SKMGPAY,CASH,TAGMANGO,HFSPAYTM,HFSICICI,HFSIDFC,RZPHFS,Others
+HFICICI,HFIIDFC,RZPHFI,SKMGPAY,CASH,TAGMANGO,HFSPAYTM,HFSICICI,HFSIDFC,RZPHFS,Credit Card,Others
 
 ==========================================================
 
@@ -634,14 +638,44 @@ QUICK SETUP (5 MINUTES):
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-3">
-            <TabsTrigger value="income">Income Transactions</TabsTrigger>
-            <TabsTrigger value="expenses">Business Expenses</TabsTrigger>
-            <TabsTrigger value="credit-cards">Credit Card Tracking</TabsTrigger>
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4">
+            <TabsTrigger value="quick-add" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white">
+              <Plus className="w-4 h-4 mr-2" />
+              Quick Add (NO EXCEL!)
+            </TabsTrigger>
+            <TabsTrigger value="bulk-upload">Bulk Upload</TabsTrigger>
+            <TabsTrigger value="expenses">Expenses</TabsTrigger>
+            <TabsTrigger value="credit-cards">Credit Cards</TabsTrigger>
           </TabsList>
 
-          {/* INCOME TAB */}
-          <TabsContent value="income">
+          {/* QUICK ADD TAB - NEW! */}
+          <TabsContent value="quick-add">
+            <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+              <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">
+                <CardTitle className="text-2xl flex items-center gap-2">
+                  <Plus className="w-6 h-6" />
+                  Add Transaction - All Dropdowns Built-In!
+                </CardTitle>
+                <p className="text-white/90 text-sm">No Excel needed - just fill the form and save!</p>
+              </CardHeader>
+              <CardContent className="p-6">
+                <Alert className="bg-blue-50 border-blue-500 mb-6">
+                  <CheckCircle className="w-4 h-4 text-blue-600" />
+                  <AlertDescription>
+                    <strong>✨ All dropdowns are here!</strong> No more Excel hassle - just select from dropdowns, fill details, and click Save. That's it!
+                  </AlertDescription>
+                </Alert>
+
+                <QuickAddTransaction 
+                  onSubmit={handleQuickAdd}
+                  isSubmitting={createIncomeMutation.isPending}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* BULK UPLOAD TAB - Existing Excel Upload */}
+          <TabsContent value="bulk-upload">
             {/* Excel Upload */}
             <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
               <CardHeader>
@@ -732,16 +766,16 @@ QUICK SETUP (5 MINUTES):
               </CardContent>
             </Card>
 
-            <div className="flex items-center justify-end">
+            <div className="flex items-center justify-end mt-6">
               <Button onClick={() => setShowAddForm(!showAddForm)} className="bg-gradient-to-r from-green-500 to-emerald-500">
                 <Plus className="w-4 h-4 mr-2" />
-                Add Transaction
+                Add Single Transaction (Alternative)
               </Button>
             </div>
 
             {/* Add Transaction Form */}
             {showAddForm && (
-              <Card className="border-none shadow-xl bg-white">
+              <Card className="border-none shadow-xl bg-white mt-6">
                 <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">
                   <CardTitle>Add New Transaction</CardTitle>
                 </CardHeader>
@@ -1064,7 +1098,7 @@ QUICK SETUP (5 MINUTES):
             )}
 
             {/* Filters & Reports */}
-            <Card className="border-none shadow-lg">
+            <Card className="border-none shadow-lg mt-6">
               <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2">
@@ -1273,7 +1307,7 @@ QUICK SETUP (5 MINUTES):
 
               {/* Add Expense Form */}
               {showExpenseForm && (
-                <Card className="border-none shadow-xl">
+                <Card className="border-none shadow-xl mt-6">
                   <CardHeader className="bg-gradient-to-r from-red-500 to-orange-500 text-white">
                     <CardTitle>Add New Expense</CardTitle>
                   </CardHeader>
@@ -1456,7 +1490,7 @@ QUICK SETUP (5 MINUTES):
               )}
 
               {/* Expense Filters */}
-              <Card className="border-none shadow-lg">
+              <Card className="border-none shadow-lg mt-6">
                 <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
@@ -1510,7 +1544,7 @@ QUICK SETUP (5 MINUTES):
               </Card>
 
               {/* Expenses Table */}
-              <Card className="border-none shadow-lg">
+              <Card className="border-none shadow-lg mt-6">
                 <CardHeader>
                   <CardTitle>All Expenses</CardTitle>
                 </CardHeader>
@@ -1597,7 +1631,7 @@ QUICK SETUP (5 MINUTES):
                 </Card>
               </div>
 
-              <Card className="border-none shadow-lg">
+              <Card className="border-none shadow-lg mt-6">
                 <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
                   <div className="flex items-center justify-between">
                     <CardTitle>Credit Card Payment Tracking</CardTitle>
@@ -1611,7 +1645,7 @@ QUICK SETUP (5 MINUTES):
 
               {/* Add CC Payment Form */}
               {showCCPaymentForm && (
-                <Card className="border-none shadow-xl">
+                <Card className="border-none shadow-xl mt-6">
                   <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
                     <CardTitle>Record Credit Card Payment</CardTitle>
                   </CardHeader>
@@ -1735,7 +1769,7 @@ QUICK SETUP (5 MINUTES):
               )}
 
               {/* CC Payments Table */}
-              <Card className="border-none shadow-lg">
+              <Card className="border-none shadow-lg mt-6">
                 <CardHeader>
                   <CardTitle>Credit Card Payment History</CardTitle>
                 </CardHeader>
