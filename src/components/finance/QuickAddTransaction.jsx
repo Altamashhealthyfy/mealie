@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -132,8 +133,13 @@ export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
                 <SelectItem value="Silver">Silver</SelectItem>
                 <SelectItem value="Gold">Gold</SelectItem>
                 <SelectItem value="Diploma">Diploma</SelectItem>
+                <SelectItem value="Diamond">Diamond</SelectItem>
                 <SelectItem value="FOP">FOP (Foundation of Prosperity)</SelectItem>
                 <SelectItem value="MOP">MOP (Mastery of Prosperity)</SelectItem>
+                <SelectItem value="One Month Programme">One Month Programme</SelectItem>
+                <SelectItem value="3 Month Programme">3 Month Programme</SelectItem>
+                <SelectItem value="12 Month Programme">12 Month Programme</SelectItem>
+                <SelectItem value="7 Days Detox">7 Days Detox</SelectItem>
                 <SelectItem value="Workshop">Workshop (Specify Below)</SelectItem>
                 <SelectItem value="Affiliate Income">Affiliate Income (Specify Below)</SelectItem>
                 <SelectItem value="University Fee (Separate)">University Fee (Separate)</SelectItem>
@@ -188,8 +194,13 @@ export default function QuickAddTransaction({ onSubmit, isSubmitting }) {
                   <SelectItem value="Silver">Silver</SelectItem>
                   <SelectItem value="Gold">Gold</SelectItem>
                   <SelectItem value="Diploma">Diploma</SelectItem>
+                  <SelectItem value="Diamond">Diamond</SelectItem>
                   <SelectItem value="FOP">FOP</SelectItem>
                   <SelectItem value="MOP">MOP</SelectItem>
+                  <SelectItem value="One Month Programme">One Month Programme</SelectItem>
+                  <SelectItem value="3 Month Programme">3 Month Programme</SelectItem>
+                  <SelectItem value="12 Month Programme">12 Month Programme</SelectItem>
+                  <SelectItem value="7 Days Detox">7 Days Detox</SelectItem>
                 </SelectContent>
               </Select>
             </div>

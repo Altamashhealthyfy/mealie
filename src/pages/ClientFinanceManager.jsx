@@ -25,10 +25,12 @@ import {
   AlertTriangle,
   CreditCard,
   Receipt,
-  Building2
+  Building2,
+  Target
 } from "lucide-react";
 import { format } from "date-fns";
 import QuickAddTransaction from "@/components/finance/QuickAddTransaction";
+import ProgrammeLevelManager from "@/components/finance/ProgrammeLevelManager";
 
 export default function ClientFinanceManager() {
   const queryClient = useQueryClient();
@@ -336,10 +338,10 @@ COLUMN A - Vertical:
 HFS,HFI
 
 COLUMN G - Programme Type:
-Silver,Gold,Diploma,FOP,MOP,Workshop,Affiliate Income,University Fee (Separate),Retreat Fee,Others
+Silver,Gold,Diploma,Diamond,FOP,MOP,One Month Programme,3 Month Programme,12 Month Programme,7 Days Detox,Workshop,Affiliate Income,University Fee (Separate),Retreat Fee,Others
 
 COLUMN I - Previous Programme:
-None (New Customer),Silver,Gold,Diploma,FOP,MOP
+None (New Customer),Silver,Gold,Diploma,Diamond,FOP,MOP,One Month Programme,3 Month Programme,12 Month Programme,7 Days Detox
 
 COLUMN J - Customer Type:
 New Customer,Upgrade
@@ -348,7 +350,7 @@ COLUMN K - Payment Type:
 Full Payment,1st Installment,2nd Installment,3rd Installment,4th Installment,Final Installment
 
 COLUMN O - Payment Mode:
-HFICICI,HFIIDFC,RZPHFI,SKMGPAY,CASH,TAGMANGO,HFSPAYTM,HFSICICI,HFSIDFC,RZPHFS,Credit Card,Others
+HFICICI,HFIIDFC,RZPHFI,SKMGPAY,CASH,TAGMANGO,HFSPAYTM,HFSICICI,HFSIDFC,RZPHFS,Others
 
 ==========================================================
 
@@ -638,17 +640,21 @@ QUICK SETUP (5 MINUTES):
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4">
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-5">
             <TabsTrigger value="quick-add" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white">
               <Plus className="w-4 h-4 mr-2" />
-              Quick Add (NO EXCEL!)
+              Quick Add
+            </TabsTrigger>
+            <TabsTrigger value="programme-levels" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+              <Target className="w-4 h-4 mr-2" />
+              L1, L2, L3
             </TabsTrigger>
             <TabsTrigger value="bulk-upload">Bulk Upload</TabsTrigger>
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
             <TabsTrigger value="credit-cards">Credit Cards</TabsTrigger>
           </TabsList>
 
-          {/* QUICK ADD TAB - NEW! */}
+          {/* QUICK ADD TAB */}
           <TabsContent value="quick-add">
             <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
               <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">
@@ -674,7 +680,23 @@ QUICK SETUP (5 MINUTES):
             </Card>
           </TabsContent>
 
-          {/* BULK UPLOAD TAB - Existing Excel Upload */}
+          {/* PROGRAMME LEVELS TAB - NEW! */}
+          <TabsContent value="programme-levels">
+            <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+              <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                <CardTitle className="text-2xl flex items-center gap-2">
+                  <Target className="w-6 h-6" />
+                  Programme Levels: L1, L2, L3
+                </CardTitle>
+                <p className="text-white/90 text-sm">Define and manage your programme tiers for better tracking</p>
+              </CardHeader>
+              <CardContent className="p-6">
+                <ProgrammeLevelManager />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* BULK UPLOAD TAB */}
           <TabsContent value="bulk-upload">
             {/* Excel Upload */}
             <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
