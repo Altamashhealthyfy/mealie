@@ -38,6 +38,8 @@ import UsageDashboard from './pages/UsageDashboard';
 import TeamSetup from './pages/TeamSetup';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import ClientFinanceManager from './pages/ClientFinanceManager';
+import ClinicalIntake from './pages/ClinicalIntake';
+import MealPlansPro from './pages/MealPlansPro';
 import Layout from './Layout.jsx';
 
 
@@ -82,6 +84,8 @@ export const PAGES = {
     "TeamSetup": TeamSetup,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "ClientFinanceManager": ClientFinanceManager,
+    "ClinicalIntake": ClinicalIntake,
+    "MealPlansPro": MealPlansPro,
 }
 
 export const pagesConfig = {
