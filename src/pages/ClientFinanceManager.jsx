@@ -112,6 +112,7 @@ export default function ClientFinanceManager() {
                 amount_received: { type: "number" },
                 university_fee: { type: "number" },
                 payment_mode: { type: "string" },
+                payment_mode_other: { type: "string" },
                 next_installment_date: { type: "string" },
                 transaction_notes: { type: "string" }
               }
@@ -158,10 +159,10 @@ export default function ClientFinanceManager() {
   };
 
   const downloadTemplate = () => {
-    const csv = `Transaction Date,Client Name,Phone,Email,Lead Source,Programme Type,Programme Details,Previous Programme,Customer Type,Payment Type,Total Programme Fee,Amount Received,University Fee,Payment Mode,Next Installment Date,Transaction Notes
-2024-11-01,Rahul Sharma,9876543210,rahul@email.com,ScaleX Ad Agency,Silver,,None (New Customer),New Customer,Full Payment,50000,50000,0,UPI,,
-2024-11-02,Priya Verma,9876543211,priya@email.com,Facebook Ad,Gold,Silver,Upgrade,1st Installment,80000,30000,2000,Bank Transfer,2024-12-02,
-2024-11-03,Amit Kumar,9876543212,amit@email.com,Referral,Workshop,Instagram Marketing Workshop,None (New Customer),New Customer,Full Payment,5000,5000,0,Cash,,`;
+    const csv = `Transaction Date,Client Name,Phone,Email,Lead Source,Programme Type,Programme Details,Previous Programme,Customer Type,Payment Type,Total Programme Fee,Amount Received,University Fee,Payment Mode,Payment Mode Other,Next Installment Date,Transaction Notes
+2024-11-01,Rahul Sharma,9876543210,rahul@email.com,ScaleX Ad Agency,Silver,,None (New Customer),New Customer,Full Payment,50000,50000,0,HFICICI,,,
+2024-11-02,Priya Verma,9876543211,priya@email.com,Facebook Ad,Gold,Silver,Upgrade,1st Installment,80000,30000,2000,RZPHFI,,2024-12-02,
+2024-11-03,Amit Kumar,9876543212,amit@email.com,Referral,Workshop,Instagram Marketing Workshop,None (New Customer),New Customer,Full Payment,5000,5000,0,CASH,,,`;
 
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -193,10 +194,13 @@ export default function ClientFinanceManager() {
       filtered = filtered.filter(t => t.customer_type === customerTypeFilter);
     }
 
-    const csv = `Date,Client,Phone,Lead Source,Programme,Details,Previous,Type,Payment Type,Total Fee,Received,Univ Fee,To Company,Value (No GST),GST,Balance,Mode\n${
-      filtered.map(t => 
-        `${t.transaction_date},${t.client_name},${t.phone || ''},${t.lead_source || ''},${t.programme_type},${t.programme_details || ''},${t.previous_programme || ''},${t.customer_type},${t.payment_type},${t.total_programme_fee || 0},${t.amount_received},${t.university_fee || 0},${t.amount_to_company},${t.value_without_gst},${t.gst_amount},${t.balance_due || 0},${t.payment_mode || ''}`
-      ).join('\n')
+    const csv = `Date,Client,Phone,Lead Source,Programme,Details,Previous,Type,Payment Type,Total Fee,Received,Univ Fee,To Company,Value (No GST),GST,Balance,Payment Mode\n${
+      filtered.map(t => {
+        const paymentMode = t.payment_mode === 'Others' && t.payment_mode_other 
+          ? `Others (${t.payment_mode_other})` 
+          : t.payment_mode || '';
+        return `${t.transaction_date},${t.client_name},${t.phone || ''},${t.lead_source || ''},${t.programme_type},${t.programme_details || ''},${t.previous_programme || ''},${t.customer_type},${t.payment_type},${t.total_programme_fee || 0},${t.amount_received},${t.university_fee || 0},${t.amount_to_company},${t.value_without_gst},${t.gst_amount},${t.balance_due || 0},${paymentMode}`;
+      }).join('\n')
     }`;
 
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -249,6 +253,7 @@ export default function ClientFinanceManager() {
 
   // Check if programme needs extra field
   const needsExtraField = ['Workshop', 'Affiliate Income', 'Others'].includes(formData.programme_type);
+  const needsPaymentModeOther = formData.payment_mode === 'Others';
 
   return (
     <div className="min-h-screen p-4 md:p-8">
@@ -546,25 +551,40 @@ export default function ClientFinanceManager() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Payment Mode</Label>
+                  <Label>Payment Receiving Mode *</Label>
                   <Select
                     value={formData.payment_mode}
                     onValueChange={(value) => setFormData({...formData, payment_mode: value})}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select" />
+                      <SelectValue placeholder="Select payment mode" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="UPI">UPI</SelectItem>
-                      <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
-                      <SelectItem value="Credit Card">Credit Card</SelectItem>
-                      <SelectItem value="Debit Card">Debit Card</SelectItem>
-                      <SelectItem value="Cash">Cash</SelectItem>
-                      <SelectItem value="Cheque">Cheque</SelectItem>
-                      <SelectItem value="Others">Others</SelectItem>
+                      <SelectItem value="HFICICI">HFICICI</SelectItem>
+                      <SelectItem value="HFIIDFC">HFIIDFC</SelectItem>
+                      <SelectItem value="RZPHFI">RZPHFI</SelectItem>
+                      <SelectItem value="SKMGPAY">SKMGPAY</SelectItem>
+                      <SelectItem value="CASH">CASH</SelectItem>
+                      <SelectItem value="TAGMANGO">TAGMANGO</SelectItem>
+                      <SelectItem value="HFSPAYTM">HFSPAYTM</SelectItem>
+                      <SelectItem value="HFSICICI">HFSICICI</SelectItem>
+                      <SelectItem value="HFSIDFC">HFSIDFC</SelectItem>
+                      <SelectItem value="RZPHFS">RZPHFS</SelectItem>
+                      <SelectItem value="Others">Others (Specify Below)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+
+                {needsPaymentModeOther && (
+                  <div className="space-y-2">
+                    <Label>Specify Payment Mode *</Label>
+                    <Input
+                      value={formData.payment_mode_other || ''}
+                      onChange={(e) => setFormData({...formData, payment_mode_other: e.target.value})}
+                      placeholder="Enter payment mode..."
+                    />
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label>Next Installment Date</Label>
@@ -740,6 +760,7 @@ export default function ClientFinanceManager() {
                     <th className="p-3 text-right text-sm font-semibold">To Company</th>
                     <th className="p-3 text-right text-sm font-semibold">GST</th>
                     <th className="p-3 text-right text-sm font-semibold">Balance</th>
+                    <th className="p-3 text-left text-sm font-semibold">Mode</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -779,6 +800,13 @@ export default function ClientFinanceManager() {
                         ) : (
                           <Badge className="bg-green-100 text-green-700">Paid</Badge>
                         )}
+                      </td>
+                      <td className="p-3 text-sm">
+                        <Badge variant="outline">
+                          {transaction.payment_mode === 'Others' && transaction.payment_mode_other 
+                            ? transaction.payment_mode_other 
+                            : transaction.payment_mode || '-'}
+                        </Badge>
                       </td>
                     </tr>
                   ))}
