@@ -106,22 +106,34 @@ const dietitianNavigation = [
 
 const businessNavigation = [
   {
-    title: "Business Hub",
-    url: createPageUrl("BusinessHub"),
-    icon: Rocket,
-    roles: ['super_admin', 'team_member'],
-  },
-  {
     title: "Webinar Tracker",
     url: createPageUrl("WebinarPerformanceTracker"),
     icon: TrendingUp,
     roles: ['super_admin', 'team_member'],
   },
   {
-    title: "Team Setup Guide",
-    url: createPageUrl("TeamSetup"),
-    icon: UserPlus,
-    roles: ['super_admin'],
+    title: "Finance Manager",
+    url: createPageUrl("ClientFinanceManager"),
+    icon: DollarSign,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
+    title: "Marketing Hub",
+    url: createPageUrl("MarketingHub"),
+    icon: Megaphone,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
+    title: "Business GPTs",
+    url: createPageUrl("BusinessGPTs"),
+    icon: Sparkles,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
+    title: "Template Manager",
+    url: createPageUrl("TemplateLibraryManager"),
+    icon: Upload,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
     title: "Usage & Billing",
@@ -134,12 +146,6 @@ const businessNavigation = [
     url: createPageUrl("VerticalManagement"),
     icon: Target,
     roles: ['super_admin', 'team_member', 'student_coach'],
-  },
-  {
-    title: "Template Manager",
-    url: createPageUrl("TemplateLibraryManager"),
-    icon: Upload,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
     title: "My Team",
@@ -160,38 +166,8 @@ const businessNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
-    title: "Finance Manager",
-    url: createPageUrl("ClientFinanceManager"),
-    icon: DollarSign,
-    roles: ['super_admin', 'team_member', 'student_coach'],
-  },
-  {
-    title: "Business GPTs",
-    url: createPageUrl("BusinessGPTs"),
-    icon: Sparkles,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
-  },
-  {
-    title: "Marketing Hub",
-    url: createPageUrl("MarketingHub"),
-    icon: Megaphone,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
-  },
-  {
-    title: "Payment Setup",
-    url: createPageUrl("PaymentSetup"),
-    icon: DollarSign,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
-  },
-  {
-    title: "Business Plan",
-    url: createPageUrl("BusinessPlan"),
-    icon: Target,
-    roles: ['super_admin'],
-  },
-  {
-    title: "Documentation",
-    url: createPageUrl("Documentation"),
+    title: "Reference Docs",
+    url: createPageUrl("PlatformReference"),
     icon: BookOpen,
     roles: ['super_admin'],
   },
@@ -326,7 +302,7 @@ export default function Layout({ children, currentPageName }) {
               </div>
               <div>
                 <h2 className="font-bold text-xl text-gray-900">
-                  {user?.business_name || 'Mealie'}
+                  Mealie
                 </h2>
                 <p className="text-xs text-orange-600 font-medium">
                   {isDietitian ? 'Dietitian Platform' : 'Client Portal'}
@@ -432,7 +408,7 @@ export default function Layout({ children, currentPageName }) {
               <div className="flex items-center gap-2">
                 <ChefHat className="w-6 h-6 text-orange-500" />
                 <h1 className="text-xl font-bold text-gray-900">
-                  {user?.business_name || 'Mealie'}
+                  Mealie
                 </h1>
               </div>
             </div>
