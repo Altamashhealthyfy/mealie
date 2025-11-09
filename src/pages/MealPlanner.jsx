@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Calendar, Loader2, Plus, Users, Eye, CheckCircle, Copy, AlertTriangle, Zap, Star, Download, Clock, Target, TrendingUp } from "lucide-react";
+import { Sparkles, Calendar, Loader2, Plus, Users, Eye, CheckCircle, Copy, AlertTriangle, Zap, Star, Download, Clock, Target, TrendingUp, Edit } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
@@ -17,6 +17,7 @@ import { createPageUrl } from "@/utils";
 
 import GeneratedMealPlan from "@/components/mealplanner/GeneratedMealPlan";
 import UsageLimitWarning from "@/components/mealplanner/UsageLimitWarning";
+import ManualMealPlanBuilder from "@/components/mealplanner/ManualMealPlanBuilder";
 
 export default function MealPlanner() {
   const queryClient = useQueryClient();
@@ -623,7 +624,7 @@ Return structured meal plan with:
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Meal Planner</h1>
-            <p className="text-gray-600">Generate or use templates for Indian meal plans</p>
+            <p className="text-gray-600">Generate, use templates, or create manually</p>
           </div>
           <div className="text-right">
             <div className="flex items-center gap-2">
@@ -639,14 +640,18 @@ Return structured meal plan with:
         <UsageLimitWarning usage={usage} limits={usage?.plan_limits} type="meal_plan" />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-3">
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4">
             <TabsTrigger value="templates" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white">
               <Star className="w-4 h-4 mr-2" />
-              Templates (FREE!)
+              Templates
+            </TabsTrigger>
+            <TabsTrigger value="manual" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
+              <Edit className="w-4 h-4 mr-2" />
+              Manual
             </TabsTrigger>
             <TabsTrigger value="generate" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white">
               <Plus className="w-4 h-4 mr-2" />
-              Create Plan
+              AI Generate
             </TabsTrigger>
             <TabsTrigger value="saved" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white">
               <Calendar className="w-4 h-4 mr-2" />
@@ -769,6 +774,53 @@ Return structured meal plan with:
                   ))}
                 </div>
               </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="manual" className="space-y-6">
+            {!selectedClientId ? (
+              <Card className="border-none shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-lg">Select Client to Build Manual Plan</CardTitle>
+                  <CardDescription>Choose a client to whom you'd like to create a meal plan manually.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Select value={selectedClientId || ''} onValueChange={setSelectedClientId}>
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="Choose a client..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clients.map((client) => {
+                          const clientPlans = mealPlans.filter(p => p.client_id === client.id);
+                          const hasActivePlan = clientPlans.some(p => p.active);
+                          return (
+                            <SelectItem key={client.id} value={client.id}>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{client.full_name}</span>
+                                <Badge variant="outline" className="text-xs capitalize">
+                                  {client.food_preference}
+                                </Badge>
+                                <Badge className="text-xs">{client.target_calories} kcal</Badge>
+                                {hasActivePlan && (
+                                  <Badge className="text-xs bg-green-500">
+                                    <CheckCircle className="w-3 h-3 mr-1" />
+                                    Has Plan
+                                  </Badge>
+                                )}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                    </SelectContent>
+                  </Select>
+                </CardContent>
+              </Card>
+            ) : (
+              <ManualMealPlanBuilder
+                client={selectedClient}
+                onSave={handleSavePlan}
+                isSaving={savePlanMutation.isPending}
+              />
             )}
           </TabsContent>
 
@@ -912,7 +964,7 @@ Return structured meal plan with:
 
                   <Button
                     onClick={generateMealPlan}
-                    disabled={generating || !selectedClient}
+                    disabled={generating || !selectedClientId}
                     className="w-full h-14 text-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg"
                   >
                     {generating ? (
