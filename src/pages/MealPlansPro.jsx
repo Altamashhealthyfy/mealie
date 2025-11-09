@@ -9,8 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Loader2, Users, AlertTriangle, CheckCircle, FileText, Heart, Brain, Activity } from "lucide-react";
+import { Sparkles, Loader2, Users, AlertTriangle, CheckCircle, FileText, Heart, Brain, Activity, Star, Edit, Copy } from "lucide-react";
 import { createPageUrl } from "@/utils";
+import ManualMealPlanBuilder from "@/components/mealplanner/ManualMealPlanBuilder";
 
 export default function MealPlansPro() {
   const [searchParams] = useSearchParams();
@@ -18,6 +19,7 @@ export default function MealPlansPro() {
   const preSelectedClientId = searchParams.get('client');
   
   const [selectedClientId, setSelectedClientId] = useState(preSelectedClientId || null);
+  const [activeTab, setActiveTab] = useState("generate");
   const [generating, setGenerating] = useState(false);
   const [generatedPlan, setGeneratedPlan] = useState(null);
 
@@ -56,12 +58,37 @@ export default function MealPlansPro() {
     initialData: [],
   });
 
+  const { data: templates } = useQuery({
+    queryKey: ['proTemplates'],
+    queryFn: async () => {
+      const myTemplates = await base44.entities.MealPlanTemplate.filter({ 
+        created_by: user?.email,
+        category: { $in: ['diabetes', 'pcos', 'thyroid', 'kidney', 'heart'] } // Added more categories as per common clinical needs
+      });
+      const publicTemplates = await base44.entities.MealPlanTemplate.filter({ 
+        is_public: true,
+        category: { $in: ['diabetes', 'pcos', 'thyroid', 'kidney', 'heart'] }
+      });
+      return [...myTemplates, ...publicTemplates];
+    },
+    enabled: !!user,
+    initialData: [],
+  });
+
   const savePlanMutation = useMutation({
     mutationFn: (planData) => base44.entities.MealPlan.create(planData),
     onSuccess: () => {
       queryClient.invalidateQueries(['proMealPlans']);
       setGeneratedPlan(null);
       alert('✅ Pro meal plan saved and assigned successfully!');
+    },
+  });
+
+  const saveTemplateMutation = useMutation({
+    mutationFn: (templateData) => base44.entities.MealPlanTemplate.create(templateData),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['proTemplates']);
+      alert("✅ Pro template saved! You can now use it unlimited times for FREE!");
     },
   });
 
@@ -181,9 +208,9 @@ export default function MealPlansPro() {
       duration: 10,
       meal_pattern: '3-3-4',
       target_calories: generatedPlan.calculations.target_calories,
-      disease_focus: latestIntake.health_conditions,
+      disease_focus: latestIntake?.health_conditions || [], // Use latestIntake for disease_focus or default to empty array
       meals: generatedPlan.meal_plan,
-      food_preference: latestIntake.diet_type.toLowerCase(),
+      food_preference: latestIntake?.diet_type?.toLowerCase() || 'general', // Use latestIntake for diet_type or default
       active: true,
       mpess_integration: {
         mind_practices: generatedPlan.mpess_integration.mind,
@@ -195,6 +222,85 @@ export default function MealPlansPro() {
       audit_snapshot: generatedPlan.audit_snapshot,
       decision_rules_applied: generatedPlan.decision_rules,
       conflict_resolution: generatedPlan.conflict_resolution,
+      created_by: user?.email
+    });
+  };
+
+  const handleSaveAsProTemplate = (plan) => {
+    const templateName = prompt("Enter Pro template name:", `Pro ${latestIntake?.health_conditions?.join('+') || 'Clinical'} Plan - ${plan.calculations.target_calories} cal`);
+    if (!templateName) return;
+
+    saveTemplateMutation.mutate({
+      name: templateName,
+      description: `Disease-specific template for ${latestIntake?.health_conditions?.join(', ') || 'various conditions'}`,
+      category: latestIntake?.health_conditions?.[0]?.toLowerCase() || 'general',
+      duration: 10,
+      target_calories: plan.calculations.target_calories,
+      food_preference: latestIntake?.diet_type?.toLowerCase() || 'general',
+      regional_preference: 'all',
+      meals: plan.meal_plan,
+      is_public: false,
+      times_used: 0,
+      tags: ['pro', 'disease-specific', ...(latestIntake?.health_conditions || [])],
+      created_by: user?.email
+    });
+  };
+
+  const cloneProTemplate = (template) => {
+    if (!selectedClient) {
+      alert("Please select a client first");
+      return;
+    }
+
+    setGeneratedPlan({
+      plan_name: `${template.name} - ${selectedClient.full_name}`,
+      meal_plan: template.meals,
+      client_id: selectedClient.id,
+      client_name: selectedClient.full_name,
+      // Default calculations/audit for cloned templates as AI doesn't generate these for templates
+      calculations: {
+        target_calories: template.target_calories || 0,
+        bmr: 0,
+        tdee: 0,
+        macros: { carbs_g: 0, protein_g: 0, fats_g: 0 }
+      },
+      decision_rules: ['Template-based plan'],
+      conflict_resolution: 'From template',
+      mpess_integration: { mind: [], physical: [], emotional: [], social: [], spiritual: [] }, // MPESS might be empty in templates
+      audit_snapshot: {
+        avg_calories_per_day: template.target_calories || 0,
+        calorie_range: 'Template-based',
+        macro_percentages: { carbs: 0, protein: 0, fats: 0 }, // Placeholder values
+        sodium_compliance: 'Check required',
+        potassium_compliance: 'Check required',
+        medication_conflicts: false,
+        variety_check: true,
+        mpess_integrated: false
+      },
+      from_template: true, // Flag to indicate it's from a template
+      template_id: template.id
+    });
+
+    base44.entities.MealPlanTemplate.update(template.id, {
+      times_used: (template.times_used || 0) + 1
+    }).then(() => {
+      queryClient.invalidateQueries(['proTemplates']);
+    }).catch(console.error);
+
+    setActiveTab("generate");
+  };
+
+  const handleManualSave = (planData) => {
+    if (!selectedClient) {
+      alert("Please select a client first before saving a manual plan.");
+      return;
+    }
+
+    savePlanMutation.mutate({
+      ...planData,
+      plan_tier: 'advanced',
+      name: `Manual Pro Plan - ${selectedClient.full_name}`,
+      client_id: selectedClient.id,
       created_by: user?.email
     });
   };
@@ -220,19 +326,167 @@ export default function MealPlansPro() {
           </AlertDescription>
         </Alert>
 
-        <Tabs defaultValue="generate" className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-2">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4">
+            <TabsTrigger value="templates">
+              <Star className="w-4 h-4 mr-2" />
+              Pro Templates
+            </TabsTrigger>
+            <TabsTrigger value="manual">
+              <Edit className="w-4 h-4 mr-2" />
+              Manual
+            </TabsTrigger>
             <TabsTrigger value="generate">
               <Sparkles className="w-4 h-4 mr-2" />
-              Generate Pro Plan
+              AI Generate
             </TabsTrigger>
             <TabsTrigger value="saved">
               <FileText className="w-4 h-4 mr-2" />
-              My Pro Plans ({proMealPlans.length})
+              My Plans ({proMealPlans.length})
             </TabsTrigger>
           </TabsList>
 
-          {/* Generate Tab */}
+          {/* PRO TEMPLATES TAB */}
+          <TabsContent value="templates" className="space-y-6">
+            {templates.length === 0 ? (
+              <Card className="border-none shadow-xl bg-gradient-to-br from-purple-50 to-pink-50">
+                <CardContent className="p-12 text-center">
+                  <Star className="w-16 h-16 mx-auto text-purple-500 mb-4" />
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Create Your First Pro Template!</h3>
+                  <p className="text-gray-600 mb-6">Save disease-specific plans as templates for reuse!</p>
+                  <Button 
+                    className="bg-gradient-to-r from-purple-500 to-indigo-500"
+                    onClick={() => setActiveTab("generate")}
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate Your First Pro Template
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Select Client for Pro Template</CardTitle>
+                    <CardDescription>Choose a client to assign or customize a disease-specific template</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Select
+                      value={selectedClientId || ''}
+                      onValueChange={setSelectedClientId}
+                    >
+                      <SelectTrigger className="h-12">
+                        <SelectValue placeholder="Choose a client..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {clients.map((client) => (
+                          <SelectItem key={client.id} value={client.id}>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{client.full_name}</span>
+                              <Badge variant="outline" className="text-xs capitalize">
+                                {client.food_preference}
+                              </Badge>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </CardContent>
+                </Card>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {templates.map((template) => (
+                    <Card key={template.id} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all">
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <CardTitle className="text-lg">{template.name}</CardTitle>
+                            <p className="text-sm text-gray-600 mt-1">{template.description}</p>
+                          </div>
+                          <Badge className="bg-purple-600 text-white">💎 Pro</Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="flex flex-wrap gap-2">
+                          <Badge className="bg-red-100 text-red-700 capitalize">
+                            {template.category}
+                          </Badge>
+                          <Badge className="bg-orange-100 text-orange-700">
+                            {template.target_calories} kcal
+                          </Badge>
+                          <Badge className="bg-green-100 text-green-700">
+                            {template.duration} days
+                          </Badge>
+                        </div>
+
+                        <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                          <p className="text-sm font-semibold text-purple-900">
+                            ✅ Used {template.times_used || 0} times
+                          </p>
+                          <p className="text-xs text-purple-700">FREE - Unlimited uses!</p>
+                        </div>
+
+                        <Button
+                          onClick={() => cloneProTemplate(template)}
+                          disabled={!selectedClient}
+                          className="w-full bg-gradient-to-r from-purple-500 to-indigo-500"
+                        >
+                          <Copy className="w-4 h-4 mr-2" />
+                          Clone & Customize
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* MANUAL TAB */}
+          <TabsContent value="manual" className="space-y-6">
+            {!selectedClientId ? (
+              <Card className="border-none shadow-lg">
+                <CardHeader>
+                  <CardTitle className="text-lg">Select Client for Manual Pro Plan</CardTitle>
+                  <CardDescription>Choose a client to build a disease-specific meal plan manually</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Select value={selectedClientId || ''} onValueChange={setSelectedClientId}>
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="Choose a client..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clients.map((client) => (
+                        <SelectItem key={client.id} value={client.id}>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{client.full_name}</span>
+                            <Badge variant="outline" className="text-xs capitalize">
+                              {client.food_preference}
+                            </Badge>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <Alert className="bg-purple-50 border-purple-500">
+                  <AlertDescription>
+                    <strong>💎 Pro Manual Builder:</strong> Build disease-specific meal plans with full control. All AI-powered nutrition lookups included!
+                  </AlertDescription>
+                </Alert>
+                <ManualMealPlanBuilder
+                  client={selectedClient}
+                  onSave={handleManualSave}
+                  isSaving={savePlanMutation.isPending}
+                />
+              </>
+            )}
+          </TabsContent>
+
+          {/* AI GENERATE TAB */}
           <TabsContent value="generate" className="space-y-6">
             {!generatedPlan ? (
               <Card className="border-none shadow-lg">
@@ -590,6 +844,16 @@ export default function MealPlansPro() {
                   >
                     Generate New Plan
                   </Button>
+                  {!generatedPlan.from_template && ( // Only show "Save as Template" if not generated from a template
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => handleSaveAsProTemplate(generatedPlan)}
+                    >
+                      <Star className="w-4 h-4 mr-2" />
+                      Save as Pro Template
+                    </Button>
+                  )}
                   <Button
                     className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg"
                     onClick={handleSavePlan}
@@ -602,7 +866,7 @@ export default function MealPlansPro() {
             )}
           </TabsContent>
 
-          {/* Saved Plans Tab */}
+          {/* SAVED PLANS TAB */}
           <TabsContent value="saved">
             <Card className="border-none shadow-lg">
               <CardHeader>
