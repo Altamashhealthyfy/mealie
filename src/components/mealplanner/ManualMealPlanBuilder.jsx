@@ -1,11 +1,13 @@
+
 import React, { useState } from "react";
+import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Save, AlertTriangle } from "lucide-react";
+import { Plus, Trash2, Save, AlertTriangle, Sparkles, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Common Indian foods database with macros
@@ -89,6 +91,7 @@ export default function ManualMealPlanBuilder({ client, onSave, isSaving }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFood, setSelectedFood] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [fetchingAI, setFetchingAI] = useState(false);
 
   const mealTypes = [
     { value: 'early_morning', label: 'Early Morning' },
@@ -104,6 +107,85 @@ export default function ManualMealPlanBuilder({ client, onSave, isSaving }) {
         food.name.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : [];
+
+  const fetchAINutrition = async (foodName) => {
+    setFetchingAI(true);
+    try {
+      const prompt = `You are a nutrition expert specializing in Indian foods.
+
+Provide detailed nutritional information for: "${foodName}"
+
+Return ONLY the following structure (use ICMR Indian food database standards):
+
+Food Name: [exact name]
+Standard Unit: [e.g., "1 katori (150g)" OR "1 piece (50g)" OR "1 cup (240ml)"]
+Calories: [number]
+Protein: [number in grams]
+Carbs: [number in grams]
+Fats: [number in grams]
+
+IMPORTANT:
+- Use traditional Indian units (katori, cup, piece, bowl)
+- Base it on one standard serving
+- Use ICMR data if available
+- Be accurate and specific`;
+
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            unit: { type: "string" },
+            calories: { type: "number" },
+            protein: { type: "number" },
+            carbs: { type: "number" },
+            fats: { type: "number" }
+          },
+          required: ["name", "unit", "calories", "protein", "carbs", "fats"]
+        }
+      });
+
+      return {
+        name: response.name,
+        cal: response.calories,
+        protein: response.protein,
+        carbs: response.carbs,
+        fats: response.fats,
+        unit: response.unit,
+        isAI: true
+      };
+    } catch (error) {
+      console.error("AI nutrition fetch error:", error);
+      alert("Could not fetch nutrition data. Please try again.");
+      return null;
+    } finally {
+      setFetchingAI(false);
+    }
+  };
+
+  const handleSearchWithAI = async () => {
+    if (!searchTerm || searchTerm.length < 2) return;
+
+    // Check if already in database
+    const existingFood = INDIAN_FOODS.find(
+      food => food.name.toLowerCase() === searchTerm.toLowerCase()
+    );
+
+    if (existingFood) {
+      setSelectedFood(existingFood);
+      return;
+    }
+
+    // Not in database - fetch from AI
+    if (filteredFoods.length === 0 && searchTerm.length >= 2) {
+      const aiFood = await fetchAINutrition(searchTerm);
+      if (aiFood) {
+        setSelectedFood(aiFood);
+        setSearchTerm(aiFood.name);
+      }
+    }
+  };
 
   const addFoodItem = () => {
     if (!selectedFood || quantity <= 0) return;
@@ -289,18 +371,37 @@ export default function ManualMealPlanBuilder({ client, onSave, isSaving }) {
             </div>
           </div>
 
-          {/* Food Search & Add */}
+          {/* Food Search & Add with AI */}
           <div className="p-4 bg-gray-50 rounded-lg space-y-3">
-            <Label>Search & Add Food Items</Label>
+            <div className="flex items-center justify-between">
+              <Label>Search & Add Food Items</Label>
+              <Badge className="bg-purple-100 text-purple-700">
+                <Sparkles className="w-3 h-3 mr-1" />
+                AI Powered
+              </Badge>
+            </div>
+
+            <Alert className="bg-blue-50 border-blue-500">
+              <AlertDescription className="text-sm">
+                💡 <strong>New!</strong> Not in database? Type any food name and press "Search with AI" to get instant nutrition data!
+              </AlertDescription>
+            </Alert>
+
             <div className="grid grid-cols-3 gap-3">
               <div className="col-span-2 space-y-2">
                 <Input
-                  placeholder="Type to search (e.g., poha, idli, dal...)"
+                  placeholder="Type food name (e.g., sambhar, khichdi, puri...)"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyPress={(e) => {
+                    // Only trigger AI search if Enter is pressed and no local foods are found
+                    if (e.key === 'Enter' && filteredFoods.length === 0 && searchTerm.length >= 2) {
+                      handleSearchWithAI();
+                    }
+                  }}
                 />
                 {/* Autocomplete Dropdown */}
-                {filteredFoods.length > 0 && (
+                {filteredFoods.length > 0 && searchTerm.length > 0 && (
                   <div className="bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
                     {filteredFoods.slice(0, 10).map((food, index) => (
                       <div
@@ -323,6 +424,53 @@ export default function ManualMealPlanBuilder({ client, onSave, isSaving }) {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+
+                {/* AI Search Button - only shows when no results in database and nothing selected */}
+                {searchTerm.length >= 2 && filteredFoods.length === 0 && !selectedFood && (
+                  <Button
+                    onClick={handleSearchWithAI}
+                    disabled={fetchingAI}
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-500"
+                  >
+                    {fetchingAI ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Fetching nutrition data...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Search with AI
+                      </>
+                    )}
+                  </Button>
+                )}
+
+                {/* Selected Food Display */}
+                {selectedFood && (
+                  <div className="p-3 bg-green-50 border-2 border-green-300 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-green-900">
+                          {selectedFood.name}
+                          {selectedFood.isAI && (
+                            <Badge className="ml-2 bg-purple-500 text-white text-xs">
+                              <Sparkles className="w-3 h-3 mr-1" />
+                              AI
+                            </Badge>
+                          )}
+                        </p>
+                        <p className="text-xs text-gray-700">{selectedFood.unit}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-orange-600">{selectedFood.cal} kcal</p>
+                        <p className="text-xs text-gray-600">
+                          P:{selectedFood.protein}g C:{selectedFood.carbs}g F:{selectedFood.fats}g
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -423,7 +571,17 @@ export default function ManualMealPlanBuilder({ client, onSave, isSaving }) {
                 disabled={isSaving}
                 className="bg-white text-green-600 hover:bg-green-50"
               >
-                {isSaving ? 'Saving...' : 'Save & Assign Plan'}
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save & Assign Plan
+                  </>
+                )}
               </Button>
             </div>
           </CardHeader>
