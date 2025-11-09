@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ChefHat, Search, Clock, Users, Flame, Loader2 } from "lucide-react";
+import { ChefHat, Search, Clock, Users, Flame, Loader2, Download } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function Recipes() {
@@ -130,6 +130,74 @@ Provide:
     }
 
     setGeneratingRecipe(false);
+  };
+
+  const downloadRecipe = (recipe) => {
+    // Create formatted recipe content
+    const content = `
+╔══════════════════════════════════════════════════════════════╗
+║                      ${recipe.name.toUpperCase()}                      
+╚══════════════════════════════════════════════════════════════╝
+
+${recipe.description || ''}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 RECIPE DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🍽️  Meal Type: ${recipe.meal_type.toUpperCase()}
+🥗  Food Preference: ${recipe.food_preference.toUpperCase()}
+🌍  Regional Cuisine: ${recipe.regional_cuisine.toUpperCase()}
+
+⏱️  Prep Time: ${recipe.prep_time} minutes
+🔥  Cook Time: ${recipe.cook_time} minutes
+⏰  Total Time: ${(recipe.prep_time || 0) + (recipe.cook_time || 0)} minutes
+👥  Servings: ${recipe.servings}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 NUTRITIONAL INFORMATION (Per Serving)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔥 Calories: ${recipe.calories} kcal
+💪 Protein: ${recipe.protein}g
+🌾 Carbs: ${recipe.carbs}g
+🥑 Fats: ${recipe.fats}g
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🛒 INGREDIENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${recipe.ingredients?.map((ing, i) => `${i + 1}. ${ing.item} - ${ing.quantity}`).join('\n') || 'No ingredients listed'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+👨‍🍳 INSTRUCTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+${recipe.instructions?.map((step, i) => `Step ${i + 1}:\n${step}\n`).join('\n') || 'No instructions provided'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${recipe.tags?.length > 0 ? `🏷️  Tags: ${recipe.tags.join(', ')}` : ''}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Generated from Mealie Recipe Library
+www.mealie.com
+
+Enjoy your cooking! 🍽️✨
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`.trim();
+
+    // Create blob and download
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${recipe.name.replace(/[^a-zA-Z0-9]/g, '_')}_Recipe.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -258,7 +326,7 @@ Provide:
                 className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all cursor-pointer group"
                 onClick={() => setSelectedRecipe(recipe)}
               >
-                {/* Clean gradient header - NO ICONS/IMAGES */}
+                {/* Clean gradient header */}
                 <div className="h-32 bg-gradient-to-br from-orange-100 via-amber-100 to-red-100 rounded-t-xl flex items-center justify-center">
                   <ChefHat className="w-16 h-16 text-orange-400 opacity-20" />
                 </div>
@@ -304,8 +372,17 @@ Provide:
           <Dialog open={!!selectedRecipe} onOpenChange={() => setSelectedRecipe(null)}>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="text-3xl mb-4">{selectedRecipe.name}</DialogTitle>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex items-center justify-between">
+                  <DialogTitle className="text-3xl flex-1">{selectedRecipe.name}</DialogTitle>
+                  <Button
+                    onClick={() => downloadRecipe(selectedRecipe)}
+                    className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download Recipe
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-4">
                   <Badge className="bg-orange-100 text-orange-700 capitalize">
                     {selectedRecipe.meal_type}
                   </Badge>
