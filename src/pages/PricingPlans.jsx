@@ -1,16 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Check, X, Sparkles, Star, Rocket, Crown, Zap } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Check, X, Sparkles, Star, Crown, Zap } from "lucide-react";
 
 export default function PricingPlans() {
-  const [billingCycle, setBillingCycle] = useState("yearly");
-
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
@@ -19,57 +16,55 @@ export default function PricingPlans() {
   const plans = [
     {
       name: "Student",
-      monthlyPrice: 499,
-      yearlyPrice: 5988,
+      monthlyPrice: "₹499",
+      yearlyPrice: "₹5,988",
+      yearlyMonthly: "₹499/mo",
       icon: Sparkles,
       color: "from-blue-500 to-cyan-500",
       bgColor: "from-blue-50 to-cyan-50",
-      badge: "Perfect for Learning",
-      description: "Ideal for health coach students and beginners",
+      badge: "Learning Phase",
+      description: "Perfect for health coach students and beginners",
       features: {
         clients: "Up to 10 clients",
         basicPlans: {
           ai: "5 AI generations/month",
-          manual: "✅ Unlimited",
-          templates: "✅ Unlimited FREE"
+          manual: "Unlimited",
+          templates: "Unlimited FREE"
         },
         proPlans: {
-          ai: "❌ Not available",
-          manual: "❌ Not available",
-          templates: "❌ Not available"
+          ai: "❌ Not included",
+          manual: "❌ Not included",
+          templates: "❌ Not included"
         },
         recipes: "10 AI recipes/month",
         foodLookup: "20 AI lookups/month",
         businessGPTs: "5 queries/month",
-        marketing: "✅ Marketing Hub access",
+        marketing: "✅ Full access",
         downloadTemplates: "✅ Unlimited downloads",
-        communication: "✅ Client messaging",
+        communication: "✅ Client chat",
         progressTracking: "✅ Basic tracking",
-        support: "Email support (48hrs)"
+        support: "Email support"
       },
-      highlights: [
-        "Perfect for first 10 clients",
-        "Learn the platform",
-        "Build your foundation",
-        "Upgrade when ready"
-      ]
+      ctaText: "Start Learning",
+      ideal: ["Students", "New coaches", "Learning phase", "Building first 10 clients"]
     },
     {
       name: "Professional",
-      monthlyPrice: 1499,
-      yearlyPrice: 14988,
+      monthlyPrice: "₹1,499",
+      yearlyPrice: "₹17,988",
+      yearlyMonthly: "₹1,499/mo",
       icon: Star,
       color: "from-orange-500 to-red-500",
       bgColor: "from-orange-50 to-red-50",
       badge: "Most Popular",
+      description: "For growing health coaching practices",
       popular: true,
-      description: "For growing practices with disease-specific needs",
       features: {
         clients: "Up to 50 clients",
         basicPlans: {
           ai: "20 AI generations/month",
-          manual: "✅ Unlimited",
-          templates: "✅ Unlimited FREE"
+          manual: "Unlimited",
+          templates: "Unlimited FREE"
         },
         proPlans: {
           ai: "💎 10 AI Pro plans/month",
@@ -79,170 +74,126 @@ export default function PricingPlans() {
         recipes: "50 AI recipes/month",
         foodLookup: "50 AI lookups/month",
         businessGPTs: "20 queries/month",
-        marketing: "✅ Full Marketing Hub + AI Content",
-        downloadTemplates: "✅ Unlimited + Upload your own",
-        communication: "✅ Chat + WhatsApp integration",
-        progressTracking: "✅ Advanced tracking + Reports",
-        teamManagement: "✅ Add 2 team members",
-        support: "Priority support (24hrs)"
+        marketing: "✅ Full access + AI content",
+        downloadTemplates: "✅ Unlimited downloads",
+        communication: "✅ Client chat + WhatsApp",
+        progressTracking: "✅ Advanced + Reports",
+        teamManagement: "Add 2 team members",
+        support: "Priority email + Chat"
       },
-      highlights: [
-        "Disease-specific meal plans",
-        "Diabetes, PCOS, Thyroid planning",
-        "Clinical intake forms",
-        "Team collaboration"
-      ]
+      ctaText: "Go Professional",
+      ideal: ["Growing practice", "10-50 clients", "Disease-specific planning", "Team collaboration"]
     },
     {
       name: "Premium",
-      monthlyPrice: 2999,
-      yearlyPrice: 29999,
-      savingsYearly: 6989,
+      monthlyPrice: "₹2,500",
+      yearlyPrice: "₹29,999",
+      yearlyMonthly: "₹2,500/mo equivalent",
+      savingsText: "Save ₹375/month on yearly!",
       icon: Crown,
       color: "from-purple-500 to-indigo-500",
       bgColor: "from-purple-50 to-indigo-50",
-      badge: "For Scale & White-label",
-      description: "Unlimited everything + custom branding",
+      badge: "Best Value",
+      description: "For established coaches & scaling businesses",
+      bestValue: true,
       features: {
-        clients: "♾️ Unlimited clients",
+        clients: "Unlimited clients",
         basicPlans: {
-          ai: "♾️ Unlimited AI",
-          manual: "✅ Unlimited",
-          templates: "✅ Unlimited + Create & Share"
+          ai: "Unlimited AI generations",
+          manual: "Unlimited",
+          templates: "Unlimited FREE + Create & share"
         },
         proPlans: {
           ai: "💎 Unlimited AI Pro plans",
           manual: "💎 Unlimited",
-          templates: "💎 Unlimited + Create & Share"
+          templates: "💎 Unlimited FREE + Create & share"
         },
-        recipes: "♾️ Unlimited AI recipes",
-        foodLookup: "♾️ Unlimited AI lookups",
-        businessGPTs: "♾️ Unlimited queries",
+        recipes: "Unlimited AI recipes",
+        foodLookup: "Unlimited AI lookups",
+        businessGPTs: "Unlimited queries",
         marketing: "✅ Everything + Automation",
-        downloadTemplates: "✅ Unlimited + Upload library",
+        downloadTemplates: "✅ Unlimited + Upload your own",
         communication: "✅ Multi-channel + Automation",
-        progressTracking: "✅ Custom reports + Analytics",
-        teamManagement: "✅ Unlimited team members",
-        whiteLabel: "🎨 Custom branding (Logo + Colors)",
-        apiAccess: "🔌 API access",
+        progressTracking: "✅ Advanced + Custom reports",
+        teamManagement: "Unlimited team members",
+        whiteLabel: "Custom branding (logo, colors)",
+        apiAccess: "API access for integrations",
+        customFeatures: "Priority feature requests",
         support: "24/7 Priority + Dedicated manager"
       },
-      highlights: [
-        "Scale without limits",
-        "White-label your brand",
-        "Unlimited everything",
-        "Perfect for 50+ clients"
-      ]
+      ctaText: "Scale Your Business",
+      ideal: ["Established coaches", "50+ clients", "Team of coaches", "White-label needs", "Coaching institutes"]
     }
   ];
 
   const comparisonFeatures = [
     {
-      category: "👥 Client Management",
+      category: "Client Management",
       items: [
-        { name: "Client Profiles", student: "10", professional: "50", premium: "Unlimited" },
-        { name: "Progress Tracking", student: "Basic", professional: "Advanced + Reports", premium: "Custom + Analytics" },
-        { name: "Communication", student: "Chat", professional: "Chat + WhatsApp", premium: "Multi-channel" },
-        { name: "Appointments", student: "✓", professional: "✓", premium: "✓" }
+        { name: "Client Profiles", student: "10", pro: "50", premium: "Unlimited" },
+        { name: "Progress Tracking", student: "Basic", pro: "Advanced", premium: "Advanced + Custom" },
+        { name: "Communication", student: "Chat", pro: "Chat + WhatsApp", premium: "Multi-channel" }
       ]
     },
     {
-      category: "🍽️ Basic Meal Plans (RDA-based)",
+      category: "Basic Meal Plans (RDA-based)",
       items: [
-        { name: "AI Generations/month", student: "5", professional: "20", premium: "Unlimited" },
-        { name: "Manual Creation", student: "Unlimited", professional: "Unlimited", premium: "Unlimited" },
-        { name: "Templates (FREE)", student: "Unlimited", professional: "Unlimited", premium: "Unlimited + Create" }
+        { name: "AI Generations/month", student: "5", pro: "20", premium: "Unlimited" },
+        { name: "Manual Creation", student: "✓", pro: "✓", premium: "✓" },
+        { name: "Templates (FREE)", student: "✓", pro: "✓", premium: "✓" }
       ]
     },
     {
-      category: "💎 Pro Plans (Disease-Specific)",
+      category: "Pro Plans (Disease-Specific) 💎",
       items: [
-        { name: "AI Pro Plans/month", student: "✗", professional: "10", premium: "Unlimited" },
-        { name: "Manual Pro Creation", student: "✗", professional: "Unlimited", premium: "Unlimited" },
-        { name: "Pro Templates (FREE)", student: "✗", professional: "Unlimited", premium: "Unlimited + Create" },
-        { name: "Clinical Intake Forms", student: "✗", professional: "✓", premium: "✓" },
-        { name: "Disease Guidelines", student: "✗", professional: "✓", premium: "✓ + Custom" },
-        { name: "MPESS Integration", student: "✗", professional: "✓", premium: "✓" },
-        { name: "Lab Tracking", student: "✗", professional: "✓", premium: "✓" }
+        { name: "AI Pro Plans/month", student: "✗", pro: "10", premium: "Unlimited" },
+        { name: "Manual Pro Creation", student: "✗", pro: "✓", premium: "✓" },
+        { name: "Pro Templates (FREE)", student: "✗", pro: "✓", premium: "✓ + Create" },
+        { name: "Clinical Intake Forms", student: "✗", pro: "✓", premium: "✓" },
+        { name: "Disease Guidelines", student: "✗", pro: "✓", premium: "✓ + Custom" }
       ]
     },
     {
-      category: "🤖 AI Features",
+      category: "AI Features",
       items: [
-        { name: "Recipe Generation", student: "10/mo", professional: "50/mo", premium: "Unlimited" },
-        { name: "Food Lookup (AI)", student: "20/mo", professional: "50/mo", premium: "Unlimited" },
-        { name: "Business GPTs", student: "5/mo", professional: "20/mo", premium: "Unlimited" },
-        { name: "Marketing Content AI", student: "Limited", professional: "Full", premium: "Full + Advanced" }
+        { name: "Recipe Generation", student: "10/mo", pro: "50/mo", premium: "Unlimited" },
+        { name: "Food Lookup", student: "20/mo", pro: "50/mo", premium: "Unlimited" },
+        { name: "Business GPTs", student: "5/mo", pro: "20/mo", premium: "Unlimited" }
       ]
     },
     {
-      category: "📱 Marketing & Business",
+      category: "Marketing & Content",
       items: [
-        { name: "Marketing Hub", student: "✓", professional: "✓ + AI", premium: "✓ + Automation" },
-        { name: "Content Templates", student: "✓", professional: "✓", premium: "✓" },
-        { name: "Social Media Calendar", student: "✓", professional: "✓", premium: "✓" },
-        { name: "AI Launchpad GPT", student: "Limited", professional: "Full", premium: "Full" }
+        { name: "Marketing Hub", student: "✓", pro: "✓", premium: "✓ + Automation" },
+        { name: "Content Templates", student: "✓", pro: "✓", premium: "✓" },
+        { name: "AI Content Creator", student: "Limited", pro: "Full", premium: "Full + Advanced" }
       ]
     },
     {
-      category: "📥 Template Library",
+      category: "Business Tools",
       items: [
-        { name: "Download Templates", student: "Unlimited", professional: "Unlimited", premium: "Unlimited" },
-        { name: "Upload Your Templates", student: "✗", professional: "✓", premium: "✓" },
-        { name: "Create Master Templates", student: "✗", professional: "✗", premium: "✓" }
+        { name: "Template Library", student: "✓", pro: "✓", premium: "✓ + Upload" },
+        { name: "Team Management", student: "✗", pro: "2 members", premium: "Unlimited" },
+        { name: "Finance Tracking", student: "Basic", pro: "Full", premium: "Full + Reports" }
       ]
     },
     {
-      category: "👨‍💼 Team & Collaboration",
+      category: "Branding & Customization",
       items: [
-        { name: "Team Members", student: "✗", professional: "2 members", premium: "Unlimited" },
-        { name: "Team Attendance", student: "✗", professional: "✓", premium: "✓" },
-        { name: "Role-based Access", student: "✗", professional: "Basic", premium: "Advanced" }
+        { name: "White-label", student: "✗", pro: "✗", premium: "Logo + Colors" },
+        { name: "Custom Features", student: "✗", pro: "✗", premium: "Priority Requests" },
+        { name: "API Access", student: "✗", pro: "✗", premium: "Basic" }
       ]
     },
     {
-      category: "💼 Business Management",
+      category: "Support",
       items: [
-        { name: "Finance Tracking", student: "Basic", professional: "Full", premium: "Full + Reports" },
-        { name: "Bulk Import", student: "✓", professional: "✓", premium: "✓" },
-        { name: "Usage Dashboard", student: "Basic", professional: "Full", premium: "Full + Analytics" }
-      ]
-    },
-    {
-      category: "🎨 Branding & Customization",
-      items: [
-        { name: "White-label Branding", student: "✗", professional: "✗", premium: "Logo + Colors" },
-        { name: "Custom Domain", student: "✗", professional: "✗", premium: "Add-on" },
-        { name: "API Access", student: "✗", professional: "✗", premium: "Basic" }
-      ]
-    },
-    {
-      category: "🛟 Support & Training",
-      items: [
-        { name: "Support Type", student: "Email", professional: "Email + Chat", premium: "24/7 Priority" },
-        { name: "Response Time", student: "48 hrs", professional: "24 hrs", premium: "4 hrs" },
-        { name: "Onboarding", student: "Self-serve", professional: "Guided", premium: "1-on-1 Training" },
-        { name: "Dedicated Manager", student: "✗", professional: "✗", premium: "✓" }
+        { name: "Support Type", student: "Email", pro: "Email + Chat", premium: "24/7 Priority" },
+        { name: "Onboarding", student: "Self-serve", pro: "Guided", premium: "1-on-1 Training" },
+        { name: "Response Time", student: "48 hrs", pro: "24 hrs", premium: "4 hrs" }
       ]
     }
   ];
-
-  const getPlanPrice = (plan) => {
-    if (billingCycle === "monthly") {
-      return {
-        amount: `₹${plan.monthlyPrice.toLocaleString('en-IN')}`,
-        period: "/month",
-        subtext: `₹${(plan.monthlyPrice * 12).toLocaleString('en-IN')}/year billed monthly`
-      };
-    } else {
-      const savings = (plan.monthlyPrice * 12) - plan.yearlyPrice;
-      return {
-        amount: `₹${plan.yearlyPrice.toLocaleString('en-IN')}`,
-        period: "/year",
-        subtext: savings > 0 ? `Save ₹${savings.toLocaleString('en-IN')} vs monthly!` : `₹${Math.round(plan.yearlyPrice / 12).toLocaleString('en-IN')}/month`
-      };
-    }
-  };
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
@@ -251,174 +202,168 @@ export default function PricingPlans() {
         <div className="text-center space-y-4">
           <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-lg px-6 py-2">
             <Zap className="w-5 h-5 mr-2 inline" />
-            Simple, Transparent Pricing
+            Pricing Plans
           </Badge>
           <h1 className="text-5xl font-bold text-gray-900">Choose Your Plan</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Scale as you grow. Start small, upgrade anytime! 🚀
+            Start with what fits your stage. Upgrade anytime as you grow! 🚀
           </p>
-        </div>
-
-        {/* Billing Toggle */}
-        <div className="flex justify-center">
-          <Card className="border-none shadow-lg inline-block">
-            <CardContent className="p-2">
-              <Tabs value={billingCycle} onValueChange={setBillingCycle}>
-                <TabsList className="grid grid-cols-2 w-80">
-                  <TabsTrigger value="monthly" className="text-base">
-                    Monthly
-                  </TabsTrigger>
-                  <TabsTrigger value="yearly" className="text-base">
-                    Yearly
-                    <Badge className="ml-2 bg-green-500 text-white text-xs">
-                      Save up to ₹6,989
-                    </Badge>
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </CardContent>
-          </Card>
+          <p className="text-lg text-green-700 font-semibold">
+            💰 Pay yearly and save! Best value: Premium at ₹29,999/year
+          </p>
         </div>
 
         {/* Current Plan Alert */}
         {user && (
-          <Alert className="bg-gradient-to-r from-blue-100 to-cyan-100 border-blue-300 max-w-3xl mx-auto">
+          <Alert className="bg-gradient-to-r from-blue-100 to-cyan-100 border-blue-300">
             <AlertDescription className="text-center">
               <strong>Your Current Plan:</strong> {user.subscription_plan || 'Student'} • 
               Clients: {user.client_count || 0} • 
-              AI Usage: {user.ai_usage || 0} generations this month
+              Usage: {user.ai_usage || 0} AI generations this month
             </AlertDescription>
           </Alert>
         )}
 
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {plans.map((plan) => {
-            const pricing = getPlanPrice(plan);
-            return (
-              <Card 
-                key={plan.name}
-                className={`border-none shadow-xl bg-gradient-to-br ${plan.bgColor} ${
-                  plan.popular ? 'ring-4 ring-orange-500 scale-105 md:scale-110' : ''
-                } hover:shadow-2xl transition-all duration-300 relative`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-4 left-0 right-0 flex justify-center">
-                    <Badge className="bg-orange-500 text-white px-4 py-1 text-sm shadow-lg">
-                      <Star className="w-4 h-4 mr-1" />
-                      MOST POPULAR
+          {plans.map((plan) => (
+            <Card 
+              key={plan.name}
+              className={`border-none shadow-xl bg-gradient-to-br ${plan.bgColor} ${
+                plan.popular ? 'ring-4 ring-orange-500 scale-105' : 
+                plan.bestValue ? 'ring-4 ring-purple-500 scale-105' : ''
+              } hover:shadow-2xl transition-all duration-300`}
+            >
+              <CardHeader>
+                <div className="flex items-center justify-between mb-2">
+                  <plan.icon className="w-10 h-10 text-gray-700" />
+                  {plan.popular && (
+                    <Badge className="bg-orange-500 text-white">
+                      <Star className="w-3 h-3 mr-1" />
+                      Popular
                     </Badge>
-                  </div>
-                )}
+                  )}
+                  {plan.bestValue && (
+                    <Badge className="bg-purple-500 text-white">
+                      <Crown className="w-3 h-3 mr-1" />
+                      Best Value
+                    </Badge>
+                  )}
+                </div>
+                <Badge className={`bg-gradient-to-r ${plan.color} text-white w-fit`}>
+                  {plan.badge}
+                </Badge>
+                <CardTitle className="text-3xl mt-2">{plan.name}</CardTitle>
                 
-                <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <plan.icon className="w-12 h-12 text-gray-700" />
+                {/* Pricing Display */}
+                <div className="space-y-2 mt-3">
+                  <div>
+                    <p className="text-sm text-gray-600">Monthly</p>
+                    <p className="text-3xl font-bold text-gray-900">{plan.monthlyPrice}<span className="text-base text-gray-600">/mo</span></p>
                   </div>
-                  <Badge className={`bg-gradient-to-r ${plan.color} text-white w-fit text-xs px-3 py-1`}>
-                    {plan.badge}
-                  </Badge>
-                  <CardTitle className="text-3xl mt-3">{plan.name}</CardTitle>
-                  <div className="mt-4">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-5xl font-bold text-gray-900">{pricing.amount}</span>
-                    </div>
-                    <p className="text-sm text-gray-600 mt-1">{pricing.period}</p>
-                    <p className={`text-xs mt-1 ${pricing.subtext.includes('Save') ? 'text-green-700 font-semibold' : 'text-gray-500'}`}>
-                      {pricing.subtext}
-                    </p>
+                  <div className="p-3 bg-white/50 rounded-lg border-2 border-green-300">
+                    <p className="text-sm text-gray-600">Yearly (Best Deal)</p>
+                    <p className="text-3xl font-bold text-green-700">{plan.yearlyPrice}<span className="text-sm text-gray-600">/year</span></p>
+                    <p className="text-xs text-green-600 font-semibold mt-1">{plan.yearlyMonthly}</p>
+                    {plan.savingsText && (
+                      <p className="text-xs text-green-700 font-bold mt-1">💰 {plan.savingsText}</p>
+                    )}
                   </div>
-                  <p className="text-sm text-gray-700 mt-3">{plan.description}</p>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  {/* Key Stats */}
-                  <div className="p-3 bg-white/80 rounded-lg border-2 border-gray-200">
-                    <p className="font-bold text-center text-gray-900">{plan.features.clients}</p>
+                </div>
+                
+                <CardDescription className="text-base mt-3">{plan.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Key Features */}
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm font-medium">{plan.features.clients}</span>
                   </div>
-
+                  
                   {/* Basic Plans */}
-                  <div className="space-y-2">
-                    <p className="text-xs font-bold text-blue-900">🍽️ Basic Meal Plans:</p>
-                    <div className="pl-3 border-l-2 border-blue-300 space-y-1">
-                      <p className="text-xs text-gray-700">AI: {plan.features.basicPlans.ai}</p>
-                      <p className="text-xs text-gray-700">Manual: {plan.features.basicPlans.manual}</p>
-                      <p className="text-xs text-gray-700">Templates: {plan.features.basicPlans.templates}</p>
-                    </div>
+                  <div className="pl-3 border-l-2 border-blue-300 space-y-1">
+                    <p className="text-xs font-semibold text-blue-900">Basic Meal Plans:</p>
+                    <p className="text-xs text-gray-700">• AI: {plan.features.basicPlans.ai}</p>
+                    <p className="text-xs text-gray-700">• Manual: {plan.features.basicPlans.manual}</p>
+                    <p className="text-xs text-gray-700">• Templates: {plan.features.basicPlans.templates}</p>
                   </div>
 
                   {/* Pro Plans */}
-                  <div className="space-y-2">
-                    <p className="text-xs font-bold text-purple-900">💎 Pro Plans:</p>
-                    <div className="pl-3 border-l-2 border-purple-300 space-y-1">
-                      <p className="text-xs text-gray-700">AI: {plan.features.proPlans.ai}</p>
-                      <p className="text-xs text-gray-700">Manual: {plan.features.proPlans.manual}</p>
-                      <p className="text-xs text-gray-700">Templates: {plan.features.proPlans.templates}</p>
-                    </div>
+                  <div className="pl-3 border-l-2 border-purple-300 space-y-1">
+                    <p className="text-xs font-semibold text-purple-900">💎 Pro Plans:</p>
+                    <p className="text-xs text-gray-700">• AI: {plan.features.proPlans.ai}</p>
+                    <p className="text-xs text-gray-700">• Manual: {plan.features.proPlans.manual}</p>
+                    <p className="text-xs text-gray-700">• Templates: {plan.features.proPlans.templates}</p>
                   </div>
 
-                  {/* Other Features */}
-                  <div className="space-y-2 text-xs">
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span>Recipes: {plan.features.recipes}</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span>Food Lookup: {plan.features.foodLookup}</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span>Business GPTs: {plan.features.businessGPTs}</span>
-                    </div>
-                    {plan.features.teamManagement && (
-                      <div className="flex items-start gap-2">
-                        <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                        <span className="font-semibold">{plan.features.teamManagement}</span>
-                      </div>
-                    )}
-                    {plan.features.whiteLabel && (
-                      <div className="flex items-start gap-2">
-                        <Crown className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
-                        <span className="font-semibold text-purple-900">{plan.features.whiteLabel}</span>
-                      </div>
-                    )}
+                  <div className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Recipes: {plan.features.recipes}</span>
                   </div>
-
-                  {/* Highlights */}
-                  <div className="pt-3 border-t">
-                    <p className="text-xs font-semibold text-gray-700 mb-2">Perfect for:</p>
-                    <div className="space-y-1">
-                      {plan.highlights.map((highlight, idx) => (
-                        <p key={idx} className="text-xs text-gray-600">• {highlight}</p>
-                      ))}
-                    </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Food Lookup: {plan.features.foodLookup}</span>
                   </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">Business GPTs: {plan.features.businessGPTs}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm">{plan.features.marketing}</span>
+                  </div>
+                  
+                  {plan.features.teamManagement && (
+                    <div className="flex items-start gap-2">
+                      <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm">{plan.features.teamManagement}</span>
+                    </div>
+                  )}
+                  
+                  {plan.features.whiteLabel && (
+                    <div className="flex items-start gap-2">
+                      <Crown className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm font-semibold text-purple-900">{plan.features.whiteLabel}</span>
+                    </div>
+                  )}
+                </div>
 
-                  {/* CTA */}
-                  <Button 
-                    className={`w-full h-12 bg-gradient-to-r ${plan.color} hover:opacity-90 text-base font-semibold`}
-                  >
-                    Get Started
-                  </Button>
+                {/* Ideal For */}
+                <div className="pt-4 border-t">
+                  <p className="text-xs font-semibold text-gray-700 mb-2">Ideal for:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {plan.ideal.map((item, idx) => (
+                      <Badge key={idx} variant="outline" className="text-xs">
+                        {item}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
 
-                  <p className="text-xs text-center text-gray-600">{plan.features.support}</p>
-                </CardContent>
-              </Card>
-            );
-          })}
+                {/* CTA Button */}
+                <Button 
+                  className={`w-full h-12 bg-gradient-to-r ${plan.color} hover:opacity-90`}
+                >
+                  {plan.ctaText}
+                </Button>
+
+                <p className="text-xs text-center text-gray-600">{plan.features.support}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
-        {/* Value Props */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        {/* Value Proposition Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="border-none shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
             <CardContent className="p-6 text-center">
               <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Check className="w-8 h-8 text-white" />
+                <Zap className="w-8 h-8 text-white" />
               </div>
-              <h3 className="font-bold text-lg mb-2">Unlimited Templates</h3>
-              <p className="text-sm text-gray-700">
-                Use templates unlimited times at ₹0 cost! Save AI generations for when you really need them.
+              <h3 className="font-bold text-xl mb-2 text-gray-900">Smart AI Limits</h3>
+              <p className="text-gray-700 text-sm">
+                Each AI generation costs ₹10. That's why we have limits. But use FREE templates unlimited times at ₹0 cost!
               </p>
             </CardContent>
           </Card>
@@ -426,11 +371,11 @@ export default function PricingPlans() {
           <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
             <CardContent className="p-6 text-center">
               <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="w-8 h-8 text-white" />
+                <Crown className="w-8 h-8 text-white" />
               </div>
-              <h3 className="font-bold text-lg mb-2">Disease-Specific Pro</h3>
-              <p className="text-sm text-gray-700">
-                Professional plan onwards includes Pro Plans for Diabetes, PCOS, Thyroid, and more!
+              <h3 className="font-bold text-xl mb-2 text-gray-900">Pro Plans Included</h3>
+              <p className="text-gray-700 text-sm">
+                Professional tier onwards gets disease-specific planning for Diabetes, PCOS, Thyroid, and more!
               </p>
             </CardContent>
           </Card>
@@ -438,22 +383,22 @@ export default function PricingPlans() {
           <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
             <CardContent className="p-6 text-center">
               <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Zap className="w-8 h-8 text-white" />
+                <Star className="w-8 h-8 text-white" />
               </div>
-              <h3 className="font-bold text-lg mb-2">Manual Always Free</h3>
-              <p className="text-sm text-gray-700">
-                Manual meal plan creation is ALWAYS unlimited in every plan. Zero AI costs!
+              <h3 className="font-bold text-xl mb-2 text-gray-900">Unlimited Manual</h3>
+              <p className="text-gray-700 text-sm">
+                Manual meal plan creation is ALWAYS unlimited in all plans. Full control, zero AI costs!
               </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Detailed Comparison Table */}
+        {/* Feature Comparison Table */}
         <Card className="border-none shadow-xl">
           <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-            <CardTitle className="text-2xl">Complete Feature Comparison</CardTitle>
+            <CardTitle className="text-2xl">Detailed Feature Comparison</CardTitle>
             <CardDescription className="text-white/90">
-              Everything you get in each plan
+              See exactly what's included in each plan
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6 overflow-x-auto">
@@ -461,31 +406,31 @@ export default function PricingPlans() {
               <thead>
                 <tr className="border-b-2 border-gray-300">
                   <th className="text-left py-4 px-4 font-bold text-gray-900">Feature</th>
-                  <th className="text-center py-4 px-4">
-                    <div className="font-bold text-blue-900">Student</div>
-                    <div className="text-sm font-normal text-gray-600">₹499/mo</div>
+                  <th className="text-center py-4 px-4 font-bold text-blue-900">
+                    Student<br/>
+                    <span className="text-sm font-normal">₹499/mo</span>
                   </th>
-                  <th className="text-center py-4 px-4">
-                    <div className="font-bold text-orange-900">Professional</div>
-                    <div className="text-sm font-normal text-gray-600">₹1,499/mo</div>
+                  <th className="text-center py-4 px-4 font-bold text-orange-900">
+                    Professional<br/>
+                    <span className="text-sm font-normal">₹1,499/mo</span>
                   </th>
-                  <th className="text-center py-4 px-4">
-                    <div className="font-bold text-purple-900">Premium</div>
-                    <div className="text-sm font-normal text-gray-600">₹2,999/mo</div>
+                  <th className="text-center py-4 px-4 font-bold text-purple-900">
+                    Premium<br/>
+                    <span className="text-sm font-normal">₹29,999/year</span>
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {comparisonFeatures.map((category, catIdx) => (
                   <React.Fragment key={catIdx}>
-                    <tr className="bg-gradient-to-r from-gray-100 to-gray-50">
-                      <td colSpan="4" className="py-3 px-4 font-bold text-gray-900 text-sm">
+                    <tr className="bg-gray-100">
+                      <td colSpan="4" className="py-3 px-4 font-bold text-gray-900">
                         {category.category}
                       </td>
                     </tr>
                     {category.items.map((item, itemIdx) => (
-                      <tr key={itemIdx} className="border-b border-gray-200 hover:bg-orange-50 transition-colors">
-                        <td className="py-3 px-4 text-sm text-gray-700">{item.name}</td>
+                      <tr key={itemIdx} className="border-b border-gray-200 hover:bg-gray-50">
+                        <td className="py-3 px-4 text-gray-700">{item.name}</td>
                         <td className="py-3 px-4 text-center">
                           {item.student === '✓' ? (
                             <Check className="w-5 h-5 text-green-600 mx-auto" />
@@ -496,12 +441,12 @@ export default function PricingPlans() {
                           )}
                         </td>
                         <td className="py-3 px-4 text-center">
-                          {item.professional === '✓' ? (
+                          {item.pro === '✓' ? (
                             <Check className="w-5 h-5 text-green-600 mx-auto" />
-                          ) : item.professional === '✗' ? (
+                          ) : item.pro === '✗' ? (
                             <X className="w-5 h-5 text-red-500 mx-auto" />
                           ) : (
-                            <span className="text-sm text-gray-700 font-medium">{item.professional}</span>
+                            <span className="text-sm text-gray-700">{item.pro}</span>
                           )}
                         </td>
                         <td className="py-3 px-4 text-center">
@@ -510,7 +455,7 @@ export default function PricingPlans() {
                           ) : item.premium === '✗' ? (
                             <X className="w-5 h-5 text-red-500 mx-auto" />
                           ) : (
-                            <span className="text-sm text-gray-700 font-medium">{item.premium}</span>
+                            <span className="text-sm text-gray-700">{item.premium}</span>
                           )}
                         </td>
                       </tr>
@@ -522,57 +467,70 @@ export default function PricingPlans() {
           </CardContent>
         </Card>
 
-        {/* FAQ */}
+        {/* FAQ Section */}
         <Card className="border-none shadow-xl bg-gradient-to-br from-blue-50 to-cyan-50">
           <CardHeader>
             <CardTitle className="text-2xl">Frequently Asked Questions</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div>
-              <h3 className="font-bold text-gray-900 mb-2">💰 Why are AI features limited?</h3>
-              <p className="text-sm text-gray-700">
-                Each AI generation costs us ₹10 in API fees. But here's the smart part: Use FREE templates unlimited times! 
-                Generate 1 AI plan → Save as template → Use for 100 clients at ₹0 cost.
+              <h3 className="font-bold text-gray-900 mb-2">💰 What are "AI generations" and why are they limited?</h3>
+              <p className="text-gray-700 text-sm">
+                Each AI-generated meal plan costs us ₹10 in API fees. To keep pricing affordable, we have monthly limits. 
+                <strong> But here's the smart part:</strong> Use our FREE templates instead! Clone them unlimited times at ₹0 cost!
               </p>
             </div>
 
             <div>
-              <h3 className="font-bold text-gray-900 mb-2">💎 What's the difference between Basic and Pro Plans?</h3>
-              <p className="text-sm text-gray-700">
-                <strong>Basic Plans:</strong> RDA-based nutrition (weight loss/gain, maintenance) - Available in all tiers<br/>
-                <strong>Pro Plans:</strong> Disease-specific clinical planning (Diabetes, PCOS, Thyroid) with medical guidelines - Professional plan onwards (₹1,499/mo+)
+              <h3 className="font-bold text-gray-900 mb-2">🆓 Are templates really unlimited and FREE?</h3>
+              <p className="text-gray-700 text-sm">
+                <strong>YES!</strong> Once you generate 1 AI plan and save it as a template, you can use it for 100 clients at ZERO cost. 
+                This is how you save money while scaling your practice!
               </p>
             </div>
 
             <div>
-              <h3 className="font-bold text-gray-900 mb-2">📊 How much do I save with yearly billing?</h3>
-              <p className="text-sm text-gray-700">
-                <strong>Student:</strong> No discount (₹5,988/year)<br/>
-                <strong>Professional:</strong> Save ₹3,000/year (₹14,988 instead of ₹17,988)<br/>
-                <strong>Premium:</strong> Save ₹6,989/year (₹29,999 instead of ₹35,988)
+              <h3 className="font-bold text-gray-900 mb-2">💎 What's the difference between Basic and Pro plans?</h3>
+              <p className="text-gray-700 text-sm">
+                <strong>Basic Plans:</strong> RDA-based nutrition planning for weight loss/gain, maintenance (included in all tiers)<br/>
+                <strong>Pro Plans:</strong> Disease-specific clinical planning (Diabetes, PCOS, Thyroid, etc.) with medical guidelines and lab tracking (Professional tier onwards - ₹1,499/mo and above)
               </p>
             </div>
 
             <div>
-              <h3 className="font-bold text-gray-900 mb-2">🎓 Which plan should I start with?</h3>
-              <p className="text-sm text-gray-700">
-                <strong>Student (₹499/mo):</strong> Perfect for first 10 clients, learning the platform<br/>
-                <strong>Professional (₹1,499/mo):</strong> When you need Pro disease-specific planning or have 10-50 clients<br/>
-                <strong>Premium (₹2,999/mo):</strong> For 50+ clients, white-label needs, or unlimited AI usage
+              <h3 className="font-bold text-gray-900 mb-2">📈 Can I upgrade/downgrade anytime?</h3>
+              <p className="text-gray-700 text-sm">
+                Yes! Upgrade anytime as you grow. Downgrade at the end of your billing cycle. No lock-in period.
               </p>
             </div>
 
             <div>
-              <h3 className="font-bold text-gray-900 mb-2">📈 Can I upgrade/downgrade?</h3>
-              <p className="text-sm text-gray-700">
-                Yes! Upgrade anytime and pay the difference. Downgrade at billing cycle end. All your data stays safe.
+              <h3 className="font-bold text-gray-900 mb-2">👥 What if I exceed my client limit?</h3>
+              <p className="text-gray-700 text-sm">
+                You'll be prompted to upgrade to the next tier. We don't delete any data - your clients and plans remain safe.
               </p>
             </div>
 
             <div>
-              <h3 className="font-bold text-gray-900 mb-2">💳 What payment methods?</h3>
-              <p className="text-sm text-gray-700">
-                UPI, Cards, Net Banking. Monthly plans auto-renew. Yearly plans renew annually. Cancel anytime.
+              <h3 className="font-bold text-gray-900 mb-2">🎓 I'm a student. Which plan should I choose?</h3>
+              <p className="text-gray-700 text-sm">
+                Start with <strong>Student (₹499/mo)</strong> plan! It gives you everything to build your first 10 clients. 
+                Upgrade to Professional (₹1,499/mo) once you cross 10 clients or need Pro disease-specific planning.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-gray-900 mb-2">💰 Why is Premium only yearly?</h3>
+              <p className="text-gray-700 text-sm">
+                Premium at ₹29,999/year gives you unlimited everything - it's designed for serious businesses ready to commit to growth. 
+                This is equivalent to just ₹2,500/month - an incredible value for unlimited AI, unlimited clients, and white-label features!
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-gray-900 mb-2">💳 What payment methods do you accept?</h3>
+              <p className="text-gray-700 text-sm">
+                UPI, Credit/Debit cards, Net banking. Monthly plans auto-renew monthly. Yearly plans auto-renew annually.
               </p>
             </div>
           </CardContent>
@@ -581,27 +539,27 @@ export default function PricingPlans() {
         {/* Final CTA */}
         <Card className="border-none shadow-2xl bg-gradient-to-r from-orange-500 to-red-500 text-white">
           <CardContent className="p-12 text-center">
-            <h2 className="text-4xl font-bold mb-4">Ready to Scale Your Practice? 🚀</h2>
-            <p className="text-xl mb-8 text-white/90">
-              Join 1000+ health coaches transforming lives with Mealie
+            <h2 className="text-4xl font-bold mb-4">Ready to Transform Lives? 🌟</h2>
+            <p className="text-xl mb-6 text-white/90">
+              Join 1000+ health coaches already using Mealie to grow their practice
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <Button 
                 size="lg"
-                className="bg-white text-orange-600 hover:bg-orange-50 h-14 px-8 text-lg font-semibold"
+                className="bg-white text-orange-600 hover:bg-orange-50 h-14 px-8 text-lg"
               >
                 Start 7-Day Free Trial
               </Button>
               <Button 
                 size="lg"
                 variant="outline"
-                className="border-2 border-white text-white hover:bg-white/10 h-14 px-8 text-lg font-semibold"
+                className="border-white text-white hover:bg-white/10 h-14 px-8 text-lg"
               >
-                Schedule Demo
+                Book a Demo
               </Button>
             </div>
-            <p className="text-sm mt-6 text-white/80">
-              ✨ No credit card required • Cancel anytime • 30-day money-back guarantee
+            <p className="text-sm mt-4 text-white/80">
+              No credit card required • Cancel anytime • 30-day money-back guarantee
             </p>
           </CardContent>
         </Card>
