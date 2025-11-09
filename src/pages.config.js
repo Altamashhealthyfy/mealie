@@ -40,6 +40,7 @@ import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import ClientFinanceManager from './pages/ClientFinanceManager';
 import ClinicalIntake from './pages/ClinicalIntake';
 import MealPlansPro from './pages/MealPlansPro';
+import PlatformReference from './pages/PlatformReference';
 import Layout from './Layout.jsx';
 
 
@@ -86,6 +87,7 @@ export const PAGES = {
     "ClientFinanceManager": ClientFinanceManager,
     "ClinicalIntake": ClinicalIntake,
     "MealPlansPro": MealPlansPro,
+    "PlatformReference": PlatformReference,
 }
 
 export const pagesConfig = {
