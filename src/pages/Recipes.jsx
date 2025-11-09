@@ -132,29 +132,6 @@ Provide:
     setGeneratingRecipe(false);
   };
 
-  // Get recipe icon based on meal type
-  const getRecipeIcon = (mealType) => {
-    const icons = {
-      breakfast: '🍳',
-      lunch: '🍛',
-      dinner: '🍽️',
-      snack: '🥤'
-    };
-    return icons[mealType] || '🍴';
-  };
-
-  // Get cuisine emoji
-  const getCuisineEmoji = (cuisine) => {
-    const emojis = {
-      north: '🫓',
-      south: '🥥',
-      west: '🌶️',
-      east: '🍚',
-      fusion: '✨'
-    };
-    return emojis[cuisine] || '🍽️';
-  };
-
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -281,16 +258,9 @@ Provide:
                 className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all cursor-pointer group"
                 onClick={() => setSelectedRecipe(recipe)}
               >
-                {/* Recipe Icon Header - No more mismatched images! */}
-                <div className="h-32 bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center rounded-t-xl">
-                  <div className="text-center">
-                    <div className="text-6xl mb-2">
-                      {getRecipeIcon(recipe.meal_type)}
-                    </div>
-                    <div className="text-2xl">
-                      {getCuisineEmoji(recipe.regional_cuisine)}
-                    </div>
-                  </div>
+                {/* Clean gradient header - NO ICONS/IMAGES */}
+                <div className="h-32 bg-gradient-to-br from-orange-100 via-amber-100 to-red-100 rounded-t-xl flex items-center justify-center">
+                  <ChefHat className="w-16 h-16 text-orange-400 opacity-20" />
                 </div>
                 
                 <CardHeader>
@@ -334,17 +304,7 @@ Provide:
           <Dialog open={!!selectedRecipe} onOpenChange={() => setSelectedRecipe(null)}>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="text-5xl">
-                    {getRecipeIcon(selectedRecipe.meal_type)}
-                  </div>
-                  <div className="flex-1">
-                    <DialogTitle className="text-3xl">{selectedRecipe.name}</DialogTitle>
-                  </div>
-                  <div className="text-3xl">
-                    {getCuisineEmoji(selectedRecipe.regional_cuisine)}
-                  </div>
-                </div>
+                <DialogTitle className="text-3xl mb-4">{selectedRecipe.name}</DialogTitle>
                 <div className="flex flex-wrap gap-2">
                   <Badge className="bg-orange-100 text-orange-700 capitalize">
                     {selectedRecipe.meal_type}
