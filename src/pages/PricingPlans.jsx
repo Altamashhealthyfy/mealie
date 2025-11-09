@@ -17,6 +17,7 @@ export default function PricingPlans() {
     {
       name: "Student",
       price: "₹499",
+      yearlyPrice: "₹5,988",
       period: "/month",
       icon: Sparkles,
       color: "from-blue-500 to-cyan-500",
@@ -49,7 +50,9 @@ export default function PricingPlans() {
     },
     {
       name: "Professional",
-      price: "₹999",
+      price: "₹1,499",
+      yearlyPrice: "₹17,988",
+      savingsText: "Save ₹3,000/year",
       period: "/month",
       icon: Star,
       color: "from-orange-500 to-red-500",
@@ -65,9 +68,9 @@ export default function PricingPlans() {
           templates: "Unlimited FREE"
         },
         proPlans: {
-          ai: "10 AI Pro plans/month",
-          manual: "Unlimited",
-          templates: "Unlimited FREE"
+          ai: "💎 10 AI Pro plans/month",
+          manual: "💎 Unlimited",
+          templates: "💎 Unlimited FREE"
         },
         recipes: "50 AI recipes/month",
         foodLookup: "50 AI lookups/month",
@@ -84,7 +87,9 @@ export default function PricingPlans() {
     },
     {
       name: "Premium",
-      price: "₹1,999",
+      price: "₹2,999",
+      yearlyPrice: "₹35,988",
+      savingsText: "Save ₹6,000/year",
       period: "/month",
       icon: Crown,
       color: "from-purple-500 to-indigo-500",
@@ -99,9 +104,9 @@ export default function PricingPlans() {
           templates: "Unlimited FREE + Create & share"
         },
         proPlans: {
-          ai: "Unlimited AI Pro plans",
-          manual: "Unlimited",
-          templates: "Unlimited FREE + Create & share"
+          ai: "💎 Unlimited AI Pro plans",
+          manual: "💎 Unlimited",
+          templates: "💎 Unlimited FREE + Create & share"
         },
         recipes: "Unlimited AI recipes",
         foodLookup: "Unlimited AI lookups",
@@ -121,6 +126,7 @@ export default function PricingPlans() {
     {
       name: "Enterprise",
       price: "Custom",
+      yearlyPrice: "Custom pricing",
       period: "Contact us",
       icon: Rocket,
       color: "from-pink-500 to-rose-500",
@@ -135,9 +141,9 @@ export default function PricingPlans() {
           templates: "Unlimited"
         },
         proPlans: {
-          ai: "Unlimited",
-          manual: "Unlimited",
-          templates: "Unlimited"
+          ai: "💎 Unlimited",
+          manual: "💎 Unlimited",
+          templates: "💎 Unlimited"
         },
         recipes: "Unlimited",
         foodLookup: "Unlimited",
@@ -240,6 +246,9 @@ export default function PricingPlans() {
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Start with what fits your stage. Upgrade anytime as you grow! 🚀
           </p>
+          <p className="text-lg text-green-700 font-semibold">
+            💰 Pay yearly and save up to ₹6,000!
+          </p>
         </div>
 
         {/* Current Plan Alert */}
@@ -280,6 +289,14 @@ export default function PricingPlans() {
                   <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
                   <span className="text-gray-600">{plan.period}</span>
                 </div>
+                {plan.yearlyPrice !== "Custom pricing" && (
+                  <div className="text-sm text-gray-600 mt-1">
+                    <p>Or {plan.yearlyPrice}/year</p>
+                    {plan.savingsText && (
+                      <p className="text-green-700 font-semibold">💰 {plan.savingsText}</p>
+                    )}
+                  </div>
+                )}
                 <CardDescription className="text-base mt-2">{plan.description}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -367,6 +384,45 @@ export default function PricingPlans() {
           ))}
         </div>
 
+        {/* Value Proposition Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="border-none shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
+            <CardContent className="p-6 text-center">
+              <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Zap className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="font-bold text-xl mb-2 text-gray-900">Smart AI Limits</h3>
+              <p className="text-gray-700 text-sm">
+                Each AI generation costs ₹10. That's why we have limits. But use FREE templates unlimited times at ₹0 cost!
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
+            <CardContent className="p-6 text-center">
+              <div className="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Crown className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="font-bold text-xl mb-2 text-gray-900">Pro Plans Included</h3>
+              <p className="text-gray-700 text-sm">
+                Professional tier onwards gets disease-specific planning for Diabetes, PCOS, Thyroid, and more!
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
+            <CardContent className="p-6 text-center">
+              <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="font-bold text-xl mb-2 text-gray-900">Unlimited Manual</h3>
+              <p className="text-gray-700 text-sm">
+                Manual meal plan creation is ALWAYS unlimited in all plans. Full control, zero AI costs!
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Feature Comparison Table */}
         <Card className="border-none shadow-xl">
           <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
@@ -380,10 +436,22 @@ export default function PricingPlans() {
               <thead>
                 <tr className="border-b-2 border-gray-300">
                   <th className="text-left py-4 px-4 font-bold text-gray-900">Feature</th>
-                  <th className="text-center py-4 px-4 font-bold text-blue-900">Student</th>
-                  <th className="text-center py-4 px-4 font-bold text-orange-900">Professional</th>
-                  <th className="text-center py-4 px-4 font-bold text-purple-900">Premium</th>
-                  <th className="text-center py-4 px-4 font-bold text-pink-900">Enterprise</th>
+                  <th className="text-center py-4 px-4 font-bold text-blue-900">
+                    Student<br/>
+                    <span className="text-sm font-normal">₹499/mo</span>
+                  </th>
+                  <th className="text-center py-4 px-4 font-bold text-orange-900">
+                    Professional<br/>
+                    <span className="text-sm font-normal">₹1,499/mo</span>
+                  </th>
+                  <th className="text-center py-4 px-4 font-bold text-purple-900">
+                    Premium<br/>
+                    <span className="text-sm font-normal">₹2,999/mo</span>
+                  </th>
+                  <th className="text-center py-4 px-4 font-bold text-pink-900">
+                    Enterprise<br/>
+                    <span className="text-sm font-normal">Custom</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -468,7 +536,7 @@ export default function PricingPlans() {
               <h3 className="font-bold text-gray-900 mb-2">💎 What's the difference between Basic and Pro plans?</h3>
               <p className="text-gray-700 text-sm">
                 <strong>Basic Plans:</strong> RDA-based nutrition planning for weight loss/gain, maintenance (included in all tiers)<br/>
-                <strong>Pro Plans:</strong> Disease-specific clinical planning (Diabetes, PCOS, Thyroid, etc.) with medical guidelines and lab tracking (Professional tier and above)
+                <strong>Pro Plans:</strong> Disease-specific clinical planning (Diabetes, PCOS, Thyroid, etc.) with medical guidelines and lab tracking (Professional tier onwards - ₹1,499/mo and above)
               </p>
             </div>
 
@@ -490,14 +558,23 @@ export default function PricingPlans() {
               <h3 className="font-bold text-gray-900 mb-2">🎓 I'm a student. Which plan should I choose?</h3>
               <p className="text-gray-700 text-sm">
                 Start with <strong>Student (₹499/mo)</strong> plan! It gives you everything to build your first 10 clients. 
-                Upgrade to Professional once you cross 10 clients or need Pro disease-specific planning.
+                Upgrade to Professional (₹1,499/mo) once you cross 10 clients or need Pro disease-specific planning.
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-gray-900 mb-2">💰 How much do I save with yearly payment?</h3>
+              <p className="text-gray-700 text-sm">
+                <strong>Student:</strong> ₹5,988/year (no discount on entry tier)<br/>
+                <strong>Professional:</strong> ₹14,988/year (save ₹3,000 vs monthly)<br/>
+                <strong>Premium:</strong> ₹29,988/year (save ₹6,000 vs monthly)
               </p>
             </div>
 
             <div>
               <h3 className="font-bold text-gray-900 mb-2">💳 What payment methods do you accept?</h3>
               <p className="text-gray-700 text-sm">
-                UPI, Credit/Debit cards, Net banking. All plans are auto-renewed monthly unless cancelled.
+                UPI, Credit/Debit cards, Net banking. All plans are auto-renewed unless cancelled.
               </p>
             </div>
           </CardContent>
