@@ -41,6 +41,7 @@ import ClientFinanceManager from './pages/ClientFinanceManager';
 import ClinicalIntake from './pages/ClinicalIntake';
 import MealPlansPro from './pages/MealPlansPro';
 import PlatformReference from './pages/PlatformReference';
+import PricingPlans from './pages/PricingPlans';
 import Layout from './Layout.jsx';
 
 
@@ -88,6 +89,7 @@ export const PAGES = {
     "ClinicalIntake": ClinicalIntake,
     "MealPlansPro": MealPlansPro,
     "PlatformReference": PlatformReference,
+    "PricingPlans": PricingPlans,
 }
 
 export const pagesConfig = {
