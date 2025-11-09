@@ -1,7 +1,6 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"; // Added useMutation, useQueryClient
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,7 @@ export default function Recipes() {
   const [generatingRecipe, setGeneratingRecipe] = useState(false);
   const [customRecipeRequest, setCustomRecipeRequest] = useState("");
 
-  const queryClient = useQueryClient(); // Initialize queryClient
+  const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -123,15 +122,37 @@ Provide:
         }
       });
 
-      // Use the mutation to create the recipe and handle success/error
       createRecipeMutation.mutate(response);
       
     } catch (error) {
       console.error("Error invoking LLM or parsing response:", error);
-      alert("Error generating recipe. Please try again. (LLM issue)");
+      alert("Error generating recipe. Please try again.");
     }
 
     setGeneratingRecipe(false);
+  };
+
+  // Get recipe icon based on meal type
+  const getRecipeIcon = (mealType) => {
+    const icons = {
+      breakfast: '🍳',
+      lunch: '🍛',
+      dinner: '🍽️',
+      snack: '🥤'
+    };
+    return icons[mealType] || '🍴';
+  };
+
+  // Get cuisine emoji
+  const getCuisineEmoji = (cuisine) => {
+    const emojis = {
+      north: '🫓',
+      south: '🥥',
+      west: '🌶️',
+      east: '🍚',
+      fusion: '✨'
+    };
+    return emojis[cuisine] || '🍽️';
   };
 
   return (
@@ -163,10 +184,10 @@ Provide:
             />
             <Button
               onClick={generateCustomRecipe}
-              disabled={generatingRecipe || createRecipeMutation.isLoading} // Also disable if mutation is in progress
+              disabled={generatingRecipe || createRecipeMutation.isPending}
               className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
             >
-              {(generatingRecipe || createRecipeMutation.isLoading) ? (
+              {(generatingRecipe || createRecipeMutation.isPending) ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Generating Recipe...
@@ -260,15 +281,18 @@ Provide:
                 className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all cursor-pointer group"
                 onClick={() => setSelectedRecipe(recipe)}
               >
-                {recipe.image_url && (
-                  <div className="h-48 overflow-hidden rounded-t-xl">
-                    <img
-                      src={recipe.image_url}
-                      alt={recipe.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
+                {/* Recipe Icon Header - No more mismatched images! */}
+                <div className="h-32 bg-gradient-to-br from-orange-100 to-red-100 flex items-center justify-center rounded-t-xl">
+                  <div className="text-center">
+                    <div className="text-6xl mb-2">
+                      {getRecipeIcon(recipe.meal_type)}
+                    </div>
+                    <div className="text-2xl">
+                      {getCuisineEmoji(recipe.regional_cuisine)}
+                    </div>
                   </div>
-                )}
+                </div>
+                
                 <CardHeader>
                   <CardTitle className="text-xl line-clamp-2">{recipe.name}</CardTitle>
                   <div className="flex flex-wrap gap-2 mt-2">
@@ -310,7 +334,17 @@ Provide:
           <Dialog open={!!selectedRecipe} onOpenChange={() => setSelectedRecipe(null)}>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="text-3xl mb-4">{selectedRecipe.name}</DialogTitle>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="text-5xl">
+                    {getRecipeIcon(selectedRecipe.meal_type)}
+                  </div>
+                  <div className="flex-1">
+                    <DialogTitle className="text-3xl">{selectedRecipe.name}</DialogTitle>
+                  </div>
+                  <div className="text-3xl">
+                    {getCuisineEmoji(selectedRecipe.regional_cuisine)}
+                  </div>
+                </div>
                 <div className="flex flex-wrap gap-2">
                   <Badge className="bg-orange-100 text-orange-700 capitalize">
                     {selectedRecipe.meal_type}
