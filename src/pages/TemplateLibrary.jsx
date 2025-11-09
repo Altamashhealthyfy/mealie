@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -14,7 +15,8 @@ import {
   Search,
   Filter,
   CheckCircle,
-  Sparkles
+  Sparkles,
+  Eye
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -207,7 +209,7 @@ export default function TemplateLibrary() {
             filteredTemplates.map((template) => (
               <Card 
                 key={template.id} 
-                className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all cursor-pointer group"
+                className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all group"
               >
                 <CardHeader>
                   <div className="flex items-start justify-between mb-2">
@@ -251,18 +253,171 @@ export default function TemplateLibrary() {
                     <p>📦 {template.file_size}</p>
                   </div>
 
-                  <Button
-                    onClick={() => handleDownload(template)}
-                    className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download FREE
-                  </Button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setViewingTemplate(template)}
+                      className="w-full"
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      View
+                    </Button>
+                    <Button
+                      onClick={() => handleDownload(template)}
+                      className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))
           )}
         </div>
+
+        {/* View Template Dialog */}
+        <Dialog open={!!viewingTemplate} onOpenChange={() => setViewingTemplate(null)}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl flex items-center gap-2">
+                <FileText className="w-6 h-6 text-blue-500" />
+                {viewingTemplate?.name}
+              </DialogTitle>
+            </DialogHeader>
+            
+            {viewingTemplate && (
+              <div className="space-y-6">
+                {/* Template Details */}
+                <div className="p-4 bg-gray-50 rounded-lg space-y-3">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Description</p>
+                    <p className="text-gray-900">{viewingTemplate.description || 'No description'}</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-600">Category</p>
+                      <Badge variant="outline" className="mt-1 capitalize">
+                        {viewingTemplate.category.replace('_', ' ')}
+                      </Badge>
+                    </div>
+
+                    {viewingTemplate.subcategory && (
+                      <div>
+                        <p className="text-sm text-gray-600">Subcategory</p>
+                        <Badge className="mt-1 bg-purple-100 text-purple-700 capitalize">
+                          {viewingTemplate.subcategory.replace('_', ' ')}
+                        </Badge>
+                      </div>
+                    )}
+
+                    {viewingTemplate.target_calories && (
+                      <div>
+                        <p className="text-sm text-gray-600">Target Calories</p>
+                        <Badge className="mt-1 bg-orange-100 text-orange-700">
+                          {viewingTemplate.target_calories} kcal
+                        </Badge>
+                      </div>
+                    )}
+
+                    {viewingTemplate.food_preference && (
+                      <div>
+                        <p className="text-sm text-gray-600">Food Preference</p>
+                        <Badge className="mt-1 bg-green-100 text-green-700 capitalize">
+                          {viewingTemplate.food_preference}
+                        </Badge>
+                      </div>
+                    )}
+
+                    {viewingTemplate.regional_preference && (
+                      <div>
+                        <p className="text-sm text-gray-600">Regional Preference</p>
+                        <Badge className="mt-1 bg-blue-100 text-blue-700 capitalize">
+                          {viewingTemplate.regional_preference}
+                        </Badge>
+                      </div>
+                    )}
+
+                    {viewingTemplate.duration && (
+                      <div>
+                        <p className="text-sm text-gray-600">Duration</p>
+                        <Badge className="mt-1 bg-indigo-100 text-indigo-700">
+                          {viewingTemplate.duration} days
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Tags */}
+                {viewingTemplate.tags && viewingTemplate.tags.length > 0 && (
+                  <div>
+                    <p className="text-sm text-gray-600 mb-2">Tags</p>
+                    <div className="flex flex-wrap gap-2">
+                      {viewingTemplate.tags.map((tag, i) => (
+                        <Badge key={i} variant="outline" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* File Info */}
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <p className="text-sm text-gray-600">File Type</p>
+                      <Badge className="mt-1 bg-blue-500 uppercase">
+                        {viewingTemplate.file_type}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">File Size</p>
+                      <p className="font-semibold mt-1">{viewingTemplate.file_size}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Downloads</p>
+                      <p className="font-semibold mt-1">📥 {viewingTemplate.download_count || 0}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Premium Badge */}
+                {viewingTemplate.is_premium && (
+                  <Alert className="bg-purple-50 border-purple-500">
+                    <Star className="w-5 h-5 text-purple-600" />
+                    <AlertDescription className="ml-2">
+                      <strong>Premium Template</strong> - Available for Professional & Premium plan users only
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 gap-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setViewingTemplate(null)}
+                    className="h-12"
+                  >
+                    Close
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      handleDownload(viewingTemplate);
+                      setViewingTemplate(null);
+                    }}
+                    className="h-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download Template
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Info Alert */}
         <Alert className="border-green-500 bg-green-50">
