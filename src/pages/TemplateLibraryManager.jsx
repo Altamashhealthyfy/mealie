@@ -19,7 +19,10 @@ import {
   Loader2,
   Shield,
   Star,
-  Eye
+  Eye,
+  Sparkles,
+  FileSpreadsheet,
+  AlertTriangle
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -28,6 +31,12 @@ export default function TemplateLibraryManager() {
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [viewingTemplate, setViewingTemplate] = useState(null);
+  const [bulkUploading, setBulkUploading] = useState(false);
+  const [bulkFiles, setBulkFiles] = useState([]);
+  const [bulkMetadata, setBulkMetadata] = useState([]);
+  const [showBulkDialog, setShowBulkDialog] = useState(false);
+  const [excelFile, setExcelFile] = useState(null);
+  
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -138,10 +147,103 @@ export default function TemplateLibraryManager() {
     }
   };
 
+  // 🤖 AI-POWERED BULK UPLOAD
+  const handleBulkAnalyze = async () => {
+    if (bulkFiles.length === 0) {
+      alert("Please select files first");
+      return;
+    }
+
+    setBulkUploading(true);
+    try {
+      // Upload all files first
+      const uploadPromises = bulkFiles.map(file => 
+        base44.integrations.Core.UploadFile({ file })
+      );
+      const uploadResults = await Promise.all(uploadPromises);
+
+      // AI analyzes each file in parallel
+      const metadataPromises = uploadResults.map((uploadResult, index) => {
+        const file = bulkFiles[index];
+        return base44.integrations.Core.InvokeLLM({
+          prompt: `You are analyzing a meal plan/recipe template file to extract metadata.
+
+Filename: "${file.name}"
+
+Analyze this file and extract:
+1. Template name (descriptive)
+2. Category (meal_plan, recipe, business_strategy, marketing_material, client_tracker, assessment_form, other)
+3. Subcategory for meal plans (weight_loss, weight_gain, diabetes, pcos, thyroid, pregnancy, kids, muscle_gain, maintenance, general)
+4. Target calories (if mentioned)
+5. Food preference (veg, non_veg, jain, mixed, all)
+6. Regional preference (north, south, west, east, all)
+7. Duration in days (if meal plan)
+8. Generate short description
+9. Suggest 3-5 relevant tags
+
+Be accurate and specific. Use the filename as hints.`,
+          file_urls: [uploadResult.file_url],
+          response_json_schema: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              category: { type: "string" },
+              subcategory: { type: "string" },
+              target_calories: { type: "number" },
+              food_preference: { type: "string" },
+              regional_preference: { type: "string" },
+              duration: { type: "number" },
+              description: { type: "string" },
+              tags: { type: "array", items: { type: "string" } }
+            },
+            required: ["name", "category", "description", "tags"]
+          }
+        }).then(data => ({
+          ...data,
+          file_url: uploadResult.file_url,
+          file_size: `${(file.size / 1024).toFixed(1)} KB`,
+          file_type: file.name.split('.').pop().toLowerCase()
+        }));
+      });
+
+      const metadata = await Promise.all(metadataPromises);
+      setBulkMetadata(metadata);
+      alert("✅ AI analysis complete! Review and save.");
+      
+    } catch (error) {
+      console.error("Bulk upload error:", error);
+      alert("Error analyzing files. Please try again.");
+    } finally {
+      setBulkUploading(false);
+    }
+  };
+
+  const handleBulkSave = async () => {
+    try {
+      await base44.entities.DownloadableTemplate.bulkCreate(
+        bulkMetadata.map(m => ({
+          ...m,
+          download_count: 0,
+          version: "1.0",
+          last_updated: new Date().toISOString().split('T')[0]
+        }))
+      );
+      queryClient.invalidateQueries(['downloadableTemplates']);
+      setBulkFiles([]);
+      setBulkMetadata([]);
+      setShowBulkDialog(false);
+      alert(`✅ Successfully uploaded ${bulkMetadata.length} templates!`);
+    } catch (error) {
+      console.error(error);
+      alert("Error saving templates");
+    }
+  };
+
   const userType = user?.user_type || 'client';
   
-  // Allow super_admin, team_member, student_coach, and student_team_member to upload
-  const canUploadTemplates = ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(userType);
+  // ⚠️ UPDATED: student_coach and student_team_member CANNOT upload templates.
+  // Only super admin and team members with 'operations' role can upload.
+  const canUploadTemplates = userType === 'super_admin' || (userType === 'team_member' && user?.team_roles?.includes('operations'));
   
   if (!canUploadTemplates) {
     return (
@@ -150,10 +252,18 @@ export default function TemplateLibraryManager() {
           <CardHeader>
             <Shield className="w-16 h-16 mx-auto text-red-500 mb-4" />
             <CardTitle className="text-center text-2xl">Access Restricted</CardTitle>
-            <CardDescription className="text-center">
-              This page is only accessible to team members and coaches
+            <CardDescription className="text-center text-lg">
+              Only super admin and operations team can upload templates
             </CardDescription>
           </CardHeader>
+          <CardContent>
+            <Alert className="border-orange-200 bg-orange-50">
+              <AlertTriangle className="w-4 h-4 text-orange-600" />
+              <AlertDescription>
+                <strong>Note:</strong> Student coaches and sales team cannot upload templates. Only platform owner and operations team have this access.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
         </Card>
       </div>
     );
@@ -167,10 +277,10 @@ export default function TemplateLibraryManager() {
           <div>
             <Badge className="bg-purple-600 text-white mb-2">
               <Shield className="w-4 h-4 mr-1" />
-              {userType.replace('_', ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+              Template Manager
             </Badge>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Template Library Manager</h1>
-            <p className="text-gray-600">Upload templates for students to download</p>
+            <p className="text-gray-600">Upload templates for users to download</p>
           </div>
           <div className="text-right">
             <p className="text-3xl font-bold text-gray-900">{templates.length}</p>
@@ -178,11 +288,183 @@ export default function TemplateLibraryManager() {
           </div>
         </div>
 
-        {/* Upload Section */}
+        {/* 🤖 SMART BULK UPLOAD BUTTONS */}
+        <div className="flex gap-4">
+          <Button
+            onClick={() => setShowBulkDialog(true)}
+            className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 h-14 text-lg"
+          >
+            <Sparkles className="w-5 h-5 mr-2" />
+            🤖 Smart Bulk Upload
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="h-14 text-lg"
+            onClick={() => alert("Coming soon! Excel bulk upload feature.")}
+          >
+            <FileSpreadsheet className="w-5 h-5 mr-2" />
+            📊 Excel Bulk Upload
+          </Button>
+        </div>
+
+        {/* Smart Bulk Upload Dialog */}
+        <Dialog open={showBulkDialog} onOpenChange={setShowBulkDialog}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl flex items-center gap-2">
+                <Sparkles className="w-6 h-6 text-purple-500" />
+                🤖 AI-Powered Smart Bulk Upload
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              {bulkMetadata.length === 0 ? (
+                <>
+                  <Alert className="bg-blue-50 border-blue-500">
+                    <Sparkles className="w-5 h-5 text-blue-600" />
+                    <AlertDescription>
+                      <strong>How it works:</strong> Upload multiple files at once. AI will automatically extract all metadata from each file!
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="p-6 border-2 border-dashed border-purple-300 rounded-xl bg-purple-50">
+                    <div className="text-center">
+                      <Upload className="w-12 h-12 mx-auto text-purple-500 mb-3" />
+                      <p className="text-sm text-gray-700 mb-3">
+                        Select multiple Word/PDF files (up to 50 at once)
+                      </p>
+                      <input
+                        type="file"
+                        accept=".docx,.pdf,.doc"
+                        multiple
+                        onChange={(e) => setBulkFiles(Array.from(e.target.files))}
+                        className="w-full p-2 border rounded-lg"
+                      />
+                      {bulkFiles.length > 0 && (
+                        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                          <p className="font-semibold text-green-900">
+                            ✅ {bulkFiles.length} files selected
+                          </p>
+                          <div className="mt-2 max-h-32 overflow-y-auto text-left text-xs">
+                            {bulkFiles.map((f, i) => (
+                              <p key={i} className="text-gray-700">• {f.name}</p>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={handleBulkAnalyze}
+                    disabled={bulkUploading || bulkFiles.length === 0}
+                    className="w-full h-14 bg-gradient-to-r from-purple-500 to-indigo-500 text-lg"
+                  >
+                    {bulkUploading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        AI is analyzing {bulkFiles.length} files...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-5 h-5 mr-2" />
+                        Analyze with AI
+                      </>
+                    )}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Alert className="bg-green-50 border-green-500">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <AlertDescription>
+                      <strong>✅ AI Analysis Complete!</strong> Review the extracted metadata and edit if needed.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="space-y-4 max-h-96 overflow-y-auto">
+                    {bulkMetadata.map((template, index) => (
+                      <Card key={index} className="border-2">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-lg">#{index + 1}: {template.name}</CardTitle>
+                            <Badge className="bg-purple-500">
+                              <Sparkles className="w-3 h-3 mr-1" />
+                              AI
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                              <p className="text-gray-600">Category:</p>
+                              <p className="font-semibold capitalize">{template.category.replace('_', ' ')}</p>
+                            </div>
+                            {template.target_calories && (
+                              <div>
+                                <p className="text-gray-600">Calories:</p>
+                                <p className="font-semibold">{template.target_calories} kcal</p>
+                              </div>
+                            )}
+                            <div>
+                              <p className="text-gray-600">Food Pref:</p>
+                              <p className="font-semibold capitalize">{template.food_preference}</p>
+                            </div>
+                            {template.duration && (
+                              <div>
+                                <p className="text-gray-600">Duration:</p>
+                                <p className="font-semibold">{template.duration} days</p>
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-gray-600 text-sm">Description:</p>
+                            <p className="text-sm">{template.description}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600 text-sm">Tags:</p>
+                            <div className="flex flex-wrap gap-1">
+                              {template.tags.map((tag, i) => (
+                                <Badge key={i} variant="outline" className="text-xs">{tag}</Badge>
+                              ))}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setBulkMetadata([]);
+                        setBulkFiles([]);
+                      }}
+                      className="flex-1"
+                    >
+                      Start Over
+                    </Button>
+                    <Button
+                      onClick={handleBulkSave}
+                      className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 h-12"
+                    >
+                      <CheckCircle className="w-5 h-5 mr-2" />
+                      Save All {bulkMetadata.length} Templates
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Single Upload Section */}
         <Card className="border-none shadow-xl bg-gradient-to-br from-blue-50 to-cyan-50">
           <CardHeader>
-            <CardTitle className="text-2xl">Upload New Template</CardTitle>
-            <CardDescription>Upload Word/PDF files that students can download</CardDescription>
+            <CardTitle className="text-2xl">Upload Single Template</CardTitle>
+            <CardDescription>Upload one template at a time with manual details</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* File Upload */}
