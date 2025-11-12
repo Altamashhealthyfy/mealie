@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -291,7 +292,7 @@ export default function Communication() {
                   <div className="flex-1 overflow-hidden relative">
                     <ScrollArea 
                       className="h-full" 
-                      style={{ height: 'calc(100vh - 530px)' }}
+                      style={{ height: 'calc(100vh - 480px)' }}
                       onScrollCapture={handleScroll}
                     >
                       <div className="p-6 space-y-4">
@@ -360,69 +361,56 @@ export default function Communication() {
                     )}
                   </div>
 
-                  {/* Send Message Box */}
-                  <div className="p-6 border-t-4 border-orange-500 bg-gradient-to-b from-white to-orange-50 flex-shrink-0">
-                    <Alert className="mb-4 bg-green-50 border-green-500">
-                      <Send className="w-4 h-4 text-green-600" />
-                      <AlertDescription className="ml-2 text-green-900">
-                        <strong>✅ Send Message Box Active!</strong> Type your message below and click Send.
-                      </AlertDescription>
-                    </Alert>
-
-                    <div className="space-y-3">
-                      <div className="flex items-end gap-3">
-                        <div className="flex-1">
-                          <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            💬 Your Message:
-                          </label>
-                          <Textarea
-                            ref={textareaRef}
-                            placeholder="Type your message here and press Send..."
-                            value={messageText}
-                            onChange={(e) => {
-                              console.log("Message text changed:", e.target.value);
-                              setMessageText(e.target.value);
-                            }}
-                            onKeyPress={(e) => {
-                              if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                console.log("Enter pressed - sending message");
-                                handleSendMessage();
-                              }
-                            }}
-                            className="resize-none min-h-[100px] text-base border-2 border-orange-300 focus:border-orange-500"
-                            rows={4}
-                            autoFocus
-                          />
-                        </div>
-                        <Button
-                          onClick={() => {
-                            console.log("Send button clicked");
-                            handleSendMessage();
+                  {/* ✅ COMPACT Send Message Box */}
+                  <div className="p-4 border-t-2 border-orange-500 bg-white flex-shrink-0">
+                    <div className="flex items-end gap-3">
+                      <div className="flex-1">
+                        <Textarea
+                          ref={textareaRef}
+                          placeholder="Type your message..."
+                          value={messageText}
+                          onChange={(e) => {
+                            console.log("Message text changed:", e.target.value);
+                            setMessageText(e.target.value);
                           }}
-                          disabled={sendMessageMutation.isPending}
-                          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-[100px] px-8 text-xl font-bold shadow-xl"
-                          size="lg"
-                        >
-                          {sendMessageMutation.isPending ? (
-                            <div className="flex flex-col items-center gap-2">
-                              <Loader2 className="w-8 h-8 animate-spin" />
-                              <span className="text-sm">Sending...</span>
-                            </div>
-                          ) : (
-                            <div className="flex flex-col items-center gap-2">
-                              <Send className="w-8 h-8" />
-                              <span>SEND</span>
-                            </div>
-                          )}
-                        </Button>
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              console.log("Enter pressed - sending message");
+                              handleSendMessage();
+                            }
+                          }}
+                          className="resize-none min-h-[60px] text-sm border-2 border-orange-300 focus:border-orange-500"
+                          rows={2}
+                          autoFocus
+                        />
                       </div>
-                      
-                      <p className="text-sm text-gray-600 text-center">
-                        💡 Press <kbd className="px-2 py-1 bg-gray-200 rounded font-mono">Enter</kbd> to send • 
-                        <kbd className="px-2 py-1 bg-gray-200 rounded font-mono ml-1">Shift+Enter</kbd> for new line
-                      </p>
+                      <Button
+                        onClick={() => {
+                          console.log("Send button clicked");
+                          handleSendMessage();
+                        }}
+                        disabled={sendMessageMutation.isPending}
+                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-[60px] px-6 font-semibold shadow-lg"
+                      >
+                        {sendMessageMutation.isPending ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4 mr-2" />
+                            Send
+                          </>
+                        )}
+                      </Button>
                     </div>
+                    
+                    <p className="text-xs text-gray-500 text-center mt-2">
+                      Press <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono">Enter</kbd> to send • 
+                      <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono ml-1">Shift+Enter</kbd> for new line
+                    </p>
                   </div>
                 </>
               ) : (
