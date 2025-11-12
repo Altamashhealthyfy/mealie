@@ -69,27 +69,31 @@ export default function NotificationSettings() {
       const phone = user.phone.replace(/\D/g, '');
       const formattedPhone = phone.startsWith('91') ? phone : `91${phone}`;
 
-      // Use Aisensy's direct message API (no campaign ID needed)
-      const response = await fetch('https://backend.aisensy.com/direct/messages', {
+      // Use Aisensy API with Project ID and Password
+      const response = await fetch('https://backend.aisensy.com/campaign/t1/api', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-API-Key': process.env.AISENSY_API_KEY || "YOUR_API_KEY"
         },
         body: JSON.stringify({
-          to: formattedPhone,
-          type: "text",
-          text: {
-            body: "✅ Test message from Mealie!\n\nYour WhatsApp integration is working correctly.\n\nYou'll receive automated notifications here for:\n- Meal plans\n- Appointments\n- Progress updates\n\n- Team Mealie"
-          }
+          project: process.env.AISENSY_PROJECT_ID || "YOUR_PROJECT_ID",
+          key: process.env.AISENSY_PROJECT_PASSWORD || "YOUR_PROJECT_PASSWORD",
+          campaign_name: "test_message",
+          destination: formattedPhone,
+          userName: user?.full_name || "Test User",
+          source: "mealie-app",
+          message: "✅ Test message from Mealie!\n\nYour WhatsApp integration is working correctly.\n\nYou'll receive automated notifications here for:\n- Meal plans\n- Appointments\n- Progress updates\n\n- Team Mealie",
+          type: "Template",
+          template_name: "mealie_test"
         })
       });
 
-      if (response.ok) {
+      const result = await response.json();
+
+      if (response.ok || result.ret === true) {
         alert("✅ Test WhatsApp sent! Check your phone.");
       } else {
-        const error = await response.json();
-        alert(`❌ Failed: ${error.message || 'Unknown error'}`);
+        alert(`❌ Failed: ${result.msg || result.message || 'Unknown error'}`);
       }
     } catch (error) {
       alert("❌ Failed to send test WhatsApp. Check console for details.");
@@ -327,7 +331,7 @@ export default function NotificationSettings() {
               <AlertDescription>
                 <strong>Aisensy WhatsApp API:</strong> Configured via platform secrets<br/>
                 <strong>Email Service:</strong> Using Base44 built-in email service<br/>
-                <strong>Method:</strong> Direct messaging (no campaign templates needed)
+                <strong>Authentication:</strong> Project ID + Project Password
               </AlertDescription>
             </Alert>
 
@@ -337,9 +341,14 @@ export default function NotificationSettings() {
               </p>
               <div className="space-y-2">
                 <div className="p-3 bg-white rounded border">
-                  <p className="text-xs text-gray-500">Required Secret:</p>
-                  <code className="text-sm font-mono text-blue-600">AISENSY_API_KEY</code>
-                  <p className="text-xs text-gray-600 mt-1">Your Aisensy API key from dashboard</p>
+                  <p className="text-xs text-gray-500">Required Secret 1:</p>
+                  <code className="text-sm font-mono text-blue-600">AISENSY_PROJECT_ID</code>
+                  <p className="text-xs text-gray-600 mt-1">Your Aisensy Project ID from dashboard</p>
+                </div>
+                <div className="p-3 bg-white rounded border">
+                  <p className="text-xs text-gray-500">Required Secret 2:</p>
+                  <code className="text-sm font-mono text-blue-600">AISENSY_PROJECT_PASSWORD</code>
+                  <p className="text-xs text-gray-600 mt-1">Your Aisensy Project Password from dashboard</p>
                 </div>
               </div>
             </div>
@@ -347,9 +356,19 @@ export default function NotificationSettings() {
             <Alert className="bg-green-50 border-green-500">
               <CheckCircle2 className="w-4 h-4 text-green-600" />
               <AlertDescription>
-                <strong>Simplified Setup:</strong> Only API key needed - no campaign ID or templates required!
+                <strong>Simple Setup:</strong> Just add your Project ID and Password - no templates needed!
               </AlertDescription>
             </Alert>
+
+            <div className="p-4 bg-orange-50 border-2 border-orange-200 rounded-lg">
+              <p className="text-sm font-semibold text-orange-900 mb-2">📝 Where to find your credentials:</p>
+              <ol className="text-sm text-orange-800 space-y-1 ml-4">
+                <li>1. Login to <a href="https://app.aisensy.com" target="_blank" className="underline">app.aisensy.com</a></li>
+                <li>2. Go to Settings → API Integration</li>
+                <li>3. Copy your Project ID and Project Password</li>
+                <li>4. Add them as secrets in Base44 Dashboard</li>
+              </ol>
+            </div>
           </CardContent>
         </Card>
       </div>

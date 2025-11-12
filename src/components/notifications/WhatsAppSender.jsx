@@ -31,31 +31,34 @@ export default function WhatsAppSender({ client, onClose, template = null }) {
       // Format phone with country code if not present
       const formattedPhone = phone.startsWith('91') ? phone : `91${phone}`;
 
-      // Use Aisensy's direct message API (no campaign ID needed)
-      const response = await fetch('https://backend.aisensy.com/direct/messages', {
+      // Use Aisensy API with Project ID and Password authentication
+      const response = await fetch('https://backend.aisensy.com/campaign/t1/api', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-API-Key': process.env.AISENSY_API_KEY || "YOUR_API_KEY"
         },
         body: JSON.stringify({
-          to: formattedPhone,
-          type: "text",
-          text: {
-            body: message
-          }
+          project: process.env.AISENSY_PROJECT_ID || "YOUR_PROJECT_ID",
+          key: process.env.AISENSY_PROJECT_PASSWORD || "YOUR_PROJECT_PASSWORD",
+          campaign_name: "text_message",
+          destination: formattedPhone,
+          userName: client.full_name,
+          source: "mealie-app",
+          message: message,
+          type: "Template",
+          template_name: "mealie_custom_text"
         })
       });
 
       const result = await response.json();
 
-      if (response.ok) {
+      if (response.ok || result.ret === true) {
         setSent(true);
         setTimeout(() => {
           onClose();
         }, 2000);
       } else {
-        setError(result.message || "Failed to send WhatsApp message");
+        setError(result.msg || result.message || "Failed to send WhatsApp message");
       }
     } catch (err) {
       console.error("WhatsApp send error:", err);
