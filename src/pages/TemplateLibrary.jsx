@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -20,7 +21,8 @@ import {
   Eye,
   Upload,
   Plus,
-  Loader2
+  Loader2,
+  Trash2
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -113,6 +115,19 @@ export default function TemplateLibrary() {
     }
   });
 
+  const deleteTemplateMutation = useMutation({
+    mutationFn: (templateId) => base44.entities.DownloadableTemplate.delete(templateId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['downloadableTemplates']);
+      setViewingTemplate(null);
+      alert("✅ Template deleted successfully!");
+    },
+    onError: (error) => {
+      console.error(error);
+      alert("❌ Failed to delete template. Please try again.");
+    }
+  });
+
   const handleUpload = async () => {
     if (!selectedFile) {
       alert("Please select a file first");
@@ -146,6 +161,12 @@ export default function TemplateLibrary() {
     }
   };
 
+  const handleDeleteTemplate = (template) => {
+    if (window.confirm(`Are you sure you want to delete "${template.name}"?\n\nThis action cannot be undone and will remove the template for all users.`)) {
+      deleteTemplateMutation.mutate(template.id);
+    }
+  };
+
   const filteredTemplates = templates.filter(template => {
     const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          template.description?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -169,6 +190,7 @@ export default function TemplateLibrary() {
 
   const userType = user?.user_type || 'client';
   const canUpload = ['super_admin', 'team_member', 'student_coach'].includes(userType);
+  const canDelete = userType === 'super_admin';
 
   return (
     <div className="min-h-screen p-4 md:p-8">
@@ -517,12 +539,25 @@ export default function TemplateLibrary() {
                     <Badge className="bg-blue-100 text-blue-700 uppercase">
                       {template.file_type}
                     </Badge>
-                    {template.is_premium && (
-                      <Badge className="bg-purple-500 text-white">
-                        <Star className="w-3 h-3 mr-1" />
-                        Premium
-                      </Badge>
-                    )}
+                    <div className="flex gap-2">
+                      {template.is_premium && (
+                        <Badge className="bg-purple-500 text-white">
+                          <Star className="w-3 h-3 mr-1" />
+                          Premium
+                        </Badge>
+                      )}
+                      {canDelete && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteTemplate(template)}
+                          className="text-red-600 hover:bg-red-50 h-6 w-6 p-0"
+                          title="Delete Template"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   <CardTitle className="text-xl line-clamp-2">{template.name}</CardTitle>
                   <p className="text-sm text-gray-600 line-clamp-2">{template.description}</p>
@@ -710,6 +745,27 @@ export default function TemplateLibrary() {
                     Download Template
                   </Button>
                 </div>
+
+                {canDelete && (
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleDeleteTemplate(viewingTemplate)}
+                    disabled={deleteTemplateMutation.isPending}
+                    className="w-full h-12"
+                  >
+                    {deleteTemplateMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete Template
+                      </>
+                    )}
+                  </Button>
+                )}
               </div>
             )}
           </DialogContent>
