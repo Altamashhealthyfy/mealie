@@ -75,7 +75,7 @@ export default function TemplateLibrary() {
 
   const { data: templates } = useQuery({
     queryKey: ['downloadableTemplates'],
-    queryFn: () => base44.entities.DownloadableTemplate.list('-download_count'),
+    queryFn: () => base44.entities.DownloadableTemplate.list('-created_date'),
     initialData: [],
   });
 
