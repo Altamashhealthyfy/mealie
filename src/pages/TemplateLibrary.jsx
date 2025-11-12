@@ -1,10 +1,11 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -16,9 +17,12 @@ import {
   Filter,
   CheckCircle,
   Sparkles,
-  Eye
+  Eye,
+  Upload,
+  Plus,
+  Loader2
 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export default function TemplateLibrary() {
   const queryClient = useQueryClient();
@@ -28,6 +32,21 @@ export default function TemplateLibrary() {
   const [foodPrefFilter, setFoodPrefFilter] = useState("all");
   const [regionFilter, setRegionFilter] = useState("all");
   const [viewingTemplate, setViewingTemplate] = useState(null);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadFormData, setUploadFormData] = useState({
+    name: "",
+    description: "",
+    category: "meal_plan",
+    subcategory: "weight_loss",
+    target_calories: "",
+    food_preference: "veg",
+    regional_preference: "all",
+    duration: "7",
+    tags: "",
+    is_premium: false
+  });
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -42,18 +61,90 @@ export default function TemplateLibrary() {
 
   const downloadMutation = useMutation({
     mutationFn: async (template) => {
-      // Update download count
       await base44.entities.DownloadableTemplate.update(template.id, {
         download_count: (template.download_count || 0) + 1
       });
-      
-      // Open file in new tab
       window.open(template.file_url, '_blank');
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['downloadableTemplates']);
     },
   });
+
+  const uploadMutation = useMutation({
+    mutationFn: async (data) => {
+      const uploadResult = await base44.integrations.Core.UploadFile({ file: selectedFile });
+      const fileSizeMB = (selectedFile.size / (1024 * 1024)).toFixed(1);
+      const fileSizeKB = (selectedFile.size / 1024).toFixed(1);
+      const fileSize = fileSizeMB >= 1 ? `${fileSizeMB} MB` : `${fileSizeKB} KB`;
+      const fileType = selectedFile.name.split('.').pop().toLowerCase();
+      
+      return await base44.entities.DownloadableTemplate.create({
+        ...data,
+        file_url: uploadResult.file_url,
+        file_type: fileType,
+        file_size: fileSize,
+        download_count: 0,
+        version: "1.0",
+        last_updated: new Date().toISOString().split('T')[0]
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['downloadableTemplates']);
+      setShowUploadDialog(false);
+      setSelectedFile(null);
+      setUploadFormData({
+        name: "",
+        description: "",
+        category: "meal_plan",
+        subcategory: "weight_loss",
+        target_calories: "",
+        food_preference: "veg",
+        regional_preference: "all",
+        duration: "7",
+        tags: "",
+        is_premium: false
+      });
+      alert("✅ Template uploaded successfully! It's now available for everyone to download.");
+    },
+    onError: (error) => {
+      console.error(error);
+      alert("Failed to upload template. Please try again.");
+    }
+  });
+
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      alert("Please select a file first");
+      return;
+    }
+    if (!uploadFormData.name) {
+      alert("Please enter template name");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const tagsArray = uploadFormData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+      
+      await uploadMutation.mutateAsync({
+        name: uploadFormData.name,
+        description: uploadFormData.description,
+        category: uploadFormData.category,
+        subcategory: uploadFormData.subcategory,
+        target_calories: uploadFormData.target_calories ? parseInt(uploadFormData.target_calories) : null,
+        food_preference: uploadFormData.food_preference,
+        regional_preference: uploadFormData.regional_preference,
+        duration: uploadFormData.duration ? parseInt(uploadFormData.duration) : null,
+        tags: tagsArray,
+        is_premium: uploadFormData.is_premium
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const filteredTemplates = templates.filter(template => {
     const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -76,6 +167,9 @@ export default function TemplateLibrary() {
     downloadMutation.mutate(template);
   };
 
+  const userType = user?.user_type || 'client';
+  const canUpload = ['super_admin', 'team_member', 'student_coach'].includes(userType);
+
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -89,6 +183,215 @@ export default function TemplateLibrary() {
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Download ready-made Word templates - Use unlimited times at NO COST!
           </p>
+          
+          {canUpload && (
+            <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
+              <DialogTrigger asChild>
+                <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-12 px-6">
+                  <Plus className="w-5 h-5 mr-2" />
+                  Contribute Your Template
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl">Upload Template to Library</DialogTitle>
+                </DialogHeader>
+
+                <div className="space-y-4">
+                  <Alert className="bg-blue-50 border-blue-500">
+                    <Sparkles className="w-5 h-5 text-blue-600" />
+                    <AlertDescription>
+                      Share your templates with the community! Your contribution helps everyone.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="p-6 border-2 border-dashed border-blue-300 rounded-xl bg-white">
+                    <div className="text-center">
+                      <Upload className="w-12 h-12 mx-auto text-blue-500 mb-3" />
+                      <p className="text-sm text-gray-700 mb-3">
+                        Select file (.docx, .pdf, .xlsx)
+                      </p>
+                      <input
+                        type="file"
+                        accept=".docx,.pdf,.xlsx,.doc"
+                        onChange={(e) => setSelectedFile(e.target.files[0])}
+                        className="w-full p-2 border rounded-lg text-sm"
+                      />
+                      {selectedFile && (
+                        <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                          <p className="text-sm font-semibold text-green-900">
+                            ✅ {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2 col-span-2">
+                      <Label className="text-sm">Template Name *</Label>
+                      <Input
+                        placeholder="e.g., Veg Weight Loss 1500 cal"
+                        value={uploadFormData.name}
+                        onChange={(e) => setUploadFormData({...uploadFormData, name: e.target.value})}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm">Category *</Label>
+                      <Select
+                        value={uploadFormData.category}
+                        onValueChange={(value) => setUploadFormData({...uploadFormData, category: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="meal_plan">Meal Plan</SelectItem>
+                          <SelectItem value="recipe">Recipe</SelectItem>
+                          <SelectItem value="business_strategy">Business</SelectItem>
+                          <SelectItem value="marketing_material">Marketing</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {uploadFormData.category === 'meal_plan' && (
+                      <>
+                        <div className="space-y-2">
+                          <Label className="text-sm">Subcategory</Label>
+                          <Select
+                            value={uploadFormData.subcategory}
+                            onValueChange={(value) => setUploadFormData({...uploadFormData, subcategory: value})}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="weight_loss">Weight Loss</SelectItem>
+                              <SelectItem value="weight_gain">Weight Gain</SelectItem>
+                              <SelectItem value="diabetes">Diabetes</SelectItem>
+                              <SelectItem value="pcos">PCOS</SelectItem>
+                              <SelectItem value="thyroid">Thyroid</SelectItem>
+                              <SelectItem value="general">General</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm">Target Calories</Label>
+                          <Input
+                            type="number"
+                            placeholder="1500"
+                            value={uploadFormData.target_calories}
+                            onChange={(e) => setUploadFormData({...uploadFormData, target_calories: e.target.value})}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm">Food Preference</Label>
+                          <Select
+                            value={uploadFormData.food_preference}
+                            onValueChange={(value) => setUploadFormData({...uploadFormData, food_preference: value})}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="veg">Vegetarian</SelectItem>
+                              <SelectItem value="non_veg">Non-Veg</SelectItem>
+                              <SelectItem value="jain">Jain</SelectItem>
+                              <SelectItem value="mixed">Mixed</SelectItem>
+                              <SelectItem value="all">All</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm">Regional Preference</Label>
+                          <Select
+                            value={uploadFormData.regional_preference}
+                            onValueChange={(value) => setUploadFormData({...uploadFormData, regional_preference: value})}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="north">North Indian</SelectItem>
+                              <SelectItem value="south">South Indian</SelectItem>
+                              <SelectItem value="west">West Indian</SelectItem>
+                              <SelectItem value="east">East Indian</SelectItem>
+                              <SelectItem value="all">All Regions</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm">Duration (days)</Label>
+                          <Input
+                            type="number"
+                            placeholder="7"
+                            value={uploadFormData.duration}
+                            onChange={(e) => setUploadFormData({...uploadFormData, duration: e.target.value})}
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    <div className="space-y-2 col-span-2">
+                      <Label className="text-sm">Description</Label>
+                      <Textarea
+                        placeholder="Brief description..."
+                        value={uploadFormData.description}
+                        onChange={(e) => setUploadFormData({...uploadFormData, description: e.target.value})}
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="space-y-2 col-span-2">
+                      <Label className="text-sm">Tags (comma-separated)</Label>
+                      <Input
+                        placeholder="e.g., weight loss, high protein, low carb"
+                        value={uploadFormData.tags}
+                        onChange={(e) => setUploadFormData({...uploadFormData, tags: e.target.value})}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowUploadDialog(false);
+                        setSelectedFile(null);
+                      }}
+                      className="flex-1"
+                      disabled={uploading}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleUpload}
+                      disabled={uploading || !selectedFile || !uploadFormData.name}
+                      className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 h-12"
+                    >
+                      {uploading ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-5 h-5 mr-2" />
+                          Upload Template
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
 
         {/* Big Benefits Card */}
@@ -124,7 +427,6 @@ export default function TemplateLibrary() {
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
           <CardContent className="p-6">
             <div className="space-y-4">
-              {/* Search */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
@@ -135,7 +437,6 @@ export default function TemplateLibrary() {
                 />
               </div>
 
-              {/* Filters */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                   <SelectTrigger>
@@ -288,7 +589,6 @@ export default function TemplateLibrary() {
             
             {viewingTemplate && (
               <div className="space-y-6">
-                {/* Template Details */}
                 <div className="p-4 bg-gray-50 rounded-lg space-y-3">
                   <div>
                     <p className="text-sm text-gray-600 mb-1">Description</p>
@@ -350,7 +650,6 @@ export default function TemplateLibrary() {
                   </div>
                 </div>
 
-                {/* Tags */}
                 {viewingTemplate.tags && viewingTemplate.tags.length > 0 && (
                   <div>
                     <p className="text-sm text-gray-600 mb-2">Tags</p>
@@ -364,7 +663,6 @@ export default function TemplateLibrary() {
                   </div>
                 )}
 
-                {/* File Info */}
                 <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
@@ -384,7 +682,6 @@ export default function TemplateLibrary() {
                   </div>
                 </div>
 
-                {/* Premium Badge */}
                 {viewingTemplate.is_premium && (
                   <Alert className="bg-purple-50 border-purple-500">
                     <Star className="w-5 h-5 text-purple-600" />
@@ -394,7 +691,6 @@ export default function TemplateLibrary() {
                   </Alert>
                 )}
 
-                {/* Action Buttons */}
                 <div className="grid grid-cols-2 gap-4">
                   <Button
                     variant="outline"
