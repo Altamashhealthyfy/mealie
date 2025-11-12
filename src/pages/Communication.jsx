@@ -181,7 +181,7 @@ export default function Communication() {
                 </div>
               </CardHeader>
 
-              <ScrollArea className="flex-1">
+              <ScrollArea className="flex-1" style={{ height: 'calc(100vh - 350px)' }}>
                 <div className="p-2">
                   {sortedClients.length === 0 ? (
                     <div className="text-center py-12">
@@ -274,63 +274,65 @@ export default function Communication() {
                     </div>
                   </CardHeader>
 
-                  {/* Messages */}
-                  <ScrollArea className="flex-1 p-6">
-                    <div className="space-y-4">
-                      {clientMessages.length === 0 ? (
-                        <div className="text-center py-12">
-                          <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                            No messages yet
-                          </h3>
-                          <p className="text-gray-600 mb-4">
-                            Start the conversation with {selectedClient.full_name}
-                          </p>
-                          <Alert className="max-w-md mx-auto bg-blue-50 border-blue-300">
-                            <AlertDescription className="text-sm text-blue-900">
-                              👇 Use the message box below to send your first message!
-                            </AlertDescription>
-                          </Alert>
-                        </div>
-                      ) : (
-                        clientMessages.map((message) => {
-                          const isFromDietitian = message.sender_type === 'dietitian';
+                  {/* Messages - With Visible Scrollbar */}
+                  <div className="flex-1 overflow-hidden">
+                    <ScrollArea className="h-full p-6" style={{ height: 'calc(100vh - 550px)' }}>
+                      <div className="space-y-4 pr-4">
+                        {clientMessages.length === 0 ? (
+                          <div className="text-center py-12">
+                            <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                              No messages yet
+                            </h3>
+                            <p className="text-gray-600 mb-4">
+                              Start the conversation with {selectedClient.full_name}
+                            </p>
+                            <Alert className="max-w-md mx-auto bg-blue-50 border-blue-300">
+                              <AlertDescription className="text-sm text-blue-900">
+                                👇 Use the message box below to send your first message!
+                              </AlertDescription>
+                            </Alert>
+                          </div>
+                        ) : (
+                          clientMessages.map((message) => {
+                            const isFromDietitian = message.sender_type === 'dietitian';
 
-                          return (
-                            <div
-                              key={message.id}
-                              className={`flex ${isFromDietitian ? 'justify-end' : 'justify-start'}`}
-                            >
+                            return (
                               <div
-                                className={`max-w-[70%] rounded-2xl p-4 ${
-                                  isFromDietitian
-                                    ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
-                                    : 'bg-gray-100 text-gray-900'
-                                }`}
+                                key={message.id}
+                                className={`flex ${isFromDietitian ? 'justify-end' : 'justify-start'}`}
                               >
-                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.message}</p>
-                                <div className={`flex items-center gap-2 mt-2 text-xs ${
-                                  isFromDietitian ? 'text-white/70' : 'text-gray-500'
-                                }`}>
-                                  <span>{format(new Date(message.created_date), 'h:mm a')}</span>
-                                  {isFromDietitian && (
-                                    message.read ? (
-                                      <CheckCheck className="w-3 h-3" />
-                                    ) : (
-                                      <Clock className="w-3 h-3" />
-                                    )
-                                  )}
+                                <div
+                                  className={`max-w-[70%] rounded-2xl p-4 ${
+                                    isFromDietitian
+                                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
+                                      : 'bg-gray-100 text-gray-900'
+                                  }`}
+                                >
+                                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.message}</p>
+                                  <div className={`flex items-center gap-2 mt-2 text-xs ${
+                                    isFromDietitian ? 'text-white/70' : 'text-gray-500'
+                                  }`}>
+                                    <span>{format(new Date(message.created_date), 'h:mm a')}</span>
+                                    {isFromDietitian && (
+                                      message.read ? (
+                                        <CheckCheck className="w-3 h-3" />
+                                      ) : (
+                                        <Clock className="w-3 h-3" />
+                                      )
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          );
-                        })
-                      )}
-                      <div ref={messagesEndRef} />
-                    </div>
-                  </ScrollArea>
+                            );
+                          })
+                        )}
+                        <div ref={messagesEndRef} />
+                      </div>
+                    </ScrollArea>
+                  </div>
 
-                  {/* ✅ SEND MESSAGE BOX - ALWAYS VISIBLE */}
+                  {/* Send Message Box */}
                   <div className="p-6 border-t-4 border-orange-500 bg-gradient-to-b from-white to-orange-50">
                     <Alert className="mb-4 bg-green-50 border-green-500">
                       <Send className="w-4 h-4 text-green-600" />

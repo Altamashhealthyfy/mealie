@@ -174,63 +174,65 @@ export default function ClientCommunication() {
               </div>
             </CardHeader>
 
-            {/* Messages */}
-            <ScrollArea className="flex-1 p-6 bg-gray-50">
-              <div className="space-y-4">
-                {messages.length === 0 ? (
-                  <div className="text-center py-12">
-                    <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      No messages yet
-                    </h3>
-                    <p className="text-gray-600 mb-4">
-                      Start a conversation with your dietitian
-                    </p>
-                    <Alert className="max-w-md mx-auto bg-blue-50 border-blue-300">
-                      <AlertDescription className="text-sm text-blue-900">
-                        👇 Use the message box below to send your first message!
-                      </AlertDescription>
-                    </Alert>
-                  </div>
-                ) : (
-                  messages.map((message) => {
-                    const isFromClient = message.sender_type === 'client';
+            {/* Messages - With Visible Scrollbar */}
+            <div className="flex-1 overflow-hidden bg-gray-50">
+              <ScrollArea className="h-full p-6" style={{ height: 'calc(100vh - 450px)' }}>
+                <div className="space-y-4 pr-4">
+                  {messages.length === 0 ? (
+                    <div className="text-center py-12">
+                      <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                        No messages yet
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Start a conversation with your dietitian
+                      </p>
+                      <Alert className="max-w-md mx-auto bg-blue-50 border-blue-300">
+                        <AlertDescription className="text-sm text-blue-900">
+                          👇 Use the message box below to send your first message!
+                        </AlertDescription>
+                      </Alert>
+                    </div>
+                  ) : (
+                    messages.map((message) => {
+                      const isFromClient = message.sender_type === 'client';
 
-                    return (
-                      <div
-                        key={message.id}
-                        className={`flex ${isFromClient ? 'justify-end' : 'justify-start'}`}
-                      >
+                      return (
                         <div
-                          className={`max-w-[70%] rounded-2xl p-4 shadow-md ${
-                            isFromClient
-                              ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
-                              : 'bg-white text-gray-900 border border-gray-200'
-                          }`}
+                          key={message.id}
+                          className={`flex ${isFromClient ? 'justify-end' : 'justify-start'}`}
                         >
-                          <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.message}</p>
-                          <div className={`flex items-center gap-2 mt-2 text-xs ${
-                            isFromClient ? 'text-white/70' : 'text-gray-500'
-                          }`}>
-                            <span>{format(new Date(message.created_date), 'h:mm a')}</span>
-                            {isFromClient && (
-                              message.read ? (
-                                <CheckCheck className="w-3 h-3" />
-                              ) : (
-                                <Clock className="w-3 h-3" />
-                              )
-                            )}
+                          <div
+                            className={`max-w-[70%] rounded-2xl p-4 shadow-md ${
+                              isFromClient
+                                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
+                                : 'bg-white text-gray-900 border border-gray-200'
+                            }`}
+                          >
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.message}</p>
+                            <div className={`flex items-center gap-2 mt-2 text-xs ${
+                              isFromClient ? 'text-white/70' : 'text-gray-500'
+                            }`}>
+                              <span>{format(new Date(message.created_date), 'h:mm a')}</span>
+                              {isFromClient && (
+                                message.read ? (
+                                  <CheckCheck className="w-3 h-3" />
+                                ) : (
+                                  <Clock className="w-3 h-3" />
+                                )
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-            </ScrollArea>
+                      );
+                    })
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+              </ScrollArea>
+            </div>
 
-            {/* ✅ SEND MESSAGE BOX - ALWAYS VISIBLE AND SUPER PROMINENT */}
+            {/* Send Message Box */}
             <div className="p-6 border-t-4 border-orange-500 bg-gradient-to-b from-white to-orange-50">
               <Alert className="mb-4 bg-green-50 border-green-500">
                 <Send className="w-4 h-4 text-green-600" />
