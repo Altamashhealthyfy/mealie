@@ -68,13 +68,6 @@ export default function ClientManagement() {
     status: "active",
     join_date: format(new Date(), 'yyyy-MM-dd'),
     notes: '',
-    bmr: null,
-    tdee: null,
-    target_calories: null,
-    target_protein: null,
-    target_carbs: null,
-    target_fats: null,
-    initial_weight: null,
   });
 
   const { data: user } = useQuery({
@@ -116,22 +109,49 @@ export default function ClientManagement() {
 
   const saveClientMutation = useMutation({
     mutationFn: async (data) => {
+      // Clean up the data - remove empty strings and convert to proper types
+      const cleanData = {
+        full_name: data.full_name,
+        email: data.email,
+        phone: data.phone || null,
+        age: data.age ? parseFloat(data.age) : null,
+        gender: data.gender,
+        height: data.height ? parseFloat(data.height) : null,
+        weight: data.weight ? parseFloat(data.weight) : null,
+        target_weight: data.target_weight ? parseFloat(data.target_weight) : null,
+        activity_level: data.activity_level,
+        goal: data.goal,
+        food_preference: data.food_preference,
+        regional_preference: data.regional_preference,
+        status: data.status,
+        join_date: data.join_date,
+        notes: data.notes || null,
+        bmr: data.bmr || null,
+        tdee: data.tdee || null,
+        target_calories: data.target_calories || null,
+        target_protein: data.target_protein || null,
+        target_carbs: data.target_carbs || null,
+        target_fats: data.target_fats || null,
+      };
+
       if (editingClient) {
-        return await base44.entities.Client.update(editingClient.id, data);
+        return await base44.entities.Client.update(editingClient.id, cleanData);
       } else {
-        const newClient = await base44.entities.Client.create(data);
+        cleanData.initial_weight = data.weight ? parseFloat(data.weight) : null;
+        const newClient = await base44.entities.Client.create(cleanData);
 
-        // Send welcome email
-        try {
-          const welcomeEmail = fillTemplate(EMAIL_TEMPLATES.WELCOME.body, {
-            client_name: data.full_name
-          });
+        // Send welcome email (optional - only if email exists)
+        if (cleanData.email) {
+          try {
+            const welcomeEmail = fillTemplate(EMAIL_TEMPLATES.WELCOME.body, {
+              client_name: cleanData.full_name
+            });
 
-          await base44.integrations.Core.SendEmail({
-            from_name: "Mealie - Health Coach Platform",
-            to: data.email,
-            subject: EMAIL_TEMPLATES.WELCOME.subject,
-            body: `
+            await base44.integrations.Core.SendEmail({
+              from_name: "Mealie - Health Coach Platform",
+              to: cleanData.email,
+              subject: EMAIL_TEMPLATES.WELCOME.subject,
+              body: `
 <!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"></head>
@@ -162,13 +182,13 @@ export default function ClientManagement() {
   </table>
 </body>
 </html>
-            `
-          });
-          console.log("Welcome email sent to:", data.email);
-        } catch (emailError) {
-          console.error("Failed to send welcome email:", emailError);
+              `
+            });
+            console.log("Welcome email sent to:", data.email);
+          } catch (emailError) {
+            console.error("Failed to send welcome email:", emailError);
+          }
         }
-
         return newClient;
       }
     },
@@ -176,11 +196,28 @@ export default function ClientManagement() {
       queryClient.invalidateQueries(['clients']);
       setShowAddDialog(false);
       setEditingClient(null);
-      alert(editingClient ? "✅ Client updated successfully!" : "✅ Client added successfully! Welcome email sent.");
+      setFormData({
+        full_name: "",
+        email: "",
+        phone: "",
+        age: "",
+        gender: "male",
+        height: "",
+        weight: "",
+        target_weight: "",
+        activity_level: "moderately_active",
+        goal: "weight_loss",
+        food_preference: "veg",
+        regional_preference: "north",
+        status: "active",
+        join_date: format(new Date(), 'yyyy-MM-dd'),
+        notes: '',
+      });
+      alert(editingClient ? "✅ Client updated successfully!" : "✅ Client added successfully!");
     },
     onError: (error) => {
       console.error("Error saving client:", error);
-      alert("Error saving client. Please check the console for details.");
+      alert(`Error saving client: ${error.message || 'Please try again'}`);
     }
   });
 
@@ -201,16 +238,20 @@ export default function ClientManagement() {
   const calculateMacros = () => {
     const { weight, height, age, gender, activity_level, goal } = formData;
 
-    if (!weight || !height || !age || !gender || !activity_level || !goal) {
-      alert("Please fill in required fields first: weight, height, age, gender, activity level, and goal.");
+    if (!weight || !height || !age) {
+      alert("Please fill in weight, height, and age first.");
       return;
     }
 
+    const w = parseFloat(weight);
+    const h = parseFloat(height);
+    const a = parseFloat(age);
+
     let bmr;
     if (gender === 'male') {
-      bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+      bmr = (10 * w) + (6.25 * h) - (5 * a) + 5;
     } else {
-      bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+      bmr = (10 * w) + (6.25 * h) - (5 * a) - 161;
     }
 
     const activityMultipliers = {
@@ -250,14 +291,45 @@ export default function ClientManagement() {
       target_protein: Math.round(protein),
       target_carbs: Math.round(carbs),
       target_fats: Math.round(fats),
-      initial_weight: weight,
     });
   };
 
   const handleEdit = (client) => {
     setEditingClient(client);
-    setFormData(client); // Pre-fill form with client data
+    setFormData({
+      full_name: client.full_name || "",
+      email: client.email || "",
+      phone: client.phone || "",
+      age: client.age !== null && client.age !== undefined ? String(client.age) : "",
+      gender: client.gender || "male",
+      height: client.height !== null && client.height !== undefined ? String(client.height) : "",
+      weight: client.weight !== null && client.weight !== undefined ? String(client.weight) : "",
+      target_weight: client.target_weight !== null && client.target_weight !== undefined ? String(client.target_weight) : "",
+      activity_level: client.activity_level || "moderately_active",
+      goal: client.goal || "weight_loss",
+      food_preference: client.food_preference || "veg",
+      regional_preference: client.regional_preference || "north",
+      status: client.status || "active",
+      join_date: client.join_date ? format(new Date(client.join_date), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
+      notes: client.notes || '',
+      bmr: client.bmr || null,
+      tdee: client.tdee || null,
+      target_calories: client.target_calories || null,
+      target_protein: client.target_protein || null,
+      target_carbs: client.target_carbs || null,
+      target_fats: client.target_fats || null,
+      initial_weight: client.initial_weight || null,
+    });
     setShowAddDialog(true);
+  };
+
+  const handleSaveClient = () => {
+    if (!formData.full_name || !formData.email) {
+      alert("Please enter client name and email");
+      return;
+    }
+
+    saveClientMutation.mutate(formData);
   };
 
   const handleOpenWhatsApp = (client) => {
@@ -324,13 +396,6 @@ export default function ClientManagement() {
                     status: "active",
                     join_date: format(new Date(), 'yyyy-MM-dd'),
                     notes: '',
-                    bmr: null,
-                    tdee: null,
-                    target_calories: null,
-                    target_protein: null,
-                    target_carbs: null,
-                    target_fats: null,
-                    initial_weight: null,
                   });
                   setShowAddDialog(true);
                 }}
@@ -361,7 +426,7 @@ export default function ClientManagement() {
                     <div className="space-y-2">
                       <Label>Full Name *</Label>
                       <Input
-                        value={formData.full_name || ''}
+                        value={formData.full_name}
                         onChange={(e) => setFormData({...formData, full_name: e.target.value})}
                         required
                       />
@@ -370,7 +435,7 @@ export default function ClientManagement() {
                       <Label>Email *</Label>
                       <Input
                         type="email"
-                        value={formData.email || ''}
+                        value={formData.email}
                         onChange={(e) => setFormData({...formData, email: e.target.value})}
                         required
                       />
@@ -378,7 +443,7 @@ export default function ClientManagement() {
                     <div className="space-y-2">
                       <Label>Phone</Label>
                       <Input
-                        value={formData.phone || ''}
+                        value={formData.phone}
                         onChange={(e) => setFormData({...formData, phone: e.target.value})}
                       />
                     </div>
@@ -386,14 +451,14 @@ export default function ClientManagement() {
                       <Label>Join Date</Label>
                       <Input
                         type="date"
-                        value={formData.join_date || ''}
+                        value={formData.join_date}
                         onChange={(e) => setFormData({...formData, join_date: e.target.value})}
                       />
                     </div>
                     <div className="space-y-2">
                       <Label>Status</Label>
                       <Select
-                        value={formData.status || 'active'}
+                        value={formData.status}
                         onValueChange={(value) => setFormData({...formData, status: value})}
                       >
                         <SelectTrigger>
@@ -415,14 +480,14 @@ export default function ClientManagement() {
                       <Label>Age</Label>
                       <Input
                         type="number"
-                        value={formData.age || ''}
-                        onChange={(e) => setFormData({...formData, age: parseFloat(e.target.value)})}
+                        value={formData.age}
+                        onChange={(e) => setFormData({...formData, age: e.target.value})}
                       />
                     </div>
                     <div className="space-y-2">
                       <Label>Gender</Label>
                       <Select
-                        value={formData.gender || ''}
+                        value={formData.gender}
                         onValueChange={(value) => setFormData({...formData, gender: value})}
                       >
                         <SelectTrigger>
@@ -439,30 +504,30 @@ export default function ClientManagement() {
                       <Label>Height (cm)</Label>
                       <Input
                         type="number"
-                        value={formData.height || ''}
-                        onChange={(e) => setFormData({...formData, height: parseFloat(e.target.value)})}
+                        value={formData.height}
+                        onChange={(e) => setFormData({...formData, height: e.target.value})}
                       />
                     </div>
                     <div className="space-y-2">
                       <Label>Current Weight (kg)</Label>
                       <Input
                         type="number"
-                        value={formData.weight || ''}
-                        onChange={(e) => setFormData({...formData, weight: parseFloat(e.target.value)})}
+                        value={formData.weight}
+                        onChange={(e) => setFormData({...formData, weight: e.target.value})}
                       />
                     </div>
                     <div className="space-y-2">
                       <Label>Target Weight (kg)</Label>
                       <Input
                         type="number"
-                        value={formData.target_weight || ''}
-                        onChange={(e) => setFormData({...formData, target_weight: parseFloat(e.target.value)})}
+                        value={formData.target_weight}
+                        onChange={(e) => setFormData({...formData, target_weight: e.target.value})}
                       />
                     </div>
                     <div className="space-y-2">
                       <Label>Activity Level</Label>
                       <Select
-                        value={formData.activity_level || ''}
+                        value={formData.activity_level}
                         onValueChange={(value) => setFormData({...formData, activity_level: value})}
                       >
                         <SelectTrigger>
@@ -480,7 +545,7 @@ export default function ClientManagement() {
                     <div className="space-y-2 col-span-2">
                       <Label>Goal</Label>
                       <Select
-                        value={formData.goal || ''}
+                        value={formData.goal}
                         onValueChange={(value) => setFormData({...formData, goal: value})}
                       >
                         <SelectTrigger>
@@ -533,7 +598,7 @@ export default function ClientManagement() {
                     <div className="space-y-2">
                       <Label>Food Preference</Label>
                       <Select
-                        value={formData.food_preference || ''}
+                        value={formData.food_preference}
                         onValueChange={(value) => setFormData({...formData, food_preference: value})}
                       >
                         <SelectTrigger>
@@ -551,7 +616,7 @@ export default function ClientManagement() {
                     <div className="space-y-2">
                       <Label>Regional Preference</Label>
                       <Select
-                        value={formData.regional_preference || ''}
+                        value={formData.regional_preference}
                         onValueChange={(value) => setFormData({...formData, regional_preference: value})}
                       >
                         <SelectTrigger>
@@ -571,7 +636,7 @@ export default function ClientManagement() {
                   <div className="space-y-2">
                     <Label>Notes</Label>
                     <Textarea
-                      value={formData.notes || ''}
+                      value={formData.notes}
                       onChange={(e) => setFormData({...formData, notes: e.target.value})}
                       rows={5}
                       placeholder="Any important notes about the client..."
@@ -581,8 +646,8 @@ export default function ClientManagement() {
               </Tabs>
 
               <Button
-                onClick={() => saveClientMutation.mutate(formData)}
-                disabled={saveClientMutation.isPending}
+                onClick={handleSaveClient}
+                disabled={saveClientMutation.isPending || !formData.full_name || !formData.email}
                 className="w-full mt-4 bg-gradient-to-r from-orange-500 to-red-500"
               >
                 {saveClientMutation.isPending ? 'Saving...' : editingClient ? 'Update Client' : 'Add Client'}
