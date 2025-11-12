@@ -174,7 +174,7 @@ export default function ClientManagement() {
       if (editingClient) {
         alert("✅ Client updated successfully!");
       } else {
-        alert("✅ Client added successfully!\n\n📧 To send emails: Click the blue Mail button on the client card and use Gmail compose.");
+        alert("✅ Client added successfully!\n\n📧 To send welcome email:\n1. Click the blue Mail button\n2. Gmail will open with pre-filled message\n3. Click Send in Gmail\n\nWorks for ANY email address!");
       }
     },
     onError: (error) => {
@@ -377,10 +377,12 @@ export default function ClientManagement() {
               </DialogHeader>
 
               {!editingClient && (
-                <Alert className="bg-blue-50 border-blue-300">
-                  <Mail className="w-4 h-4 text-blue-600" />
-                  <AlertDescription className="ml-2 text-blue-900">
-                    <strong>📧 About Emails:</strong> After adding the client, use the blue Mail button to send welcome emails via Gmail (works for all email addresses).
+                <Alert className="bg-green-50 border-green-500 border-2">
+                  <Mail className="w-5 h-5 text-green-600" />
+                  <AlertTitle className="text-green-900 font-bold">📧 How to Email Clients</AlertTitle>
+                  <AlertDescription className="text-green-800">
+                    After adding the client, click the <strong>blue Mail button</strong> to send emails via Gmail.
+                    Works for <strong>ANY email address</strong> - no restrictions!
                   </AlertDescription>
                 </Alert>
               )}
