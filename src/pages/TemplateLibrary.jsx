@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -22,7 +23,9 @@ import {
   Plus,
   Loader2,
   Trash2,
-  Edit
+  Edit,
+  Users,
+  TrendingUp
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -33,6 +36,7 @@ export default function TemplateLibrary() {
   const [calorieFilter, setCalorieFilter] = useState("all");
   const [foodPrefFilter, setFoodPrefFilter] = useState("all");
   const [regionFilter, setRegionFilter] = useState("all");
+  const [uploaderFilter, setUploaderFilter] = useState("all");
   const [viewingTemplate, setViewingTemplate] = useState(null);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
@@ -74,6 +78,24 @@ export default function TemplateLibrary() {
     queryFn: () => base44.entities.DownloadableTemplate.list('-download_count'),
     initialData: [],
   });
+
+  // Calculate uploader statistics
+  const uploaderStats = useMemo(() => {
+    const stats = {};
+    templates.forEach(template => {
+      const uploader = template.created_by || 'Unknown';
+      if (!stats[uploader]) {
+        stats[uploader] = {
+          email: uploader,
+          count: 0,
+          totalDownloads: 0
+        };
+      }
+      stats[uploader].count++;
+      stats[uploader].totalDownloads += (template.download_count || 0);
+    });
+    return Object.values(stats).sort((a, b) => b.count - a.count);
+  }, [templates]);
 
   const downloadMutation = useMutation({
     mutationFn: async (template) => {
@@ -255,8 +277,9 @@ export default function TemplateLibrary() {
     const matchesRegion = regionFilter === "all" || 
                          template.regional_preference === regionFilter || 
                          template.regional_preference === "all";
+    const matchesUploader = uploaderFilter === "all" || template.created_by === uploaderFilter;
     
-    return matchesSearch && matchesCategory && matchesCalories && matchesFoodPref && matchesRegion;
+    return matchesSearch && matchesCategory && matchesCalories && matchesFoodPref && matchesRegion && matchesUploader;
   });
 
   const handleDownload = (template) => {
@@ -523,6 +546,46 @@ export default function TemplateLibrary() {
           </CardContent>
         </Card>
 
+        {/* Uploader Statistics Card */}
+        <Card className="border-none shadow-xl bg-gradient-to-br from-purple-50 to-indigo-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <TrendingUp className="w-6 h-6 text-purple-600" />
+              Top Contributors
+            </CardTitle>
+            <CardDescription>Community members who uploaded the most templates</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {uploaderStats.slice(0, 6).map((stat, index) => (
+                <Card key={stat.email} className="border-2 hover:border-purple-300 transition-all">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        index === 0 ? 'bg-yellow-500' :
+                        index === 1 ? 'bg-gray-400' :
+                        index === 2 ? 'bg-orange-600' :
+                        'bg-purple-500'
+                      }`}>
+                        <span className="text-white font-bold">
+                          {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold truncate">{stat.email}</p>
+                        <div className="flex gap-3 text-xs text-gray-600 mt-1">
+                          <span>📤 {stat.count} templates</span>
+                          <span>📥 {stat.totalDownloads} downloads</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Search & Filters */}
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
           <CardContent className="p-6">
@@ -537,7 +600,7 @@ export default function TemplateLibrary() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                   <SelectTrigger>
                     <SelectValue placeholder="Category" />
@@ -593,7 +656,69 @@ export default function TemplateLibrary() {
                     <SelectItem value="east">East Indian</SelectItem>
                   </SelectContent>
                 </Select>
+
+                <Select value={uploaderFilter} onValueChange={setUploaderFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Uploader" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4" />
+                        All Uploaders
+                      </div>
+                    </SelectItem>
+                    {uploaderStats.map((stat) => (
+                      <SelectItem key={stat.email} value={stat.email}>
+                        <div className="flex items-center justify-between gap-2 w-full">
+                          <span className="truncate">{stat.email}</span>
+                          <Badge className="bg-purple-100 text-purple-700 text-xs">
+                            {stat.count}
+                          </Badge>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+
+              {/* Active Filters Display */}
+              {uploaderFilter !== "all" && (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm text-gray-600">Active filter:</span>
+                  <Badge className="bg-purple-100 text-purple-700">
+                    <Users className="w-3 h-3 mr-1" />
+                    {uploaderFilter}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="ml-1 h-4 w-4 p-0"
+                      onClick={() => setUploaderFilter("all")}
+                    >
+                      ×
+                    </Button>
+                  </Badge>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Results Summary */}
+        <Card className="border-none shadow-lg bg-gradient-to-r from-blue-50 to-cyan-50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Filter className="w-5 h-5 text-blue-600" />
+                <span className="text-lg font-semibold text-gray-900">
+                  Showing {filteredTemplates.length} of {templates.length} templates
+                </span>
+              </div>
+              {uploaderFilter !== "all" && (
+                <Badge className="bg-blue-600 text-white text-sm">
+                  Filtered by: {uploaderStats.find(s => s.email === uploaderFilter)?.email}
+                </Badge>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -676,6 +801,11 @@ export default function TemplateLibrary() {
                   <div className="text-xs text-gray-500 space-y-1">
                     <p>📥 {template.download_count || 0} downloads</p>
                     <p>📦 {template.file_size}</p>
+                    {template.created_by && (
+                      <p className="truncate">
+                        👤 <span className="font-semibold">{template.created_by}</span>
+                      </p>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
