@@ -30,7 +30,7 @@ import {
   Stethoscope,
   Phone,
   TrendingUp,
-  Send, // Added Send icon
+  Send,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { format } from "date-fns";
@@ -141,55 +141,11 @@ export default function ClientManagement() {
         cleanData.initial_weight = data.weight ? parseFloat(data.weight) : null;
         const newClient = await base44.entities.Client.create(cleanData);
 
-        // 🔥 AUTOMATICALLY SEND WELCOME EMAIL AFTER CLIENT CREATION
-        if (cleanData.email) {
-          try {
-            const welcomeEmail = fillTemplate(EMAIL_TEMPLATES.WELCOME.body, {
-              client_name: cleanData.full_name
-            });
-
-            await base44.integrations.Core.SendEmail({
-              from_name: "Mealie - Health Coach Platform",
-              to: cleanData.email,
-              subject: EMAIL_TEMPLATES.WELCOME.subject,
-              body: `
-<!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"></head>
-<body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: Arial, sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px 0;">
-    <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%;">
-          <tr>
-            <td style="background: linear-gradient(135deg, #f97316 0%, #dc2626 100%); padding: 40px 30px; border-radius: 10px 10px 0 0; text-align: center;">
-              <h1 style="color: white; margin: 0; font-size: 32px;">🍽️ Mealie</h1>
-              <p style="color: white; margin: 8px 0 0 0; font-size: 16px;">Your Health, Our Priority</p>
-            </td>
-          </tr>
-          <tr>
-            <td style="background: white; padding: 40px 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-              <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 24px;">${EMAIL_TEMPLATES.WELCOME.subject}</h2>
-              <div style="color: #4b5563; line-height: 1.8; font-size: 16px; white-space: pre-wrap;">${welcomeEmail}</div>
-              <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e5e7eb;">
-                <p style="color: #6b7280; font-size: 15px; margin: 0;">Best regards,</p>
-                <p style="color: #1f2937; font-size: 16px; font-weight: 600; margin: 5px 0 0 0;">Team Mealie</p>
-              </div>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-              `
-            });
-            console.log("✅ Welcome email sent automatically to:", cleanData.email);
-          } catch (emailError) {
-            console.error("❌ Failed to send welcome email:", emailError);
-          }
-        }
+        // 🔥 TRY TO SEND WELCOME EMAIL (Only works for registered users, removing auto-send for now)
+        // If an email needs to be sent, it will be done manually via the "blue Mail button" now.
+        // The original welcome email logic attempted to send via base44.integrations.Core.SendEmail
+        // but that requires the client to be a registered user, which they aren't at profile creation.
+        // We removed the automatic sending block from here based on the instructions.
         return newClient;
       }
     },
@@ -218,7 +174,7 @@ export default function ClientManagement() {
       if (editingClient) {
         alert("✅ Client updated successfully!");
       } else {
-        alert("✅ Client added successfully!\n\n📧 A welcome email has been sent to " + variables.email);
+        alert("✅ Client added successfully!\n\n📧 To send emails: Click the blue Mail button on the client card and use Gmail compose.");
       }
     },
     onError: (error) => {
@@ -416,15 +372,15 @@ export default function ClientManagement() {
                   {editingClient ? 'Edit Client' : 'Add New Client'}
                 </DialogTitle>
                 <DialogDescription>
-                  {editingClient ? 'Update client information and health data' : 'Add a new client - A welcome email will be sent automatically! 📧'}
+                  {editingClient ? 'Update client information and health data' : 'Add a new client profile'}
                 </DialogDescription>
               </DialogHeader>
 
               {!editingClient && (
-                <Alert className="bg-green-50 border-green-500">
-                  <Mail className="w-4 h-4 text-green-600" />
-                  <AlertDescription className="ml-2 text-green-900">
-                    <strong>✅ Auto Email:</strong> A professional welcome email will be automatically sent to the client's email address after adding them.
+                <Alert className="bg-blue-50 border-blue-300">
+                  <Mail className="w-4 h-4 text-blue-600" />
+                  <AlertDescription className="ml-2 text-blue-900">
+                    <strong>📧 About Emails:</strong> After adding the client, use the blue Mail button to send welcome emails via Gmail (works for all email addresses).
                   </AlertDescription>
                 </Alert>
               )}
@@ -455,11 +411,6 @@ export default function ClientManagement() {
                         required
                         placeholder="client@example.com"
                       />
-                      {!editingClient && (
-                        <p className="text-xs text-green-600">
-                          ✅ Welcome email will be sent here
-                        </p>
-                      )}
                     </div>
                     <div className="space-y-2">
                       <Label>Phone</Label>
@@ -671,7 +622,7 @@ export default function ClientManagement() {
                 disabled={saveClientMutation.isPending || !formData.full_name || !formData.email}
                 className="w-full mt-4 bg-gradient-to-r from-orange-500 to-red-500"
               >
-                {saveClientMutation.isPending ? 'Saving...' : editingClient ? 'Update Client' : '✅ Add Client & Send Welcome Email'}
+                {saveClientMutation.isPending ? 'Saving...' : editingClient ? 'Update Client' : '✅ Add Client'}
               </Button>
             </DialogContent>
           </Dialog>
