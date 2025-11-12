@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { Link, useNavigate } => "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import WhatsAppSender from "@/components/notifications/WhatsAppSender";
 import EmailSender from "@/components/notifications/EmailSender";
