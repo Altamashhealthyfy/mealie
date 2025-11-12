@@ -13,7 +13,9 @@ import {
   Search,
   CheckCheck,
   Clock,
-  Loader2
+  Loader2,
+  ChevronDown,
+  ArrowDown
 } from "lucide-react";
 import { format } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -23,11 +25,19 @@ export default function Communication() {
   const [selectedClient, setSelectedClient] = useState(null);
   const [messageText, setMessageText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const textareaRef = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (behavior = "smooth") => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
+  };
+
+  const handleScroll = (e) => {
+    const element = e.target;
+    const isNearBottom = element.scrollHeight - element.scrollTop - element.clientHeight < 100;
+    setShowScrollButton(!isNearBottom);
   };
 
   const { data: user } = useQuery({
@@ -67,7 +77,7 @@ export default function Communication() {
     onSuccess: () => {
       queryClient.invalidateQueries(['allMessages']);
       setMessageText("");
-      setTimeout(scrollToBottom, 100);
+      setTimeout(() => scrollToBottom("smooth"), 100);
       setTimeout(() => textareaRef.current?.focus(), 150);
       alert("✅ Message sent successfully!");
     },
@@ -128,8 +138,9 @@ export default function Communication() {
   }, [selectedClient?.id, clientMessages.length]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [clientMessages.length]);
+    scrollToBottom("auto");
+    setShowScrollButton(false);
+  }, [clientMessages.length, selectedClient?.id]);
 
   const getLastMessage = (clientId) => {
     const messages = allMessages.filter(m => m.client_id === clientId);
@@ -169,7 +180,7 @@ export default function Communication() {
           <div className="grid grid-cols-12 h-full">
             {/* Client List Sidebar */}
             <div className="col-span-12 md:col-span-4 border-r border-gray-200 flex flex-col">
-              <CardHeader className="border-b border-gray-200">
+              <CardHeader className="border-b border-gray-200 flex-shrink-0">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <Input
@@ -181,78 +192,80 @@ export default function Communication() {
                 </div>
               </CardHeader>
 
-              <ScrollArea className="flex-1" style={{ height: 'calc(100vh - 350px)' }}>
-                <div className="p-2">
-                  {sortedClients.length === 0 ? (
-                    <div className="text-center py-12">
-                      <MessageSquare className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                      <p className="text-gray-600">No clients found</p>
-                    </div>
-                  ) : (
-                    sortedClients.map((client) => {
-                      const lastMessage = getLastMessage(client.id);
-                      const unreadCount = getUnreadCount(client.id);
-                      const isSelected = selectedClient?.id === client.id;
+              <div className="flex-1 overflow-hidden relative">
+                <ScrollArea className="h-full" style={{ height: 'calc(100vh - 330px)' }}>
+                  <div className="p-2">
+                    {sortedClients.length === 0 ? (
+                      <div className="text-center py-12">
+                        <MessageSquare className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                        <p className="text-gray-600">No clients found</p>
+                      </div>
+                    ) : (
+                      sortedClients.map((client) => {
+                        const lastMessage = getLastMessage(client.id);
+                        const unreadCount = getUnreadCount(client.id);
+                        const isSelected = selectedClient?.id === client.id;
 
-                      return (
-                        <div
-                          key={client.id}
-                          onClick={() => {
-                            console.log("Selected client:", client);
-                            setSelectedClient(client);
-                          }}
-                          className={`p-4 mb-2 rounded-xl cursor-pointer transition-all ${
-                            isSelected
-                              ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
-                              : 'bg-gray-50 hover:bg-gray-100'
-                          }`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        return (
+                          <div
+                            key={client.id}
+                            onClick={() => {
+                              console.log("Selected client:", client);
+                              setSelectedClient(client);
+                            }}
+                            className={`p-4 mb-2 rounded-xl cursor-pointer transition-all ${
                               isSelected
-                                ? 'bg-white/20'
-                                : 'bg-gradient-to-br from-orange-500 to-red-500'
-                            }`}>
-                              <span className={`font-medium ${isSelected ? 'text-white' : 'text-white'}`}>
-                                {client.full_name.charAt(0)}
-                              </span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between mb-1">
-                                <h3 className={`font-semibold truncate ${
-                                  isSelected ? 'text-white' : 'text-gray-900'
-                                }`}>
-                                  {client.full_name}
-                                </h3>
-                                {unreadCount > 0 && (
-                                  <Badge className="bg-red-500 text-white ml-2">
-                                    {unreadCount}
-                                  </Badge>
+                                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
+                                : 'bg-gray-50 hover:bg-gray-100'
+                            }`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                isSelected
+                                  ? 'bg-white/20'
+                                  : 'bg-gradient-to-br from-orange-500 to-red-500'
+                              }`}>
+                                <span className={`font-medium ${isSelected ? 'text-white' : 'text-white'}`}>
+                                  {client.full_name.charAt(0)}
+                                </span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-1">
+                                  <h3 className={`font-semibold truncate ${
+                                    isSelected ? 'text-white' : 'text-gray-900'
+                                  }`}>
+                                    {client.full_name}
+                                  </h3>
+                                  {unreadCount > 0 && (
+                                    <Badge className="bg-red-500 text-white ml-2">
+                                      {unreadCount}
+                                    </Badge>
+                                  )}
+                                </div>
+                                {lastMessage && (
+                                  <p className={`text-sm truncate ${
+                                    isSelected ? 'text-white/80' : 'text-gray-600'
+                                  }`}>
+                                    {lastMessage.sender_type === 'dietitian' ? 'You: ' : ''}
+                                    {lastMessage.message}
+                                  </p>
+                                )}
+                                {lastMessage && (
+                                  <p className={`text-xs mt-1 ${
+                                    isSelected ? 'text-white/60' : 'text-gray-500'
+                                  }`}>
+                                    {format(new Date(lastMessage.created_date), 'MMM d, h:mm a')}
+                                  </p>
                                 )}
                               </div>
-                              {lastMessage && (
-                                <p className={`text-sm truncate ${
-                                  isSelected ? 'text-white/80' : 'text-gray-600'
-                                }`}>
-                                  {lastMessage.sender_type === 'dietitian' ? 'You: ' : ''}
-                                  {lastMessage.message}
-                                </p>
-                              )}
-                              {lastMessage && (
-                                <p className={`text-xs mt-1 ${
-                                  isSelected ? 'text-white/60' : 'text-gray-500'
-                                }`}>
-                                  {format(new Date(lastMessage.created_date), 'MMM d, h:mm a')}
-                                </p>
-                              )}
                             </div>
                           </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              </ScrollArea>
+                        );
+                      })
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
             </div>
 
             {/* Chat Area */}
@@ -260,7 +273,7 @@ export default function Communication() {
               {selectedClient ? (
                 <>
                   {/* Chat Header */}
-                  <CardHeader className="border-b border-gray-200">
+                  <CardHeader className="border-b border-gray-200 flex-shrink-0">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
                         <span className="text-white font-medium">
@@ -274,10 +287,14 @@ export default function Communication() {
                     </div>
                   </CardHeader>
 
-                  {/* Messages - With Visible Scrollbar */}
-                  <div className="flex-1 overflow-hidden">
-                    <ScrollArea className="h-full p-6" style={{ height: 'calc(100vh - 550px)' }}>
-                      <div className="space-y-4 pr-4">
+                  {/* Messages - With Full Scroll Control */}
+                  <div className="flex-1 overflow-hidden relative">
+                    <ScrollArea 
+                      className="h-full" 
+                      style={{ height: 'calc(100vh - 530px)' }}
+                      onScrollCapture={handleScroll}
+                    >
+                      <div className="p-6 space-y-4">
                         {clientMessages.length === 0 ? (
                           <div className="text-center py-12">
                             <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
@@ -303,7 +320,7 @@ export default function Communication() {
                                 className={`flex ${isFromDietitian ? 'justify-end' : 'justify-start'}`}
                               >
                                 <div
-                                  className={`max-w-[70%] rounded-2xl p-4 ${
+                                  className={`max-w-[70%] rounded-2xl p-4 shadow-md ${
                                     isFromDietitian
                                       ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
                                       : 'bg-gray-100 text-gray-900'
@@ -330,10 +347,21 @@ export default function Communication() {
                         <div ref={messagesEndRef} />
                       </div>
                     </ScrollArea>
+
+                    {/* Scroll to Bottom Button */}
+                    {showScrollButton && (
+                      <Button
+                        onClick={() => scrollToBottom("smooth")}
+                        className="absolute bottom-4 right-4 rounded-full w-12 h-12 bg-orange-500 hover:bg-orange-600 shadow-xl z-10 flex items-center justify-center"
+                        size="icon"
+                      >
+                        <ArrowDown className="w-6 h-6 text-white animate-bounce" />
+                      </Button>
+                    )}
                   </div>
 
                   {/* Send Message Box */}
-                  <div className="p-6 border-t-4 border-orange-500 bg-gradient-to-b from-white to-orange-50">
+                  <div className="p-6 border-t-4 border-orange-500 bg-gradient-to-b from-white to-orange-50 flex-shrink-0">
                     <Alert className="mb-4 bg-green-50 border-green-500">
                       <Send className="w-4 h-4 text-green-600" />
                       <AlertDescription className="ml-2 text-green-900">

@@ -10,7 +10,8 @@ import {
   Send,
   CheckCheck,
   Clock,
-  Loader2
+  Loader2,
+  ArrowDown
 } from "lucide-react";
 import { format } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -18,11 +19,18 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 export default function ClientCommunication() {
   const queryClient = useQueryClient();
   const [messageText, setMessageText] = useState("");
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = (behavior = "smooth") => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
+  };
+
+  const handleScroll = (e) => {
+    const element = e.target;
+    const isNearBottom = element.scrollHeight - element.scrollTop - element.clientHeight < 100;
+    setShowScrollButton(!isNearBottom);
   };
 
   const { data: user } = useQuery({
@@ -75,7 +83,7 @@ export default function ClientCommunication() {
     onSuccess: () => {
       queryClient.invalidateQueries(['myMessages']);
       setMessageText("");
-      setTimeout(scrollToBottom, 100);
+      setTimeout(() => scrollToBottom("smooth"), 100);
       setTimeout(() => textareaRef.current?.focus(), 150);
       alert("✅ Message sent to your dietitian!");
     },
@@ -102,7 +110,8 @@ export default function ClientCommunication() {
   }, [messages.length]);
 
   useEffect(() => {
-    scrollToBottom();
+    scrollToBottom("auto");
+    setShowScrollButton(false);
   }, [messages.length]);
 
   const handleSendMessage = async () => {
@@ -162,7 +171,7 @@ export default function ClientCommunication() {
         <Card className="border-none shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 200px)' }}>
           <div className="flex flex-col h-full">
             {/* Chat Header */}
-            <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50">
+            <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50 flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
                   <MessageSquare className="w-6 h-6 text-white" />
@@ -174,10 +183,14 @@ export default function ClientCommunication() {
               </div>
             </CardHeader>
 
-            {/* Messages - With Visible Scrollbar */}
-            <div className="flex-1 overflow-hidden bg-gray-50">
-              <ScrollArea className="h-full p-6" style={{ height: 'calc(100vh - 450px)' }}>
-                <div className="space-y-4 pr-4">
+            {/* Messages - With Full Scroll Control */}
+            <div className="flex-1 overflow-hidden bg-gray-50 relative">
+              <ScrollArea 
+                className="h-full" 
+                style={{ height: 'calc(100vh - 430px)' }}
+                onScrollCapture={handleScroll}
+              >
+                <div className="p-6 space-y-4">
                   {messages.length === 0 ? (
                     <div className="text-center py-12">
                       <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
@@ -230,10 +243,21 @@ export default function ClientCommunication() {
                   <div ref={messagesEndRef} />
                 </div>
               </ScrollArea>
+
+              {/* Scroll to Bottom Button */}
+              {showScrollButton && (
+                <Button
+                  onClick={() => scrollToBottom("smooth")}
+                  className="absolute bottom-4 right-4 rounded-full w-12 h-12 bg-orange-500 hover:bg-orange-600 shadow-xl z-10 flex items-center justify-center"
+                  size="icon"
+                >
+                  <ArrowDown className="w-6 h-6 text-white animate-bounce" />
+                </Button>
+              )}
             </div>
 
             {/* Send Message Box */}
-            <div className="p-6 border-t-4 border-orange-500 bg-gradient-to-b from-white to-orange-50">
+            <div className="p-6 border-t-4 border-orange-500 bg-gradient-to-b from-white to-orange-50 flex-shrink-0">
               <Alert className="mb-4 bg-green-50 border-green-500">
                 <Send className="w-4 h-4 text-green-600" />
                 <AlertDescription className="ml-2 text-green-900">
