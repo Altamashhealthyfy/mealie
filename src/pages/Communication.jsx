@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +14,8 @@ import {
   Paperclip,
   Image as ImageIcon,
   CheckCheck,
-  Clock
+  Clock,
+  Loader2
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -24,6 +24,12 @@ export default function Communication() {
   const [selectedClient, setSelectedClient] = useState(null);
   const [messageText, setMessageText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const messagesEndRef = useRef(null);
+  const textareaRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -35,15 +41,13 @@ export default function Communication() {
     queryFn: async () => {
       const allClients = await base44.entities.Client.list('-created_date');
       
-      // Super admin sees ALL clients
       if (user?.user_type === 'super_admin') {
         return allClients;
       }
       
-      // Team members, student coaches - only see THEIR OWN clients
       return allClients.filter(client => client.created_by === user?.email);
     },
-    enabled: !!user, // Ensure this query only runs once user data is available
+    enabled: !!user,
     initialData: [],
   });
 
@@ -51,7 +55,7 @@ export default function Communication() {
     queryKey: ['allMessages'],
     queryFn: () => base44.entities.Message.list('-created_date'),
     initialData: [],
-    refetchInterval: 5000, // Refresh every 5 seconds
+    refetchInterval: 5000,
   });
 
   const sendMessageMutation = useMutation({
@@ -59,6 +63,8 @@ export default function Communication() {
     onSuccess: () => {
       queryClient.invalidateQueries(['allMessages']);
       setMessageText("");
+      setTimeout(scrollToBottom, 100);
+      textareaRef.current?.focus();
     },
   });
 
@@ -70,25 +76,26 @@ export default function Communication() {
   });
 
   const handleSendMessage = () => {
-    if (!messageText.trim() || !selectedClient) return;
+    if (!messageText.trim() || !selectedClient) {
+      alert("Please enter a message");
+      return;
+    }
 
     sendMessageMutation.mutate({
       client_id: selectedClient.id,
       sender_type: 'dietitian',
-      message: messageText,
+      message: messageText.trim(),
       read: false,
     });
   };
 
-  // Get messages for selected client
   const clientMessages = selectedClient 
     ? allMessages.filter(m => m.client_id === selectedClient.id).sort((a, b) => 
         new Date(a.created_date) - new Date(b.created_date)
       )
     : [];
 
-  // Mark unread messages as read when viewing
-  React.useEffect(() => {
+  useEffect(() => {
     if (selectedClient) {
       const unreadMessages = clientMessages.filter(
         m => !m.read && m.sender_type === 'client'
@@ -99,34 +106,33 @@ export default function Communication() {
     }
   }, [selectedClient?.id, clientMessages.length]);
 
-  // Get last message for each client
+  useEffect(() => {
+    scrollToBottom();
+  }, [clientMessages.length]);
+
   const getLastMessage = (clientId) => {
     const messages = allMessages.filter(m => m.client_id === clientId);
-    // Sort in descending order to get the latest message
     messages.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
     return messages.length > 0 ? messages[0] : null;
   };
 
-  // Get unread count for each client
   const getUnreadCount = (clientId) => {
     return allMessages.filter(
       m => m.client_id === clientId && !m.read && m.sender_type === 'client'
     ).length;
   };
 
-  // Filter clients by search
   const filteredClients = clients.filter(client =>
     client.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     client.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Sort clients by last message time
   const sortedClients = filteredClients.sort((a, b) => {
     const lastMsgA = getLastMessage(a.id);
     const lastMsgB = getLastMessage(b.id);
-    if (!lastMsgA && !lastMsgB) return 0; // Both have no messages, keep original order
-    if (!lastMsgA) return 1; // A has no messages, B does, so B comes first
-    if (!lastMsgB) return -1; // B has no messages, A does, so A comes first
+    if (!lastMsgA && !lastMsgB) return 0;
+    if (!lastMsgA) return 1;
+    if (!lastMsgB) return -1;
     return new Date(lastMsgB.created_date) - new Date(lastMsgA.created_date);
   });
 
@@ -273,7 +279,7 @@ export default function Communication() {
                                     : 'bg-gray-100 text-gray-900'
                                 }`}
                               >
-                                <p className="text-sm leading-relaxed">{message.message}</p>
+                                <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.message}</p>
                                 <div className={`flex items-center gap-2 mt-2 text-xs ${
                                   isFromDietitian ? 'text-white/70' : 'text-gray-500'
                                 }`}>
@@ -291,39 +297,50 @@ export default function Communication() {
                           );
                         })
                       )}
+                      <div ref={messagesEndRef} />
                     </div>
                   </ScrollArea>
 
-                  {/* Message Input */}
-                  <div className="p-4 border-t border-gray-200">
-                    <div className="flex items-end gap-2">
-                      <Button variant="ghost" size="icon" className="flex-shrink-0">
-                        <Paperclip className="w-5 h-5 text-gray-500" />
-                      </Button>
-                      <Textarea
-                        placeholder="Type your message..."
-                        value={messageText}
-                        onChange={(e) => setMessageText(e.target.value)}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSendMessage();
-                          }
-                        }}
-                        className="resize-none"
-                        rows={2}
-                      />
+                  {/* Message Input - ALWAYS VISIBLE */}
+                  <div className="p-4 border-t-2 border-gray-200 bg-white">
+                    <div className="flex items-end gap-3">
+                      <div className="flex-1">
+                        <Textarea
+                          ref={textareaRef}
+                          placeholder="Type your message here..."
+                          value={messageText}
+                          onChange={(e) => setMessageText(e.target.value)}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              handleSendMessage();
+                            }
+                          }}
+                          className="resize-none min-h-[80px] text-base"
+                          rows={3}
+                          autoFocus
+                        />
+                        <p className="text-xs text-gray-500 mt-2">
+                          💡 Press <kbd className="px-1 py-0.5 bg-gray-100 rounded">Enter</kbd> to send, 
+                          <kbd className="px-1 py-0.5 bg-gray-100 rounded ml-1">Shift+Enter</kbd> for new line
+                        </p>
+                      </div>
                       <Button
                         onClick={handleSendMessage}
                         disabled={!messageText.trim() || sendMessageMutation.isPending}
-                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 flex-shrink-0"
+                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-[80px] px-6 text-lg font-semibold"
+                        size="lg"
                       >
-                        <Send className="w-5 h-5" />
+                        {sendMessageMutation.isPending ? (
+                          <Loader2 className="w-6 h-6 animate-spin" />
+                        ) : (
+                          <>
+                            <Send className="w-6 h-6 mr-2" />
+                            Send
+                          </>
+                        )}
                       </Button>
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">
-                      Press Enter to send, Shift+Enter for new line
-                    </p>
                   </div>
                 </>
               ) : (

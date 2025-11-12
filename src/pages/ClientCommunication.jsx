@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,32 +10,35 @@ import {
   Send,
   CheckCheck,
   Clock,
-  Paperclip
+  Loader2
 } from "lucide-react";
 import { format } from "date-fns";
 
 export default function ClientCommunication() {
   const queryClient = useQueryClient();
   const [messageText, setMessageText] = useState("");
+  const messagesEndRef = useRef(null);
+  const textareaRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
 
-  // Get client profile
   const { data: clientProfile } = useQuery({
     queryKey: ['myClientProfile', user?.email],
     queryFn: async () => {
       if (!user?.email) return null;
       
-      // Try to find client by email match
       const clients = await base44.entities.Client.filter({ email: user.email });
       if (clients.length > 0) {
         return clients[0];
       }
       
-      // If not found, try case-insensitive search
       const allClients = await base44.entities.Client.list();
       const matchingClient = allClients.find(c => 
         c.email?.toLowerCase() === user.email?.toLowerCase()
@@ -59,7 +61,7 @@ export default function ClientCommunication() {
     },
     enabled: !!clientProfile?.id,
     initialData: [],
-    refetchInterval: 5000, // Refresh every 5 seconds
+    refetchInterval: 5000,
   });
 
   const sendMessageMutation = useMutation({
@@ -67,6 +69,8 @@ export default function ClientCommunication() {
     onSuccess: () => {
       queryClient.invalidateQueries(['myMessages']);
       setMessageText("");
+      setTimeout(scrollToBottom, 100);
+      textareaRef.current?.focus();
     },
   });
 
@@ -77,8 +81,7 @@ export default function ClientCommunication() {
     },
   });
 
-  // Mark unread messages as read
-  React.useEffect(() => {
+  useEffect(() => {
     const unreadMessages = messages.filter(
       m => !m.read && m.sender_type === 'dietitian'
     );
@@ -87,13 +90,20 @@ export default function ClientCommunication() {
     });
   }, [messages.length]);
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages.length]);
+
   const handleSendMessage = () => {
-    if (!messageText.trim() || !clientProfile) return;
+    if (!messageText.trim() || !clientProfile) {
+      alert("Please enter a message");
+      return;
+    }
 
     sendMessageMutation.mutate({
       client_id: clientProfile.id,
       sender_type: 'client',
-      message: messageText,
+      message: messageText.trim(),
       read: false,
     });
   };
@@ -108,6 +118,9 @@ export default function ClientCommunication() {
           <CardContent>
             <p className="text-gray-600 mb-4">
               Please wait for your dietitian to set up your client profile first.
+            </p>
+            <p className="text-sm text-gray-500">
+              Once your profile is created, you'll be able to message your dietitian here.
             </p>
           </CardContent>
         </Card>
@@ -126,20 +139,20 @@ export default function ClientCommunication() {
         <Card className="border-none shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 200px)' }}>
           <div className="flex flex-col h-full">
             {/* Chat Header */}
-            <CardHeader className="border-b border-gray-200">
+            <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
                   <MessageSquare className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <CardTitle className="text-xl">Your Dietitian</CardTitle>
-                  <p className="text-sm text-gray-600">Always here to help</p>
+                  <p className="text-sm text-gray-600">Always here to help you 💚</p>
                 </div>
               </div>
             </CardHeader>
 
             {/* Messages */}
-            <ScrollArea className="flex-1 p-6">
+            <ScrollArea className="flex-1 p-6 bg-gray-50">
               <div className="space-y-4">
                 {messages.length === 0 ? (
                   <div className="text-center py-12">
@@ -147,8 +160,11 @@ export default function ClientCommunication() {
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
                       No messages yet
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 mb-4">
                       Start a conversation with your dietitian
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      💡 Use the message box below to send your first message
                     </p>
                   </div>
                 ) : (
@@ -161,13 +177,13 @@ export default function ClientCommunication() {
                         className={`flex ${isFromClient ? 'justify-end' : 'justify-start'}`}
                       >
                         <div
-                          className={`max-w-[70%] rounded-2xl p-4 ${
+                          className={`max-w-[70%] rounded-2xl p-4 shadow-md ${
                             isFromClient
                               ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
-                              : 'bg-gray-100 text-gray-900'
+                              : 'bg-white text-gray-900 border border-gray-200'
                           }`}
                         >
-                          <p className="text-sm leading-relaxed">{message.message}</p>
+                          <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.message}</p>
                           <div className={`flex items-center gap-2 mt-2 text-xs ${
                             isFromClient ? 'text-white/70' : 'text-gray-500'
                           }`}>
@@ -185,39 +201,50 @@ export default function ClientCommunication() {
                     );
                   })
                 )}
+                <div ref={messagesEndRef} />
               </div>
             </ScrollArea>
 
-            {/* Message Input */}
-            <div className="p-4 border-t border-gray-200">
-              <div className="flex items-end gap-2">
-                <Button variant="ghost" size="icon" className="flex-shrink-0">
-                  <Paperclip className="w-5 h-5 text-gray-500" />
-                </Button>
-                <Textarea
-                  placeholder="Type your message..."
-                  value={messageText}
-                  onChange={(e) => setMessageText(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendMessage();
-                    }
-                  }}
-                  className="resize-none"
-                  rows={2}
-                />
+            {/* Message Input - ALWAYS VISIBLE AND PROMINENT */}
+            <div className="p-4 border-t-2 border-orange-200 bg-white">
+              <div className="flex items-end gap-3">
+                <div className="flex-1">
+                  <Textarea
+                    ref={textareaRef}
+                    placeholder="Type your message to your dietitian here..."
+                    value={messageText}
+                    onChange={(e) => setMessageText(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage();
+                      }
+                    }}
+                    className="resize-none min-h-[80px] text-base border-2 border-gray-200 focus:border-orange-400"
+                    rows={3}
+                    autoFocus
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    💡 Press <kbd className="px-1 py-0.5 bg-gray-100 rounded">Enter</kbd> to send, 
+                    <kbd className="px-1 py-0.5 bg-gray-100 rounded ml-1">Shift+Enter</kbd> for new line
+                  </p>
+                </div>
                 <Button
                   onClick={handleSendMessage}
                   disabled={!messageText.trim() || sendMessageMutation.isPending}
-                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 flex-shrink-0"
+                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-[80px] px-6 text-lg font-semibold shadow-lg"
+                  size="lg"
                 >
-                  <Send className="w-5 h-5" />
+                  {sendMessageMutation.isPending ? (
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  ) : (
+                    <>
+                      <Send className="w-6 h-6 mr-2" />
+                      Send
+                    </>
+                  )}
                 </Button>
               </div>
-              <p className="text-xs text-gray-500 mt-2">
-                Press Enter to send, Shift+Enter for new line
-              </p>
             </div>
           </div>
         </Card>
