@@ -69,18 +69,19 @@ export default function NotificationSettings() {
       const phone = user.phone.replace(/\D/g, '');
       const formattedPhone = phone.startsWith('91') ? phone : `91${phone}`;
 
-      const response = await fetch('https://backend.aisensy.com/campaign/t1/api/v2', {
+      // Use Aisensy's direct message API (no campaign ID needed)
+      const response = await fetch('https://backend.aisensy.com/direct/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-API-Key': process.env.AISENSY_API_KEY || "YOUR_API_KEY"
         },
         body: JSON.stringify({
-          apiKey: process.env.AISENSY_API_KEY || "YOUR_API_KEY",
-          campaignName: "mealie_test_message",
-          destination: formattedPhone,
-          userName: "Mealie Platform",
-          templateParams: ["Test User", "This is a test WhatsApp message from Mealie!"],
-          source: "mealie-app"
+          to: formattedPhone,
+          type: "text",
+          text: {
+            body: "✅ Test message from Mealie!\n\nYour WhatsApp integration is working correctly.\n\nYou'll receive automated notifications here for:\n- Meal plans\n- Appointments\n- Progress updates\n\n- Team Mealie"
+          }
         })
       });
 
@@ -100,10 +101,10 @@ export default function NotificationSettings() {
 
   const automatedNotifications = [
     {
-      name: "Welcome Email",
+      name: "Welcome Message",
       description: "Sent when a new client is added",
       trigger: "Client creation",
-      channels: ["email"],
+      channels: ["email", "whatsapp"],
       enabled: true
     },
     {
@@ -325,20 +326,30 @@ export default function NotificationSettings() {
               <Settings className="w-4 h-4 text-blue-600" />
               <AlertDescription>
                 <strong>Aisensy WhatsApp API:</strong> Configured via platform secrets<br/>
-                <strong>Email Service:</strong> Using Base44 built-in email service
+                <strong>Email Service:</strong> Using Base44 built-in email service<br/>
+                <strong>Method:</strong> Direct messaging (no campaign templates needed)
               </AlertDescription>
             </Alert>
 
             <div className="p-4 bg-gray-100 rounded-lg">
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-gray-700 mb-2">
                 <strong>To update credentials:</strong> Go to Base44 Dashboard → Settings → Secrets
               </p>
-              <ul className="text-sm text-gray-600 mt-2 space-y-1">
-                <li>• AISENSY_API_KEY</li>
-                <li>• AISENSY_CAMPAIGN_ID</li>
-                <li>• AISENSY_PHONE_NUMBER</li>
-              </ul>
+              <div className="space-y-2">
+                <div className="p-3 bg-white rounded border">
+                  <p className="text-xs text-gray-500">Required Secret:</p>
+                  <code className="text-sm font-mono text-blue-600">AISENSY_API_KEY</code>
+                  <p className="text-xs text-gray-600 mt-1">Your Aisensy API key from dashboard</p>
+                </div>
+              </div>
             </div>
+
+            <Alert className="bg-green-50 border-green-500">
+              <CheckCircle2 className="w-4 h-4 text-green-600" />
+              <AlertDescription>
+                <strong>Simplified Setup:</strong> Only API key needed - no campaign ID or templates required!
+              </AlertDescription>
+            </Alert>
           </CardContent>
         </Card>
       </div>

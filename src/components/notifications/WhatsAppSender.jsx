@@ -31,23 +31,19 @@ export default function WhatsAppSender({ client, onClose, template = null }) {
       // Format phone with country code if not present
       const formattedPhone = phone.startsWith('91') ? phone : `91${phone}`;
 
-      // Call Aisensy API via fetch
-      const response = await fetch('https://backend.aisensy.com/campaign/t1/api/v2', {
+      // Use Aisensy's direct message API (no campaign ID needed)
+      const response = await fetch('https://backend.aisensy.com/direct/messages', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-API-Key': process.env.AISENSY_API_KEY || "YOUR_API_KEY"
         },
         body: JSON.stringify({
-          apiKey: process.env.AISENSY_API_KEY || "YOUR_API_KEY",
-          campaignName: "mealie_custom_message",
-          destination: formattedPhone,
-          userName: "Mealie Platform",
-          templateParams: [client.full_name, message],
-          source: "mealie-app",
-          media: {},
-          buttons: [],
-          carouselCards: [],
-          location: {}
+          to: formattedPhone,
+          type: "text",
+          text: {
+            body: message
+          }
         })
       });
 
