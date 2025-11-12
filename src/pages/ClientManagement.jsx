@@ -23,7 +23,7 @@ import {
   MessageCircle, // Changed from MessageSquare
   Calendar,
   ChefHat, // Not explicitly used, but could be useful
-  CheckCircle,
+  CheckCircle2, // Changed from CheckCircle
   AlertTriangle,
   UserPlus,
   FileText,
@@ -31,7 +31,7 @@ import {
   Phone, // Kept Phone for viewing client details
   TrendingUp, // Kept TrendingUp for viewing client details
 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -657,7 +657,7 @@ export default function ClientManagement() {
                     )}
                     {activePlan && (
                       <Badge className="bg-purple-100 text-purple-700">
-                        <CheckCircle className="w-3 h-3 mr-1" />
+                        <CheckCircle2 className="w-3 h-3 mr-1" />
                         Has Active Plan
                       </Badge>
                     )}
@@ -987,7 +987,7 @@ export default function ClientManagement() {
             </div>
 
             <Alert className="bg-green-50 border-green-300">
-              <CheckCircle className="h-4 w-4 text-green-700" />
+              <CheckCircle2 className="h-4 w-4 text-green-700" />
               <AlertTitle className="text-green-800">Why Two Steps?</AlertTitle>
               <AlertDescription className="text-sm text-green-700">
                 For security, only platform admins can invite users. This prevents unauthorized access.
