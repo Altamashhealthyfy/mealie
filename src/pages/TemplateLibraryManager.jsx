@@ -22,7 +22,8 @@ import {
   Eye,
   Sparkles,
   FileSpreadsheet,
-  AlertTriangle
+  AlertTriangle,
+  Edit
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -31,11 +32,11 @@ export default function TemplateLibraryManager() {
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [viewingTemplate, setViewingTemplate] = useState(null);
+  const [editingTemplate, setEditingTemplate] = useState(null); // New state for editing
   const [bulkUploading, setBulkUploading] = useState(false);
   const [bulkFiles, setBulkFiles] = useState([]);
   const [bulkMetadata, setBulkMetadata] = useState([]);
   const [showBulkDialog, setShowBulkDialog] = useState(false);
-  const [excelFile, setExcelFile] = useState(null);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -63,31 +64,55 @@ export default function TemplateLibraryManager() {
 
   const uploadMutation = useMutation({
     mutationFn: async (data) => {
-      // Upload file first
-      const uploadResult = await base44.integrations.Core.UploadFile({ file: selectedFile });
+      let templateData = { ...data };
       
-      // Get file size
-      const fileSizeKB = (selectedFile.size / 1024).toFixed(1);
-      const fileSizeMB = (selectedFile.size / (1024 * 1024)).toFixed(1);
-      const fileSize = fileSizeMB >= 1 ? `${fileSizeMB} MB` : `${fileSizeKB} KB`;
+      // If editing and no new file is selected, update metadata only
+      if (editingTemplate && !selectedFile) {
+        templateData = {
+          ...templateData,
+          version: `${parseFloat(editingTemplate.version || '1.0') + 0.1}`.slice(0, 3), // Increment version, e.g., 1.0 -> 1.1
+          last_updated: new Date().toISOString().split('T')[0]
+        };
+        return await base44.entities.DownloadableTemplate.update(editingTemplate.id, templateData);
+      }
       
-      // Get file type
-      const fileType = selectedFile.name.split('.').pop().toLowerCase();
+      // If there's a selected file (either new upload or replacing file for edit)
+      if (selectedFile) {
+        const uploadResult = await base44.integrations.Core.UploadFile({ file: selectedFile });
+        
+        const fileSizeKB = (selectedFile.size / 1024).toFixed(1);
+        const fileSizeMB = (selectedFile.size / (1024 * 1024)).toFixed(1);
+        const fileSize = fileSizeMB >= 1 ? `${fileSizeMB} MB` : `${fileSizeKB} KB`;
+        const fileType = selectedFile.name.split('.').pop().toLowerCase();
+        
+        templateData = {
+          ...templateData,
+          file_url: uploadResult.file_url,
+          file_type: fileType,
+          file_size: fileSize,
+          download_count: editingTemplate?.download_count || 0, // Preserve download count if editing
+          version: editingTemplate ? `${parseFloat(editingTemplate.version || '1.0') + 0.1}`.slice(0, 3) : "1.0", // Increment or set to 1.0
+          last_updated: new Date().toISOString().split('T')[0]
+        };
+      } else {
+        // This case should be caught by handleUpload, but as a fallback, ensure version and date are updated
+        templateData = {
+          ...templateData,
+          version: `${parseFloat(editingTemplate.version || '1.0') + 0.1}`.slice(0, 3),
+          last_updated: new Date().toISOString().split('T')[0]
+        };
+      }
       
-      // Create template record
-      return await base44.entities.DownloadableTemplate.create({
-        ...data,
-        file_url: uploadResult.file_url,
-        file_type: fileType,
-        file_size: fileSize,
-        download_count: 0,
-        version: "1.0",
-        last_updated: new Date().toISOString().split('T')[0]
-      });
+      if (editingTemplate) {
+        return await base44.entities.DownloadableTemplate.update(editingTemplate.id, templateData);
+      } else {
+        return await base44.entities.DownloadableTemplate.create(templateData);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['downloadableTemplates']);
       setSelectedFile(null);
+      setEditingTemplate(null); // Clear editing state
       setFormData({
         name: "",
         description: "",
@@ -100,7 +125,7 @@ export default function TemplateLibraryManager() {
         tags: "",
         is_premium: false
       });
-      alert("✅ Template uploaded successfully!");
+      alert(editingTemplate ? "✅ Template updated successfully!" : "✅ Template uploaded successfully!");
     },
   });
 
@@ -112,12 +137,31 @@ export default function TemplateLibraryManager() {
     },
   });
 
+  // New function to handle editing a template
+  const handleEdit = (template) => {
+    setEditingTemplate(template);
+    setSelectedFile(null); // Clear any previously selected file for new upload
+    setFormData({
+      name: template.name,
+      description: template.description,
+      category: template.category,
+      subcategory: template.subcategory || "weight_loss", // Provide default if null
+      target_calories: template.target_calories?.toString() || "",
+      food_preference: template.food_preference || "veg",
+      regional_preference: template.regional_preference || "all",
+      duration: template.duration?.toString() || "7",
+      tags: template.tags?.join(', ') || "",
+      is_premium: template.is_premium || false
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top for easy editing
+  };
+
   const handleUpload = async () => {
-    if (!selectedFile) {
+    // If not editing and no file selected, or editing and no file selected BUT no name
+    if (!editingTemplate && !selectedFile) {
       alert("Please select a file first");
       return;
     }
-
     if (!formData.name) {
       alert("Please enter template name");
       return;
@@ -140,7 +184,7 @@ export default function TemplateLibraryManager() {
         is_premium: formData.is_premium
       });
     } catch (error) {
-      alert("Error uploading template");
+      alert(`Error ${editingTemplate ? "updating" : "uploading"} template`);
       console.error(error);
     } finally {
       setUploading(false);
@@ -270,29 +314,29 @@ Be accurate and specific. Use the filename as hints.`,
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen p-2 sm:p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
+        {/* Header - Responsive */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <Badge className="bg-purple-600 text-white mb-2">
               <Shield className="w-4 h-4 mr-1" />
               Template Manager
             </Badge>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Template Library Manager</h1>
-            <p className="text-gray-600">Upload templates for users to download</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">Template Library Manager</h1>
+            <p className="text-sm md:text-base text-gray-600">Upload templates for users to download</p>
           </div>
-          <div className="text-right">
-            <p className="text-3xl font-bold text-gray-900">{templates.length}</p>
-            <p className="text-sm text-gray-600">Total Templates</p>
+          <div className="text-left sm:text-right">
+            <p className="text-2xl md:text-3xl font-bold text-gray-900">{templates.length}</p>
+            <p className="text-xs md:text-sm text-gray-600">Total Templates</p>
           </div>
         </div>
 
-        {/* 🤖 SMART BULK UPLOAD BUTTONS */}
-        <div className="flex gap-4">
+        {/* Bulk Upload Buttons - Responsive */}
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
           <Button
             onClick={() => setShowBulkDialog(true)}
-            className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 h-14 text-lg"
+            className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 h-12 md:h-14 text-base md:text-lg w-full sm:w-auto"
           >
             <Sparkles className="w-5 h-5 mr-2" />
             🤖 Smart Bulk Upload
@@ -300,7 +344,7 @@ Be accurate and specific. Use the filename as hints.`,
           
           <Button
             variant="outline"
-            className="h-14 text-lg"
+            className="h-12 md:h-14 text-base md:text-lg w-full sm:w-auto"
             onClick={() => alert("Coming soon! Excel bulk upload feature.")}
           >
             <FileSpreadsheet className="w-5 h-5 mr-2" />
@@ -460,29 +504,42 @@ Be accurate and specific. Use the filename as hints.`,
           </DialogContent>
         </Dialog>
 
-        {/* Single Upload Section */}
+        {/* Single Upload Section - Improved Responsive */}
         <Card className="border-none shadow-xl bg-gradient-to-br from-blue-50 to-cyan-50">
           <CardHeader>
-            <CardTitle className="text-2xl">Upload Single Template</CardTitle>
-            <CardDescription>Upload one template at a time with manual details</CardDescription>
+            <CardTitle className="text-xl md:text-2xl">
+              {editingTemplate ? 'Edit Template' : 'Upload Single Template'}
+            </CardTitle>
+            <CardDescription>
+              {editingTemplate ? 'Update template details and optionally replace the file' : 'Upload one template at a time with manual details'}
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* File Upload */}
-            <div className="p-6 border-2 border-dashed border-blue-300 rounded-xl bg-white">
+          <CardContent className="space-y-4 md:space-y-6">
+            {editingTemplate && (
+              <Alert className="bg-blue-50 border-blue-500">
+                <CheckCircle className="w-4 h-4 text-blue-600" />
+                <AlertDescription>
+                  <strong>Editing:</strong> {editingTemplate.name} (Version {editingTemplate.version || '1.0'})
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* File Upload - Responsive */}
+            <div className="p-4 md:p-6 border-2 border-dashed border-blue-300 rounded-xl bg-white">
               <div className="text-center">
-                <Upload className="w-12 h-12 mx-auto text-blue-500 mb-3" />
-                <p className="text-sm text-gray-700 mb-3">
-                  Select Word (.docx), PDF (.pdf), or Excel (.xlsx) file
+                <Upload className="w-10 h-10 md:w-12 md:h-12 mx-auto text-blue-500 mb-3" />
+                <p className="text-xs md:text-sm text-gray-700 mb-3">
+                  {editingTemplate ? 'Select new file to replace (optional)' : 'Select Word (.docx), PDF (.pdf), or Excel (.xlsx) file'}
                 </p>
                 <input
                   type="file"
                   accept=".docx,.pdf,.xlsx,.doc"
                   onChange={(e) => setSelectedFile(e.target.files[0])}
-                  className="w-full p-2 border rounded-lg"
+                  className="w-full p-2 border rounded-lg text-sm"
                 />
                 {selectedFile && (
                   <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-sm font-semibold text-green-900">
+                    <p className="text-xs md:text-sm font-semibold text-green-900">
                       ✅ {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
                     </p>
                   </div>
@@ -490,24 +547,25 @@ Be accurate and specific. Use the filename as hints.`,
               </div>
             </div>
 
-            {/* Template Details */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Template Details - Responsive Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
               <div className="space-y-2">
-                <Label>Template Name *</Label>
+                <Label className="text-sm">Template Name *</Label>
                 <Input
                   placeholder="e.g., Veg Weight Loss 1500 cal"
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  className="h-10 md:h-auto"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label>Category *</Label>
+                <Label className="text-sm">Category *</Label>
                 <Select
                   value={formData.category}
                   onValueChange={(value) => setFormData({...formData, category: value})}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-10 md:h-auto">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -525,12 +583,12 @@ Be accurate and specific. Use the filename as hints.`,
               {formData.category === 'meal_plan' && (
                 <>
                   <div className="space-y-2">
-                    <Label>Subcategory</Label>
+                    <Label className="text-sm">Subcategory</Label>
                     <Select
                       value={formData.subcategory}
                       onValueChange={(value) => setFormData({...formData, subcategory: value})}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-10 md:h-auto">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -549,22 +607,23 @@ Be accurate and specific. Use the filename as hints.`,
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Target Calories</Label>
+                    <Label className="text-sm">Target Calories</Label>
                     <Input
                       type="number"
                       placeholder="1500"
                       value={formData.target_calories}
                       onChange={(e) => setFormData({...formData, target_calories: e.target.value})}
+                      className="h-10 md:h-auto"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Food Preference</Label>
+                    <Label className="text-sm">Food Preference</Label>
                     <Select
                       value={formData.food_preference}
                       onValueChange={(value) => setFormData({...formData, food_preference: value})}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-10 md:h-auto">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -578,12 +637,12 @@ Be accurate and specific. Use the filename as hints.`,
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Regional Preference</Label>
+                    <Label className="text-sm">Regional Preference</Label>
                     <Select
                       value={formData.regional_preference}
                       onValueChange={(value) => setFormData({...formData, regional_preference: value})}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-10 md:h-auto">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -597,12 +656,13 @@ Be accurate and specific. Use the filename as hints.`,
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Duration (days)</Label>
+                    <Label className="text-sm">Duration (days)</Label>
                     <Input
                       type="number"
                       placeholder="7"
                       value={formData.duration}
                       onChange={(e) => setFormData({...formData, duration: e.target.value})}
+                      className="h-10 md:h-auto"
                     />
                   </div>
                 </>
@@ -610,21 +670,23 @@ Be accurate and specific. Use the filename as hints.`,
             </div>
 
             <div className="space-y-2">
-              <Label>Description</Label>
+              <Label className="text-sm">Description</Label>
               <Textarea
                 placeholder="Brief description of what this template contains"
                 value={formData.description}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
                 rows={3}
+                className="text-sm"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Tags (comma-separated)</Label>
+              <Label className="text-sm">Tags (comma-separated)</Label>
               <Input
                 placeholder="e.g., weight loss, high protein, low carb"
                 value={formData.tags}
                 onChange={(e) => setFormData({...formData, tags: e.target.value})}
+                className="h-10 md:h-auto"
               />
             </div>
 
@@ -636,74 +698,100 @@ Be accurate and specific. Use the filename as hints.`,
                 onChange={(e) => setFormData({...formData, is_premium: e.target.checked})}
                 className="w-4 h-4"
               />
-              <Label htmlFor="premium">Premium Only (Only for Professional/Premium plans)</Label>
+              <Label htmlFor="premium" className="text-sm">Premium Only (Only for Professional/Premium plans)</Label>
             </div>
 
-            <Button
-              onClick={handleUpload}
-              disabled={uploading || !selectedFile}
-              className="w-full h-12 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
-            >
-              {uploading ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Uploading...
-                </>
-              ) : (
-                <>
-                  <Upload className="w-5 h-5 mr-2" />
-                  Upload Template
-                </>
+            <div className="flex gap-3">
+              {editingTemplate && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setEditingTemplate(null);
+                    setSelectedFile(null);
+                    setFormData({
+                      name: "",
+                      description: "",
+                      category: "meal_plan",
+                      subcategory: "weight_loss",
+                      target_calories: "",
+                      food_preference: "veg",
+                      regional_preference: "all",
+                      duration: "7",
+                      tags: "",
+                      is_premium: false
+                    });
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
               )}
-            </Button>
+              <Button
+                onClick={handleUpload}
+                disabled={uploading || (!editingTemplate && !selectedFile)} // Disable if no file for new upload, or if uploading
+                className={`h-12 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 ${editingTemplate ? 'flex-1' : 'w-full'}`}
+              >
+                {uploading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    {editingTemplate ? 'Updating...' : 'Uploading...'}
+                  </>
+                ) : (
+                  <>
+                    {editingTemplate ? <Edit className="w-5 h-5 mr-2" /> : <Upload className="w-5 h-5 mr-2" />}
+                    {editingTemplate ? 'Update Template' : 'Upload Template'}
+                  </>
+                )}
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Uploaded Templates */}
+        {/* Uploaded Templates - Responsive Grid */}
         <Card className="border-none shadow-xl">
           <CardHeader>
-            <CardTitle className="text-2xl">Uploaded Templates ({templates.length})</CardTitle>
+            <CardTitle className="text-xl md:text-2xl">Uploaded Templates ({templates.length})</CardTitle>
           </CardHeader>
           <CardContent>
             {templates.length === 0 ? (
               <div className="text-center py-12">
-                <FileText className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                <p className="text-gray-600">No templates uploaded yet</p>
+                <FileText className="w-12 h-12 md:w-16 md:h-16 mx-auto text-gray-300 mb-4" />
+                <p className="text-sm md:text-base text-gray-600">No templates uploaded yet</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                 {templates.map((template) => (
                   <Card key={template.id} className="border-2 hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg">{template.name}</CardTitle>
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-base md:text-lg truncate">{template.name}</CardTitle>
                           {template.is_premium && (
-                            <Badge className="bg-purple-500 text-white mt-1">
+                            <Badge className="bg-purple-500 text-white mt-1 text-xs">
                               <Star className="w-3 h-3 mr-1" />
                               Premium
                             </Badge>
                           )}
                         </div>
-                        <Badge className="bg-blue-100 text-blue-700 uppercase">
+                        <Badge className="bg-blue-100 text-blue-700 uppercase text-xs shrink-0">
                           {template.file_type}
                         </Badge>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      <p className="text-sm text-gray-600 line-clamp-2">{template.description}</p>
+                      <p className="text-xs md:text-sm text-gray-600 line-clamp-2">{template.description}</p>
                       
-                      <div className="flex flex-wrap gap-2">
-                        <Badge variant="outline" className="capitalize">
+                      <div className="flex flex-wrap gap-1 md:gap-2">
+                        <Badge variant="outline" className="capitalize text-xs">
                           {template.category.replace('_', ' ')}
                         </Badge>
                         {template.target_calories && (
-                          <Badge className="bg-orange-100 text-orange-700">
+                          <Badge className="bg-orange-100 text-orange-700 text-xs">
                             {template.target_calories} kcal
                           </Badge>
                         )}
                         {template.food_preference && template.food_preference !== 'all' && (
-                          <Badge className="bg-green-100 text-green-700 capitalize">
+                          <Badge className="bg-green-100 text-green-700 capitalize text-xs">
                             {template.food_preference}
                           </Badge>
                         )}
@@ -713,29 +801,39 @@ Be accurate and specific. Use the filename as hints.`,
                         <p>📥 Downloaded: {template.download_count} times</p>
                         <p>📦 Size: {template.file_size}</p>
                         <p>📅 Updated: {template.last_updated}</p>
+                        <p>🔢 Version: {template.version || '1.0'}</p>
                       </div>
 
                       <div className="flex gap-2">
                         <Button
                           variant="outline"
                           size="sm"
-                          className="flex-1"
+                          className="flex-1 text-xs md:text-sm"
                           onClick={() => setViewingTemplate(template)}
                         >
-                          <Eye className="w-4 h-4 mr-1" />
+                          <Eye className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                           View
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="text-red-600 hover:bg-red-50"
+                          className="flex-1 text-xs md:text-sm"
+                          onClick={() => handleEdit(template)}
+                        >
+                          <Edit className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                          Edit
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 hover:bg-red-50 text-xs md:text-sm"
                           onClick={() => {
                             if (confirm("Delete this template?")) {
                               deleteMutation.mutate(template.id);
                             }
                           }}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
                         </Button>
                       </div>
                     </CardContent>
@@ -795,7 +893,8 @@ Be accurate and specific. Use the filename as hints.`,
                     <p className="text-sm">
                       📥 Downloaded {viewingTemplate.download_count} times<br/>
                       📦 File size: {viewingTemplate.file_size}<br/>
-                      📅 Last updated: {viewingTemplate.last_updated}
+                      📅 Last updated: {viewingTemplate.last_updated}<br/>
+                      🔢 Version: {viewingTemplate.version || '1.0'}
                     </p>
                   </AlertDescription>
                 </Alert>

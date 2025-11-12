@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; // Added AlertTitle for better structure
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Users,
   Plus,
@@ -18,22 +18,22 @@ import {
   Edit,
   Trash2,
   Eye,
-  Calculator, // Not explicitly used, but from context of macros
+  Calculator,
   Mail,
-  MessageCircle, // Changed from MessageSquare
+  MessageCircle,
   Calendar,
-  ChefHat, // Not explicitly used, but could be useful
-  CheckCircle2, // Changed from CheckCircle
+  ChefHat,
+  CheckCircle2,
   AlertTriangle,
   UserPlus,
   FileText,
   Stethoscope,
-  Phone, // Kept Phone for viewing client details
-  TrendingUp, // Kept TrendingUp for viewing client details
+  Phone,
+  TrendingUp,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { format } from "date-fns";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } => "react-router-dom";
 import { createPageUrl } from "@/utils";
 import WhatsAppSender from "@/components/notifications/WhatsAppSender";
 import EmailSender from "@/components/notifications/EmailSender";
@@ -45,12 +45,12 @@ export default function ClientManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [editingClient, setEditingClient] = useState(null); // For the Add/Edit Client Dialog
-  const [viewingClient, setViewingClient] = useState(null); // For the detailed view of a client
-  const [viewingClientPlans, setViewingClientPlans] = useState(null); // Existing state for viewing plans dialog
+  const [editingClient, setEditingClient] = useState(null);
+  const [viewingClient, setViewingClient] = useState(null);
+  const [viewingClientPlans, setViewingClientPlans] = useState(null);
   const [showWhatsAppDialog, setShowWhatsAppDialog] = useState(false);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
-  const [selectedClientForNotifications, setSelectedClientForNotifications] = useState(null); // Renamed to avoid confusion with editingClient/viewingClient
+  const [selectedClientForNotifications, setSelectedClientForNotifications] = useState(null);
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -95,7 +95,7 @@ export default function ClientManagement() {
       // Team members, student coaches, student team members - only see THEIR OWN clients
       return allClients.filter(client => client.created_by === user?.email);
     },
-    enabled: !!user, // Ensure this query only runs once user data is available
+    enabled: !!user,
     initialData: [],
   });
 
@@ -294,17 +294,18 @@ export default function ClientManagement() {
   });
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen p-2 sm:p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
+        {/* Header - Responsive */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Client Management</h1>
-            <p className="text-gray-600">Manage your clients and their health journeys</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">Client Management</h1>
+            <p className="text-sm md:text-base text-gray-600">Manage your clients and their health journeys</p>
           </div>
           <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
             <DialogTrigger asChild>
               <Button
-                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 w-full sm:w-auto"
                 onClick={() => {
                   setEditingClient(null); // Clear editing state for new client
                   setFormData({ // Reset form data
@@ -590,21 +591,21 @@ export default function ClientManagement() {
           </Dialog>
         </div>
 
-        {/* Search and Filter */}
+        {/* Search and Filter - Responsive */}
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-          <CardContent className="p-6">
-            <div className="flex gap-4">
+          <CardContent className="p-4 md:p-6">
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
                 <Input
-                  placeholder="Search clients by name or email..."
+                  placeholder="Search clients..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-9 md:pl-10 h-10 md:h-auto text-sm md:text-base"
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-full sm:w-48 h-10 md:h-auto">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -618,56 +619,56 @@ export default function ClientManagement() {
           </CardContent>
         </Card>
 
-        {/* Clients Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Clients Grid - Responsive */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
           {filteredClients.map((client) => {
             const clientPlans = mealPlans.filter(p => p.client_id === client.id);
             const activePlan = clientPlans.find(p => p.active);
 
             return (
               <Card key={client.id} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-medium text-lg">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                      <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center shrink-0">
+                        <span className="text-white font-medium text-base md:text-lg">
                           {client.full_name.charAt(0)}
                         </span>
                       </div>
-                      <div>
-                        <CardTitle className="text-lg">{client.full_name}</CardTitle>
-                        <p className="text-sm text-gray-600">{client.email}</p>
+                      <div className="min-w-0">
+                        <CardTitle className="text-base md:text-lg truncate">{client.full_name}</CardTitle>
+                        <p className="text-xs md:text-sm text-gray-600 truncate">{client.email}</p>
                       </div>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex flex-wrap gap-2">
-                    <Badge className={
+                <CardContent className="space-y-3 md:space-y-4">
+                  <div className="flex flex-wrap gap-1 md:gap-2">
+                    <Badge className={`text-xs ${
                       client.status === 'active' ? 'bg-green-100 text-green-700' :
                       client.status === 'inactive' ? 'bg-gray-100 text-gray-700' :
                       'bg-blue-100 text-blue-700'
-                    }>
+                    }`}>
                       {client.status}
                     </Badge>
                     {client.food_preference && (
-                      <Badge className="bg-blue-100 text-blue-700 capitalize">
+                      <Badge className="bg-blue-100 text-blue-700 capitalize text-xs">
                         {client.food_preference?.replace('_', ' ')}
                       </Badge>
                     )}
                     {activePlan && (
-                      <Badge className="bg-purple-100 text-purple-700">
+                      <Badge className="bg-purple-100 text-purple-700 text-xs">
                         <CheckCircle2 className="w-3 h-3 mr-1" />
                         Has Active Plan
                       </Badge>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="grid grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm">
                     {client.goal && (
                       <div>
                         <p className="text-gray-600">Goal</p>
-                        <p className="font-semibold capitalize">{client.goal?.replace('_', ' ')}</p>
+                        <p className="font-semibold capitalize truncate">{client.goal?.replace('_', ' ')}</p>
                       </div>
                     )}
                     {client.target_calories && (
@@ -683,28 +684,28 @@ export default function ClientManagement() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleOpenEmail(client)}
-                      className="text-blue-600 hover:bg-blue-50"
+                      className="text-blue-600 hover:bg-blue-50 h-9 md:h-auto text-xs md:text-sm"
                       title="Send Email"
                     >
-                      <Mail className="w-4 h-4" />
+                      <Mail className="w-3 h-3 md:w-4 md:h-4" />
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleOpenWhatsApp(client)}
-                      className="text-green-600 hover:bg-green-50"
+                      className="text-green-600 hover:bg-green-50 h-9 md:h-auto text-xs md:text-sm"
                       title="Send WhatsApp"
                     >
-                      <MessageCircle className="w-4 h-4" />
+                      <MessageCircle className="w-3 h-3 md:w-4 md:h-4" />
                     </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setViewingClient(client)}
-                      className="text-gray-600 hover:bg-gray-50"
+                      className="text-gray-600 hover:bg-gray-50 h-9 md:h-auto text-xs md:text-sm"
                       title="View Details"
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-3 h-3 md:w-4 md:h-4" />
                     </Button>
                   </div>
                 </CardContent>
@@ -715,10 +716,10 @@ export default function ClientManagement() {
 
         {filteredClients.length === 0 && (
           <Card className="border-none shadow-lg">
-            <CardContent className="p-12 text-center">
-              <Users className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Clients Found</h3>
-              <p className="text-gray-600">Add your first client to get started</p>
+            <CardContent className="p-8 md:p-12 text-center">
+              <Users className="w-12 h-12 md:w-16 md:h-16 mx-auto text-gray-300 mb-4" />
+              <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">No Clients Found</h3>
+              <p className="text-sm md:text-base text-gray-600">Add your first client to get started</p>
             </CardContent>
           </Card>
         )}
