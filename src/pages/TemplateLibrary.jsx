@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -22,7 +21,8 @@ import {
   Upload,
   Plus,
   Loader2,
-  Trash2
+  Trash2,
+  Edit
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -34,10 +34,24 @@ export default function TemplateLibrary() {
   const [foodPrefFilter, setFoodPrefFilter] = useState("all");
   const [regionFilter, setRegionFilter] = useState("all");
   const [viewingTemplate, setViewingTemplate] = useState(null);
+  const [editingTemplate, setEditingTemplate] = useState(null);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadFormData, setUploadFormData] = useState({
+    name: "",
+    description: "",
+    category: "meal_plan",
+    subcategory: "weight_loss",
+    target_calories: "",
+    food_preference: "veg",
+    regional_preference: "all",
+    duration: "7",
+    tags: "",
+    is_premium: false
+  });
+  const [editFormData, setEditFormData] = useState({
     name: "",
     description: "",
     category: "meal_plan",
@@ -115,6 +129,25 @@ export default function TemplateLibrary() {
     }
   });
 
+  const updateTemplateMutation = useMutation({
+    mutationFn: async ({ id, data }) => {
+      return await base44.entities.DownloadableTemplate.update(id, {
+        ...data,
+        last_updated: new Date().toISOString().split('T')[0]
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['downloadableTemplates']);
+      setShowEditDialog(false);
+      setEditingTemplate(null);
+      alert("✅ Template updated successfully!");
+    },
+    onError: (error) => {
+      console.error(error);
+      alert("Failed to update template. Please try again.");
+    }
+  });
+
   const deleteTemplateMutation = useMutation({
     mutationFn: (templateId) => base44.entities.DownloadableTemplate.delete(templateId),
     onSuccess: () => {
@@ -161,6 +194,48 @@ export default function TemplateLibrary() {
     }
   };
 
+  const handleEdit = (template) => {
+    setEditingTemplate(template);
+    setEditFormData({
+      name: template.name,
+      description: template.description || "",
+      category: template.category,
+      subcategory: template.subcategory || "weight_loss",
+      target_calories: template.target_calories?.toString() || "",
+      food_preference: template.food_preference || "veg",
+      regional_preference: template.regional_preference || "all",
+      duration: template.duration?.toString() || "7",
+      tags: template.tags?.join(', ') || "",
+      is_premium: template.is_premium || false
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editFormData.name.trim()) {
+      alert("Please enter template name");
+      return;
+    }
+
+    const tagsArray = editFormData.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+
+    updateTemplateMutation.mutate({
+      id: editingTemplate.id,
+      data: {
+        name: editFormData.name,
+        description: editFormData.description,
+        category: editFormData.category,
+        subcategory: editFormData.subcategory,
+        target_calories: editFormData.target_calories ? parseInt(editFormData.target_calories) : null,
+        food_preference: editFormData.food_preference,
+        regional_preference: editFormData.regional_preference,
+        duration: editFormData.duration ? parseInt(editFormData.duration) : null,
+        tags: tagsArray,
+        is_premium: editFormData.is_premium
+      }
+    });
+  };
+
   const handleDeleteTemplate = (template) => {
     if (window.confirm(`Are you sure you want to delete "${template.name}"?\n\nThis action cannot be undone and will remove the template for all users.`)) {
       deleteTemplateMutation.mutate(template.id);
@@ -190,6 +265,9 @@ export default function TemplateLibrary() {
 
   const userType = user?.user_type || 'client';
   const canUpload = ['super_admin', 'team_member', 'student_coach'].includes(userType);
+  const canEdit = (template) => {
+    return userType === 'super_admin' || template.created_by === user?.email;
+  };
   const canDelete = userType === 'super_admin';
 
   return (
@@ -546,6 +624,17 @@ export default function TemplateLibrary() {
                           Premium
                         </Badge>
                       )}
+                      {canEdit(template) && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(template)}
+                          className="text-blue-600 hover:bg-blue-50 h-6 w-6 p-0"
+                          title="Edit Template"
+                        >
+                          <Edit className="w-3 h-3" />
+                        </Button>
+                      )}
                       {canDelete && (
                         <Button
                           variant="ghost"
@@ -611,6 +700,188 @@ export default function TemplateLibrary() {
             ))
           )}
         </div>
+
+        {/* Edit Template Dialog */}
+        <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl flex items-center gap-2">
+                <Edit className="w-6 h-6 text-blue-600" />
+                Edit Template
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <Alert className="bg-blue-50 border-blue-500">
+                <CheckCircle className="w-4 h-4 text-blue-600" />
+                <AlertDescription>
+                  Editing: {editingTemplate?.name}
+                </AlertDescription>
+              </Alert>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2 col-span-2">
+                  <Label className="text-sm">Template Name *</Label>
+                  <Input
+                    placeholder="Template name"
+                    value={editFormData.name}
+                    onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm">Category *</Label>
+                  <Select
+                    value={editFormData.category}
+                    onValueChange={(value) => setEditFormData({...editFormData, category: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="meal_plan">Meal Plan</SelectItem>
+                      <SelectItem value="recipe">Recipe</SelectItem>
+                      <SelectItem value="business_strategy">Business</SelectItem>
+                      <SelectItem value="marketing_material">Marketing</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {editFormData.category === 'meal_plan' && (
+                  <>
+                    <div className="space-y-2">
+                      <Label className="text-sm">Subcategory</Label>
+                      <Select
+                        value={editFormData.subcategory}
+                        onValueChange={(value) => setEditFormData({...editFormData, subcategory: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="weight_loss">Weight Loss</SelectItem>
+                          <SelectItem value="weight_gain">Weight Gain</SelectItem>
+                          <SelectItem value="diabetes">Diabetes</SelectItem>
+                          <SelectItem value="pcos">PCOS</SelectItem>
+                          <SelectItem value="thyroid">Thyroid</SelectItem>
+                          <SelectItem value="general">General</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm">Target Calories</Label>
+                      <Input
+                        type="number"
+                        placeholder="1500"
+                        value={editFormData.target_calories}
+                        onChange={(e) => setEditFormData({...editFormData, target_calories: e.target.value})}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm">Food Preference</Label>
+                      <Select
+                        value={editFormData.food_preference}
+                        onValueChange={(value) => setEditFormData({...editFormData, food_preference: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="veg">Vegetarian</SelectItem>
+                          <SelectItem value="non_veg">Non-Veg</SelectItem>
+                          <SelectItem value="jain">Jain</SelectItem>
+                          <SelectItem value="mixed">Mixed</SelectItem>
+                          <SelectItem value="all">All</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm">Regional Preference</Label>
+                      <Select
+                        value={editFormData.regional_preference}
+                        onValueChange={(value) => setEditFormData({...editFormData, regional_preference: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="north">North Indian</SelectItem>
+                          <SelectItem value="south">South Indian</SelectItem>
+                          <SelectItem value="west">West Indian</SelectItem>
+                          <SelectItem value="east">East Indian</SelectItem>
+                          <SelectItem value="all">All Regions</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm">Duration (days)</Label>
+                      <Input
+                        type="number"
+                        placeholder="7"
+                        value={editFormData.duration}
+                        onChange={(e) => setEditFormData({...editFormData, duration: e.target.value})}
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm">Description</Label>
+                <Textarea
+                  placeholder="Brief description..."
+                  value={editFormData.description}
+                  onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
+                  rows={3}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm">Tags (comma-separated)</Label>
+                <Input
+                  placeholder="e.g., weight loss, high protein, low carb"
+                  value={editFormData.tags}
+                  onChange={(e) => setEditFormData({...editFormData, tags: e.target.value})}
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowEditDialog(false);
+                    setEditingTemplate(null);
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSaveEdit}
+                  disabled={updateTemplateMutation.isPending}
+                  className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 h-12"
+                >
+                  {updateTemplateMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-5 h-5 mr-2" />
+                      Save Changes
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* View Template Dialog */}
         <Dialog open={!!viewingTemplate} onOpenChange={() => setViewingTemplate(null)}>
