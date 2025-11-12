@@ -25,7 +25,8 @@ import {
   Trash2,
   Edit,
   Users,
-  TrendingUp
+  TrendingUp,
+  ArrowUpDown // Added ArrowUpDown icon
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -37,6 +38,7 @@ export default function TemplateLibrary() {
   const [foodPrefFilter, setFoodPrefFilter] = useState("all");
   const [regionFilter, setRegionFilter] = useState("all");
   const [uploaderFilter, setUploaderFilter] = useState("all");
+  const [sortOrder, setSortOrder] = useState("-created_date"); // Added sortOrder state
   const [viewingTemplate, setViewingTemplate] = useState(null);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
@@ -74,8 +76,8 @@ export default function TemplateLibrary() {
   });
 
   const { data: templates } = useQuery({
-    queryKey: ['downloadableTemplates'],
-    queryFn: () => base44.entities.DownloadableTemplate.list('-created_date'),
+    queryKey: ['downloadableTemplates', sortOrder], // Added sortOrder to queryKey
+    queryFn: () => base44.entities.DownloadableTemplate.list(sortOrder), // Pass sortOrder to list method
     initialData: [],
   });
 
@@ -590,14 +592,60 @@ export default function TemplateLibrary() {
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
           <CardContent className="p-6">
             <div className="space-y-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <Input
-                  placeholder="Search templates..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-12"
-                />
+              <div className="flex gap-3"> {/* Changed from relative div to flex div */}
+                <div className="flex-1 relative"> {/* Make search input fill available space */}
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Input
+                    placeholder="Search templates..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 h-12"
+                  />
+                </div>
+                <Select value={sortOrder} onValueChange={setSortOrder}> {/* Added Sort Select */}
+                  <SelectTrigger className="w-64">
+                    <ArrowUpDown className="w-4 h-4 mr-2" />
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="-created_date">
+                      <div className="flex items-center gap-2">
+                        <span>🆕</span>
+                        <span>Newest First</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="created_date">
+                      <div className="flex items-center gap-2">
+                        <span>🗓️</span>
+                        <span>Oldest First</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="-download_count">
+                      <div className="flex items-center gap-2">
+                        <span>🔥</span>
+                        <span>Most Downloaded</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="download_count">
+                      <div className="flex items-center gap-2">
+                        <span>📥</span>
+                        <span>Least Downloaded</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="name">
+                      <div className="flex items-center gap-2">
+                        <span>🔤</span>
+                        <span>Name (A-Z)</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="-name">
+                      <div className="flex items-center gap-2">
+                        <span>🔤</span>
+                        <span>Name (Z-A)</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -714,11 +762,15 @@ export default function TemplateLibrary() {
                   Showing {filteredTemplates.length} of {templates.length} templates
                 </span>
               </div>
-              {uploaderFilter !== "all" && (
-                <Badge className="bg-blue-600 text-white text-sm">
-                  Filtered by: {uploaderStats.find(s => s.email === uploaderFilter)?.email}
-                </Badge>
-              )}
+              {/* Display active sort order */}
+              <Badge className="bg-blue-600 text-white text-sm">
+                {sortOrder === '-created_date' && '🆕 Newest First'}
+                {sortOrder === 'created_date' && '🗓️ Oldest First'}
+                {sortOrder === '-download_count' && '🔥 Most Downloaded'}
+                {sortOrder === 'download_count' && '📥 Least Downloaded'}
+                {sortOrder === 'name' && '🔤 A-Z'}
+                {sortOrder === '-name' && '🔤 Z-A'}
+              </Badge>
             </div>
           </CardContent>
         </Card>
