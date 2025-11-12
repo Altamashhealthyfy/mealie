@@ -30,6 +30,7 @@ import {
   Stethoscope,
   Phone,
   TrendingUp,
+  Send, // Added Send icon
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { format } from "date-fns";
@@ -140,7 +141,7 @@ export default function ClientManagement() {
         cleanData.initial_weight = data.weight ? parseFloat(data.weight) : null;
         const newClient = await base44.entities.Client.create(cleanData);
 
-        // Send welcome email (optional - only if email exists)
+        // 🔥 AUTOMATICALLY SEND WELCOME EMAIL AFTER CLIENT CREATION
         if (cleanData.email) {
           try {
             const welcomeEmail = fillTemplate(EMAIL_TEMPLATES.WELCOME.body, {
@@ -184,15 +185,15 @@ export default function ClientManagement() {
 </html>
               `
             });
-            console.log("Welcome email sent to:", data.email);
+            console.log("✅ Welcome email sent automatically to:", cleanData.email);
           } catch (emailError) {
-            console.error("Failed to send welcome email:", emailError);
+            console.error("❌ Failed to send welcome email:", emailError);
           }
         }
         return newClient;
       }
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries(['clients']);
       setShowAddDialog(false);
       setEditingClient(null);
@@ -213,7 +214,12 @@ export default function ClientManagement() {
         join_date: format(new Date(), 'yyyy-MM-dd'),
         notes: '',
       });
-      alert(editingClient ? "✅ Client updated successfully!" : "✅ Client added successfully!");
+      
+      if (editingClient) {
+        alert("✅ Client updated successfully!");
+      } else {
+        alert("✅ Client added successfully!\n\n📧 A welcome email has been sent to " + variables.email);
+      }
     },
     onError: (error) => {
       console.error("Error saving client:", error);
@@ -410,9 +416,18 @@ export default function ClientManagement() {
                   {editingClient ? 'Edit Client' : 'Add New Client'}
                 </DialogTitle>
                 <DialogDescription>
-                  {editingClient ? 'Update client information and health data' : 'Add a new client with their health information and goals'}
+                  {editingClient ? 'Update client information and health data' : 'Add a new client - A welcome email will be sent automatically! 📧'}
                 </DialogDescription>
               </DialogHeader>
+
+              {!editingClient && (
+                <Alert className="bg-green-50 border-green-500">
+                  <Mail className="w-4 h-4 text-green-600" />
+                  <AlertDescription className="ml-2 text-green-900">
+                    <strong>✅ Auto Email:</strong> A professional welcome email will be automatically sent to the client's email address after adding them.
+                  </AlertDescription>
+                </Alert>
+              )}
 
               <Tabs defaultValue="basic" className="mt-4">
                 <TabsList className="grid grid-cols-3">
@@ -432,13 +447,19 @@ export default function ClientManagement() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Email *</Label>
+                      <Label>Email * 📧</Label>
                       <Input
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({...formData, email: e.target.value})}
                         required
+                        placeholder="client@example.com"
                       />
+                      {!editingClient && (
+                        <p className="text-xs text-green-600">
+                          ✅ Welcome email will be sent here
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label>Phone</Label>
@@ -650,7 +671,7 @@ export default function ClientManagement() {
                 disabled={saveClientMutation.isPending || !formData.full_name || !formData.email}
                 className="w-full mt-4 bg-gradient-to-r from-orange-500 to-red-500"
               >
-                {saveClientMutation.isPending ? 'Saving...' : editingClient ? 'Update Client' : 'Add Client'}
+                {saveClientMutation.isPending ? 'Saving...' : editingClient ? 'Update Client' : '✅ Add Client & Send Welcome Email'}
               </Button>
             </DialogContent>
           </Dialog>
@@ -903,9 +924,19 @@ export default function ClientManagement() {
                   </Card>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                   <Button variant="outline" onClick={() => { setViewingClient(null); handleEdit(viewingClient); }}>
                     <Edit className="w-4 h-4 mr-2" /> Edit
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setViewingClient(null);
+                      handleOpenEmail(viewingClient);
+                    }}
+                    className="text-blue-600 hover:bg-blue-50"
+                  >
+                    <Send className="w-4 h-4 mr-2" /> Email
                   </Button>
                   <Button variant="outline" onClick={() => { setViewingClient(null); handleViewPlans(viewingClient); }}>
                     <FileText className="w-4 h-4 mr-2" /> Plans
@@ -1042,7 +1073,7 @@ export default function ClientManagement() {
               <p className="font-semibold text-orange-900 mb-3">📋 Step-by-Step Process:</p>
               <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
                 <li><strong>Step 1:</strong> Create Client Profile here (you already did this ✅)</li>
-                <li><strong>Step <strong>2:</strong> Go to <strong>Dashboard → Data → User</strong></strong></li>
+                <li><strong>Step 2:</strong> Go to <strong>Dashboard → Data → User</strong></li>
                 <li><strong>Step 3:</strong> Click <strong>"Invite User"</strong> button</li>
                 <li><strong>Step 4:</strong> Enter client's email (MUST match email in Client Profile)</li>
                 <li><strong>Step 5:</strong> Set <code>user_type</code> = <code>"client"</code></li>
