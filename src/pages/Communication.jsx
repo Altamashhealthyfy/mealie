@@ -11,13 +11,12 @@ import {
   MessageSquare,
   Send,
   Search,
-  Paperclip,
-  Image as ImageIcon,
   CheckCheck,
   Clock,
   Loader2
 } from "lucide-react";
 import { format } from "date-fns";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Communication() {
   const queryClient = useQueryClient();
@@ -59,13 +58,23 @@ export default function Communication() {
   });
 
   const sendMessageMutation = useMutation({
-    mutationFn: (data) => base44.entities.Message.create(data),
+    mutationFn: async (data) => {
+      console.log("Sending message:", data);
+      const result = await base44.entities.Message.create(data);
+      console.log("Message sent successfully:", result);
+      return result;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['allMessages']);
       setMessageText("");
       setTimeout(scrollToBottom, 100);
-      textareaRef.current?.focus();
+      setTimeout(() => textareaRef.current?.focus(), 150);
+      alert("✅ Message sent successfully!");
     },
+    onError: (error) => {
+      console.error("Failed to send message:", error);
+      alert("❌ Failed to send message. Please try again.");
+    }
   });
 
   const markAsReadMutation = useMutation({
@@ -75,18 +84,30 @@ export default function Communication() {
     },
   });
 
-  const handleSendMessage = () => {
-    if (!messageText.trim() || !selectedClient) {
-      alert("Please enter a message");
+  const handleSendMessage = async () => {
+    console.log("handleSendMessage called");
+    console.log("messageText:", messageText);
+    console.log("selectedClient:", selectedClient);
+
+    if (!selectedClient) {
+      alert("⚠️ Please select a client first!");
       return;
     }
 
-    sendMessageMutation.mutate({
+    if (!messageText.trim()) {
+      alert("⚠️ Please enter a message!");
+      return;
+    }
+
+    const messageData = {
       client_id: selectedClient.id,
       sender_type: 'dietitian',
       message: messageText.trim(),
       read: false,
-    });
+    };
+
+    console.log("Calling mutation with:", messageData);
+    sendMessageMutation.mutate(messageData);
   };
 
   const clientMessages = selectedClient 
@@ -176,7 +197,10 @@ export default function Communication() {
                       return (
                         <div
                           key={client.id}
-                          onClick={() => setSelectedClient(client)}
+                          onClick={() => {
+                            console.log("Selected client:", client);
+                            setSelectedClient(client);
+                          }}
                           className={`p-4 mb-2 rounded-xl cursor-pointer transition-all ${
                             isSelected
                               ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
@@ -259,9 +283,14 @@ export default function Communication() {
                           <h3 className="text-xl font-semibold text-gray-900 mb-2">
                             No messages yet
                           </h3>
-                          <p className="text-gray-600">
+                          <p className="text-gray-600 mb-4">
                             Start the conversation with {selectedClient.full_name}
                           </p>
+                          <Alert className="max-w-md mx-auto bg-blue-50 border-blue-300">
+                            <AlertDescription className="text-sm text-blue-900">
+                              👇 Use the message box below to send your first message!
+                            </AlertDescription>
+                          </Alert>
                         </div>
                       ) : (
                         clientMessages.map((message) => {
@@ -301,45 +330,68 @@ export default function Communication() {
                     </div>
                   </ScrollArea>
 
-                  {/* Message Input - ALWAYS VISIBLE */}
-                  <div className="p-4 border-t-2 border-gray-200 bg-white">
-                    <div className="flex items-end gap-3">
-                      <div className="flex-1">
-                        <Textarea
-                          ref={textareaRef}
-                          placeholder="Type your message here..."
-                          value={messageText}
-                          onChange={(e) => setMessageText(e.target.value)}
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                              e.preventDefault();
-                              handleSendMessage();
-                            }
+                  {/* ✅ SEND MESSAGE BOX - ALWAYS VISIBLE */}
+                  <div className="p-6 border-t-4 border-orange-500 bg-gradient-to-b from-white to-orange-50">
+                    <Alert className="mb-4 bg-green-50 border-green-500">
+                      <Send className="w-4 h-4 text-green-600" />
+                      <AlertDescription className="ml-2 text-green-900">
+                        <strong>✅ Send Message Box Active!</strong> Type your message below and click Send.
+                      </AlertDescription>
+                    </Alert>
+
+                    <div className="space-y-3">
+                      <div className="flex items-end gap-3">
+                        <div className="flex-1">
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            💬 Your Message:
+                          </label>
+                          <Textarea
+                            ref={textareaRef}
+                            placeholder="Type your message here and press Send..."
+                            value={messageText}
+                            onChange={(e) => {
+                              console.log("Message text changed:", e.target.value);
+                              setMessageText(e.target.value);
+                            }}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                console.log("Enter pressed - sending message");
+                                handleSendMessage();
+                              }
+                            }}
+                            className="resize-none min-h-[100px] text-base border-2 border-orange-300 focus:border-orange-500"
+                            rows={4}
+                            autoFocus
+                          />
+                        </div>
+                        <Button
+                          onClick={() => {
+                            console.log("Send button clicked");
+                            handleSendMessage();
                           }}
-                          className="resize-none min-h-[80px] text-base"
-                          rows={3}
-                          autoFocus
-                        />
-                        <p className="text-xs text-gray-500 mt-2">
-                          💡 Press <kbd className="px-1 py-0.5 bg-gray-100 rounded">Enter</kbd> to send, 
-                          <kbd className="px-1 py-0.5 bg-gray-100 rounded ml-1">Shift+Enter</kbd> for new line
-                        </p>
+                          disabled={sendMessageMutation.isPending}
+                          className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-[100px] px-8 text-xl font-bold shadow-xl"
+                          size="lg"
+                        >
+                          {sendMessageMutation.isPending ? (
+                            <div className="flex flex-col items-center gap-2">
+                              <Loader2 className="w-8 h-8 animate-spin" />
+                              <span className="text-sm">Sending...</span>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-center gap-2">
+                              <Send className="w-8 h-8" />
+                              <span>SEND</span>
+                            </div>
+                          )}
+                        </Button>
                       </div>
-                      <Button
-                        onClick={handleSendMessage}
-                        disabled={!messageText.trim() || sendMessageMutation.isPending}
-                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-[80px] px-6 text-lg font-semibold"
-                        size="lg"
-                      >
-                        {sendMessageMutation.isPending ? (
-                          <Loader2 className="w-6 h-6 animate-spin" />
-                        ) : (
-                          <>
-                            <Send className="w-6 h-6 mr-2" />
-                            Send
-                          </>
-                        )}
-                      </Button>
+                      
+                      <p className="text-sm text-gray-600 text-center">
+                        💡 Press <kbd className="px-2 py-1 bg-gray-200 rounded font-mono">Enter</kbd> to send • 
+                        <kbd className="px-2 py-1 bg-gray-200 rounded font-mono ml-1">Shift+Enter</kbd> for new line
+                      </p>
                     </div>
                   </div>
                 </>
@@ -348,11 +400,16 @@ export default function Communication() {
                   <div className="text-center">
                     <MessageSquare className="w-20 h-20 mx-auto text-gray-300 mb-4" />
                     <h3 className="text-2xl font-semibold text-gray-900 mb-2">
-                      Select a client
+                      Select a client to start messaging
                     </h3>
-                    <p className="text-gray-600">
-                      Choose a client from the list to start messaging
+                    <p className="text-gray-600 mb-4">
+                      Choose a client from the list on the left
                     </p>
+                    <Alert className="max-w-md mx-auto bg-blue-50 border-blue-300">
+                      <AlertDescription className="text-sm text-blue-900">
+                        👈 Click on any client name to open the chat and send messages
+                      </AlertDescription>
+                    </Alert>
                   </div>
                 </div>
               )}
