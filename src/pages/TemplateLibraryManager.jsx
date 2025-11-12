@@ -23,7 +23,9 @@ import {
   Sparkles,
   FileSpreadsheet,
   AlertTriangle,
-  Edit
+  Edit,
+  Copy,
+  ChefHat // Added ChefHat for meal plans
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -32,11 +34,18 @@ export default function TemplateLibraryManager() {
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [viewingTemplate, setViewingTemplate] = useState(null);
-  const [editingTemplate, setEditingTemplate] = useState(null); // New state for editing
+  const [editingTemplate, setEditingTemplate] = useState(null);
   const [bulkUploading, setBulkUploading] = useState(false);
   const [bulkFiles, setBulkFiles] = useState([]);
   const [bulkMetadata, setBulkMetadata] = useState([]);
   const [showBulkDialog, setShowBulkDialog] = useState(false);
+  const [showConvertDialog, setShowConvertDialog] = useState(false); // New state for convert dialog
+  const [selectedMealPlan, setSelectedMealPlan] = useState(null); // New state for selected meal plan
+  const [convertFormData, setConvertFormData] = useState({ // New state for convert form data
+    name: "",
+    description: "",
+    is_public: false
+  });
   
   const [formData, setFormData] = useState({
     name: "",
@@ -60,6 +69,56 @@ export default function TemplateLibraryManager() {
     queryKey: ['downloadableTemplates'],
     queryFn: () => base44.entities.DownloadableTemplate.list('-created_date'),
     initialData: [],
+  });
+
+  // New query for Meal Plan Templates
+  const { data: mealPlanTemplates } = useQuery({
+    queryKey: ['mealPlanTemplates'],
+    queryFn: async () => {
+      // Fetch user's own meal plan templates
+      const myTemplates = await base44.entities.MealPlanTemplate.filter({ created_by: user?.email });
+      // Fetch public meal plan templates
+      const publicTemplates = await base44.entities.MealPlanTemplate.filter({ is_public: true });
+      // Combine and filter out duplicates if a user's template is also public
+      const combinedTemplates = [...myTemplates, ...publicTemplates];
+      const uniqueTemplates = Array.from(new Map(combinedTemplates.map(item => [item.id, item])).values());
+      return uniqueTemplates;
+    },
+    enabled: !!user, // Only run if user data is available
+    initialData: [],
+  });
+
+  // New query for Meal Plans
+  const { data: mealPlans } = useQuery({
+    queryKey: ['mealPlans'],
+    queryFn: async () => {
+      const allPlans = await base44.entities.MealPlan.list('-created_date');
+      // If super_admin, show all plans, otherwise only user's own
+      if (user?.user_type === 'super_admin') {
+        return allPlans;
+      }
+      return allPlans.filter(plan => plan.created_by === user?.email);
+    },
+    enabled: !!user, // Only run if user data is available
+    initialData: [],
+  });
+
+  // New mutation for converting Meal Plan to Template
+  const convertMealPlanMutation = useMutation({
+    mutationFn: async (data) => {
+      return await base44.entities.MealPlanTemplate.create(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['mealPlanTemplates']); // Invalidate to refetch new template
+      setShowConvertDialog(false);
+      setSelectedMealPlan(null);
+      setConvertFormData({ name: "", description: "", is_public: false });
+      alert("✅ Meal plan converted to template successfully! You can now use it unlimited times for FREE!");
+    },
+    onError: (error) => {
+      console.error("Error converting meal plan to template:", error);
+      alert("Failed to convert meal plan. Please try again.");
+    }
   });
 
   const uploadMutation = useMutation({
@@ -127,14 +186,35 @@ export default function TemplateLibraryManager() {
       });
       alert(editingTemplate ? "✅ Template updated successfully!" : "✅ Template uploaded successfully!");
     },
+    onError: (error) => {
+      console.error("Error uploading/updating template:", error);
+      alert(`Error ${editingTemplate ? "updating" : "uploading"} template`);
+    }
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.DownloadableTemplate.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries(['downloadableTemplates']);
-      alert("Template deleted");
+      alert("Downloadable template deleted");
     },
+    onError: (error) => {
+      console.error("Error deleting downloadable template:", error);
+      alert("Failed to delete downloadable template.");
+    }
+  });
+
+  // New mutation for deleting Meal Plan Templates
+  const deleteMealPlanTemplateMutation = useMutation({
+    mutationFn: (id) => base44.entities.MealPlanTemplate.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['mealPlanTemplates']);
+      alert("Meal plan template deleted");
+    },
+    onError: (error) => {
+      console.error("Error deleting meal plan template:", error);
+      alert("Failed to delete meal plan template.");
+    }
   });
 
   // New function to handle editing a template
@@ -154,6 +234,51 @@ export default function TemplateLibraryManager() {
       is_premium: template.is_premium || false
     });
     window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top for easy editing
+  };
+
+  // New function to handle selecting a meal plan for conversion
+  const handleConvertMealPlan = (plan) => {
+    setSelectedMealPlan(plan);
+    setConvertFormData({
+      name: `${plan.name} Template`, // Suggest a template name
+      description: `Template created from meal plan: ${plan.name}`,
+      is_public: false
+    });
+    // setShowConvertDialog(true) is already set in the button click, no need to set again here
+  };
+
+  // New function to save the converted meal plan as a template
+  const handleConvertSave = () => {
+    if (!convertFormData.name.trim()) {
+      alert("Please enter a template name");
+      return;
+    }
+
+    if (!selectedMealPlan) {
+      alert("No meal plan selected for conversion.");
+      return;
+    }
+
+    convertMealPlanMutation.mutate({
+      name: convertFormData.name,
+      description: convertFormData.description,
+      // Map relevant fields from the original meal plan to the template
+      category: 'meal_plan', // Always 'meal_plan' for this type of template
+      subcategory: selectedMealPlan.subcategory || 'general',
+      duration: selectedMealPlan.duration,
+      target_calories: selectedMealPlan.target_calories,
+      food_preference: selectedMealPlan.food_preference,
+      regional_preference: selectedMealPlan.regional_preference,
+      meals: selectedMealPlan.meals, // Include the actual meal data
+      is_public: convertFormData.is_public,
+      times_used: 0, // Initialize usage count
+      tags: [ // Generate some initial tags
+        selectedMealPlan.food_preference,
+        `${selectedMealPlan.target_calories}kcal`,
+        `${selectedMealPlan.duration}days`
+      ].filter(Boolean), // Filter out any empty tags
+      created_by: user?.email, // Store who created it
+    });
   };
 
   const handleUpload = async () => {
@@ -313,6 +438,16 @@ Be accurate and specific. Use the filename as hints.`,
     );
   }
 
+  // Combine and sort all templates for display
+  const allTemplates = [
+    ...templates.map(t => ({ ...t, templateType: 'downloadable' })),
+    ...mealPlanTemplates.map(t => ({ ...t, templateType: 'meal_plan' }))
+  ].sort((a, b) => {
+    const dateA = new Date(a.created_date || a.last_updated);
+    const dateB = new Date(b.created_date || b.last_updated);
+    return dateB - dateA;
+  });
+
   return (
     <div className="min-h-screen p-2 sm:p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
@@ -327,24 +462,32 @@ Be accurate and specific. Use the filename as hints.`,
             <p className="text-sm md:text-base text-gray-600">Upload templates for users to download</p>
           </div>
           <div className="text-left sm:text-right">
-            <p className="text-2xl md:text-3xl font-bold text-gray-900">{templates.length}</p>
+            <p className="text-2xl md:text-3xl font-bold text-gray-900">{allTemplates.length}</p>
             <p className="text-xs md:text-sm text-gray-600">Total Templates</p>
           </div>
         </div>
 
-        {/* Bulk Upload Buttons - Responsive */}
-        <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+        {/* Action Buttons - ALL OPTIONS */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           <Button
             onClick={() => setShowBulkDialog(true)}
-            className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 h-12 md:h-14 text-base md:text-lg w-full sm:w-auto"
+            className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 h-12 md:h-14 text-base md:text-lg"
           >
             <Sparkles className="w-5 h-5 mr-2" />
             🤖 Smart Bulk Upload
           </Button>
           
           <Button
+            onClick={() => { setShowConvertDialog(true); setSelectedMealPlan(null); }} // Reset selected meal plan when opening
+            className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 h-12 md:h-14 text-base md:text-lg"
+          >
+            <Copy className="w-5 h-5 mr-2" />
+            📋 Convert Meal Plan
+          </Button>
+          
+          <Button
             variant="outline"
-            className="h-12 md:h-14 text-base md:text-lg w-full sm:w-auto"
+            className="h-12 md:h-14 text-base md:text-lg"
             onClick={() => alert("Coming soon! Excel bulk upload feature.")}
           >
             <FileSpreadsheet className="w-5 h-5 mr-2" />
@@ -497,6 +640,150 @@ Be accurate and specific. Use the filename as hints.`,
                       <CheckCircle className="w-5 h-5 mr-2" />
                       Save All {bulkMetadata.length} Templates
                     </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Convert Meal Plan Dialog - NEW */}
+        <Dialog open={showConvertDialog} onOpenChange={setShowConvertDialog}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl flex items-center gap-2">
+                <Copy className="w-6 h-6 text-green-600" />
+                Convert Meal Plan to Reusable Template
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              <Alert className="bg-green-50 border-green-500">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <AlertDescription>
+                  <strong>💰 Save Money!</strong> Convert an existing meal plan into a template and use it unlimited times for FREE!
+                </AlertDescription>
+              </Alert>
+
+              {!selectedMealPlan ? (
+                <>
+                  <div className="space-y-3">
+                    <Label className="text-lg font-semibold">Select a Meal Plan to Convert:</Label>
+                    {mealPlans.length === 0 ? (
+                      <div className="text-center py-8">
+                        <ChefHat className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                        <p className="text-gray-600">No meal plans found. Create one first!</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3 max-h-96 overflow-y-auto">
+                        {mealPlans.map((plan) => (
+                          <Card 
+                            key={plan.id} 
+                            className="border-2 hover:border-green-500 cursor-pointer transition-all"
+                            onClick={() => handleConvertMealPlan(plan)}
+                          >
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <h3 className="font-bold text-lg">{plan.name}</h3>
+                                  <div className="flex flex-wrap gap-2 mt-2">
+                                    <Badge className="bg-orange-100 text-orange-700">{plan.duration} Days</Badge>
+                                    <Badge className="bg-blue-100 text-blue-700 capitalize">{plan.food_preference}</Badge>
+                                    <Badge className="bg-green-100 text-green-700">{plan.target_calories} kcal</Badge>
+                                    {plan.plan_tier === 'advanced' && (
+                                      <Badge className="bg-purple-600 text-white">💎 Pro</Badge>
+                                    )}
+                                  </div>
+                                </div>
+                                <Copy className="w-6 h-6 text-green-600" />
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Card className="border-2 border-green-500 bg-green-50">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-bold text-lg text-green-900">Selected Meal Plan:</h3>
+                        <Button variant="outline" size="sm" onClick={() => setSelectedMealPlan(null)}>
+                          Change
+                        </Button>
+                      </div>
+                      <p className="text-green-800 font-semibold">{selectedMealPlan.name}</p>
+                      <div className="flex gap-2 mt-2">
+                        <Badge>{selectedMealPlan.duration} Days</Badge>
+                        <Badge className="capitalize">{selectedMealPlan.food_preference}</Badge>
+                        <Badge>{selectedMealPlan.target_calories} kcal</Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Template Name *</Label>
+                      <Input
+                        value={convertFormData.name}
+                        onChange={(e) => setConvertFormData({...convertFormData, name: e.target.value})}
+                        placeholder="e.g., Veg Weight Loss 1500 cal Template"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Description</Label>
+                      <Textarea
+                        value={convertFormData.description}
+                        onChange={(e) => setConvertFormData({...convertFormData, description: e.target.value})}
+                        placeholder="Brief description of this template"
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="public"
+                        checked={convertFormData.is_public}
+                        onChange={(e) => setConvertFormData({...convertFormData, is_public: e.target.checked})}
+                        className="w-4 h-4"
+                      />
+                      <Label htmlFor="public">Make this template public (available to all coaches)</Label>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setShowConvertDialog(false);
+                          setSelectedMealPlan(null);
+                          setConvertFormData({ name: "", description: "", is_public: false });
+                        }}
+                        className="flex-1"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleConvertSave}
+                        disabled={convertMealPlanMutation.isPending || !convertFormData.name.trim()}
+                        className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 h-12"
+                      >
+                        {convertMealPlanMutation.isPending ? (
+                          <>
+                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                            Converting...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="w-5 h-5 mr-2" />
+                            Create Template
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </>
               )}
@@ -728,7 +1015,7 @@ Be accurate and specific. Use the filename as hints.`,
               )}
               <Button
                 onClick={handleUpload}
-                disabled={uploading || (!editingTemplate && !selectedFile)} // Disable if no file for new upload, or if uploading
+                disabled={uploading || (!editingTemplate && !selectedFile) || !formData.name.trim()} // Disable if no file for new upload, or if uploading, or no name
                 className={`h-12 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 ${editingTemplate ? 'flex-1' : 'w-full'}`}
               >
                 {uploading ? (
@@ -750,32 +1037,44 @@ Be accurate and specific. Use the filename as hints.`,
         {/* Uploaded Templates - Responsive Grid */}
         <Card className="border-none shadow-xl">
           <CardHeader>
-            <CardTitle className="text-xl md:text-2xl">Uploaded Templates ({templates.length})</CardTitle>
+            <CardTitle className="text-xl md:text-2xl">Uploaded Templates ({allTemplates.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            {templates.length === 0 ? (
+            {allTemplates.length === 0 ? (
               <div className="text-center py-12">
                 <FileText className="w-12 h-12 md:w-16 md:h-16 mx-auto text-gray-300 mb-4" />
                 <p className="text-sm md:text-base text-gray-600">No templates uploaded yet</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                {templates.map((template) => (
+                {allTemplates.map((template) => (
                   <Card key={template.id} className="border-2 hover:shadow-lg transition-shadow">
                     <CardHeader className="pb-3">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <CardTitle className="text-base md:text-lg truncate">{template.name}</CardTitle>
-                          {template.is_premium && (
+                          {template.templateType === 'downloadable' && template.is_premium && (
                             <Badge className="bg-purple-500 text-white mt-1 text-xs">
                               <Star className="w-3 h-3 mr-1" />
                               Premium
                             </Badge>
                           )}
+                          {template.templateType === 'meal_plan' && template.is_public && (
+                            <Badge className="bg-blue-500 text-white mt-1 text-xs">
+                              <Eye className="w-3 h-3 mr-1" />
+                              Public
+                            </Badge>
+                          )}
                         </div>
-                        <Badge className="bg-blue-100 text-blue-700 uppercase text-xs shrink-0">
-                          {template.file_type}
-                        </Badge>
+                        {template.templateType === 'downloadable' ? (
+                          <Badge className="bg-blue-100 text-blue-700 uppercase text-xs shrink-0">
+                            {template.file_type}
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-green-100 text-green-700 text-xs shrink-0">
+                            MEAL PLAN
+                          </Badge>
+                        )}
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-3">
@@ -783,7 +1082,7 @@ Be accurate and specific. Use the filename as hints.`,
                       
                       <div className="flex flex-wrap gap-1 md:gap-2">
                         <Badge variant="outline" className="capitalize text-xs">
-                          {template.category.replace('_', ' ')}
+                          {template.category?.replace('_', ' ') || 'N/A'}
                         </Badge>
                         {template.target_calories && (
                           <Badge className="bg-orange-100 text-orange-700 text-xs">
@@ -798,43 +1097,83 @@ Be accurate and specific. Use the filename as hints.`,
                       </div>
 
                       <div className="text-xs text-gray-500 space-y-1">
-                        <p>📥 Downloaded: {template.download_count} times</p>
-                        <p>📦 Size: {template.file_size}</p>
-                        <p>📅 Updated: {template.last_updated}</p>
-                        <p>🔢 Version: {template.version || '1.0'}</p>
+                        {template.templateType === 'downloadable' ? (
+                          <>
+                            <p>📥 Downloaded: {template.download_count} times</p>
+                            <p>📦 Size: {template.file_size}</p>
+                            <p>📅 Updated: {template.last_updated}</p>
+                            <p>🔢 Version: {template.version || '1.0'}</p>
+                          </>
+                        ) : (
+                          <>
+                            <p>🍽️ Times Used: {template.times_used || 0} times</p>
+                            <p>📅 Created: {new Date(template.created_date).toLocaleDateString()}</p>
+                            {template.created_by && <p>👤 By: {template.created_by}</p>}
+                          </>
+                        )}
                       </div>
 
                       <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex-1 text-xs md:text-sm"
-                          onClick={() => setViewingTemplate(template)}
-                        >
-                          <Eye className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                          View
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex-1 text-xs md:text-sm"
-                          onClick={() => handleEdit(template)}
-                        >
-                          <Edit className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                          Edit
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-red-600 hover:bg-red-50 text-xs md:text-sm"
-                          onClick={() => {
-                            if (confirm("Delete this template?")) {
-                              deleteMutation.mutate(template.id);
-                            }
-                          }}
-                        >
-                          <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
-                        </Button>
+                        {template.templateType === 'downloadable' ? (
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex-1 text-xs md:text-sm"
+                              onClick={() => setViewingTemplate(template)}
+                            >
+                              <Eye className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                              View
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex-1 text-xs md:text-sm"
+                              onClick={() => handleEdit(template)}
+                            >
+                              <Edit className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                              Edit
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 hover:bg-red-50 text-xs md:text-sm"
+                              onClick={() => {
+                                if (confirm("Are you sure you want to delete this downloadable template?")) {
+                                  deleteMutation.mutate(template.id);
+                                }
+                              }}
+                            >
+                              <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
+                            </Button>
+                          </>
+                        ) : (
+                          // For Meal Plan Templates
+                          <>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex-1 text-xs md:text-sm"
+                              onClick={() => alert("Viewing Meal Plan Templates directly is coming soon!")} // Placeholder
+                            >
+                              <Eye className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                              View
+                            </Button>
+                            {/* No direct 'edit' for Meal Plan templates in this view as per outline, only conversion */}
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-red-600 hover:bg-red-50 text-xs md:text-sm"
+                              onClick={() => {
+                                if (confirm("Are you sure you want to delete this Meal Plan template?")) {
+                                  deleteMealPlanTemplateMutation.mutate(template.id);
+                                }
+                              }}
+                            >
+                              <Trash2 className="w-3 h-3 md:w-4 h-4" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -844,8 +1183,8 @@ Be accurate and specific. Use the filename as hints.`,
           </CardContent>
         </Card>
 
-        {/* View Template Dialog */}
-        {viewingTemplate && (
+        {/* View Template Dialog (for downloadable templates only) */}
+        {viewingTemplate && viewingTemplate.templateType === 'downloadable' && (
           <Dialog open={!!viewingTemplate} onOpenChange={() => setViewingTemplate(null)}>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
