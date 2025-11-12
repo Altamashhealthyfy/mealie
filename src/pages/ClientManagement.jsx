@@ -2,34 +2,42 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; // Added AlertTitle for better structure
 import {
   Users,
-  UserPlus,
-  Search,
-  Mail,
-  Phone,
-  TrendingUp,
-  Calendar,
-  MessageSquare,
-  Edit,
-  Eye,
   Plus,
-  FileText,
+  Search,
+  Edit,
+  Trash2,
+  Eye,
+  Calculator, // Not explicitly used, but from context of macros
+  Mail,
+  MessageCircle, // Changed from MessageSquare
+  Calendar,
+  ChefHat, // Not explicitly used, but could be useful
+  CheckCircle,
   AlertTriangle,
-  Stethoscope
+  UserPlus,
+  FileText,
+  Stethoscope,
+  Phone, // Kept Phone for viewing client details
+  TrendingUp, // Kept TrendingUp for viewing client details
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import WhatsAppSender from "@/components/notifications/WhatsAppSender";
+import EmailSender from "@/components/notifications/EmailSender";
+import { EMAIL_TEMPLATES, fillTemplate } from "@/components/notifications/NotificationTemplates";
 
 export default function ClientManagement() {
   const queryClient = useQueryClient();
@@ -37,11 +45,36 @@ export default function ClientManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [selectedClient, setSelectedClient] = useState(null);
-  const [viewingClientPlans, setViewingClientPlans] = useState(null); // New state for viewing plans dialog
+  const [editingClient, setEditingClient] = useState(null); // For the Add/Edit Client Dialog
+  const [viewingClient, setViewingClient] = useState(null); // For the detailed view of a client
+  const [viewingClientPlans, setViewingClientPlans] = useState(null); // Existing state for viewing plans dialog
+  const [showWhatsAppDialog, setShowWhatsAppDialog] = useState(false);
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const [selectedClientForNotifications, setSelectedClientForNotifications] = useState(null); // Renamed to avoid confusion with editingClient/viewingClient
+
   const [formData, setFormData] = useState({
-    status: 'active',
+    full_name: "",
+    email: "",
+    phone: "",
+    age: "",
+    gender: "male",
+    height: "",
+    weight: "",
+    target_weight: "",
+    activity_level: "moderately_active",
+    goal: "weight_loss",
+    food_preference: "veg",
+    regional_preference: "north",
+    status: "active",
     join_date: format(new Date(), 'yyyy-MM-dd'),
+    notes: '',
+    bmr: null,
+    tdee: null,
+    target_calories: null,
+    target_protein: null,
+    target_carbs: null,
+    target_fats: null,
+    initial_weight: null,
   });
 
   const { data: user } = useQuery({
@@ -53,12 +86,12 @@ export default function ClientManagement() {
     queryKey: ['clients'],
     queryFn: async () => {
       const allClients = await base44.entities.Client.list('-created_date');
-      
+
       // Super admin sees ALL clients
       if (user?.user_type === 'super_admin') {
         return allClients;
       }
-      
+
       // Team members, student coaches, student team members - only see THEIR OWN clients
       return allClients.filter(client => client.created_by === user?.email);
     },
@@ -81,38 +114,95 @@ export default function ClientManagement() {
     initialData: [],
   });
 
-  const saveMutation = useMutation({
-    mutationFn: (data) => {
-      if (selectedClient) {
-        return base44.entities.Client.update(selectedClient.id, data);
+  const saveClientMutation = useMutation({
+    mutationFn: async (data) => {
+      if (editingClient) {
+        return await base44.entities.Client.update(editingClient.id, data);
+      } else {
+        const newClient = await base44.entities.Client.create(data);
+
+        // Send welcome email
+        try {
+          const welcomeEmail = fillTemplate(EMAIL_TEMPLATES.WELCOME.body, {
+            client_name: data.full_name
+          });
+
+          await base44.integrations.Core.SendEmail({
+            from_name: "Mealie - Health Coach Platform",
+            to: data.email,
+            subject: EMAIL_TEMPLATES.WELCOME.subject,
+            body: `
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f3f4f6; padding: 20px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%;">
+          <tr>
+            <td style="background: linear-gradient(135deg, #f97316 0%, #dc2626 100%); padding: 40px 30px; border-radius: 10px 10px 0 0; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 32px;">🍽️ Mealie</h1>
+              <p style="color: white; margin: 8px 0 0 0; font-size: 16px;">Your Health, Our Priority</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background: white; padding: 40px 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+              <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 24px;">${EMAIL_TEMPLATES.WELCOME.subject}</h2>
+              <div style="color: #4b5563; line-height: 1.8; font-size: 16px; white-space: pre-wrap;">${welcomeEmail}</div>
+              <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e5e7eb;">
+                <p style="color: #6b7280; font-size: 15px; margin: 0;">Best regards,</p>
+                <p style="color: #1f2937; font-size: 16px; font-weight: 600; margin: 5px 0 0 0;">Team Mealie</p>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+            `
+          });
+          console.log("Welcome email sent to:", data.email);
+        } catch (emailError) {
+          console.error("Failed to send welcome email:", emailError);
+        }
+
+        return newClient;
       }
-      return base44.entities.Client.create(data);
     },
-    onSuccess: (savedClient) => {
+    onSuccess: () => {
       queryClient.invalidateQueries(['clients']);
       setShowAddDialog(false);
-      
-      // Show success with option to create meal plan
-      const shouldCreatePlan = window.confirm(
-        `✅ Client saved successfully!\n\n` +
-        `Would you like to create a meal plan for ${savedClient.full_name} now?`
-      );
-      
-      if (shouldCreatePlan) {
-        // Navigate to meal planner with client pre-selected
-        navigate(`${createPageUrl("MealPlanner")}?client=${savedClient.id}`);
-      }
-      
-      setSelectedClient(null);
-      setFormData({ status: 'active', join_date: format(new Date(), 'yyyy-MM-dd') });
+      setEditingClient(null);
+      alert(editingClient ? "✅ Client updated successfully!" : "✅ Client added successfully! Welcome email sent.");
     },
+    onError: (error) => {
+      console.error("Error saving client:", error);
+      alert("Error saving client. Please check the console for details.");
+    }
   });
+
+  const deleteClientMutation = useMutation({
+    mutationFn: (id) => base44.entities.Client.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['clients']);
+      setViewingClient(null); // Close view dialog if open
+      alert("Client deleted successfully!");
+    },
+    onError: (error) => {
+      console.error("Error deleting client:", error);
+      alert("Error deleting client. Please check the console for details.");
+    }
+  });
+
 
   const calculateMacros = () => {
     const { weight, height, age, gender, activity_level, goal } = formData;
-    
+
     if (!weight || !height || !age || !gender || !activity_level || !goal) {
-      alert("Please fill in required fields first");
+      alert("Please fill in required fields first: weight, height, age, gender, activity level, and goal.");
       return;
     }
 
@@ -130,7 +220,7 @@ export default function ClientManagement() {
       very_active: 1.725,
       extremely_active: 1.9,
     };
-    
+
     const tdee = bmr * activityMultipliers[activity_level];
 
     let targetCalories;
@@ -165,9 +255,19 @@ export default function ClientManagement() {
   };
 
   const handleEdit = (client) => {
-    setSelectedClient(client);
-    setFormData(client);
+    setEditingClient(client);
+    setFormData(client); // Pre-fill form with client data
     setShowAddDialog(true);
+  };
+
+  const handleOpenWhatsApp = (client) => {
+    setSelectedClientForNotifications(client);
+    setShowWhatsAppDialog(true);
+  };
+
+  const handleOpenEmail = (client) => {
+    setSelectedClientForNotifications(client);
+    setShowEmailDialog(true);
   };
 
   const handleCreatePlan = (client) => {
@@ -179,8 +279,14 @@ export default function ClientManagement() {
     setViewingClientPlans({ client, plans: clientPlans });
   };
 
+  const handleDeleteClient = (client) => {
+    if (window.confirm(`Are you sure you want to delete ${client.full_name}? This action cannot be undone.`)) {
+      deleteClientMutation.mutate(client.id);
+    }
+  };
+
   const filteredClients = clients.filter(client => {
-    const matchesSearch = 
+    const matchesSearch =
       client.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       client.email?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "all" || client.status === statusFilter;
@@ -193,15 +299,39 @@ export default function ClientManagement() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Client Management</h1>
-            <p className="text-gray-600">Manage your client roster</p>
+            <p className="text-gray-600">Manage your clients and their health journeys</p>
           </div>
           <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
             <DialogTrigger asChild>
-              <Button 
+              <Button
                 className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
                 onClick={() => {
-                  setSelectedClient(null);
-                  setFormData({ status: 'active', join_date: format(new Date(), 'yyyy-MM-dd') });
+                  setEditingClient(null); // Clear editing state for new client
+                  setFormData({ // Reset form data
+                    full_name: "",
+                    email: "",
+                    phone: "",
+                    age: "",
+                    gender: "male",
+                    height: "",
+                    weight: "",
+                    target_weight: "",
+                    activity_level: "moderately_active",
+                    goal: "weight_loss",
+                    food_preference: "veg",
+                    regional_preference: "north",
+                    status: "active",
+                    join_date: format(new Date(), 'yyyy-MM-dd'),
+                    notes: '',
+                    bmr: null,
+                    tdee: null,
+                    target_calories: null,
+                    target_protein: null,
+                    target_carbs: null,
+                    target_fats: null,
+                    initial_weight: null,
+                  });
+                  setShowAddDialog(true);
                 }}
               >
                 <UserPlus className="w-4 h-4 mr-2" />
@@ -211,13 +341,13 @@ export default function ClientManagement() {
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="text-2xl">
-                  {selectedClient ? 'Edit Client' : 'Add New Client'}
+                  {editingClient ? 'Edit Client' : 'Add New Client'}
                 </DialogTitle>
                 <DialogDescription>
-                  {selectedClient ? 'Update client information and health data' : 'Add a new client with their health information and goals'}
+                  {editingClient ? 'Update client information and health data' : 'Add a new client with their health information and goals'}
                 </DialogDescription>
               </DialogHeader>
-              
+
               <Tabs defaultValue="basic" className="mt-4">
                 <TabsList className="grid grid-cols-3">
                   <TabsTrigger value="basic">Basic Info</TabsTrigger>
@@ -372,7 +502,7 @@ export default function ClientManagement() {
                     className="w-full"
                     variant="outline"
                   >
-                    Calculate Macros
+                    <Calculator className="w-4 h-4 mr-2"/> Calculate Macros
                   </Button>
 
                   {formData.target_calories && (
@@ -436,7 +566,7 @@ export default function ClientManagement() {
                       </Select>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label>Notes</Label>
                     <Textarea
@@ -450,11 +580,11 @@ export default function ClientManagement() {
               </Tabs>
 
               <Button
-                onClick={() => saveMutation.mutate(formData)}
-                disabled={saveMutation.isPending}
+                onClick={() => saveClientMutation.mutate(formData)}
+                disabled={saveClientMutation.isPending}
                 className="w-full mt-4 bg-gradient-to-r from-orange-500 to-red-500"
               >
-                {saveMutation.isPending ? 'Saving...' : selectedClient ? 'Update Client' : 'Add Client'}
+                {saveClientMutation.isPending ? 'Saving...' : editingClient ? 'Update Client' : 'Add Client'}
               </Button>
             </DialogContent>
           </Dialog>
@@ -493,7 +623,7 @@ export default function ClientManagement() {
           {filteredClients.map((client) => {
             const clientPlans = mealPlans.filter(p => p.client_id === client.id);
             const activePlan = clientPlans.find(p => p.active);
-            
+
             return (
               <Card key={client.id} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all">
                 <CardHeader>
@@ -506,112 +636,75 @@ export default function ClientManagement() {
                       </div>
                       <div>
                         <CardTitle className="text-lg">{client.full_name}</CardTitle>
-                        <div className="flex gap-2 mt-1">
-                          <Badge className={
-                            client.status === 'active' ? 'bg-green-100 text-green-700' :
-                            client.status === 'inactive' ? 'bg-gray-100 text-gray-700' :
-                            'bg-blue-100 text-blue-700'
-                          }>
-                            {client.status}
-                          </Badge>
-                          {clientPlans.length > 0 && (
-                            <Badge className="bg-purple-100 text-purple-700">
-                              📅 {clientPlans.length} {clientPlans.length === 1 ? 'Plan' : 'Plans'}
-                            </Badge>
-                          )}
-                        </div>
+                        <p className="text-sm text-gray-600">{client.email}</p>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEdit(client)}
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Mail className="w-4 h-4" />
-                    <span className="truncate">{client.email}</span>
-                  </div>
-                  {client.phone && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Phone className="w-4 h-4" />
-                      <span>{client.phone}</span>
-                    </div>
-                  )}
-                  
-                  {/* Show active meal plan info - CLICKABLE */}
-                  {activePlan && (
-                    <div 
-                      className="p-3 bg-purple-50 rounded-lg border border-purple-200 cursor-pointer hover:bg-purple-100 transition-colors"
-                      onClick={() => handleViewPlans(client)}
-                    >
-                      <p className="text-xs text-purple-600 font-medium mb-1">Active Meal Plan (Click to view)</p>
-                      <p className="text-sm font-semibold text-purple-900">{activePlan.name}</p>
-                      <p className="text-xs text-purple-600">{activePlan.duration} days • {activePlan.target_calories} kcal</p>
-                    </div>
-                  )}
-                  
-                  {client.weight && client.target_weight && (
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div>
-                        <p className="text-xs text-gray-600">Current</p>
-                        <p className="text-lg font-bold text-gray-900">{client.weight} kg</p>
-                      </div>
-                      <TrendingUp className="w-5 h-5 text-green-500" />
-                      <div>
-                        <p className="text-xs text-gray-600">Target</p>
-                        <p className="text-lg font-bold text-gray-900">{client.target_weight} kg</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {client.goal && (
-                    <Badge variant="outline" className="capitalize">
-                      {client.goal.replace('_', ' ')}
+                <CardContent className="space-y-4">
+                  <div className="flex flex-wrap gap-2">
+                    <Badge className={
+                      client.status === 'active' ? 'bg-green-100 text-green-700' :
+                      client.status === 'inactive' ? 'bg-gray-100 text-gray-700' :
+                      'bg-blue-100 text-blue-700'
+                    }>
+                      {client.status}
                     </Badge>
-                  )}
+                    {client.food_preference && (
+                      <Badge className="bg-blue-100 text-blue-700 capitalize">
+                        {client.food_preference?.replace('_', ' ')}
+                      </Badge>
+                    )}
+                    {activePlan && (
+                      <Badge className="bg-purple-100 text-purple-700">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Has Active Plan
+                      </Badge>
+                    )}
+                  </div>
 
-                  {/* FOUR BUTTONS: Message, View Plans, New Plan, Pro Plan */}
-                  <div className="grid grid-cols-4 gap-2 pt-3">
-                    <Link to={`${createPageUrl("Communication")}?client=${client.id}`}>
-                      <Button variant="outline" size="sm" className="w-full" title="Message Client">
-                        <MessageSquare className="w-4 h-4" />
-                      </Button>
-                    </Link>
-                    
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full"
-                      onClick={() => handleViewPlans(client)}
-                      title="View All Plans"
-                      disabled={clientPlans.length === 0}
-                    >
-                      <FileText className="w-4 h-4" />
-                    </Button>
-                    
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full"
-                      onClick={() => handleCreatePlan(client)}
-                      title="Create Basic Plan"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    {client.goal && (
+                      <div>
+                        <p className="text-gray-600">Goal</p>
+                        <p className="font-semibold capitalize">{client.goal?.replace('_', ' ')}</p>
+                      </div>
+                    )}
+                    {client.target_calories && (
+                      <div>
+                        <p className="text-gray-600">Calories</p>
+                        <p className="font-semibold">{client.target_calories} kcal</p>
+                      </div>
+                    )}
+                  </div>
 
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full bg-purple-50 hover:bg-purple-100 border-purple-300"
-                      onClick={() => navigate(createPageUrl(`ClinicalIntake/${client.id}`))}
-                      title="Create Pro Plan"
+                  <div className="grid grid-cols-3 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenEmail(client)}
+                      className="text-blue-600 hover:bg-blue-50"
+                      title="Send Email"
                     >
-                      <Stethoscope className="w-4 h-4 text-purple-600" />
+                      <Mail className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenWhatsApp(client)}
+                      className="text-green-600 hover:bg-green-50"
+                      title="Send WhatsApp"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setViewingClient(client)}
+                      className="text-gray-600 hover:bg-gray-50"
+                      title="View Details"
+                    >
+                      <Eye className="w-4 h-4" />
                     </Button>
                   </div>
                 </CardContent>
@@ -629,6 +722,148 @@ export default function ClientManagement() {
             </CardContent>
           </Card>
         )}
+
+        {/* WhatsApp Dialog */}
+        {showWhatsAppDialog && selectedClientForNotifications && (
+          <WhatsAppSender
+            client={selectedClientForNotifications}
+            onClose={() => {
+              setShowWhatsAppDialog(false);
+              setSelectedClientForNotifications(null);
+            }}
+          />
+        )}
+
+        {/* Email Dialog */}
+        {showEmailDialog && selectedClientForNotifications && (
+          <EmailSender
+            client={selectedClientForNotifications}
+            onClose={() => {
+              setShowEmailDialog(false);
+              setSelectedClientForNotifications(null);
+            }}
+          />
+        )}
+
+        {/* View Client Details Dialog */}
+        <Dialog open={!!viewingClient} onOpenChange={() => setViewingClient(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">{viewingClient?.full_name}</DialogTitle>
+              <DialogDescription>
+                Detailed information and actions for {viewingClient?.full_name}.
+              </DialogDescription>
+            </DialogHeader>
+            {viewingClient && (
+              <div className="space-y-6 mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <UserPlus className="w-5 h-5 text-gray-600"/> Basic Info
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                      <p><span className="font-semibold">Email:</span> {viewingClient.email}</p>
+                      {viewingClient.phone && <p><span className="font-semibold">Phone:</span> {viewingClient.phone}</p>}
+                      <p><span className="font-semibold">Status:</span> <Badge>{viewingClient.status}</Badge></p>
+                      <p><span className="font-semibold">Joined:</span> {format(new Date(viewingClient.join_date), 'MMM d, yyyy')}</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <TrendingUp className="w-5 h-5 text-gray-600"/> Health Data
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                      <p><span className="font-semibold">Age:</span> {viewingClient.age || 'N/A'}</p>
+                      <p><span className="font-semibold">Gender:</span> {viewingClient.gender || 'N/A'}</p>
+                      <p><span className="font-semibold">Height:</span> {viewingClient.height ? `${viewingClient.height} cm` : 'N/A'}</p>
+                      <p><span className="font-semibold">Weight:</span> {viewingClient.weight ? `${viewingClient.weight} kg` : 'N/A'}</p>
+                      <p><span className="font-semibold">Target Weight:</span> {viewingClient.target_weight ? `${viewingClient.target_weight} kg` : 'N/A'}</p>
+                      <p><span className="font-semibold">Activity Level:</span> {viewingClient.activity_level?.replace('_', ' ') || 'N/A'}</p>
+                      <p><span className="font-semibold">Goal:</span> <Badge className="capitalize">{viewingClient.goal?.replace('_', ' ')}</Badge></p>
+                    </CardContent>
+                  </Card>
+
+                  {viewingClient.target_calories && (
+                    <Card className="col-span-2">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Calculator className="w-5 h-5 text-gray-600"/> Macros
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-4 gap-3 p-4 bg-gray-50 rounded-lg">
+                          <div>
+                            <p className="text-xs text-gray-600">Calories</p>
+                            <p className="text-lg font-bold">{viewingClient.target_calories}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-600">Protein</p>
+                            <p className="text-lg font-bold">{viewingClient.target_protein}g</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-600">Carbs</p>
+                            <p className="text-lg font-bold">{viewingClient.target_carbs}g</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-600">Fats</p>
+                            <p className="text-lg font-bold">{viewingClient.target_fats}g</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  <Card className="col-span-2">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <ChefHat className="w-5 h-5 text-gray-600"/> Preferences & Notes
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                      <p><span className="font-semibold">Food Preference:</span> {viewingClient.food_preference?.replace('_', ' ') || 'N/A'}</p>
+                      <p><span className="font-semibold">Regional Preference:</span> {viewingClient.regional_preference?.replace('_', ' ') || 'N/A'}</p>
+                      {viewingClient.notes && (
+                        <div>
+                          <p className="font-semibold mb-1">Notes:</p>
+                          <Textarea value={viewingClient.notes} readOnly rows={4} className="bg-gray-50 resize-none"/>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  <Button variant="outline" onClick={() => { setViewingClient(null); handleEdit(viewingClient); }}>
+                    <Edit className="w-4 h-4 mr-2" /> Edit
+                  </Button>
+                  <Button variant="outline" onClick={() => { setViewingClient(null); handleViewPlans(viewingClient); }}>
+                    <FileText className="w-4 h-4 mr-2" /> Plans
+                  </Button>
+                  <Button variant="outline" onClick={() => { setViewingClient(null); handleCreatePlan(viewingClient); }}>
+                    <Plus className="w-4 h-4 mr-2" /> Basic Plan
+                  </Button>
+                  <Button
+                    className="bg-purple-500 hover:bg-purple-600 text-white"
+                    onClick={() => {
+                      setViewingClient(null);
+                      navigate(createPageUrl(`ClinicalIntake/${viewingClient.id}`));
+                    }}
+                  >
+                    <Stethoscope className="w-4 h-4 mr-2" /> Pro Plan
+                  </Button>
+                </div>
+                <Button variant="destructive" onClick={() => handleDeleteClient(viewingClient)} disabled={deleteClientMutation.isPending} className="w-full mt-4">
+                  {deleteClientMutation.isPending ? 'Deleting...' : 'Delete Client'}
+                </Button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* View Client Plans Dialog */}
         <Dialog open={!!viewingClientPlans} onOpenChange={() => setViewingClientPlans(null)}>
@@ -736,12 +971,12 @@ export default function ClientManagement() {
             <p className="text-gray-700">
               <strong>Creating a Client Profile is NOT enough!</strong> Clients need a <strong>login account</strong> to access the app.
             </p>
-            
+
             <div className="bg-white p-4 rounded-lg border-2 border-orange-200">
               <p className="font-semibold text-orange-900 mb-3">📋 Step-by-Step Process:</p>
               <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700">
                 <li><strong>Step 1:</strong> Create Client Profile here (you already did this ✅)</li>
-                <li><strong>Step 2:</strong> Go to <strong>Dashboard → Data → User</strong></li>
+                <li><strong>Step <strong>2:</strong> Go to <strong>Dashboard → Data → User</strong></strong></li>
                 <li><strong>Step 3:</strong> Click <strong>"Invite User"</strong> button</li>
                 <li><strong>Step 4:</strong> Enter client's email (MUST match email in Client Profile)</li>
                 <li><strong>Step 5:</strong> Set <code>user_type</code> = <code>"client"</code></li>
@@ -751,17 +986,21 @@ export default function ClientManagement() {
               </ol>
             </div>
 
-            <div className="bg-green-50 p-3 rounded-lg border border-green-300">
-              <p className="text-sm text-green-800">
-                <strong>✅ Why Two Steps?</strong> For security, only platform admins can invite users. This prevents unauthorized access.
-              </p>
-            </div>
+            <Alert className="bg-green-50 border-green-300">
+              <CheckCircle className="h-4 w-4 text-green-700" />
+              <AlertTitle className="text-green-800">Why Two Steps?</AlertTitle>
+              <AlertDescription className="text-sm text-green-700">
+                For security, only platform admins can invite users. This prevents unauthorized access.
+              </AlertDescription>
+            </Alert>
 
-            <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-300">
-              <p className="text-sm text-yellow-800">
-                <strong>⚠️ Email Must Match:</strong> The email in Client Profile MUST exactly match the email used when inviting the user!
-              </p>
-            </div>
+            <Alert className="bg-yellow-50 border-yellow-300">
+              <AlertTriangle className="h-4 w-4 text-yellow-700" />
+              <AlertTitle className="text-yellow-800">Email Must Match</AlertTitle>
+              <AlertDescription className="text-sm text-yellow-700">
+                The email in Client Profile MUST exactly match the email used when inviting the user!
+              </AlertDescription>
+            </Alert>
           </CardContent>
         </Card>
 
