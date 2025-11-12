@@ -42,6 +42,7 @@ import ClinicalIntake from './pages/ClinicalIntake';
 import MealPlansPro from './pages/MealPlansPro';
 import PlatformReference from './pages/PlatformReference';
 import PricingPlans from './pages/PricingPlans';
+import NotificationSettings from './pages/NotificationSettings';
 import Layout from './Layout.jsx';
 
 
@@ -90,6 +91,7 @@ export const PAGES = {
     "MealPlansPro": MealPlansPro,
     "PlatformReference": PlatformReference,
     "PricingPlans": PricingPlans,
+    "NotificationSettings": NotificationSettings,
 }
 
 export const pagesConfig = {
