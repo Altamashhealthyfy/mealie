@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -36,13 +37,20 @@ export default function TemplateLibraryManager() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [viewingTemplate, setViewingTemplate] = useState(null);
   const [editingTemplate, setEditingTemplate] = useState(null);
+  const [editingMealPlanTemplate, setEditingMealPlanTemplate] = useState(null);
   const [bulkUploading, setBulkUploading] = useState(false);
   const [bulkFiles, setBulkFiles] = useState([]);
   const [bulkMetadata, setBulkMetadata] = useState([]);
   const [showBulkDialog, setShowBulkDialog] = useState(false);
   const [showConvertDialog, setShowConvertDialog] = useState(false);
+  const [showEditMealPlanDialog, setShowEditMealPlanDialog] = useState(false);
   const [selectedMealPlan, setSelectedMealPlan] = useState(null);
   const [convertFormData, setConvertFormData] = useState({
+    name: "",
+    description: "",
+    is_public: false
+  });
+  const [mealPlanEditFormData, setMealPlanEditFormData] = useState({
     name: "",
     description: "",
     is_public: false
@@ -112,6 +120,18 @@ export default function TemplateLibraryManager() {
     },
   });
 
+  const updateMealPlanTemplateMutation = useMutation({
+    mutationFn: async ({ id, data }) => {
+      return await base44.entities.MealPlanTemplate.update(id, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['mealPlanTemplates']);
+      setShowEditMealPlanDialog(false);
+      setEditingMealPlanTemplate(null);
+      alert("✅ Meal plan template updated successfully!");
+    },
+  });
+
   const uploadMutation = useMutation({
     mutationFn: async (data) => {
       if (editingTemplate && !selectedFile) {
@@ -170,7 +190,7 @@ export default function TemplateLibraryManager() {
     mutationFn: (id) => base44.entities.DownloadableTemplate.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries(['downloadableTemplates']);
-      alert("Template deleted");
+      alert("✅ Template deleted successfully!");
     },
   });
 
@@ -178,7 +198,7 @@ export default function TemplateLibraryManager() {
     mutationFn: (id) => base44.entities.MealPlanTemplate.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries(['mealPlanTemplates']);
-      alert("Template deleted");
+      alert("✅ Template deleted successfully!");
     },
   });
 
@@ -199,6 +219,32 @@ export default function TemplateLibraryManager() {
     });
     setActiveTab("downloadable");
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleEditMealPlanTemplate = (template) => {
+    setEditingMealPlanTemplate(template);
+    setMealPlanEditFormData({
+      name: template.name,
+      description: template.description || "",
+      is_public: template.is_public || false
+    });
+    setShowEditMealPlanDialog(true);
+  };
+
+  const handleSaveMealPlanTemplateEdit = () => {
+    if (!mealPlanEditFormData.name.trim()) {
+      alert("Please enter a template name");
+      return;
+    }
+
+    updateMealPlanTemplateMutation.mutate({
+      id: editingMealPlanTemplate.id,
+      data: {
+        name: mealPlanEditFormData.name,
+        description: mealPlanEditFormData.description,
+        is_public: mealPlanEditFormData.is_public
+      }
+    });
   };
 
   const handleConvertMealPlan = (plan) => {
@@ -357,6 +403,7 @@ Extract:
 
   const userType = user?.user_type || 'client';
   const canUploadTemplates = userType === 'super_admin' || (userType === 'team_member' && user?.team_roles?.includes('operations'));
+  const isSuperAdmin = userType === 'super_admin';
   
   if (!canUploadTemplates) {
     return (
@@ -381,6 +428,10 @@ Extract:
       </div>
     );
   }
+
+  const canDeleteTemplate = (template) => {
+    return isSuperAdmin || template.created_by === user?.email;
+  };
 
   return (
     <div className="min-h-screen p-2 sm:p-4 md:p-8">
@@ -664,16 +715,20 @@ Extract:
                             >
                               <Edit className="w-3 h-3" />
                             </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="text-red-600 text-xs"
-                              onClick={() => {
-                                if (confirm("Delete?")) deleteMutation.mutate(template.id);
-                              }}
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
+                            {canDeleteTemplate(template) && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-red-600 text-xs"
+                                onClick={() => {
+                                  if (confirm(`Delete "${template.name}"?`)) {
+                                    deleteMutation.mutate(template.id);
+                                  }
+                                }}
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            )}
                           </div>
                         </CardContent>
                       </Card>
@@ -732,20 +787,32 @@ Extract:
                             <p>👤 {template.created_by === user?.email ? 'My Template' : 'Public'}</p>
                           </div>
 
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full text-red-600 text-xs"
-                            onClick={() => {
-                              if (confirm("Delete this meal plan template?")) {
-                                deleteMealPlanTemplateMutation.mutate(template.id);
-                              }
-                            }}
-                            disabled={template.created_by !== user?.email}
-                          >
-                            <Trash2 className="w-3 h-3 mr-1" />
-                            {template.created_by !== user?.email ? 'Public Template' : 'Delete'}
-                          </Button>
+                          <div className="flex gap-2">
+                            {(template.created_by === user?.email || isSuperAdmin) && (
+                              <>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="flex-1 text-xs"
+                                  onClick={() => handleEditMealPlanTemplate(template)}
+                                >
+                                  <Edit className="w-3 h-3" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-red-600 text-xs"
+                                  onClick={() => {
+                                    if (confirm(`Delete "${template.name}"?`)) {
+                                      deleteMealPlanTemplateMutation.mutate(template.id);
+                                    }
+                                  }}
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
                         </CardContent>
                       </Card>
                     ))}
@@ -998,6 +1065,80 @@ Extract:
                   </div>
                 </>
               )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Meal Plan Template Dialog */}
+        <Dialog open={showEditMealPlanDialog} onOpenChange={setShowEditMealPlanDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl flex items-center gap-2">
+                <Edit className="w-6 h-6 text-blue-600" />
+                Edit Meal Plan Template
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Template Name *</Label>
+                <Input
+                  value={mealPlanEditFormData.name}
+                  onChange={(e) => setMealPlanEditFormData({...mealPlanEditFormData, name: e.target.value})}
+                  placeholder="Template name"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={mealPlanEditFormData.description}
+                  onChange={(e) => setMealPlanEditFormData({...mealPlanEditFormData, description: e.target.value})}
+                  placeholder="Description"
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="edit-public"
+                  checked={mealPlanEditFormData.is_public}
+                  onChange={(e) => setMealPlanEditFormData({...mealPlanEditFormData, is_public: e.target.checked})}
+                  className="w-4 h-4"
+                />
+                <Label htmlFor="edit-public" className="text-sm">Make public</Label>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowEditMealPlanDialog(false);
+                    setEditingMealPlanTemplate(null);
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSaveMealPlanTemplateEdit}
+                  disabled={updateMealPlanTemplateMutation.isPending}
+                  className="flex-1 bg-blue-500 h-12"
+                >
+                  {updateMealPlanTemplateMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-5 h-5 mr-2" />
+                      Save Changes
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
