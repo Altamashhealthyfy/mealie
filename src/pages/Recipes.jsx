@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -14,6 +13,7 @@ import { ChefHat, Search, Clock, Users, Flame, Loader2, Download, Upload, Plus, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { format } from "date-fns";
+import { createPageUrl } from "@/utils";
 import ImageUploader from "@/components/common/ImageUploader";
 
 export default function Recipes() {
@@ -182,7 +182,6 @@ export default function Recipes() {
     setGeneratingRecipe(true);
 
     try {
-      // Generate recipe data with AI
       const prompt = `Create a detailed Indian recipe based on this request: "${customRecipeRequest}"
 
 ${userProfile ? `User preferences: ${userProfile.food_preference}, ${userProfile.regional_preference} region` : ''}
@@ -233,7 +232,6 @@ Provide:
         }
       });
 
-      // Generate recipe image with AI
       const imagePrompt = `Professional food photography of ${response.name}, ${response.description}. 
 Beautiful plating, appetizing presentation, restaurant quality, natural lighting, 
 ${response.regional_cuisine} Indian cuisine style, vibrant colors, high resolution food photo`;
@@ -242,7 +240,6 @@ ${response.regional_cuisine} Indian cuisine style, vibrant colors, high resoluti
         prompt: imagePrompt
       });
 
-      // Add image URL to recipe data
       const recipeWithImage = {
         ...response,
         image_url: imageResult.url
@@ -456,7 +453,7 @@ Enjoy your cooking! 🍽️✨
   React.useEffect(() => {
     if (user && isClient && !clientCanViewRecipes) {
       alert('⛔ Recipe Library is not available for clients.\n\nContact your dietitian for recipe recommendations.');
-      window.location.href = '/'; // Redirect to home page
+      window.location.href = createPageUrl('Home');
     }
   }, [isClient, clientCanViewRecipes, user]);
 
@@ -480,7 +477,7 @@ Enjoy your cooking! 🍽️✨
     );
   }
 
-  const canUploadRecipes = !isClient; // Only non-clients can upload/generate
+  const canUploadRecipes = !isClient;
 
   const canEditRecipe = (recipe) => {
     if (isClient) return false;
@@ -834,7 +831,6 @@ Enjoy your cooking! 🍽️✨
           )}
         </div>
 
-        {/* Contributors Card */}
         {canUploadRecipes && (
           <Card className="border-none shadow-xl bg-gradient-to-br from-purple-50 to-indigo-50">
             <CardHeader>
@@ -971,7 +967,6 @@ Enjoy your cooking! 🍽️✨
               </CardContent>
             </Card>
 
-            {/* Results Summary */}
             <Card className="border-none shadow-lg bg-gradient-to-r from-blue-50 to-cyan-50">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
@@ -1000,7 +995,7 @@ Enjoy your cooking! 🍽️✨
                 <CardContent className="p-12 text-center">
                   <ChefHat className="w-16 h-16 mx-auto text-gray-300 mb-4" />
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">No Recipes Found</h3>
-                  <p className="text-gray-600">Try adjusting your filters or upload a recipe</p>
+                  <p className="text-gray-600">Try adjusting your filters{canUploadRecipes ? ' or upload a recipe' : ''}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -1017,66 +1012,70 @@ Enjoy your cooking! 🍽️✨
                           alt={recipe.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         />
-                        <div className="absolute top-2 right-2 flex gap-2">
-                          {canEditRecipe(recipe) && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditRecipe(recipe);
-                              }}
-                              className="bg-white/90 hover:bg-white text-blue-600 h-8 w-8 p-0"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                          )}
-                          {canDeleteRecipe(recipe) && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteRecipe(recipe);
-                              }}
-                              className="bg-white/90 hover:bg-white text-red-600 h-8 w-8 p-0"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
+                        {canUploadRecipes && (
+                          <div className="absolute top-2 right-2 flex gap-2">
+                            {canEditRecipe(recipe) && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditRecipe(recipe);
+                                }}
+                                className="bg-white/90 hover:bg-white text-blue-600 h-8 w-8 p-0"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            )}
+                            {canDeleteRecipe(recipe) && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteRecipe(recipe);
+                                }}
+                                className="bg-white/90 hover:bg-white text-red-600 h-8 w-8 p-0"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="h-48 bg-gradient-to-br from-orange-100 via-amber-100 to-red-100 rounded-t-xl flex items-center justify-center relative">
                         <ChefHat className="w-16 h-16 text-orange-400 opacity-20" />
-                        <div className="absolute top-2 right-2 flex gap-2">
-                          {canEditRecipe(recipe) && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditRecipe(recipe);
-                              }}
-                              className="bg-white/90 hover:bg-white text-blue-600 h-8 w-8 p-0"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                          )}
-                          {canDeleteRecipe(recipe) && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteRecipe(recipe);
-                              }}
-                              className="bg-white/90 hover:bg-white text-red-600 h-8 w-8 p-0"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
+                        {canUploadRecipes && (
+                          <div className="absolute top-2 right-2 flex gap-2">
+                            {canEditRecipe(recipe) && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditRecipe(recipe);
+                                }}
+                                className="bg-white/90 hover:bg-white text-blue-600 h-8 w-8 p-0"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            )}
+                            {canDeleteRecipe(recipe) && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteRecipe(recipe);
+                                }}
+                                className="bg-white/90 hover:bg-white text-red-600 h-8 w-8 p-0"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                     
@@ -1292,7 +1291,7 @@ Enjoy your cooking! 🍽️✨
                   </ol>
                 </div>
 
-                {(canEditRecipe(selectedRecipe) || canDeleteRecipe(selectedRecipe)) && (
+                {canUploadRecipes && (canEditRecipe(selectedRecipe) || canDeleteRecipe(selectedRecipe)) && (
                   <div className="flex gap-3 pt-4 border-t">
                     {canEditRecipe(selectedRecipe) && (
                       <Button
