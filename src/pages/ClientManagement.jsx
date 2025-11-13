@@ -141,6 +141,10 @@ export default function ClientManagement() {
         cleanData.initial_weight = data.weight ? parseFloat(data.weight) : null;
         const newClient = await base44.entities.Client.create(cleanData);
 
+        // Get the app URL for dashboard link
+        const appUrl = window.location.origin;
+        const dashboardLink = `${appUrl}${createPageUrl("Home")}`;
+
         // 🔥 AUTOMATICALLY SEND WELCOME EMAIL from Google Workspace
         try {
           const welcomeSubject = "Welcome to Healthyfy - Your Health Journey Begins!";
@@ -159,6 +163,9 @@ Your Health Goals:
 ${newClient.goal ? `Goal: ${newClient.goal.replace('_', ' ')}` : ''}
 ${newClient.target_calories ? `Target Calories: ${newClient.target_calories} kcal/day` : ''}
 
+Access Your Dashboard:
+${dashboardLink}
+
 We're excited to help you achieve your health goals!
 
 Best regards,
@@ -175,6 +182,38 @@ contactus@healthyfy.com`;
         } catch (emailError) {
           console.error("⚠️ Failed to send welcome email:", emailError);
           // Don't fail the whole operation if email fails
+        }
+
+        // 📱 AUTOMATICALLY SEND WELCOME WHATSAPP MESSAGE
+        if (newClient.phone) {
+          try {
+            const whatsappMessage = `Hi ${newClient.full_name}! 👋
+
+Welcome to Healthyfy! 🎉
+
+Your health journey starts today! Your dedicated dietitian is here to support you.
+
+🔗 Access your dashboard: ${dashboardLink}
+
+📧 Check your email for more details
+💬 Feel free to message us anytime
+
+Let's achieve your health goals together! 💪
+
+Team Healthyfy
+contactus@healthyfy.com`;
+
+            await base44.functions.invoke('sendWhatsAppMessage', {
+              phone: newClient.phone,
+              message: whatsappMessage,
+              clientName: newClient.full_name
+            });
+
+            console.log("✅ WhatsApp welcome message sent to", newClient.phone);
+          } catch (whatsappError) {
+            console.error("⚠️ Failed to send WhatsApp message:", whatsappError);
+            // Don't fail the whole operation if WhatsApp fails
+          }
         }
 
         return newClient;
@@ -205,7 +244,11 @@ contactus@healthyfy.com`;
       if (editingClient) {
         alert("✅ Client updated successfully!");
       } else {
-        alert("✅ Client added successfully!\n\n📧 Welcome email automatically sent to " + variables.email + " from contactus@healthyfy.com");
+        const notifications = ["📧 Welcome email sent to " + variables.email];
+        if (variables.phone) {
+          notifications.push("📱 WhatsApp message sent to " + variables.phone);
+        }
+        alert("✅ Client added successfully!\n\n" + notifications.join("\n"));
       }
     },
     onError: (error) => {
