@@ -43,6 +43,7 @@ import MealPlansPro from './pages/MealPlansPro';
 import PlatformReference from './pages/PlatformReference';
 import PricingPlans from './pages/PricingPlans';
 import NotificationSettings from './pages/NotificationSettings';
+import PermissionManager from './pages/PermissionManager';
 import Layout from './Layout.jsx';
 
 
@@ -92,6 +93,7 @@ export const PAGES = {
     "PlatformReference": PlatformReference,
     "PricingPlans": PricingPlans,
     "NotificationSettings": NotificationSettings,
+    "PermissionManager": PermissionManager,
 }
 
 export const pagesConfig = {

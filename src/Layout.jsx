@@ -166,6 +166,12 @@ const businessNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
+    title: "Permission Manager",
+    url: createPageUrl("PermissionManager"),
+    icon: BookOpen,
+    roles: ['super_admin'],
+  },
+  {
     title: "Reference Docs",
     url: createPageUrl("PlatformReference"),
     icon: BookOpen,
