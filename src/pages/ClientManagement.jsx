@@ -141,11 +141,42 @@ export default function ClientManagement() {
         cleanData.initial_weight = data.weight ? parseFloat(data.weight) : null;
         const newClient = await base44.entities.Client.create(cleanData);
 
-        // 🔥 TRY TO SEND WELCOME EMAIL (Only works for registered users, removing auto-send for now)
-        // If an email needs to be sent, it will be done manually via the "blue Mail button" now.
-        // The original welcome email logic attempted to send via base44.integrations.Core.SendEmail
-        // but that requires the client to be a registered user, which they aren't at profile creation.
-        // We removed the automatic sending block from here based on the instructions.
+        // 🔥 AUTOMATICALLY SEND WELCOME EMAIL from Google Workspace
+        try {
+          const welcomeSubject = "Welcome to Healthyfy - Your Health Journey Begins!";
+          const welcomeBody = `Dear ${newClient.full_name},
+
+Welcome to Healthyfy! 🎉
+
+We're thrilled to have you join us on your health and wellness journey. Your dedicated dietitian is here to support you every step of the way.
+
+What's Next?
+• You'll receive your personalized meal plan soon
+• Check your dashboard regularly for updates
+• Feel free to message us anytime with questions
+
+Your Health Goals:
+${newClient.goal ? `Goal: ${newClient.goal.replace('_', ' ')}` : ''}
+${newClient.target_calories ? `Target Calories: ${newClient.target_calories} kcal/day` : ''}
+
+We're excited to help you achieve your health goals!
+
+Best regards,
+Healthyfy Team
+contactus@healthyfy.com`;
+
+          await base44.functions.invoke('sendGoogleWorkspaceEmail', {
+            to: newClient.email,
+            subject: welcomeSubject,
+            body: welcomeBody
+          });
+
+          console.log("✅ Welcome email sent automatically to", newClient.email);
+        } catch (emailError) {
+          console.error("⚠️ Failed to send welcome email:", emailError);
+          // Don't fail the whole operation if email fails
+        }
+
         return newClient;
       }
     },
@@ -174,7 +205,7 @@ export default function ClientManagement() {
       if (editingClient) {
         alert("✅ Client updated successfully!");
       } else {
-        alert("✅ Client added successfully!\n\n📧 To send welcome email:\n1. Click the blue Mail button\n2. Gmail will open with pre-filled message\n3. Click Send in Gmail\n\nWorks for ANY email address!");
+        alert("✅ Client added successfully!\n\n📧 Welcome email automatically sent to " + variables.email + " from contactus@healthyfy.com");
       }
     },
     onError: (error) => {
@@ -379,10 +410,10 @@ export default function ClientManagement() {
               {!editingClient && (
                 <Alert className="bg-green-50 border-green-500 border-2">
                   <Mail className="w-5 h-5 text-green-600" />
-                  <AlertTitle className="text-green-900 font-bold">📧 How to Email Clients</AlertTitle>
+                  <AlertTitle className="text-green-900 font-bold">📧 Welcome Email Sent Automatically!</AlertTitle>
                   <AlertDescription className="text-green-800">
-                    After adding the client, click the <strong>blue Mail button</strong> to send emails via Gmail.
-                    Works for <strong>ANY email address</strong> - no restrictions!
+                    A welcome email will be automatically sent to the client's email address upon creation.
+                    You can still use the <strong>blue Mail button</strong> to send custom emails.
                   </AlertDescription>
                 </Alert>
               )}
