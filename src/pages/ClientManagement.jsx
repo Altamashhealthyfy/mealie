@@ -745,11 +745,11 @@ contactus@healthyfy.com`;
                     <div className="flex items-center gap-2 md:gap-3 min-w-0">
                       <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center shrink-0">
                         <span className="text-white font-medium text-base md:text-lg">
-                          {client.full_name.charAt(0)}
+                          {(client.full_name || 'C').charAt(0).toUpperCase()}
                         </span>
                       </div>
                       <div className="min-w-0">
-                        <CardTitle className="text-base md:text-lg truncate">{client.full_name}</CardTitle>
+                        <CardTitle className="text-base md:text-lg truncate">{client.full_name || 'No Name'}</CardTitle>
                         <p className="text-xs md:text-sm text-gray-600 truncate">{client.email}</p>
                       </div>
                     </div>
