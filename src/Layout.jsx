@@ -26,7 +26,8 @@ import {
   FileText,
   Upload,
   LogOut,
-  Stethoscope
+  Stethoscope,
+  Shield
 } from "lucide-react";
 import {
   Sidebar,
@@ -165,6 +166,12 @@ const businessNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
+    title: "Security Settings",
+    url: createPageUrl("SecuritySettings"),
+    icon: Shield,
+    roles: ['super_admin'],
+  },
+  {
     title: "Permission Manager",
     url: createPageUrl("PermissionManager"),
     icon: BookOpen,
@@ -178,39 +185,6 @@ const businessNavigation = [
   },
 ];
 
-const clientNavigation = [
-  {
-    title: "My Dashboard",
-    url: createPageUrl("Home"),
-    icon: Home,
-  },
-  {
-    title: "My Meal Plan",
-    url: createPageUrl("MyAssignedMealPlan"),
-    icon: Calendar,
-  },
-  {
-    title: "Food Log",
-    url: createPageUrl("FoodLog"),
-    icon: Utensils,
-  },
-  {
-    title: "My Progress",
-    url: createPageUrl("ProgressTracking"),
-    icon: Scale,
-  },
-  {
-    title: "MPESS Wellness",
-    url: createPageUrl("MPESSTracker"),
-    icon: Heart,
-  },
-  {
-    title: "Messages",
-    url: createPageUrl("ClientCommunication"),
-    icon: MessageSquare,
-  },
-];
-
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
 
@@ -218,6 +192,15 @@ export default function Layout({ children, currentPageName }) {
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
     retry: false,
+  });
+
+  const { data: securitySettings } = useQuery({
+    queryKey: ['securitySettings'],
+    queryFn: async () => {
+      const settings = await base44.entities.AppSecuritySettings.list();
+      return settings[0] || null;
+    },
+    enabled: !!user && user.user_type === 'client',
   });
 
   const { data: unreadCount } = useQuery({
@@ -241,7 +224,59 @@ export default function Layout({ children, currentPageName }) {
     !item.roles || item.roles.includes(userType)
   );
 
-  const navigationItems = isDietitian ? filteredDietitianNav : clientNavigation;
+  // Client navigation with security settings
+  const getClientNavigation = () => {
+    const settings = securitySettings?.client_panel_settings;
+    
+    const baseNav = [
+      {
+        title: "My Dashboard",
+        url: createPageUrl("Home"),
+        icon: Home,
+        show: true,
+      },
+      {
+        title: "My Meal Plan",
+        url: createPageUrl("MyAssignedMealPlan"),
+        icon: Calendar,
+        show: settings?.show_meal_plan ?? true,
+      },
+      {
+        title: "Food Log",
+        url: createPageUrl("FoodLog"),
+        icon: Utensils,
+        show: settings?.show_food_log ?? true,
+      },
+      {
+        title: "My Progress",
+        url: createPageUrl("ProgressTracking"),
+        icon: Scale,
+        show: settings?.show_progress_tracking ?? true,
+      },
+      {
+        title: "MPESS Wellness",
+        url: createPageUrl("MPESSTracker"),
+        icon: Heart,
+        show: settings?.show_mpess_tracker ?? true,
+      },
+      {
+        title: "Messages",
+        url: createPageUrl("ClientCommunication"),
+        icon: MessageSquare,
+        show: settings?.show_messages ?? true,
+      },
+      {
+        title: "Recipes",
+        url: createPageUrl("Recipes"),
+        icon: ClipboardList,
+        show: settings?.show_recipes ?? false, // Hidden by default for clients
+      },
+    ];
+
+    return baseNav.filter(item => item.show);
+  };
+
+  const navigationItems = isDietitian ? filteredDietitianNav : getClientNavigation();
 
   const getUserLabel = () => {
     if (!isDietitian) return 'Client Account';
