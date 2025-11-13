@@ -4,10 +4,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ChefHat, Search, Clock, Users, Flame, Loader2, Download } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ChefHat, Search, Clock, Users, Flame, Loader2, Download, Upload, Plus, Image as ImageIcon, Sparkles } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function Recipes() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,6 +21,28 @@ export default function Recipes() {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [generatingRecipe, setGeneratingRecipe] = useState(false);
   const [customRecipeRequest, setCustomRecipeRequest] = useState("");
+  const [showManualUpload, setShowManualUpload] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [activeTab, setActiveTab] = useState("library");
+
+  const [manualRecipeForm, setManualRecipeForm] = useState({
+    name: "",
+    description: "",
+    meal_type: "breakfast",
+    food_preference: "veg",
+    regional_cuisine: "north",
+    prep_time: "",
+    cook_time: "",
+    servings: "",
+    calories: "",
+    protein: "",
+    carbs: "",
+    fats: "",
+    ingredients: [{ item: "", quantity: "" }],
+    instructions: [""],
+    tags: "",
+    image_url: ""
+  });
 
   const queryClient = useQueryClient();
 
@@ -45,11 +71,30 @@ export default function Recipes() {
     onSuccess: () => {
       queryClient.invalidateQueries(['recipes']);
       setCustomRecipeRequest("");
-      alert("✅ Recipe generated and saved successfully!");
+      setShowManualUpload(false);
+      setManualRecipeForm({
+        name: "",
+        description: "",
+        meal_type: "breakfast",
+        food_preference: "veg",
+        regional_cuisine: "north",
+        prep_time: "",
+        cook_time: "",
+        servings: "",
+        calories: "",
+        protein: "",
+        carbs: "",
+        fats: "",
+        ingredients: [{ item: "", quantity: "" }],
+        instructions: [""],
+        tags: "",
+        image_url: ""
+      });
+      alert("✅ Recipe saved successfully!");
     },
     onError: (error) => {
-      console.error("Error saving generated recipe:", error);
-      alert("Error saving the generated recipe. Please try again.");
+      console.error("Error saving recipe:", error);
+      alert("Error saving the recipe. Please try again.");
     }
   });
 
@@ -198,6 +243,117 @@ Enjoy your cooking! 🍽️✨
     URL.revokeObjectURL(url);
   };
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert("Please select an image file");
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const result = await base44.integrations.Core.UploadFile({ file });
+      setManualRecipeForm({
+        ...manualRecipeForm,
+        image_url: result.file_url
+      });
+      alert("✅ Image uploaded successfully!");
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert("Failed to upload image. Please try again.");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleSaveManualRecipe = () => {
+    if (!manualRecipeForm.name.trim()) {
+      alert("Please enter recipe name");
+      return;
+    }
+
+    const tagsArray = manualRecipeForm.tags ? 
+      manualRecipeForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : 
+      [];
+
+    const filteredIngredients = manualRecipeForm.ingredients.filter(
+      ing => ing.item.trim() && ing.quantity.trim()
+    );
+
+    const filteredInstructions = manualRecipeForm.instructions.filter(
+      step => step.trim()
+    );
+
+    createRecipeMutation.mutate({
+      name: manualRecipeForm.name,
+      description: manualRecipeForm.description,
+      meal_type: manualRecipeForm.meal_type,
+      food_preference: manualRecipeForm.food_preference,
+      regional_cuisine: manualRecipeForm.regional_cuisine,
+      prep_time: manualRecipeForm.prep_time ? parseInt(manualRecipeForm.prep_time) : null,
+      cook_time: manualRecipeForm.cook_time ? parseInt(manualRecipeForm.cook_time) : null,
+      servings: manualRecipeForm.servings ? parseInt(manualRecipeForm.servings) : null,
+      calories: manualRecipeForm.calories ? parseInt(manualRecipeForm.calories) : null,
+      protein: manualRecipeForm.protein ? parseFloat(manualRecipeForm.protein) : null,
+      carbs: manualRecipeForm.carbs ? parseFloat(manualRecipeForm.carbs) : null,
+      fats: manualRecipeForm.fats ? parseFloat(manualRecipeForm.fats) : null,
+      ingredients: filteredIngredients.length > 0 ? filteredIngredients : null,
+      instructions: filteredInstructions.length > 0 ? filteredInstructions : null,
+      tags: tagsArray.length > 0 ? tagsArray : null,
+      image_url: manualRecipeForm.image_url || null
+    });
+  };
+
+  const addIngredient = () => {
+    setManualRecipeForm({
+      ...manualRecipeForm,
+      ingredients: [...manualRecipeForm.ingredients, { item: "", quantity: "" }]
+    });
+  };
+
+  const removeIngredient = (index) => {
+    const newIngredients = manualRecipeForm.ingredients.filter((_, i) => i !== index);
+    setManualRecipeForm({
+      ...manualRecipeForm,
+      ingredients: newIngredients.length > 0 ? newIngredients : [{ item: "", quantity: "" }]
+    });
+  };
+
+  const updateIngredient = (index, field, value) => {
+    const newIngredients = [...manualRecipeForm.ingredients];
+    newIngredients[index][field] = value;
+    setManualRecipeForm({
+      ...manualRecipeForm,
+      ingredients: newIngredients
+    });
+  };
+
+  const addInstruction = () => {
+    setManualRecipeForm({
+      ...manualRecipeForm,
+      instructions: [...manualRecipeForm.instructions, ""]
+    });
+  };
+
+  const removeInstruction = (index) => {
+    const newInstructions = manualRecipeForm.instructions.filter((_, i) => i !== index);
+    setManualRecipeForm({
+      ...manualRecipeForm,
+      instructions: newInstructions.length > 0 ? newInstructions : [""]
+    });
+  };
+
+  const updateInstruction = (index, value) => {
+    const newInstructions = [...manualRecipeForm.instructions];
+    newInstructions[index] = value;
+    setManualRecipeForm({
+      ...manualRecipeForm,
+      instructions: newInstructions
+    });
+  };
+
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -206,160 +362,519 @@ Enjoy your cooking! 🍽️✨
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Recipe Library</h1>
             <p className="text-gray-600">Discover authentic Indian recipes ({recipes.length} total)</p>
           </div>
-          <ChefHat className="w-10 h-10 text-orange-500" />
-        </div>
+          <Dialog open={showManualUpload} onOpenChange={setShowManualUpload}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600">
+                <Plus className="w-4 h-4 mr-2" />
+                Upload Recipe
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-2xl flex items-center gap-2">
+                  <Upload className="w-6 h-6 text-blue-600" />
+                  Upload Recipe Manually
+                </DialogTitle>
+              </DialogHeader>
 
-        <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ChefHat className="w-5 h-5 text-orange-500" />
-              Generate Custom Recipe with AI
-            </CardTitle>
-            <CardDescription>Describe what you'd like to cook and AI will create a detailed recipe</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Input
-              placeholder="E.g., High-protein South Indian breakfast under 400 calories, or Paneer sabji for lunch"
-              value={customRecipeRequest}
-              onChange={(e) => setCustomRecipeRequest(e.target.value)}
-              className="text-lg"
-            />
-            <Button
-              onClick={generateCustomRecipe}
-              disabled={generatingRecipe || createRecipeMutation.isPending}
-              className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
-            >
-              {(generatingRecipe || createRecipeMutation.isPending) ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Generating Recipe...
-                </>
-              ) : (
-                <>
-                  <ChefHat className="w-4 h-4 mr-2" />
-                  Generate & Save Recipe
-                </>
-              )}
-            </Button>
-            <p className="text-xs text-gray-600">
-              💡 Tip: Generated recipes are automatically saved to your library and can be used in meal plans
-            </p>
-          </CardContent>
-        </Card>
+              <div className="space-y-6">
+                <Alert className="bg-blue-50 border-blue-500">
+                  <ImageIcon className="w-5 h-5 text-blue-600" />
+                  <AlertDescription>
+                    Add your own recipes with photos! Share your culinary creations with the community.
+                  </AlertDescription>
+                </Alert>
 
-        <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              <div className="md:col-span-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <Input
-                    placeholder="Search recipes..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
+                <Tabs defaultValue="basic" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="basic">Basic Info</TabsTrigger>
+                    <TabsTrigger value="ingredients">Ingredients</TabsTrigger>
+                    <TabsTrigger value="instructions">Instructions</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="basic" className="space-y-4 mt-4">
+                    <div className="space-y-2">
+                      <Label>Recipe Photo</Label>
+                      <div className="space-y-3">
+                        {manualRecipeForm.image_url && (
+                          <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-green-500">
+                            <img 
+                              src={manualRecipeForm.image_url} 
+                              alt="Recipe preview" 
+                              className="w-full h-full object-cover"
+                            />
+                            <Badge className="absolute top-2 right-2 bg-green-500">
+                              ✅ Uploaded
+                            </Badge>
+                          </div>
+                        )}
+                        <div className="p-6 border-2 border-dashed border-blue-300 rounded-xl bg-blue-50">
+                          <div className="text-center">
+                            <ImageIcon className="w-12 h-12 mx-auto text-blue-500 mb-3" />
+                            <p className="text-sm text-gray-700 mb-3">
+                              Upload recipe photo (JPG, PNG)
+                            </p>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="w-full p-2 border rounded-lg text-sm"
+                              disabled={uploadingImage}
+                            />
+                            {uploadingImage && (
+                              <div className="mt-3">
+                                <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-600" />
+                                <p className="text-sm text-blue-700">Uploading...</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2 col-span-2">
+                        <Label>Recipe Name *</Label>
+                        <Input
+                          placeholder="e.g., Paneer Tikka Masala"
+                          value={manualRecipeForm.name}
+                          onChange={(e) => setManualRecipeForm({...manualRecipeForm, name: e.target.value})}
+                        />
+                      </div>
+
+                      <div className="space-y-2 col-span-2">
+                        <Label>Description</Label>
+                        <Textarea
+                          placeholder="Brief description of the recipe..."
+                          value={manualRecipeForm.description}
+                          onChange={(e) => setManualRecipeForm({...manualRecipeForm, description: e.target.value})}
+                          rows={3}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Meal Type *</Label>
+                        <Select
+                          value={manualRecipeForm.meal_type}
+                          onValueChange={(value) => setManualRecipeForm({...manualRecipeForm, meal_type: value})}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="breakfast">Breakfast</SelectItem>
+                            <SelectItem value="lunch">Lunch</SelectItem>
+                            <SelectItem value="dinner">Dinner</SelectItem>
+                            <SelectItem value="snack">Snack</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Food Preference *</Label>
+                        <Select
+                          value={manualRecipeForm.food_preference}
+                          onValueChange={(value) => setManualRecipeForm({...manualRecipeForm, food_preference: value})}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="veg">Vegetarian</SelectItem>
+                            <SelectItem value="non_veg">Non-Veg</SelectItem>
+                            <SelectItem value="jain">Jain</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Regional Cuisine *</Label>
+                        <Select
+                          value={manualRecipeForm.regional_cuisine}
+                          onValueChange={(value) => setManualRecipeForm({...manualRecipeForm, regional_cuisine: value})}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="north">North Indian</SelectItem>
+                            <SelectItem value="south">South Indian</SelectItem>
+                            <SelectItem value="west">West Indian</SelectItem>
+                            <SelectItem value="east">East Indian</SelectItem>
+                            <SelectItem value="fusion">Fusion</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Servings</Label>
+                        <Input
+                          type="number"
+                          placeholder="4"
+                          value={manualRecipeForm.servings}
+                          onChange={(e) => setManualRecipeForm({...manualRecipeForm, servings: e.target.value})}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Prep Time (min)</Label>
+                        <Input
+                          type="number"
+                          placeholder="15"
+                          value={manualRecipeForm.prep_time}
+                          onChange={(e) => setManualRecipeForm({...manualRecipeForm, prep_time: e.target.value})}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Cook Time (min)</Label>
+                        <Input
+                          type="number"
+                          placeholder="30"
+                          value={manualRecipeForm.cook_time}
+                          onChange={(e) => setManualRecipeForm({...manualRecipeForm, cook_time: e.target.value})}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Calories (per serving)</Label>
+                        <Input
+                          type="number"
+                          placeholder="350"
+                          value={manualRecipeForm.calories}
+                          onChange={(e) => setManualRecipeForm({...manualRecipeForm, calories: e.target.value})}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Protein (g)</Label>
+                        <Input
+                          type="number"
+                          placeholder="12"
+                          value={manualRecipeForm.protein}
+                          onChange={(e) => setManualRecipeForm({...manualRecipeForm, protein: e.target.value})}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Carbs (g)</Label>
+                        <Input
+                          type="number"
+                          placeholder="45"
+                          value={manualRecipeForm.carbs}
+                          onChange={(e) => setManualRecipeForm({...manualRecipeForm, carbs: e.target.value})}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Fats (g)</Label>
+                        <Input
+                          type="number"
+                          placeholder="10"
+                          value={manualRecipeForm.fats}
+                          onChange={(e) => setManualRecipeForm({...manualRecipeForm, fats: e.target.value})}
+                        />
+                      </div>
+
+                      <div className="space-y-2 col-span-2">
+                        <Label>Tags (comma-separated)</Label>
+                        <Input
+                          placeholder="e.g., high-protein, quick, traditional"
+                          value={manualRecipeForm.tags}
+                          onChange={(e) => setManualRecipeForm({...manualRecipeForm, tags: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="ingredients" className="space-y-4 mt-4">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-lg font-semibold">Ingredients</Label>
+                      <Button onClick={addIngredient} variant="outline" size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Ingredient
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {manualRecipeForm.ingredients.map((ing, index) => (
+                        <div key={index} className="flex gap-3 items-start">
+                          <div className="flex-1 grid grid-cols-2 gap-3">
+                            <Input
+                              placeholder="Ingredient name"
+                              value={ing.item}
+                              onChange={(e) => updateIngredient(index, 'item', e.target.value)}
+                            />
+                            <Input
+                              placeholder="Quantity (e.g., 2 cups, 100g)"
+                              value={ing.quantity}
+                              onChange={(e) => updateIngredient(index, 'quantity', e.target.value)}
+                            />
+                          </div>
+                          {manualRecipeForm.ingredients.length > 1 && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeIngredient(index)}
+                              className="text-red-600"
+                            >
+                              Remove
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="instructions" className="space-y-4 mt-4">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-lg font-semibold">Cooking Instructions</Label>
+                      <Button onClick={addInstruction} variant="outline" size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Step
+                      </Button>
+                    </div>
+
+                    <div className="space-y-3">
+                      {manualRecipeForm.instructions.map((step, index) => (
+                        <div key={index} className="flex gap-3 items-start">
+                          <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
+                            {index + 1}
+                          </div>
+                          <div className="flex-1">
+                            <Textarea
+                              placeholder={`Step ${index + 1} instructions...`}
+                              value={step}
+                              onChange={(e) => updateInstruction(index, e.target.value)}
+                              rows={3}
+                            />
+                          </div>
+                          {manualRecipeForm.instructions.length > 1 && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => removeInstruction(index)}
+                              className="text-red-600"
+                            >
+                              Remove
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+
+                <div className="flex gap-3 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowManualUpload(false)}
+                    className="flex-1"
+                    disabled={createRecipeMutation.isPending}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSaveManualRecipe}
+                    disabled={createRecipeMutation.isPending}
+                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 h-12"
+                  >
+                    {createRecipeMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Saving Recipe...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-5 h-5 mr-2" />
+                        Save Recipe
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
-              <Select value={mealTypeFilter} onValueChange={setMealTypeFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Meal Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Meals</SelectItem>
-                  <SelectItem value="breakfast">Breakfast</SelectItem>
-                  <SelectItem value="lunch">Lunch</SelectItem>
-                  <SelectItem value="dinner">Dinner</SelectItem>
-                  <SelectItem value="snack">Snack</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={foodPrefFilter} onValueChange={setFoodPrefFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Food Preference" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="veg">Vegetarian</SelectItem>
-                  <SelectItem value="non_veg">Non-Veg</SelectItem>
-                  <SelectItem value="jain">Jain</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={regionFilter} onValueChange={setRegionFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Region" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Regions</SelectItem>
-                  <SelectItem value="north">North Indian</SelectItem>
-                  <SelectItem value="south">South Indian</SelectItem>
-                  <SelectItem value="west">West Indian</SelectItem>
-                  <SelectItem value="east">East Indian</SelectItem>
-                  <SelectItem value="fusion">Fusion</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
+            </DialogContent>
+          </Dialog>
+        </div>
 
-        {isLoading ? (
-          <div className="text-center py-12">
-            <Loader2 className="w-12 h-12 animate-spin mx-auto text-orange-500" />
-          </div>
-        ) : filteredRecipes.length === 0 ? (
-          <Card className="border-none shadow-lg">
-            <CardContent className="p-12 text-center">
-              <ChefHat className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No Recipes Found</h3>
-              <p className="text-gray-600">Try adjusting your filters or generate a custom recipe</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredRecipes.map((recipe) => (
-              <Card
-                key={recipe.id}
-                className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all cursor-pointer group"
-                onClick={() => setSelectedRecipe(recipe)}
-              >
-                <div className="h-32 bg-gradient-to-br from-orange-100 via-amber-100 to-red-100 rounded-t-xl flex items-center justify-center">
-                  <ChefHat className="w-16 h-16 text-orange-400 opacity-20" />
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-2">
+            <TabsTrigger value="library" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white">
+              <ChefHat className="w-4 h-4 mr-2" />
+              Recipe Library ({recipes.length})
+            </TabsTrigger>
+            <TabsTrigger value="generate" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white">
+              <Sparkles className="w-4 h-4 mr-2" />
+              AI Generate
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="library" className="space-y-6">
+            <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                  <div className="md:col-span-2">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <Input
+                        placeholder="Search recipes..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <Select value={mealTypeFilter} onValueChange={setMealTypeFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Meal Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Meals</SelectItem>
+                      <SelectItem value="breakfast">Breakfast</SelectItem>
+                      <SelectItem value="lunch">Lunch</SelectItem>
+                      <SelectItem value="dinner">Dinner</SelectItem>
+                      <SelectItem value="snack">Snack</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={foodPrefFilter} onValueChange={setFoodPrefFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Food Preference" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="veg">Vegetarian</SelectItem>
+                      <SelectItem value="non_veg">Non-Veg</SelectItem>
+                      <SelectItem value="jain">Jain</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={regionFilter} onValueChange={setRegionFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Region" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Regions</SelectItem>
+                      <SelectItem value="north">North Indian</SelectItem>
+                      <SelectItem value="south">South Indian</SelectItem>
+                      <SelectItem value="west">West Indian</SelectItem>
+                      <SelectItem value="east">East Indian</SelectItem>
+                      <SelectItem value="fusion">Fusion</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                
-                <CardHeader>
-                  <CardTitle className="text-xl line-clamp-2">{recipe.name}</CardTitle>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    <Badge className="bg-orange-100 text-orange-700 capitalize">
-                      {recipe.meal_type}
-                    </Badge>
-                    <Badge className="bg-green-100 text-green-700 capitalize">
-                      {recipe.food_preference}
-                    </Badge>
-                    <Badge variant="outline" className="capitalize">
-                      {recipe.regional_cuisine}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 text-sm line-clamp-2 mb-4">{recipe.description}</p>
-                  <div className="flex items-center justify-between text-sm text-gray-600">
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      <span>{(recipe.prep_time || 0) + (recipe.cook_time || 0)} min</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      <span>{recipe.servings} servings</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Flame className="w-4 h-4" />
-                      <span>{recipe.calories} kcal</span>
-                    </div>
-                  </div>
+              </CardContent>
+            </Card>
+
+            {isLoading ? (
+              <div className="text-center py-12">
+                <Loader2 className="w-12 h-12 animate-spin mx-auto text-orange-500" />
+              </div>
+            ) : filteredRecipes.length === 0 ? (
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <ChefHat className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Recipes Found</h3>
+                  <p className="text-gray-600">Try adjusting your filters or upload a recipe</p>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        )}
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredRecipes.map((recipe) => (
+                  <Card
+                    key={recipe.id}
+                    className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all cursor-pointer group"
+                    onClick={() => setSelectedRecipe(recipe)}
+                  >
+                    {recipe.image_url ? (
+                      <div className="h-48 rounded-t-xl overflow-hidden">
+                        <img 
+                          src={recipe.image_url} 
+                          alt={recipe.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-48 bg-gradient-to-br from-orange-100 via-amber-100 to-red-100 rounded-t-xl flex items-center justify-center">
+                        <ChefHat className="w-16 h-16 text-orange-400 opacity-20" />
+                      </div>
+                    )}
+                    
+                    <CardHeader>
+                      <CardTitle className="text-xl line-clamp-2">{recipe.name}</CardTitle>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <Badge className="bg-orange-100 text-orange-700 capitalize">
+                          {recipe.meal_type}
+                        </Badge>
+                        <Badge className="bg-green-100 text-green-700 capitalize">
+                          {recipe.food_preference}
+                        </Badge>
+                        <Badge variant="outline" className="capitalize">
+                          {recipe.regional_cuisine}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 text-sm line-clamp-2 mb-4">{recipe.description}</p>
+                      <div className="flex items-center justify-between text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          <span>{(recipe.prep_time || 0) + (recipe.cook_time || 0)} min</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Users className="w-4 h-4" />
+                          <span>{recipe.servings} servings</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Flame className="w-4 h-4" />
+                          <span>{recipe.calories} kcal</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="generate" className="space-y-6">
+            <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-indigo-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-purple-500" />
+                  Generate Custom Recipe with AI
+                </CardTitle>
+                <CardDescription>Describe what you'd like to cook and AI will create a detailed recipe</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Input
+                  placeholder="E.g., High-protein South Indian breakfast under 400 calories, or Paneer sabji for lunch"
+                  value={customRecipeRequest}
+                  onChange={(e) => setCustomRecipeRequest(e.target.value)}
+                  className="text-lg h-12"
+                />
+                <Button
+                  onClick={generateCustomRecipe}
+                  disabled={generatingRecipe || createRecipeMutation.isPending}
+                  className="w-full h-14 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
+                >
+                  {(generatingRecipe || createRecipeMutation.isPending) ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Generating Recipe...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5 mr-2" />
+                      Generate & Save Recipe
+                    </>
+                  )}
+                </Button>
+                <p className="text-xs text-gray-600">
+                  💡 Tip: Generated recipes are automatically saved to your library
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         {selectedRecipe && (
           <Dialog open={!!selectedRecipe} onOpenChange={() => setSelectedRecipe(null)}>
@@ -372,7 +887,7 @@ Enjoy your cooking! 🍽️✨
                     className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
                   >
                     <Download className="w-4 h-4 mr-2" />
-                    Download Recipe
+                    Download
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-4">
@@ -392,6 +907,16 @@ Enjoy your cooking! 🍽️✨
               </DialogHeader>
 
               <div className="space-y-6 mt-6">
+                {selectedRecipe.image_url && (
+                  <div className="w-full h-64 rounded-xl overflow-hidden border-2 border-gray-200">
+                    <img 
+                      src={selectedRecipe.image_url} 
+                      alt={selectedRecipe.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
                 {selectedRecipe.description && (
                   <p className="text-gray-700 leading-relaxed">{selectedRecipe.description}</p>
                 )}
