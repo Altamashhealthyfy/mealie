@@ -9,15 +9,17 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Plus, Scale, Calendar } from "lucide-react";
+import { TrendingUp, TrendingDown, Plus, Scale, Calendar, Image as ImageIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import ImageUploader from "@/components/utils/ImageUploader"; // New import
 
 export default function ProgressTracking() {
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [formData, setFormData] = useState({
     date: format(new Date(), 'yyyy-MM-dd'),
+    photos: [], // Initialize photos as an empty array
   });
 
   const { data: user } = useQuery({
@@ -67,9 +69,13 @@ export default function ProgressTracking() {
     onSuccess: () => {
       queryClient.invalidateQueries(['myProgressLogs']);
       setShowAddDialog(false);
-      setFormData({ date: format(new Date(), 'yyyy-MM-dd') });
+      setFormData({ date: format(new Date(), 'yyyy-MM-dd'), photos: [] }); // Reset photos
       alert('Progress logged successfully!');
     },
+    onError: (error) => {
+      console.error("Error saving progress log:", error);
+      alert('Failed to save progress. Please try again.');
+    }
   });
 
   const handleSubmit = () => {
@@ -85,7 +91,7 @@ export default function ProgressTracking() {
   const currentWeight = latestLog?.weight || clientProfile?.weight;
   const targetWeight = clientProfile?.target_weight;
   const weightChange = initialWeight ? currentWeight - initialWeight : 0;
-  const weightToGo = targetWeight ? currentWeight - targetWeight : 0;
+  // const weightToGo = targetWeight ? currentWeight - targetWeight : 0; // Unused variable removed
 
   // Prepare chart data
   const chartData = progressLogs.map(log => ({
@@ -125,7 +131,7 @@ export default function ProgressTracking() {
                 Log Progress
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto"> {/* Added max-h and overflow-y */}
               <DialogHeader>
                 <DialogTitle>Log Your Progress</DialogTitle>
               </DialogHeader>
@@ -149,6 +155,15 @@ export default function ProgressTracking() {
                     placeholder="65.5"
                   />
                 </div>
+
+                {/* New ImageUploader component */}
+                <ImageUploader
+                  currentImageUrl={formData.photos?.[0]}
+                  onImageUploaded={(url) => setFormData({...formData, photos: [url]})}
+                  recommendedWidth={800}
+                  recommendedHeight={1000}
+                  label="Progress Photo"
+                />
 
                 <div className="space-y-2">
                   <Label>Measurements (optional)</Label>
@@ -260,7 +275,14 @@ export default function ProgressTracking() {
                   disabled={saveMutation.isPending}
                   className="w-full bg-gradient-to-r from-orange-500 to-red-500"
                 >
-                  {saveMutation.isPending ? 'Saving...' : 'Save Progress'}
+                  {saveMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Progress'
+                  )}
                 </Button>
               </div>
             </DialogContent>
@@ -397,8 +419,26 @@ export default function ProgressTracking() {
                       )}
                     </div>
 
+                    {/* Display photos */}
+                    {log.photos && log.photos.length > 0 && (
+                      <div className="mb-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                          {log.photos.map((photoUrl, index) => (
+                            <div key={index} className="relative h-32 w-full rounded-lg overflow-hidden border-2 border-gray-200">
+                              <img 
+                                src={photoUrl} 
+                                alt={`Progress photo ${index + 1}`}
+                                className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                onClick={() => window.open(photoUrl, '_blank')}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {log.measurements && (
-                      <div className="grid grid-cols-4 gap-3 mb-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
                         {log.measurements.chest && (
                           <div className="text-sm">
                             <span className="text-gray-600">Chest:</span>
@@ -427,7 +467,7 @@ export default function ProgressTracking() {
                     )}
 
                     {(log.energy_level || log.sleep_quality || log.stress_level) && (
-                      <div className="flex gap-4 mb-3">
+                      <div className="flex flex-wrap gap-x-4 gap-y-2 mb-3">
                         {log.energy_level && (
                           <div className="text-sm">
                             <span className="text-gray-600">Energy:</span>
