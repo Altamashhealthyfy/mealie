@@ -749,6 +749,7 @@ contactus@healthyfy.com`;
                     )}
                   </div>
 
+                  {/* Action Buttons Row 1 - Communication */}
                   <div className="grid grid-cols-3 gap-2">
                     <Button
                       variant="outline"
@@ -776,6 +777,30 @@ contactus@healthyfy.com`;
                       title="View Details"
                     >
                       <Eye className="w-3 h-3 md:w-4 md:h-4" />
+                    </Button>
+                  </div>
+
+                  {/* Action Buttons Row 2 - Edit & Delete */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(client)}
+                      className="text-orange-600 hover:bg-orange-50 h-9 md:h-auto text-xs md:text-sm font-semibold"
+                      title="Edit Client"
+                    >
+                      <Edit className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteClient(client)}
+                      className="text-red-600 hover:bg-red-50 h-9 md:h-auto text-xs md:text-sm font-semibold"
+                      title="Delete Client"
+                    >
+                      <Trash2 className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                      Delete
                     </Button>
                   </div>
                 </CardContent>
