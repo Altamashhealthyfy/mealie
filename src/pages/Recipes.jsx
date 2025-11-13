@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -172,6 +173,7 @@ export default function Recipes() {
     setGeneratingRecipe(true);
 
     try {
+      // Generate recipe data with AI
       const prompt = `Create a detailed Indian recipe based on this request: "${customRecipeRequest}"
 
 ${userProfile ? `User preferences: ${userProfile.food_preference}, ${userProfile.regional_preference} region` : ''}
@@ -222,10 +224,25 @@ Provide:
         }
       });
 
-      createRecipeMutation.mutate(response);
+      // Generate recipe image with AI
+      const imagePrompt = `Professional food photography of ${response.name}, ${response.description}. 
+Beautiful plating, appetizing presentation, restaurant quality, natural lighting, 
+${response.regional_cuisine} Indian cuisine style, vibrant colors, high resolution food photo`;
+
+      const imageResult = await base44.integrations.Core.GenerateImage({
+        prompt: imagePrompt
+      });
+
+      // Add image URL to recipe data
+      const recipeWithImage = {
+        ...response,
+        image_url: imageResult.url
+      };
+
+      createRecipeMutation.mutate(recipeWithImage);
       
     } catch (error) {
-      console.error("Error invoking LLM or parsing response:", error);
+      console.error("Error generating recipe:", error);
       alert("Error generating recipe. Please try again.");
     }
 
