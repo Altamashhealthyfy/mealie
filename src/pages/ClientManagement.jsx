@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -261,7 +260,7 @@ contactus@healthyfy.com`;
     mutationFn: (id) => base44.entities.Client.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries(['clients']);
-      setViewingClient(null); // Close view dialog if open
+      setViewingClient(null);
       alert("Client deleted successfully!");
     },
     onError: (error) => {
@@ -415,8 +414,8 @@ contactus@healthyfy.com`;
               <Button
                 className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 w-full sm:w-auto"
                 onClick={() => {
-                  setEditingClient(null); // Clear editing state for new client
-                  setFormData({ // Reset form data
+                  setEditingClient(null);
+                  setFormData({
                     full_name: "",
                     email: "",
                     phone: "",
@@ -453,10 +452,11 @@ contactus@healthyfy.com`;
               {!editingClient && (
                 <Alert className="bg-green-50 border-green-500 border-2">
                   <Mail className="w-5 h-5 text-green-600" />
-                  <AlertTitle className="text-green-900 font-bold">📧 Welcome Email Sent Automatically!</AlertTitle>
+                  <AlertTitle className="text-green-900 font-bold">📧📱 Auto-Send Enabled!</AlertTitle>
                   <AlertDescription className="text-green-800">
-                    A welcome email will be automatically sent to the client's email address upon creation.
-                    You can still use the <strong>blue Mail button</strong> to send custom emails.
+                    When you add a client, they'll automatically receive:<br/>
+                    • <strong>Email</strong> with welcome message and dashboard link<br/>
+                    • <strong>WhatsApp</strong> message with dashboard link (if phone provided)
                   </AlertDescription>
                 </Alert>
               )}
@@ -489,11 +489,13 @@ contactus@healthyfy.com`;
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Phone</Label>
+                      <Label>Phone 📱</Label>
                       <Input
                         value={formData.phone}
                         onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                        placeholder="10-digit number"
                       />
+                      <p className="text-xs text-gray-500">💡 Add phone for WhatsApp auto-send</p>
                     </div>
                     <div className="space-y-2">
                       <Label>Join Date</Label>
