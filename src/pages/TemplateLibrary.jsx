@@ -26,7 +26,7 @@ import {
   Edit,
   Users,
   TrendingUp,
-  ArrowUpDown // Added ArrowUpDown icon
+  ArrowUpDown
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -38,7 +38,7 @@ export default function TemplateLibrary() {
   const [foodPrefFilter, setFoodPrefFilter] = useState("all");
   const [regionFilter, setRegionFilter] = useState("all");
   const [uploaderFilter, setUploaderFilter] = useState("all");
-  const [sortOrder, setSortOrder] = useState("-created_date"); // Added sortOrder state
+  const [sortOrder, setSortOrder] = useState("-created_date");
   const [viewingTemplate, setViewingTemplate] = useState(null);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
@@ -76,8 +76,8 @@ export default function TemplateLibrary() {
   });
 
   const { data: templates } = useQuery({
-    queryKey: ['downloadableTemplates', sortOrder], // Added sortOrder to queryKey
-    queryFn: () => base44.entities.DownloadableTemplate.list(sortOrder), // Pass sortOrder to list method
+    queryKey: ['downloadableTemplates', sortOrder],
+    queryFn: () => base44.entities.DownloadableTemplate.list(sortOrder),
     initialData: [],
   });
 
@@ -592,8 +592,8 @@ export default function TemplateLibrary() {
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
           <CardContent className="p-6">
             <div className="space-y-4">
-              <div className="flex gap-3"> {/* Changed from relative div to flex div */}
-                <div className="flex-1 relative"> {/* Make search input fill available space */}
+              <div className="flex gap-3">
+                <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <Input
                     placeholder="Search templates..."
@@ -602,7 +602,7 @@ export default function TemplateLibrary() {
                     className="pl-10 h-12"
                   />
                 </div>
-                <Select value={sortOrder} onValueChange={setSortOrder}> {/* Added Sort Select */}
+                <Select value={sortOrder} onValueChange={setSortOrder}>
                   <SelectTrigger className="w-64">
                     <ArrowUpDown className="w-4 h-4 mr-2" />
                     <SelectValue placeholder="Sort by" />
@@ -860,21 +860,22 @@ export default function TemplateLibrary() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  {/* ✅ UPDATED: View Template First, Then Download */}
+                  <div className="space-y-2">
                     <Button
-                      variant="outline"
                       onClick={() => setViewingTemplate(template)}
-                      className="w-full"
+                      className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 h-12 font-semibold"
                     >
                       <Eye className="w-4 h-4 mr-2" />
-                      View
+                      View Template Details
                     </Button>
                     <Button
                       onClick={() => handleDownload(template)}
-                      className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                      variant="outline"
+                      className="w-full h-11 border-2 border-green-500 text-green-700 hover:bg-green-50"
                     >
                       <Download className="w-4 h-4 mr-2" />
-                      Download
+                      Download Template
                     </Button>
                   </div>
                 </CardContent>
