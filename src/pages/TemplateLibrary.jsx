@@ -26,7 +26,8 @@ import {
   Edit,
   Users,
   TrendingUp,
-  ArrowUpDown // Added ArrowUpDown icon
+  ArrowUpDown,
+  ExternalLink
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -38,7 +39,7 @@ export default function TemplateLibrary() {
   const [foodPrefFilter, setFoodPrefFilter] = useState("all");
   const [regionFilter, setRegionFilter] = useState("all");
   const [uploaderFilter, setUploaderFilter] = useState("all");
-  const [sortOrder, setSortOrder] = useState("-created_date"); // Added sortOrder state
+  const [sortOrder, setSortOrder] = useState("-created_date");
   const [viewingTemplate, setViewingTemplate] = useState(null);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
@@ -76,8 +77,8 @@ export default function TemplateLibrary() {
   });
 
   const { data: templates } = useQuery({
-    queryKey: ['downloadableTemplates', sortOrder], // Added sortOrder to queryKey
-    queryFn: () => base44.entities.DownloadableTemplate.list(sortOrder), // Pass sortOrder to list method
+    queryKey: ['downloadableTemplates', sortOrder],
+    queryFn: () => base44.entities.DownloadableTemplate.list(sortOrder),
     initialData: [],
   });
 
@@ -284,12 +285,12 @@ export default function TemplateLibrary() {
     return matchesSearch && matchesCategory && matchesCalories && matchesFoodPref && matchesRegion && matchesUploader;
   });
 
-  const handleDownload = (template) => {
-    downloadMutation.mutate(template);
+  const handleViewTemplate = (template) => {
+    setViewingTemplate(template);
   };
 
-  const handlePreviewFile = (template) => {
-    window.open(template.file_url, '_blank');
+  const handleDownload = (template) => {
+    downloadMutation.mutate(template);
   };
 
   const userType = user?.user_type || 'client';
@@ -596,8 +597,8 @@ export default function TemplateLibrary() {
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
           <CardContent className="p-6">
             <div className="space-y-4">
-              <div className="flex gap-3"> {/* Changed from relative div to flex div */}
-                <div className="flex-1 relative"> {/* Make search input fill available space */}
+              <div className="flex gap-3">
+                <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <Input
                     placeholder="Search templates..."
@@ -606,7 +607,7 @@ export default function TemplateLibrary() {
                     className="pl-10 h-12"
                   />
                 </div>
-                <Select value={sortOrder} onValueChange={setSortOrder}> {/* Added Sort Select */}
+                <Select value={sortOrder} onValueChange={setSortOrder}>
                   <SelectTrigger className="w-64">
                     <ArrowUpDown className="w-4 h-4 mr-2" />
                     <SelectValue placeholder="Sort by" />
@@ -864,22 +865,14 @@ export default function TemplateLibrary() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <Button
                       variant="outline"
-                      onClick={() => setViewingTemplate(template)}
+                      onClick={() => handleViewTemplate(template)}
                       className="w-full"
                     >
                       <Eye className="w-4 h-4 mr-2" />
-                      Details
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => handlePreviewFile(template)}
-                      className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700"
-                    >
-                      <Eye className="w-4 h-4 mr-2" />
-                      Preview
+                      View
                     </Button>
                     <Button
                       onClick={() => handleDownload(template)}
@@ -1191,6 +1184,13 @@ export default function TemplateLibrary() {
                   </Alert>
                 )}
 
+                <Alert className="bg-green-50 border-green-500">
+                  <ExternalLink className="w-5 h-5 text-green-600" />
+                  <AlertDescription className="ml-2">
+                    <strong>📄 Preview in Browser:</strong> Click "View File" below to open the document in a new tab and preview before downloading!
+                  </AlertDescription>
+                </Alert>
+
                 <div className="grid grid-cols-3 gap-4">
                   <Button
                     variant="outline"
@@ -1200,11 +1200,12 @@ export default function TemplateLibrary() {
                     Close
                   </Button>
                   <Button
-                    onClick={() => handlePreviewFile(viewingTemplate)}
-                    className="h-12 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                    variant="outline"
+                    onClick={() => window.open(viewingTemplate.file_url, '_blank')}
+                    className="h-12 text-blue-600 hover:bg-blue-50 border-blue-300"
                   >
-                    <Eye className="w-4 h-4 mr-2" />
-                    Preview File
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    View File
                   </Button>
                   <Button
                     onClick={() => {
