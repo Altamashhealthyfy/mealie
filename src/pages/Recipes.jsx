@@ -354,6 +354,117 @@ Enjoy your cooking! 🍽️✨
     URL.revokeObjectURL(url);
   };
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert("Please select an image file");
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const result = await base44.integrations.Core.UploadFile({ file });
+      setManualRecipeForm({
+        ...manualRecipeForm,
+        image_url: result.file_url
+      });
+      alert("✅ Image uploaded successfully!");
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert("Failed to upload image. Please try again.");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleSaveManualRecipe = () => {
+    if (!manualRecipeForm.name.trim()) {
+      alert("Please enter recipe name");
+      return;
+    }
+
+    const tagsArray = manualRecipeForm.tags ? 
+      manualRecipeForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : 
+      [];
+
+    const filteredIngredients = manualRecipeForm.ingredients.filter(
+      ing => ing.item.trim() && ing.quantity.trim()
+    );
+
+    const filteredInstructions = manualRecipeForm.instructions.filter(
+      step => step.trim()
+    );
+
+    createRecipeMutation.mutate({
+      name: manualRecipeForm.name,
+      description: manualRecipeForm.description,
+      meal_type: manualRecipeForm.meal_type,
+      food_preference: manualRecipeForm.food_preference,
+      regional_cuisine: manualRecipeForm.regional_cuisine,
+      prep_time: manualRecipeForm.prep_time ? parseInt(manualRecipeForm.prep_time) : null,
+      cook_time: manualRecipeForm.cook_time ? parseInt(manualRecipeForm.cook_time) : null,
+      servings: manualRecipeForm.servings ? parseInt(manualRecipeForm.servings) : null,
+      calories: manualRecipeForm.calories ? parseInt(manualRecipeForm.calories) : null,
+      protein: manualRecipeForm.protein ? parseFloat(manualRecipeForm.protein) : null,
+      carbs: manualRecipeForm.carbs ? parseFloat(manualRecipeForm.carbs) : null,
+      fats: manualRecipeForm.fats ? parseFloat(manualRecipeForm.fats) : null,
+      ingredients: filteredIngredients.length > 0 ? filteredIngredients : null,
+      instructions: filteredInstructions.length > 0 ? filteredInstructions : null,
+      tags: tagsArray.length > 0 ? tagsArray : null,
+      image_url: manualRecipeForm.image_url || null
+    });
+  };
+
+  const addIngredient = () => {
+    setManualRecipeForm({
+      ...manualRecipeForm,
+      ingredients: [...manualRecipeForm.ingredients, { item: "", quantity: "" }]
+    });
+  };
+
+  const removeIngredient = (index) => {
+    const newIngredients = manualRecipeForm.ingredients.filter((_, i) => i !== index);
+    setManualRecipeForm({
+      ...manualRecipeForm,
+      ingredients: newIngredients.length > 0 ? newIngredients : [{ item: "", quantity: "" }]
+    });
+  };
+
+  const updateIngredient = (index, field, value) => {
+    const newIngredients = [...manualRecipeForm.ingredients];
+    newIngredients[index][field] = value;
+    setManualRecipeForm({
+      ...manualRecipeForm,
+      ingredients: newIngredients
+    });
+  };
+
+  const addInstruction = () => {
+    setManualRecipeForm({
+      ...manualRecipeForm,
+      instructions: [...manualRecipeForm.instructions, ""]
+    });
+  };
+
+  const removeInstruction = (index) => {
+    const newInstructions = manualRecipeForm.instructions.filter((_, i) => i !== index);
+    setManualRecipeForm({
+      ...manualRecipeForm,
+      instructions: newInstructions.length > 0 ? newInstructions : [""]
+    });
+  };
+
+  const updateInstruction = (index, value) => {
+    const newInstructions = [...manualRecipeForm.instructions];
+    newInstructions[index] = value;
+    setManualRecipeForm({
+      ...manualRecipeForm,
+      instructions: newInstructions
+    });
+  };
+
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -710,7 +821,6 @@ Enjoy your cooking! 🍽️✨
           </TabsList>
 
           <TabsContent value="library" className="space-y-6">
-            {/* Search and Filters */}
             <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -765,7 +875,6 @@ Enjoy your cooking! 🍽️✨
               </CardContent>
             </Card>
 
-            {/* Recipe Grid */}
             {isLoading ? (
               <div className="text-center py-12">
                 <Loader2 className="w-12 h-12 animate-spin mx-auto text-orange-500" />
@@ -838,7 +947,6 @@ Enjoy your cooking! 🍽️✨
           </TabsContent>
 
           <TabsContent value="generate" className="space-y-6">
-            {/* Generate Custom Recipe */}
             <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-indigo-50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -879,7 +987,6 @@ Enjoy your cooking! 🍽️✨
           </TabsContent>
         </Tabs>
 
-        {/* Recipe Detail Dialog */}
         {selectedRecipe && (
           <Dialog open={!!selectedRecipe} onOpenChange={() => setSelectedRecipe(null)}>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
