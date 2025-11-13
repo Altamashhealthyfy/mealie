@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -13,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChefHat, Search, Clock, Users, Flame, Loader2, Download, Upload, Plus, Image as ImageIcon, Sparkles, ArrowUpDown, Edit, Trash2, User } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { resizeImage } from "@/utils/imageResize";
 
 export default function Recipes() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -239,14 +237,7 @@ Provide:
 
     setUploadingImage(true);
     try {
-      // Resize image to max 1200x1200 (recommended: 1200x800 for recipe photos)
-      const resizeResult = await resizeImage(file, 1200, 800, 0.9);
-      
-      if (resizeResult.wasResized) {
-        alert(`📐 Image auto-resized from ${resizeResult.originalSize.width}x${resizeResult.originalSize.height} to ${resizeResult.newSize.width}x${resizeResult.newSize.height}`);
-      }
-      
-      const result = await base44.integrations.Core.UploadFile({ file: resizeResult.file });
+      const result = await base44.integrations.Core.UploadFile({ file });
       setManualRecipeForm({
         ...manualRecipeForm,
         image_url: result.file_url
@@ -453,50 +444,6 @@ Enjoy your cooking! 🍽️✨
     return user?.user_type === 'super_admin' || recipe.created_by === user?.email;
   };
 
-  const RecipePhotoUpload = () => (
-    <div className="space-y-2">
-      <Label>Recipe Photo</Label>
-      <div className="space-y-3">
-        {manualRecipeForm.image_url && (
-          <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-green-500">
-            <img 
-              src={manualRecipeForm.image_url} 
-              alt="Recipe preview" 
-              className="w-full h-full object-cover"
-            />
-            <Badge className="absolute top-2 right-2 bg-green-500">
-              ✅ Uploaded
-            </Badge>
-          </div>
-        )}
-        <div className="p-6 border-2 border-dashed border-blue-300 rounded-xl bg-blue-50">
-          <div className="text-center">
-            <ImageIcon className="w-12 h-12 mx-auto text-blue-500 mb-3" />
-            <p className="text-sm font-semibold text-gray-900 mb-1">
-              📐 Recommended Size: 1200 x 800 pixels
-            </p>
-            <p className="text-xs text-gray-600 mb-3">
-              Images will be automatically resized if larger. JPG or PNG format.
-            </p>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="w-full p-2 border rounded-lg text-sm"
-              disabled={uploadingImage}
-            />
-            {uploadingImage && (
-              <div className="mt-3">
-                <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-600" />
-                <p className="text-sm text-blue-700">Uploading & optimizing image...</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -559,7 +506,44 @@ Enjoy your cooking! 🍽️✨
                   </TabsList>
 
                   <TabsContent value="basic" className="space-y-4 mt-4">
-                    <RecipePhotoUpload />
+                    <div className="space-y-2">
+                      <Label>Recipe Photo</Label>
+                      <div className="space-y-3">
+                        {manualRecipeForm.image_url && (
+                          <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-green-500">
+                            <img 
+                              src={manualRecipeForm.image_url} 
+                              alt="Recipe preview" 
+                              className="w-full h-full object-cover"
+                            />
+                            <Badge className="absolute top-2 right-2 bg-green-500">
+                              ✅ Uploaded
+                            </Badge>
+                          </div>
+                        )}
+                        <div className="p-6 border-2 border-dashed border-blue-300 rounded-xl bg-blue-50">
+                          <div className="text-center">
+                            <ImageIcon className="w-12 h-12 mx-auto text-blue-500 mb-3" />
+                            <p className="text-sm text-gray-700 mb-3">
+                              Upload recipe photo (JPG, PNG)
+                            </p>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="w-full p-2 border rounded-lg text-sm"
+                              disabled={uploadingImage}
+                            />
+                            {uploadingImage && (
+                              <div className="mt-3">
+                                <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-600" />
+                                <p className="text-sm text-blue-700">Uploading...</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2 col-span-2">
@@ -851,7 +835,44 @@ Enjoy your cooking! 🍽️✨
                 </TabsList>
 
                 <TabsContent value="basic" className="space-y-4 mt-4">
-                  <RecipePhotoUpload />
+                  <div className="space-y-2">
+                    <Label>Recipe Photo</Label>
+                    <div className="space-y-3">
+                      {manualRecipeForm.image_url && (
+                        <div className="relative w-full h-48 rounded-lg overflow-hidden border-2 border-green-500">
+                          <img 
+                            src={manualRecipeForm.image_url} 
+                            alt="Recipe preview" 
+                            className="w-full h-full object-cover"
+                          />
+                          <Badge className="absolute top-2 right-2 bg-green-500">
+                            ✅ Uploaded
+                          </Badge>
+                        </div>
+                      )}
+                      <div className="p-6 border-2 border-dashed border-blue-300 rounded-xl bg-blue-50">
+                        <div className="text-center">
+                          <ImageIcon className="w-12 h-12 mx-auto text-blue-500 mb-3" />
+                          <p className="text-sm text-gray-700 mb-3">
+                            Upload recipe photo (JPG, PNG)
+                          </p>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="w-full p-2 border rounded-lg text-sm"
+                            disabled={uploadingImage}
+                          />
+                          {uploadingImage && (
+                            <div className="mt-3">
+                              <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-600" />
+                              <p className="text-sm text-blue-700">Uploading...</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2 col-span-2">
