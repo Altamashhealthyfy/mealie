@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,13 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Plus, Scale, Calendar } from "lucide-react";
+import { TrendingUp, TrendingDown, Plus, Scale, Calendar, Edit, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function ProgressTracking() {
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [editingLog, setEditingLog] = useState(null);
   const [formData, setFormData] = useState({
     date: format(new Date(), 'yyyy-MM-dd'),
   });
@@ -23,6 +23,15 @@ export default function ProgressTracking() {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+  });
+
+  const { data: securitySettings } = useQuery({
+    queryKey: ['securitySettings'],
+    queryFn: async () => {
+      const settings = await base44.entities.AppSecuritySettings.list();
+      return settings[0] || null;
+    },
+    enabled: !!user,
   });
 
   const { data: clientProfile } = useQuery({
@@ -60,15 +69,29 @@ export default function ProgressTracking() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: (data) => base44.entities.ProgressLog.create({
-      ...data,
-      client_id: clientProfile.id,
-    }),
+    mutationFn: (data) => {
+      if (editingLog) {
+        return base44.entities.ProgressLog.update(editingLog.id, data);
+      }
+      return base44.entities.ProgressLog.create({
+        ...data,
+        client_id: clientProfile.id,
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['myProgressLogs']);
       setShowAddDialog(false);
+      setEditingLog(null);
       setFormData({ date: format(new Date(), 'yyyy-MM-dd') });
-      alert('Progress logged successfully!');
+      alert(editingLog ? 'Progress updated successfully!' : 'Progress logged successfully!');
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.ProgressLog.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['myProgressLogs']);
+      alert('Progress entry deleted successfully!');
     },
   });
 
@@ -80,12 +103,42 @@ export default function ProgressTracking() {
     saveMutation.mutate(formData);
   };
 
+  const handleEdit = (log) => {
+    setEditingLog(log);
+    setFormData({
+      date: log.date,
+      weight: log.weight,
+      measurements: log.measurements || {},
+      energy_level: log.energy_level,
+      sleep_quality: log.sleep_quality,
+      stress_level: log.stress_level,
+      meal_adherence: log.meal_adherence,
+      notes: log.notes,
+    });
+    setShowAddDialog(true);
+  };
+
+  const handleDelete = (log) => {
+    if (window.confirm('Are you sure you want to delete this progress entry? This action cannot be undone.')) {
+      deleteMutation.mutate(log.id);
+    }
+  };
+
+  const handleDialogClose = () => {
+    setShowAddDialog(false);
+    setEditingLog(null);
+    setFormData({ date: format(new Date(), 'yyyy-MM-dd') });
+  };
+
+  // Permission checks
+  const canEditProgress = securitySettings?.client_restrictions?.can_edit_progress ?? true;
+  const canDeleteProgress = securitySettings?.client_restrictions?.can_delete_progress ?? false;
+
   const latestLog = progressLogs[progressLogs.length - 1];
   const initialWeight = clientProfile?.initial_weight || clientProfile?.weight;
   const currentWeight = latestLog?.weight || clientProfile?.weight;
   const targetWeight = clientProfile?.target_weight;
   const weightChange = initialWeight ? currentWeight - initialWeight : 0;
-  const weightToGo = targetWeight ? currentWeight - targetWeight : 0;
 
   // Prepare chart data
   const chartData = progressLogs.map(log => ({
@@ -118,153 +171,164 @@ export default function ProgressTracking() {
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Progress Tracking</h1>
             <p className="text-gray-600">Track your weight and measurements</p>
           </div>
-          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-            <DialogTrigger asChild>
-              <Button className="bg-gradient-to-r from-orange-500 to-red-500">
-                <Plus className="w-4 h-4 mr-2" />
-                Log Progress
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Log Your Progress</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 mt-4">
-                <div className="space-y-2">
-                  <Label>Date</Label>
-                  <Input
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({...formData, date: e.target.value})}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Weight (kg) *</Label>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    value={formData.weight || ''}
-                    onChange={(e) => setFormData({...formData, weight: parseFloat(e.target.value)})}
-                    placeholder="65.5"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Measurements (optional)</Label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm">Chest (cm)</Label>
-                      <Input
-                        type="number"
-                        value={formData.measurements?.chest || ''}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          measurements: {...formData.measurements, chest: parseFloat(e.target.value)}
-                        })}
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-sm">Waist (cm)</Label>
-                      <Input
-                        type="number"
-                        value={formData.measurements?.waist || ''}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          measurements: {...formData.measurements, waist: parseFloat(e.target.value)}
-                        })}
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-sm">Hips (cm)</Label>
-                      <Input
-                        type="number"
-                        value={formData.measurements?.hips || ''}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          measurements: {...formData.measurements, hips: parseFloat(e.target.value)}
-                        })}
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-sm">Arms (cm)</Label>
-                      <Input
-                        type="number"
-                        value={formData.measurements?.arms || ''}
-                        onChange={(e) => setFormData({
-                          ...formData,
-                          measurements: {...formData.measurements, arms: parseFloat(e.target.value)}
-                        })}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label>Energy Level (1-5)</Label>
-                    <Input
-                      type="number"
-                      min="1"
-                      max="5"
-                      value={formData.energy_level || ''}
-                      onChange={(e) => setFormData({...formData, energy_level: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Sleep Quality (1-5)</Label>
-                    <Input
-                      type="number"
-                      min="1"
-                      max="5"
-                      value={formData.sleep_quality || ''}
-                      onChange={(e) => setFormData({...formData, sleep_quality: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Stress Level (1-5)</Label>
-                    <Input
-                      type="number"
-                      min="1"
-                      max="5"
-                      value={formData.stress_level || ''}
-                      onChange={(e) => setFormData({...formData, stress_level: parseInt(e.target.value)})}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Meal Plan Adherence (%)</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={formData.meal_adherence || ''}
-                    onChange={(e) => setFormData({...formData, meal_adherence: parseInt(e.target.value)})}
-                    placeholder="80"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Notes</Label>
-                  <Textarea
-                    value={formData.notes || ''}
-                    onChange={(e) => setFormData({...formData, notes: e.target.value})}
-                    placeholder="How are you feeling? Any challenges?"
-                    rows={4}
-                  />
-                </div>
-
-                <Button
-                  onClick={handleSubmit}
-                  disabled={saveMutation.isPending}
-                  className="w-full bg-gradient-to-r from-orange-500 to-red-500"
-                >
-                  {saveMutation.isPending ? 'Saving...' : 'Save Progress'}
+          {canEditProgress && (
+            <Dialog open={showAddDialog} onOpenChange={(open) => !open && handleDialogClose()}>
+              <DialogTrigger asChild>
+                <Button className="bg-gradient-to-r from-orange-500 to-red-500">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Log Progress
                 </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>{editingLog ? 'Edit Progress' : 'Log Your Progress'}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 mt-4">
+                  <div className="space-y-2">
+                    <Label>Date</Label>
+                    <Input
+                      type="date"
+                      value={formData.date}
+                      onChange={(e) => setFormData({...formData, date: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Weight (kg) *</Label>
+                    <Input
+                      type="number"
+                      step="0.1"
+                      value={formData.weight || ''}
+                      onChange={(e) => setFormData({...formData, weight: parseFloat(e.target.value)})}
+                      placeholder="65.5"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Measurements (optional)</Label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm">Chest (cm)</Label>
+                        <Input
+                          type="number"
+                          value={formData.measurements?.chest || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            measurements: {...formData.measurements, chest: parseFloat(e.target.value)}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm">Waist (cm)</Label>
+                        <Input
+                          type="number"
+                          value={formData.measurements?.waist || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            measurements: {...formData.measurements, waist: parseFloat(e.target.value)}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm">Hips (cm)</Label>
+                        <Input
+                          type="number"
+                          value={formData.measurements?.hips || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            measurements: {...formData.measurements, hips: parseFloat(e.target.value)}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm">Arms (cm)</Label>
+                        <Input
+                          type="number"
+                          value={formData.measurements?.arms || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            measurements: {...formData.measurements, arms: parseFloat(e.target.value)}
+                          })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label>Energy Level (1-5)</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="5"
+                        value={formData.energy_level || ''}
+                        onChange={(e) => setFormData({...formData, energy_level: parseInt(e.target.value)})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Sleep Quality (1-5)</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="5"
+                        value={formData.sleep_quality || ''}
+                        onChange={(e) => setFormData({...formData, sleep_quality: parseInt(e.target.value)})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Stress Level (1-5)</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="5"
+                        value={formData.stress_level || ''}
+                        onChange={(e) => setFormData({...formData, stress_level: parseInt(e.target.value)})}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Meal Plan Adherence (%)</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={formData.meal_adherence || ''}
+                      onChange={(e) => setFormData({...formData, meal_adherence: parseInt(e.target.value)})}
+                      placeholder="80"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Notes</Label>
+                    <Textarea
+                      value={formData.notes || ''}
+                      onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                      placeholder="How are you feeling? Any challenges?"
+                      rows={4}
+                    />
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={handleDialogClose}
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={saveMutation.isPending}
+                      className="flex-1 bg-gradient-to-r from-orange-500 to-red-500"
+                    >
+                      {saveMutation.isPending ? 'Saving...' : editingLog ? 'Update Progress' : 'Save Progress'}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
 
         {/* Progress Overview */}
@@ -369,13 +433,15 @@ export default function ProgressTracking() {
                 <p className="text-gray-600 mb-4">
                   Start tracking your weight and measurements
                 </p>
-                <Button
-                  onClick={() => setShowAddDialog(true)}
-                  className="bg-gradient-to-r from-orange-500 to-red-500"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Log Your First Progress
-                </Button>
+                {canEditProgress && (
+                  <Button
+                    onClick={() => setShowAddDialog(true)}
+                    className="bg-gradient-to-r from-orange-500 to-red-500"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Log Your First Progress
+                  </Button>
+                )}
               </div>
             ) : (
               <div className="space-y-4">
@@ -390,11 +456,34 @@ export default function ProgressTracking() {
                           Weight: <span className="font-medium text-green-600">{log.weight} kg</span>
                         </p>
                       </div>
-                      {log.meal_adherence && (
-                        <Badge className="bg-blue-500 text-white">
-                          {log.meal_adherence}% Adherence
-                        </Badge>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {log.meal_adherence && (
+                          <Badge className="bg-blue-500 text-white">
+                            {log.meal_adherence}% Adherence
+                          </Badge>
+                        )}
+                        {canEditProgress && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(log)}
+                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        )}
+                        {canDeleteProgress && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(log)}
+                            disabled={deleteMutation.isPending}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
 
                     {log.measurements && (
