@@ -62,7 +62,7 @@ export default function FeatureControl() {
     enabled: !!user && user.user_type === 'super_admin',
   });
 
-  const [formData, setFormData] = useState(settings || {});
+  const [formData, setFormData] = useState(settings || getDefaultSettings());
 
   React.useEffect(() => {
     if (settings) {
@@ -874,7 +874,8 @@ export default function FeatureControl() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {category.permissions.map(permission => {
-                            const isEnabled = formData[permissionKey]?.[permission.key] ?? true;
+                            const defaultValue = getDefaultSettings()[permissionKey]?.[permission.key];
+                            const isEnabled = formData[permissionKey]?.[permission.key] ?? defaultValue ?? false;
                             
                             return (
                               <div
@@ -900,18 +901,21 @@ export default function FeatureControl() {
                     {/* Numeric Settings */}
                     {roleData.numericSettings && (
                       <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                        {roleData.numericSettings.map(setting => (
-                          <div key={setting.key} className="space-y-2">
-                            <Label className="font-semibold text-gray-900">{setting.label}</Label>
-                            <Input
-                              type="number"
-                              value={formData[permissionKey]?.[setting.key] ?? 0}
-                              onChange={(e) => updatePermission(permissionKey, setting.key, parseInt(e.target.value))}
-                              className="h-10"
-                            />
-                            <p className="text-xs text-gray-600">{setting.description}</p>
-                          </div>
-                        ))}
+                        {roleData.numericSettings.map(setting => {
+                          const defaultValue = getDefaultSettings()[permissionKey]?.[setting.key];
+                          return (
+                            <div key={setting.key} className="space-y-2">
+                              <Label className="font-semibold text-gray-900">{setting.label}</Label>
+                              <Input
+                                type="number"
+                                value={formData[permissionKey]?.[setting.key] ?? defaultValue ?? 0}
+                                onChange={(e) => updatePermission(permissionKey, setting.key, parseInt(e.target.value))}
+                                className="h-10"
+                              />
+                              <p className="text-xs text-gray-600">{setting.description}</p>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </CardContent>
