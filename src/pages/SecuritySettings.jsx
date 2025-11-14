@@ -22,13 +22,22 @@ import {
   Settings,
   Crown,
   GraduationCap,
-  UserCheck
+  UserCheck,
+  Sparkles,
+  Upload,
+  Zap,
+  TrendingUp,
+  Award,
+  Rocket,
+  FileImage,
+  FileText,
+  Stethoscope
 } from "lucide-react";
 import { format } from "date-fns";
 
 export default function SecuritySettings() {
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState("super_admin");
+  const [activeTab, setActiveTab] = useState("client_features");
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -81,10 +90,48 @@ export default function SecuritySettings() {
           show_profile: true,
           allow_profile_edit: true,
           show_nutritional_info: true,
-          show_recipes: false,
-          allow_recipe_download: false,
+          show_recipes: true,
+          allow_recipe_download: true,
+          allow_recipe_upload: false,
+          allow_ai_recipe_generation: false,
           show_dashboard_stats: true,
           allow_export_data: false
+        },
+        client_ai_tools_access: {
+          basic_membership: {
+            can_use_food_lookup_ai: true,
+            can_generate_meal_plans: false,
+            can_generate_recipes: false,
+            can_use_wellness_insights: false,
+            can_use_chat_assistant: false,
+            monthly_ai_requests_limit: 50
+          },
+          premium_membership: {
+            can_use_food_lookup_ai: true,
+            can_generate_meal_plans: false,
+            can_generate_recipes: false,
+            can_use_wellness_insights: true,
+            can_use_chat_assistant: true,
+            monthly_ai_requests_limit: 200
+          },
+          vip_membership: {
+            can_use_food_lookup_ai: true,
+            can_generate_meal_plans: false,
+            can_generate_recipes: true,
+            can_use_wellness_insights: true,
+            can_use_chat_assistant: true,
+            can_use_advanced_analytics: true,
+            monthly_ai_requests_limit: -1
+          }
+        },
+        client_upload_permissions: {
+          can_upload_progress_photos: true,
+          can_upload_food_photos: true,
+          can_upload_lab_reports: true,
+          can_upload_recipes: false,
+          can_upload_documents: false,
+          max_file_size_mb: 10,
+          allowed_file_types: ["jpg", "jpeg", "png", "pdf"]
         },
         team_member_restrictions: {
           can_view_only_own_clients: true,
@@ -156,6 +203,19 @@ export default function SecuritySettings() {
     }));
   };
 
+  const updateNestedPermission = (category, subcategory, key, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [category]: {
+        ...prev[category],
+        [subcategory]: {
+          ...prev[category]?.[subcategory],
+          [key]: value
+        }
+      }
+    }));
+  };
+
   if (user?.user_type !== 'super_admin') {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
@@ -187,6 +247,103 @@ export default function SecuritySettings() {
     );
   }
 
+  const clientFeatureSettings = [
+    { 
+      category: 'Visibility',
+      items: [
+        { key: 'show_meal_plan', label: 'Show Meal Plan', description: 'Display assigned meal plans', icon: Eye },
+        { key: 'show_food_log', label: 'Show Food Log', description: 'Display food logging feature', icon: Eye },
+        { key: 'show_progress_tracking', label: 'Show Progress Tracking', description: 'Display progress tracking', icon: Eye },
+        { key: 'show_mpess_tracker', label: 'Show MPESS Tracker', description: 'Display wellness tracker', icon: Eye },
+        { key: 'show_messages', label: 'Show Messages', description: 'Display messaging feature', icon: Eye },
+        { key: 'show_appointments', label: 'Show Appointments', description: 'Display appointments', icon: Eye },
+        { key: 'show_profile', label: 'Show Profile', description: 'Display profile page', icon: Eye },
+        { key: 'show_nutritional_info', label: 'Show Nutritional Info', description: 'Display food lookup', icon: Eye },
+        { key: 'show_recipes', label: 'Show Recipes', description: 'Display recipe library', icon: Eye },
+        { key: 'show_dashboard_stats', label: 'Show Dashboard Stats', description: 'Display statistics', icon: Eye },
+      ]
+    },
+    {
+      category: 'Edit Permissions',
+      items: [
+        { key: 'allow_meal_plan_comments', label: 'Allow Meal Plan Comments', description: 'Let clients comment on meals', icon: Settings },
+        { key: 'allow_food_log_edit', label: 'Allow Food Log Edit', description: 'Let clients edit food logs', icon: Settings },
+        { key: 'allow_food_log_delete', label: 'Allow Food Log Delete', description: 'Let clients delete entries', icon: AlertTriangle },
+        { key: 'allow_progress_edit', label: 'Allow Progress Edit', description: 'Let clients log progress', icon: Settings },
+        { key: 'allow_mpess_edit', label: 'Allow MPESS Edit', description: 'Let clients track wellness', icon: Settings },
+        { key: 'allow_message_sending', label: 'Allow Message Sending', description: 'Let clients send messages', icon: Settings },
+        { key: 'allow_appointment_booking', label: 'Allow Appointment Booking', description: 'Let clients book appointments', icon: Settings },
+        { key: 'allow_profile_edit', label: 'Allow Profile Edit', description: 'Let clients edit profile', icon: Settings },
+      ]
+    },
+    {
+      category: 'Advanced Actions',
+      items: [
+        { key: 'allow_recipe_download', label: 'Allow Recipe Download', description: 'Let clients download recipes', icon: Settings },
+        { key: 'allow_recipe_upload', label: 'Allow Recipe Upload', description: 'Let clients upload recipes', icon: Upload },
+        { key: 'allow_ai_recipe_generation', label: 'Allow AI Recipe Generation', description: 'Let clients generate AI recipes', icon: Sparkles },
+        { key: 'allow_export_data', label: 'Allow Data Export', description: 'Let clients export their data', icon: Settings },
+      ]
+    }
+  ];
+
+  const uploadPermissions = [
+    { key: 'can_upload_progress_photos', label: 'Progress Photos', description: 'Transformation photos', icon: FileImage },
+    { key: 'can_upload_food_photos', label: 'Food Photos', description: 'Food log images', icon: FileImage },
+    { key: 'can_upload_lab_reports', label: 'Lab Reports', description: 'Medical reports/PDFs', icon: Stethoscope },
+    { key: 'can_upload_recipes', label: 'Recipe Uploads', description: 'Custom recipes to library', icon: Upload },
+    { key: 'can_upload_documents', label: 'General Documents', description: 'Any documents', icon: FileText },
+  ];
+
+  const aiToolsByMembership = [
+    {
+      tier: 'basic_membership',
+      label: 'Basic Membership',
+      icon: Users,
+      color: 'from-gray-500 to-slate-500',
+      badgeColor: 'bg-gray-600',
+      tools: [
+        { key: 'can_use_food_lookup_ai', label: 'Food Lookup AI', description: 'AI nutritional information', icon: Sparkles },
+        { key: 'can_generate_meal_plans', label: 'Generate Meal Plans', description: 'AI meal plan creation', icon: Zap },
+        { key: 'can_generate_recipes', label: 'Generate Recipes', description: 'AI recipe generation', icon: Sparkles },
+        { key: 'can_use_wellness_insights', label: 'Wellness Insights', description: 'AI MPESS analysis', icon: TrendingUp },
+        { key: 'can_use_chat_assistant', label: 'Chat Assistant', description: '24/7 AI nutrition help', icon: Sparkles },
+        { key: 'monthly_ai_requests_limit', label: 'Monthly AI Request Limit', description: 'Max requests per month', type: 'number', icon: Zap },
+      ]
+    },
+    {
+      tier: 'premium_membership',
+      label: 'Premium Membership',
+      icon: Award,
+      color: 'from-blue-500 to-cyan-500',
+      badgeColor: 'bg-blue-600',
+      tools: [
+        { key: 'can_use_food_lookup_ai', label: 'Food Lookup AI', description: 'Enhanced nutritional data', icon: Sparkles },
+        { key: 'can_generate_meal_plans', label: 'Generate Meal Plans', description: 'AI meal suggestions', icon: Zap },
+        { key: 'can_generate_recipes', label: 'Generate Recipes', description: 'Personal recipe creation', icon: Sparkles },
+        { key: 'can_use_wellness_insights', label: 'Wellness Insights', description: 'Advanced MPESS analysis', icon: TrendingUp },
+        { key: 'can_use_chat_assistant', label: 'Chat Assistant', description: 'Priority AI support', icon: Sparkles },
+        { key: 'monthly_ai_requests_limit', label: 'Monthly AI Request Limit', description: 'Max requests per month', type: 'number', icon: Zap },
+      ]
+    },
+    {
+      tier: 'vip_membership',
+      label: 'VIP Membership',
+      icon: Crown,
+      color: 'from-purple-500 to-pink-500',
+      badgeColor: 'bg-purple-600',
+      tools: [
+        { key: 'can_use_food_lookup_ai', label: 'Food Lookup AI', description: 'Premium data access', icon: Sparkles },
+        { key: 'can_generate_meal_plans', label: 'Generate Meal Plans', description: 'Unlimited suggestions', icon: Zap },
+        { key: 'can_generate_recipes', label: 'Generate Recipes', description: 'Unlimited recipe AI', icon: Sparkles },
+        { key: 'can_use_wellness_insights', label: 'Wellness Insights', description: 'Premium analytics', icon: TrendingUp },
+        { key: 'can_use_chat_assistant', label: 'Chat Assistant', description: 'VIP priority support', icon: Sparkles },
+        { key: 'can_use_advanced_analytics', label: 'Advanced Analytics', description: 'AI health predictions', icon: Rocket },
+        { key: 'monthly_ai_requests_limit', label: 'Monthly AI Request Limit', description: '-1 for unlimited', type: 'number', icon: Zap },
+      ]
+    }
+  ];
+
   const superAdminPermissions = [
     { key: 'can_manage_users', label: 'Manage Users', description: 'Create, edit, and view all users', icon: Users },
     { key: 'can_invite_users', label: 'Invite Users', description: 'Send user invitations', icon: UserCheck },
@@ -206,29 +363,6 @@ export default function SecuritySettings() {
     { key: 'can_access_business_analytics', label: 'Access Business Analytics', description: 'View business performance data', icon: Eye },
     { key: 'can_modify_app_settings', label: 'Modify App Settings', description: 'Change app configuration', icon: Settings },
     { key: 'can_manage_permissions', label: 'Manage Permissions', description: 'Control access to security settings', icon: Shield }
-  ];
-
-  const clientPanelSettings = [
-    { key: 'show_meal_plan', label: 'Show Meal Plan', description: 'Display assigned meal plans', icon: Eye },
-    { key: 'allow_meal_plan_comments', label: 'Allow Meal Plan Comments', description: 'Let clients add notes to meals', icon: Settings },
-    { key: 'show_food_log', label: 'Show Food Log', description: 'Display food logging feature', icon: Eye },
-    { key: 'allow_food_log_edit', label: 'Allow Food Log Edit', description: 'Let clients edit their food logs', icon: Settings },
-    { key: 'allow_food_log_delete', label: 'Allow Food Log Delete', description: 'Let clients delete food log entries', icon: AlertTriangle },
-    { key: 'show_progress_tracking', label: 'Show Progress Tracking', description: 'Display progress tracking feature', icon: Eye },
-    { key: 'allow_progress_edit', label: 'Allow Progress Edit', description: 'Let clients edit progress entries', icon: Settings },
-    { key: 'show_mpess_tracker', label: 'Show MPESS Tracker', description: 'Display wellness tracker', icon: Eye },
-    { key: 'allow_mpess_edit', label: 'Allow MPESS Edit', description: 'Let clients track wellness', icon: Settings },
-    { key: 'show_messages', label: 'Show Messages', description: 'Display messaging feature', icon: Eye },
-    { key: 'allow_message_sending', label: 'Allow Message Sending', description: 'Let clients send messages', icon: Settings },
-    { key: 'show_appointments', label: 'Show Appointments', description: 'Display appointments', icon: Eye },
-    { key: 'allow_appointment_booking', label: 'Allow Appointment Booking', description: 'Let clients book appointments', icon: Settings },
-    { key: 'show_profile', label: 'Show Profile', description: 'Display profile page', icon: Eye },
-    { key: 'allow_profile_edit', label: 'Allow Profile Edit', description: 'Let clients edit their profile', icon: Settings },
-    { key: 'show_nutritional_info', label: 'Show Nutritional Info', description: 'Display macro information', icon: Eye },
-    { key: 'show_recipes', label: 'Show Recipes', description: 'Display recipe library', icon: Eye },
-    { key: 'allow_recipe_download', label: 'Allow Recipe Download', description: 'Let clients download recipes', icon: Settings },
-    { key: 'show_dashboard_stats', label: 'Show Dashboard Stats', description: 'Display dashboard statistics', icon: Eye },
-    { key: 'allow_export_data', label: 'Allow Data Export', description: 'Let clients export their data', icon: Settings }
   ];
 
   const teamMemberSettings = [
@@ -256,7 +390,7 @@ export default function SecuritySettings() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Security Settings</h1>
-            <p className="text-gray-600">Manage app permissions and access control</p>
+            <p className="text-gray-600">Comprehensive access control and permissions management</p>
           </div>
           <Shield className="w-10 h-10 text-purple-500" />
         </div>
@@ -266,7 +400,7 @@ export default function SecuritySettings() {
           <AlertTriangle className="w-5 h-5 text-red-600" />
           <AlertTitle className="text-red-900 font-bold">⚠️ Critical Settings</AlertTitle>
           <AlertDescription className="text-red-800">
-            These settings control the entire app's security. Changes here affect all users. Be careful when modifying permissions.
+            These settings control the entire app's security and feature access. Changes affect all users immediately.
           </AlertDescription>
         </Alert>
 
@@ -293,36 +427,278 @@ export default function SecuritySettings() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 bg-white/80 backdrop-blur shadow-lg">
+          <TabsList className="grid grid-cols-2 md:grid-cols-6 bg-white/80 backdrop-blur shadow-lg">
+            <TabsTrigger
+              value="client_features"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Client Features</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="client_uploads"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Upload Control</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="ai_tools"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">AI Tools</span>
+            </TabsTrigger>
             <TabsTrigger
               value="super_admin"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white"
             >
               <Crown className="w-4 h-4 mr-2" />
-              Super Admin
-            </TabsTrigger>
-            <TabsTrigger
-              value="client_panel"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white"
-            >
-              <Users className="w-4 h-4 mr-2" />
-              Client Panel
+              <span className="hidden sm:inline">Super Admin</span>
             </TabsTrigger>
             <TabsTrigger
               value="team_members"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
             >
               <UserCog className="w-4 h-4 mr-2" />
-              Team Members
+              <span className="hidden sm:inline">Team Members</span>
             </TabsTrigger>
             <TabsTrigger
               value="student_coaches"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-amber-500 data-[state=active]:text-white"
             >
               <GraduationCap className="w-4 h-4 mr-2" />
-              Student Coaches
+              <span className="hidden sm:inline">Student Coaches</span>
             </TabsTrigger>
           </TabsList>
+
+          {/* Client Features & Permissions Tab */}
+          <TabsContent value="client_features">
+            <div className="space-y-6">
+              <Alert className="bg-green-50 border-green-500">
+                <Eye className="w-5 h-5 text-green-600" />
+                <AlertDescription className="text-green-900">
+                  <strong>Client Feature Control:</strong> Manage what features clients can see and which actions they can perform. Features are organized by category.
+                </AlertDescription>
+              </Alert>
+
+              {clientFeatureSettings.map((group, idx) => (
+                <Card key={idx} className="border-none shadow-lg">
+                  <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">
+                    <CardTitle>{group.category}</CardTitle>
+                    <CardDescription className="text-white/90">
+                      {group.category === 'Visibility' && 'Control which features appear in the client panel'}
+                      {group.category === 'Edit Permissions' && 'Control what actions clients can perform'}
+                      {group.category === 'Advanced Actions' && 'Control advanced client capabilities'}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6 space-y-3">
+                    {group.items.map(setting => {
+                      const IconComponent = setting.icon;
+                      const isEnabled = formData.client_panel_settings?.[setting.key] ?? true;
+                      const isDangerous = setting.key.includes('delete') || setting.key.includes('ai_recipe');
+
+                      return (
+                        <div
+                          key={setting.key}
+                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                            isEnabled
+                              ? isDangerous
+                                ? 'bg-orange-50 border-orange-300'
+                                : 'bg-green-50 border-green-300'
+                              : 'bg-gray-50 border-gray-200'
+                          }`}
+                        >
+                          <div className="flex items-start gap-3 flex-1">
+                            <IconComponent className={`w-5 h-5 mt-1 ${
+                              isEnabled
+                                ? isDangerous
+                                  ? 'text-orange-600'
+                                  : 'text-green-600'
+                                : 'text-gray-400'
+                            }`} />
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <Label className="font-semibold text-gray-900">{setting.label}</Label>
+                                {isDangerous && isEnabled && (
+                                  <Badge className="bg-orange-500 text-white text-xs">
+                                    <AlertTriangle className="w-3 h-3 mr-1" />
+                                    Caution
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-600 mt-1">{setting.description}</p>
+                            </div>
+                          </div>
+                          <Switch
+                            checked={isEnabled}
+                            onCheckedChange={(checked) => updatePermission('client_panel_settings', setting.key, checked)}
+                            className={isEnabled && isDangerous ? 'data-[state=checked]:bg-orange-500' : ''}
+                          />
+                        </div>
+                      );
+                    })}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* Client Upload Permissions Tab */}
+          <TabsContent value="client_uploads">
+            <Card className="border-none shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                <CardTitle className="flex items-center gap-2">
+                  <Upload className="w-6 h-6" />
+                  Client Upload Permissions
+                </CardTitle>
+                <CardDescription className="text-white/90">
+                  Control what types of files clients can upload
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <Alert className="bg-blue-50 border-blue-500">
+                  <Upload className="w-5 h-5 text-blue-600" />
+                  <AlertDescription className="text-blue-900">
+                    Fine-grained control over file upload permissions. Some uploads (like progress photos) are recommended for client engagement.
+                  </AlertDescription>
+                </Alert>
+
+                {uploadPermissions.map(permission => {
+                  const IconComponent = permission.icon;
+                  const isEnabled = formData.client_upload_permissions?.[permission.key] ?? false;
+
+                  return (
+                    <div
+                      key={permission.key}
+                      className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                        isEnabled ? 'bg-orange-50 border-orange-300' : 'bg-gray-50 border-gray-200'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3 flex-1">
+                        <IconComponent className={`w-5 h-5 mt-1 ${
+                          isEnabled ? 'text-orange-600' : 'text-gray-400'
+                        }`} />
+                        <div>
+                          <Label className="font-semibold text-gray-900">{permission.label}</Label>
+                          <p className="text-sm text-gray-600 mt-1">{permission.description}</p>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={isEnabled}
+                        onCheckedChange={(checked) => updatePermission('client_upload_permissions', permission.key, checked)}
+                      />
+                    </div>
+                  );
+                })}
+
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                  <div className="space-y-2">
+                    <Label className="font-semibold text-gray-900">Max File Size (MB)</Label>
+                    <Input
+                      type="number"
+                      value={formData.client_upload_permissions?.max_file_size_mb ?? 10}
+                      onChange={(e) => updatePermission('client_upload_permissions', 'max_file_size_mb', parseInt(e.target.value))}
+                      className="h-12"
+                    />
+                    <p className="text-xs text-gray-600">Maximum size per file upload</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="font-semibold text-gray-900">Allowed File Types</Label>
+                    <Input
+                      value={formData.client_upload_permissions?.allowed_file_types?.join(', ') ?? 'jpg, jpeg, png, pdf'}
+                      onChange={(e) => updatePermission('client_upload_permissions', 'allowed_file_types', 
+                        e.target.value.split(',').map(t => t.trim()).filter(t => t)
+                      )}
+                      className="h-12"
+                      placeholder="jpg, png, pdf"
+                    />
+                    <p className="text-xs text-gray-600">Comma-separated file extensions</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* AI Tools by Membership Tab */}
+          <TabsContent value="ai_tools">
+            <div className="space-y-6">
+              <Alert className="bg-purple-50 border-purple-500">
+                <Sparkles className="w-5 h-5 text-purple-600" />
+                <AlertDescription className="text-purple-900">
+                  <strong>AI Tools Access Control:</strong> Define which AI features are available for each membership tier. Set usage limits to manage costs.
+                </AlertDescription>
+              </Alert>
+
+              {aiToolsByMembership.map((membership) => {
+                const MembershipIcon = membership.icon;
+                return (
+                  <Card key={membership.tier} className="border-none shadow-lg">
+                    <CardHeader className={`bg-gradient-to-r ${membership.color} text-white`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <MembershipIcon className="w-6 h-6" />
+                          <div>
+                            <CardTitle>{membership.label}</CardTitle>
+                            <CardDescription className="text-white/90">
+                              AI tools available for this membership tier
+                            </CardDescription>
+                          </div>
+                        </div>
+                        <Badge className={`${membership.badgeColor} text-white`}>
+                          {membership.tier.replace('_membership', '').toUpperCase()}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-6 space-y-3">
+                      {membership.tools.map(tool => {
+                        const ToolIcon = tool.icon;
+                        const value = formData.client_ai_tools_access?.[membership.tier]?.[tool.key];
+                        const isEnabled = tool.type === 'number' ? true : (value ?? false);
+
+                        return (
+                          <div
+                            key={tool.key}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                              isEnabled && tool.type !== 'number'
+                                ? 'bg-purple-50 border-purple-300'
+                                : 'bg-gray-50 border-gray-200'
+                            }`}
+                          >
+                            <div className="flex items-start gap-3 flex-1">
+                              <ToolIcon className={`w-5 h-5 mt-1 ${
+                                isEnabled && tool.type !== 'number' ? 'text-purple-600' : 'text-gray-400'
+                              }`} />
+                              <div className="flex-1">
+                                <Label className="font-semibold text-gray-900">{tool.label}</Label>
+                                <p className="text-sm text-gray-600 mt-1">{tool.description}</p>
+                              </div>
+                            </div>
+                            {tool.type === 'number' ? (
+                              <div className="flex items-center gap-2">
+                                <Input
+                                  type="number"
+                                  value={value ?? 50}
+                                  onChange={(e) => updateNestedPermission('client_ai_tools_access', membership.tier, tool.key, parseInt(e.target.value))}
+                                  className="w-24 h-10"
+                                />
+                                <span className="text-xs text-gray-600 whitespace-nowrap">requests/mo</span>
+                              </div>
+                            ) : (
+                              <Switch
+                                checked={isEnabled}
+                                onCheckedChange={(checked) => updateNestedPermission('client_ai_tools_access', membership.tier, tool.key, checked)}
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </TabsContent>
 
           {/* Super Admin Permissions */}
           <TabsContent value="super_admin">
@@ -377,61 +753,6 @@ export default function SecuritySettings() {
                       <Switch
                         checked={isEnabled}
                         onCheckedChange={(checked) => updatePermission('super_admin_permissions', permission.key, checked)}
-                      />
-                    </div>
-                  );
-                })}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Client Panel Settings */}
-          <TabsContent value="client_panel">
-            <Card className="border-none shadow-lg">
-              <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="w-6 h-6" />
-                  Client Panel Settings
-                </CardTitle>
-                <CardDescription className="text-white/90">
-                  Control what clients can see and do in their panel
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                {clientPanelSettings.map(setting => {
-                  const IconComponent = setting.icon;
-                  const isEnabled = formData.client_panel_settings?.[setting.key] ?? true;
-                  const isVisibility = setting.key.startsWith('show_');
-
-                  return (
-                    <div
-                      key={setting.key}
-                      className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                        isEnabled
-                          ? 'bg-green-50 border-green-300'
-                          : 'bg-gray-50 border-gray-200'
-                      }`}
-                    >
-                      <div className="flex items-start gap-3 flex-1">
-                        <IconComponent className={`w-5 h-5 mt-1 ${
-                          isEnabled ? 'text-green-600' : 'text-gray-400'
-                        }`} />
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <Label className="font-semibold text-gray-900">{setting.label}</Label>
-                            {isVisibility && (
-                              <Badge variant="outline" className="text-xs">
-                                {isEnabled ? <Eye className="w-3 h-3 mr-1" /> : <EyeOff className="w-3 h-3 mr-1" />}
-                                {isEnabled ? 'Visible' : 'Hidden'}
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-gray-600 mt-1">{setting.description}</p>
-                        </div>
-                      </div>
-                      <Switch
-                        checked={isEnabled}
-                        onCheckedChange={(checked) => updatePermission('client_panel_settings', setting.key, checked)}
                       />
                     </div>
                   );
