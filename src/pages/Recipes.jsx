@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -477,6 +478,7 @@ Enjoy your cooking! 🍽️✨
     );
   }
 
+  // CLIENTS CANNOT UPLOAD OR GENERATE RECIPES
   const canUploadRecipes = !isClient;
 
   const canEditRecipe = (recipe) => {
@@ -495,7 +497,9 @@ Enjoy your cooking! 🍽️✨
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Recipe Library</h1>
-            <p className="text-gray-600">Discover authentic Indian recipes ({recipes.length} total)</p>
+            <p className="text-gray-600">
+              {isClient ? 'Browse delicious recipes from your dietitian' : `Discover authentic Indian recipes (${recipes.length} total)`}
+            </p>
           </div>
           {canUploadRecipes && (
             <Dialog open={showManualUpload} onOpenChange={(open) => {
@@ -870,6 +874,7 @@ Enjoy your cooking! 🍽️✨
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          {/* CLIENTS ONLY SEE THE LIBRARY TAB - NO AI GENERATION */}
           <TabsList className={`bg-white/80 backdrop-blur ${canUploadRecipes ? 'grid grid-cols-2' : 'w-full'}`}>
             <TabsTrigger value="library" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white">
               <ChefHat className="w-4 h-4 mr-2" />
@@ -1124,6 +1129,7 @@ Enjoy your cooking! 🍽️✨
             )}
           </TabsContent>
 
+          {/* AI GENERATION TAB - ONLY FOR NON-CLIENTS */}
           {canUploadRecipes && (
             <TabsContent value="generate" className="space-y-6">
               <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-indigo-50">
