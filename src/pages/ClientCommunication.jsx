@@ -15,11 +15,9 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useToast } from "@/components/ui/use-toast";
 
 export default function ClientCommunication() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
   const [messageText, setMessageText] = useState("");
   const [showScrollButton, setShowScrollButton] = useState(false);
   const messagesEndRef = useRef(null);
@@ -83,22 +81,12 @@ export default function ClientCommunication() {
     onSuccess: () => {
       queryClient.invalidateQueries(['myMessages']);
       setMessageText("");
-      toast({
-        title: "✓ Message sent",
-        description: "Your message has been delivered to your dietitian.",
-        duration: 2000,
-      });
       setTimeout(() => scrollToBottom("smooth"), 100);
       setTimeout(() => textareaRef.current?.focus(), 150);
     },
     onError: (error) => {
       console.error("Failed to send message:", error);
-      toast({
-        title: "Failed to send message",
-        description: "Please try again.",
-        variant: "destructive",
-        duration: 3000,
-      });
+      alert("❌ Failed to send message. Please try again.");
     }
   });
 
@@ -125,22 +113,12 @@ export default function ClientCommunication() {
 
   const handleSendMessage = async () => {
     if (!clientProfile) {
-      toast({
-        title: "Profile not setup",
-        description: "Please contact your dietitian to set up your profile.",
-        variant: "destructive",
-        duration: 3000,
-      });
+      alert("⚠️ Your profile is not set up yet. Please contact your dietitian.");
       return;
     }
 
     if (!messageText.trim()) {
-      toast({
-        title: "Empty message",
-        description: "Please enter a message.",
-        variant: "destructive",
-        duration: 2000,
-      });
+      alert("⚠️ Please enter a message!");
       return;
     }
 
