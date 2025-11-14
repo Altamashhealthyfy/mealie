@@ -167,22 +167,16 @@ const businessNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
-    title: "Client Feature Control",
-    url: createPageUrl("ClientFeatureControl"),
-    icon: Settings,
+    title: "Feature Control",
+    url: createPageUrl("FeatureControl"),
+    icon: Shield,
     roles: ['super_admin'],
     badge: "New"
   },
   {
-    title: "Security Settings",
-    url: createPageUrl("SecuritySettings"),
-    icon: Shield,
-    roles: ['super_admin'],
-  },
-  {
     title: "Permission Manager",
     url: createPageUrl("PermissionManager"),
-    icon: BookOpen,
+    icon: Settings,
     roles: ['super_admin'],
   },
   {
