@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -28,7 +27,8 @@ import {
   Upload,
   LogOut,
   Stethoscope,
-  Shield
+  Shield,
+  Settings
 } from "lucide-react";
 import {
   Sidebar,
@@ -167,6 +167,13 @@ const businessNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
+    title: "Client Feature Control",
+    url: createPageUrl("ClientFeatureControl"),
+    icon: Settings,
+    roles: ['super_admin'],
+    badge: "New"
+  },
+  {
     title: "Security Settings",
     url: createPageUrl("SecuritySettings"),
     icon: Shield,
@@ -270,7 +277,7 @@ export default function Layout({ children, currentPageName }) {
         title: "Recipes",
         url: createPageUrl("Recipes"),
         icon: ClipboardList,
-        show: settings?.show_recipes ?? true, // NOW SHOWN BY DEFAULT FOR CLIENTS (view-only)
+        show: settings?.show_recipes ?? true,
       },
     ];
 
@@ -402,6 +409,9 @@ export default function Layout({ children, currentPageName }) {
                           <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
                             <item.icon className="w-5 h-5" />
                             <span className="font-medium">{item.title}</span>
+                            {item.badge && (
+                              <Badge className="ml-auto bg-green-600 text-white">{item.badge}</Badge>
+                            )}
                           </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
