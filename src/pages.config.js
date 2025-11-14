@@ -45,7 +45,6 @@ import PricingPlans from './pages/PricingPlans';
 import NotificationSettings from './pages/NotificationSettings';
 import PermissionManager from './pages/PermissionManager';
 import SecuritySettings from './pages/SecuritySettings';
-import ClientFeatureControl from './pages/ClientFeatureControl';
 import Layout from './Layout.jsx';
 
 
@@ -97,7 +96,6 @@ export const PAGES = {
     "NotificationSettings": NotificationSettings,
     "PermissionManager": PermissionManager,
     "SecuritySettings": SecuritySettings,
-    "ClientFeatureControl": ClientFeatureControl,
 }
 
 export const pagesConfig = {
