@@ -448,7 +448,7 @@ Enjoy your cooking! 🍽️✨
 
   // Check if client can access recipes
   const isClient = user?.user_type === 'client';
-  const clientCanViewRecipes = securitySettings?.client_panel_settings?.show_recipes ?? false;
+  const clientCanViewRecipes = securitySettings?.client_restrictions?.can_view_recipes ?? true;
 
   // Redirect clients if they don't have access
   React.useEffect(() => {
@@ -498,7 +498,7 @@ Enjoy your cooking! 🍽️✨
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Recipe Library</h1>
             <p className="text-gray-600">
-              {isClient ? 'Browse delicious recipes from your dietitian' : `Discover authentic Indian recipes (${recipes.length} total)`}
+              {isClient ? 'Browse delicious recipes from your dietitian' : `Discover authentic Indian recipes (${recipes.length})`}
             </p>
           </div>
           {canUploadRecipes && (
