@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -258,12 +259,6 @@ export default function Layout({ children, currentPageName }) {
         url: createPageUrl("ClientCommunication"),
         icon: MessageSquare,
         show: settings?.show_messages ?? true,
-      },
-      {
-        title: "Recipes",
-        url: createPageUrl("Recipes"),
-        icon: ClipboardList,
-        show: settings?.show_recipes ?? true,
       },
     ];
 
