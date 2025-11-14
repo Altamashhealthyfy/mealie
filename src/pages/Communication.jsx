@@ -19,9 +19,11 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function Communication() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [selectedClient, setSelectedClient] = useState(null);
   const [messageText, setMessageText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -69,20 +71,28 @@ export default function Communication() {
 
   const sendMessageMutation = useMutation({
     mutationFn: async (data) => {
-      console.log("Sending message:", data);
       const result = await base44.entities.Message.create(data);
-      console.log("Message sent successfully:", result);
       return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['allMessages']);
       setMessageText("");
+      toast({
+        title: "✓ Message sent",
+        description: "Your message has been delivered successfully.",
+        duration: 2000,
+      });
       setTimeout(() => scrollToBottom("smooth"), 100);
       setTimeout(() => textareaRef.current?.focus(), 150);
     },
     onError: (error) => {
       console.error("Failed to send message:", error);
-      alert("❌ Failed to send message. Please try again.");
+      toast({
+        title: "Failed to send message",
+        description: "Please try again.",
+        variant: "destructive",
+        duration: 3000,
+      });
     }
   });
 
@@ -94,17 +104,23 @@ export default function Communication() {
   });
 
   const handleSendMessage = async () => {
-    console.log("handleSendMessage called");
-    console.log("messageText:", messageText);
-    console.log("selectedClient:", selectedClient);
-
     if (!selectedClient) {
-      alert("⚠️ Please select a client first!");
+      toast({
+        title: "No client selected",
+        description: "Please select a client first.",
+        variant: "destructive",
+        duration: 2000,
+      });
       return;
     }
 
     if (!messageText.trim()) {
-      alert("⚠️ Please enter a message!");
+      toast({
+        title: "Empty message",
+        description: "Please enter a message.",
+        variant: "destructive",
+        duration: 2000,
+      });
       return;
     }
 
@@ -115,7 +131,6 @@ export default function Communication() {
       read: false,
     };
 
-    console.log("Calling mutation with:", messageData);
     sendMessageMutation.mutate(messageData);
   };
 
@@ -208,10 +223,7 @@ export default function Communication() {
                         return (
                           <div
                             key={client.id}
-                            onClick={() => {
-                              console.log("Selected client:", client);
-                              setSelectedClient(client);
-                            }}
+                            onClick={() => setSelectedClient(client)}
                             className={`p-4 mb-2 rounded-xl cursor-pointer transition-all ${
                               isSelected
                                 ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
@@ -286,7 +298,7 @@ export default function Communication() {
                     </div>
                   </CardHeader>
 
-                  {/* Messages - With Full Scroll Control */}
+                  {/* Messages */}
                   <div className="flex-1 overflow-hidden relative">
                     <ScrollArea 
                       className="h-full" 
@@ -347,11 +359,10 @@ export default function Communication() {
                       </div>
                     </ScrollArea>
 
-                    {/* Scroll to Bottom Button */}
                     {showScrollButton && (
                       <Button
                         onClick={() => scrollToBottom("smooth")}
-                        className="absolute bottom-4 right-4 rounded-full w-12 h-12 bg-orange-500 hover:bg-orange-600 shadow-xl z-10 flex items-center justify-center"
+                        className="absolute bottom-4 right-4 rounded-full w-12 h-12 bg-orange-500 hover:bg-orange-600 shadow-xl z-10"
                         size="icon"
                       >
                         <ArrowDown className="w-6 h-6 text-white animate-bounce" />
@@ -359,7 +370,7 @@ export default function Communication() {
                     )}
                   </div>
 
-                  {/* ✅ COMPACT Send Message Box */}
+                  {/* Send Message Box */}
                   <div className="p-4 border-t-2 border-orange-500 bg-white flex-shrink-0">
                     <div className="flex items-end gap-3">
                       <div className="flex-1">
@@ -367,14 +378,10 @@ export default function Communication() {
                           ref={textareaRef}
                           placeholder="Type your message..."
                           value={messageText}
-                          onChange={(e) => {
-                            console.log("Message text changed:", e.target.value);
-                            setMessageText(e.target.value);
-                          }}
+                          onChange={(e) => setMessageText(e.target.value)}
                           onKeyPress={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                               e.preventDefault();
-                              console.log("Enter pressed - sending message");
                               handleSendMessage();
                             }
                           }}
@@ -384,10 +391,7 @@ export default function Communication() {
                         />
                       </div>
                       <Button
-                        onClick={() => {
-                          console.log("Send button clicked");
-                          handleSendMessage();
-                        }}
+                        onClick={handleSendMessage}
                         disabled={sendMessageMutation.isPending}
                         className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-[60px] px-6 font-semibold shadow-lg"
                       >
