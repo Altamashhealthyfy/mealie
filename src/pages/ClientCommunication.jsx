@@ -86,7 +86,6 @@ export default function ClientCommunication() {
       setMessageText("");
       setTimeout(() => scrollToBottom("smooth"), 100);
       setTimeout(() => textareaRef.current?.focus(), 150);
-      alert("✅ Message sent to your dietitian!");
     },
     onError: (error) => {
       console.error("Failed to send message:", error);

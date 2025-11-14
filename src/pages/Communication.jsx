@@ -17,7 +17,7 @@ import {
   Loader2,
   ChevronDown,
   ArrowDown
-} from "lucide-react";
+} from "lucide";
 import { format } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -80,7 +80,6 @@ export default function Communication() {
       setMessageText("");
       setTimeout(() => scrollToBottom("smooth"), 100);
       setTimeout(() => textareaRef.current?.focus(), 150);
-      alert("✅ Message sent successfully!");
     },
     onError: (error) => {
       console.error("Failed to send message:", error);
