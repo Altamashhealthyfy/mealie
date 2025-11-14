@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -269,7 +270,7 @@ export default function Layout({ children, currentPageName }) {
         title: "Recipes",
         url: createPageUrl("Recipes"),
         icon: ClipboardList,
-        show: settings?.show_recipes ?? false, // Hidden by default for clients
+        show: settings?.show_recipes ?? true, // NOW SHOWN BY DEFAULT FOR CLIENTS (view-only)
       },
     ];
 
