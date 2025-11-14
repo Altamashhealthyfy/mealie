@@ -27,8 +27,7 @@ import {
   Upload,
   LogOut,
   Stethoscope,
-  Shield,
-  Settings
+  Shield
 } from "lucide-react";
 import {
   Sidebar,
@@ -170,13 +169,6 @@ const businessNavigation = [
     title: "Feature Control",
     url: createPageUrl("FeatureControl"),
     icon: Shield,
-    roles: ['super_admin'],
-    badge: "New"
-  },
-  {
-    title: "Permission Manager",
-    url: createPageUrl("PermissionManager"),
-    icon: Settings,
     roles: ['super_admin'],
   },
   {
