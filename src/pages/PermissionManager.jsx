@@ -21,7 +21,8 @@ import {
   AlertTriangle,
   CheckCircle,
   Users,
-  Settings
+  Settings,
+  Upload
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -106,7 +107,7 @@ export default function PermissionManager() {
     "Recipes": {
       key: "Recipes",
       description: "Recipe library and management",
-      features: ["view", "create", "edit", "delete"]
+      features: ["view", "create", "edit", "delete", "upload"]
     },
     "Communication": {
       key: "Communication",
@@ -126,7 +127,7 @@ export default function PermissionManager() {
     "Template Manager": {
       key: "TemplateLibraryManager",
       description: "Upload and manage templates",
-      features: ["view", "create", "edit", "delete"]
+      features: ["view", "create", "edit", "delete", "upload"]
     },
     "Food Lookup": {
       key: "FoodLookup",
@@ -171,7 +172,7 @@ export default function PermissionManager() {
     "Bulk Import": {
       key: "BulkImport",
       description: "Import data in bulk",
-      features: ["view", "create"]
+      features: ["view", "create", "upload"]
     },
     "Usage Dashboard": {
       key: "UsageDashboard",
@@ -190,50 +191,53 @@ export default function PermissionManager() {
   const getDefaultPermissions = (role) => {
     const defaults = {
       team_member: {
-        ClientManagement: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true },
-        MealPlanner: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true },
-        Recipes: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true },
-        Communication: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: true, can_delete_own_only: false },
-        Appointments: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true },
-        TemplateLibrary: { can_view: true, can_create: false, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false },
-        FoodLookup: { can_view: true, can_create: false, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false },
-        BusinessGPTs: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false },
-        MarketingHub: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false }
+        ClientManagement: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true, can_upload: false },
+        MealPlanner: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true, can_upload: false },
+        Recipes: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true, can_upload: true },
+        Communication: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: true, can_delete_own_only: false, can_upload: false },
+        Appointments: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true, can_upload: false },
+        TemplateLibrary: { can_view: true, can_create: false, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: false },
+        TemplateLibraryManager: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true, can_upload: true },
+        FoodLookup: { can_view: true, can_create: false, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: false },
+        BusinessGPTs: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: false },
+        MarketingHub: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: false },
+        BulkImport: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: true }
       },
       student_coach: {
-        ClientManagement: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true },
-        MealPlanner: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true },
-        MealPlansPro: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true },
-        Recipes: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true },
-        Communication: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: true, can_delete_own_only: false },
-        Appointments: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true },
-        TemplateLibrary: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true },
-        TemplateLibraryManager: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true },
-        FoodLookup: { can_view: true, can_create: false, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false },
-        BusinessGPTs: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false },
-        MarketingHub: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false },
-        ClientFinanceManager: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true },
-        TeamManagement: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: false, can_delete_own_only: false },
-        TeamAttendance: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: false, can_delete_own_only: false },
-        BulkImport: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false }
+        ClientManagement: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true, can_upload: false },
+        MealPlanner: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true, can_upload: false },
+        MealPlansPro: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true, can_upload: false },
+        Recipes: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true, can_upload: true },
+        Communication: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: true, can_delete_own_only: false, can_upload: false },
+        Appointments: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true, can_upload: false },
+        TemplateLibrary: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true, can_upload: false },
+        TemplateLibraryManager: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true, can_upload: true },
+        FoodLookup: { can_view: true, can_create: false, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: false },
+        BusinessGPTs: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: false },
+        MarketingHub: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: false },
+        ClientFinanceManager: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true, can_upload: false },
+        TeamManagement: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: false },
+        TeamAttendance: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: false },
+        BulkImport: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: true }
       },
       student_team_member: {
-        ClientManagement: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true },
-        MealPlanner: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true },
-        Recipes: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true },
-        Communication: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: true, can_delete_own_only: false },
-        Appointments: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true },
-        TemplateLibrary: { can_view: true, can_create: false, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false },
-        FoodLookup: { can_view: true, can_create: false, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false },
-        BusinessGPTs: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false },
-        MarketingHub: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false }
+        ClientManagement: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true, can_upload: false },
+        MealPlanner: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true, can_upload: false },
+        Recipes: { can_view: true, can_create: true, can_edit: true, can_delete: false, can_edit_own_only: true, can_delete_own_only: true, can_upload: true },
+        Communication: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: true, can_delete_own_only: false, can_upload: false },
+        Appointments: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true, can_upload: false },
+        TemplateLibrary: { can_view: true, can_create: false, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: false },
+        FoodLookup: { can_view: true, can_create: false, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: false },
+        BusinessGPTs: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: false },
+        MarketingHub: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: false }
       },
       client: {
-        MyAssignedMealPlan: { can_view: true, can_create: false, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false },
-        FoodLog: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true },
-        ProgressTracking: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true },
-        MPESSTracker: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true },
-        ClientCommunication: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false }
+        MyAssignedMealPlan: { can_view: true, can_create: false, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: false },
+        FoodLog: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true, can_upload: false },
+        ProgressTracking: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true, can_upload: false },
+        MPESSTracker: { can_view: true, can_create: true, can_edit: true, can_delete: true, can_edit_own_only: true, can_delete_own_only: true, can_upload: false },
+        ClientCommunication: { can_view: true, can_create: true, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: false },
+        Recipes: { can_view: true, can_create: false, can_edit: false, can_delete: false, can_edit_own_only: false, can_delete_own_only: false, can_upload: false }
       }
     };
 
@@ -257,6 +261,7 @@ export default function PermissionManager() {
       can_create: false,
       can_edit: false,
       can_delete: false,
+      can_upload: false,
       can_edit_own_only: true,
       can_delete_own_only: true
     };
@@ -331,7 +336,7 @@ export default function PermissionManager() {
               <Shield className="w-10 h-10 text-orange-500" />
               Permission Manager
             </h1>
-            <p className="text-gray-600">Control who can access, edit, and delete in each section</p>
+            <p className="text-gray-600">Control who can access, edit, delete, and upload in each section</p>
           </div>
           {hasChanges && (
             <Button
@@ -398,7 +403,7 @@ export default function PermissionManager() {
         <div className="grid grid-cols-1 gap-4">
           {Object.entries(sections).map(([sectionName, sectionData]) => {
             const perm = getCurrentPermission(sectionData.key);
-            const hasAnyPermission = perm.can_view || perm.can_create || perm.can_edit || perm.can_delete;
+            const hasAnyPermission = perm.can_view || perm.can_create || perm.can_edit || perm.can_delete || perm.can_upload;
 
             return (
               <Card key={sectionData.key} className={`border-2 transition-all ${hasAnyPermission ? 'border-green-300 bg-green-50/30' : 'border-gray-200'}`}>
@@ -421,7 +426,7 @@ export default function PermissionManager() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {/* View Permission */}
                     {sectionData.features.includes("view") && (
                       <div className="flex items-center justify-between p-4 bg-white rounded-lg border-2">
@@ -476,6 +481,21 @@ export default function PermissionManager() {
                         <Switch
                           checked={perm.can_delete}
                           onCheckedChange={(checked) => updatePermission(sectionData.key, 'can_delete', checked)}
+                          disabled={!perm.can_view}
+                        />
+                      </div>
+                    )}
+
+                    {/* Upload Permission */}
+                    {sectionData.features.includes("upload") && (
+                      <div className="flex items-center justify-between p-4 bg-white rounded-lg border-2">
+                        <div className="flex items-center gap-2">
+                          <Upload className="w-5 h-5 text-purple-600" />
+                          <Label className="font-semibold">Upload</Label>
+                        </div>
+                        <Switch
+                          checked={perm.can_upload}
+                          onCheckedChange={(checked) => updatePermission(sectionData.key, 'can_upload', checked)}
                           disabled={!perm.can_view}
                         />
                       </div>
@@ -576,7 +596,7 @@ export default function PermissionManager() {
         <Alert className="bg-blue-50 border-blue-500">
           <CheckCircle className="w-5 h-5 text-blue-600" />
           <AlertDescription>
-            <strong>💡 How it works:</strong> Toggle permissions on/off for each role. "Edit Own Only" and "Delete Own Only" restrict users to only their own content.
+            <strong>💡 How it works:</strong> Toggle permissions on/off for each role. "Upload" controls file upload capabilities. "Edit Own Only" and "Delete Own Only" restrict users to only their own content.
             Super Admins always have full access regardless of these settings.
           </AlertDescription>
         </Alert>
