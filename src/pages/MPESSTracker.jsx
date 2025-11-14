@@ -221,20 +221,19 @@ export default function MPESSTracker() {
           <div className="lg:col-span-3">
             <Tabs defaultValue="mind" className="space-y-6">
               <TabsList className="grid grid-cols-5 bg-white/80 backdrop-blur shadow-lg">
-                {mpessCategories.map(cat => (
-                  <TabsTrigger
-                    key={cat.key}
-                    value={cat.key}
-                    className="data-[state=active]:bg-gradient-to-r data-[state=active]:text-white capitalize"
-                    style={{
-                      '--tw-gradient-from': cat.color.split(' ')[0].replace('from-', ''),
-                      '--tw-gradient-to': cat.color.split(' ')[1].replace('to-', ''),
-                    }}
-                  >
-                    <cat.icon className="w-4 h-4 mr-2" />
-                    {cat.key}
-                  </TabsTrigger>
-                ))}
+                {mpessCategories.map(cat => {
+                  const IconComponent = cat.icon;
+                  return (
+                    <TabsTrigger
+                      key={cat.key}
+                      value={cat.key}
+                      className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white capitalize flex items-center justify-center gap-1 text-gray-700"
+                    >
+                      <IconComponent className="w-4 h-4" />
+                      <span className="hidden sm:inline">{cat.key}</span>
+                    </TabsTrigger>
+                  );
+                })}
               </TabsList>
 
               {mpessCategories.map(cat => (
@@ -336,10 +335,10 @@ export default function MPESSTracker() {
                         <Button
                           key={rating}
                           variant={trackingData.overall_rating === rating ? "default" : "outline"}
-                          className={`flex-1 h-12 ${
+                          className={`flex-1 h-12 text-gray-900 font-semibold ${
                             trackingData.overall_rating === rating 
-                              ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white' 
-                              : ''
+                              ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600' 
+                              : 'hover:bg-orange-50'
                           }`}
                           onClick={() => setTrackingData({...trackingData, overall_rating: rating})}
                         >
@@ -352,7 +351,7 @@ export default function MPESSTracker() {
                   <Button
                     onClick={handleSave}
                     disabled={saveMutation.isPending}
-                    className="w-full h-14 text-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg"
+                    className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg"
                   >
                     <Save className="w-5 h-5 mr-2" />
                     {saveMutation.isPending ? 'Saving...' : 'Save Today\'s Progress'}
