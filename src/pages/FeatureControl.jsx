@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -180,8 +181,8 @@ export default function FeatureControl() {
       description: 'Essential features for basic clients'
     },
     {
-      key: 'professional_plan',
-      name: 'Professional Plan',
+      key: 'advanced_plan',
+      name: 'Advanced Plan',
       color: 'from-blue-500 to-cyan-600',
       badgeColor: 'bg-blue-600',
       icon: TrendingUp,
@@ -1003,8 +1004,8 @@ function getDefaultSettings() {
           max_file_size_mb: 10
         }
       },
-      professional_plan: {
-        plan_name: "Professional Plan",
+      advanced_plan: {
+        plan_name: "Advanced Plan",
         monthly_price: 2999,
         yearly_price: 29999,
         currency: "INR",
