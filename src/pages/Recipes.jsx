@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -10,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChefHat, Search, Clock, Users, Flame, Loader2, Download, Upload, Plus, Sparkles, Trash2, Edit, Filter, TrendingUp, AlertTriangle } from "lucide-react";
+import { ChefHat, Search, Clock, Users, Flame, Loader2, Download, Upload, Plus, Sparkles, Trash2, Edit, Filter, TrendingUp, AlertTriangle, Eye } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { format } from "date-fns";
@@ -453,7 +452,7 @@ Enjoy your cooking! 🍽️✨
   // Redirect clients if they don't have access
   React.useEffect(() => {
     if (user && isClient && !clientCanViewRecipes) {
-      alert('⛔ Recipe Library is not available for clients.\n\nContact your dietitian for recipe recommendations.');
+      alert('⛔ Recipe Library is not available.\n\nContact your dietitian for recipe recommendations.');
       window.location.href = createPageUrl('Home');
     }
   }, [isClient, clientCanViewRecipes, user]);
@@ -470,7 +469,7 @@ Enjoy your cooking! 🍽️✨
           </CardHeader>
           <CardContent>
             <p className="text-red-800">
-              Recipe Library access is disabled for clients. Contact your dietitian for recipe recommendations.
+              Recipe Library access is disabled. Contact your dietitian for recipe recommendations.
             </p>
           </CardContent>
         </Card>
@@ -478,14 +477,12 @@ Enjoy your cooking! 🍽️✨
     );
   }
 
-  // CLIENTS CANNOT UPLOAD OR GENERATE RECIPES
+  // CLIENTS: VIEW-ONLY MODE (no upload, edit, delete)
   const canUploadRecipes = !isClient;
-
   const canEditRecipe = (recipe) => {
     if (isClient) return false;
     return user?.user_type === 'super_admin' || recipe.created_by === user?.email;
   };
-
   const canDeleteRecipe = (recipe) => {
     if (isClient) return false;
     return user?.user_type === 'super_admin' || recipe.created_by === user?.email;
@@ -498,7 +495,14 @@ Enjoy your cooking! 🍽️✨
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Recipe Library</h1>
             <p className="text-gray-600">
-              {isClient ? 'Browse delicious recipes from your dietitian' : `Discover authentic Indian recipes (${recipes.length})`}
+              {isClient ? (
+                <span className="flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-blue-600" />
+                  Browse delicious recipes from your dietitian
+                </span>
+              ) : (
+                `Discover authentic Indian recipes (${recipes.length})`
+              )}
             </p>
           </div>
           {canUploadRecipes && (
@@ -834,6 +838,16 @@ Enjoy your cooking! 🍽️✨
             </Dialog>
           )}
         </div>
+
+        {/* CLIENT VIEW-ONLY NOTICE */}
+        {isClient && (
+          <Alert className="bg-blue-50 border-blue-500">
+            <Eye className="w-5 h-5 text-blue-600" />
+            <AlertDescription className="text-blue-900">
+              <strong>View-Only Mode:</strong> You can browse and download recipes. Only your dietitian can upload, edit, or delete recipes.
+            </AlertDescription>
+          </Alert>
+        )}
 
         {canUploadRecipes && (
           <Card className="border-none shadow-xl bg-gradient-to-br from-purple-50 to-indigo-50">
