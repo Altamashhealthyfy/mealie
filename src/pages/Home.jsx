@@ -36,20 +36,6 @@ export default function Home() {
 
   const features = [
     {
-      title: "Meal Planner",
-      description: "Create personalized Indian meal plans with macro tracking",
-      icon: Calendar,
-      color: "from-orange-500 to-red-500",
-      link: createPageUrl("MealPlanner"),
-    },
-    {
-      title: "Recipe Finder",
-      description: "Discover authentic Indian recipes tailored to your preferences",
-      icon: ChefHat,
-      color: "from-amber-500 to-orange-500",
-      link: createPageUrl("Recipes"),
-    },
-    {
       title: "Food Lookup",
       description: "Get detailed macro information for Indian foods",
       icon: Search,
@@ -92,16 +78,16 @@ export default function Home() {
               </Link>
             ) : (
               <div className="flex flex-wrap gap-4">
-                <Link to={createPageUrl("MealPlanner")}>
+                <Link to={createPageUrl("FoodLookup")}>
                   <Button size="lg" className="bg-white text-orange-600 hover:bg-orange-50 shadow-xl">
-                    <Calendar className="w-5 h-5 mr-2" />
-                    Create Meal Plan
+                    <Search className="w-5 h-5 mr-2" />
+                    Food Lookup
                   </Button>
                 </Link>
-                <Link to={createPageUrl("Recipes")}>
+                <Link to={createPageUrl("MPESSTracker")}>
                   <Button size="lg" variant="outline" className="bg-white/10 text-white border-white/30 hover:bg-white/20">
-                    <ChefHat className="w-5 h-5 mr-2" />
-                    Browse Recipes
+                    <Heart className="w-5 h-5 mr-2" />
+                    MPESS Tracker
                   </Button>
                 </Link>
               </div>
