@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -24,7 +23,6 @@ import {
   File,
   Download
 } from "lucide-react";
-import { format } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -40,6 +38,28 @@ export default function Communication() {
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  const formatToIST = (dateString) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    }).format(date);
+  };
+
+  const formatDateTimeIST = (dateString) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    }).format(date);
+  };
 
   const scrollToBottom = (behavior = "smooth") => {
     messagesEndRef.current?.scrollIntoView({ behavior });
@@ -117,7 +137,6 @@ export default function Communication() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Check file size (1GB = 1073741824 bytes)
     if (file.size > 1073741824) {
       toast({
         title: "File too large",
@@ -164,7 +183,7 @@ export default function Communication() {
         <a href={message.attachment_url} target="_blank" rel="noopener noreferrer">
           <img
             src={message.attachment_url}
-            alt={message.attachment_name || 'Attached image'}
+            alt={message.attachment_name}
             className="max-w-full rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
             style={{ maxHeight: '300px' }}
           />
@@ -237,11 +256,10 @@ export default function Communication() {
     let messageData = {
       client_id: selectedClient.id,
       sender_type: 'dietitian',
-      message: messageText.trim() || (attachedFile ? '(File attachment)' : ''),
+      message: messageText.trim() || '(File attachment)',
       read: false,
     };
 
-    // Upload file if attached
     if (attachedFile) {
       setUploading(true);
       try {
@@ -398,7 +416,7 @@ export default function Communication() {
                                   <p className={`text-xs mt-1 ${
                                     isSelected ? 'text-white/60' : 'text-gray-500'
                                   }`}>
-                                    {format(new Date(lastMessage.created_date), 'MMM d, h:mm a')}
+                                    {formatDateTimeIST(lastMessage.created_date)}
                                   </p>
                                 )}
                               </div>
@@ -470,7 +488,7 @@ export default function Communication() {
                                       : 'bg-gray-100 text-gray-900'
                                   }`}
                                 >
-                                  {message.message && message.message !== '(File attachment)' && (
+                                  {message.message && (
                                     <p className="text-sm leading-relaxed whitespace-pre-wrap mb-2">{message.message}</p>
                                   )}
                                   
@@ -479,7 +497,7 @@ export default function Communication() {
                                   <div className={`flex items-center gap-2 mt-2 text-xs ${
                                     isFromDietitian ? 'text-white/70' : 'text-gray-500'
                                   }`}>
-                                    <span>{format(new Date(message.created_date), 'h:mm a')}</span>
+                                    <span>{formatToIST(message.created_date)}</span>
                                     {isFromDietitian && (
                                       message.read ? (
                                         <CheckCheck className="w-3 h-3" />

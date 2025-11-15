@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -21,7 +20,6 @@ import {
   File,
   Download
 } from "lucide-react";
-import { format } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function ClientCommunication() {
@@ -33,6 +31,16 @@ export default function ClientCommunication() {
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  const formatToIST = (dateString) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    }).format(date);
+  };
 
   const scrollToBottom = (behavior = "smooth") => {
     messagesEndRef.current?.scrollIntoView({ behavior });
@@ -346,7 +354,7 @@ export default function ClientCommunication() {
                             <div className={`flex items-center gap-2 mt-2 text-xs ${
                               isFromClient ? 'text-white/70' : 'text-gray-500'
                             }`}>
-                              <span>{format(new Date(message.created_date), 'h:mm a')}</span>
+                              <span>{formatToIST(message.created_date)}</span>
                               {isFromClient && (
                                 message.read ? (
                                   <CheckCheck className="w-3 h-3" />
