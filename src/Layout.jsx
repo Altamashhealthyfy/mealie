@@ -247,7 +247,19 @@ export default function Layout({ children, currentPageName }) {
       const settings = await base44.entities.AppSecuritySettings.list();
       return settings[0] || null;
     },
-    enabled: !!user && user.user_type === 'client',
+    enabled: !!user,
+  });
+
+  const { data: clientSubscription } = useQuery({
+    queryKey: ['clientSubscription', clientProfile?.id],
+    queryFn: async () => {
+      const subs = await base44.entities.ClientSubscription.filter({ 
+        client_id: clientProfile?.id,
+        status: 'active'
+      });
+      return subs[0] || null;
+    },
+    enabled: !!clientProfile?.id,
   });
 
   const { data: unreadCount } = useQuery({
@@ -275,8 +287,22 @@ export default function Layout({ children, currentPageName }) {
     !item.roles || item.roles.includes(userType)
   );
 
+  const getClientPermissions = () => {
+    // If client has active subscription, use plan features
+    if (clientSubscription?.plan_tier) {
+      const planKey = `${clientSubscription.plan_tier}_plan`;
+      const planFeatures = securitySettings?.membership_plans?.[planKey]?.features;
+      if (planFeatures) {
+        return planFeatures;
+      }
+    }
+    
+    // Otherwise use global client restrictions
+    return securitySettings?.client_restrictions || {};
+  };
+
   const getClientNavigation = () => {
-    const settings = securitySettings?.client_restrictions;
+    const permissions = getClientPermissions();
     
     const baseNav = [
       {
@@ -289,55 +315,55 @@ export default function Layout({ children, currentPageName }) {
         title: "My Plans",
         url: createPageUrl("ClientPlans"),
         icon: CreditCard,
-        show: settings?.show_my_plans ?? true,
+        show: permissions?.show_my_plans ?? true,
       },
       {
         title: "My Meal Plan",
         url: createPageUrl("MyAssignedMealPlan"),
         icon: Calendar,
-        show: settings?.can_view_meal_plan ?? true,
+        show: permissions?.can_view_meal_plan ?? true,
       },
       {
         title: "Food Log",
         url: createPageUrl("FoodLog"),
         icon: Utensils,
-        show: settings?.can_view_food_log ?? true,
+        show: permissions?.can_view_food_log ?? true,
       },
       {
         title: "My Progress",
         url: createPageUrl("ProgressTracking"),
         icon: Scale,
-        show: settings?.can_view_progress ?? true,
+        show: permissions?.can_view_progress ?? true,
       },
       {
         title: "MPESS Wellness",
         url: createPageUrl("MPESSTracker"),
         icon: Heart,
-        show: settings?.can_view_mpess ?? true,
+        show: permissions?.can_view_mpess ?? true,
       },
       {
         title: "Messages",
         url: createPageUrl("ClientCommunication"),
         icon: MessageSquare,
-        show: settings?.can_view_messages ?? true,
+        show: permissions?.can_view_messages ?? true,
       },
       {
         title: "Recipes",
         url: createPageUrl("Recipes"),
         icon: ClipboardList,
-        show: settings?.can_view_recipes ?? true,
+        show: permissions?.can_view_recipes ?? true,
       },
       {
         title: "Food Lookup",
         url: createPageUrl("FoodLookup"),
         icon: Search,
-        show: settings?.can_use_food_lookup_ai ?? true,
+        show: permissions?.can_use_food_lookup_ai ?? true,
       },
       {
         title: "My Profile",
         url: createPageUrl("Profile"),
         icon: User,
-        show: settings?.can_view_profile ?? true,
+        show: permissions?.can_view_profile ?? true,
       },
     ];
 

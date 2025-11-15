@@ -9,6 +9,7 @@ import { Check, AlertTriangle, CreditCard, Users, TrendingUp, Crown } from "luci
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createPageUrl } from "@/utils";
+import { useUserPermissions } from "@/components/permissions/useUserPermissions";
 
 export default function ClientPlans() {
   const queryClient = useQueryClient();
@@ -49,10 +50,14 @@ export default function ClientPlans() {
     },
   });
 
+  const { permissions, hasPermission } = useUserPermissions();
+
   const subscribeMutation = useMutation({
     mutationFn: async (data) => base44.entities.ClientSubscription.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries(['myClientSubscription']);
+      queryClient.invalidateQueries(['clientSubscription']);
+      queryClient.invalidateQueries(['userCustomPermissions']);
       setSelectedPlan(null);
       alert('✅ Plan activated! Please wait for payment confirmation.');
     },
@@ -66,6 +71,8 @@ export default function ClientPlans() {
     mutationFn: async (subscriptionId) => base44.entities.ClientSubscription.update(subscriptionId, { status: 'cancelled', auto_renew: false }),
     onSuccess: () => {
       queryClient.invalidateQueries(['myClientSubscription']);
+      queryClient.invalidateQueries(['clientSubscription']);
+      queryClient.invalidateQueries(['userCustomPermissions']);
       alert('Your subscription has been cancelled.');
     },
     onError: (error) => {
@@ -74,8 +81,8 @@ export default function ClientPlans() {
     }
   });
 
-  // Check if client has access to this page
-  const canShowMyPlans = securitySettings?.client_restrictions?.show_my_plans ?? true;
+  // Check if client has access to this page using permissions hook
+  const canShowMyPlans = hasPermission('show_my_plans', true);
 
   React.useEffect(() => {
     if (user && user.user_type === 'client' && !canShowMyPlans) {
