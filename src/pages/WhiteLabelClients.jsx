@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, Search, Crown, User, Edit, Eye, Settings, Save } from "lucide-react";
+import { Users, Search, Crown, User, Edit, Eye, Save } from "lucide-react";
 
 export default function WhiteLabelClients() {
   const queryClient = useQueryClient();
@@ -17,7 +17,6 @@ export default function WhiteLabelClients() {
   const [selectedClient, setSelectedClient] = useState(null);
   const [viewDialog, setViewDialog] = useState(false);
   const [editDialog, setEditDialog] = useState(false);
-  const [planDialog, setPlanDialog] = useState(false);
   const [editFormData, setEditFormData] = useState({});
 
   const { data: user } = useQuery({
@@ -59,34 +58,6 @@ export default function WhiteLabelClients() {
       queryClient.invalidateQueries(['allClients']);
       setEditDialog(false);
       alert('✅ Client updated successfully!');
-    },
-  });
-
-  const updateClientPlanMutation = useMutation({
-    mutationFn: async ({ clientId, planTier }) => {
-      const existingSub = clientSubscriptions.find(s => s.client_id === clientId && s.status === 'active');
-      
-      const subData = {
-        client_id: clientId,
-        plan_tier: planTier,
-        billing_cycle: 'monthly',
-        amount: planTier === 'basic' ? 999 : planTier === 'advanced' ? 2999 : 4999,
-        status: 'active',
-        start_date: new Date().toISOString().split('T')[0],
-        end_date: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0],
-        next_billing_date: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0]
-      };
-
-      if (existingSub) {
-        return await base44.entities.ClientSubscription.update(existingSub.id, subData);
-      } else {
-        return await base44.entities.ClientSubscription.create(subData);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['clientSubscriptions']);
-      setPlanDialog(false);
-      alert('✅ Client plan updated successfully!');
     },
   });
 
@@ -155,11 +126,6 @@ export default function WhiteLabelClients() {
     setEditDialog(true);
   };
 
-  const handleChangePlan = (client) => {
-    setSelectedClient(client);
-    setPlanDialog(true);
-  };
-
   const handleSaveEdit = () => {
     updateClientMutation.mutate({
       id: selectedClient.id,
@@ -213,10 +179,6 @@ export default function WhiteLabelClients() {
             <Button variant="outline" size="sm" onClick={() => handleEdit(client)} className="flex-1">
               <Edit className="w-4 h-4 mr-1" />
               Edit
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => handleChangePlan(client)} className="flex-1">
-              <Settings className="w-4 h-4 mr-1" />
-              Plan
             </Button>
           </div>
         </CardContent>
@@ -447,55 +409,6 @@ export default function WhiteLabelClients() {
                   <Button onClick={handleSaveEdit} disabled={updateClientMutation.isPending} className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500">
                     <Save className="w-4 h-4 mr-2" />
                     {updateClientMutation.isPending ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
-
-        {/* Change Plan Dialog */}
-        {selectedClient && (
-          <Dialog open={planDialog} onOpenChange={setPlanDialog}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Change Client Plan</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 mt-4">
-                <div>
-                  <Label className="text-sm text-gray-600">Client</Label>
-                  <p className="font-semibold">{selectedClient.full_name}</p>
-                </div>
-                <div className="space-y-3">
-                  <Button
-                    variant="outline"
-                    className="w-full h-20 flex flex-col items-start"
-                    onClick={() => {
-                      updateClientPlanMutation.mutate({ clientId: selectedClient.id, planTier: 'basic' });
-                    }}
-                  >
-                    <span className="font-bold text-lg">Basic Plan</span>
-                    <span className="text-sm text-gray-600">₹999/month</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full h-20 flex flex-col items-start"
-                    onClick={() => {
-                      updateClientPlanMutation.mutate({ clientId: selectedClient.id, planTier: 'advanced' });
-                    }}
-                  >
-                    <span className="font-bold text-lg">Advanced Plan</span>
-                    <span className="text-sm text-gray-600">₹2,999/month</span>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full h-20 flex flex-col items-start"
-                    onClick={() => {
-                      updateClientPlanMutation.mutate({ clientId: selectedClient.id, planTier: 'pro' });
-                    }}
-                  >
-                    <span className="font-bold text-lg">Pro Plan</span>
-                    <span className="text-sm text-gray-600">₹4,999/month</span>
                   </Button>
                 </div>
               </div>
