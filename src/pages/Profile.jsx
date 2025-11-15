@@ -204,7 +204,6 @@ export default function Profile() {
   const canEditProfile = isClient ? (securitySettings?.client_restrictions?.can_edit_profile ?? true) : true;
   const canUploadPhoto = isClient ? (securitySettings?.client_restrictions?.can_upload_profile_photo ?? true) : true;
 
-  // Get permission based on user type
   const getPhotoUploadPermission = () => {
     if (isClient) {
       return securitySettings?.client_restrictions?.can_upload_profile_photo ?? true;
@@ -245,56 +244,60 @@ export default function Profile() {
           </Alert>
         )}
 
-        {/* PROFILE PHOTO SECTION - FOR ALL USERS */}
+        {/* PROFILE PHOTO DISPLAY & UPLOAD */}
         {canEditProfile && (
-          <form onSubmit={handleUserPhotoUpdate} className="space-y-6">
-            <Card className="border-none shadow-lg bg-gradient-to-br from-indigo-50 to-blue-50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="w-5 h-5 text-indigo-500" />
-                  Profile Photo
-                </CardTitle>
-                <CardDescription>Upload your profile picture</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {canUploadUserPhoto ? (
-                  <ImageUploader
-                    onImageUploaded={(url) => setUserFormData({...userFormData, profile_photo_url: url})}
-                    currentImageUrl={userFormData.profile_photo_url}
-                    requiredWidth={400}
-                    requiredHeight={400}
-                    aspectRatio="1:1"
-                    maxSizeMB={2}
-                    label="Profile Photo"
-                  />
-                ) : (
-                  userFormData.profile_photo_url && (
-                    <div className="space-y-2">
-                      <Label>Profile Photo (View Only)</Label>
-                      <div className="w-32 h-32 mx-auto">
-                        <img
-                          src={userFormData.profile_photo_url}
-                          alt="Profile"
-                          className="w-full h-full rounded-full object-cover border-4 border-indigo-500"
-                        />
-                      </div>
+          <Card className="border-none shadow-xl bg-gradient-to-br from-indigo-50 to-blue-50">
+            <CardContent className="p-8">
+              <div className="flex flex-col items-center gap-6">
+                {/* Large Profile Photo Display */}
+                <div className="relative">
+                  {userFormData.profile_photo_url ? (
+                    <img
+                      src={userFormData.profile_photo_url}
+                      alt={user?.full_name || 'Profile'}
+                      className="w-40 h-40 rounded-full object-cover border-4 border-indigo-500 shadow-2xl"
+                    />
+                  ) : (
+                    <div className="w-40 h-40 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full flex items-center justify-center shadow-2xl border-4 border-white">
+                      <span className="text-white font-bold text-5xl">
+                        {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                      </span>
                     </div>
-                  )
-                )}
+                  )}
+                  <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-indigo-500">
+                    <User className="w-6 h-6 text-indigo-500" />
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold text-gray-900">{user?.full_name || 'User'}</h3>
+                  <p className="text-gray-600">{user?.email}</p>
+                </div>
 
                 {canUploadUserPhoto && (
-                  <Button
-                    type="submit"
-                    className="w-full h-12 bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600"
-                    disabled={saveUserPhotoMutation.isPending}
-                  >
-                    <Save className="w-5 h-5 mr-2" />
-                    {saveUserPhotoMutation.isPending ? 'Updating...' : 'Update Profile Photo'}
-                  </Button>
+                  <form onSubmit={handleUserPhotoUpdate} className="w-full space-y-4">
+                    <ImageUploader
+                      onImageUploaded={(url) => setUserFormData({...userFormData, profile_photo_url: url})}
+                      currentImageUrl={userFormData.profile_photo_url}
+                      requiredWidth={400}
+                      requiredHeight={400}
+                      aspectRatio="1:1"
+                      maxSizeMB={2}
+                      label="Upload Profile Photo"
+                    />
+                    <Button
+                      type="submit"
+                      className="w-full h-12 bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600"
+                      disabled={saveUserPhotoMutation.isPending}
+                    >
+                      <Save className="w-5 h-5 mr-2" />
+                      {saveUserPhotoMutation.isPending ? 'Updating...' : 'Update Profile Photo'}
+                    </Button>
+                  </form>
                 )}
-              </CardContent>
-            </Card>
-          </form>
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* CLIENT PROFILE SECTION - ONLY FOR CLIENTS */}
@@ -576,59 +579,6 @@ export default function Profile() {
             {saveMutation.isPending ? 'Saving...' : 'Save Health Profile'}
           </Button>
         </form>
-
-        {/* CLIENT ADDITIONAL INFO - ONLY FOR CLIENTS */}
-        {isClient && canEditProfile && (
-          <form onSubmit={handleClientProfileUpdate} className="space-y-6">
-            <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="w-5 h-5 text-purple-500" />
-                  Contact Information
-                </CardTitle>
-                <CardDescription>Update your name and phone number</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Full Name *</Label>
-                    <Input
-                      value={clientFormData.full_name}
-                      onChange={(e) => setClientFormData({...clientFormData, full_name: e.target.value})}
-                      placeholder="Enter your full name"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Phone Number</Label>
-                    <Input
-                      value={clientFormData.phone}
-                      onChange={(e) => setClientFormData({...clientFormData, phone: e.target.value})}
-                      placeholder="10-digit number"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Email (Read-only)</Label>
-                    <Input
-                      value={user?.email || ''}
-                      disabled
-                      className="bg-gray-100"
-                    />
-                  </div>
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full h-12 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                  disabled={saveClientMutation.isPending}
-                >
-                  <Save className="w-5 h-5 mr-2" />
-                  {saveClientMutation.isPending ? 'Updating...' : 'Update Contact Info'}
-                </Button>
-              </CardContent>
-            </Card>
-          </form>
-        )}
 
         <Alert className="border-orange-200 bg-orange-50">
           <Sparkles className="w-4 h-4 text-orange-600" />
