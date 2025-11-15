@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -445,7 +446,7 @@ Enjoy your cooking! 🍽️✨
     });
   };
 
-  // Check if client can access recipes
+  // CRITICAL: Check if user is client
   const isClient = user?.user_type === 'client';
   const clientCanViewRecipes = securitySettings?.client_restrictions?.can_view_recipes ?? true;
 
@@ -477,12 +478,12 @@ Enjoy your cooking! 🍽️✨
     );
   }
 
-  // CLIENTS: VIEW-ONLY MODE (no upload, edit, delete)
-  const canUploadRecipes = !isClient;
+  // PERMISSIONS: Clients can only view and download
   const canEditRecipe = (recipe) => {
     if (isClient) return false;
     return user?.user_type === 'super_admin' || recipe.created_by === user?.email;
   };
+  
   const canDeleteRecipe = (recipe) => {
     if (isClient) return false;
     return user?.user_type === 'super_admin' || recipe.created_by === user?.email;
@@ -505,7 +506,9 @@ Enjoy your cooking! 🍽️✨
               )}
             </p>
           </div>
-          {canUploadRecipes && (
+          
+          {/* UPLOAD BUTTON - ONLY FOR NON-CLIENTS */}
+          {!isClient && (
             <Dialog open={showManualUpload} onOpenChange={(open) => {
               setShowManualUpload(open);
               if (!open) {
@@ -849,7 +852,8 @@ Enjoy your cooking! 🍽️✨
           </Alert>
         )}
 
-        {canUploadRecipes && (
+        {/* TOP CONTRIBUTORS - ONLY FOR NON-CLIENTS */}
+        {!isClient && (
           <Card className="border-none shadow-xl bg-gradient-to-br from-purple-50 to-indigo-50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-xl">
@@ -887,14 +891,15 @@ Enjoy your cooking! 🍽️✨
           </Card>
         )}
 
+        {/* TABS - CLIENTS ONLY SEE LIBRARY */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          {/* CLIENTS ONLY SEE THE LIBRARY TAB - NO AI GENERATION */}
-          <TabsList className={`bg-white/80 backdrop-blur ${canUploadRecipes ? 'grid grid-cols-2' : 'w-full'}`}>
+          <TabsList className={isClient ? 'w-full' : 'grid grid-cols-2'}>
             <TabsTrigger value="library" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white">
               <ChefHat className="w-4 h-4 mr-2" />
               Recipe Library ({recipes.length})
             </TabsTrigger>
-            {canUploadRecipes && (
+            {/* AI GENERATE TAB - ONLY FOR NON-CLIENTS */}
+            {!isClient && (
               <TabsTrigger value="generate" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white">
                 <Sparkles className="w-4 h-4 mr-2" />
                 AI Generate
@@ -1014,7 +1019,7 @@ Enjoy your cooking! 🍽️✨
                 <CardContent className="p-12 text-center">
                   <ChefHat className="w-16 h-16 mx-auto text-gray-300 mb-4" />
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">No Recipes Found</h3>
-                  <p className="text-gray-600">Try adjusting your filters{canUploadRecipes ? ' or upload a recipe' : ''}</p>
+                  <p className="text-gray-600">Try adjusting your filters{!isClient ? ' or upload a recipe' : ''}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -1031,7 +1036,7 @@ Enjoy your cooking! 🍽️✨
                           alt={recipe.name}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         />
-                        {canUploadRecipes && (
+                        {!isClient && (
                           <div className="absolute top-2 right-2 flex gap-2">
                             {canEditRecipe(recipe) && (
                               <Button
@@ -1065,7 +1070,7 @@ Enjoy your cooking! 🍽️✨
                     ) : (
                       <div className="h-48 bg-gradient-to-br from-orange-100 via-amber-100 to-red-100 rounded-t-xl flex items-center justify-center relative">
                         <ChefHat className="w-16 h-16 text-orange-400 opacity-20" />
-                        {canUploadRecipes && (
+                        {!isClient && (
                           <div className="absolute top-2 right-2 flex gap-2">
                             {canEditRecipe(recipe) && (
                               <Button
@@ -1144,7 +1149,7 @@ Enjoy your cooking! 🍽️✨
           </TabsContent>
 
           {/* AI GENERATION TAB - ONLY FOR NON-CLIENTS */}
-          {canUploadRecipes && (
+          {!isClient && (
             <TabsContent value="generate" className="space-y-6">
               <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-indigo-50">
                 <CardHeader>
@@ -1187,6 +1192,7 @@ Enjoy your cooking! 🍽️✨
           )}
         </Tabs>
 
+        {/* RECIPE DETAIL DIALOG */}
         {selectedRecipe && (
           <Dialog open={!!selectedRecipe} onOpenChange={() => setSelectedRecipe(null)}>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -1311,7 +1317,7 @@ Enjoy your cooking! 🍽️✨
                   </ol>
                 </div>
 
-                {canUploadRecipes && (canEditRecipe(selectedRecipe) || canDeleteRecipe(selectedRecipe)) && (
+                {!isClient && (canEditRecipe(selectedRecipe) || canDeleteRecipe(selectedRecipe)) && (
                   <div className="flex gap-3 pt-4 border-t">
                     {canEditRecipe(selectedRecipe) && (
                       <Button
