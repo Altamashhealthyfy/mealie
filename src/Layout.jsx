@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -56,6 +57,12 @@ const dietitianNavigation = [
     url: createPageUrl("DietitianDashboard"),
     icon: LayoutDashboard,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
+    title: "My Subscription",
+    url: createPageUrl("CoachSubscription"),
+    icon: CreditCard,
+    roles: ['team_member', 'student_coach', 'student_team_member'],
   },
   {
     title: "Clients",
@@ -264,6 +271,12 @@ export default function Layout({ children, currentPageName }) {
         title: "My Dashboard",
         url: createPageUrl("Home"),
         icon: Home,
+        show: true,
+      },
+      {
+        title: "My Plans",
+        url: createPageUrl("ClientPlans"),
+        icon: CreditCard,
         show: true,
       },
       {
