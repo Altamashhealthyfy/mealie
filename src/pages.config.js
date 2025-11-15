@@ -48,6 +48,8 @@ import FeatureControl from './pages/FeatureControl';
 import PaymentGatewaySettings from './pages/PaymentGatewaySettings';
 import ClientPlanManagement from './pages/ClientPlanManagement';
 import PaymentHistory from './pages/PaymentHistory';
+import CoachSubscription from './pages/CoachSubscription';
+import ClientPlans from './pages/ClientPlans';
 import Layout from './Layout.jsx';
 
 
@@ -102,6 +104,8 @@ export const PAGES = {
     "PaymentGatewaySettings": PaymentGatewaySettings,
     "ClientPlanManagement": ClientPlanManagement,
     "PaymentHistory": PaymentHistory,
+    "CoachSubscription": CoachSubscription,
+    "ClientPlans": ClientPlans,
 }
 
 export const pagesConfig = {
