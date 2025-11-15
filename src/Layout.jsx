@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -326,13 +327,7 @@ export default function Layout({ children, currentPageName }) {
     }
   };
 
-  const getProfilePhotoUrl = () => {
-    if (isDietitian) {
-      return user?.profile_photo_url || null;
-    } else {
-      return clientProfile?.profile_photo_url || null;
-    }
-  };
+  const profilePhotoUrl = user?.profile_photo_url || clientProfile?.profile_photo_url || null;
 
   const handleLogout = async () => {
     if (window.confirm("Are you sure you want to logout?")) {
@@ -344,8 +339,6 @@ export default function Layout({ children, currentPageName }) {
       }
     }
   };
-
-  const profilePhotoUrl = getProfilePhotoUrl();
 
   return (
     <SidebarProvider>
