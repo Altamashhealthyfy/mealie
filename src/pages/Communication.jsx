@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -137,6 +138,81 @@ export default function Communication() {
     }
   };
 
+  const getFileIcon = (type) => {
+    if (type?.startsWith('image/')) return <ImageIcon className="w-4 h-4" />;
+    if (type?.startsWith('video/')) return <Video className="w-4 h-4" />;
+    if (type?.includes('pdf')) return <FileText className="w-4 h-4" />;
+    if (type?.includes('word') || type?.includes('document')) return <FileText className="w-4 h-4" />;
+    return <File className="w-4 h-4" />;
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
+    return (bytes / 1073741824).toFixed(1) + ' GB';
+  };
+
+  const renderAttachment = (message, isFromDietitian) => {
+    if (!message.attachment_url) return null;
+
+    const isImage = message.attachment_type?.startsWith('image/');
+    const isVideo = message.attachment_type?.startsWith('video/');
+
+    if (isImage) {
+      return (
+        <a href={message.attachment_url} target="_blank" rel="noopener noreferrer">
+          <img
+            src={message.attachment_url}
+            alt={message.attachment_name || 'Attached image'}
+            className="max-w-full rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+            style={{ maxHeight: '300px' }}
+          />
+        </a>
+      );
+    }
+
+    if (isVideo) {
+      return (
+        <video
+          controls
+          className="max-w-full rounded-lg"
+          style={{ maxHeight: '300px' }}
+        >
+          <source src={message.attachment_url} type={message.attachment_type} />
+          Your browser does not support the video tag.
+        </video>
+      );
+    }
+
+    return (
+      <a
+        href={message.attachment_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        download={message.attachment_name}
+        className={`flex items-center gap-2 p-3 rounded-lg border transition-colors ${
+          isFromDietitian
+            ? 'bg-white/10 border-white/20 hover:bg-white/20'
+            : 'bg-white border-gray-200 hover:bg-gray-50'
+        }`}
+      >
+        {getFileIcon(message.attachment_type)}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium truncate">
+            {message.attachment_name || 'Attachment'}
+          </p>
+          {message.attachment_size && (
+            <p className={`text-xs ${isFromDietitian ? 'text-white/70' : 'text-gray-500'}`}>
+              {formatFileSize(message.attachment_size)}
+            </p>
+          )}
+        </div>
+        <Download className="w-4 h-4 flex-shrink-0" />
+      </a>
+    );
+  };
+
   const handleSendMessage = async () => {
     if (!selectedClient) {
       toast({
@@ -161,7 +237,7 @@ export default function Communication() {
     let messageData = {
       client_id: selectedClient.id,
       sender_type: 'dietitian',
-      message: messageText.trim() || '(File attachment)',
+      message: messageText.trim() || (attachedFile ? '(File attachment)' : ''),
       read: false,
     };
 
@@ -189,21 +265,6 @@ export default function Communication() {
     }
 
     sendMessageMutation.mutate(messageData);
-  };
-
-  const getFileIcon = (type) => {
-    if (type?.startsWith('image/')) return <ImageIcon className="w-4 h-4" />;
-    if (type?.startsWith('video/')) return <Video className="w-4 h-4" />;
-    if (type?.includes('pdf')) return <FileText className="w-4 h-4" />;
-    if (type?.includes('word') || type?.includes('document')) return <FileText className="w-4 h-4" />;
-    return <File className="w-4 h-4" />;
-  };
-
-  const formatFileSize = (bytes) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-    if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
-    return (bytes / 1073741824).toFixed(1) + ' GB';
   };
 
   const clientMessages = selectedClient 
@@ -409,35 +470,11 @@ export default function Communication() {
                                       : 'bg-gray-100 text-gray-900'
                                   }`}
                                 >
-                                  {message.message && (
+                                  {message.message && message.message !== '(File attachment)' && (
                                     <p className="text-sm leading-relaxed whitespace-pre-wrap mb-2">{message.message}</p>
                                   )}
                                   
-                                  {message.attachment_url && (
-                                    <a
-                                      href={message.attachment_url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className={`flex items-center gap-2 p-3 rounded-lg border transition-colors ${
-                                        isFromDietitian
-                                          ? 'bg-white/10 border-white/20 hover:bg-white/20'
-                                          : 'bg-white border-gray-200 hover:bg-gray-50'
-                                      }`}
-                                    >
-                                      {getFileIcon(message.attachment_type)}
-                                      <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium truncate">
-                                          {message.attachment_name || 'Attachment'}
-                                        </p>
-                                        {message.attachment_size && (
-                                          <p className={`text-xs ${isFromDietitian ? 'text-white/70' : 'text-gray-500'}`}>
-                                            {formatFileSize(message.attachment_size)}
-                                          </p>
-                                        )}
-                                      </div>
-                                      <Download className="w-4 h-4 flex-shrink-0" />
-                                    </a>
-                                  )}
+                                  {renderAttachment(message, isFromDietitian)}
 
                                   <div className={`flex items-center gap-2 mt-2 text-xs ${
                                     isFromDietitian ? 'text-white/70' : 'text-gray-500'

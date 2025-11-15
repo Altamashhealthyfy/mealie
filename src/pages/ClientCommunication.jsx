@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -126,7 +127,6 @@ export default function ClientCommunication() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Check file size (1GB = 1073741824 bytes)
     if (file.size > 1073741824) {
       alert("⚠️ File size must be less than 1 GB");
       return;
@@ -157,6 +157,66 @@ export default function ClientCommunication() {
     return (bytes / 1073741824).toFixed(1) + ' GB';
   };
 
+  const renderAttachment = (message, isFromClient) => {
+    if (!message.attachment_url) return null;
+
+    const isImage = message.attachment_type?.startsWith('image/');
+    const isVideo = message.attachment_type?.startsWith('video/');
+
+    if (isImage) {
+      return (
+        <a href={message.attachment_url} target="_blank" rel="noopener noreferrer">
+          <img
+            src={message.attachment_url}
+            alt={message.attachment_name}
+            className="max-w-full rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+            style={{ maxHeight: '300px' }}
+          />
+        </a>
+      );
+    }
+
+    if (isVideo) {
+      return (
+        <video
+          controls
+          className="max-w-full rounded-lg"
+          style={{ maxHeight: '300px' }}
+        >
+          <source src={message.attachment_url} type={message.attachment_type} />
+          Your browser does not support the video tag.
+        </video>
+      );
+    }
+
+    return (
+      <a
+        href={message.attachment_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        download={message.attachment_name}
+        className={`flex items-center gap-2 p-3 rounded-lg border transition-colors ${
+          isFromClient
+            ? 'bg-white/10 border-white/20 hover:bg-white/20'
+            : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+        }`}
+      >
+        {getFileIcon(message.attachment_type)}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium truncate">
+            {message.attachment_name || 'Attachment'}
+          </p>
+          {message.attachment_size && (
+            <p className={`text-xs ${isFromClient ? 'text-white/70' : 'text-gray-500'}`}>
+              {formatFileSize(message.attachment_size)}
+            </p>
+          )}
+        </div>
+        <Download className="w-4 h-4 flex-shrink-0" />
+      </a>
+    );
+  };
+
   const handleSendMessage = async () => {
     if (!clientProfile) {
       alert("⚠️ Your profile is not set up yet. Please contact your dietitian.");
@@ -175,7 +235,6 @@ export default function ClientCommunication() {
       read: false,
     };
 
-    // Upload file if attached
     if (attachedFile) {
       setUploading(true);
       try {
@@ -282,31 +341,7 @@ export default function ClientCommunication() {
                               <p className="text-sm leading-relaxed whitespace-pre-wrap mb-2">{message.message}</p>
                             )}
                             
-                            {message.attachment_url && (
-                              <a
-                                href={message.attachment_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={`flex items-center gap-2 p-3 rounded-lg border transition-colors ${
-                                  isFromClient
-                                    ? 'bg-white/10 border-white/20 hover:bg-white/20'
-                                    : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                                }`}
-                              >
-                                {getFileIcon(message.attachment_type)}
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium truncate">
-                                    {message.attachment_name || 'Attachment'}
-                                  </p>
-                                  {message.attachment_size && (
-                                    <p className={`text-xs ${isFromClient ? 'text-white/70' : 'text-gray-500'}`}>
-                                      {formatFileSize(message.attachment_size)}
-                                    </p>
-                                  )}
-                                </div>
-                                <Download className="w-4 h-4 flex-shrink-0" />
-                              </a>
-                            )}
+                            {renderAttachment(message, isFromClient)}
 
                             <div className={`flex items-center gap-2 mt-2 text-xs ${
                               isFromClient ? 'text-white/70' : 'text-gray-500'
