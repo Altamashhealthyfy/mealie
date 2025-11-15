@@ -178,7 +178,7 @@ export default function FeatureControl() {
       color: 'from-gray-500 to-slate-600',
       badgeColor: 'bg-gray-600',
       icon: Users,
-      description: 'Essential features for basic clients'
+      description: '5 AI meal plans/recipes per month, unlimited downloads'
     },
     {
       key: 'advanced_plan',
@@ -186,7 +186,7 @@ export default function FeatureControl() {
       color: 'from-blue-500 to-cyan-600',
       badgeColor: 'bg-blue-600',
       icon: TrendingUp,
-      description: 'Advanced features for growing clients'
+      description: '25-50 AI meal plans/recipes per month'
     },
     {
       key: 'pro_plan',
@@ -194,7 +194,7 @@ export default function FeatureControl() {
       color: 'from-purple-500 to-pink-600',
       badgeColor: 'bg-purple-600',
       icon: Crown,
-      description: 'Premium features with unlimited access'
+      description: 'Unlimited AI + all business tools for dietitians'
     }
   ];
 
@@ -239,6 +239,7 @@ export default function FeatureControl() {
       features: [
         { key: 'show_recipes', label: 'View Recipes', type: 'view', icon: Eye },
         { key: 'allow_recipe_download', label: 'Download Recipes', type: 'edit', icon: Download },
+        { key: 'can_download_unlimited', label: 'Unlimited Downloads', type: 'edit', icon: Download },
         { key: 'allow_recipe_upload', label: 'Upload Recipes', type: 'upload', icon: Upload },
         { key: 'allow_ai_recipe_generation', label: 'AI Recipe Generation', type: 'ai', icon: Sparkles },
       ]
@@ -273,6 +274,18 @@ export default function FeatureControl() {
         { key: 'can_use_wellness_insights', label: 'Wellness AI Insights', type: 'ai', icon: TrendingUp },
         { key: 'can_use_chat_assistant', label: 'AI Chat Assistant', type: 'ai', icon: MessageSquare },
         { key: 'can_use_advanced_analytics', label: 'Advanced AI Analytics', type: 'ai', icon: TrendingUp, proOnly: true },
+      ]
+    },
+    {
+      title: 'Business Tools (Dietitian Only)',
+      icon: DollarSign,
+      features: [
+        { key: 'can_access_business_tools', label: 'Business Tools Access', type: 'view', icon: DollarSign, proOnly: true },
+        { key: 'can_manage_team', label: 'Team Management', type: 'edit', icon: Users, proOnly: true },
+        { key: 'can_access_webinar_tracker', label: 'Webinar Tracker', type: 'view', icon: TrendingUp, proOnly: true },
+        { key: 'can_access_lead_management', label: 'Lead Management', type: 'view', icon: Users, proOnly: true },
+        { key: 'can_access_social_media_tools', label: 'Social Media Tools', type: 'view', icon: MessageSquare, proOnly: true },
+        { key: 'can_access_finance_manager', label: 'Finance Manager', type: 'view', icon: DollarSign, proOnly: true },
       ]
     }
   ];
@@ -719,7 +732,7 @@ export default function FeatureControl() {
               <Alert className="bg-purple-50 border-purple-500">
                 <DollarSign className="w-5 h-5 text-purple-600" />
                 <AlertDescription className="text-purple-900">
-                  <strong>Plan-Based Access Control:</strong> Define what features each membership plan includes. Set pricing and control feature access per tier.
+                  <strong>Plan-Based Access Control:</strong> Basic: 5 AI generations + unlimited downloads | Advanced: 25-50 AI generations | Pro: Unlimited AI + all business tools
                 </AlertDescription>
               </Alert>
 
@@ -816,8 +829,34 @@ export default function FeatureControl() {
                           );
                         })}
 
-                        {/* Numeric Settings */}
+                        {/* AI Limits & Settings */}
                         <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                          <div className="space-y-2">
+                            <Label className="font-semibold text-gray-900 flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-purple-600" />
+                              Monthly AI Meal Plan Limit
+                            </Label>
+                            <Input
+                              type="number"
+                              value={planData.features?.monthly_ai_meal_plan_limit ?? (plan.key === 'basic_plan' ? 5 : plan.key === 'advanced_plan' ? 40 : -1)}
+                              onChange={(e) => updatePlanFeature(plan.key, 'monthly_ai_meal_plan_limit', parseInt(e.target.value))}
+                              className="h-10"
+                            />
+                            <p className="text-xs text-gray-600">-1 for unlimited</p>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="font-semibold text-gray-900 flex items-center gap-2">
+                              <Sparkles className="w-4 h-4 text-purple-600" />
+                              Monthly AI Recipe Limit
+                            </Label>
+                            <Input
+                              type="number"
+                              value={planData.features?.monthly_ai_recipe_limit ?? (plan.key === 'basic_plan' ? 5 : plan.key === 'advanced_plan' ? 40 : -1)}
+                              onChange={(e) => updatePlanFeature(plan.key, 'monthly_ai_recipe_limit', parseInt(e.target.value))}
+                              className="h-10"
+                            />
+                            <p className="text-xs text-gray-600">-1 for unlimited</p>
+                          </div>
                           <div className="space-y-2">
                             <Label className="font-semibold text-gray-900">Monthly AI Requests</Label>
                             <Input
@@ -861,7 +900,7 @@ export default function FeatureControl() {
                     <div className="flex items-center gap-3">
                       <RoleIcon className="w-6 h-6" />
                       <div>
-                        <CardTitle className="text-2xl">{roleData.title}</CardTitle>
+                        <CardTitle className="2xl">{roleData.title}</CardTitle>
                         <CardDescription className="text-white/90">{roleData.description}</CardDescription>
                       </div>
                     </div>
@@ -990,6 +1029,7 @@ function getDefaultSettings() {
           show_nutritional_info: true,
           show_recipes: true,
           allow_recipe_download: true,
+          can_download_unlimited: true,
           allow_recipe_upload: false,
           allow_ai_recipe_generation: false,
           show_dashboard_stats: true,
@@ -1000,10 +1040,18 @@ function getDefaultSettings() {
           can_upload_recipes: false,
           can_upload_documents: false,
           can_use_food_lookup_ai: true,
-          can_generate_meal_plans: false,
-          can_generate_recipes: false,
+          can_generate_meal_plans: true,
+          can_generate_recipes: true,
           can_use_wellness_insights: false,
           can_use_chat_assistant: false,
+          can_access_business_tools: false,
+          can_manage_team: false,
+          can_access_webinar_tracker: false,
+          can_access_lead_management: false,
+          can_access_social_media_tools: false,
+          can_access_finance_manager: false,
+          monthly_ai_meal_plan_limit: 5,
+          monthly_ai_recipe_limit: 5,
           monthly_ai_requests_limit: 50,
           max_file_size_mb: 10
         }
@@ -1033,6 +1081,7 @@ function getDefaultSettings() {
           show_nutritional_info: true,
           show_recipes: true,
           allow_recipe_download: true,
+          can_download_unlimited: true,
           allow_recipe_upload: false,
           allow_ai_recipe_generation: true,
           show_dashboard_stats: true,
@@ -1043,10 +1092,18 @@ function getDefaultSettings() {
           can_upload_recipes: false,
           can_upload_documents: true,
           can_use_food_lookup_ai: true,
-          can_generate_meal_plans: false,
+          can_generate_meal_plans: true,
           can_generate_recipes: true,
           can_use_wellness_insights: true,
           can_use_chat_assistant: true,
+          can_access_business_tools: false,
+          can_manage_team: false,
+          can_access_webinar_tracker: false,
+          can_access_lead_management: false,
+          can_access_social_media_tools: false,
+          can_access_finance_manager: false,
+          monthly_ai_meal_plan_limit: 40,
+          monthly_ai_recipe_limit: 40,
           monthly_ai_requests_limit: 200,
           max_file_size_mb: 20
         }
@@ -1076,6 +1133,7 @@ function getDefaultSettings() {
           show_nutritional_info: true,
           show_recipes: true,
           allow_recipe_download: true,
+          can_download_unlimited: true,
           allow_recipe_upload: true,
           allow_ai_recipe_generation: true,
           show_dashboard_stats: true,
@@ -1086,11 +1144,19 @@ function getDefaultSettings() {
           can_upload_recipes: true,
           can_upload_documents: true,
           can_use_food_lookup_ai: true,
-          can_generate_meal_plans: false,
+          can_generate_meal_plans: true,
           can_generate_recipes: true,
           can_use_wellness_insights: true,
           can_use_chat_assistant: true,
           can_use_advanced_analytics: true,
+          can_access_business_tools: true,
+          can_manage_team: true,
+          can_access_webinar_tracker: true,
+          can_access_lead_management: true,
+          can_access_social_media_tools: true,
+          can_access_finance_manager: true,
+          monthly_ai_meal_plan_limit: -1,
+          monthly_ai_recipe_limit: -1,
           monthly_ai_requests_limit: -1,
           max_file_size_mb: 50
         }
