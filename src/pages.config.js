@@ -45,6 +45,9 @@ import PricingPlans from './pages/PricingPlans';
 import NotificationSettings from './pages/NotificationSettings';
 import SecuritySettings from './pages/SecuritySettings';
 import FeatureControl from './pages/FeatureControl';
+import PaymentGatewaySettings from './pages/PaymentGatewaySettings';
+import ClientPlanManagement from './pages/ClientPlanManagement';
+import PaymentHistory from './pages/PaymentHistory';
 import Layout from './Layout.jsx';
 
 
@@ -96,6 +99,9 @@ export const PAGES = {
     "NotificationSettings": NotificationSettings,
     "SecuritySettings": SecuritySettings,
     "FeatureControl": FeatureControl,
+    "PaymentGatewaySettings": PaymentGatewaySettings,
+    "ClientPlanManagement": ClientPlanManagement,
+    "PaymentHistory": PaymentHistory,
 }
 
 export const pagesConfig = {

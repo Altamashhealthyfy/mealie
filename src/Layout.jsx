@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -29,7 +28,10 @@ import {
   LogOut,
   Stethoscope,
   Shield,
-  User
+  User,
+  CreditCard,
+  Crown,
+  Receipt
 } from "lucide-react";
 import {
   Sidebar,
@@ -103,6 +105,27 @@ const dietitianNavigation = [
     url: createPageUrl("FoodLookup"),
     icon: Search,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+];
+
+const paymentNavigation = [
+  {
+    title: "Payment Gateway",
+    url: createPageUrl("PaymentGatewaySettings"),
+    icon: CreditCard,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
+    title: "Client Plans",
+    url: createPageUrl("ClientPlanManagement"),
+    icon: Crown,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
+    title: "Payment History",
+    url: createPageUrl("PaymentHistory"),
+    icon: Receipt,
+    roles: ['super_admin', 'team_member', 'student_coach'],
   },
 ];
 
@@ -225,11 +248,14 @@ export default function Layout({ children, currentPageName }) {
     !item.roles || item.roles.includes(userType)
   );
   
+  const filteredPaymentNav = paymentNavigation.filter(item =>
+    !item.roles || item.roles.includes(userType)
+  );
+  
   const filteredBusinessNav = businessNavigation.filter(item =>
     !item.roles || item.roles.includes(userType)
   );
 
-  // Client navigation with security settings
   const getClientNavigation = () => {
     const settings = securitySettings?.client_restrictions;
     
@@ -401,6 +427,33 @@ export default function Layout({ children, currentPageName }) {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+
+            {isDietitian && filteredPaymentNav.length > 0 && (
+              <SidebarGroup>
+                <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
+                  Payment & Plans
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {filteredPaymentNav.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                          asChild
+                          className={`hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 rounded-xl mb-1 ${
+                            location.pathname === item.url ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 hover:text-white shadow-md' : ''
+                          }`}
+                        >
+                          <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
+                            <item.icon className="w-5 h-5" />
+                            <span className="font-medium">{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
 
             {isDietitian && filteredBusinessNav.length > 0 && (
               <SidebarGroup>
