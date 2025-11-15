@@ -9,14 +9,16 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Shield, Save, Edit2, Crown, UserCog, GraduationCap, Eye, Edit, Trash2 } from "lucide-react";
+import { Users, Search, Shield, Save, Edit2, Crown, UserCog, GraduationCap, Eye, Edit, Trash2 } from "lucide-react";
 
 export default function UserPermissionManagement() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [editDialog, setEditDialog] = useState(false);
+  const [editGlobalClientDialog, setEditGlobalClientDialog] = useState(false);
   const [customPermissions, setCustomPermissions] = useState({});
+  const [globalClientPermissions, setGlobalClientPermissions] = useState({});
   const [activeUserType, setActiveUserType] = useState("super_admin");
 
   const { data: currentUser } = useQuery({
@@ -68,6 +70,28 @@ export default function UserPermissionManagement() {
     },
   });
 
+  const saveGlobalClientPermissionsMutation = useMutation({
+    mutationFn: async (clientRestrictions) => {
+      const updatedSettings = {
+        ...securitySettings,
+        client_restrictions: clientRestrictions,
+        settings_metadata: {
+          last_modified_by: currentUser?.email,
+          last_modified_date: new Date().toISOString(),
+          version: (securitySettings.settings_metadata?.version || 0) + 1
+        }
+      };
+      
+      return await base44.entities.AppSecuritySettings.update(securitySettings.id, updatedSettings);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['securitySettings']);
+      queryClient.invalidateQueries(['userCustomPermissions']);
+      setEditGlobalClientDialog(false);
+      alert('✅ Global client permissions saved successfully!');
+    },
+  });
+
   if (currentUser?.user_type !== 'super_admin') {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
@@ -111,6 +135,11 @@ export default function UserPermissionManagement() {
     setEditDialog(true);
   };
 
+  const handleEditGlobalClientPermissions = () => {
+    setGlobalClientPermissions(securitySettings?.client_restrictions || {});
+    setEditGlobalClientDialog(true);
+  };
+
   const handleSavePermissions = () => {
     savePermissionsMutation.mutate({
       user_email: selectedUser.email,
@@ -119,8 +148,19 @@ export default function UserPermissionManagement() {
     });
   };
 
+  const handleSaveGlobalClientPermissions = () => {
+    saveGlobalClientPermissionsMutation.mutate(globalClientPermissions);
+  };
+
   const updatePermission = (key, value) => {
     setCustomPermissions(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  const updateGlobalClientPermission = (key, value) => {
+    setGlobalClientPermissions(prev => ({
       ...prev,
       [key]: value
     }));
@@ -208,6 +248,38 @@ export default function UserPermissionManagement() {
       { key: 'can_create_templates', label: 'Create Templates', type: 'edit' },
       { key: 'can_edit_own_templates', label: 'Edit Own Templates', type: 'edit' },
       { key: 'can_delete_own_templates', label: 'Delete Own Templates', type: 'delete' },
+    ],
+    client: [
+      { key: 'can_view_meal_plan', label: 'View Meal Plan', type: 'view' },
+      { key: 'can_comment_on_meal_plan', label: 'Comment on Meal Plan', type: 'edit' },
+      { key: 'can_view_food_log', label: 'View Food Log', type: 'view' },
+      { key: 'can_edit_food_log', label: 'Edit Food Log', type: 'edit' },
+      { key: 'can_delete_food_log', label: 'Delete Food Log', type: 'delete' },
+      { key: 'can_view_progress', label: 'View Progress', type: 'view' },
+      { key: 'can_edit_progress', label: 'Edit Progress', type: 'edit' },
+      { key: 'can_delete_progress', label: 'Delete Progress', type: 'delete' },
+      { key: 'can_view_mpess', label: 'View MPESS', type: 'view' },
+      { key: 'can_edit_mpess', label: 'Edit MPESS', type: 'edit' },
+      { key: 'can_view_messages', label: 'View Messages', type: 'view' },
+      { key: 'can_send_messages', label: 'Send Messages', type: 'edit' },
+      { key: 'can_view_appointments', label: 'View Appointments', type: 'view' },
+      { key: 'can_book_appointments', label: 'Book Appointments', type: 'edit' },
+      { key: 'can_view_profile', label: 'View Profile', type: 'view' },
+      { key: 'can_edit_profile', label: 'Edit Profile', type: 'edit' },
+      { key: 'can_upload_profile_photo', label: 'Upload Profile Photo', type: 'edit' },
+      { key: 'show_my_plans', label: 'Show My Plans Page', type: 'view' },
+      { key: 'can_view_recipes', label: 'View Recipes', type: 'view' },
+      { key: 'can_download_recipes', label: 'Download Recipes', type: 'edit' },
+      { key: 'can_upload_recipes', label: 'Upload Recipes', type: 'edit' },
+      { key: 'can_generate_ai_recipes', label: 'Generate AI Recipes', type: 'edit' },
+      { key: 'can_upload_progress_photos', label: 'Upload Progress Photos', type: 'edit' },
+      { key: 'can_upload_food_photos', label: 'Upload Food Photos', type: 'edit' },
+      { key: 'can_upload_lab_reports', label: 'Upload Lab Reports', type: 'edit' },
+      { key: 'can_upload_documents', label: 'Upload Documents', type: 'edit' },
+      { key: 'can_export_data', label: 'Export Data', type: 'edit' },
+      { key: 'can_use_food_lookup_ai', label: 'Food Lookup AI', type: 'edit' },
+      { key: 'can_use_wellness_insights', label: 'Wellness AI', type: 'edit' },
+      { key: 'can_use_chat_assistant', label: 'Chat Assistant', type: 'edit' },
     ]
   };
 
@@ -216,6 +288,7 @@ export default function UserPermissionManagement() {
       case 'super_admin': return Crown;
       case 'team_member': return UserCog;
       case 'student_coach': return GraduationCap;
+      case 'client': return Users;
       default: return Shield;
     }
   };
@@ -225,6 +298,7 @@ export default function UserPermissionManagement() {
       case 'super_admin': return 'from-purple-500 to-indigo-600';
       case 'team_member': return 'from-blue-500 to-cyan-600';
       case 'student_coach': return 'from-orange-500 to-red-600';
+      case 'client': return 'from-green-500 to-emerald-600';
       default: return 'from-gray-500 to-slate-600';
     }
   };
@@ -263,7 +337,7 @@ export default function UserPermissionManagement() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">User Permission Management</h1>
-            <p className="text-gray-600">Edit individual staff member permissions with granular access control</p>
+            <p className="text-gray-600">Edit individual staff permissions and global client access</p>
           </div>
           <Shield className="w-10 h-10 text-purple-500" />
         </div>
@@ -273,7 +347,7 @@ export default function UserPermissionManagement() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <Input
-                placeholder="Search staff members..."
+                placeholder="Search users..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
@@ -283,7 +357,7 @@ export default function UserPermissionManagement() {
         </Card>
 
         <Tabs value={activeUserType} onValueChange={setActiveUserType} className="space-y-6">
-          <TabsList className="grid grid-cols-3 bg-white/80 backdrop-blur shadow-lg">
+          <TabsList className="grid grid-cols-4 bg-white/80 backdrop-blur shadow-lg">
             <TabsTrigger value="super_admin" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white">
               <Crown className="w-4 h-4 mr-2" />
               Super Admins
@@ -295,6 +369,10 @@ export default function UserPermissionManagement() {
             <TabsTrigger value="student_coach" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white">
               <GraduationCap className="w-4 h-4 mr-2" />
               Health Coaches
+            </TabsTrigger>
+            <TabsTrigger value="client" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white">
+              <Users className="w-4 h-4 mr-2" />
+              All Clients
             </TabsTrigger>
           </TabsList>
 
@@ -334,8 +412,28 @@ export default function UserPermissionManagement() {
               </TabsContent>
             );
           })}
+
+          <TabsContent value="client">
+            <Card className="border-none shadow-lg bg-gradient-to-r from-green-50 to-emerald-50">
+              <CardContent className="p-8 text-center">
+                <Users className="w-16 h-16 mx-auto text-green-600 mb-4" />
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Global Client Permissions</h3>
+                <p className="text-gray-600 mb-6">
+                  Configure default permissions that apply to ALL clients across the platform
+                </p>
+                <Button
+                  onClick={handleEditGlobalClientPermissions}
+                  className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                >
+                  <Edit2 className="w-4 h-4 mr-2" />
+                  Edit Global Client Permissions
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
 
+        {/* Individual User Permissions Dialog */}
         {selectedUser && (
           <Dialog open={editDialog} onOpenChange={setEditDialog}>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -396,6 +494,69 @@ export default function UserPermissionManagement() {
             </DialogContent>
           </Dialog>
         )}
+
+        {/* Global Client Permissions Dialog */}
+        <Dialog open={editGlobalClientDialog} onOpenChange={setEditGlobalClientDialog}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                Edit Global Client Permissions
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <Card className="border-none shadow-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white">
+                <CardContent className="p-4">
+                  <p className="text-sm">
+                    <strong>These permissions apply to ALL clients by default</strong>
+                  </p>
+                  <p className="text-xs opacity-90">Changes here will affect every client's access across the platform</p>
+                </CardContent>
+              </Card>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {permissionCategories.client?.map(perm => {
+                  const isEnabled = globalClientPermissions[perm.key] ?? false;
+                  const TypeIcon = getTypeIcon(perm.type);
+                  
+                  return (
+                    <div
+                      key={perm.key}
+                      className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
+                        getTypeBg(perm.type, isEnabled)
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 flex-1">
+                        <TypeIcon className={`w-4 h-4 ${isEnabled ? getTypeColor(perm.type) : 'text-gray-400'}`} />
+                        <Label className="text-sm font-medium text-gray-900 cursor-pointer">
+                          {perm.label}
+                        </Label>
+                      </div>
+                      <Switch
+                        checked={isEnabled}
+                        onCheckedChange={(checked) => updateGlobalClientPermission(perm.key, checked)}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t">
+                <Button variant="outline" onClick={() => setEditGlobalClientDialog(false)} className="flex-1">
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSaveGlobalClientPermissions}
+                  disabled={saveGlobalClientPermissionsMutation.isPending}
+                  className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {saveGlobalClientPermissionsMutation.isPending ? 'Saving...' : 'Save Global Permissions'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
