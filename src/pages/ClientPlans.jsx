@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -33,7 +34,7 @@ export default function ClientPlans() {
     queryFn: async () => {
       const subs = await base44.entities.ClientSubscription.filter({ 
         client_id: clientProfile?.id,
-        status: 'active'
+        status: { '$ne': 'cancelled' } // Updated: Consider a subscription active if not cancelled
       });
       return subs[0] || null;
     },
@@ -55,6 +56,22 @@ export default function ClientPlans() {
       setSelectedPlan(null);
       alert('✅ Plan activated! Please wait for payment confirmation.');
     },
+    onError: (error) => {
+        console.error("Error subscribing:", error);
+        alert('Failed to subscribe. Please try again.');
+    }
+  });
+
+  const unSubscribeMutation = useMutation({
+    mutationFn: async (subscriptionId) => base44.entities.ClientSubscription.update(subscriptionId, { status: 'cancelled', auto_renew: false }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['myClientSubscription']);
+      alert('Your subscription has been cancelled.');
+    },
+    onError: (error) => {
+      console.error("Error cancelling subscription:", error);
+      alert('Failed to cancel subscription. Please try again.');
+    }
   });
 
   const plans = [
@@ -119,6 +136,10 @@ export default function ClientPlans() {
       alert('Client profile not found');
       return;
     }
+    if (!user) {
+        alert('User data not found');
+        return;
+    }
 
     const amount = billingCycle === 'yearly' ? plan.yearly : plan.monthly;
     const startDate = new Date().toISOString().split('T')[0];
@@ -136,11 +157,21 @@ export default function ClientPlans() {
       start_date: startDate,
       end_date: endDate.toISOString().split('T')[0],
       next_billing_date: endDate.toISOString().split('T')[0],
-      status: 'pending',
-      payment_gateway: 'razorpay',
-      coach_email: clientProfile.created_by,
+      status: 'pending', // Initial status is pending payment confirmation
+      payment_gateway: 'razorpay', // Assuming a default gateway for now
+      coach_email: clientProfile.created_by, // Assuming `created_by` refers to the coach's email
       auto_renew: true
     });
+  };
+
+  const handleCancelSubscription = () => {
+    if (mySubscription && mySubscription.id) {
+      if (confirm('Are you sure you want to cancel your current subscription? This will take effect at the end of your current billing cycle and cannot be undone.')) {
+        unSubscribeMutation.mutate(mySubscription.id);
+      }
+    } else {
+      alert('No active subscription found to cancel.');
+    }
   };
 
   if (user?.user_type !== 'client') {
@@ -171,14 +202,24 @@ export default function ClientPlans() {
           </div>
         </div>
 
-        {mySubscription && (
-          <Alert className="bg-green-50 border-green-500">
-            <Check className="w-5 h-5 text-green-600" />
-            <AlertDescription>
-              <strong>Active Plan:</strong> {mySubscription.plan_tier.toUpperCase()} • 
-              Billing: {mySubscription.billing_cycle} • 
-              Next billing: {new Date(mySubscription.next_billing_date).toLocaleDateString()}
-            </AlertDescription>
+        {mySubscription && mySubscription.status === 'active' && ( // Added check for 'active' status
+          <Alert className="bg-green-50 border-green-500 flex items-center justify-between p-4"> {/* Adjusted styling for button */}
+            <div className="flex items-center">
+                <Check className="w-5 h-5 text-green-600 mr-2" />
+                <AlertDescription>
+                    <strong>Active Plan:</strong> {mySubscription.plan_tier.toUpperCase()} • 
+                    Billing: {mySubscription.billing_cycle} • 
+                    Next billing: {new Date(mySubscription.next_billing_date).toLocaleDateString()}
+                </AlertDescription>
+            </div>
+            <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleCancelSubscription}
+                disabled={unSubscribeMutation.isPending}
+            >
+                {unSubscribeMutation.isPending ? 'Cancelling...' : 'Unsubscribe'}
+            </Button>
           </Alert>
         )}
 
@@ -214,11 +255,13 @@ export default function ClientPlans() {
                   ))}
                   <Button
                     onClick={() => setSelectedPlan(plan)}
-                    disabled={mySubscription?.plan_tier === plan.id}
+                    // Updated: Check for active status
+                    disabled={mySubscription?.plan_tier === plan.id && mySubscription?.status === 'active'}
                     className={`w-full bg-gradient-to-r ${plan.color}`}
                   >
-                    {mySubscription?.plan_tier === plan.id ? 'Current Plan' : 
-                     mySubscription ? 'Upgrade/Downgrade' : 'Subscribe'}
+                    {/* Updated: Check for active status */}
+                    {mySubscription?.plan_tier === plan.id && mySubscription?.status === 'active' ? 'Current Plan' : 
+                     mySubscription && mySubscription.status === 'active' ? 'Upgrade/Downgrade' : 'Subscribe'}
                   </Button>
                 </CardContent>
               </Card>
