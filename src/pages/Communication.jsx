@@ -14,8 +14,14 @@ import {
   CheckCheck,
   Clock,
   Loader2,
-  ChevronDown,
-  ArrowDown
+  ArrowDown,
+  Paperclip,
+  X,
+  FileText,
+  Image as ImageIcon,
+  Video,
+  File,
+  Download
 } from "lucide-react";
 import { format } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -28,9 +34,11 @@ export default function Communication() {
   const [messageText, setMessageText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [attachedFile, setAttachedFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const messagesEndRef = useRef(null);
-  const messagesContainerRef = useRef(null);
   const textareaRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const scrollToBottom = (behavior = "smooth") => {
     messagesEndRef.current?.scrollIntoView({ behavior });
@@ -77,6 +85,7 @@ export default function Communication() {
     onSuccess: () => {
       queryClient.invalidateQueries(['allMessages']);
       setMessageText("");
+      setAttachedFile(null);
       toast({
         title: "✓ Message sent",
         description: "Your message has been delivered successfully.",
@@ -103,6 +112,31 @@ export default function Communication() {
     },
   });
 
+  const handleFileSelect = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check file size (1GB = 1073741824 bytes)
+    if (file.size > 1073741824) {
+      toast({
+        title: "File too large",
+        description: "File size must be less than 1 GB",
+        variant: "destructive",
+        duration: 3000,
+      });
+      return;
+    }
+
+    setAttachedFile(file);
+  };
+
+  const removeAttachment = () => {
+    setAttachedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!selectedClient) {
       toast({
@@ -114,24 +148,62 @@ export default function Communication() {
       return;
     }
 
-    if (!messageText.trim()) {
+    if (!messageText.trim() && !attachedFile) {
       toast({
         title: "Empty message",
-        description: "Please enter a message.",
+        description: "Please enter a message or attach a file.",
         variant: "destructive",
         duration: 2000,
       });
       return;
     }
 
-    const messageData = {
+    let messageData = {
       client_id: selectedClient.id,
       sender_type: 'dietitian',
-      message: messageText.trim(),
+      message: messageText.trim() || '(File attachment)',
       read: false,
     };
 
+    // Upload file if attached
+    if (attachedFile) {
+      setUploading(true);
+      try {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file: attachedFile });
+        messageData.attachment_url = file_url;
+        messageData.attachment_name = attachedFile.name;
+        messageData.attachment_type = attachedFile.type;
+        messageData.attachment_size = attachedFile.size;
+      } catch (error) {
+        console.error("File upload failed:", error);
+        toast({
+          title: "File upload failed",
+          description: "Please try again.",
+          variant: "destructive",
+          duration: 3000,
+        });
+        setUploading(false);
+        return;
+      }
+      setUploading(false);
+    }
+
     sendMessageMutation.mutate(messageData);
+  };
+
+  const getFileIcon = (type) => {
+    if (type?.startsWith('image/')) return <ImageIcon className="w-4 h-4" />;
+    if (type?.startsWith('video/')) return <Video className="w-4 h-4" />;
+    if (type?.includes('pdf')) return <FileText className="w-4 h-4" />;
+    if (type?.includes('word') || type?.includes('document')) return <FileText className="w-4 h-4" />;
+    return <File className="w-4 h-4" />;
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
+    return (bytes / 1073741824).toFixed(1) + ' GB';
   };
 
   const clientMessages = selectedClient 
@@ -258,7 +330,7 @@ export default function Communication() {
                                     isSelected ? 'text-white/80' : 'text-gray-600'
                                   }`}>
                                     {lastMessage.sender_type === 'dietitian' ? 'You: ' : ''}
-                                    {lastMessage.message}
+                                    {lastMessage.attachment_url ? '📎 ' + (lastMessage.attachment_name || 'Attachment') : lastMessage.message}
                                   </p>
                                 )}
                                 {lastMessage && (
@@ -337,7 +409,36 @@ export default function Communication() {
                                       : 'bg-gray-100 text-gray-900'
                                   }`}
                                 >
-                                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.message}</p>
+                                  {message.message && (
+                                    <p className="text-sm leading-relaxed whitespace-pre-wrap mb-2">{message.message}</p>
+                                  )}
+                                  
+                                  {message.attachment_url && (
+                                    <a
+                                      href={message.attachment_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className={`flex items-center gap-2 p-3 rounded-lg border transition-colors ${
+                                        isFromDietitian
+                                          ? 'bg-white/10 border-white/20 hover:bg-white/20'
+                                          : 'bg-white border-gray-200 hover:bg-gray-50'
+                                      }`}
+                                    >
+                                      {getFileIcon(message.attachment_type)}
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium truncate">
+                                          {message.attachment_name || 'Attachment'}
+                                        </p>
+                                        {message.attachment_size && (
+                                          <p className={`text-xs ${isFromDietitian ? 'text-white/70' : 'text-gray-500'}`}>
+                                            {formatFileSize(message.attachment_size)}
+                                          </p>
+                                        )}
+                                      </div>
+                                      <Download className="w-4 h-4 flex-shrink-0" />
+                                    </a>
+                                  )}
+
                                   <div className={`flex items-center gap-2 mt-2 text-xs ${
                                     isFromDietitian ? 'text-white/70' : 'text-gray-500'
                                   }`}>
@@ -372,7 +473,47 @@ export default function Communication() {
 
                   {/* Send Message Box */}
                   <div className="p-4 border-t-2 border-orange-500 bg-white flex-shrink-0">
+                    {attachedFile && (
+                      <div className="mb-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div className="flex items-center gap-2">
+                          {getFileIcon(attachedFile.type)}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {attachedFile.name}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              {formatFileSize(attachedFile.size)}
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={removeAttachment}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
                     <div className="flex items-end gap-3">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        onChange={handleFileSelect}
+                        className="hidden"
+                        accept="*/*"
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="h-[60px] w-[60px] flex-shrink-0 border-2 border-orange-300 hover:bg-orange-50"
+                        disabled={uploading || sendMessageMutation.isPending}
+                      >
+                        <Paperclip className="w-5 h-5 text-orange-600" />
+                      </Button>
                       <div className="flex-1">
                         <Textarea
                           ref={textareaRef}
@@ -387,18 +528,19 @@ export default function Communication() {
                           }}
                           className="resize-none min-h-[60px] text-sm border-2 border-orange-300 focus:border-orange-500"
                           rows={2}
+                          disabled={uploading}
                           autoFocus
                         />
                       </div>
                       <Button
                         onClick={handleSendMessage}
-                        disabled={sendMessageMutation.isPending}
+                        disabled={sendMessageMutation.isPending || uploading}
                         className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-[60px] px-6 font-semibold shadow-lg"
                       >
-                        {sendMessageMutation.isPending ? (
+                        {(sendMessageMutation.isPending || uploading) ? (
                           <>
                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Sending...
+                            {uploading ? 'Uploading...' : 'Sending...'}
                           </>
                         ) : (
                           <>
@@ -410,8 +552,8 @@ export default function Communication() {
                     </div>
                     
                     <p className="text-xs text-gray-500 text-center mt-2">
-                      Press <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono">Enter</kbd> to send • 
-                      <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono ml-1">Shift+Enter</kbd> for new line
+                      <Paperclip className="w-3 h-3 inline" /> Attach files up to 1 GB • 
+                      <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono ml-1">Enter</kbd> to send
                     </p>
                   </div>
                 </>
