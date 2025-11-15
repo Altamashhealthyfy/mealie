@@ -283,7 +283,7 @@ export default function Layout({ children, currentPageName }) {
         title: "My Plans",
         url: createPageUrl("ClientPlans"),
         icon: CreditCard,
-        show: true,
+        show: settings?.show_my_plans ?? true, // Changed from `show: true`
       },
       {
         title: "My Meal Plan",
