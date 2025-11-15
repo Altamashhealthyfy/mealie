@@ -8,8 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, Search, Crown, Edit, Eye, Save, Plus, TrendingUp, Check } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Users, Search, Crown, Edit, Eye, Save, Plus } from "lucide-react";
 
 export default function WhiteLabelClients() {
   const queryClient = useQueryClient();
@@ -18,9 +17,6 @@ export default function WhiteLabelClients() {
   const [viewDialog, setViewDialog] = useState(false);
   const [editDialog, setEditDialog] = useState(false);
   const [addDialog, setAddDialog] = useState(false);
-  const [planDialog, setPlanDialog] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState('');
-  const [billingCycle, setBillingCycle] = useState('monthly');
   const [editFormData, setEditFormData] = useState({});
   const [addFormData, setAddFormData] = useState({
     full_name: '',
@@ -66,15 +62,6 @@ export default function WhiteLabelClients() {
     initialData: [],
   });
 
-  const { data: securitySettings } = useQuery({
-    queryKey: ['securitySettings'],
-    queryFn: async () => {
-      const settings = await base44.entities.AppSecuritySettings.list();
-      return settings[0] || null;
-    },
-    enabled: !!user && user.user_type === 'super_admin',
-  });
-
   const updateClientMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Client.update(id, data),
     onSuccess: () => {
@@ -100,22 +87,6 @@ export default function WhiteLabelClients() {
         status: 'active'
       });
       alert('✅ Client added successfully!');
-    },
-  });
-
-  const assignPlanMutation = useMutation({
-    mutationFn: async ({ clientId, planData }) => {
-      const existing = clientSubscriptions.find(s => s.client_id === clientId && s.status === 'active');
-      if (existing) {
-        return await base44.entities.ClientSubscription.update(existing.id, planData);
-      } else {
-        return await base44.entities.ClientSubscription.create(planData);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['clientSubscriptions']);
-      setPlanDialog(false);
-      alert('✅ Plan assigned successfully! Features enabled.');
     },
   });
 
@@ -174,14 +145,6 @@ export default function WhiteLabelClients() {
     setEditDialog(true);
   };
 
-  const handleAssignPlan = (client) => {
-    setSelectedClient(client);
-    const existingSub = getClientSubscription(client.id);
-    setSelectedPlan(existingSub?.plan_tier || '');
-    setBillingCycle(existingSub?.billing_cycle || 'monthly');
-    setPlanDialog(true);
-  };
-
   const handleSaveEdit = () => {
     updateClientMutation.mutate({
       id: selectedClient.id,
@@ -196,75 +159,6 @@ export default function WhiteLabelClients() {
     }
     createClientMutation.mutate(addFormData);
   };
-
-  const handleSavePlan = () => {
-    if (!selectedPlan) {
-      alert('Please select a plan');
-      return;
-    }
-
-    const planConfig = securitySettings?.membership_plans?.[`${selectedPlan}_plan`];
-    if (!planConfig) {
-      alert('Plan configuration not found');
-      return;
-    }
-
-    const amount = billingCycle === 'yearly' ? planConfig.yearly_price : planConfig.monthly_price;
-    const startDate = new Date().toISOString().split('T')[0];
-    const endDate = new Date();
-    endDate.setMonth(endDate.getMonth() + (billingCycle === 'yearly' ? 12 : 1));
-
-    const planData = {
-      client_id: selectedClient.id,
-      client_email: selectedClient.email,
-      client_name: selectedClient.full_name,
-      plan_tier: selectedPlan,
-      billing_cycle: billingCycle,
-      amount,
-      currency: planConfig.currency || 'INR',
-      start_date: startDate,
-      end_date: endDate.toISOString().split('T')[0],
-      next_billing_date: endDate.toISOString().split('T')[0],
-      status: 'active',
-      payment_gateway: 'manual',
-      coach_email: selectedClient.created_by,
-      auto_renew: true
-    };
-
-    assignPlanMutation.mutate({ clientId: selectedClient.id, planData });
-  };
-
-  const plans = [
-    {
-      id: 'basic',
-      name: 'Basic Plan',
-      icon: Users,
-      color: 'from-gray-500 to-slate-600',
-      monthly: securitySettings?.membership_plans?.basic_plan?.monthly_price || 999,
-      yearly: securitySettings?.membership_plans?.basic_plan?.yearly_price || 9999,
-      features: ['5 AI generations/month', 'Unlimited downloads', 'Basic support']
-    },
-    {
-      id: 'advanced',
-      name: 'Advanced Plan',
-      icon: TrendingUp,
-      color: 'from-blue-500 to-cyan-600',
-      monthly: securitySettings?.membership_plans?.advanced_plan?.monthly_price || 2999,
-      yearly: securitySettings?.membership_plans?.advanced_plan?.yearly_price || 29999,
-      popular: true,
-      features: ['40 AI generations/month', 'Advanced features', 'Priority support']
-    },
-    {
-      id: 'pro',
-      name: 'Pro Plan',
-      icon: Crown,
-      color: 'from-purple-500 to-pink-600',
-      monthly: securitySettings?.membership_plans?.pro_plan?.monthly_price || 4999,
-      yearly: securitySettings?.membership_plans?.pro_plan?.yearly_price || 49999,
-      best: true,
-      features: ['Unlimited AI', 'All features', 'Business tools', '24/7 support']
-    }
-  ];
 
   const ClientCard = ({ client }) => {
     const { creator, subscription } = getCoachInfo(client.created_by);
@@ -284,17 +178,13 @@ export default function WhiteLabelClients() {
             {client.status && (
               <Badge variant="outline" className="capitalize">{client.status}</Badge>
             )}
-            {clientSub ? (
+            {clientSub && (
               <Badge className="bg-green-100 text-green-700 capitalize">
-                {clientSub.plan_tier} Plan
-              </Badge>
-            ) : (
-              <Badge className="bg-orange-100 text-orange-700">
-                No Plan
+                {clientSub.plan_tier}
               </Badge>
             )}
             {subscription && (
-              <Badge className="bg-blue-100 text-blue-700 capitalize">
+              <Badge className="bg-orange-100 text-orange-700 capitalize">
                 Coach: {subscription.plan_type}
               </Badge>
             )}
@@ -315,14 +205,6 @@ export default function WhiteLabelClients() {
               <Edit className="w-4 h-4 mr-1" />
               Edit
             </Button>
-            <Button 
-              size="sm" 
-              onClick={() => handleAssignPlan(client)} 
-              className={`flex-1 ${clientSub ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-orange-500 to-red-500'}`}
-            >
-              <Crown className="w-4 h-4 mr-1" />
-              {clientSub ? 'Change' : 'Assign'}
-            </Button>
           </div>
         </CardContent>
       </Card>
@@ -335,7 +217,7 @@ export default function WhiteLabelClients() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">White-Label Client Management</h1>
-            <p className="text-gray-600">Manage clients under health coaches with plan-based features</p>
+            <p className="text-gray-600">Manage clients under health coaches</p>
           </div>
           <Users className="w-10 h-10 text-purple-500" />
         </div>
@@ -385,92 +267,6 @@ export default function WhiteLabelClients() {
               <ClientCard key={client.id} client={client} />
             ))}
           </div>
-        )}
-
-        {/* Plan Assignment Dialog */}
-        {selectedClient && (
-          <Dialog open={planDialog} onOpenChange={setPlanDialog}>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Assign Plan to {selectedClient.full_name}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-6 mt-4">
-                <Alert className="bg-blue-50 border-blue-500">
-                  <Crown className="w-5 h-5 text-blue-600" />
-                  <AlertDescription className="text-blue-900">
-                    <strong>Plan-Based Features:</strong> Selecting a plan automatically enables all features configured for that plan in Feature Control settings.
-                  </AlertDescription>
-                </Alert>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {plans.map(plan => {
-                    const PlanIcon = plan.icon;
-                    const isSelected = selectedPlan === plan.id;
-                    return (
-                      <Card 
-                        key={plan.id} 
-                        className={`cursor-pointer transition-all ${isSelected ? 'ring-4 ring-purple-500' : ''} ${plan.popular ? 'ring-2 ring-blue-400' : ''} ${plan.best ? 'ring-2 ring-purple-400' : ''}`}
-                        onClick={() => setSelectedPlan(plan.id)}
-                      >
-                        <CardHeader className={`bg-gradient-to-r ${plan.color} text-white`}>
-                          <div className="flex items-center justify-between mb-2">
-                            <PlanIcon className="w-6 h-6" />
-                            {plan.popular && <Badge className="bg-blue-600">Popular</Badge>}
-                            {plan.best && <Badge className="bg-purple-600">Best</Badge>}
-                            {isSelected && <Check className="w-6 h-6" />}
-                          </div>
-                          <CardTitle className="text-lg">{plan.name}</CardTitle>
-                          <div className="mt-2">
-                            <p className="text-sm opacity-90">Monthly</p>
-                            <p className="text-2xl font-bold">₹{plan.monthly}</p>
-                          </div>
-                          <div className="mt-1 p-2 bg-white/20 rounded">
-                            <p className="text-xs opacity-90">Yearly</p>
-                            <p className="text-xl font-bold">₹{plan.yearly}</p>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="p-4 space-y-2">
-                          {plan.features.map((feature, idx) => (
-                            <div key={idx} className="flex items-start gap-2">
-                              <Check className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                              <span className="text-xs">{feature}</span>
-                            </div>
-                          ))}
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="font-semibold">Billing Cycle</Label>
-                  <Select value={billingCycle} onValueChange={setBillingCycle}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                      <SelectItem value="yearly">Yearly (Save money!)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex gap-3 pt-4 border-t">
-                  <Button variant="outline" onClick={() => setPlanDialog(false)} className="flex-1">
-                    Cancel
-                  </Button>
-                  <Button 
-                    onClick={handleSavePlan} 
-                    disabled={!selectedPlan || assignPlanMutation.isPending}
-                    className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    {assignPlanMutation.isPending ? 'Assigning...' : 'Assign Plan'}
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
         )}
 
         {/* View Dialog */}
