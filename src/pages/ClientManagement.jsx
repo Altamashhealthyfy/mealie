@@ -144,16 +144,12 @@ export default function ClientManagement() {
         cleanData.initial_weight = data.weight ? parseFloat(data.weight) : null;
         const newClient = await base44.entities.Client.create(cleanData);
 
-        // Get the app URL for dashboard link
-        const appUrl = window.location.origin;
-        const dashboardLink = `${appUrl}${createPageUrl("Home")}`;
-
-        // 🔥 AUTOMATICALLY SEND WELCOME EMAIL from Google Workspace
+        // 🔥 AUTOMATICALLY SEND WELCOME EMAIL
         try {
-          const welcomeSubject = "Welcome to Healthyfy - Your Health Journey Begins!";
+          const welcomeSubject = "Welcome to Mealie Pro - Your Health Journey Begins!";
           const welcomeBody = `Dear ${newClient.full_name},
 
-Welcome to Healthyfy! 🎉
+Welcome to Mealie Pro! 🎉
 
 We're thrilled to have you join us on your health and wellness journey. Your dedicated dietitian is here to support you every step of the way.
 
@@ -163,17 +159,17 @@ What's Next?
 • Feel free to message us anytime with questions
 
 Your Health Goals:
-${newClient.goal ? `Goal: ${newClient.goal.replace('_', ' ')}` : ''}
+${newClient.goal ? `Goal: ${newClient.goal.replace(/_/g, ' ')}` : ''}
 ${newClient.target_calories ? `Target Calories: ${newClient.target_calories} kcal/day` : ''}
 
 Access Your Dashboard:
-${dashboardLink}
+https://mealiepro.com
 
 We're excited to help you achieve your health goals!
 
 Best regards,
-Healthyfy Team
-contactus@healthyfy.com`;
+Mealie Pro Team
+support@mealiepro.com`;
 
           await base44.functions.invoke('sendGoogleWorkspaceEmail', {
             to: newClient.email,
@@ -192,19 +188,19 @@ contactus@healthyfy.com`;
           try {
             const whatsappMessage = `Hi ${newClient.full_name}! 👋
 
-Welcome to Healthyfy! 🎉
+Welcome to Mealie Pro! 🎉
 
 Your health journey starts today! Your dedicated dietitian is here to support you.
 
-🔗 Access your dashboard: ${dashboardLink}
+🔗 Access your dashboard: https://mealiepro.com
 
 📧 Check your email for more details
 💬 Feel free to message us anytime
 
 Let's achieve your health goals together! 💪
 
-Team Healthyfy
-contactus@healthyfy.com`;
+Team Mealie Pro
+support@mealiepro.com`;
 
             await base44.functions.invoke('sendWhatsAppMessage', {
               phone: newClient.phone,
