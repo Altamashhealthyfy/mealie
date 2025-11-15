@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Check, AlertTriangle, CreditCard, Users, TrendingUp, Crown } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { createPageUrl } from "@/utils";
 
 export default function ClientPlans() {
   const queryClient = useQueryClient();
@@ -34,7 +34,7 @@ export default function ClientPlans() {
     queryFn: async () => {
       const subs = await base44.entities.ClientSubscription.filter({ 
         client_id: clientProfile?.id,
-        status: { '$ne': 'cancelled' } // Updated: Consider a subscription active if not cancelled
+        status: { '$ne': 'cancelled' }
       });
       return subs[0] || null;
     },
@@ -73,6 +73,36 @@ export default function ClientPlans() {
       alert('Failed to cancel subscription. Please try again.');
     }
   });
+
+  // Check if client has access to this page
+  const canShowMyPlans = securitySettings?.client_restrictions?.show_my_plans ?? true;
+
+  React.useEffect(() => {
+    if (user && user.user_type === 'client' && !canShowMyPlans) {
+      alert('⛔ My Plans page is not available.\n\nContact your dietitian for subscription information.');
+      window.location.href = createPageUrl('Home');
+    }
+  }, [user, canShowMyPlans]);
+
+  if (user && user.user_type === 'client' && !canShowMyPlans) {
+    return (
+      <div className="min-h-screen p-8 flex items-center justify-center">
+        <Card className="max-w-md border-none shadow-xl bg-red-50">
+          <CardHeader>
+            <CardTitle className="text-red-900 flex items-center gap-2">
+              <AlertTriangle className="w-6 h-6" />
+              Access Restricted
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-red-800">
+              My Plans page access is disabled. Contact your dietitian for subscription information.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const plans = [
     {
@@ -157,9 +187,9 @@ export default function ClientPlans() {
       start_date: startDate,
       end_date: endDate.toISOString().split('T')[0],
       next_billing_date: endDate.toISOString().split('T')[0],
-      status: 'pending', // Initial status is pending payment confirmation
-      payment_gateway: 'razorpay', // Assuming a default gateway for now
-      coach_email: clientProfile.created_by, // Assuming `created_by` refers to the coach's email
+      status: 'pending',
+      payment_gateway: 'razorpay',
+      coach_email: clientProfile.created_by,
       auto_renew: true
     });
   };
@@ -202,8 +232,8 @@ export default function ClientPlans() {
           </div>
         </div>
 
-        {mySubscription && mySubscription.status === 'active' && ( // Added check for 'active' status
-          <Alert className="bg-green-50 border-green-500 flex items-center justify-between p-4"> {/* Adjusted styling for button */}
+        {mySubscription && mySubscription.status === 'active' && (
+          <Alert className="bg-green-50 border-green-500 flex items-center justify-between p-4">
             <div className="flex items-center">
                 <Check className="w-5 h-5 text-green-600 mr-2" />
                 <AlertDescription>
@@ -255,11 +285,9 @@ export default function ClientPlans() {
                   ))}
                   <Button
                     onClick={() => setSelectedPlan(plan)}
-                    // Updated: Check for active status
                     disabled={mySubscription?.plan_tier === plan.id && mySubscription?.status === 'active'}
                     className={`w-full bg-gradient-to-r ${plan.color}`}
                   >
-                    {/* Updated: Check for active status */}
                     {mySubscription?.plan_tier === plan.id && mySubscription?.status === 'active' ? 'Current Plan' : 
                      mySubscription && mySubscription.status === 'active' ? 'Upgrade/Downgrade' : 'Subscribe'}
                   </Button>
