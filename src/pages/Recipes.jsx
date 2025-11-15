@@ -913,7 +913,7 @@ Enjoy your cooking! 🍽️✨
           <TabsContent value="library" className="space-y-6">
             <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
               <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+                <div className={`grid grid-cols-1 gap-4 ${isClient ? 'md:grid-cols-5' : 'md:grid-cols-6'}`}>
                   <div className="md:col-span-2">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -961,24 +961,27 @@ Enjoy your cooking! 🍽️✨
                       <SelectItem value="fusion">Fusion</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Select value={uploaderFilter} onValueChange={setUploaderFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Uploader" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Uploaders</SelectItem>
-                      {uploaderStats.map((stat) => (
-                        <SelectItem key={stat.email} value={stat.email}>
-                          <div className="flex items-center justify-between gap-2 w-full">
-                            <span className="truncate">{stat.email}</span>
-                            <Badge className="bg-purple-100 text-purple-700 text-xs">
-                              {stat.count}
-                            </Badge>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {/* UPLOADER FILTER - HIDDEN FROM CLIENTS */}
+                  {!isClient && (
+                    <Select value={uploaderFilter} onValueChange={setUploaderFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Uploader" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Uploaders</SelectItem>
+                        {uploaderStats.map((stat) => (
+                          <SelectItem key={stat.email} value={stat.email}>
+                            <div className="flex items-center justify-between gap-2 w-full">
+                              <span className="truncate">{stat.email}</span>
+                              <Badge className="bg-purple-100 text-purple-700 text-xs">
+                                {stat.count}
+                              </Badge>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                   <Select value={sortOrder} onValueChange={setSortOrder}>
                     <SelectTrigger>
                       <SelectValue placeholder="Sort by" />
