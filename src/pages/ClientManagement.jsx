@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -38,6 +39,7 @@ import { createPageUrl } from "@/utils";
 import WhatsAppSender from "@/components/notifications/WhatsAppSender";
 import EmailSender from "@/components/notifications/EmailSender";
 import { EMAIL_TEMPLATES, fillTemplate } from "@/components/notifications/NotificationTemplates";
+import ImageUploader from "@/components/common/ImageUploader";
 
 export default function ClientManagement() {
   const queryClient = useQueryClient();
@@ -56,6 +58,7 @@ export default function ClientManagement() {
     full_name: "",
     email: "",
     phone: "",
+    profile_photo_url: "",
     age: "",
     gender: "male",
     height: "",
@@ -114,6 +117,7 @@ export default function ClientManagement() {
         full_name: data.full_name,
         email: data.email,
         phone: data.phone || null,
+        profile_photo_url: data.profile_photo_url || null,
         age: data.age ? parseFloat(data.age) : null,
         gender: data.gender,
         height: data.height ? parseFloat(data.height) : null,
@@ -226,6 +230,7 @@ contactus@healthyfy.com`;
         full_name: "",
         email: "",
         phone: "",
+        profile_photo_url: "",
         age: "",
         gender: "male",
         height: "",
@@ -335,6 +340,7 @@ contactus@healthyfy.com`;
       full_name: client.full_name || "",
       email: client.email || "",
       phone: client.phone || "",
+      profile_photo_url: client.profile_photo_url || "",
       age: client.age !== null && client.age !== undefined ? String(client.age) : "",
       gender: client.gender || "male",
       height: client.height !== null && client.height !== undefined ? String(client.height) : "",
@@ -419,6 +425,7 @@ contactus@healthyfy.com`;
                     full_name: "",
                     email: "",
                     phone: "",
+                    profile_photo_url: "",
                     age: "",
                     gender: "male",
                     height: "",
@@ -469,6 +476,16 @@ contactus@healthyfy.com`;
                 </TabsList>
 
                 <TabsContent value="basic" className="space-y-4 mt-4">
+                  <ImageUploader
+                    onImageUploaded={(url) => setFormData({...formData, profile_photo_url: url})}
+                    currentImageUrl={formData.profile_photo_url}
+                    requiredWidth={400}
+                    requiredHeight={400}
+                    aspectRatio="1:1"
+                    maxSizeMB={2}
+                    label="Profile Photo"
+                  />
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Full Name *</Label>
@@ -745,11 +762,19 @@ contactus@healthyfy.com`;
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2 md:gap-3 min-w-0">
-                      <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center shrink-0">
-                        <span className="text-white font-medium text-base md:text-lg">
-                          {(client.full_name || 'C').charAt(0).toUpperCase()}
-                        </span>
-                      </div>
+                      {client.profile_photo_url ? (
+                        <img
+                          src={client.profile_photo_url}
+                          alt={client.full_name}
+                          className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover border-2 border-orange-500"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center shrink-0">
+                          <span className="text-white font-medium text-base md:text-lg">
+                            {(client.full_name || 'C').charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
                       <div className="min-w-0">
                         <CardTitle className="text-base md:text-lg truncate">{client.full_name || 'No Name'}</CardTitle>
                         <p className="text-xs md:text-sm text-gray-600 truncate">{client.email}</p>
@@ -890,7 +915,22 @@ contactus@healthyfy.com`;
         <Dialog open={!!viewingClient} onOpenChange={() => setViewingClient(null)}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-2xl">{viewingClient?.full_name}</DialogTitle>
+              <DialogTitle className="text-2xl flex items-center gap-3">
+                {viewingClient?.profile_photo_url ? (
+                  <img
+                    src={viewingClient.profile_photo_url}
+                    alt={viewingClient.full_name}
+                    className="w-12 h-12 rounded-full object-cover border-2 border-orange-500"
+                  />
+                ) : (
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">
+                      {viewingClient?.full_name?.charAt(0)?.toUpperCase()}
+                    </span>
+                  </div>
+                )}
+                {viewingClient?.full_name}
+              </DialogTitle>
               <DialogDescription>
                 Detailed information and actions for {viewingClient?.full_name}.
               </DialogDescription>
