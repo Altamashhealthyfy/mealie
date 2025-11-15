@@ -3,7 +3,8 @@ import { base44 } from "@/api/base44Client";
 
 /**
  * Hook to get effective permissions for the current user
- * Checks for custom permissions first, then falls back to role defaults
+ * For clients: checks subscription plan first, then custom permissions, then role defaults
+ * For staff: checks custom permissions first, then falls back to role defaults
  */
 export function useUserPermissions() {
   const { data: user } = useQuery({
@@ -29,8 +30,39 @@ export function useUserPermissions() {
     enabled: !!user?.email,
   });
 
+  const { data: clientProfile } = useQuery({
+    queryKey: ['clientProfile', user?.email],
+    queryFn: async () => {
+      const clients = await base44.entities.Client.filter({ email: user?.email });
+      return clients[0] || null;
+    },
+    enabled: !!user && user.user_type === 'client',
+  });
+
+  const { data: clientSubscription } = useQuery({
+    queryKey: ['clientSubscription', clientProfile?.id],
+    queryFn: async () => {
+      const subs = await base44.entities.ClientSubscription.filter({ 
+        client_id: clientProfile?.id,
+        status: 'active'
+      });
+      return subs[0] || null;
+    },
+    enabled: !!clientProfile?.id,
+  });
+
   const getEffectivePermissions = () => {
     if (!user) return {};
+
+    // For clients: check subscription plan first
+    if (user.user_type === 'client' && clientSubscription?.plan_tier) {
+      const planKey = `${clientSubscription.plan_tier}_plan`;
+      const planFeatures = securitySettings?.membership_plans?.[planKey]?.features;
+      
+      if (planFeatures) {
+        return planFeatures;
+      }
+    }
 
     // If user has custom permissions, use those
     if (customPermissions?.custom_permissions) {
@@ -60,6 +92,8 @@ export function useUserPermissions() {
     permissions,
     hasPermission,
     hasCustomPermissions: !!customPermissions,
+    hasActiveSubscription: !!clientSubscription,
+    subscriptionPlan: clientSubscription?.plan_tier || null,
     isLoading: !user
   };
 }
