@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -32,7 +31,8 @@ import {
   User,
   CreditCard,
   Crown,
-  Receipt
+  Receipt,
+  Settings
 } from "lucide-react";
 import {
   Sidebar,
@@ -62,7 +62,7 @@ const dietitianNavigation = [
     title: "My White-Label Plan",
     url: createPageUrl("WhiteLabelSubscription"),
     icon: Crown,
-    roles: ['team_member', 'student_coach'],
+    roles: ['student_coach'],
   },
   {
     title: "Clients",
@@ -141,6 +141,12 @@ const businessNavigation = [
     title: "White-Label Clients",
     url: createPageUrl("WhiteLabelClients"),
     icon: Crown,
+    roles: ['super_admin'],
+  },
+  {
+    title: "User Permissions",
+    url: createPageUrl("UserPermissionManagement"),
+    icon: Settings,
     roles: ['super_admin'],
   },
   {
@@ -283,37 +289,37 @@ export default function Layout({ children, currentPageName }) {
         title: "My Plans",
         url: createPageUrl("ClientPlans"),
         icon: CreditCard,
-        show: settings?.show_my_plans ?? true, // Changed from `show: true`
+        show: settings?.show_my_plans ?? true,
       },
       {
         title: "My Meal Plan",
         url: createPageUrl("MyAssignedMealPlan"),
         icon: Calendar,
-        show: settings?.show_meal_plan ?? true,
+        show: settings?.can_view_meal_plan ?? true,
       },
       {
         title: "Food Log",
         url: createPageUrl("FoodLog"),
         icon: Utensils,
-        show: settings?.show_food_log ?? true,
+        show: settings?.can_view_food_log ?? true,
       },
       {
         title: "My Progress",
         url: createPageUrl("ProgressTracking"),
         icon: Scale,
-        show: settings?.show_progress_tracking ?? true,
+        show: settings?.can_view_progress ?? true,
       },
       {
         title: "MPESS Wellness",
         url: createPageUrl("MPESSTracker"),
         icon: Heart,
-        show: settings?.show_mpess_tracker ?? true,
+        show: settings?.can_view_mpess ?? true,
       },
       {
         title: "Messages",
         url: createPageUrl("ClientCommunication"),
         icon: MessageSquare,
-        show: settings?.show_messages ?? true,
+        show: settings?.can_view_messages ?? true,
       },
       {
         title: "Recipes",
