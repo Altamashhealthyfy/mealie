@@ -189,6 +189,15 @@ export default function Layout({ children, currentPageName }) {
     retry: false,
   });
 
+  const { data: clientProfile } = useQuery({
+    queryKey: ['clientProfile', user?.email],
+    queryFn: async () => {
+      const clients = await base44.entities.Client.filter({ email: user?.email });
+      return clients[0] || null;
+    },
+    enabled: !!user && user?.user_type === 'client',
+  });
+
   const { data: securitySettings } = useQuery({
     queryKey: ['securitySettings'],
     queryFn: async () => {
@@ -317,6 +326,14 @@ export default function Layout({ children, currentPageName }) {
     }
   };
 
+  const getProfilePhotoUrl = () => {
+    if (isDietitian) {
+      return user?.profile_photo_url || null;
+    } else {
+      return clientProfile?.profile_photo_url || null;
+    }
+  };
+
   const handleLogout = async () => {
     if (window.confirm("Are you sure you want to logout?")) {
       try {
@@ -327,6 +344,8 @@ export default function Layout({ children, currentPageName }) {
       }
     }
   };
+
+  const profilePhotoUrl = getProfilePhotoUrl();
 
   return (
     <SidebarProvider>
@@ -424,11 +443,19 @@ export default function Layout({ children, currentPageName }) {
           <SidebarFooter className="border-t border-orange-100 p-4">
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center shadow-md">
-                  <span className="text-white font-bold text-sm">
-                    {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
-                  </span>
-                </div>
+                {profilePhotoUrl ? (
+                  <img
+                    src={profilePhotoUrl}
+                    alt={user?.full_name || 'User'}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-orange-500 shadow-md"
+                  />
+                ) : (
+                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center shadow-md">
+                    <span className="text-white font-bold text-sm">
+                      {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                    </span>
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-gray-900 text-sm truncate">
                     {user?.full_name || 'User'}

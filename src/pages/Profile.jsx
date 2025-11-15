@@ -20,6 +20,9 @@ export default function Profile() {
     phone: "",
     profile_photo_url: ""
   });
+  const [userFormData, setUserFormData] = useState({
+    profile_photo_url: ""
+  });
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -69,6 +72,14 @@ export default function Profile() {
     }
   }, [clientProfile]);
 
+  useEffect(() => {
+    if (user) {
+      setUserFormData({
+        profile_photo_url: user.profile_photo_url || ""
+      });
+    }
+  }, [user]);
+
   const calculateMacros = () => {
     const { weight, height, age, gender, activity_level, goal } = formData;
     
@@ -77,7 +88,6 @@ export default function Profile() {
       return;
     }
 
-    // Calculate BMR using Mifflin-St Jeor Equation
     let bmr;
     if (gender === 'male') {
       bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
@@ -85,7 +95,6 @@ export default function Profile() {
       bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
     }
 
-    // Calculate TDEE based on activity level
     const activityMultipliers = {
       sedentary: 1.2,
       lightly_active: 1.375,
@@ -96,7 +105,6 @@ export default function Profile() {
     
     const tdee = bmr * activityMultipliers[activity_level];
 
-    // Adjust calories based on goal
     let targetCalories;
     switch (goal) {
       case 'weight_loss':
@@ -112,7 +120,6 @@ export default function Profile() {
         targetCalories = tdee;
     }
 
-    // Calculate macros (55% carbs, 22.5% protein, 22.5% fats as per document)
     const protein = (targetCalories * 0.225) / 4;
     const carbs = (targetCalories * 0.55) / 4;
     const fats = (targetCalories * 0.225) / 9;
@@ -160,6 +167,16 @@ export default function Profile() {
     }
   });
 
+  const saveUserPhotoMutation = useMutation({
+    mutationFn: async (data) => {
+      return await base44.auth.updateMe(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['currentUser']);
+      alert("✅ Profile photo updated successfully!");
+    },
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
     saveMutation.mutate(formData);
@@ -174,13 +191,37 @@ export default function Profile() {
     saveClientMutation.mutate(clientFormData);
   };
 
+  const handleUserPhotoUpdate = (e) => {
+    e.preventDefault();
+    saveUserPhotoMutation.mutate(userFormData);
+  };
+
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
   const isClient = user?.user_type === 'client';
-  const canEditProfile = securitySettings?.client_restrictions?.can_edit_profile ?? true;
-  const canUploadPhoto = securitySettings?.client_restrictions?.can_upload_profile_photo ?? true;
+  const canEditProfile = isClient ? (securitySettings?.client_restrictions?.can_edit_profile ?? true) : true;
+  const canUploadPhoto = isClient ? (securitySettings?.client_restrictions?.can_upload_profile_photo ?? true) : true;
+
+  // Get permission based on user type
+  const getPhotoUploadPermission = () => {
+    if (isClient) {
+      return securitySettings?.client_restrictions?.can_upload_profile_photo ?? true;
+    }
+    
+    if (user?.user_type === 'team_member') {
+      return securitySettings?.team_member_permissions?.can_upload_profile_photo ?? true;
+    }
+    
+    if (user?.user_type === 'student_coach') {
+      return securitySettings?.student_coach_permissions?.can_upload_profile_photo ?? true;
+    }
+    
+    return true;
+  };
+
+  const canUploadUserPhoto = getPhotoUploadPermission();
 
   return (
     <div className="min-h-screen p-4 md:p-8">
@@ -195,14 +236,65 @@ export default function Profile() {
           <Sparkles className="w-10 h-10 text-orange-500" />
         </div>
 
-        {/* ACCESS RESTRICTION ALERT */}
-        {isClient && !canEditProfile && (
+        {!canEditProfile && (
           <Alert className="bg-red-50 border-red-500">
             <Lock className="w-5 h-5 text-red-600" />
             <AlertDescription className="text-red-900">
-              <strong>Profile editing is currently disabled.</strong> Contact your dietitian to update your information.
+              <strong>Profile editing is currently disabled.</strong> Contact your {isClient ? 'dietitian' : 'administrator'} to update your information.
             </AlertDescription>
           </Alert>
+        )}
+
+        {/* PROFILE PHOTO SECTION - FOR ALL USERS */}
+        {canEditProfile && (
+          <form onSubmit={handleUserPhotoUpdate} className="space-y-6">
+            <Card className="border-none shadow-lg bg-gradient-to-br from-indigo-50 to-blue-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="w-5 h-5 text-indigo-500" />
+                  Profile Photo
+                </CardTitle>
+                <CardDescription>Upload your profile picture</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {canUploadUserPhoto ? (
+                  <ImageUploader
+                    onImageUploaded={(url) => setUserFormData({...userFormData, profile_photo_url: url})}
+                    currentImageUrl={userFormData.profile_photo_url}
+                    requiredWidth={400}
+                    requiredHeight={400}
+                    aspectRatio="1:1"
+                    maxSizeMB={2}
+                    label="Profile Photo"
+                  />
+                ) : (
+                  userFormData.profile_photo_url && (
+                    <div className="space-y-2">
+                      <Label>Profile Photo (View Only)</Label>
+                      <div className="w-32 h-32 mx-auto">
+                        <img
+                          src={userFormData.profile_photo_url}
+                          alt="Profile"
+                          className="w-full h-full rounded-full object-cover border-4 border-indigo-500"
+                        />
+                      </div>
+                    </div>
+                  )
+                )}
+
+                {canUploadUserPhoto && (
+                  <Button
+                    type="submit"
+                    className="w-full h-12 bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600"
+                    disabled={saveUserPhotoMutation.isPending}
+                  >
+                    <Save className="w-5 h-5 mr-2" />
+                    {saveUserPhotoMutation.isPending ? 'Updating...' : 'Update Profile Photo'}
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          </form>
         )}
 
         {/* CLIENT PROFILE SECTION - ONLY FOR CLIENTS */}
@@ -214,34 +306,9 @@ export default function Profile() {
                   <User className="w-5 h-5 text-purple-500" />
                   Personal Information
                 </CardTitle>
-                <CardDescription>Update your name, phone, and profile photo</CardDescription>
+                <CardDescription>Update your name and phone number</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {canUploadPhoto ? (
-                  <ImageUploader
-                    onImageUploaded={(url) => setClientFormData({...clientFormData, profile_photo_url: url})}
-                    currentImageUrl={clientFormData.profile_photo_url}
-                    requiredWidth={400}
-                    requiredHeight={400}
-                    aspectRatio="1:1"
-                    maxSizeMB={2}
-                    label="Profile Photo"
-                  />
-                ) : (
-                  clientFormData.profile_photo_url && (
-                    <div className="space-y-2">
-                      <Label>Profile Photo (View Only)</Label>
-                      <div className="w-32 h-32 mx-auto">
-                        <img
-                          src={clientFormData.profile_photo_url}
-                          alt="Profile"
-                          className="w-full h-full rounded-full object-cover border-4 border-purple-500"
-                        />
-                      </div>
-                    </div>
-                  )
-                )}
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Full Name *</Label>
@@ -500,7 +567,6 @@ export default function Profile() {
             </CardContent>
           </Card>
 
-          {/* Save Button */}
           <Button
             type="submit"
             className="w-full h-14 text-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg"
@@ -510,6 +576,59 @@ export default function Profile() {
             {saveMutation.isPending ? 'Saving...' : 'Save Health Profile'}
           </Button>
         </form>
+
+        {/* CLIENT ADDITIONAL INFO - ONLY FOR CLIENTS */}
+        {isClient && canEditProfile && (
+          <form onSubmit={handleClientProfileUpdate} className="space-y-6">
+            <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="w-5 h-5 text-purple-500" />
+                  Contact Information
+                </CardTitle>
+                <CardDescription>Update your name and phone number</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Full Name *</Label>
+                    <Input
+                      value={clientFormData.full_name}
+                      onChange={(e) => setClientFormData({...clientFormData, full_name: e.target.value})}
+                      placeholder="Enter your full name"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Phone Number</Label>
+                    <Input
+                      value={clientFormData.phone}
+                      onChange={(e) => setClientFormData({...clientFormData, phone: e.target.value})}
+                      placeholder="10-digit number"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Email (Read-only)</Label>
+                    <Input
+                      value={user?.email || ''}
+                      disabled
+                      className="bg-gray-100"
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full h-12 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  disabled={saveClientMutation.isPending}
+                >
+                  <Save className="w-5 h-5 mr-2" />
+                  {saveClientMutation.isPending ? 'Updating...' : 'Update Contact Info'}
+                </Button>
+              </CardContent>
+            </Card>
+          </form>
+        )}
 
         <Alert className="border-orange-200 bg-orange-50">
           <Sparkles className="w-4 h-4 text-orange-600" />
