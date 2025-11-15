@@ -63,9 +63,17 @@ export default function UserPermissionManagement() {
         return await base44.entities.UserPermissions.create(data);
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Invalidate all relevant queries to ensure permissions are refreshed everywhere
       queryClient.invalidateQueries(['userPermissions']);
+      queryClient.invalidateQueries(['userCustomPermissions']);
       queryClient.invalidateQueries(['securitySettings']);
+      queryClient.invalidateQueries(['allClients']);
+      queryClient.invalidateQueries(['allUsers']);
+      
+      // Force refetch for the specific user
+      queryClient.invalidateQueries(['userCustomPermissions', data.user_email]);
+      
       setEditDialog(false);
       alert('✅ User permissions saved successfully!');
     },
@@ -137,13 +145,6 @@ export default function UserPermissionManagement() {
     user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     user.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const getPermissionType = (key) => {
-    if (key.includes('view') || key.includes('show')) return { type: 'view', icon: Eye, label: 'View' };
-    if (key.includes('delete')) return { type: 'delete', icon: Trash2, label: 'Delete' };
-    if (key.includes('edit') || key.includes('create') || key.includes('manage') || key.includes('send') || key.includes('book') || key.includes('upload')) return { type: 'edit', icon: Edit, label: 'Edit/Create' };
-    return { type: 'other', icon: Shield, label: 'Other' };
-  };
 
   const permissionCategories = {
     super_admin: [
