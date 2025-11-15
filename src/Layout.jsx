@@ -27,7 +27,8 @@ import {
   Upload,
   LogOut,
   Stethoscope,
-  Shield
+  Shield,
+  User
 } from "lucide-react";
 import {
   Sidebar,
@@ -270,6 +271,12 @@ export default function Layout({ children, currentPageName }) {
         url: createPageUrl("FoodLookup"),
         icon: Search,
         show: settings?.can_use_food_lookup_ai ?? true,
+      },
+      {
+        title: "My Profile",
+        url: createPageUrl("Profile"),
+        icon: User,
+        show: settings?.can_view_profile ?? true,
       },
     ];
 
