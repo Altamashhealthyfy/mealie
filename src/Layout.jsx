@@ -59,10 +59,10 @@ const dietitianNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
-    title: "My Subscription",
-    url: createPageUrl("CoachSubscription"),
-    icon: CreditCard,
-    roles: ['team_member', 'student_coach', 'student_team_member'],
+    title: "My White-Label Plan",
+    url: createPageUrl("WhiteLabelSubscription"),
+    icon: Crown,
+    roles: ['team_member', 'student_coach'],
   },
   {
     title: "Clients",
@@ -137,6 +137,12 @@ const paymentNavigation = [
 ];
 
 const businessNavigation = [
+  {
+    title: "White-Label Clients",
+    url: createPageUrl("WhiteLabelClients"),
+    icon: Crown,
+    roles: ['super_admin'],
+  },
   {
     title: "Webinar Tracker",
     url: createPageUrl("WebinarPerformanceTracker"),
