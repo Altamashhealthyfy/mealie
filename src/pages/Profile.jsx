@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Save, Calculator, Sparkles, Target, Activity, User } from "lucide-react";
+import { Save, Calculator, Sparkles, Target, Activity, User, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import ImageUploader from "@/components/common/ImageUploader";
 
@@ -24,6 +24,15 @@ export default function Profile() {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+  });
+
+  const { data: securitySettings } = useQuery({
+    queryKey: ['securitySettings'],
+    queryFn: async () => {
+      const settings = await base44.entities.AppSecuritySettings.list();
+      return settings[0] || null;
+    },
+    enabled: !!user && user?.user_type === 'client',
   });
 
   const { data: userProfile, isLoading } = useQuery({
@@ -170,6 +179,8 @@ export default function Profile() {
   }
 
   const isClient = user?.user_type === 'client';
+  const canEditProfile = securitySettings?.client_restrictions?.can_edit_profile ?? true;
+  const canUploadPhoto = securitySettings?.client_restrictions?.can_upload_profile_photo ?? true;
 
   return (
     <div className="min-h-screen p-4 md:p-8">
@@ -184,8 +195,18 @@ export default function Profile() {
           <Sparkles className="w-10 h-10 text-orange-500" />
         </div>
 
+        {/* ACCESS RESTRICTION ALERT */}
+        {isClient && !canEditProfile && (
+          <Alert className="bg-red-50 border-red-500">
+            <Lock className="w-5 h-5 text-red-600" />
+            <AlertDescription className="text-red-900">
+              <strong>Profile editing is currently disabled.</strong> Contact your dietitian to update your information.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* CLIENT PROFILE SECTION - ONLY FOR CLIENTS */}
-        {isClient && (
+        {isClient && canEditProfile && (
           <form onSubmit={handleClientProfileUpdate} className="space-y-6">
             <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
               <CardHeader>
@@ -196,15 +217,30 @@ export default function Profile() {
                 <CardDescription>Update your name, phone, and profile photo</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <ImageUploader
-                  onImageUploaded={(url) => setClientFormData({...clientFormData, profile_photo_url: url})}
-                  currentImageUrl={clientFormData.profile_photo_url}
-                  requiredWidth={400}
-                  requiredHeight={400}
-                  aspectRatio="1:1"
-                  maxSizeMB={2}
-                  label="Profile Photo"
-                />
+                {canUploadPhoto ? (
+                  <ImageUploader
+                    onImageUploaded={(url) => setClientFormData({...clientFormData, profile_photo_url: url})}
+                    currentImageUrl={clientFormData.profile_photo_url}
+                    requiredWidth={400}
+                    requiredHeight={400}
+                    aspectRatio="1:1"
+                    maxSizeMB={2}
+                    label="Profile Photo"
+                  />
+                ) : (
+                  clientFormData.profile_photo_url && (
+                    <div className="space-y-2">
+                      <Label>Profile Photo (View Only)</Label>
+                      <div className="w-32 h-32 mx-auto">
+                        <img
+                          src={clientFormData.profile_photo_url}
+                          alt="Profile"
+                          className="w-full h-full rounded-full object-cover border-4 border-purple-500"
+                        />
+                      </div>
+                    </div>
+                  )
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
