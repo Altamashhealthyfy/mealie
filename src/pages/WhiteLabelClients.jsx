@@ -1,14 +1,24 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Search, Crown, TrendingUp, User } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Users, Search, Crown, User, Edit, Eye, Settings, Save } from "lucide-react";
 
 export default function WhiteLabelClients() {
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [viewDialog, setViewDialog] = useState(false);
+  const [editDialog, setEditDialog] = useState(false);
+  const [planDialog, setPlanDialog] = useState(false);
+  const [editFormData, setEditFormData] = useState({});
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -34,6 +44,50 @@ export default function WhiteLabelClients() {
     queryFn: () => base44.entities.Subscription.list('-created_date'),
     enabled: !!user && user.user_type === 'super_admin',
     initialData: [],
+  });
+
+  const { data: clientSubscriptions } = useQuery({
+    queryKey: ['clientSubscriptions'],
+    queryFn: () => base44.entities.ClientSubscription.list(),
+    enabled: !!user && user.user_type === 'super_admin',
+    initialData: [],
+  });
+
+  const updateClientMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Client.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['allClients']);
+      setEditDialog(false);
+      alert('✅ Client updated successfully!');
+    },
+  });
+
+  const updateClientPlanMutation = useMutation({
+    mutationFn: async ({ clientId, planTier }) => {
+      const existingSub = clientSubscriptions.find(s => s.client_id === clientId && s.status === 'active');
+      
+      const subData = {
+        client_id: clientId,
+        plan_tier: planTier,
+        billing_cycle: 'monthly',
+        amount: planTier === 'basic' ? 999 : planTier === 'advanced' ? 2999 : 4999,
+        status: 'active',
+        start_date: new Date().toISOString().split('T')[0],
+        end_date: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0],
+        next_billing_date: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0]
+      };
+
+      if (existingSub) {
+        return await base44.entities.ClientSubscription.update(existingSub.id, subData);
+      } else {
+        return await base44.entities.ClientSubscription.create(subData);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['clientSubscriptions']);
+      setPlanDialog(false);
+      alert('✅ Client plan updated successfully!');
+    },
   });
 
   if (user?.user_type !== 'super_admin') {
@@ -67,6 +121,10 @@ export default function WhiteLabelClients() {
     return { creator, subscription };
   };
 
+  const getClientSubscription = (clientId) => {
+    return clientSubscriptions.find(s => s.client_id === clientId && s.status === 'active');
+  };
+
   const filteredPlatformClients = platformClients.filter(client =>
     client.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     client.email?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -76,6 +134,95 @@ export default function WhiteLabelClients() {
     client.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     client.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleView = (client) => {
+    setSelectedClient(client);
+    setViewDialog(true);
+  };
+
+  const handleEdit = (client) => {
+    setSelectedClient(client);
+    setEditFormData({
+      full_name: client.full_name || '',
+      email: client.email || '',
+      phone: client.phone || '',
+      age: client.age || '',
+      gender: client.gender || '',
+      weight: client.weight || '',
+      height: client.height || '',
+      status: client.status || 'active'
+    });
+    setEditDialog(true);
+  };
+
+  const handleChangePlan = (client) => {
+    setSelectedClient(client);
+    setPlanDialog(true);
+  };
+
+  const handleSaveEdit = () => {
+    updateClientMutation.mutate({
+      id: selectedClient.id,
+      data: editFormData
+    });
+  };
+
+  const ClientCard = ({ client, isWhiteLabel }) => {
+    const { creator, subscription } = isWhiteLabel ? getCoachInfo(client.created_by) : { creator: null, subscription: null };
+    const clientSub = getClientSubscription(client.id);
+
+    return (
+      <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
+        <CardContent className="p-6">
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex-1">
+              <h3 className="font-bold text-lg text-gray-900">{client.full_name}</h3>
+              <p className="text-sm text-gray-600">{client.email}</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2 mt-3">
+            <Badge className={isWhiteLabel ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"}>
+              {isWhiteLabel ? 'White-Label' : 'Platform Client'}
+            </Badge>
+            {client.status && (
+              <Badge variant="outline" className="capitalize">{client.status}</Badge>
+            )}
+            {clientSub && (
+              <Badge className="bg-green-100 text-green-700 capitalize">
+                {clientSub.plan_tier}
+              </Badge>
+            )}
+            {isWhiteLabel && subscription && (
+              <Badge className="bg-orange-100 text-orange-700 capitalize">
+                Coach: {subscription.plan_type}
+              </Badge>
+            )}
+          </div>
+          {isWhiteLabel && creator && (
+            <div className="mt-3 pt-3 border-t">
+              <p className="text-xs text-gray-500">Coach:</p>
+              <p className="text-sm font-medium text-gray-900">{creator.full_name}</p>
+              <p className="text-xs text-gray-600">{creator.email}</p>
+            </div>
+          )}
+          <div className="flex gap-2 mt-4">
+            <Button variant="outline" size="sm" onClick={() => handleView(client)} className="flex-1">
+              <Eye className="w-4 h-4 mr-1" />
+              View
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleEdit(client)} className="flex-1">
+              <Edit className="w-4 h-4 mr-1" />
+              Edit
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleChangePlan(client)} className="flex-1">
+              <Settings className="w-4 h-4 mr-1" />
+              Plan
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="min-h-screen p-4 md:p-8">
@@ -132,22 +279,7 @@ export default function WhiteLabelClients() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredPlatformClients.map(client => (
-                  <Card key={client.id} className="border-none shadow-lg hover:shadow-xl transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <h3 className="font-bold text-lg text-gray-900">{client.full_name}</h3>
-                          <p className="text-sm text-gray-600">{client.email}</p>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        <Badge className="bg-blue-100 text-blue-700">Platform Client</Badge>
-                        {client.status && (
-                          <Badge variant="outline" className="capitalize">{client.status}</Badge>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <ClientCard key={client.id} client={client} isWhiteLabel={false} />
                 ))}
               </div>
             )}
@@ -172,41 +304,204 @@ export default function WhiteLabelClients() {
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredWhiteLabelClients.map(client => {
-                  const { creator, subscription } = getCoachInfo(client.created_by);
-                  
-                  return (
-                    <Card key={client.id} className="border-none shadow-lg hover:shadow-xl transition-shadow">
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1">
-                            <h3 className="font-bold text-lg text-gray-900">{client.full_name}</h3>
-                            <p className="text-sm text-gray-600">{client.email}</p>
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2 mt-3">
-                          <Badge className="bg-purple-100 text-purple-700">White-Label</Badge>
-                          {subscription && (
-                            <Badge className="bg-green-100 text-green-700 capitalize">
-                              {subscription.plan_type}
-                            </Badge>
-                          )}
-                        </div>
-                        {creator && (
-                          <div className="mt-3 pt-3 border-t">
-                            <p className="text-xs text-gray-500">Coach:</p>
-                            <p className="text-sm font-medium text-gray-900">{creator.full_name}</p>
-                            <p className="text-xs text-gray-600">{creator.email}</p>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                {filteredWhiteLabelClients.map(client => (
+                  <ClientCard key={client.id} client={client} isWhiteLabel={true} />
+                ))}
               </div>
             )}
           </TabsContent>
         </Tabs>
+
+        {/* View Dialog */}
+        {selectedClient && (
+          <Dialog open={viewDialog} onOpenChange={setViewDialog}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Client Details</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm text-gray-600">Name</Label>
+                    <p className="font-semibold">{selectedClient.full_name}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-gray-600">Email</Label>
+                    <p className="font-semibold">{selectedClient.email}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-gray-600">Phone</Label>
+                    <p className="font-semibold">{selectedClient.phone || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-gray-600">Status</Label>
+                    <Badge className="capitalize">{selectedClient.status || 'N/A'}</Badge>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-gray-600">Age</Label>
+                    <p className="font-semibold">{selectedClient.age || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-gray-600">Gender</Label>
+                    <p className="font-semibold capitalize">{selectedClient.gender || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-gray-600">Weight</Label>
+                    <p className="font-semibold">{selectedClient.weight ? `${selectedClient.weight} kg` : 'N/A'}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm text-gray-600">Height</Label>
+                    <p className="font-semibold">{selectedClient.height ? `${selectedClient.height} cm` : 'N/A'}</p>
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {/* Edit Dialog */}
+        {selectedClient && (
+          <Dialog open={editDialog} onOpenChange={setEditDialog}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Edit Client</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Full Name</Label>
+                    <Input
+                      value={editFormData.full_name}
+                      onChange={(e) => setEditFormData({...editFormData, full_name: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Input
+                      value={editFormData.email}
+                      onChange={(e) => setEditFormData({...editFormData, email: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Phone</Label>
+                    <Input
+                      value={editFormData.phone}
+                      onChange={(e) => setEditFormData({...editFormData, phone: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Status</Label>
+                    <Select value={editFormData.status} onValueChange={(val) => setEditFormData({...editFormData, status: val})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Age</Label>
+                    <Input
+                      type="number"
+                      value={editFormData.age}
+                      onChange={(e) => setEditFormData({...editFormData, age: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Gender</Label>
+                    <Select value={editFormData.gender} onValueChange={(val) => setEditFormData({...editFormData, gender: val})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Weight (kg)</Label>
+                    <Input
+                      type="number"
+                      value={editFormData.weight}
+                      onChange={(e) => setEditFormData({...editFormData, weight: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Height (cm)</Label>
+                    <Input
+                      type="number"
+                      value={editFormData.height}
+                      onChange={(e) => setEditFormData({...editFormData, height: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => setEditDialog(false)} className="flex-1">
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSaveEdit} disabled={updateClientMutation.isPending} className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500">
+                    <Save className="w-4 h-4 mr-2" />
+                    {updateClientMutation.isPending ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {/* Change Plan Dialog */}
+        {selectedClient && (
+          <Dialog open={planDialog} onOpenChange={setPlanDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Change Client Plan</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
+                <div>
+                  <Label className="text-sm text-gray-600">Client</Label>
+                  <p className="font-semibold">{selectedClient.full_name}</p>
+                </div>
+                <div className="space-y-3">
+                  <Button
+                    variant="outline"
+                    className="w-full h-20 flex flex-col items-start"
+                    onClick={() => {
+                      updateClientPlanMutation.mutate({ clientId: selectedClient.id, planTier: 'basic' });
+                    }}
+                  >
+                    <span className="font-bold text-lg">Basic Plan</span>
+                    <span className="text-sm text-gray-600">₹999/month</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full h-20 flex flex-col items-start"
+                    onClick={() => {
+                      updateClientPlanMutation.mutate({ clientId: selectedClient.id, planTier: 'advanced' });
+                    }}
+                  >
+                    <span className="font-bold text-lg">Advanced Plan</span>
+                    <span className="text-sm text-gray-600">₹2,999/month</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full h-20 flex flex-col items-start"
+                    onClick={() => {
+                      updateClientPlanMutation.mutate({ clientId: selectedClient.id, planTier: 'pro' });
+                    }}
+                  >
+                    <span className="font-bold text-lg">Pro Plan</span>
+                    <span className="text-sm text-gray-600">₹4,999/month</span>
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </div>
   );
