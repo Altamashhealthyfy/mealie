@@ -36,7 +36,40 @@ export default function BulkImport() {
 
       let schema, entityName, processData;
 
-      if (type === 'leads') {
+      if (type === 'clients') {
+        schema = {
+          type: "object",
+          properties: {
+            data: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  full_name: { type: "string" },
+                  email: { type: "string" },
+                  phone: { type: "string" },
+                  age: { type: "number" },
+                  gender: { type: "string" },
+                  height: { type: "number" },
+                  weight: { type: "number" },
+                  target_weight: { type: "number" },
+                  goal: { type: "string" },
+                  food_preference: { type: "string" },
+                  regional_preference: { type: "string" },
+                  notes: { type: "string" }
+                }
+              }
+            }
+          }
+        };
+        entityName = 'Client';
+        processData = (data) => data.map(client => ({
+          ...client,
+          status: "active",
+          join_date: new Date().toISOString().split('T')[0],
+          initial_weight: client.weight
+        }));
+      } else if (type === 'leads') {
         schema = {
           type: "object",
           properties: {
@@ -192,7 +225,13 @@ export default function BulkImport() {
     let csv = '';
     let filename = '';
 
-    if (type === 'leads') {
+    if (type === 'clients') {
+      csv = `full_name,email,phone,age,gender,height,weight,target_weight,goal,food_preference,regional_preference,notes
+Rajesh Kumar,rajesh@example.com,+91 9876543210,35,male,175,85,75,weight_loss,veg,north,Wants to lose weight
+Priya Sharma,priya@example.com,+91 9876543211,28,female,160,65,60,weight_loss,veg,south,PCOS management
+Amit Patel,amit@example.com,+91 9876543212,42,male,170,90,80,health_improvement,non_veg,west,Diabetes control`;
+      filename = 'client_profiles_template.csv';
+    } else if (type === 'leads') {
       csv = `full_name,email,phone,lead_source,lead_score,city,notes
 Rajesh Kumar,rajesh@example.com,+91 9876543210,facebook_ad,hot,Mumbai,Interested in program
 Priya Sharma,priya@example.com,+91 9876543211,google_ad,warm,Delhi,
@@ -229,7 +268,7 @@ Priya Sharma,priya@example.com,+91 9876543211,Prosperity Challenge,5_days_prospe
         {/* Header */}
         <div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Bulk Import Data</h1>
-          <p className="text-gray-600">Upload CSV or Excel files to import data by business vertical</p>
+          <p className="text-gray-600">Upload CSV or Excel files to import data</p>
         </div>
 
         {/* Instructions */}
@@ -239,17 +278,20 @@ Priya Sharma,priya@example.com,+91 9876543211,Prosperity Challenge,5_days_prospe
           </CardHeader>
           <CardContent>
             <ol className="space-y-2 ml-6 list-decimal">
-              <li className="text-gray-700">Select the business vertical tab</li>
-              <li className="text-gray-700">Download the template file</li>
+              <li className="text-gray-700">Download the appropriate template file</li>
               <li className="text-gray-700">Fill in your data in Excel or Google Sheets</li>
               <li className="text-gray-700">Save as CSV file</li>
-              <li className="text-gray-700">Upload the file</li>
+              <li className="text-gray-700">Upload the file below</li>
             </ol>
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="coach" className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-3">
+        <Tabs defaultValue="clients" className="space-y-6">
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4">
+            <TabsTrigger value="clients">
+              <Users className="w-4 h-4 mr-2" />
+              Client Profiles
+            </TabsTrigger>
             <TabsTrigger value="coach">
               <GraduationCap className="w-4 h-4 mr-2" />
               Health Coach Training
@@ -263,6 +305,54 @@ Priya Sharma,priya@example.com,+91 9876543211,Prosperity Challenge,5_days_prospe
               Prosperity Program
             </TabsTrigger>
           </TabsList>
+
+          {/* CLIENT PROFILES */}
+          <TabsContent value="clients">
+            <Card className="border-none shadow-xl">
+              <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                <CardTitle>📥 Bulk Import Client Profiles</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <Alert className="bg-orange-50 border-orange-300">
+                  <AlertDescription className="text-orange-900">
+                    <strong>💡 Tip:</strong> Import multiple client profiles at once. Make sure all required fields are filled in the template.
+                  </AlertDescription>
+                </Alert>
+
+                <div className="p-4 bg-orange-50 rounded-lg">
+                  <Button onClick={() => downloadTemplate('clients')} variant="outline">
+                    <Download className="w-4 h-4 mr-2" />
+                    Download Client Profile Template
+                  </Button>
+                  <p className="text-xs text-gray-600 mt-2">
+                    Required: full_name, email<br/>
+                    Optional: phone, age, gender, height, weight, target_weight, goal, food_preference, regional_preference, notes<br/>
+                    Gender: male, female, other<br/>
+                    Goal: weight_loss, weight_gain, maintenance, muscle_gain, health_improvement, disease_reversal<br/>
+                    Food preference: veg, non_veg, eggetarian, jain, mixed<br/>
+                    Regional preference: north, south, west, east, all
+                  </p>
+                </div>
+
+                <div className="p-4 bg-green-50 rounded-lg">
+                  <input
+                    type="file"
+                    accept=".csv,.xlsx,.xls"
+                    onChange={(e) => setFile(e.target.files[0])}
+                    className="w-full p-2 border rounded-lg mb-3"
+                  />
+                  <Button
+                    onClick={() => handleImport('clients')}
+                    disabled={!file || importing}
+                    className="bg-gradient-to-r from-green-500 to-emerald-500"
+                  >
+                    <Upload className="w-4 h-4 mr-2" />
+                    {importing ? 'Importing...' : 'Import Client Profiles'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* HEALTH COACH TRAINING */}
           <TabsContent value="coach">
@@ -554,7 +644,8 @@ Priya Sharma,priya@example.com,+91 9876543211,Prosperity Challenge,5_days_prospe
               <li>Make sure column names match exactly (case-sensitive)</li>
               <li>Phone numbers should include country code (e.g., +91 9876543210)</li>
               <li>Date format should be: YYYY-MM-DD or YYYY-MM-DD HH:MM:SS</li>
-              <li>Each vertical has its own template - make sure to download the right one</li>
+              <li>For Clients: Email is required and must be unique</li>
+              <li>For Clients: Height in cm, Weight in kg</li>
               <li>For Showcases: came_from options are silver_buyer, diploma_buyer, outside_lead</li>
               <li>For Challenges: challenge_type is 3_7_days_health or 5_days_prosperity</li>
               <li>Maximum 1000 records per import</li>
