@@ -335,7 +335,7 @@ export default function Layout({ children, currentPageName }) {
   const navigationItems = isDietitian ? filteredDietitianNav : getClientNavigation();
 
   const getUserLabel = () => {
-    if (!isDietitian) return 'Client Account';
+    if (!isDietitian) return 'Client';
 
     switch(userType) {
       case 'super_admin':
