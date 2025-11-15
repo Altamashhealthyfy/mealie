@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -107,11 +108,6 @@ export default function Communication() {
       queryClient.invalidateQueries(['allMessages']);
       setMessageText("");
       setAttachedFile(null);
-      toast({
-        title: "✓ Message sent",
-        description: "Your message has been delivered successfully.",
-        duration: 2000,
-      });
       setTimeout(() => scrollToBottom("smooth"), 100);
       setTimeout(() => textareaRef.current?.focus(), 150);
     },
