@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Search, Shield, Save, Edit2, Crown, UserCog, GraduationCap } from "lucide-react";
+import { Users, Search, Shield, Save, Edit2, Crown, UserCog, GraduationCap, Eye, Edit, Trash2 } from "lucide-react";
 
 export default function UserPermissionManagement() {
   const queryClient = useQueryClient();
@@ -27,6 +27,13 @@ export default function UserPermissionManagement() {
   const { data: allUsers } = useQuery({
     queryKey: ['allUsers'],
     queryFn: () => base44.entities.User.list(),
+    enabled: !!currentUser && currentUser.user_type === 'super_admin',
+    initialData: [],
+  });
+
+  const { data: allClients } = useQuery({
+    queryKey: ['allClients'],
+    queryFn: () => base44.entities.Client.list(),
     enabled: !!currentUser && currentUser.user_type === 'super_admin',
     initialData: [],
   });
@@ -58,6 +65,7 @@ export default function UserPermissionManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['userPermissions']);
+      queryClient.invalidateQueries(['securitySettings']);
       setEditDialog(false);
       alert('✅ User permissions saved successfully!');
     },
@@ -82,6 +90,9 @@ export default function UserPermissionManagement() {
   }
 
   const getUsersByType = (userType) => {
+    if (userType === 'client') {
+      return allClients;
+    }
     return allUsers.filter(u => u.user_type === userType);
   };
 
@@ -102,7 +113,7 @@ export default function UserPermissionManagement() {
   const handleEditUser = (user) => {
     setSelectedUser(user);
     const existing = getUserCustomPermissions(user.email);
-    const defaults = getDefaultPermissions(user.user_type);
+    const defaults = getDefaultPermissions(activeUserType === 'client' ? 'client' : user.user_type);
     setCustomPermissions(existing?.custom_permissions || defaults);
     setEditDialog(true);
   };
@@ -110,7 +121,7 @@ export default function UserPermissionManagement() {
   const handleSavePermissions = () => {
     savePermissionsMutation.mutate({
       user_email: selectedUser.email,
-      user_type: selectedUser.user_type,
+      user_type: activeUserType === 'client' ? 'client' : selectedUser.user_type,
       custom_permissions: customPermissions
     });
   };
@@ -127,53 +138,122 @@ export default function UserPermissionManagement() {
     user.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const getPermissionType = (key) => {
+    if (key.includes('view') || key.includes('show')) return { type: 'view', icon: Eye, label: 'View' };
+    if (key.includes('delete')) return { type: 'delete', icon: Trash2, label: 'Delete' };
+    if (key.includes('edit') || key.includes('create') || key.includes('manage') || key.includes('send') || key.includes('book') || key.includes('upload')) return { type: 'edit', icon: Edit, label: 'Edit/Create' };
+    return { type: 'other', icon: Shield, label: 'Other' };
+  };
+
   const permissionCategories = {
     super_admin: [
-      { key: 'can_view_dashboard', label: 'View Dashboard' },
-      { key: 'can_manage_users', label: 'Manage Users' },
-      { key: 'can_view_all_clients', label: 'View All Clients' },
-      { key: 'can_create_clients', label: 'Create Clients' },
-      { key: 'can_edit_all_clients', label: 'Edit All Clients' },
-      { key: 'can_delete_clients', label: 'Delete Clients' },
-      { key: 'can_view_all_meal_plans', label: 'View All Meal Plans' },
-      { key: 'can_create_meal_plans', label: 'Create Meal Plans' },
-      { key: 'can_edit_all_meal_plans', label: 'Edit All Meal Plans' },
-      { key: 'can_delete_meal_plans', label: 'Delete Meal Plans' },
-      { key: 'can_view_financial_data', label: 'View Financial Data' },
-      { key: 'can_manage_permissions', label: 'Manage Permissions' },
+      { key: 'can_view_dashboard', label: 'View Dashboard', type: 'view' },
+      { key: 'can_manage_users', label: 'Manage Users', type: 'edit' },
+      { key: 'can_invite_users', label: 'Invite Users', type: 'edit' },
+      { key: 'can_delete_users', label: 'Delete Users', type: 'delete' },
+      { key: 'can_modify_user_roles', label: 'Modify User Roles', type: 'edit' },
+      { key: 'can_view_all_clients', label: 'View All Clients', type: 'view' },
+      { key: 'can_create_clients', label: 'Create Clients', type: 'edit' },
+      { key: 'can_edit_all_clients', label: 'Edit All Clients', type: 'edit' },
+      { key: 'can_delete_clients', label: 'Delete Clients', type: 'delete' },
+      { key: 'can_view_all_meal_plans', label: 'View All Meal Plans', type: 'view' },
+      { key: 'can_create_meal_plans', label: 'Create Meal Plans', type: 'edit' },
+      { key: 'can_edit_all_meal_plans', label: 'Edit All Meal Plans', type: 'edit' },
+      { key: 'can_delete_meal_plans', label: 'Delete Meal Plans', type: 'delete' },
+      { key: 'can_view_all_messages', label: 'View All Messages', type: 'view' },
+      { key: 'can_send_messages', label: 'Send Messages', type: 'edit' },
+      { key: 'can_delete_messages', label: 'Delete Messages', type: 'delete' },
+      { key: 'can_view_financial_data', label: 'View Financial Data', type: 'view' },
+      { key: 'can_edit_financial_data', label: 'Edit Financial Data', type: 'edit' },
+      { key: 'can_delete_financial_data', label: 'Delete Financial Data', type: 'delete' },
+      { key: 'can_view_templates', label: 'View Templates', type: 'view' },
+      { key: 'can_create_templates', label: 'Create Templates', type: 'edit' },
+      { key: 'can_edit_templates', label: 'Edit Templates', type: 'edit' },
+      { key: 'can_delete_templates', label: 'Delete Templates', type: 'delete' },
+      { key: 'can_view_recipes', label: 'View Recipes', type: 'view' },
+      { key: 'can_create_recipes', label: 'Create Recipes', type: 'edit' },
+      { key: 'can_edit_all_recipes', label: 'Edit All Recipes', type: 'edit' },
+      { key: 'can_delete_recipes', label: 'Delete Recipes', type: 'delete' },
+      { key: 'can_upload_files', label: 'Upload Files', type: 'edit' },
+      { key: 'can_delete_files', label: 'Delete Files', type: 'delete' },
+      { key: 'can_manage_permissions', label: 'Manage Permissions', type: 'edit' },
     ],
     team_member: [
-      { key: 'can_view_dashboard', label: 'View Dashboard' },
-      { key: 'can_view_only_own_clients', label: 'View Only Own Clients' },
-      { key: 'can_view_all_clients', label: 'View All Clients' },
-      { key: 'can_create_clients', label: 'Create Clients' },
-      { key: 'can_edit_own_clients', label: 'Edit Own Clients' },
-      { key: 'can_edit_all_clients', label: 'Edit All Clients' },
-      { key: 'can_create_meal_plans', label: 'Create Meal Plans' },
-      { key: 'can_send_messages', label: 'Send Messages' },
-      { key: 'can_view_financial_data', label: 'View Financial Data' },
+      { key: 'can_view_dashboard', label: 'View Dashboard', type: 'view' },
+      { key: 'can_view_only_own_clients', label: 'View Only Own Clients', type: 'view' },
+      { key: 'can_view_all_clients', label: 'View All Clients', type: 'view' },
+      { key: 'can_create_clients', label: 'Create Clients', type: 'edit' },
+      { key: 'can_edit_own_clients', label: 'Edit Own Clients', type: 'edit' },
+      { key: 'can_edit_all_clients', label: 'Edit All Clients', type: 'edit' },
+      { key: 'can_delete_own_clients', label: 'Delete Own Clients', type: 'delete' },
+      { key: 'can_delete_all_clients', label: 'Delete All Clients', type: 'delete' },
+      { key: 'can_view_own_meal_plans', label: 'View Own Meal Plans', type: 'view' },
+      { key: 'can_view_all_meal_plans', label: 'View All Meal Plans', type: 'view' },
+      { key: 'can_create_meal_plans', label: 'Create Meal Plans', type: 'edit' },
+      { key: 'can_edit_own_meal_plans', label: 'Edit Own Meal Plans', type: 'edit' },
+      { key: 'can_edit_all_meal_plans', label: 'Edit All Meal Plans', type: 'edit' },
+      { key: 'can_view_own_messages', label: 'View Own Messages', type: 'view' },
+      { key: 'can_view_all_messages', label: 'View All Messages', type: 'view' },
+      { key: 'can_send_messages', label: 'Send Messages', type: 'edit' },
+      { key: 'can_view_financial_data', label: 'View Financial Data', type: 'view' },
+      { key: 'can_edit_financial_data', label: 'Edit Financial Data', type: 'edit' },
+      { key: 'can_view_recipes', label: 'View Recipes', type: 'view' },
+      { key: 'can_create_recipes', label: 'Create Recipes', type: 'edit' },
+      { key: 'can_edit_own_recipes', label: 'Edit Own Recipes', type: 'edit' },
+      { key: 'can_delete_own_recipes', label: 'Delete Own Recipes', type: 'delete' },
     ],
     student_coach: [
-      { key: 'can_view_dashboard', label: 'View Dashboard' },
-      { key: 'can_create_clients', label: 'Create Clients' },
-      { key: 'can_edit_own_clients', label: 'Edit Own Clients' },
-      { key: 'can_create_meal_plans', label: 'Create Meal Plans' },
-      { key: 'can_send_messages', label: 'Send Messages' },
-      { key: 'can_access_business_tools', label: 'Access Business Tools' },
-      { key: 'can_manage_team', label: 'Manage Team' },
-      { key: 'can_view_financial_data', label: 'View Financial Data' },
-      { key: 'can_edit_financial_data', label: 'Edit Financial Data' },
+      { key: 'can_view_dashboard', label: 'View Dashboard', type: 'view' },
+      { key: 'can_view_only_own_clients', label: 'View Only Own Clients', type: 'view' },
+      { key: 'can_view_all_clients', label: 'View All Clients', type: 'view' },
+      { key: 'can_create_clients', label: 'Create Clients', type: 'edit' },
+      { key: 'can_edit_own_clients', label: 'Edit Own Clients', type: 'edit' },
+      { key: 'can_edit_all_clients', label: 'Edit All Clients', type: 'edit' },
+      { key: 'can_delete_own_clients', label: 'Delete Own Clients', type: 'delete' },
+      { key: 'can_delete_all_clients', label: 'Delete All Clients', type: 'delete' },
+      { key: 'can_create_meal_plans', label: 'Create Meal Plans', type: 'edit' },
+      { key: 'can_edit_own_meal_plans', label: 'Edit Own Meal Plans', type: 'edit' },
+      { key: 'can_send_messages', label: 'Send Messages', type: 'edit' },
+      { key: 'can_access_business_tools', label: 'Access Business Tools', type: 'view' },
+      { key: 'can_manage_team', label: 'Manage Team', type: 'edit' },
+      { key: 'can_view_financial_data', label: 'View Financial Data', type: 'view' },
+      { key: 'can_edit_financial_data', label: 'Edit Financial Data', type: 'edit' },
+      { key: 'can_delete_financial_data', label: 'Delete Financial Data', type: 'delete' },
+      { key: 'can_create_templates', label: 'Create Templates', type: 'edit' },
+      { key: 'can_edit_own_templates', label: 'Edit Own Templates', type: 'edit' },
+      { key: 'can_delete_own_templates', label: 'Delete Own Templates', type: 'delete' },
     ],
     client: [
-      { key: 'can_view_meal_plan', label: 'View Meal Plan' },
-      { key: 'can_view_food_log', label: 'View Food Log' },
-      { key: 'can_edit_food_log', label: 'Edit Food Log' },
-      { key: 'can_view_progress', label: 'View Progress' },
-      { key: 'can_edit_progress', label: 'Edit Progress' },
-      { key: 'can_view_messages', label: 'View Messages' },
-      { key: 'can_send_messages', label: 'Send Messages' },
-      { key: 'show_my_plans', label: 'Show My Plans' },
-      { key: 'can_view_recipes', label: 'View Recipes' },
+      { key: 'can_view_meal_plan', label: 'View Meal Plan', type: 'view' },
+      { key: 'can_comment_on_meal_plan', label: 'Comment on Meal Plan', type: 'edit' },
+      { key: 'can_view_food_log', label: 'View Food Log', type: 'view' },
+      { key: 'can_edit_food_log', label: 'Edit Food Log', type: 'edit' },
+      { key: 'can_delete_food_log', label: 'Delete Food Log', type: 'delete' },
+      { key: 'can_view_progress', label: 'View Progress', type: 'view' },
+      { key: 'can_edit_progress', label: 'Edit Progress', type: 'edit' },
+      { key: 'can_delete_progress', label: 'Delete Progress', type: 'delete' },
+      { key: 'can_view_mpess', label: 'View MPESS', type: 'view' },
+      { key: 'can_edit_mpess', label: 'Edit MPESS', type: 'edit' },
+      { key: 'can_view_messages', label: 'View Messages', type: 'view' },
+      { key: 'can_send_messages', label: 'Send Messages', type: 'edit' },
+      { key: 'can_view_appointments', label: 'View Appointments', type: 'view' },
+      { key: 'can_book_appointments', label: 'Book Appointments', type: 'edit' },
+      { key: 'can_view_profile', label: 'View Profile', type: 'view' },
+      { key: 'can_edit_profile', label: 'Edit Profile', type: 'edit' },
+      { key: 'can_upload_profile_photo', label: 'Upload Profile Photo', type: 'edit' },
+      { key: 'show_my_plans', label: 'Show My Plans Page', type: 'view' },
+      { key: 'can_view_recipes', label: 'View Recipes', type: 'view' },
+      { key: 'can_download_recipes', label: 'Download Recipes', type: 'edit' },
+      { key: 'can_upload_recipes', label: 'Upload Recipes', type: 'edit' },
+      { key: 'can_generate_ai_recipes', label: 'Generate AI Recipes', type: 'edit' },
+      { key: 'can_upload_progress_photos', label: 'Upload Progress Photos', type: 'edit' },
+      { key: 'can_upload_food_photos', label: 'Upload Food Photos', type: 'edit' },
+      { key: 'can_upload_lab_reports', label: 'Upload Lab Reports', type: 'edit' },
+      { key: 'can_upload_documents', label: 'Upload Documents', type: 'edit' },
+      { key: 'can_export_data', label: 'Export Data', type: 'edit' },
+      { key: 'can_use_food_lookup_ai', label: 'Food Lookup AI', type: 'edit' },
+      { key: 'can_use_wellness_insights', label: 'Wellness AI', type: 'edit' },
+      { key: 'can_use_chat_assistant', label: 'Chat Assistant', type: 'edit' },
     ]
   };
 
@@ -195,13 +275,41 @@ export default function UserPermissionManagement() {
     }
   };
 
+  const getTypeIcon = (type) => {
+    switch(type) {
+      case 'view': return Eye;
+      case 'edit': return Edit;
+      case 'delete': return Trash2;
+      default: return Shield;
+    }
+  };
+
+  const getTypeColor = (type) => {
+    switch(type) {
+      case 'view': return 'text-blue-600';
+      case 'edit': return 'text-green-600';
+      case 'delete': return 'text-red-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  const getTypeBg = (type, enabled) => {
+    if (!enabled) return 'bg-gray-50 border-gray-200';
+    switch(type) {
+      case 'view': return 'bg-blue-50 border-blue-300';
+      case 'edit': return 'bg-green-50 border-green-300';
+      case 'delete': return 'bg-red-50 border-red-300';
+      default: return 'bg-gray-50 border-gray-200';
+    }
+  };
+
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">User Permission Management</h1>
-            <p className="text-gray-600">Edit individual user permissions and access controls</p>
+            <p className="text-gray-600">Edit individual user permissions with granular access control</p>
           </div>
           <Shield className="w-10 h-10 text-purple-500" />
         </div>
@@ -281,33 +389,38 @@ export default function UserPermissionManagement() {
         {/* Edit Permissions Dialog */}
         {selectedUser && (
           <Dialog open={editDialog} onOpenChange={setEditDialog}>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   Edit Permissions: {selectedUser.full_name}
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-4 mt-4">
-                <Card className={`border-none shadow-lg bg-gradient-to-r ${getRoleColor(selectedUser.user_type)} text-white`}>
+                <Card className={`border-none shadow-lg bg-gradient-to-r ${getRoleColor(activeUserType)} text-white`}>
                   <CardContent className="p-4">
                     <p className="text-sm">User: <strong>{selectedUser.email}</strong></p>
-                    <p className="text-sm">Role: <strong className="capitalize">{selectedUser.user_type.replace('_', ' ')}</strong></p>
+                    <p className="text-sm">Role: <strong className="capitalize">{activeUserType.replace('_', ' ')}</strong></p>
                   </CardContent>
                 </Card>
 
-                <div className="grid grid-cols-2 gap-3">
-                  {permissionCategories[selectedUser.user_type]?.map(perm => {
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {permissionCategories[activeUserType]?.map(perm => {
                     const isEnabled = customPermissions[perm.key] ?? false;
+                    const TypeIcon = getTypeIcon(perm.type);
+                    
                     return (
                       <div
                         key={perm.key}
                         className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
-                          isEnabled ? 'bg-green-50 border-green-300' : 'bg-gray-50 border-gray-200'
+                          getTypeBg(perm.type, isEnabled)
                         }`}
                       >
-                        <Label className="text-sm font-medium text-gray-900 cursor-pointer flex-1">
-                          {perm.label}
-                        </Label>
+                        <div className="flex items-center gap-2 flex-1">
+                          <TypeIcon className={`w-4 h-4 ${isEnabled ? getTypeColor(perm.type) : 'text-gray-400'}`} />
+                          <Label className="text-sm font-medium text-gray-900 cursor-pointer">
+                            {perm.label}
+                          </Label>
+                        </div>
                         <Switch
                           checked={isEnabled}
                           onCheckedChange={(checked) => updatePermission(perm.key, checked)}
