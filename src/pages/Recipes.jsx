@@ -852,7 +852,7 @@ Enjoy your cooking! 🍽️✨
           </Alert>
         )}
 
-        {/* TOP CONTRIBUTORS - ONLY FOR NON-CLIENTS */}
+        {/* TOP CONTRIBUTORS - HIDDEN FROM CLIENTS */}
         {!isClient && (
           <Card className="border-none shadow-xl bg-gradient-to-br from-purple-50 to-indigo-50">
             <CardHeader>
@@ -894,7 +894,10 @@ Enjoy your cooking! 🍽️✨
         {/* TABS - CLIENTS ONLY SEE LIBRARY */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className={isClient ? 'w-full' : 'grid grid-cols-2'}>
-            <TabsTrigger value="library" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white">
+            <TabsTrigger
+              value="library"
+              className={`${isClient ? 'flex-1' : ''} data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white`}
+            >
               <ChefHat className="w-4 h-4 mr-2" />
               Recipe Library ({recipes.length})
             </TabsTrigger>
