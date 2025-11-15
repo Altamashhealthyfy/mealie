@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -506,340 +505,6 @@ Enjoy your cooking! 🍽️✨
               )}
             </p>
           </div>
-          
-          {/* UPLOAD BUTTON - ONLY FOR NON-CLIENTS */}
-          {!isClient && (
-            <Dialog open={showManualUpload} onOpenChange={(open) => {
-              setShowManualUpload(open);
-              if (!open) {
-                setEditingRecipe(null);
-                setManualRecipeForm({
-                  name: "",
-                  description: "",
-                  meal_type: "breakfast",
-                  food_preference: "veg",
-                  regional_cuisine: "north",
-                  prep_time: "",
-                  cook_time: "",
-                  servings: "",
-                  calories: "",
-                  protein: "",
-                  carbs: "",
-                  fats: "",
-                  ingredients: [{ item: "", quantity: "" }],
-                  instructions: [""],
-                  tags: "",
-                  image_url: ""
-                });
-              }
-            }}>
-              <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Upload Recipe
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl flex items-center gap-2">
-                    {editingRecipe ? <Edit className="w-6 h-6 text-blue-600" /> : <Upload className="w-6 h-6 text-blue-600" />}
-                    {editingRecipe ? 'Edit Recipe' : 'Upload Recipe Manually'}
-                  </DialogTitle>
-                </DialogHeader>
-
-                <div className="space-y-6">
-                  <Alert className="bg-blue-50 border-blue-500">
-                    <Upload className="w-5 h-5 text-blue-600" />
-                    <AlertDescription>
-                      {editingRecipe ? 'Update your recipe details and photo.' : 'Add your own recipes with photos! Share your culinary creations with the community.'}
-                    </AlertDescription>
-                  </Alert>
-
-                  <Tabs defaultValue="basic" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
-                      <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                      <TabsTrigger value="ingredients">Ingredients</TabsTrigger>
-                      <TabsTrigger value="instructions">Instructions</TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="basic" className="space-y-4 mt-4">
-                      <ImageUploader
-                        onImageUploaded={(url) => setManualRecipeForm({...manualRecipeForm, image_url: url})}
-                        currentImageUrl={manualRecipeForm.image_url}
-                        requiredWidth={800}
-                        requiredHeight={600}
-                        aspectRatio="4:3"
-                        maxSizeMB={5}
-                        label="Recipe Photo"
-                      />
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2 col-span-2">
-                          <Label>Recipe Name *</Label>
-                          <Input
-                            placeholder="e.g., Paneer Tikka Masala"
-                            value={manualRecipeForm.name}
-                            onChange={(e) => setManualRecipeForm({...manualRecipeForm, name: e.target.value})}
-                          />
-                        </div>
-
-                        <div className="space-y-2 col-span-2">
-                          <Label>Description</Label>
-                          <Textarea
-                            placeholder="Brief description of the recipe..."
-                            value={manualRecipeForm.description}
-                            onChange={(e) => setManualRecipeForm({...manualRecipeForm, description: e.target.value})}
-                            rows={3}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Meal Type *</Label>
-                          <Select
-                            value={manualRecipeForm.meal_type}
-                            onValueChange={(value) => setManualRecipeForm({...manualRecipeForm, meal_type: value})}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="breakfast">Breakfast</SelectItem>
-                              <SelectItem value="lunch">Lunch</SelectItem>
-                              <SelectItem value="dinner">Dinner</SelectItem>
-                              <SelectItem value="snack">Snack</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Food Preference *</Label>
-                          <Select
-                            value={manualRecipeForm.food_preference}
-                            onValueChange={(value) => setManualRecipeForm({...manualRecipeForm, food_preference: value})}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="veg">Vegetarian</SelectItem>
-                              <SelectItem value="non_veg">Non-Veg</SelectItem>
-                              <SelectItem value="jain">Jain</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Regional Cuisine *</Label>
-                          <Select
-                            value={manualRecipeForm.regional_cuisine}
-                            onValueChange={(value) => setManualRecipeForm({...manualRecipeForm, regional_cuisine: value})}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="north">North Indian</SelectItem>
-                              <SelectItem value="south">South Indian</SelectItem>
-                              <SelectItem value="west">West Indian</SelectItem>
-                              <SelectItem value="east">East Indian</SelectItem>
-                              <SelectItem value="fusion">Fusion</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Servings</Label>
-                          <Input
-                            type="number"
-                            placeholder="4"
-                            value={manualRecipeForm.servings}
-                            onChange={(e) => setManualRecipeForm({...manualRecipeForm, servings: e.target.value})}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Prep Time (min)</Label>
-                          <Input
-                            type="number"
-                            placeholder="15"
-                            value={manualRecipeForm.prep_time}
-                            onChange={(e) => setManualRecipeForm({...manualRecipeForm, prep_time: e.target.value})}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Cook Time (min)</Label>
-                          <Input
-                            type="number"
-                            placeholder="30"
-                            value={manualRecipeForm.cook_time}
-                            onChange={(e) => setManualRecipeForm({...manualRecipeForm, cook_time: e.target.value})}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Calories (per serving)</Label>
-                          <Input
-                            type="number"
-                            placeholder="350"
-                            value={manualRecipeForm.calories}
-                            onChange={(e) => setManualRecipeForm({...manualRecipeForm, calories: e.target.value})}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Protein (g)</Label>
-                          <Input
-                            type="number"
-                            placeholder="12"
-                            value={manualRecipeForm.protein}
-                            onChange={(e) => setManualRecipeForm({...manualRecipeForm, protein: e.target.value})}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Carbs (g)</Label>
-                          <Input
-                            type="number"
-                            placeholder="45"
-                            value={manualRecipeForm.carbs}
-                            onChange={(e) => setManualRecipeForm({...manualRecipeForm, carbs: e.target.value})}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Fats (g)</Label>
-                          <Input
-                            type="number"
-                            placeholder="10"
-                            value={manualRecipeForm.fats}
-                            onChange={(e) => setManualRecipeForm({...manualRecipeForm, fats: e.target.value})}
-                          />
-                        </div>
-
-                        <div className="space-y-2 col-span-2">
-                          <Label>Tags (comma-separated)</Label>
-                          <Input
-                            placeholder="e.g., high-protein, quick, traditional"
-                            value={manualRecipeForm.tags}
-                            onChange={(e) => setManualRecipeForm({...manualRecipeForm, tags: e.target.value})}
-                          />
-                        </div>
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="ingredients" className="space-y-4 mt-4">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-lg font-semibold">Ingredients</Label>
-                        <Button onClick={addIngredient} variant="outline" size="sm">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add Ingredient
-                        </Button>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        {manualRecipeForm.ingredients.map((ing, index) => (
-                          <div key={index} className="flex gap-3 items-start">
-                            <div className="flex-1 grid grid-cols-2 gap-3">
-                              <Input
-                                placeholder="Ingredient name"
-                                value={ing.item}
-                                onChange={(e) => updateIngredient(index, 'item', e.target.value)}
-                              />
-                              <Input
-                                placeholder="Quantity (e.g., 2 cups, 100g)"
-                                value={ing.quantity}
-                                onChange={(e) => updateIngredient(index, 'quantity', e.target.value)}
-                              />
-                            </div>
-                            {manualRecipeForm.ingredients.length > 1 && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => removeIngredient(index)}
-                                className="text-red-600"
-                              >
-                                Remove
-                              </Button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </TabsContent>
-
-                    <TabsContent value="instructions" className="space-y-4 mt-4">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-lg font-semibold">Cooking Instructions</Label>
-                        <Button onClick={addInstruction} variant="outline" size="sm">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add Step
-                        </Button>
-                      </div>
-
-                      <div className="space-y-3">
-                        {manualRecipeForm.instructions.map((step, index) => (
-                          <div key={index} className="flex gap-3 items-start">
-                            <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0">
-                              {index + 1}
-                            </div>
-                            <div className="flex-1">
-                              <Textarea
-                                placeholder={`Step ${index + 1} instructions...`}
-                                value={step}
-                                onChange={(e) => updateInstruction(index, e.target.value)}
-                                rows={3}
-                              />
-                            </div>
-                            {manualRecipeForm.instructions.length > 1 && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => removeInstruction(index)}
-                                className="text-red-600"
-                              >
-                                Remove
-                              </Button>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-
-                  <div className="flex gap-3 pt-4 border-t">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setShowManualUpload(false);
-                        setEditingRecipe(null);
-                      }}
-                      className="flex-1"
-                      disabled={createRecipeMutation.isPending || updateRecipeMutation.isPending}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleSaveManualRecipe}
-                      disabled={createRecipeMutation.isPending || updateRecipeMutation.isPending}
-                      className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 h-12"
-                    >
-                      {(createRecipeMutation.isPending || updateRecipeMutation.isPending) ? (
-                        <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          {editingRecipe ? 'Updating...' : 'Saving...'}
-                        </>
-                      ) : (
-                        <>
-                          {editingRecipe ? <Edit className="w-5 h-5 mr-2" /> : <Upload className="w-5 h-5 mr-2" />}
-                          {editingRecipe ? 'Update Recipe' : 'Save Recipe'}
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          )}
         </div>
 
         {/* CLIENT VIEW-ONLY NOTICE */}
@@ -852,68 +517,22 @@ Enjoy your cooking! 🍽️✨
           </Alert>
         )}
 
-        {/* TOP CONTRIBUTORS - HIDDEN FROM CLIENTS */}
-        {!isClient && (
-          <Card className="border-none shadow-xl bg-gradient-to-br from-purple-50 to-indigo-50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <TrendingUp className="w-6 h-6 text-purple-600" />
-                Top Recipe Contributors
-              </CardTitle>
-              <CardDescription>Community members who shared the most recipes</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {uploaderStats.slice(0, 6).map((stat, index) => (
-                  <Card key={stat.email} className="border-2 hover:border-purple-300 transition-all">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          index === 0 ? 'bg-yellow-500' :
-                          index === 1 ? 'bg-gray-400' :
-                          index === 2 ? 'bg-orange-600' :
-                          'bg-purple-500'
-                        }`}>
-                          <span className="text-white font-bold">
-                            {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
-                          </span>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold truncate">{stat.email}</p>
-                          <p className="text-xs text-gray-600">🍳 {stat.count} recipes</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* TABS - CLIENTS ONLY SEE LIBRARY */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className={isClient ? 'w-full' : 'grid grid-cols-2'}>
+          <TabsList className="w-full">
             <TabsTrigger
               value="library"
-              className={`${isClient ? 'flex-1' : ''} data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white`}
+              className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white"
             >
               <ChefHat className="w-4 h-4 mr-2" />
               Recipe Library ({recipes.length})
             </TabsTrigger>
-            {/* AI GENERATE TAB - ONLY FOR NON-CLIENTS */}
-            {!isClient && (
-              <TabsTrigger value="generate" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white">
-                <Sparkles className="w-4 h-4 mr-2" />
-                AI Generate
-              </TabsTrigger>
-            )}
           </TabsList>
 
           <TabsContent value="library" className="space-y-6">
             <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
               <CardContent className="p-6">
-                <div className={`grid grid-cols-1 gap-4 ${isClient ? 'md:grid-cols-5' : 'md:grid-cols-6'}`}>
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                   <div className="md:col-span-2">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -961,27 +580,6 @@ Enjoy your cooking! 🍽️✨
                       <SelectItem value="fusion">Fusion</SelectItem>
                     </SelectContent>
                   </Select>
-                  {/* UPLOADER FILTER - HIDDEN FROM CLIENTS */}
-                  {!isClient && (
-                    <Select value={uploaderFilter} onValueChange={setUploaderFilter}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Uploader" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Uploaders</SelectItem>
-                        {uploaderStats.map((stat) => (
-                          <SelectItem key={stat.email} value={stat.email}>
-                            <div className="flex items-center justify-between gap-2 w-full">
-                              <span className="truncate">{stat.email}</span>
-                              <Badge className="bg-purple-100 text-purple-700 text-xs">
-                                {stat.count}
-                              </Badge>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
                   <Select value={sortOrder} onValueChange={setSortOrder}>
                     <SelectTrigger>
                       <SelectValue placeholder="Sort by" />
@@ -1139,7 +737,7 @@ Enjoy your cooking! 🍽️✨
                           <span>{recipe.calories} kcal</span>
                         </div>
                       </div>
-                      {recipe.created_by && (
+                      {!isClient && recipe.created_by && (
                         <p className="text-xs text-gray-500 truncate">
                           👤 {recipe.created_by}
                         </p>
@@ -1153,49 +751,6 @@ Enjoy your cooking! 🍽️✨
               </div>
             )}
           </TabsContent>
-
-          {/* AI GENERATION TAB - ONLY FOR NON-CLIENTS */}
-          {!isClient && (
-            <TabsContent value="generate" className="space-y-6">
-              <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-indigo-50">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-purple-500" />
-                    Generate Custom Recipe with AI
-                  </CardTitle>
-                  <CardDescription>Describe what you'd like to cook and AI will create a detailed recipe</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Input
-                    placeholder="E.g., High-protein South Indian breakfast under 400 calories, or Paneer sabji for lunch"
-                    value={customRecipeRequest}
-                    onChange={(e) => setCustomRecipeRequest(e.target.value)}
-                    className="text-lg h-12"
-                  />
-                  <Button
-                    onClick={generateCustomRecipe}
-                    disabled={generatingRecipe || createRecipeMutation.isPending}
-                    className="w-full h-14 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600"
-                  >
-                    {(generatingRecipe || createRecipeMutation.isPending) ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Generating Recipe...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-5 h-5 mr-2" />
-                        Generate & Save Recipe
-                      </>
-                    )}
-                  </Button>
-                  <p className="text-xs text-gray-600">
-                    💡 Tip: Generated recipes are automatically saved to your library
-                  </p>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          )}
         </Tabs>
 
         {/* RECIPE DETAIL DIALOG */}
@@ -1244,20 +799,22 @@ Enjoy your cooking! 🍽️✨
                   <p className="text-gray-700 leading-relaxed">{selectedRecipe.description}</p>
                 )}
 
-                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-gray-600">Added by</p>
-                      <p className="font-semibold text-gray-900">{selectedRecipe.created_by}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Added on</p>
-                      <p className="font-semibold text-gray-900">
-                        {format(new Date(selectedRecipe.created_date), 'MMM d, yyyy')}
-                      </p>
+                {!isClient && (
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-gray-600">Added by</p>
+                        <p className="font-semibold text-gray-900">{selectedRecipe.created_by}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Added on</p>
+                        <p className="font-semibold text-gray-900">
+                          {format(new Date(selectedRecipe.created_date), 'MMM d, yyyy')}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 <div className="grid grid-cols-4 gap-4">
                   <div className="p-4 bg-blue-50 rounded-xl text-center">
