@@ -7,13 +7,19 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Save, Calculator, Sparkles, Target, Activity } from "lucide-react";
+import { Save, Calculator, Sparkles, Target, Activity, User } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import ImageUploader from "@/components/common/ImageUploader";
 
 export default function Profile() {
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({});
   const [calculatedValues, setCalculatedValues] = useState({});
+  const [clientFormData, setClientFormData] = useState({
+    full_name: "",
+    phone: "",
+    profile_photo_url: ""
+  });
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -29,11 +35,30 @@ export default function Profile() {
     enabled: !!user,
   });
 
+  const { data: clientProfile } = useQuery({
+    queryKey: ['clientProfile', user?.email],
+    queryFn: async () => {
+      const clients = await base44.entities.Client.filter({ email: user?.email });
+      return clients[0] || null;
+    },
+    enabled: !!user && user?.user_type === 'client',
+  });
+
   useEffect(() => {
     if (userProfile) {
       setFormData(userProfile);
     }
   }, [userProfile]);
+
+  useEffect(() => {
+    if (clientProfile) {
+      setClientFormData({
+        full_name: clientProfile.full_name || "",
+        phone: clientProfile.phone || "",
+        profile_photo_url: clientProfile.profile_photo_url || ""
+      });
+    }
+  }, [clientProfile]);
 
   const calculateMacros = () => {
     const { weight, height, age, gender, activity_level, goal } = formData;
@@ -110,14 +135,41 @@ export default function Profile() {
     },
   });
 
+  const saveClientMutation = useMutation({
+    mutationFn: async (data) => {
+      if (clientProfile) {
+        return await base44.entities.Client.update(clientProfile.id, data);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['clientProfile']);
+      alert("✅ Profile updated successfully!");
+    },
+    onError: (error) => {
+      console.error("Error updating client profile:", error);
+      alert("Error updating profile. Please try again.");
+    }
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
     saveMutation.mutate(formData);
   };
 
+  const handleClientProfileUpdate = (e) => {
+    e.preventDefault();
+    if (!clientFormData.full_name.trim()) {
+      alert("Please enter your name");
+      return;
+    }
+    saveClientMutation.mutate(clientFormData);
+  };
+
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
+
+  const isClient = user?.user_type === 'client';
 
   return (
     <div className="min-h-screen p-4 md:p-8">
@@ -125,10 +177,75 @@ export default function Profile() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Your Profile</h1>
-            <p className="text-gray-600">Set up your health profile for personalized meal plans</p>
+            <p className="text-gray-600">
+              {isClient ? 'Manage your personal information and health profile' : 'Set up your health profile for personalized meal plans'}
+            </p>
           </div>
           <Sparkles className="w-10 h-10 text-orange-500" />
         </div>
+
+        {/* CLIENT PROFILE SECTION - ONLY FOR CLIENTS */}
+        {isClient && (
+          <form onSubmit={handleClientProfileUpdate} className="space-y-6">
+            <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="w-5 h-5 text-purple-500" />
+                  Personal Information
+                </CardTitle>
+                <CardDescription>Update your name, phone, and profile photo</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ImageUploader
+                  onImageUploaded={(url) => setClientFormData({...clientFormData, profile_photo_url: url})}
+                  currentImageUrl={clientFormData.profile_photo_url}
+                  requiredWidth={400}
+                  requiredHeight={400}
+                  aspectRatio="1:1"
+                  maxSizeMB={2}
+                  label="Profile Photo"
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Full Name *</Label>
+                    <Input
+                      value={clientFormData.full_name}
+                      onChange={(e) => setClientFormData({...clientFormData, full_name: e.target.value})}
+                      placeholder="Enter your full name"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Phone Number</Label>
+                    <Input
+                      value={clientFormData.phone}
+                      onChange={(e) => setClientFormData({...clientFormData, phone: e.target.value})}
+                      placeholder="10-digit number"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Email (Read-only)</Label>
+                    <Input
+                      value={user?.email || ''}
+                      disabled
+                      className="bg-gray-100"
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full h-12 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  disabled={saveClientMutation.isPending}
+                >
+                  <Save className="w-5 h-5 mr-2" />
+                  {saveClientMutation.isPending ? 'Updating...' : 'Update Personal Info'}
+                </Button>
+              </CardContent>
+            </Card>
+          </form>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
@@ -354,7 +471,7 @@ export default function Profile() {
             disabled={saveMutation.isPending}
           >
             <Save className="w-5 h-5 mr-2" />
-            {saveMutation.isPending ? 'Saving...' : 'Save Profile'}
+            {saveMutation.isPending ? 'Saving...' : 'Save Health Profile'}
           </Button>
         </form>
 
