@@ -50,6 +50,8 @@ import ClientPlanManagement from './pages/ClientPlanManagement';
 import PaymentHistory from './pages/PaymentHistory';
 import CoachSubscription from './pages/CoachSubscription';
 import ClientPlans from './pages/ClientPlans';
+import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
+import WhiteLabelClients from './pages/WhiteLabelClients';
 import Layout from './Layout.jsx';
 
 
@@ -106,6 +108,8 @@ export const PAGES = {
     "PaymentHistory": PaymentHistory,
     "CoachSubscription": CoachSubscription,
     "ClientPlans": ClientPlans,
+    "WhiteLabelSubscription": WhiteLabelSubscription,
+    "WhiteLabelClients": WhiteLabelClients,
 }
 
 export const pagesConfig = {
