@@ -9,14 +9,14 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Search, Shield, Save, Edit2, Crown, UserCog, GraduationCap, Eye, Edit, Trash2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Users, Search, Shield, Save, Edit2, Crown, UserCog, GraduationCap, Eye, Edit, Trash2, AlertTriangle } from "lucide-react";
 
 export default function UserPermissionManagement() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [editDialog, setEditDialog] = useState(false);
-  const [editGlobalClientDialog, setEditGlobalClientDialog] = useState(false);
   const [customPermissions, setCustomPermissions] = useState({});
   const [globalClientPermissions, setGlobalClientPermissions] = useState({});
   const [activeUserType, setActiveUserType] = useState("super_admin");
@@ -48,6 +48,12 @@ export default function UserPermissionManagement() {
     },
     enabled: !!currentUser && currentUser.user_type === 'super_admin',
   });
+
+  React.useEffect(() => {
+    if (securitySettings?.client_restrictions) {
+      setGlobalClientPermissions(securitySettings.client_restrictions);
+    }
+  }, [securitySettings]);
 
   const savePermissionsMutation = useMutation({
     mutationFn: async (data) => {
@@ -87,7 +93,6 @@ export default function UserPermissionManagement() {
     onSuccess: () => {
       queryClient.invalidateQueries(['securitySettings']);
       queryClient.invalidateQueries(['userCustomPermissions']);
-      setEditGlobalClientDialog(false);
       alert('✅ Global client permissions saved successfully!');
     },
   });
@@ -133,11 +138,6 @@ export default function UserPermissionManagement() {
     const defaults = getDefaultPermissions(user.user_type);
     setCustomPermissions(existing?.custom_permissions || defaults);
     setEditDialog(true);
-  };
-
-  const handleEditGlobalClientPermissions = () => {
-    setGlobalClientPermissions(securitySettings?.client_restrictions || {});
-    setEditGlobalClientDialog(true);
   };
 
   const handleSavePermissions = () => {
@@ -203,6 +203,10 @@ export default function UserPermissionManagement() {
       { key: 'can_upload_files', label: 'Upload Files', type: 'edit' },
       { key: 'can_delete_files', label: 'Delete Files', type: 'delete' },
       { key: 'can_manage_permissions', label: 'Manage Permissions', type: 'edit' },
+      { key: 'can_upload_profile_photo', label: 'Upload Profile Photo', type: 'edit' },
+      { key: 'can_manage_payment_gateway', label: 'Manage Payment Gateway', type: 'edit' },
+      { key: 'can_manage_client_plans', label: 'Manage Client Plans', type: 'edit' },
+      { key: 'can_view_payment_history', label: 'View Payment History', type: 'view' },
     ],
     team_member: [
       { key: 'can_view_dashboard', label: 'View Dashboard', type: 'view' },
@@ -218,15 +222,35 @@ export default function UserPermissionManagement() {
       { key: 'can_create_meal_plans', label: 'Create Meal Plans', type: 'edit' },
       { key: 'can_edit_own_meal_plans', label: 'Edit Own Meal Plans', type: 'edit' },
       { key: 'can_edit_all_meal_plans', label: 'Edit All Meal Plans', type: 'edit' },
+      { key: 'can_delete_own_meal_plans', label: 'Delete Own Meal Plans', type: 'delete' },
+      { key: 'can_delete_all_meal_plans', label: 'Delete All Meal Plans', type: 'delete' },
       { key: 'can_view_own_messages', label: 'View Own Messages', type: 'view' },
       { key: 'can_view_all_messages', label: 'View All Messages', type: 'view' },
       { key: 'can_send_messages', label: 'Send Messages', type: 'edit' },
+      { key: 'can_delete_own_messages', label: 'Delete Own Messages', type: 'delete' },
+      { key: 'can_delete_all_messages', label: 'Delete All Messages', type: 'delete' },
       { key: 'can_view_financial_data', label: 'View Financial Data', type: 'view' },
       { key: 'can_edit_financial_data', label: 'Edit Financial Data', type: 'edit' },
+      { key: 'can_delete_financial_data', label: 'Delete Financial Data', type: 'delete' },
+      { key: 'can_view_templates', label: 'View Templates', type: 'view' },
+      { key: 'can_create_templates', label: 'Create Templates', type: 'edit' },
+      { key: 'can_edit_own_templates', label: 'Edit Own Templates', type: 'edit' },
+      { key: 'can_edit_all_templates', label: 'Edit All Templates', type: 'edit' },
+      { key: 'can_delete_own_templates', label: 'Delete Own Templates', type: 'delete' },
+      { key: 'can_delete_all_templates', label: 'Delete All Templates', type: 'delete' },
       { key: 'can_view_recipes', label: 'View Recipes', type: 'view' },
       { key: 'can_create_recipes', label: 'Create Recipes', type: 'edit' },
       { key: 'can_edit_own_recipes', label: 'Edit Own Recipes', type: 'edit' },
+      { key: 'can_edit_all_recipes', label: 'Edit All Recipes', type: 'edit' },
       { key: 'can_delete_own_recipes', label: 'Delete Own Recipes', type: 'delete' },
+      { key: 'can_delete_all_recipes', label: 'Delete All Recipes', type: 'delete' },
+      { key: 'can_upload_files', label: 'Upload Files', type: 'edit' },
+      { key: 'can_delete_own_files', label: 'Delete Own Files', type: 'delete' },
+      { key: 'can_delete_all_files', label: 'Delete All Files', type: 'delete' },
+      { key: 'can_upload_profile_photo', label: 'Upload Profile Photo', type: 'edit' },
+      { key: 'can_manage_payment_gateway', label: 'Manage Payment Gateway', type: 'edit' },
+      { key: 'can_manage_client_plans', label: 'Manage Client Plans', type: 'edit' },
+      { key: 'can_view_payment_history', label: 'View Payment History', type: 'view' },
     ],
     student_coach: [
       { key: 'can_view_dashboard', label: 'View Dashboard', type: 'view' },
@@ -237,35 +261,60 @@ export default function UserPermissionManagement() {
       { key: 'can_edit_all_clients', label: 'Edit All Clients', type: 'edit' },
       { key: 'can_delete_own_clients', label: 'Delete Own Clients', type: 'delete' },
       { key: 'can_delete_all_clients', label: 'Delete All Clients', type: 'delete' },
+      { key: 'can_view_own_meal_plans', label: 'View Own Meal Plans', type: 'view' },
+      { key: 'can_view_all_meal_plans', label: 'View All Meal Plans', type: 'view' },
       { key: 'can_create_meal_plans', label: 'Create Meal Plans', type: 'edit' },
       { key: 'can_edit_own_meal_plans', label: 'Edit Own Meal Plans', type: 'edit' },
+      { key: 'can_edit_all_meal_plans', label: 'Edit All Meal Plans', type: 'edit' },
+      { key: 'can_delete_own_meal_plans', label: 'Delete Own Meal Plans', type: 'delete' },
+      { key: 'can_delete_all_meal_plans', label: 'Delete All Meal Plans', type: 'delete' },
+      { key: 'can_view_own_messages', label: 'View Own Messages', type: 'view' },
+      { key: 'can_view_all_messages', label: 'View All Messages', type: 'view' },
       { key: 'can_send_messages', label: 'Send Messages', type: 'edit' },
+      { key: 'can_delete_own_messages', label: 'Delete Own Messages', type: 'delete' },
+      { key: 'can_delete_all_messages', label: 'Delete All Messages', type: 'delete' },
       { key: 'can_access_business_tools', label: 'Access Business Tools', type: 'view' },
       { key: 'can_manage_team', label: 'Manage Team', type: 'edit' },
       { key: 'can_view_financial_data', label: 'View Financial Data', type: 'view' },
       { key: 'can_edit_financial_data', label: 'Edit Financial Data', type: 'edit' },
       { key: 'can_delete_financial_data', label: 'Delete Financial Data', type: 'delete' },
+      { key: 'can_view_templates', label: 'View Templates', type: 'view' },
       { key: 'can_create_templates', label: 'Create Templates', type: 'edit' },
       { key: 'can_edit_own_templates', label: 'Edit Own Templates', type: 'edit' },
+      { key: 'can_edit_all_templates', label: 'Edit All Templates', type: 'edit' },
       { key: 'can_delete_own_templates', label: 'Delete Own Templates', type: 'delete' },
+      { key: 'can_delete_all_templates', label: 'Delete All Templates', type: 'delete' },
+      { key: 'can_view_recipes', label: 'View Recipes', type: 'view' },
+      { key: 'can_create_recipes', label: 'Create Recipes', type: 'edit' },
+      { key: 'can_edit_own_recipes', label: 'Edit Own Recipes', type: 'edit' },
+      { key: 'can_edit_all_recipes', label: 'Edit All Recipes', type: 'edit' },
+      { key: 'can_delete_own_recipes', label: 'Delete Own Recipes', type: 'delete' },
+      { key: 'can_delete_all_recipes', label: 'Delete All Recipes', type: 'delete' },
+      { key: 'can_upload_files', label: 'Upload Files', type: 'edit' },
+      { key: 'can_delete_own_files', label: 'Delete Own Files', type: 'delete' },
+      { key: 'can_delete_all_files', label: 'Delete All Files', type: 'delete' },
+      { key: 'can_upload_profile_photo', label: 'Upload Profile Photo', type: 'edit' },
+      { key: 'can_manage_payment_gateway', label: 'Manage Payment Gateway', type: 'edit' },
+      { key: 'can_manage_client_plans', label: 'Manage Client Plans', type: 'edit' },
+      { key: 'can_view_payment_history', label: 'View Payment History', type: 'view' },
     ],
     client: [
       { key: 'can_view_meal_plan', label: 'View Meal Plan', type: 'view' },
       { key: 'can_comment_on_meal_plan', label: 'Comment on Meal Plan', type: 'edit' },
       { key: 'can_view_food_log', label: 'View Food Log', type: 'view' },
       { key: 'can_edit_food_log', label: 'Edit Food Log', type: 'edit' },
-      { key: 'can_delete_food_log', label: 'Delete Food Log', type: 'delete' },
-      { key: 'can_view_progress', label: 'View Progress', type: 'view' },
-      { key: 'can_edit_progress', label: 'Edit Progress', type: 'edit' },
-      { key: 'can_delete_progress', label: 'Delete Progress', type: 'delete' },
-      { key: 'can_view_mpess', label: 'View MPESS', type: 'view' },
-      { key: 'can_edit_mpess', label: 'Edit MPESS', type: 'edit' },
+      { key: 'can_delete_food_log', label: 'Delete Food Log Entries', type: 'delete' },
+      { key: 'can_view_progress', label: 'View Progress Tracking', type: 'view' },
+      { key: 'can_edit_progress', label: 'Log Progress Entries', type: 'edit' },
+      { key: 'can_delete_progress', label: 'Delete Progress Entries', type: 'delete' },
+      { key: 'can_view_mpess', label: 'View MPESS Tracker', type: 'view' },
+      { key: 'can_edit_mpess', label: 'Track MPESS Activities', type: 'edit' },
       { key: 'can_view_messages', label: 'View Messages', type: 'view' },
       { key: 'can_send_messages', label: 'Send Messages', type: 'edit' },
       { key: 'can_view_appointments', label: 'View Appointments', type: 'view' },
       { key: 'can_book_appointments', label: 'Book Appointments', type: 'edit' },
       { key: 'can_view_profile', label: 'View Profile', type: 'view' },
-      { key: 'can_edit_profile', label: 'Edit Profile', type: 'edit' },
+      { key: 'can_edit_profile', label: 'Edit Profile Info', type: 'edit' },
       { key: 'can_upload_profile_photo', label: 'Upload Profile Photo', type: 'edit' },
       { key: 'show_my_plans', label: 'Show My Plans Page', type: 'view' },
       { key: 'can_view_recipes', label: 'View Recipes', type: 'view' },
@@ -277,9 +326,9 @@ export default function UserPermissionManagement() {
       { key: 'can_upload_lab_reports', label: 'Upload Lab Reports', type: 'edit' },
       { key: 'can_upload_documents', label: 'Upload Documents', type: 'edit' },
       { key: 'can_export_data', label: 'Export Data', type: 'edit' },
-      { key: 'can_use_food_lookup_ai', label: 'Food Lookup AI', type: 'edit' },
-      { key: 'can_use_wellness_insights', label: 'Wellness AI', type: 'edit' },
-      { key: 'can_use_chat_assistant', label: 'Chat Assistant', type: 'edit' },
+      { key: 'can_use_food_lookup_ai', label: 'Use Food Lookup AI', type: 'edit' },
+      { key: 'can_use_wellness_insights', label: 'Use Wellness AI Insights', type: 'edit' },
+      { key: 'can_use_chat_assistant', label: 'Use AI Chat Assistant', type: 'edit' },
     ]
   };
 
@@ -337,7 +386,7 @@ export default function UserPermissionManagement() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">User Permission Management</h1>
-            <p className="text-gray-600">Edit individual staff permissions and global client access</p>
+            <p className="text-gray-600">Manage staff permissions and global client restrictions</p>
           </div>
           <Shield className="w-10 h-10 text-purple-500" />
         </div>
@@ -372,7 +421,7 @@ export default function UserPermissionManagement() {
             </TabsTrigger>
             <TabsTrigger value="client" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white">
               <Users className="w-4 h-4 mr-2" />
-              All Clients
+              Client Restrictions
             </TabsTrigger>
           </TabsList>
 
@@ -414,20 +463,67 @@ export default function UserPermissionManagement() {
           })}
 
           <TabsContent value="client">
-            <Card className="border-none shadow-lg bg-gradient-to-r from-green-50 to-emerald-50">
-              <CardContent className="p-8 text-center">
-                <Users className="w-16 h-16 mx-auto text-green-600 mb-4" />
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Global Client Permissions</h3>
-                <p className="text-gray-600 mb-6">
-                  Configure default permissions that apply to ALL clients across the platform
-                </p>
-                <Button
-                  onClick={handleEditGlobalClientPermissions}
-                  className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-                >
-                  <Edit2 className="w-4 h-4 mr-2" />
-                  Edit Global Client Permissions
-                </Button>
+            <Alert className="bg-green-50 border-green-500 mb-6">
+              <AlertTriangle className="w-5 h-5 text-green-600" />
+              <AlertDescription className="text-green-900">
+                <strong>Global Settings:</strong> These permissions apply to ALL clients across the platform. Changes here affect every client user.
+              </AlertDescription>
+            </Alert>
+
+            <Card className="border-none shadow-xl">
+              <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-600 text-white">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Users className="w-6 h-6" />
+                    <div>
+                      <CardTitle className="text-2xl">Client Restrictions</CardTitle>
+                      <p className="text-sm text-white/90">Configure what ALL clients can view, edit, and delete</p>
+                    </div>
+                  </div>
+                  <Badge className="bg-white text-green-600 text-lg px-4 py-2">
+                    Global
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {permissionCategories.client?.map(perm => {
+                    const isEnabled = globalClientPermissions[perm.key] ?? false;
+                    const TypeIcon = getTypeIcon(perm.type);
+                    
+                    return (
+                      <div
+                        key={perm.key}
+                        className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
+                          getTypeBg(perm.type, isEnabled)
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 flex-1">
+                          <TypeIcon className={`w-4 h-4 ${isEnabled ? getTypeColor(perm.type) : 'text-gray-400'}`} />
+                          <Label className="text-sm font-medium text-gray-900 cursor-pointer">
+                            {perm.label}
+                          </Label>
+                        </div>
+                        <Switch
+                          checked={isEnabled}
+                          onCheckedChange={(checked) => updateGlobalClientPermission(perm.key, checked)}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="flex justify-end pt-4 border-t">
+                  <Button
+                    onClick={handleSaveGlobalClientPermissions}
+                    disabled={saveGlobalClientPermissionsMutation.isPending}
+                    className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 px-8"
+                    size="lg"
+                  >
+                    <Save className="w-5 h-5 mr-2" />
+                    {saveGlobalClientPermissionsMutation.isPending ? 'Saving...' : 'Save Client Restrictions'}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -494,69 +590,6 @@ export default function UserPermissionManagement() {
             </DialogContent>
           </Dialog>
         )}
-
-        {/* Global Client Permissions Dialog */}
-        <Dialog open={editGlobalClientDialog} onOpenChange={setEditGlobalClientDialog}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5" />
-                Edit Global Client Permissions
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 mt-4">
-              <Card className="border-none shadow-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white">
-                <CardContent className="p-4">
-                  <p className="text-sm">
-                    <strong>These permissions apply to ALL clients by default</strong>
-                  </p>
-                  <p className="text-xs opacity-90">Changes here will affect every client's access across the platform</p>
-                </CardContent>
-              </Card>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {permissionCategories.client?.map(perm => {
-                  const isEnabled = globalClientPermissions[perm.key] ?? false;
-                  const TypeIcon = getTypeIcon(perm.type);
-                  
-                  return (
-                    <div
-                      key={perm.key}
-                      className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
-                        getTypeBg(perm.type, isEnabled)
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 flex-1">
-                        <TypeIcon className={`w-4 h-4 ${isEnabled ? getTypeColor(perm.type) : 'text-gray-400'}`} />
-                        <Label className="text-sm font-medium text-gray-900 cursor-pointer">
-                          {perm.label}
-                        </Label>
-                      </div>
-                      <Switch
-                        checked={isEnabled}
-                        onCheckedChange={(checked) => updateGlobalClientPermission(perm.key, checked)}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="flex gap-3 pt-4 border-t">
-                <Button variant="outline" onClick={() => setEditGlobalClientDialog(false)} className="flex-1">
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSaveGlobalClientPermissions}
-                  disabled={saveGlobalClientPermissionsMutation.isPending}
-                  className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  {saveGlobalClientPermissionsMutation.isPending ? 'Saving...' : 'Save Global Permissions'}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );
