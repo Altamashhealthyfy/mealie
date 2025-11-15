@@ -983,7 +983,7 @@ TDEE: ${Math.round(tdee)} kcal
 
 1. Apply disease-specific rules for: ${intake.health_conditions.join(', ')}
 2. Generate 10-day plan with 3-3-4 rotation (Plan A: days 1-3, Plan B: days 4-6, Plan C: days 7-10)
-3. Each day has 7 meals: Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner, Bedtime
+3. Each day has 8 meals: Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner, Post Dinner, Bedtime
 4. For each meal provide: meal_name, items, portion_sizes (Indian units), calories, protein, carbs, fats, sodium, potassium, disease_rationale
 5. Include MPESS practices for: ${Object.entries(intake.mpess_preferences).filter(([k,v]) => v).map(([k]) => k).join(', ')}
 6. Provide audit snapshot with compliance tracking

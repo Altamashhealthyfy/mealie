@@ -99,7 +99,8 @@ export default function ManualMealPlanBuilder({ client, onSave, isSaving }) {
     { value: 'mid_morning', label: 'Mid-Morning' },
     { value: 'lunch', label: 'Lunch' },
     { value: 'evening_snack', label: 'Evening Snack' },
-    { value: 'dinner', label: 'Dinner' }
+    { value: 'dinner', label: 'Dinner' },
+    { value: 'post_dinner', label: 'Post Dinner' }
   ];
 
   const filteredFoods = searchTerm.length > 0
