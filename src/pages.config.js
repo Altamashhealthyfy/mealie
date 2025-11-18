@@ -53,7 +53,7 @@ import ClientPlans from './pages/ClientPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import WhiteLabelClients from './pages/WhiteLabelClients';
 import UserPermissionManagement from './pages/UserPermissionManagement';
-import Layout from './Layout.jsx';
+import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
@@ -117,5 +117,5 @@ export const PAGES = {
 export const pagesConfig = {
     mainPage: "Home",
     Pages: PAGES,
-    Layout: Layout,
+    Layout: __Layout,
 };

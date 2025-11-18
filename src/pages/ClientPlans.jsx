@@ -82,7 +82,7 @@ export default function ClientPlans() {
   });
 
   // Check if client has access to this page using permissions hook
-  const canShowMyPlans = hasPermission('show_my_plans', false);
+  const canShowMyPlans = hasPermission('show_my_plans');
 
   React.useEffect(() => {
     if (user && user.user_type === 'client' && !canShowMyPlans) {
