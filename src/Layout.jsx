@@ -138,12 +138,6 @@ const paymentNavigation = [
 
 const businessNavigation = [
   {
-    title: "White-Label Clients",
-    url: createPageUrl("WhiteLabelClients"),
-    icon: Crown,
-    roles: ['super_admin'],
-  },
-  {
     title: "User Permissions",
     url: createPageUrl("UserPermissionManagement"),
     icon: Settings,
