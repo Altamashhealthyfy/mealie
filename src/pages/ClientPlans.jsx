@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Check, AlertTriangle, CreditCard, Users, TrendingUp, Crown } from "lucide-react";
+import { Check, AlertTriangle, CreditCard, Users, TrendingUp, Crown, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createPageUrl } from "@/utils";
@@ -15,6 +15,7 @@ export default function ClientPlans() {
   const queryClient = useQueryClient();
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [billingCycle, setBillingCycle] = useState('monthly');
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -52,19 +53,35 @@ export default function ClientPlans() {
 
   const { permissions, hasPermission } = useUserPermissions();
 
-  const subscribeMutation = useMutation({
+  // Load Razorpay script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const createSubscriptionMutation = useMutation({
     mutationFn: async (data) => base44.entities.ClientSubscription.create(data),
+    onSuccess: (newSubscription) => {
+      return newSubscription;
+    },
+    onError: (error) => {
+        console.error("Error creating subscription:", error);
+        alert('Failed to create subscription. Please try again.');
+    }
+  });
+
+  const updateSubscriptionMutation = useMutation({
+    mutationFn: async ({ id, data }) => base44.entities.ClientSubscription.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries(['myClientSubscription']);
       queryClient.invalidateQueries(['clientSubscription']);
       queryClient.invalidateQueries(['userCustomPermissions']);
-      setSelectedPlan(null);
-      alert('✅ Plan activated! Please wait for payment confirmation.');
     },
-    onError: (error) => {
-        console.error("Error subscribing:", error);
-        alert('Failed to subscribe. Please try again.');
-    }
   });
 
   const unSubscribeMutation = useMutation({
@@ -168,7 +185,7 @@ export default function ClientPlans() {
     }
   ];
 
-  const handleSubscribe = (plan) => {
+  const handleSubscribe = async (plan) => {
     if (!clientProfile) {
       alert('Client profile not found');
       return;
@@ -178,27 +195,106 @@ export default function ClientPlans() {
         return;
     }
 
-    const amount = billingCycle === 'yearly' ? plan.yearly : plan.monthly;
-    const startDate = new Date().toISOString().split('T')[0];
-    const endDate = new Date();
-    endDate.setMonth(endDate.getMonth() + (billingCycle === 'yearly' ? 12 : 1));
+    setIsProcessingPayment(true);
 
-    subscribeMutation.mutate({
-      client_id: clientProfile.id,
-      client_email: user.email,
-      client_name: user.full_name,
-      plan_tier: plan.id,
-      billing_cycle: billingCycle,
-      amount,
-      currency: 'INR',
-      start_date: startDate,
-      end_date: endDate.toISOString().split('T')[0],
-      next_billing_date: endDate.toISOString().split('T')[0],
-      status: 'pending',
-      payment_gateway: 'razorpay',
-      coach_email: clientProfile.created_by,
-      auto_renew: true
-    });
+    try {
+      const amount = billingCycle === 'yearly' ? plan.yearly : plan.monthly;
+      const startDate = new Date().toISOString().split('T')[0];
+      const endDate = new Date();
+      endDate.setMonth(endDate.getMonth() + (billingCycle === 'yearly' ? 12 : 1));
+
+      // Create subscription record first
+      const subscriptionData = {
+        client_id: clientProfile.id,
+        client_email: user.email,
+        client_name: user.full_name,
+        plan_tier: plan.id,
+        billing_cycle: billingCycle,
+        amount,
+        currency: 'INR',
+        start_date: startDate,
+        end_date: endDate.toISOString().split('T')[0],
+        next_billing_date: endDate.toISOString().split('T')[0],
+        status: 'pending',
+        payment_gateway: 'razorpay',
+        coach_email: clientProfile.created_by,
+        auto_renew: true
+      };
+
+      const newSubscription = await createSubscriptionMutation.mutateAsync(subscriptionData);
+
+      // Initiate Razorpay payment
+      const { data: paymentOrder } = await base44.functions.invoke('createClientPayment', {
+        subscriptionId: newSubscription.id,
+        amount: amount * 100, // Razorpay expects amount in paise
+        currency: 'INR',
+        clientName: user.full_name,
+        clientEmail: user.email,
+        planName: plan.name
+      });
+
+      const options = {
+        key: paymentOrder.razorpay_key_id,
+        amount: paymentOrder.amount,
+        currency: paymentOrder.currency,
+        name: 'Mealie',
+        description: `${plan.name} - ${billingCycle === 'yearly' ? 'Yearly' : 'Monthly'}`,
+        order_id: paymentOrder.order_id,
+        prefill: {
+          name: user.full_name,
+          email: user.email,
+        },
+        theme: {
+          color: '#F97316'
+        },
+        handler: async function (response) {
+          try {
+            // Verify payment
+            const { data: verification } = await base44.functions.invoke('verifyClientPayment', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              subscriptionId: newSubscription.id
+            });
+
+            if (verification.success) {
+              // Update subscription to active
+              await updateSubscriptionMutation.mutateAsync({
+                id: newSubscription.id,
+                data: {
+                  status: 'active',
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id
+                }
+              });
+              
+              setSelectedPlan(null);
+              alert('✅ Payment successful! Your plan is now active.');
+            } else {
+              alert('❌ Payment verification failed. Please contact support.');
+            }
+          } catch (error) {
+            console.error('Payment verification error:', error);
+            alert('❌ Payment verification failed. Please contact support.');
+          } finally {
+            setIsProcessingPayment(false);
+          }
+        },
+        modal: {
+          ondismiss: function() {
+            setIsProcessingPayment(false);
+            alert('Payment cancelled. Your subscription remains pending.');
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error('Payment initiation error:', error);
+      alert('Failed to initiate payment. Please try again.');
+      setIsProcessingPayment(false);
+    }
   };
 
   const handleCancelSubscription = () => {
@@ -330,10 +426,20 @@ export default function ClientPlans() {
               </Alert>
               <Button
                 onClick={() => handleSubscribe(selectedPlan)}
-                disabled={subscribeMutation.isPending}
+                disabled={isProcessingPayment}
                 className="w-full"
               >
-                {subscribeMutation.isPending ? 'Processing...' : 'Confirm & Request Payment'}
+                {isProcessingPayment ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Processing Payment...
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="w-4 h-4 mr-2" />
+                    Proceed to Payment
+                  </>
+                )}
               </Button>
             </div>
           </DialogContent>
