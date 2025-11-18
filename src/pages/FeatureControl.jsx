@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -1311,7 +1310,7 @@ function getDefaultSettings() {
       can_view_profile: true,
       can_edit_profile: true,
       can_upload_profile_photo: true,
-      show_my_plans: true,
+      show_my_plans: false,
       can_view_recipes: true,
       can_download_recipes: true,
       can_upload_recipes: false,
@@ -1324,6 +1323,13 @@ function getDefaultSettings() {
       can_use_food_lookup_ai: true,
       can_use_wellness_insights: false,
       can_use_chat_assistant: false,
+      show_meal_plan: true,
+      show_food_log: true,
+      show_progress_tracking: true,
+      show_mpess_tracker: true,
+      show_messages: true,
+      show_recipes: true,
+      show_profile: true,
       monthly_ai_requests_limit: 30,
       max_file_size_mb: 10
     }
