@@ -123,8 +123,8 @@ export default function TeamManagement() {
     if (u.user_type === 'client') return false;
     
     if (isSuperAdmin) {
-      // Super admin sees all non-client users
-      return true;
+      // Super admin sees team members and student coaches they created, not themselves
+      return (u.user_type === 'team_member' || u.user_type === 'student_coach') && u.created_by === user?.email;
     } else if (isStudentCoach) {
       // Student coach only sees their own team members (student_team_member created by them)
       return u.user_type === 'student_team_member' && u.created_by === user?.email;
