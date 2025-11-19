@@ -13,6 +13,7 @@ export default function CoachSubscriptions() {
   const queryClient = useQueryClient();
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [billingCycle, setBillingCycle] = useState('monthly');
+  const [paymentMethod, setPaymentMethod] = useState('razorpay');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const { data: user } = useQuery({
@@ -290,10 +291,22 @@ export default function CoachSubscriptions() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="space-y-2">
+                <label className="font-semibold">Payment Method</label>
+                <Select value={paymentMethod} onValueChange={setPaymentMethod}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="razorpay">Razorpay (Card/UPI/Netbanking)</SelectItem>
+                    <SelectItem value="upi">UPI Direct</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <Alert>
                 <CreditCard className="w-4 h-4" />
                 <AlertDescription>
-                  Payment will be processed securely through Razorpay
+                  Payment will be processed securely through {paymentMethod === 'razorpay' ? 'Razorpay' : 'UPI'}
                 </AlertDescription>
               </Alert>
               <Button
