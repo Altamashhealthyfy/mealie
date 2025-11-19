@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
@@ -26,6 +25,29 @@ export default function MealPlansPro() {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+  });
+
+  const { data: coachSubscription } = useQuery({
+    queryKey: ['coachSubscription', user?.email],
+    queryFn: async () => {
+      const subs = await base44.entities.HealthCoachSubscription.filter({ 
+        coach_email: user?.email,
+        status: 'active'
+      });
+      return subs[0] || null;
+    },
+    enabled: !!user && user.user_type === 'student_coach',
+  });
+
+  const { data: coachPlan } = useQuery({
+    queryKey: ['coachPlan', coachSubscription?.plan_id],
+    queryFn: async () => {
+      const plan = await base44.entities.HealthCoachPlan.filter({ 
+        id: coachSubscription?.plan_id 
+      });
+      return plan[0] || null;
+    },
+    enabled: !!coachSubscription?.plan_id,
   });
 
   const { data: clients } = useQuery({
@@ -304,6 +326,51 @@ export default function MealPlansPro() {
       created_by: user?.email
     });
   };
+
+  // Check access for student coaches
+  const isSuperAdmin = user?.user_type === 'super_admin';
+  const isStudentCoach = user?.user_type === 'student_coach';
+  
+  const hasProAccess = isSuperAdmin || (isStudentCoach && coachSubscription && coachPlan?.can_create_client_plans);
+
+  if (isStudentCoach && !hasProAccess) {
+    return (
+      <div className="min-h-screen p-8 flex items-center justify-center bg-gradient-to-br from-purple-50 to-indigo-50">
+        <Card className="max-w-md border-none shadow-xl bg-white">
+          <CardHeader>
+            <CardTitle className="text-red-900 flex items-center gap-2">
+              <AlertTriangle className="w-6 h-6" />
+              Pro Plans Access Restricted
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-gray-800">
+              Pro Plans (Disease-Specific Clinical Meal Planning) is only available on higher-tier Health Coach subscriptions.
+            </p>
+            <Alert className="bg-purple-50 border-purple-500">
+              <Sparkles className="w-4 h-4 text-purple-600" />
+              <AlertDescription>
+                <strong>Upgrade your plan</strong> to access:
+                <ul className="list-disc ml-4 mt-2">
+                  <li>Disease-specific meal plans</li>
+                  <li>Clinical intake integration</li>
+                  <li>MPESS wellness practices</li>
+                  <li>10-day rotation plans</li>
+                  <li>Audit compliance tracking</li>
+                </ul>
+              </AlertDescription>
+            </Alert>
+            <Button
+              onClick={() => window.location.href = createPageUrl('CoachSubscriptions')}
+              className="w-full bg-gradient-to-r from-purple-500 to-indigo-500"
+            >
+              View Subscription Plans
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-purple-50 to-indigo-50">
