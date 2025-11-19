@@ -8,8 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CheckCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Search, Shield, Save, Edit2, Crown, UserCog, GraduationCap, Eye, Edit, Trash2 } from "lucide-react";
+import { Users, Search, Shield, Save, Edit2, Crown, UserCog, GraduationCap, Eye, Edit, Trash2, Award } from "lucide-react";
 
 export default function UserPermissionManagement() {
   const queryClient = useQueryClient();
@@ -20,6 +22,9 @@ export default function UserPermissionManagement() {
   const [customPermissions, setCustomPermissions] = useState({});
   const [globalClientPermissions, setGlobalClientPermissions] = useState({});
   const [activeUserType, setActiveUserType] = useState("super_admin");
+  const [assignPlanDialog, setAssignPlanDialog] = useState(false);
+  const [selectedCoachForPlan, setSelectedCoachForPlan] = useState(null);
+  const [selectedPlanId, setSelectedPlanId] = useState("");
 
   const { data: currentUser } = useQuery({
     queryKey: ['currentUser'],
@@ -47,6 +52,20 @@ export default function UserPermissionManagement() {
       return settings[0] || null;
     },
     enabled: !!currentUser && currentUser.user_type === 'super_admin',
+  });
+
+  const { data: coachPlans } = useQuery({
+    queryKey: ['coachPlans'],
+    queryFn: () => base44.entities.HealthCoachPlan.list('sort_order'),
+    enabled: !!currentUser && currentUser.user_type === 'super_admin',
+    initialData: [],
+  });
+
+  const { data: coachSubscriptions } = useQuery({
+    queryKey: ['coachSubscriptions'],
+    queryFn: () => base44.entities.HealthCoachSubscription.list(),
+    enabled: !!currentUser && currentUser.user_type === 'super_admin',
+    initialData: [],
   });
 
   const savePermissionsMutation = useMutation({
@@ -89,6 +108,48 @@ export default function UserPermissionManagement() {
       queryClient.invalidateQueries(['userCustomPermissions']);
       setEditGlobalClientDialog(false);
       alert('✅ Global client permissions saved successfully!');
+    },
+  });
+
+  const assignPlanMutation = useMutation({
+    mutationFn: async ({ coachEmail, planId }) => {
+      const existingSub = coachSubscriptions.find(s => s.coach_email === coachEmail && s.status === 'active');
+      const selectedPlan = coachPlans.find(p => p.id === planId);
+      
+      const startDate = new Date().toISOString().split('T')[0];
+      const endDate = new Date();
+      endDate.setMonth(endDate.getMonth() + 1);
+
+      const subscriptionData = {
+        coach_email: coachEmail,
+        coach_name: allUsers.find(u => u.email === coachEmail)?.full_name || coachEmail,
+        plan_id: planId,
+        plan_name: selectedPlan?.plan_name,
+        billing_cycle: 'monthly',
+        amount: 0,
+        currency: 'INR',
+        start_date: startDate,
+        end_date: endDate.toISOString().split('T')[0],
+        next_billing_date: endDate.toISOString().split('T')[0],
+        status: 'active',
+        payment_method: 'manual',
+        manually_granted: true,
+        granted_by: currentUser?.email,
+        auto_renew: false
+      };
+
+      if (existingSub) {
+        return await base44.entities.HealthCoachSubscription.update(existingSub.id, subscriptionData);
+      } else {
+        return await base44.entities.HealthCoachSubscription.create(subscriptionData);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['coachSubscriptions']);
+      setAssignPlanDialog(false);
+      setSelectedCoachForPlan(null);
+      setSelectedPlanId("");
+      alert('✅ Health Coach Plan assigned successfully!');
     },
   });
 
@@ -150,6 +211,28 @@ export default function UserPermissionManagement() {
 
   const handleSaveGlobalClientPermissions = () => {
     saveGlobalClientPermissionsMutation.mutate(globalClientPermissions);
+  };
+
+  const handleAssignPlan = (coach) => {
+    setSelectedCoachForPlan(coach);
+    const existingSub = coachSubscriptions.find(s => s.coach_email === coach.email && s.status === 'active');
+    setSelectedPlanId(existingSub?.plan_id || "");
+    setAssignPlanDialog(true);
+  };
+
+  const handleSaveAssignPlan = () => {
+    if (!selectedPlanId) {
+      alert('Please select a plan');
+      return;
+    }
+    assignPlanMutation.mutate({
+      coachEmail: selectedCoachForPlan.email,
+      planId: selectedPlanId
+    });
+  };
+
+  const getCoachSubscription = (coachEmail) => {
+    return coachSubscriptions.find(s => s.coach_email === coachEmail && s.status === 'active');
   };
 
   const updatePermission = (key, value) => {
@@ -378,11 +461,14 @@ export default function UserPermissionManagement() {
 
           {['super_admin', 'team_member', 'student_coach'].map(userType => {
             const RoleIcon = getRoleIcon(userType);
+            const isCoachTab = userType === 'student_coach';
             return (
               <TabsContent key={userType} value={userType}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredUsers.map(user => {
                     const hasCustomPerms = !!getUserCustomPermissions(user.email);
+                    const coachSub = isCoachTab ? getCoachSubscription(user.email) : null;
+                    const assignedPlan = coachSub ? coachPlans.find(p => p.id === coachSub.plan_id) : null;
                     return (
                       <Card key={user.id} className="border-none shadow-lg hover:shadow-xl transition-shadow">
                         <CardContent className="p-6">
@@ -393,17 +479,36 @@ export default function UserPermissionManagement() {
                             </div>
                             <RoleIcon className="w-5 h-5 text-gray-400" />
                           </div>
-                          {hasCustomPerms && (
-                            <Badge className="bg-orange-100 text-orange-700 mb-3">Custom Permissions</Badge>
-                          )}
-                          <Button
-                            onClick={() => handleEditUser(user)}
-                            variant="outline"
-                            className="w-full"
-                          >
-                            <Edit2 className="w-4 h-4 mr-2" />
-                            Edit Permissions
-                          </Button>
+                          <div className="space-y-2 mb-3">
+                            {hasCustomPerms && (
+                              <Badge className="bg-orange-100 text-orange-700">Custom Permissions</Badge>
+                            )}
+                            {assignedPlan && (
+                              <Badge className="bg-green-100 text-green-700">
+                                {assignedPlan.plan_name}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="space-y-2">
+                            <Button
+                              onClick={() => handleEditUser(user)}
+                              variant="outline"
+                              className="w-full"
+                            >
+                              <Edit2 className="w-4 h-4 mr-2" />
+                              Edit Permissions
+                            </Button>
+                            {isCoachTab && (
+                              <Button
+                                onClick={() => handleAssignPlan(user)}
+                                variant="outline"
+                                className="w-full border-green-500 text-green-700 hover:bg-green-50"
+                              >
+                                <Award className="w-4 h-4 mr-2" />
+                                {assignedPlan ? 'Change Plan' : 'Assign Plan'}
+                              </Button>
+                            )}
+                          </div>
                         </CardContent>
                       </Card>
                     );
@@ -530,6 +635,108 @@ export default function UserPermissionManagement() {
                   >
                     <Save className="w-4 h-4 mr-2" />
                     {savePermissionsMutation.isPending ? 'Saving...' : 'Save Permissions'}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {/* Assign Plan Dialog */}
+        {selectedCoachForPlan && (
+          <Dialog open={assignPlanDialog} onOpenChange={setAssignPlanDialog}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Award className="w-5 h-5 text-green-600" />
+                  Assign Health Coach Plan
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
+                <Card className="border-none shadow-lg bg-gradient-to-r from-green-500 to-emerald-600 text-white">
+                  <CardContent className="p-4">
+                    <p className="text-sm">
+                      <strong>Coach:</strong> {selectedCoachForPlan.full_name}
+                    </p>
+                    <p className="text-xs opacity-90">{selectedCoachForPlan.email}</p>
+                  </CardContent>
+                </Card>
+
+                <div className="space-y-2">
+                  <Label className="text-base font-semibold">Select Plan</Label>
+                  <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="Choose a Health Coach Plan..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {coachPlans.filter(p => p.status === 'active').map(plan => (
+                        <SelectItem key={plan.id} value={plan.id}>
+                          <div className="flex items-center justify-between w-full">
+                            <span className="font-semibold">{plan.plan_name}</span>
+                            <span className="text-sm text-gray-600 ml-4">
+                              ₹{plan.monthly_price}/mo
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {selectedPlanId && (
+                  <Card className="border-2 border-green-200 bg-green-50">
+                    <CardHeader>
+                      <CardTitle className="text-lg">
+                        {coachPlans.find(p => p.id === selectedPlanId)?.plan_name}
+                      </CardTitle>
+                      <CardDescription>
+                        {coachPlans.find(p => p.id === selectedPlanId)?.plan_description}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <span>Max Clients: {coachPlans.find(p => p.id === selectedPlanId)?.max_clients === -1 ? 'Unlimited' : coachPlans.find(p => p.id === selectedPlanId)?.max_clients}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <span>AI Limit: {coachPlans.find(p => p.id === selectedPlanId)?.ai_generation_limit === -1 ? 'Unlimited' : coachPlans.find(p => p.id === selectedPlanId)?.ai_generation_limit}</span>
+                        </div>
+                        {coachPlans.find(p => p.id === selectedPlanId)?.can_access_pro_plans && (
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                            <span>Pro Plans Access</span>
+                          </div>
+                        )}
+                        {coachPlans.find(p => p.id === selectedPlanId)?.can_manage_team && (
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                            <span>Team Management</span>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                <Alert className="bg-blue-50 border-blue-500">
+                  <AlertDescription>
+                    This will manually assign a plan to the coach without payment. The plan will be active immediately.
+                  </AlertDescription>
+                </Alert>
+
+                <div className="flex gap-3 pt-4 border-t">
+                  <Button variant="outline" onClick={() => setAssignPlanDialog(false)} className="flex-1">
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSaveAssignPlan}
+                    disabled={assignPlanMutation.isPending || !selectedPlanId}
+                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    {assignPlanMutation.isPending ? 'Assigning...' : 'Assign Plan'}
                   </Button>
                 </div>
               </div>
