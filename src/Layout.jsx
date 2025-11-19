@@ -100,13 +100,7 @@ const dietitianNavigation = [
     icon: ChefHat,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
-  {
-    title: "Pro Plans 💎",
-    url: createPageUrl("MealPlansPro"),
-    icon: Stethoscope,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
-    badge: "Pro"
-  },
+
   {
     title: "Template Library",
     url: createPageUrl("TemplateLibrary"),
@@ -133,6 +127,18 @@ const paymentNavigation = [
     url: createPageUrl("PaymentGatewaySettings"),
     icon: CreditCard,
     roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
+    title: "Create Client Plans",
+    url: createPageUrl("ClientPlanBuilder"),
+    icon: Users,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
+    title: "Pro Plans 💎",
+    url: createPageUrl("MealPlansPro"),
+    icon: Stethoscope,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
     title: "Assign Plans",
