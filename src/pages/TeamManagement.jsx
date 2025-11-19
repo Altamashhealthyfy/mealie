@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Users,
@@ -15,10 +19,21 @@ import {
   Info,
   Crown,
   GraduationCap,
-  Building2
+  Building2,
+  Trash2,
+  Edit
 } from "lucide-react";
 
 export default function TeamManagement() {
+  const queryClient = useQueryClient();
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [formData, setFormData] = useState({
+    full_name: "",
+    email: "",
+    password: "",
+    user_type: "team_member"
+  });
+
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
@@ -27,13 +42,47 @@ export default function TeamManagement() {
   const { data: allUsers } = useQuery({
     queryKey: ['allUsers'],
     queryFn: async () => {
-      // This would need to be implemented via API
-      // For now showing instructions
-      return [];
+      const users = await base44.entities.User.list();
+      return users;
     },
     enabled: !!user,
     initialData: [],
   });
+
+  const addUserMutation = useMutation({
+    mutationFn: async (data) => {
+      // Note: Base44 doesn't support creating users with passwords via API
+      // This would need to be implemented as a backend function
+      return await base44.functions.invoke('createUserWithPassword', data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['allUsers']);
+      setShowAddDialog(false);
+      setFormData({ full_name: "", email: "", password: "", user_type: "team_member" });
+      alert('✅ User added successfully!');
+    },
+    onError: (error) => {
+      alert('❌ Error: ' + error.message);
+    }
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId) => {
+      return await base44.entities.User.delete(userId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['allUsers']);
+      alert('✅ User deleted successfully!');
+    },
+  });
+
+  const handleAddUser = () => {
+    if (!formData.full_name || !formData.email || !formData.password) {
+      alert('Please fill in all fields');
+      return;
+    }
+    addUserMutation.mutate(formData);
+  };
 
   const userType = user?.user_type || 'team_member';
   const isSuperAdmin = userType === 'super_admin';
@@ -69,25 +118,74 @@ export default function TeamManagement() {
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            {isSuperAdmin ? (
-              <Crown className="w-8 h-8 text-purple-600" />
-            ) : (
-              <GraduationCap className="w-8 h-8 text-green-600" />
-            )}
-            <Badge className={isSuperAdmin ? "bg-purple-600 text-white" : "bg-green-600 text-white"}>
-              {isSuperAdmin ? 'Platform Owner' : 'Health Coach'}
-            </Badge>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              {isSuperAdmin ? (
+                <Crown className="w-8 h-8 text-purple-600" />
+              ) : (
+                <GraduationCap className="w-8 h-8 text-green-600" />
+              )}
+              <Badge className={isSuperAdmin ? "bg-purple-600 text-white" : "bg-green-600 text-white"}>
+                {isSuperAdmin ? 'Platform Owner' : 'Health Coach'}
+              </Badge>
+            </div>
+            <h1 className="text-5xl font-bold text-gray-900 mb-2">My Team</h1>
+            <p className="text-xl text-gray-600">
+              {isSuperAdmin 
+                ? 'Manage your team members and student coaches' 
+                : 'Manage your team members who help with your clients'
+              }
+            </p>
           </div>
-          <h1 className="text-5xl font-bold text-gray-900 mb-2">My Team</h1>
-          <p className="text-xl text-gray-600">
-            {isSuperAdmin 
-              ? 'Manage your team members and student coaches' 
-              : 'Manage your team members who help with your clients'
-            }
-          </p>
+          <Button onClick={() => setShowAddDialog(true)} className="bg-blue-600 hover:bg-blue-700">
+            <UserPlus className="w-5 h-5 mr-2" />
+            Add User
+          </Button>
         </div>
+
+        {/* Users List */}
+        <Card className="border-none shadow-xl">
+          <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white">
+            <CardTitle className="text-2xl">Team Members</CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {allUsers.filter(u => u.user_type !== 'client').map(teamUser => (
+                <div key={teamUser.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <h3 className="font-bold text-gray-900">{teamUser.full_name}</h3>
+                    <p className="text-sm text-gray-600">{teamUser.email}</p>
+                    <Badge className={
+                      teamUser.user_type === 'super_admin' ? 'bg-purple-600' :
+                      teamUser.user_type === 'student_coach' ? 'bg-green-600' :
+                      'bg-blue-600'
+                    }>
+                      {teamUser.user_type === 'super_admin' ? 'Super Admin' :
+                       teamUser.user_type === 'student_coach' ? 'Health Coach' :
+                       teamUser.user_type === 'student_team_member' ? 'Coach Team' :
+                       'Team Member'}
+                    </Badge>
+                  </div>
+                  {teamUser.id !== user?.id && (
+                    <Button
+                      onClick={() => {
+                        if (confirm('Delete this user?')) {
+                          deleteUserMutation.mutate(teamUser.id);
+                        }
+                      }}
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Super Admin Instructions */}
         {isSuperAdmin && (
@@ -413,6 +511,76 @@ export default function TeamManagement() {
           </CardContent>
         </Card>
 
+        {/* Add User Dialog */}
+        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New User</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Full Name *</Label>
+                <Input
+                  value={formData.full_name}
+                  onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                  placeholder="John Doe"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Email *</Label>
+                <Input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  placeholder="user@example.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Password *</Label>
+                <Input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  placeholder="Enter secure password"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>User Type</Label>
+                <Select value={formData.user_type} onValueChange={(value) => setFormData({...formData, user_type: value})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {isSuperAdmin && (
+                      <>
+                        <SelectItem value="super_admin">Super Admin</SelectItem>
+                        <SelectItem value="team_member">Team Member</SelectItem>
+                        <SelectItem value="student_coach">Student Coach</SelectItem>
+                      </>
+                    )}
+                    {!isSuperAdmin && (
+                      <SelectItem value="student_team_member">Team Member</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Alert className="bg-orange-50 border-orange-500">
+                <AlertTriangle className="w-4 h-4 text-orange-600" />
+                <AlertDescription className="text-orange-900">
+                  <strong>Note:</strong> This requires a backend function to be implemented. Currently Base44 only supports user invitations via dashboard.
+                </AlertDescription>
+              </Alert>
+              <Button
+                onClick={handleAddUser}
+                disabled={addUserMutation.isPending}
+                className="w-full bg-blue-600 hover:bg-blue-700"
+              >
+                {addUserMutation.isPending ? 'Adding...' : 'Add User'}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* Contact Support */}
         <Card className="border-none shadow-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
           <CardContent className="p-8 text-center">
@@ -420,8 +588,8 @@ export default function TeamManagement() {
             <h2 className="text-2xl font-bold mb-2">Need Help?</h2>
             <p className="text-white/90 mb-4">
               {isSuperAdmin 
-                ? "If you need help managing your team or student coaches, contact Base44 support"
-                : "If you need help inviting your team members, contact the platform admin or Base44 support"
+                ? "If you need help managing your team or student coaches, contact support"
+                : "If you need help with your team members, contact the platform admin"
               }
             </p>
             <Button className="bg-white text-blue-600 hover:bg-gray-100">
