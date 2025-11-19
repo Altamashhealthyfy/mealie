@@ -231,7 +231,6 @@ export default function HealthCoachPlans() {
                   <p>Payment Gateway: {plan.can_add_payment_gateway ? 'Yes' : 'No'}</p>
                   <p>Create Plans: {plan.can_create_client_plans ? 'Yes' : 'No'}</p>
                   <p>Pro Plans 💎: {plan.can_access_pro_plans ? 'Yes' : 'No'}</p>
-                  <p>My Team: {plan.can_manage_team ? 'Yes' : 'No'}</p>
                 </div>
 
                 <div className="flex gap-2 pt-4">
