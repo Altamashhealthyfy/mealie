@@ -56,6 +56,7 @@ import HealthCoachPlans from './pages/HealthCoachPlans';
 import CoachSubscriptions from './pages/CoachSubscriptions';
 import ClientPlanBuilder from './pages/ClientPlanBuilder';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
+import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
 import __Layout from './Layout.jsx';
 
 
@@ -118,6 +119,7 @@ export const PAGES = {
     "CoachSubscriptions": CoachSubscriptions,
     "ClientPlanBuilder": ClientPlanBuilder,
     "CoachPaymentSetup": CoachPaymentSetup,
+    "AdminSubscriptionManager": AdminSubscriptionManager,
 }
 
 export const pagesConfig = {

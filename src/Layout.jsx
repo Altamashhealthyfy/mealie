@@ -59,10 +59,22 @@ const dietitianNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
-    title: "My White-Label Plan",
-    url: createPageUrl("WhiteLabelSubscription"),
+    title: "My Subscription",
+    url: createPageUrl("CoachSubscriptions"),
     icon: Crown,
     roles: ['student_coach'],
+  },
+  {
+    title: "Payment Setup",
+    url: createPageUrl("CoachPaymentSetup"),
+    icon: CreditCard,
+    roles: ['student_coach'],
+  },
+  {
+    title: "Client Plans",
+    url: createPageUrl("ClientPlanBuilder"),
+    icon: Users,
+    roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
     title: "Clients",
@@ -137,6 +149,18 @@ const paymentNavigation = [
 ];
 
 const businessNavigation = [
+  {
+    title: "Health Coach Plans",
+    url: createPageUrl("HealthCoachPlans"),
+    icon: Crown,
+    roles: ['super_admin'],
+  },
+  {
+    title: "Subscription Manager",
+    url: createPageUrl("AdminSubscriptionManager"),
+    icon: Shield,
+    roles: ['super_admin'],
+  },
   {
     title: "User Permissions",
     url: createPageUrl("UserPermissionManagement"),
