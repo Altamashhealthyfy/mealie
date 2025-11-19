@@ -38,6 +38,19 @@ export default function PaymentHistory() {
     initialData: [],
   });
 
+  const { data: payments } = useQuery({
+    queryKey: ['allPayments'],
+    queryFn: async () => {
+      const allPayments = await base44.entities.Payment.list('-payment_date');
+      if (user?.user_type === 'super_admin') {
+        return allPayments;
+      }
+      return allPayments.filter(payment => payment.coach_email === user?.email);
+    },
+    enabled: !!user,
+    initialData: [],
+  });
+
   const canViewPaymentHistory = () => {
     if (user?.user_type === 'super_admin') {
       return securitySettings?.super_admin_permissions?.can_view_payment_history ?? true;
@@ -183,7 +196,17 @@ export default function PaymentHistory() {
                           } text-white`}>
                             {sub.status}
                           </Badge>
+                          {sub.payment_id && (
+                            <Badge variant="outline" className="font-mono text-xs">
+                              ID: {sub.payment_id.substring(0, 12)}...
+                            </Badge>
+                          )}
                         </div>
+                        {sub.payment_gateway && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            Gateway: {sub.payment_gateway}
+                          </p>
+                        )}
                       </div>
                       <div className="text-right">
                         <p className="text-2xl font-bold text-gray-900">₹{sub.amount}</p>
@@ -198,6 +221,66 @@ export default function PaymentHistory() {
                   </CardContent>
                 </Card>
               ))}
+
+              <div className="mt-8 pt-6 border-t">
+                <h2 className="text-2xl font-bold mb-4">All Transaction Details</h2>
+                {payments.map((payment) => (
+                  <Card key={payment.id} className="border-2 mb-3">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg">{payment.payment_for || 'Payment'}</h3>
+                          <p className="text-sm text-gray-600">{payment.coach_email}</p>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            <Badge className={`${
+                              payment.status === 'completed' ? 'bg-green-500' :
+                              payment.status === 'pending' ? 'bg-yellow-500' :
+                              payment.status === 'failed' ? 'bg-red-500' :
+                              'bg-blue-500'
+                            } text-white capitalize`}>
+                              {payment.status}
+                            </Badge>
+                            <Badge variant="outline" className="capitalize">
+                              {payment.payment_method}
+                            </Badge>
+                            {payment.transaction_id && (
+                              <Badge variant="outline" className="font-mono text-xs">
+                                TXN: {payment.transaction_id}
+                              </Badge>
+                            )}
+                            {payment.razorpay_payment_id && (
+                              <Badge variant="outline" className="font-mono text-xs">
+                                Pay ID: {payment.razorpay_payment_id.substring(0, 12)}...
+                              </Badge>
+                            )}
+                          </div>
+                          {payment.invoice_number && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              Invoice: {payment.invoice_number}
+                            </p>
+                          )}
+                          {payment.notes && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              Note: {payment.notes}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-gray-900">₹{payment.amount}</p>
+                          <p className="text-sm text-gray-600">{format(new Date(payment.payment_date), 'MMM d, yyyy')}</p>
+                          <p className="text-xs text-gray-500 mt-1">{payment.currency || 'INR'}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {payments.length === 0 && (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500">No transaction records found</p>
+                  </div>
+                )}
+              </div>
             </div>
 
             {filteredSubscriptions.length === 0 && (
