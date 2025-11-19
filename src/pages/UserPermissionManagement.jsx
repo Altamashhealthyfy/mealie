@@ -499,7 +499,7 @@ export default function UserPermissionManagement() {
                               <Edit2 className="w-4 h-4 mr-2" />
                               Edit Permissions
                             </Button>
-                            {isCoachTab && (
+                            {userType === 'student_coach' && (
                               <Button
                                 onClick={() => handleAssignPlan(user)}
                                 variant="outline"
