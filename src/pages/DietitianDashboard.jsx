@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -74,9 +73,32 @@ export default function DietitianDashboard() {
     initialData: [],
   });
 
+  const { data: mpessTracking } = useQuery({
+    queryKey: ['mpessTracking'],
+    queryFn: async () => {
+      const tracking = await base44.entities.MPESSTracker.list('-created_date', 30);
+      return tracking;
+    },
+    initialData: [],
+  });
+
   const activeClients = clients.filter(c => c.status === 'active');
   const recentClients = clients.slice(0, 5);
   const upcomingAppointments = appointments.filter(a => a.status === 'scheduled').slice(0, 3);
+
+  // MPESS stats
+  const last7Days = new Date();
+  last7Days.setDate(last7Days.getDate() - 7);
+  const recentMPESS = mpessTracking.filter(t => new Date(t.date) >= last7Days);
+  const totalMPESSSessions = mpessTracking.length;
+  const avgMPESSRating = mpessTracking.length > 0 
+    ? (mpessTracking.reduce((sum, t) => sum + (t.overall_rating || 0), 0) / mpessTracking.length).toFixed(1)
+    : 0;
+
+  // Client growth stats
+  const last30Days = new Date();
+  last30Days.setDate(last30Days.getDate() - 30);
+  const newClientsThisMonth = clients.filter(c => new Date(c.created_date) >= last30Days).length;
 
   const handleCreatePlan = (clientId) => {
     navigate(`${createPageUrl("MealPlanner")}?client=${clientId}`);
@@ -84,31 +106,51 @@ export default function DietitianDashboard() {
 
   const stats = [
     {
-      title: "Active Clients",
-      value: activeClients.length,
+      title: "Total Clients",
+      value: clients.length,
+      subtitle: `${activeClients.length} active`,
       icon: Users,
       color: "from-blue-500 to-cyan-500",
       link: createPageUrl("ClientManagement"),
     },
     {
+      title: "New This Month",
+      value: newClientsThisMonth,
+      subtitle: "clients added",
+      icon: UserPlus,
+      color: "from-green-500 to-emerald-500",
+      link: createPageUrl("ClientManagement"),
+    },
+    {
       title: "Meal Plans",
       value: mealPlans.length,
+      subtitle: "created",
       icon: ChefHat,
       color: "from-orange-500 to-red-500",
       link: createPageUrl("MealPlanner"),
     },
     {
+      title: "MPESS Sessions",
+      value: totalMPESSSessions,
+      subtitle: `Avg: ${avgMPESSRating}/5`,
+      icon: Heart,
+      color: "from-pink-500 to-rose-500",
+      link: createPageUrl("ClientManagement"),
+    },
+    {
       title: "Unread Messages",
       value: messages.length,
+      subtitle: "pending",
       icon: MessageSquare,
-      color: "from-green-500 to-emerald-500",
+      color: "from-purple-500 to-indigo-500",
       link: createPageUrl("Communication"),
     },
     {
       title: "Appointments",
       value: upcomingAppointments.length,
+      subtitle: "upcoming",
       icon: Calendar,
-      color: "from-purple-500 to-pink-500",
+      color: "from-cyan-500 to-blue-500",
       link: createPageUrl("Appointments"),
     },
   ];
@@ -128,15 +170,18 @@ export default function DietitianDashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {stats.map((stat) => (
             <Link key={stat.title} to={stat.link}>
               <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white/80 backdrop-blur">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
-                    <div>
+                    <div className="flex-1">
                       <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
-                      <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                      <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
+                      {stat.subtitle && (
+                        <p className="text-xs text-gray-500">{stat.subtitle}</p>
+                      )}
                     </div>
                     <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg`}>
                       <stat.icon className="w-7 h-7 text-white" />
@@ -147,6 +192,66 @@ export default function DietitianDashboard() {
             </Link>
           ))}
         </div>
+
+        {/* Client Growth Chart */}
+        <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-blue-500" />
+              Client Growth Analytics
+            </CardTitle>
+            <CardDescription>Track your client base growth and engagement</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 bg-white rounded-lg">
+                <p className="text-sm text-gray-600 mb-1">Total Clients</p>
+                <p className="text-2xl font-bold text-blue-600">{clients.length}</p>
+                <p className="text-xs text-gray-500 mt-1">All time</p>
+              </div>
+              <div className="p-4 bg-white rounded-lg">
+                <p className="text-sm text-gray-600 mb-1">Active Clients</p>
+                <p className="text-2xl font-bold text-green-600">{activeClients.length}</p>
+                <p className="text-xs text-gray-500 mt-1">{((activeClients.length / Math.max(clients.length, 1)) * 100).toFixed(0)}% of total</p>
+              </div>
+              <div className="p-4 bg-white rounded-lg">
+                <p className="text-sm text-gray-600 mb-1">New This Month</p>
+                <p className="text-2xl font-bold text-orange-600">{newClientsThisMonth}</p>
+                <p className="text-xs text-gray-500 mt-1">Last 30 days</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* MPESS Wellness Tracking */}
+        <Card className="border-none shadow-lg bg-gradient-to-br from-pink-50 to-rose-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Heart className="w-5 h-5 text-pink-500" />
+              MPESS Wellness Tracking
+            </CardTitle>
+            <CardDescription>Client wellness activity and engagement</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 bg-white rounded-lg">
+                <p className="text-sm text-gray-600 mb-1">Total Sessions</p>
+                <p className="text-2xl font-bold text-pink-600">{totalMPESSSessions}</p>
+                <p className="text-xs text-gray-500 mt-1">All time tracking</p>
+              </div>
+              <div className="p-4 bg-white rounded-lg">
+                <p className="text-sm text-gray-600 mb-1">Avg Rating</p>
+                <p className="text-2xl font-bold text-purple-600">{avgMPESSRating}/5</p>
+                <p className="text-xs text-gray-500 mt-1">Wellness score</p>
+              </div>
+              <div className="p-4 bg-white rounded-lg">
+                <p className="text-sm text-gray-600 mb-1">Last 7 Days</p>
+                <p className="text-2xl font-bold text-orange-600">{recentMPESS.length}</p>
+                <p className="text-xs text-gray-500 mt-1">Recent sessions</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recent Clients */}
