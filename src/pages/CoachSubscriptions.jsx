@@ -90,6 +90,14 @@ export default function CoachSubscriptions() {
     setIsProcessingPayment(true);
 
     try {
+      // Cancel any existing active subscriptions (including manually granted ones)
+      if (mySubscription && mySubscription.status === 'active') {
+        await updateSubscriptionMutation.mutateAsync({
+          id: mySubscription.id,
+          data: { status: 'cancelled' }
+        });
+      }
+
       const amount = billingCycle === 'yearly' ? plan.yearly_price : plan.monthly_price;
       const startDate = new Date().toISOString().split('T')[0];
       const endDate = new Date();
@@ -107,8 +115,10 @@ export default function CoachSubscriptions() {
         end_date: endDate.toISOString().split('T')[0],
         next_billing_date: endDate.toISOString().split('T')[0],
         status: 'pending',
-        payment_method: paymentGateway.gateway_type,
-        auto_renew: true
+        payment_method: 'razorpay',
+        auto_renew: true,
+        manually_granted: false,
+        granted_by: null
       };
 
       const newSubscription = await createSubscriptionMutation.mutateAsync(subscriptionData);
