@@ -23,6 +23,7 @@ export default function HealthCoachPlans() {
     yearly_price: 0,
     features: [],
     max_clients: -1,
+    max_team_members: 0,
     can_add_payment_gateway: false,
     can_create_client_plans: false,
     can_access_pro_plans: false,
@@ -82,6 +83,7 @@ export default function HealthCoachPlans() {
       yearly_price: 0,
       features: [],
       max_clients: -1,
+      max_team_members: 0,
       can_add_payment_gateway: false,
       can_create_client_plans: false,
       can_access_pro_plans: false,
@@ -102,6 +104,7 @@ export default function HealthCoachPlans() {
       yearly_price: plan.yearly_price,
       features: plan.features || [],
       max_clients: plan.max_clients,
+      max_team_members: plan.max_team_members || 0,
       can_add_payment_gateway: plan.can_add_payment_gateway,
       can_create_client_plans: plan.can_create_client_plans,
       can_access_pro_plans: plan.can_access_pro_plans || false,
@@ -202,6 +205,7 @@ export default function HealthCoachPlans() {
 
                 <div className="pt-4 border-t space-y-1 text-sm text-gray-600">
                   <p>Max Clients: {plan.max_clients === -1 ? 'Unlimited' : plan.max_clients}</p>
+                  <p>Team Members: {plan.max_team_members === -1 ? 'Unlimited' : plan.max_team_members || 0}</p>
                   <p>AI Limit: {plan.ai_generation_limit === -1 ? 'Unlimited' : plan.ai_generation_limit}/month</p>
                   <p>Payment Gateway: {plan.can_add_payment_gateway ? 'Yes' : 'No'}</p>
                   <p>Create Plans: {plan.can_create_client_plans ? 'Yes' : 'No'}</p>
@@ -310,13 +314,22 @@ export default function HealthCoachPlans() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>AI Generation Limit (-1 = unlimited)</Label>
+                  <Label>Max Team Members (-1 = unlimited)</Label>
                   <Input
                     type="number"
-                    value={formData.ai_generation_limit}
-                    onChange={(e) => setFormData({ ...formData, ai_generation_limit: parseInt(e.target.value) })}
+                    value={formData.max_team_members}
+                    onChange={(e) => setFormData({ ...formData, max_team_members: parseInt(e.target.value) })}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>AI Generation Limit (-1 = unlimited)</Label>
+                <Input
+                  type="number"
+                  value={formData.ai_generation_limit}
+                  onChange={(e) => setFormData({ ...formData, ai_generation_limit: parseInt(e.target.value) })}
+                />
               </div>
 
               <div className="space-y-3">
