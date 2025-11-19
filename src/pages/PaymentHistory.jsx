@@ -51,6 +51,22 @@ export default function PaymentHistory() {
     initialData: [],
   });
 
+  const { data: coachSubscriptions } = useQuery({
+    queryKey: ['allCoachSubscriptions'],
+    queryFn: async () => {
+      const allSubs = await base44.entities.HealthCoachSubscription.filter({ 
+        payment_method: 'razorpay'
+      });
+      if (user?.user_type === 'super_admin') {
+        return allSubs.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+      }
+      return allSubs.filter(sub => sub.coach_email === user?.email)
+        .sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    },
+    enabled: !!user,
+    initialData: [],
+  });
+
   const canViewPaymentHistory = () => {
     if (user?.user_type === 'super_admin') {
       return securitySettings?.super_admin_permissions?.can_view_payment_history ?? true;
@@ -97,6 +113,19 @@ export default function PaymentHistory() {
     .reduce((sum, sub) => sum + (sub.amount || 0), 0);
 
   const activeSubscriptions = subscriptions.filter(sub => sub.status === 'active').length;
+
+  const totalRazorpayRevenue = coachSubscriptions
+    .filter(sub => sub.status === 'active')
+    .reduce((sum, sub) => sum + (sub.amount || 0), 0);
+
+  const razorpayByPlan = coachSubscriptions.reduce((acc, sub) => {
+    const plan = sub.plan_name || 'Unknown Plan';
+    if (!acc[plan]) {
+      acc[plan] = [];
+    }
+    acc[plan].push(sub);
+    return acc;
+  }, {});
 
   return (
     <div className="min-h-screen p-4 md:p-8">
@@ -221,6 +250,102 @@ export default function PaymentHistory() {
                   </CardContent>
                 </Card>
               ))}
+
+              <div className="mt-8 pt-6 border-t">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <CreditCard className="w-6 h-6 text-blue-600" />
+                  Razorpay Health Coach Subscriptions
+                </h2>
+                <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-sm text-gray-600">Total Razorpay Revenue</p>
+                      <p className="text-3xl font-bold text-blue-900">₹{totalRazorpayRevenue.toLocaleString()}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-600">Total Subscriptions</p>
+                      <p className="text-2xl font-bold text-blue-900">{coachSubscriptions.length}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {Object.keys(razorpayByPlan).map((planName) => (
+                  <div key={planName} className="mb-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <h3 className="text-xl font-bold text-gray-900">{planName}</h3>
+                      <Badge className="bg-purple-600 text-white">
+                        {razorpayByPlan[planName].length} subscription{razorpayByPlan[planName].length !== 1 ? 's' : ''}
+                      </Badge>
+                    </div>
+                    <div className="space-y-2">
+                      {razorpayByPlan[planName].map((sub) => (
+                        <Card key={sub.id} className="border-l-4 border-l-purple-500">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-lg">{sub.coach_name}</h4>
+                                <p className="text-sm text-gray-600">{sub.coach_email}</p>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                  <Badge className={`${
+                                    sub.status === 'active' ? 'bg-green-500' :
+                                    sub.status === 'expired' ? 'bg-red-500' :
+                                    sub.status === 'cancelled' ? 'bg-gray-500' :
+                                    'bg-yellow-500'
+                                  } text-white capitalize`}>
+                                    {sub.status}
+                                  </Badge>
+                                  <Badge variant="outline" className="capitalize">
+                                    {sub.billing_cycle}
+                                  </Badge>
+                                  {sub.razorpay_payment_id && (
+                                    <Badge variant="outline" className="font-mono text-xs">
+                                      Pay: {sub.razorpay_payment_id.substring(0, 15)}...
+                                    </Badge>
+                                  )}
+                                  {sub.razorpay_order_id && (
+                                    <Badge variant="outline" className="font-mono text-xs">
+                                      Order: {sub.razorpay_order_id.substring(0, 15)}...
+                                    </Badge>
+                                  )}
+                                  {sub.manually_granted && (
+                                    <Badge className="bg-orange-500 text-white">
+                                      Manually Granted
+                                    </Badge>
+                                  )}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-2 space-y-1">
+                                  <p>Start: {format(new Date(sub.start_date), 'MMM d, yyyy')}</p>
+                                  <p>End: {format(new Date(sub.end_date), 'MMM d, yyyy')}</p>
+                                  {sub.next_billing_date && (
+                                    <p>Next Billing: {format(new Date(sub.next_billing_date), 'MMM d, yyyy')}</p>
+                                  )}
+                                  {sub.granted_by && (
+                                    <p>Granted By: {sub.granted_by}</p>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-2xl font-bold text-gray-900">₹{sub.amount}</p>
+                                <p className="text-sm text-gray-600">{sub.currency || 'INR'}</p>
+                                <p className="text-xs text-gray-500 mt-1">
+                                  {format(new Date(sub.created_date), 'MMM d, yyyy')}
+                                </p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                {coachSubscriptions.length === 0 && (
+                  <div className="text-center py-8">
+                    <CreditCard className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                    <p className="text-gray-500">No Razorpay coach subscriptions found</p>
+                  </div>
+                )}
+              </div>
 
               <div className="mt-8 pt-6 border-t">
                 <h2 className="text-2xl font-bold mb-4">All Transaction Details</h2>
