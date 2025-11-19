@@ -329,18 +329,9 @@ export default function Layout({ children, currentPageName }) {
     enabled: !!coachSubscription?.plan_id,
   });
 
-  const filteredBusinessNav = businessNavigation.filter(item => {
-    if (!item.roles || !item.roles.includes(userType)) return false;
-    
-    // Hide My Team if coach doesn't have team management enabled
-    if (item.title === 'My Team' && userType === 'student_coach') {
-      const canManageTeam = coachPlan?.can_manage_team || false;
-      const maxTeamMembers = coachPlan?.max_team_members || 0;
-      return canManageTeam && maxTeamMembers >= 1;
-    }
-    
-    return true;
-  });
+  const filteredBusinessNav = businessNavigation.filter(item =>
+    !item.roles || item.roles.includes(userType)
+  );
 
   const getClientPermissions = () => {
     // If client has active subscription, use plan features
