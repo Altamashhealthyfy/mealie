@@ -18,7 +18,10 @@ import {
   UserPlus,
   Eye,
   Plus,
-  ArrowRight
+  ArrowRight,
+  Scale,
+  TrendingDown,
+  Minus
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -76,11 +79,28 @@ export default function DietitianDashboard() {
   const { data: mpessTracking } = useQuery({
     queryKey: ['mpessTracking'],
     queryFn: async () => {
-      const tracking = await base44.entities.MPESSTracker.list('-created_date', 30);
+      const tracking = await base44.entities.MPESSTracker.list('-created_date', 100);
       return tracking;
     },
     initialData: [],
   });
+
+  const { data: progressLogs } = useQuery({
+    queryKey: ['progressLogs'],
+    queryFn: async () => {
+      const logs = await base44.entities.ProgressLog.list('-created_date', 50);
+      return logs;
+    },
+    initialData: [],
+  });
+
+  // Get unique clients who have tracked MPESS
+  const mpessClientIds = [...new Set(mpessTracking.map(t => t.created_by))];
+  const mpessClients = clients.filter(c => mpessClientIds.includes(c.email));
+
+  // Progress tracking clients
+  const progressClientIds = [...new Set(progressLogs.map(p => p.client_id))];
+  const progressClients = clients.filter(c => progressClientIds.includes(c.id));
 
   const activeClients = clients.filter(c => c.status === 'active');
   const recentClients = clients.slice(0, 5);
@@ -395,6 +415,226 @@ export default function DietitianDashboard() {
               )}
             </CardContent>
           </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Progress Tracking Activity */}
+          <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Scale className="w-5 h-5 text-blue-500" />
+                  Recent Progress Updates
+                </CardTitle>
+                <Badge className="bg-blue-100 text-blue-700">
+                  {progressClients.length} Tracking
+                </Badge>
+              </div>
+              <CardDescription>Client weight and measurement tracking</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {progressLogs.length === 0 ? (
+                <div className="text-center py-8">
+                  <Scale className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                  <p className="text-gray-600 mb-2">No progress tracking yet</p>
+                  <p className="text-sm text-gray-500">Clients haven't logged their progress</p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {progressLogs.slice(0, 10).map((log) => {
+                    const client = clients.find(c => c.id === log.client_id);
+                    const previousLogs = progressLogs.filter(p => 
+                      p.client_id === log.client_id && 
+                      new Date(p.date) < new Date(log.date)
+                    );
+                    const previousLog = previousLogs.length > 0 ? previousLogs[0] : null;
+                    const weightChange = previousLog && log.weight 
+                      ? (log.weight - previousLog.weight).toFixed(1)
+                      : null;
+                    
+                    return (
+                      <div key={log.id} className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-100">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
+                                <span className="text-white text-xs font-bold">
+                                  {client?.full_name?.charAt(0) || 'C'}
+                                </span>
+                              </div>
+                              <div>
+                                <p className="font-semibold text-gray-900">{client?.full_name || 'Client'}</p>
+                                <p className="text-xs text-gray-500">
+                                  {format(new Date(log.date), 'MMM d, yyyy')}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 mt-3">
+                              {log.weight && (
+                                <div className="p-2 bg-white rounded">
+                                  <p className="text-xs text-gray-600">Weight</p>
+                                  <div className="flex items-center gap-1">
+                                    <p className="text-lg font-bold text-blue-600">{log.weight} kg</p>
+                                    {weightChange && (
+                                      <span className={`text-xs flex items-center ${
+                                        parseFloat(weightChange) < 0 ? 'text-green-600' : 
+                                        parseFloat(weightChange) > 0 ? 'text-red-600' : 'text-gray-600'
+                                      }`}>
+                                        {parseFloat(weightChange) < 0 ? (
+                                          <TrendingDown className="w-3 h-3" />
+                                        ) : parseFloat(weightChange) > 0 ? (
+                                          <TrendingUp className="w-3 h-3" />
+                                        ) : (
+                                          <Minus className="w-3 h-3" />
+                                        )}
+                                        {Math.abs(parseFloat(weightChange))}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                              {(log.measurements?.waist || log.measurements?.chest) && (
+                                <div className="p-2 bg-white rounded">
+                                  <p className="text-xs text-gray-600">Measurements</p>
+                                  <p className="text-xs text-gray-700">
+                                    {log.measurements?.waist && `W: ${log.measurements.waist}"`}
+                                    {log.measurements?.chest && ` C: ${log.measurements.chest}"`}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                            {log.notes && (
+                              <p className="text-xs text-gray-600 mt-2 italic">"{log.notes}"</p>
+                            )}
+                          </div>
+                          <div className="text-right ml-2">
+                            {log.energy_level && (
+                              <div className="mb-1">
+                                <p className="text-xs text-gray-500">Energy</p>
+                                <p className="text-sm font-bold text-green-600">{log.energy_level}/5</p>
+                              </div>
+                            )}
+                            {log.meal_adherence !== undefined && (
+                              <div>
+                                <p className="text-xs text-gray-500">Adherence</p>
+                                <p className="text-sm font-bold text-purple-600">{log.meal_adherence}%</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* MPESS Client Activity */}
+          <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Heart className="w-5 h-5 text-pink-500" />
+                  Recent MPESS Wellness Activity
+                </CardTitle>
+                <Badge className="bg-pink-100 text-pink-700">
+                  {mpessClients.length} Active Clients
+                </Badge>
+              </div>
+              <CardDescription>Client wellness tracking updates</CardDescription>
+            </CardHeader>
+          <CardContent>
+            {mpessTracking.length === 0 ? (
+              <div className="text-center py-8">
+                <Heart className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                <p className="text-gray-600 mb-2">No MPESS tracking yet</p>
+                <p className="text-sm text-gray-500">Clients haven't started wellness tracking</p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {mpessTracking.slice(0, 10).map((tracking) => {
+                  const client = clients.find(c => c.email === tracking.created_by);
+                  return (
+                    <div key={tracking.id} className="p-4 bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg border border-pink-100">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center">
+                              <span className="text-white text-xs font-bold">
+                                {client?.full_name?.charAt(0) || 'C'}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-900">{client?.full_name || 'Client'}</p>
+                              <p className="text-xs text-gray-500">
+                                {format(new Date(tracking.date), 'MMM d, yyyy')}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-5 gap-2 mt-3">
+                            <div className="text-center">
+                              <div className={`w-8 h-8 rounded-full mx-auto flex items-center justify-center ${
+                                tracking.mind_practices?.affirmations_completed || tracking.mind_practices?.stress_relief_done 
+                                  ? 'bg-blue-500' : 'bg-gray-200'
+                              }`}>
+                                <span className="text-xs text-white">🧠</span>
+                              </div>
+                              <p className="text-xs text-gray-600 mt-1">Mind</p>
+                            </div>
+                            <div className="text-center">
+                              <div className={`w-8 h-8 rounded-full mx-auto flex items-center justify-center ${
+                                tracking.physical_practices?.movement_done || tracking.physical_practices?.hydration_met
+                                  ? 'bg-green-500' : 'bg-gray-200'
+                              }`}>
+                                <span className="text-xs text-white">💪</span>
+                              </div>
+                              <p className="text-xs text-gray-600 mt-1">Physical</p>
+                            </div>
+                            <div className="text-center">
+                              <div className={`w-8 h-8 rounded-full mx-auto flex items-center justify-center ${
+                                tracking.emotional_practices?.journaling_done || tracking.emotional_practices?.breathwork_done
+                                  ? 'bg-yellow-500' : 'bg-gray-200'
+                              }`}>
+                                <span className="text-xs text-white">❤️</span>
+                              </div>
+                              <p className="text-xs text-gray-600 mt-1">Emotional</p>
+                            </div>
+                            <div className="text-center">
+                              <div className={`w-8 h-8 rounded-full mx-auto flex items-center justify-center ${
+                                tracking.social_practices?.bonding_activity_done || tracking.social_practices?.connection_made
+                                  ? 'bg-purple-500' : 'bg-gray-200'
+                              }`}>
+                                <span className="text-xs text-white">👥</span>
+                              </div>
+                              <p className="text-xs text-gray-600 mt-1">Social</p>
+                            </div>
+                            <div className="text-center">
+                              <div className={`w-8 h-8 rounded-full mx-auto flex items-center justify-center ${
+                                tracking.spiritual_practices?.meditation_done || tracking.spiritual_practices?.gratitude_journaling_done
+                                  ? 'bg-indigo-500' : 'bg-gray-200'
+                              }`}>
+                                <span className="text-xs text-white">✨</span>
+                              </div>
+                              <p className="text-xs text-gray-600 mt-1">Spiritual</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="inline-flex items-center gap-1 px-3 py-1 bg-white rounded-full border-2 border-pink-500">
+                            <span className="text-2xl font-bold text-pink-600">{tracking.overall_rating || 0}</span>
+                            <span className="text-xs text-gray-500">/5</span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">Overall</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
         </div>
 
         {/* Quick Actions */}
