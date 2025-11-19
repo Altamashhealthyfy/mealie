@@ -200,27 +200,13 @@ export default function Profile() {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
+  const { permissions, hasPermission } = useUserPermissions();
+  
   const isClient = user?.user_type === 'client';
-  const canEditProfile = isClient ? (securitySettings?.client_restrictions?.can_edit_profile ?? true) : true;
-  const canUploadPhoto = isClient ? (securitySettings?.client_restrictions?.can_upload_profile_photo ?? true) : true;
+  const canEditProfile = isClient ? hasPermission('can_edit_profile', true) : true;
+  const canUploadPhoto = isClient ? hasPermission('can_upload_profile_photo', true) : true;
 
-  const getPhotoUploadPermission = () => {
-    if (isClient) {
-      return securitySettings?.client_restrictions?.can_upload_profile_photo ?? true;
-    }
-    
-    if (user?.user_type === 'team_member') {
-      return securitySettings?.team_member_permissions?.can_upload_profile_photo ?? true;
-    }
-    
-    if (user?.user_type === 'student_coach') {
-      return securitySettings?.student_coach_permissions?.can_upload_profile_photo ?? true;
-    }
-    
-    return true;
-  };
-
-  const canUploadUserPhoto = getPhotoUploadPermission();
+  const canUploadUserPhoto = hasPermission('can_upload_profile_photo', true);
 
   return (
     <div className="min-h-screen p-4 md:p-8">
