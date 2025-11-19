@@ -25,6 +25,7 @@ export default function HealthCoachPlans() {
     max_clients: -1,
     can_add_payment_gateway: false,
     can_create_client_plans: false,
+    can_access_pro_plans: false,
     ai_generation_limit: -1,
     status: "active",
     sort_order: 0
@@ -83,6 +84,7 @@ export default function HealthCoachPlans() {
       max_clients: -1,
       can_add_payment_gateway: false,
       can_create_client_plans: false,
+      can_access_pro_plans: false,
       ai_generation_limit: -1,
       status: "active",
       sort_order: 0
@@ -102,6 +104,7 @@ export default function HealthCoachPlans() {
       max_clients: plan.max_clients,
       can_add_payment_gateway: plan.can_add_payment_gateway,
       can_create_client_plans: plan.can_create_client_plans,
+      can_access_pro_plans: plan.can_access_pro_plans || false,
       ai_generation_limit: plan.ai_generation_limit,
       status: plan.status,
       sort_order: plan.sort_order || 0
@@ -202,6 +205,7 @@ export default function HealthCoachPlans() {
                   <p>AI Limit: {plan.ai_generation_limit === -1 ? 'Unlimited' : plan.ai_generation_limit}/month</p>
                   <p>Payment Gateway: {plan.can_add_payment_gateway ? 'Yes' : 'No'}</p>
                   <p>Create Plans: {plan.can_create_client_plans ? 'Yes' : 'No'}</p>
+                  <p>Pro Plans 💎: {plan.can_access_pro_plans ? 'Yes' : 'No'}</p>
                 </div>
 
                 <div className="flex gap-2 pt-4">
@@ -328,6 +332,16 @@ export default function HealthCoachPlans() {
                   <Switch
                     checked={formData.can_create_client_plans}
                     onCheckedChange={(checked) => setFormData({ ...formData, can_create_client_plans: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 bg-purple-50 rounded border border-purple-200">
+                  <div>
+                    <Label>Can Access Pro Plans 💎</Label>
+                    <p className="text-xs text-gray-600 mt-1">Disease-Specific Clinical Meal Planning</p>
+                  </div>
+                  <Switch
+                    checked={formData.can_access_pro_plans}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_access_pro_plans: checked })}
                   />
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
