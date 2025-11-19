@@ -71,7 +71,7 @@ const dietitianNavigation = [
     roles: ['student_coach'],
   },
   {
-    title: "Client Plans",
+    title: "Create Client Plans",
     url: createPageUrl("ClientPlanBuilder"),
     icon: Users,
     roles: ['super_admin', 'team_member', 'student_coach'],
