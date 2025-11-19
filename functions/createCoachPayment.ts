@@ -12,17 +12,17 @@ Deno.serve(async (req) => {
 
         const { subscriptionId, amount, currency, coachName, coachEmail, planName } = await req.json();
 
-        // Get platform payment gateway settings
-        const gateways = await base44.asServiceRole.entities.CoachPaymentGateway.filter({ setup_completed: true });
-        const gateway = gateways[0];
+        // Use platform Razorpay keys from environment
+        const razorpayKeyId = Deno.env.get('RAZORPAY_KEY_ID');
+        const razorpayKeySecret = Deno.env.get('RAZORPAY_KEY_SECRET');
 
-        if (!gateway) {
+        if (!razorpayKeyId || !razorpayKeySecret) {
             return Response.json({ error: 'Payment gateway not configured' }, { status: 400 });
         }
 
         const razorpay = new Razorpay({
-            key_id: gateway.razorpay_key_id,
-            key_secret: gateway.razorpay_key_secret,
+            key_id: razorpayKeyId,
+            key_secret: razorpayKeySecret,
         });
 
         const order = await razorpay.orders.create({
@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
             order_id: order.id,
             amount: order.amount,
             currency: order.currency,
-            razorpay_key_id: gateway.razorpay_key_id
+            razorpay_key_id: razorpayKeyId
         });
     } catch (error) {
         console.error('Error creating coach payment:', error);

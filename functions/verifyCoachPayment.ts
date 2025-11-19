@@ -12,15 +12,15 @@ Deno.serve(async (req) => {
 
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature, subscriptionId } = await req.json();
 
-        const gateways = await base44.asServiceRole.entities.CoachPaymentGateway.filter({ setup_completed: true });
-        const gateway = gateways[0];
+        // Use platform Razorpay keys from environment
+        const razorpayKeySecret = Deno.env.get('RAZORPAY_KEY_SECRET');
 
-        if (!gateway) {
+        if (!razorpayKeySecret) {
             return Response.json({ error: 'Payment gateway not configured' }, { status: 400 });
         }
 
         const generated_signature = crypto
-            .createHmac('sha256', gateway.razorpay_key_secret)
+            .createHmac('sha256', razorpayKeySecret)
             .update(`${razorpay_order_id}|${razorpay_payment_id}`)
             .digest('hex');
 
