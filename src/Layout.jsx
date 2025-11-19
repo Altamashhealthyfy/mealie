@@ -332,10 +332,11 @@ export default function Layout({ children, currentPageName }) {
   const filteredBusinessNav = businessNavigation.filter(item => {
     if (!item.roles || !item.roles.includes(userType)) return false;
     
-    // Hide My Team if coach doesn't have max_team_members >= 1
+    // Hide My Team if coach doesn't have team management enabled
     if (item.title === 'My Team' && userType === 'student_coach') {
+      const canManageTeam = coachPlan?.can_manage_team || false;
       const maxTeamMembers = coachPlan?.max_team_members || 0;
-      return maxTeamMembers >= 1;
+      return canManageTeam && maxTeamMembers >= 1;
     }
     
     return true;
