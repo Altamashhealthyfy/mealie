@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DollarSign, Calendar, Search, TrendingUp, CreditCard, Lock, Download, Filter, MoreVertical, CheckCircle2 } from "lucide-react";
-import { format } from "date-fns";
+import { DollarSign, Calendar, Search, TrendingUp, CreditCard, Lock, Download, Filter, MoreVertical, CheckCircle2, RefreshCw } from "lucide-react";
+import { format, startOfMonth, endOfMonth, eachMonthOfInterval } from "date-fns";
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function PaymentHistory() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -177,6 +178,47 @@ export default function PaymentHistory() {
     window.URL.revokeObjectURL(url);
   };
 
+  // Generate chart data by month
+  const chartData = React.useMemo(() => {
+    const monthlyData = {};
+    
+    coachSubscriptions
+      .filter(sub => sub.status === 'active')
+      .forEach(sub => {
+        const month = format(new Date(sub.created_date), 'MMM yyyy');
+        if (!monthlyData[month]) {
+          monthlyData[month] = 0;
+        }
+        monthlyData[month] += sub.amount || 0;
+      });
+
+    return Object.keys(monthlyData)
+      .sort((a, b) => new Date(a) - new Date(b))
+      .map(month => ({
+        month: month.split(' ')[0],
+        earnings: monthlyData[month]
+      }));
+  }, [coachSubscriptions]);
+
+  // Earnings by plan
+  const earningsByPlan = React.useMemo(() => {
+    const planEarnings = {};
+    
+    coachSubscriptions
+      .filter(sub => sub.status === 'active')
+      .forEach(sub => {
+        const plan = sub.plan_name || 'Unknown Plan';
+        if (!planEarnings[plan]) {
+          planEarnings[plan] = 0;
+        }
+        planEarnings[plan] += sub.amount || 0;
+      });
+
+    return Object.entries(planEarnings)
+      .sort((a, b) => b[1] - a[1])
+      .map(([plan, earnings]) => ({ plan, earnings }));
+  }, [coachSubscriptions]);
+
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gray-50">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -189,21 +231,126 @@ export default function PaymentHistory() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="border-none shadow-sm bg-white">
-            <CardContent className="p-6">
-              <p className="text-sm text-gray-600 mb-1">Total Earnings</p>
-              <p className="text-3xl font-bold text-blue-600">₹ {totalEarnings.toLocaleString()}</p>
-            </CardContent>
-          </Card>
+        <Card className="border-none shadow-sm bg-white">
+          <CardContent className="p-8">
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h2 className="text-4xl font-bold text-gray-900 mb-2">
+                  ₹{totalEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Total earnings as on {format(new Date(), 'MMM dd, yyyy')}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  type="month"
+                  placeholder="Start month"
+                  className="w-40"
+                />
+                <span className="flex items-center px-2 text-gray-400">→</span>
+                <Input
+                  type="month"
+                  placeholder="End month"
+                  className="w-40"
+                />
+              </div>
+            </div>
 
-          <Card className="border-none shadow-sm bg-white">
-            <CardContent className="p-6">
-              <p className="text-sm text-gray-600 mb-1">No. of Successful Orders</p>
-              <p className="text-3xl font-bold text-green-600">{successfulOrders}</p>
-            </CardContent>
-          </Card>
-        </div>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData}>
+                  <defs>
+                    <linearGradient id="colorEarnings" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis 
+                    dataKey="month" 
+                    tick={{ fontSize: 12 }}
+                    stroke="#9ca3af"
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 12 }}
+                    stroke="#9ca3af"
+                    tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip 
+                    formatter={(value) => `₹${value.toLocaleString()}`}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="earnings" 
+                    stroke="#22c55e" 
+                    strokeWidth={2}
+                    fillOpacity={1} 
+                    fill="url(#colorEarnings)" 
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-none shadow-sm bg-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Services earnings</h3>
+                <p className="text-sm text-gray-500">Last updated {format(new Date(), 'h')} hours ago</p>
+              </div>
+              <Button variant="outline" size="sm">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh
+              </Button>
+            </div>
+
+            <div className="mb-4 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                placeholder="Search by service"
+                className="pl-10"
+              />
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-4 pb-2 border-b text-sm font-medium text-gray-600">
+                <div>Service</div>
+                <div className="text-right">Earnings</div>
+                <div className="text-right">Action</div>
+              </div>
+
+              {earningsByPlan.map(({ plan, earnings }) => (
+                <div key={plan} className="grid grid-cols-3 gap-4 items-center py-3 border-b">
+                  <div>
+                    <p className="font-medium text-gray-900">{plan}</p>
+                    <div className="flex gap-2 mt-1">
+                      <Badge className="bg-blue-100 text-blue-800 text-xs">ACTIVE</Badge>
+                      <Badge className="bg-green-100 text-green-800 text-xs">ONETIME</Badge>
+                    </div>
+                  </div>
+                  <div className="text-right font-semibold text-gray-900">
+                    ₹{earnings.toLocaleString()}
+                  </div>
+                  <div className="text-right">
+                    <Button variant="outline" size="sm">
+                      View invoices
+                    </Button>
+                  </div>
+                </div>
+              ))}
+
+              {earningsByPlan.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  No earnings data available
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="border-none shadow-sm bg-white">
           <CardContent className="p-6">
