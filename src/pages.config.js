@@ -52,6 +52,8 @@ import CoachSubscription from './pages/CoachSubscription';
 import ClientPlans from './pages/ClientPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import UserPermissionManagement from './pages/UserPermissionManagement';
+import HealthCoachPlans from './pages/HealthCoachPlans';
+import CoachSubscriptions from './pages/CoachSubscriptions';
 import __Layout from './Layout.jsx';
 
 
@@ -110,6 +112,8 @@ export const PAGES = {
     "ClientPlans": ClientPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
     "UserPermissionManagement": UserPermissionManagement,
+    "HealthCoachPlans": HealthCoachPlans,
+    "CoachSubscriptions": CoachSubscriptions,
 }
 
 export const pagesConfig = {
