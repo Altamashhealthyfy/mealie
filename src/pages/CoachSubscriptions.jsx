@@ -151,7 +151,9 @@ export default function CoachSubscriptions() {
                 data: {
                   status: 'active',
                   razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_order_id: response.razorpay_order_id
+                  razorpay_order_id: response.razorpay_order_id,
+                  manually_granted: false,
+                  granted_by: null
                 }
               });
 
