@@ -27,6 +27,7 @@ export default function HealthCoachPlans() {
     can_add_payment_gateway: false,
     can_create_client_plans: false,
     can_access_pro_plans: false,
+    can_manage_team: false,
     ai_generation_limit: -1,
     status: "active",
     sort_order: 0
@@ -100,6 +101,7 @@ export default function HealthCoachPlans() {
       can_add_payment_gateway: false,
       can_create_client_plans: false,
       can_access_pro_plans: false,
+      can_manage_team: false,
       ai_generation_limit: -1,
       status: "active",
       sort_order: 0
@@ -121,6 +123,7 @@ export default function HealthCoachPlans() {
       can_add_payment_gateway: plan.can_add_payment_gateway,
       can_create_client_plans: plan.can_create_client_plans,
       can_access_pro_plans: plan.can_access_pro_plans || false,
+      can_manage_team: plan.can_manage_team || false,
       ai_generation_limit: plan.ai_generation_limit,
       status: plan.status,
       sort_order: plan.sort_order || 0
@@ -228,6 +231,7 @@ export default function HealthCoachPlans() {
                   <p>Payment Gateway: {plan.can_add_payment_gateway ? 'Yes' : 'No'}</p>
                   <p>Create Plans: {plan.can_create_client_plans ? 'Yes' : 'No'}</p>
                   <p>Pro Plans 💎: {plan.can_access_pro_plans ? 'Yes' : 'No'}</p>
+                  <p>My Team: {plan.can_manage_team ? 'Yes' : 'No'}</p>
                 </div>
 
                 <div className="flex gap-2 pt-4">

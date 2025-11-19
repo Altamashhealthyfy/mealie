@@ -145,7 +145,9 @@ export default function TeamManagement() {
     });
   };
 
-  const canManageTeam = isSuperAdmin || isStudentCoach;
+  // Check if coach has team management permission from their plan
+  const hasTeamManagementPermission = myPlan?.can_manage_team || false;
+  const canManageTeam = isSuperAdmin || (isStudentCoach && hasTeamManagementPermission);
 
   // Filter team members based on user role
   const filteredTeamMembers = allUsers.filter(u => {
@@ -174,16 +176,26 @@ export default function TeamManagement() {
             <Shield className="w-16 h-16 mx-auto text-red-500 mb-4" />
             <CardTitle className="text-center text-2xl">Access Restricted</CardTitle>
             <CardDescription className="text-center text-lg">
-              Only admins and coaches can manage team members
+              {isStudentCoach ? "Team Management Not Available" : "Only admins and coaches can manage team members"}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Alert className="border-red-200 bg-red-50">
               <AlertTriangle className="w-4 h-4 text-red-600" />
               <AlertDescription>
-                This feature is available to platform owners and student coaches only.
+                {isStudentCoach 
+                  ? "Your current plan does not include Team Management. Upgrade your subscription to access this feature."
+                  : "This feature is available to platform owners and student coaches only."}
               </AlertDescription>
             </Alert>
+            {isStudentCoach && (
+              <Button
+                onClick={() => window.location.href = createPageUrl('CoachSubscriptions')}
+                className="w-full mt-4 bg-gradient-to-r from-green-500 to-emerald-500"
+              >
+                View Subscription Plans
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>
