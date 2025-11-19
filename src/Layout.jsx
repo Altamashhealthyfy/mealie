@@ -219,7 +219,7 @@ const businessNavigation = [
     title: "My Team",
     url: createPageUrl("TeamManagement"),
     icon: UserPlus,
-    roles: ['super_admin'],
+    roles: ['super_admin', 'student_coach'],
   },
   {
     title: "Bulk Import",
