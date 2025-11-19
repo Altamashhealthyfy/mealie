@@ -27,6 +27,8 @@ import {
 export default function TeamManagement() {
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showDetailDialog, setShowDetailDialog] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -98,7 +100,21 @@ export default function TeamManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['allUsers']);
+      setShowDetailDialog(false);
+      setSelectedMember(null);
       alert('✅ User deleted successfully!');
+    },
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ userId, data }) => {
+      return await base44.asServiceRole.entities.User.update(userId, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['allUsers']);
+      setShowDetailDialog(false);
+      setSelectedMember(null);
+      alert('✅ User updated successfully!');
     },
   });
 
@@ -114,6 +130,19 @@ export default function TeamManagement() {
     }
     
     addUserMutation.mutate(formData);
+  };
+
+  const handleViewDetails = (member) => {
+    setSelectedMember(member);
+    setShowDetailDialog(true);
+  };
+
+  const handleUpdateMember = () => {
+    if (!selectedMember) return;
+    updateUserMutation.mutate({
+      userId: selectedMember.id,
+      data: selectedMember
+    });
   };
 
   const canManageTeam = isSuperAdmin || isStudentCoach;
@@ -238,35 +267,51 @@ export default function TeamManagement() {
             ) : (
               <div className="space-y-4">
                 {filteredTeamMembers.map(teamUser => (
-                <div key={teamUser.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                  <div>
+                <div key={teamUser.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <div className="flex-1 cursor-pointer" onClick={() => handleViewDetails(teamUser)}>
                     <h3 className="font-bold text-gray-900">{teamUser.full_name}</h3>
                     <p className="text-sm text-gray-600">{teamUser.email}</p>
-                    <Badge className={
-                      teamUser.user_type === 'super_admin' ? 'bg-purple-600' :
-                      teamUser.user_type === 'student_coach' ? 'bg-green-600' :
-                      'bg-blue-600'
-                    }>
-                      {teamUser.user_type === 'super_admin' ? 'Super Admin' :
-                       teamUser.user_type === 'student_coach' ? 'Health Coach' :
-                       teamUser.user_type === 'student_team_member' ? 'Coach Team' :
-                       'Team Member'}
-                    </Badge>
+                    <div className="flex gap-2 mt-2">
+                      <Badge className={
+                        teamUser.user_type === 'super_admin' ? 'bg-purple-600' :
+                        teamUser.user_type === 'student_coach' ? 'bg-green-600' :
+                        'bg-blue-600'
+                      }>
+                        {teamUser.user_type === 'super_admin' ? 'Super Admin' :
+                         teamUser.user_type === 'student_coach' ? 'Health Coach' :
+                         teamUser.user_type === 'student_team_member' ? 'Coach Team' :
+                         'Team Member'}
+                      </Badge>
+                      {teamUser.created_date && (
+                        <Badge variant="outline" className="text-xs">
+                          Added {new Date(teamUser.created_date).toLocaleDateString()}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                  {teamUser.id !== user?.id && (
+                  <div className="flex gap-2">
                     <Button
-                      onClick={() => {
-                        if (confirm('Delete this user?')) {
-                          deleteUserMutation.mutate(teamUser.id);
-                        }
-                      }}
-                      variant="ghost"
+                      onClick={() => handleViewDetails(teamUser)}
+                      variant="outline"
                       size="sm"
-                      className="text-red-600 hover:text-red-700"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Edit className="w-4 h-4" />
                     </Button>
-                  )}
+                    {teamUser.id !== user?.id && (
+                      <Button
+                        onClick={() => {
+                          if (confirm('Delete this user?')) {
+                            deleteUserMutation.mutate(teamUser.id);
+                          }
+                        }}
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 ))}
               </div>
@@ -597,6 +642,104 @@ export default function TeamManagement() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Member Detail Dialog */}
+        <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Team Member Details</DialogTitle>
+            </DialogHeader>
+            {selectedMember && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Full Name</Label>
+                    <Input
+                      value={selectedMember.full_name || ''}
+                      onChange={(e) => setSelectedMember({...selectedMember, full_name: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Email</Label>
+                    <Input
+                      value={selectedMember.email || ''}
+                      onChange={(e) => setSelectedMember({...selectedMember, email: e.target.value})}
+                      disabled
+                    />
+                  </div>
+                </div>
+
+                {isSuperAdmin && (
+                  <div className="space-y-2">
+                    <Label>User Type</Label>
+                    <Select 
+                      value={selectedMember.user_type || 'team_member'} 
+                      onValueChange={(value) => setSelectedMember({...selectedMember, user_type: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="super_admin">Super Admin</SelectItem>
+                        <SelectItem value="team_member">Team Member</SelectItem>
+                        <SelectItem value="student_coach">Student Coach</SelectItem>
+                        <SelectItem value="student_team_member">Coach Team Member</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                <div className="p-4 bg-gray-50 rounded-lg space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">User ID:</span>
+                    <span className="font-mono text-xs">{selectedMember.id}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Created:</span>
+                    <span>{new Date(selectedMember.created_date).toLocaleString()}</span>
+                  </div>
+                  {selectedMember.created_by && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Added By:</span>
+                      <span>{selectedMember.created_by}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    onClick={() => setShowDetailDialog(false)}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleUpdateMember}
+                    disabled={updateUserMutation.isPending}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  >
+                    {updateUserMutation.isPending ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                  {selectedMember.id !== user?.id && (
+                    <Button
+                      onClick={() => {
+                        if (confirm('Are you sure you want to delete this user?')) {
+                          deleteUserMutation.mutate(selectedMember.id);
+                        }
+                      }}
+                      disabled={deleteUserMutation.isPending}
+                      variant="destructive"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Add User Dialog */}
         <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
