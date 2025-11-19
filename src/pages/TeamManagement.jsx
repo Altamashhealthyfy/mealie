@@ -39,6 +39,10 @@ export default function TeamManagement() {
     queryFn: () => base44.auth.me(),
   });
 
+  const userType = user?.user_type || 'team_member';
+  const isSuperAdmin = userType === 'super_admin';
+  const isStudentCoach = userType === 'student_coach';
+
   const { data: allUsers } = useQuery({
     queryKey: ['allUsers'],
     queryFn: async () => {
@@ -112,10 +116,6 @@ export default function TeamManagement() {
     addUserMutation.mutate(formData);
   };
 
-  const userType = user?.user_type || 'team_member';
-  const isSuperAdmin = userType === 'super_admin';
-  const isStudentCoach = userType === 'student_coach';
-  
   const canManageTeam = isSuperAdmin || isStudentCoach;
 
   // Filter team members based on user role
