@@ -49,6 +49,28 @@ export default function TeamManagement() {
     initialData: [],
   });
 
+  const { data: mySubscription } = useQuery({
+    queryKey: ['myCoachSubscription', user?.email],
+    queryFn: async () => {
+      const subs = await base44.entities.HealthCoachSubscription.filter({ 
+        coach_email: user?.email,
+        status: 'active'
+      });
+      return subs[0] || null;
+    },
+    enabled: !!user && isStudentCoach,
+  });
+
+  const { data: myPlan } = useQuery({
+    queryKey: ['myCoachPlan', mySubscription?.plan_id],
+    queryFn: async () => {
+      if (!mySubscription?.plan_id) return null;
+      const plans = await base44.entities.HealthCoachPlan.filter({ id: mySubscription.plan_id });
+      return plans[0] || null;
+    },
+    enabled: !!mySubscription?.plan_id,
+  });
+
   const addUserMutation = useMutation({
     mutationFn: async (data) => {
       // Note: Base44 doesn't support creating users with passwords via API
@@ -81,6 +103,12 @@ export default function TeamManagement() {
       alert('Please fill in all fields');
       return;
     }
+    
+    if (!canAddMore) {
+      alert(`⚠️ Team member limit reached!\n\nYour plan allows ${teamMemberLimit} team member${teamMemberLimit !== 1 ? 's' : ''} and you currently have ${currentTeamCount}.\n\nUpgrade your plan to add more team members.`);
+      return;
+    }
+    
     addUserMutation.mutate(formData);
   };
 
@@ -89,6 +117,25 @@ export default function TeamManagement() {
   const isStudentCoach = userType === 'student_coach';
   
   const canManageTeam = isSuperAdmin || isStudentCoach;
+
+  // Filter team members based on user role
+  const filteredTeamMembers = allUsers.filter(u => {
+    if (u.user_type === 'client') return false;
+    
+    if (isSuperAdmin) {
+      // Super admin sees all non-client users
+      return true;
+    } else if (isStudentCoach) {
+      // Student coach only sees their own team members (student_team_member created by them)
+      return u.user_type === 'student_team_member' && u.created_by === user?.email;
+    }
+    return false;
+  });
+
+  // Calculate team member limit
+  const teamMemberLimit = isStudentCoach ? (myPlan?.max_team_members || 0) : -1;
+  const currentTeamCount = isStudentCoach ? filteredTeamMembers.length : 0;
+  const canAddMore = isSuperAdmin || (isStudentCoach && (teamMemberLimit === -1 || currentTeamCount < teamMemberLimit));
 
   if (!canManageTeam) {
     return (
@@ -129,6 +176,11 @@ export default function TeamManagement() {
               <Badge className={isSuperAdmin ? "bg-purple-600 text-white" : "bg-green-600 text-white"}>
                 {isSuperAdmin ? 'Platform Owner' : 'Health Coach'}
               </Badge>
+              {isStudentCoach && (
+                <Badge className="bg-blue-600 text-white">
+                  Team: {currentTeamCount}/{teamMemberLimit === -1 ? '∞' : teamMemberLimit}
+                </Badge>
+              )}
             </div>
             <h1 className="text-5xl font-bold text-gray-900 mb-2">My Team</h1>
             <p className="text-xl text-gray-600">
@@ -138,20 +190,54 @@ export default function TeamManagement() {
               }
             </p>
           </div>
-          <Button onClick={() => setShowAddDialog(true)} className="bg-blue-600 hover:bg-blue-700">
+          <Button 
+            onClick={() => setShowAddDialog(true)} 
+            disabled={!canAddMore}
+            className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+          >
             <UserPlus className="w-5 h-5 mr-2" />
             Add User
           </Button>
         </div>
 
+        {/* Team Limit Alert for Student Coaches */}
+        {isStudentCoach && !canAddMore && (
+          <Alert className="bg-orange-50 border-orange-500">
+            <AlertTriangle className="w-5 h-5 text-orange-600" />
+            <AlertDescription className="text-orange-900">
+              <strong>Team Member Limit Reached!</strong> Your plan allows {teamMemberLimit} team member{teamMemberLimit !== 1 ? 's' : ''} and you currently have {currentTeamCount}. Upgrade your plan to add more team members.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Users List */}
         <Card className="border-none shadow-xl">
           <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white">
-            <CardTitle className="text-2xl">Team Members</CardTitle>
+            <CardTitle className="text-2xl flex items-center justify-between">
+              <span>Team Members</span>
+              <Badge className="bg-white text-blue-600">
+                {filteredTeamMembers.length} {filteredTeamMembers.length === 1 ? 'Member' : 'Members'}
+              </Badge>
+            </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="space-y-4">
-              {allUsers.filter(u => u.user_type !== 'client').map(teamUser => (
+            {filteredTeamMembers.length === 0 ? (
+              <div className="text-center py-12">
+                <Users className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No team members yet</h3>
+                <p className="text-gray-600 mb-4">Add team members to help manage your clients</p>
+                <Button 
+                  onClick={() => setShowAddDialog(true)}
+                  disabled={!canAddMore}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <UserPlus className="w-5 h-5 mr-2" />
+                  Add First Team Member
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredTeamMembers.map(teamUser => (
                 <div key={teamUser.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div>
                     <h3 className="font-bold text-gray-900">{teamUser.full_name}</h3>
@@ -182,8 +268,9 @@ export default function TeamManagement() {
                     </Button>
                   )}
                 </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
