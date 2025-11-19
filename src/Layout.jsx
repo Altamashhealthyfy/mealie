@@ -307,9 +307,39 @@ export default function Layout({ children, currentPageName }) {
     !item.roles || item.roles.includes(userType)
   );
   
-  const filteredBusinessNav = businessNavigation.filter(item =>
-    !item.roles || item.roles.includes(userType)
-  );
+  const { data: coachSubscription } = useQuery({
+    queryKey: ['coachSubscription', user?.email],
+    queryFn: async () => {
+      const subs = await base44.entities.HealthCoachSubscription.filter({ 
+        coach_email: user?.email,
+        status: 'active'
+      });
+      return subs[0] || null;
+    },
+    enabled: !!user && userType === 'student_coach',
+  });
+
+  const { data: coachPlan } = useQuery({
+    queryKey: ['coachPlan', coachSubscription?.plan_id],
+    queryFn: async () => {
+      if (!coachSubscription?.plan_id) return null;
+      const plans = await base44.entities.HealthCoachPlan.filter({ id: coachSubscription.plan_id });
+      return plans[0] || null;
+    },
+    enabled: !!coachSubscription?.plan_id,
+  });
+
+  const filteredBusinessNav = businessNavigation.filter(item => {
+    if (!item.roles || !item.roles.includes(userType)) return false;
+    
+    // Hide My Team if coach doesn't have max_team_members >= 1
+    if (item.title === 'My Team' && userType === 'student_coach') {
+      const maxTeamMembers = coachPlan?.max_team_members || 0;
+      return maxTeamMembers >= 1;
+    }
+    
+    return true;
+  });
 
   const getClientPermissions = () => {
     // If client has active subscription, use plan features
