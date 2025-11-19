@@ -331,7 +331,8 @@ export default function MealPlansPro() {
   const isSuperAdmin = user?.user_type === 'super_admin';
   const isStudentCoach = user?.user_type === 'student_coach';
   
-  const hasProAccess = isSuperAdmin || (isStudentCoach && coachSubscription && coachPlan?.can_create_client_plans);
+  // Pro Plans access controlled by plan feature
+  const hasProAccess = isSuperAdmin || (isStudentCoach && coachSubscription && coachPlan?.can_access_pro_plans);
 
   if (isStudentCoach && !hasProAccess) {
     return (
@@ -345,12 +346,12 @@ export default function MealPlansPro() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-gray-800">
-              Pro Plans (Disease-Specific Clinical Meal Planning) is only available on higher-tier Health Coach subscriptions.
+              💎 Mealie Pro (Disease-Specific Clinical Meal Planning) is only available on plans that include this feature.
             </p>
             <Alert className="bg-purple-50 border-purple-500">
               <Sparkles className="w-4 h-4 text-purple-600" />
               <AlertDescription>
-                <strong>Upgrade your plan</strong> to access:
+                <strong>Upgrade to a plan with Pro Plans access</strong> to unlock:
                 <ul className="list-disc ml-4 mt-2">
                   <li>Disease-specific meal plans</li>
                   <li>Clinical intake integration</li>
