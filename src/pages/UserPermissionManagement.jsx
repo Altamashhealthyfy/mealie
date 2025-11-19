@@ -26,6 +26,7 @@ export default function UserPermissionManagement() {
   const [assignPlanDialog, setAssignPlanDialog] = useState(false);
   const [selectedCoachForPlan, setSelectedCoachForPlan] = useState(null);
   const [selectedPlanId, setSelectedPlanId] = useState("");
+  const [billingCycle, setBillingCycle] = useState("monthly");
 
   const { data: currentUser } = useQuery({
     queryKey: ['currentUser'],
@@ -113,21 +114,27 @@ export default function UserPermissionManagement() {
   });
 
   const assignPlanMutation = useMutation({
-    mutationFn: async ({ coachEmail, planId }) => {
+    mutationFn: async ({ coachEmail, planId, billingCycle }) => {
       const existingSub = coachSubscriptions.find(s => s.coach_email === coachEmail && s.status === 'active');
       const selectedPlan = coachPlans.find(p => p.id === planId);
       
       const startDate = new Date().toISOString().split('T')[0];
       const endDate = new Date();
-      endDate.setMonth(endDate.getMonth() + 1);
+      if (billingCycle === 'yearly') {
+        endDate.setFullYear(endDate.getFullYear() + 1);
+      } else {
+        endDate.setMonth(endDate.getMonth() + 1);
+      }
+
+      const amount = billingCycle === 'yearly' ? selectedPlan?.yearly_price : selectedPlan?.monthly_price;
 
       const subscriptionData = {
         coach_email: coachEmail,
         coach_name: allUsers.find(u => u.email === coachEmail)?.full_name || coachEmail,
         plan_id: planId,
         plan_name: selectedPlan?.plan_name,
-        billing_cycle: 'monthly',
-        amount: 0,
+        billing_cycle: billingCycle,
+        amount: amount || 0,
         currency: 'INR',
         start_date: startDate,
         end_date: endDate.toISOString().split('T')[0],
@@ -150,6 +157,7 @@ export default function UserPermissionManagement() {
       setAssignPlanDialog(false);
       setSelectedCoachForPlan(null);
       setSelectedPlanId("");
+      setBillingCycle("monthly");
       alert('✅ Health Coach Plan assigned successfully!');
     },
   });
@@ -218,6 +226,7 @@ export default function UserPermissionManagement() {
     setSelectedCoachForPlan(coach);
     const existingSub = coachSubscriptions.find(s => s.coach_email === coach.email && s.status === 'active');
     setSelectedPlanId(existingSub?.plan_id || "");
+    setBillingCycle(existingSub?.billing_cycle || "monthly");
     setAssignPlanDialog(true);
   };
 
@@ -228,7 +237,8 @@ export default function UserPermissionManagement() {
     }
     assignPlanMutation.mutate({
       coachEmail: selectedCoachForPlan.email,
-      planId: selectedPlanId
+      planId: selectedPlanId,
+      billingCycle: billingCycle
     });
   };
 
@@ -684,11 +694,34 @@ export default function UserPermissionManagement() {
                   </Select>
                 </div>
 
+                <div className="space-y-2">
+                  <Label className="text-base font-semibold">Billing Cycle</Label>
+                  <Select value={billingCycle} onValueChange={setBillingCycle}>
+                    <SelectTrigger className="h-12">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="monthly">
+                        Monthly - ₹{coachPlans.find(p => p.id === selectedPlanId)?.monthly_price || 0}/month
+                      </SelectItem>
+                      <SelectItem value="yearly">
+                        Yearly - ₹{coachPlans.find(p => p.id === selectedPlanId)?.yearly_price || 0}/year
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {selectedPlanId && (
                   <Card className="border-2 border-green-200 bg-green-50">
                     <CardHeader>
-                      <CardTitle className="text-lg">
-                        {coachPlans.find(p => p.id === selectedPlanId)?.plan_name}
+                      <CardTitle className="text-lg flex items-center justify-between">
+                        <span>{coachPlans.find(p => p.id === selectedPlanId)?.plan_name}</span>
+                        <Badge className="bg-green-600">
+                          ₹{billingCycle === 'yearly' 
+                            ? coachPlans.find(p => p.id === selectedPlanId)?.yearly_price 
+                            : coachPlans.find(p => p.id === selectedPlanId)?.monthly_price}
+                          /{billingCycle === 'yearly' ? 'year' : 'month'}
+                        </Badge>
                       </CardTitle>
                       <CardDescription>
                         {coachPlans.find(p => p.id === selectedPlanId)?.plan_description}
