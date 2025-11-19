@@ -47,6 +47,19 @@ export default function HealthCoachPlans() {
     initialData: [],
   });
 
+  const { data: subscriptions } = useQuery({
+    queryKey: ['healthCoachSubscriptions'],
+    queryFn: async () => {
+      const subs = await base44.entities.HealthCoachSubscription.list();
+      return subs;
+    },
+    initialData: [],
+  });
+
+  const getSubscriptionCount = (planId) => {
+    return subscriptions.filter(sub => sub.plan_id === planId && sub.status === 'active').length;
+  };
+
   const createPlanMutation = useMutation({
     mutationFn: (data) => base44.entities.HealthCoachPlan.create(data),
     onSuccess: () => {
@@ -178,9 +191,14 @@ export default function HealthCoachPlans() {
               <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-2xl">{plan.plan_name}</CardTitle>
-                  <Badge className={plan.status === 'active' ? 'bg-green-600' : 'bg-gray-600'}>
-                    {plan.status}
-                  </Badge>
+                  <div className="flex gap-2">
+                    <Badge className="bg-white text-purple-600">
+                      {getSubscriptionCount(plan.id)} Coaches
+                    </Badge>
+                    <Badge className={plan.status === 'active' ? 'bg-green-600' : 'bg-gray-600'}>
+                      {plan.status}
+                    </Badge>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
