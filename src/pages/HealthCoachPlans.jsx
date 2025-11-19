@@ -379,6 +379,16 @@ export default function HealthCoachPlans() {
                     onCheckedChange={(checked) => setFormData({ ...formData, can_access_pro_plans: checked })}
                   />
                 </div>
+                <div className="flex items-center justify-between p-3 bg-blue-50 rounded border border-blue-200">
+                  <div>
+                    <Label>Can Manage Team 👥</Label>
+                    <p className="text-xs text-gray-600 mt-1">Allow coach to add and manage team members</p>
+                  </div>
+                  <Switch
+                    checked={formData.can_manage_team}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_manage_team: checked })}
+                  />
+                </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
                   <Label>Status Active</Label>
                   <Switch
