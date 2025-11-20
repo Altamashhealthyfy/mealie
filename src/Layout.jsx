@@ -257,50 +257,81 @@ const businessNavigation = [
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
 
-  const { data: user } = useQuery({
+  const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
+    queryFn: async () => {
+      try {
+        return await base44.auth.me();
+      } catch (error) {
+        console.error('User fetch error:', error);
+        return null;
+      }
+    },
     retry: false,
   });
 
   const { data: clientProfile } = useQuery({
     queryKey: ['clientProfile', user?.email],
     queryFn: async () => {
-      const clients = await base44.entities.Client.filter({ email: user?.email });
-      return clients[0] || null;
+      try {
+        const clients = await base44.entities.Client.filter({ email: user?.email });
+        return clients[0] || null;
+      } catch (error) {
+        console.error('Client profile fetch error:', error);
+        return null;
+      }
     },
     enabled: !!user && user?.user_type === 'client',
+    retry: false,
   });
 
   const { data: securitySettings } = useQuery({
     queryKey: ['securitySettings'],
     queryFn: async () => {
-      const settings = await base44.entities.AppSecuritySettings.list();
-      return settings[0] || null;
+      try {
+        const settings = await base44.entities.AppSecuritySettings.list();
+        return settings[0] || null;
+      } catch (error) {
+        console.error('Security settings fetch error:', error);
+        return null;
+      }
     },
     enabled: !!user,
+    retry: false,
   });
 
   const { data: clientSubscription } = useQuery({
     queryKey: ['clientSubscription', clientProfile?.id],
     queryFn: async () => {
-      const subs = await base44.entities.ClientSubscription.filter({ 
-        client_id: clientProfile?.id,
-        status: 'active'
-      });
-      return subs[0] || null;
+      try {
+        const subs = await base44.entities.ClientSubscription.filter({ 
+          client_id: clientProfile?.id,
+          status: 'active'
+        });
+        return subs[0] || null;
+      } catch (error) {
+        console.error('Client subscription fetch error:', error);
+        return null;
+      }
     },
     enabled: !!clientProfile?.id,
+    retry: false,
   });
 
   const { data: unreadCount } = useQuery({
     queryKey: ['unreadMessagesCount'],
     queryFn: async () => {
-      const messages = await base44.entities.Message.filter({ read: false });
-      return messages.length;
+      try {
+        const messages = await base44.entities.Message.filter({ read: false });
+        return messages.length;
+      } catch (error) {
+        console.error('Unread messages fetch error:', error);
+        return 0;
+      }
     },
     enabled: !!user,
     initialData: 0,
+    retry: false,
   });
 
   const userType = user?.user_type || 'client';
@@ -317,23 +348,35 @@ export default function Layout({ children, currentPageName }) {
   const { data: coachSubscription } = useQuery({
     queryKey: ['coachSubscription', user?.email],
     queryFn: async () => {
-      const subs = await base44.entities.HealthCoachSubscription.filter({ 
-        coach_email: user?.email,
-        status: 'active'
-      });
-      return subs[0] || null;
+      try {
+        const subs = await base44.entities.HealthCoachSubscription.filter({ 
+          coach_email: user?.email,
+          status: 'active'
+        });
+        return subs[0] || null;
+      } catch (error) {
+        console.error('Coach subscription fetch error:', error);
+        return null;
+      }
     },
     enabled: !!user && userType === 'student_coach',
+    retry: false,
   });
 
   const { data: coachPlan } = useQuery({
     queryKey: ['coachPlan', coachSubscription?.plan_id],
     queryFn: async () => {
-      if (!coachSubscription?.plan_id) return null;
-      const plans = await base44.entities.HealthCoachPlan.filter({ id: coachSubscription.plan_id });
-      return plans[0] || null;
+      try {
+        if (!coachSubscription?.plan_id) return null;
+        const plans = await base44.entities.HealthCoachPlan.filter({ id: coachSubscription.plan_id });
+        return plans[0] || null;
+      } catch (error) {
+        console.error('Coach plan fetch error:', error);
+        return null;
+      }
     },
     enabled: !!coachSubscription?.plan_id,
+    retry: false,
   });
 
   const filteredBusinessNav = businessNavigation.filter(item =>
@@ -458,6 +501,20 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const profilePhotoUrl = user?.profile_photo_url || clientProfile?.profile_photo_url || null;
+
+  // Show loading state
+  if (userLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
+            <ChefHat className="w-10 h-10 text-white" />
+          </div>
+          <p className="text-gray-600 font-medium">Loading Mealie...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleLogout = async () => {
     if (window.confirm("Are you sure you want to logout?")) {
