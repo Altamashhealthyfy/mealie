@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Save, Calculator, Sparkles, Target, Activity, User, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import ImageUploader from "@/components/common/ImageUploader";
+import { useUserPermissions } from "@/components/permissions/useUserPermissions";
 
 export default function Profile() {
   const queryClient = useQueryClient();
