@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Calendar, Loader2, Plus, Users, Eye, CheckCircle, Copy, AlertTriangle, Zap, Star, Download, Clock, Target, TrendingUp, Edit } from "lucide-react";
+import { Sparkles, Calendar, Loader2, Plus, Users, Eye, CheckCircle, Copy, AlertTriangle, Zap, Star, Download, Clock, Target, TrendingUp, Edit, Trash2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
@@ -27,6 +26,8 @@ export default function MealPlanner() {
   const [selectedClientId, setSelectedClientId] = useState(null);
   const [activeTab, setActiveTab] = useState("templates");
   const [showAIWarning, setShowAIWarning] = useState(false);
+  const [showEditTemplateDialog, setShowEditTemplateDialog] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState(null);
   const [planConfig, setPlanConfig] = useState({
     duration: 10,
     meal_pattern: 'daily',
@@ -101,6 +102,24 @@ export default function MealPlanner() {
     onSuccess: () => {
       queryClient.invalidateQueries(['mealPlanTemplates']);
       alert("✅ Template saved! You can now use it unlimited times for FREE!");
+    },
+  });
+
+  const updateTemplateMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.MealPlanTemplate.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['mealPlanTemplates']);
+      setShowEditTemplateDialog(false);
+      setEditingTemplate(null);
+      alert("✅ Template updated successfully!");
+    },
+  });
+
+  const deleteTemplateMutation = useMutation({
+    mutationFn: (id) => base44.entities.MealPlanTemplate.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['mealPlanTemplates']);
+      alert("✅ Template deleted successfully!");
     },
   });
 
@@ -582,6 +601,50 @@ Return structured meal plan with:
     });
   };
 
+  const handleEditTemplate = (template) => {
+    setEditingTemplate(template);
+    setShowEditTemplateDialog(true);
+  };
+
+  const handleSaveTemplateEdit = () => {
+    if (!editingTemplate.name.trim()) {
+      alert("Please enter template name");
+      return;
+    }
+
+    updateTemplateMutation.mutate({
+      id: editingTemplate.id,
+      data: {
+        name: editingTemplate.name,
+        description: editingTemplate.description,
+        is_public: editingTemplate.is_public,
+        category: editingTemplate.category,
+        food_preference: editingTemplate.food_preference,
+        regional_preference: editingTemplate.regional_preference,
+        target_calories: editingTemplate.target_calories,
+        duration: editingTemplate.duration
+      }
+    });
+  };
+
+  const handleDeleteTemplate = (template) => {
+    if (window.confirm(`Are you sure you want to delete "${template.name}"?\n\nThis action cannot be undone.`)) {
+      deleteTemplateMutation.mutate(template.id);
+    }
+  };
+
+  const canEditTemplate = (template) => {
+    return user?.user_type === 'super_admin' || 
+           user?.user_type === 'team_member' || 
+           template.created_by === user?.email;
+  };
+
+  const canDeleteTemplate = (template) => {
+    return user?.user_type === 'super_admin' || 
+           user?.user_type === 'team_member' || 
+           template.created_by === user?.email;
+  };
+
   const handleGenerateNew = () => {
     setGeneratedPlan(null);
     setGenerating(false);
@@ -769,6 +832,31 @@ Return structured meal plan with:
                           <Copy className="w-4 h-4 mr-2" />
                           Clone & Customize
                         </Button>
+
+                        {canEditTemplate(template) && (
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditTemplate(template)}
+                              className="flex-1"
+                            >
+                              <Edit className="w-3 h-3 mr-1" />
+                              Edit
+                            </Button>
+                            {canDeleteTemplate(template) && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDeleteTemplate(template)}
+                                className="flex-1 text-red-600 hover:bg-red-50"
+                              >
+                                <Trash2 className="w-3 h-3 mr-1" />
+                                Delete
+                              </Button>
+                            )}
+                          </div>
+                        )}
                       </CardContent>
                     </Card>
                   ))}
@@ -1075,6 +1163,157 @@ Return structured meal plan with:
             )}
           </TabsContent>
         </Tabs>
+
+        <Dialog open={showEditTemplateDialog} onOpenChange={setShowEditTemplateDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl flex items-center gap-2">
+                <Edit className="w-6 h-6 text-blue-600" />
+                Edit Meal Plan Template
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Template Name *</Label>
+                <Input
+                  value={editingTemplate?.name || ""}
+                  onChange={(e) => setEditingTemplate({...editingTemplate, name: e.target.value})}
+                  placeholder="Template name"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={editingTemplate?.description || ""}
+                  onChange={(e) => setEditingTemplate({...editingTemplate, description: e.target.value})}
+                  placeholder="Description"
+                  rows={3}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Category</Label>
+                  <Select
+                    value={editingTemplate?.category || "general"}
+                    onValueChange={(value) => setEditingTemplate({...editingTemplate, category: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="weight_loss">Weight Loss</SelectItem>
+                      <SelectItem value="weight_gain">Weight Gain</SelectItem>
+                      <SelectItem value="diabetes">Diabetes</SelectItem>
+                      <SelectItem value="pcos">PCOS</SelectItem>
+                      <SelectItem value="thyroid">Thyroid</SelectItem>
+                      <SelectItem value="muscle_gain">Muscle Gain</SelectItem>
+                      <SelectItem value="general">General</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Target Calories</Label>
+                  <Input
+                    type="number"
+                    value={editingTemplate?.target_calories || ""}
+                    onChange={(e) => setEditingTemplate({...editingTemplate, target_calories: parseInt(e.target.value)})}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Food Preference</Label>
+                  <Select
+                    value={editingTemplate?.food_preference || "veg"}
+                    onValueChange={(value) => setEditingTemplate({...editingTemplate, food_preference: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="veg">Vegetarian</SelectItem>
+                      <SelectItem value="non_veg">Non-Veg</SelectItem>
+                      <SelectItem value="jain">Jain</SelectItem>
+                      <SelectItem value="mixed">Mixed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Regional Preference</Label>
+                  <Select
+                    value={editingTemplate?.regional_preference || "all"}
+                    onValueChange={(value) => setEditingTemplate({...editingTemplate, regional_preference: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="north">North Indian</SelectItem>
+                      <SelectItem value="south">South Indian</SelectItem>
+                      <SelectItem value="west">West Indian</SelectItem>
+                      <SelectItem value="east">East Indian</SelectItem>
+                      <SelectItem value="all">All Regions</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Duration (days)</Label>
+                  <Input
+                    type="number"
+                    value={editingTemplate?.duration || ""}
+                    onChange={(e) => setEditingTemplate({...editingTemplate, duration: parseInt(e.target.value)})}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="is-public"
+                  checked={editingTemplate?.is_public || false}
+                  onChange={(e) => setEditingTemplate({...editingTemplate, is_public: e.target.checked})}
+                  className="w-4 h-4"
+                />
+                <Label htmlFor="is-public" className="text-sm">Make public (visible to all coaches)</Label>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowEditTemplateDialog(false);
+                    setEditingTemplate(null);
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSaveTemplateEdit}
+                  disabled={updateTemplateMutation.isPending}
+                  className="flex-1 bg-blue-500 h-12"
+                >
+                  {updateTemplateMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-5 h-5 mr-2" />
+                      Save Changes
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         <Dialog open={showAIWarning} onOpenChange={setShowAIWarning}>
           <DialogContent>
