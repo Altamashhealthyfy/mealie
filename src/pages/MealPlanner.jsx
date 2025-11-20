@@ -585,11 +585,6 @@ Return structured meal plan with:
   };
 
   const handleSaveAsTemplate = (plan) => {
-    if (!canContributeTemplates) {
-      alert("⛔ Template creation is not available in your current plan.\n\nPlease upgrade your plan to contribute templates.");
-      return;
-    }
-
     const templateName = prompt("Enter template name:", `${plan.food_preference} ${plan.target_calories} cal - ${plan.duration} days`);
     if (!templateName) return;
 
@@ -648,7 +643,7 @@ Return structured meal plan with:
 
     const canContributeTemplates = user?.user_type === 'super_admin' || 
                                   user?.user_type === 'team_member' || 
-                                  coachPlan?.can_contribute_templates === true;
+                                  user?.user_type === 'student_coach';
 
   const canDeleteTemplate = (template) => {
     return user?.user_type === 'super_admin' || 
@@ -1115,7 +1110,7 @@ Return structured meal plan with:
               <GeneratedMealPlan 
                 plan={viewingPlan || generatedPlan} 
                 onSave={viewingPlan ? null : handleSavePlan}
-                onSaveAsTemplate={!viewingPlan && generatedPlan?.from_template !== true && canContributeTemplates ? () => handleSaveAsTemplate(generatedPlan) : null}
+                onSaveAsTemplate={!viewingPlan && generatedPlan?.from_template !== true ? () => handleSaveAsTemplate(generatedPlan) : null}
                 onGenerateNew={handleGenerateNew}
                 isSaving={savePlanMutation.isPending}
               />
