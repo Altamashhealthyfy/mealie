@@ -32,7 +32,8 @@ import {
   CreditCard,
   Crown,
   Receipt,
-  Settings
+  Settings,
+  Globe
 } from "lucide-react";
 import {
   Sidebar,
