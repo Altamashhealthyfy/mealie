@@ -28,70 +28,113 @@ import { format } from "date-fns";
 export default function DietitianDashboard() {
   const navigate = useNavigate();
 
-  const { data: user } = useQuery({
+  const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
+    queryFn: async () => {
+      try {
+        return await base44.auth.me();
+      } catch (error) {
+        console.error('User fetch error:', error);
+        return null;
+      }
+    },
+    retry: false,
   });
 
   const { data: clients } = useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
-      const allClients = await base44.entities.Client.list('-created_date');
-      
-      // Super admin sees ALL clients
-      if (user?.user_type === 'super_admin') {
-        return allClients;
+      try {
+        const allClients = await base44.entities.Client.list('-created_date');
+        
+        if (user?.user_type === 'super_admin') {
+          return allClients;
+        }
+        
+        return allClients.filter(client => client.created_by === user?.email);
+      } catch (error) {
+        console.error('Clients fetch error:', error);
+        return [];
       }
-      
-      // Team members, student coaches - only see THEIR OWN clients
-      return allClients.filter(client => client.created_by === user?.email);
     },
     enabled: !!user,
     initialData: [],
+    retry: false,
   });
 
   const { data: mealPlans } = useQuery({
     queryKey: ['mealPlans'],
     queryFn: async () => {
-      const allPlans = await base44.entities.MealPlan.list('-created_date');
-      // Filter to only show plans created by current user (for team members)
-      if (user?.user_type === 'super_admin') {
-        return allPlans;
+      try {
+        const allPlans = await base44.entities.MealPlan.list('-created_date');
+        if (user?.user_type === 'super_admin') {
+          return allPlans;
+        }
+        return allPlans.filter(plan => plan.created_by === user?.email);
+      } catch (error) {
+        console.error('Meal plans fetch error:', error);
+        return [];
       }
-      return allPlans.filter(plan => plan.created_by === user?.email);
     },
     enabled: !!user,
     initialData: [],
+    retry: false,
   });
 
   const { data: appointments } = useQuery({
     queryKey: ['appointments'],
-    queryFn: () => base44.entities.Appointment.list('-created_date', 10),
+    queryFn: async () => {
+      try {
+        return await base44.entities.Appointment.list('-created_date', 10);
+      } catch (error) {
+        console.error('Appointments fetch error:', error);
+        return [];
+      }
+    },
     initialData: [],
+    retry: false,
   });
 
   const { data: messages } = useQuery({
     queryKey: ['unreadMessages'],
-    queryFn: () => base44.entities.Message.filter({ read: false }),
+    queryFn: async () => {
+      try {
+        return await base44.entities.Message.filter({ read: false });
+      } catch (error) {
+        console.error('Messages fetch error:', error);
+        return [];
+      }
+    },
     initialData: [],
+    retry: false,
   });
 
   const { data: mpessTracking } = useQuery({
     queryKey: ['mpessTracking'],
     queryFn: async () => {
-      const tracking = await base44.entities.MPESSTracker.list('-created_date', 100);
-      return tracking;
+      try {
+        return await base44.entities.MPESSTracker.list('-created_date', 100);
+      } catch (error) {
+        console.error('MPESS tracking fetch error:', error);
+        return [];
+      }
     },
     initialData: [],
+    retry: false,
   });
 
   const { data: progressLogs } = useQuery({
     queryKey: ['progressLogs'],
     queryFn: async () => {
-      const logs = await base44.entities.ProgressLog.list('-created_date', 50);
-      return logs;
+      try {
+        return await base44.entities.ProgressLog.list('-created_date', 50);
+      } catch (error) {
+        console.error('Progress logs fetch error:', error);
+        return [];
+      }
     },
     initialData: [],
+    retry: false,
   });
 
   // Get unique clients who have tracked MPESS
@@ -174,6 +217,34 @@ export default function DietitianDashboard() {
       link: createPageUrl("Appointments"),
     },
   ];
+
+  if (userLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
+            <Sparkles className="w-10 h-10 text-white" />
+          </div>
+          <p className="text-gray-600 font-medium">Loading Dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="max-w-md border-none shadow-xl">
+          <CardContent className="p-12 text-center">
+            <p className="text-gray-600">Unable to load user data. Please refresh the page.</p>
+            <Button onClick={() => window.location.reload()} className="mt-4">
+              Refresh Page
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-4 md:p-8">
