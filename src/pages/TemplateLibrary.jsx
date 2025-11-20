@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -73,6 +72,28 @@ export default function TemplateLibrary() {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+  });
+
+  const { data: coachSubscription } = useQuery({
+    queryKey: ['coachSubscription', user?.email],
+    queryFn: async () => {
+      const subs = await base44.entities.HealthCoachSubscription.filter({ 
+        coach_email: user?.email,
+        status: 'active'
+      });
+      return subs[0] || null;
+    },
+    enabled: !!user && user?.user_type === 'student_coach',
+  });
+
+  const { data: coachPlan } = useQuery({
+    queryKey: ['coachPlan', coachSubscription?.plan_id],
+    queryFn: async () => {
+      if (!coachSubscription?.plan_id) return null;
+      const plans = await base44.entities.HealthCoachPlan.filter({ id: coachSubscription.plan_id });
+      return plans[0] || null;
+    },
+    enabled: !!coachSubscription?.plan_id,
   });
 
   const { data: templates } = useQuery({
