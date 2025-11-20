@@ -165,7 +165,7 @@ export default function MealPlanner() {
 
   // REDIRECT CLIENTS AWAY - After all hooks are defined
   React.useEffect(() => {
-    if (user?.user_type === 'client') {
+    if (user && user.user_type === 'client') {
       alert('⛔ This page is only for dietitians and team members.\n\nClients cannot create meal plans.');
       window.location.href = createPageUrl('MyAssignedMealPlan');
     }
@@ -191,7 +191,7 @@ export default function MealPlanner() {
     );
   }
 
-  if (user.user_type === 'client') {
+  if (user && user.user_type === 'client') {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="max-w-md border-none shadow-xl bg-red-50">
