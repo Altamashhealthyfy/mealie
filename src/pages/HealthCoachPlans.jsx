@@ -28,7 +28,6 @@ export default function HealthCoachPlans() {
     can_create_client_plans: false,
     can_access_pro_plans: false,
     can_manage_team: false,
-    can_contribute_templates: false,
     ai_generation_limit: -1,
     status: "active",
     sort_order: 0
@@ -125,7 +124,6 @@ export default function HealthCoachPlans() {
       can_create_client_plans: plan.can_create_client_plans,
       can_access_pro_plans: plan.can_access_pro_plans || false,
       can_manage_team: plan.can_manage_team || false,
-      can_contribute_templates: plan.can_contribute_templates || false,
       ai_generation_limit: plan.ai_generation_limit,
       status: plan.status,
       sort_order: plan.sort_order || 0
@@ -233,7 +231,6 @@ export default function HealthCoachPlans() {
                   <p>Payment Gateway: {plan.can_add_payment_gateway ? 'Yes' : 'No'}</p>
                   <p>Create Plans: {plan.can_create_client_plans ? 'Yes' : 'No'}</p>
                   <p>Pro Plans 💎: {plan.can_access_pro_plans ? 'Yes' : 'No'}</p>
-                  <p>Contribute Templates 📤: {plan.can_contribute_templates ? 'Yes' : 'No'}</p>
                 </div>
 
                 <div className="flex gap-2 pt-4">
@@ -389,16 +386,6 @@ export default function HealthCoachPlans() {
                   <Switch
                     checked={formData.can_manage_team}
                     onCheckedChange={(checked) => setFormData({ ...formData, can_manage_team: checked })}
-                  />
-                </div>
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded border border-green-200">
-                  <div>
-                    <Label>Can Contribute Templates 📤</Label>
-                    <p className="text-xs text-gray-600 mt-1">Allow coach to upload and share meal plan templates</p>
-                  </div>
-                  <Switch
-                    checked={formData.can_contribute_templates}
-                    onCheckedChange={(checked) => setFormData({ ...formData, can_contribute_templates: checked })}
                   />
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
