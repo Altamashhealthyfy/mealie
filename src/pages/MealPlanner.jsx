@@ -644,7 +644,11 @@ Return structured meal plan with:
     return user?.user_type === 'super_admin' || 
            user?.user_type === 'team_member' || 
            template.created_by === user?.email;
-  };
+    };
+
+    const canContributeTemplates = user?.user_type === 'super_admin' || 
+                                  user?.user_type === 'team_member' || 
+                                  coachPlan?.can_contribute_templates === true;
 
   const canDeleteTemplate = (template) => {
     return user?.user_type === 'super_admin' || 

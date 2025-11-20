@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -73,6 +72,28 @@ export default function TemplateLibraryManager() {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+  });
+
+  const { data: coachSubscription } = useQuery({
+    queryKey: ['coachSubscription', user?.email],
+    queryFn: async () => {
+      const subs = await base44.entities.HealthCoachSubscription.filter({ 
+        coach_email: user?.email,
+        status: 'active'
+      });
+      return subs[0] || null;
+    },
+    enabled: !!user && user?.user_type === 'student_coach',
+  });
+
+  const { data: coachPlan } = useQuery({
+    queryKey: ['coachPlan', coachSubscription?.plan_id],
+    queryFn: async () => {
+      if (!coachSubscription?.plan_id) return null;
+      const plans = await base44.entities.HealthCoachPlan.filter({ id: coachSubscription.plan_id });
+      return plans[0] || null;
+    },
+    enabled: !!coachSubscription?.plan_id,
   });
 
   const { data: templates } = useQuery({
@@ -402,7 +423,9 @@ Extract:
   };
 
   const userType = user?.user_type || 'client';
-  const canUploadTemplates = userType === 'super_admin' || (userType === 'team_member' && user?.team_roles?.includes('operations'));
+  const canUploadTemplates = userType === 'super_admin' || 
+                              (userType === 'team_member' && user?.team_roles?.includes('operations')) ||
+                              (userType === 'student_coach' && coachPlan?.can_contribute_templates === true);
   const isSuperAdmin = userType === 'super_admin';
   
   if (!canUploadTemplates) {
@@ -413,14 +436,14 @@ Extract:
             <Shield className="w-16 h-16 mx-auto text-red-500 mb-4" />
             <CardTitle className="text-center text-2xl">Access Restricted</CardTitle>
             <CardDescription className="text-center text-lg">
-              Only super admin and operations team can upload templates
+              Template contribution is not available in your current plan
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Alert className="border-orange-200 bg-orange-50">
               <AlertTriangle className="w-4 h-4 text-orange-600" />
               <AlertDescription>
-                Student coaches and sales team cannot upload templates. Only platform owner and operations team.
+                Please upgrade your plan to contribute templates to the marketplace.
               </AlertDescription>
             </Alert>
           </CardContent>
