@@ -57,6 +57,8 @@ export default function Profile() {
     enabled: !!user && user?.user_type === 'client',
   });
 
+  const { permissions, hasPermission } = useUserPermissions();
+
   useEffect(() => {
     if (userProfile) {
       setFormData(userProfile);
@@ -201,8 +203,6 @@ export default function Profile() {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
-  const { permissions, hasPermission } = useUserPermissions();
-  
   const isClient = user?.user_type === 'client';
   const canEditProfile = isClient ? hasPermission('can_edit_profile', true) : true;
   const canUploadPhoto = isClient ? hasPermission('can_upload_profile_photo', true) : true;
