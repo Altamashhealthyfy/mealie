@@ -129,6 +129,12 @@ const paymentNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
+    title: "Custom Domain",
+    url: createPageUrl("CustomDomainSettings"),
+    icon: Globe,
+    roles: ['student_coach'],
+  },
+  {
     title: "Create Client Plans",
     url: createPageUrl("ClientPlanBuilder"),
     icon: Users,
