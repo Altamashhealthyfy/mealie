@@ -9,29 +9,62 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export default function Home() {
-  const { data: user } = useQuery({
+  const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
+    queryFn: async () => {
+      try {
+        return await base44.auth.me();
+      } catch (error) {
+        console.error('User fetch error:', error);
+        return null;
+      }
+    },
     retry: false,
   });
 
   const { data: userProfile } = useQuery({
     queryKey: ['userProfile'],
-    queryFn: () => base44.entities.UserProfile.filter({ created_by: user?.email }).then(res => res[0]),
+    queryFn: async () => {
+      try {
+        const res = await base44.entities.UserProfile.filter({ created_by: user?.email });
+        return res[0] || null;
+      } catch (error) {
+        console.error('User profile fetch error:', error);
+        return null;
+      }
+    },
     enabled: !!user,
+    retry: false,
   });
 
   const { data: activeMealPlan } = useQuery({
     queryKey: ['activeMealPlan'],
-    queryFn: () => base44.entities.MealPlan.filter({ active: true, created_by: user?.email }).then(res => res[0]),
+    queryFn: async () => {
+      try {
+        const res = await base44.entities.MealPlan.filter({ active: true, created_by: user?.email });
+        return res[0] || null;
+      } catch (error) {
+        console.error('Active meal plan fetch error:', error);
+        return null;
+      }
+    },
     enabled: !!user,
+    retry: false,
   });
 
   const { data: recentTracking } = useQuery({
     queryKey: ['recentTracking'],
-    queryFn: () => base44.entities.MPESSTracker.list('-created_date', 7),
+    queryFn: async () => {
+      try {
+        return await base44.entities.MPESSTracker.list('-created_date', 7);
+      } catch (error) {
+        console.error('Recent tracking fetch error:', error);
+        return [];
+      }
+    },
     enabled: !!user,
     initialData: [],
+    retry: false,
   });
 
   const features = [
@@ -50,6 +83,19 @@ export default function Home() {
       link: createPageUrl("MPESSTracker"),
     },
   ];
+
+  if (userLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg animate-pulse">
+            <ChefHat className="w-10 h-10 text-white" />
+          </div>
+          <p className="text-gray-600 font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-4 md:p-8">
