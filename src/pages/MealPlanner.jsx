@@ -29,6 +29,7 @@ export default function MealPlanner() {
   const [showAIWarning, setShowAIWarning] = useState(false);
   const [showEditTemplateDialog, setShowEditTemplateDialog] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [planConfig, setPlanConfig] = useState({
     duration: 10,
     meal_pattern: 'daily',
@@ -644,9 +645,21 @@ Return structured meal plan with:
     return user?.user_type === 'super_admin' || 
            user?.user_type === 'team_member' || 
            template.created_by === user?.email;
-  };
+    };
 
-  const handleGenerateNew = () => {
+    const filteredTemplates = templates.filter(template => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      template.name.toLowerCase().includes(query) ||
+      template.description?.toLowerCase().includes(query) ||
+      template.category?.toLowerCase().includes(query) ||
+      template.food_preference?.toLowerCase().includes(query) ||
+      template.tags?.some(tag => tag.toLowerCase().includes(query))
+    );
+    });
+
+    const handleGenerateNew = () => {
     setGeneratedPlan(null);
     setGenerating(false);
     setViewingPlan(null);
@@ -786,8 +799,26 @@ Return structured meal plan with:
                   </CardContent>
                 </Card>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {templates.map((template) => (
+                <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+                  <CardContent className="p-4">
+                    <Input
+                      placeholder="🔍 Search templates by name, category, food type, tags..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="h-12 text-base"
+                    />
+                  </CardContent>
+                </Card>
+
+                {filteredTemplates.length === 0 && searchQuery ? (
+                  <Card className="border-none shadow-lg">
+                    <CardContent className="p-12 text-center">
+                      <p className="text-gray-600">No templates found matching "{searchQuery}"</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredTemplates.map((template) => (
                     <Card key={template.id} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all">
                       <CardHeader>
                         <div className="flex items-start justify-between">
@@ -860,11 +891,12 @@ Return structured meal plan with:
                         )}
                       </CardContent>
                     </Card>
-                  ))}
-                </div>
-              </div>
-            )}
-          </TabsContent>
+                    ))}
+                    </div>
+                    )}
+                    </div>
+                    )}
+                    </TabsContent>
 
           <TabsContent value="manual" className="space-y-6">
             {!selectedClientId ? (
