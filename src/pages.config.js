@@ -57,6 +57,7 @@ import CoachSubscriptions from './pages/CoachSubscriptions';
 import ClientPlanBuilder from './pages/ClientPlanBuilder';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
+import CustomDomainSettings from './pages/CustomDomainSettings';
 import __Layout from './Layout.jsx';
 
 
@@ -120,6 +121,7 @@ export const PAGES = {
     "ClientPlanBuilder": ClientPlanBuilder,
     "CoachPaymentSetup": CoachPaymentSetup,
     "AdminSubscriptionManager": AdminSubscriptionManager,
+    "CustomDomainSettings": CustomDomainSettings,
 }
 
 export const pagesConfig = {
