@@ -191,6 +191,24 @@ export default function UserPermissionManagement() {
     }
   });
 
+  const changePasswordMutation = useMutation({
+    mutationFn: async ({ email, password }) => {
+      return await base44.functions.invoke('changeUserPassword', {
+        email,
+        password
+      });
+    },
+    onSuccess: () => {
+      setChangePasswordDialog(false);
+      setSelectedCoachForPassword(null);
+      setNewPasswordForCoach("");
+      alert('✅ Password changed successfully!');
+    },
+    onError: (error) => {
+      alert('❌ Failed to change password: ' + (error.response?.data?.error || error.message));
+    }
+  });
+
   if (currentUser?.user_type !== 'super_admin') {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
