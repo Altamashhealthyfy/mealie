@@ -930,30 +930,53 @@ Enjoy your cooking! 🍽️✨
                         </Badge>
                       </div>
                     </CardHeader>
-                    <CardContent onClick={() => setSelectedRecipe(recipe)} className="cursor-pointer">
-                      <p className="text-gray-600 text-sm line-clamp-2 mb-4">{recipe.description}</p>
-                      <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          <span>{(recipe.prep_time || 0) + (recipe.cook_time || 0)} min</span>
+                    <CardContent>
+                      <div onClick={() => setSelectedRecipe(recipe)} className="cursor-pointer">
+                        <p className="text-gray-600 text-sm line-clamp-2 mb-4">{recipe.description}</p>
+                        <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            <span>{(recipe.prep_time || 0) + (recipe.cook_time || 0)} min</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Users className="w-4 h-4" />
+                            <span>{recipe.servings} servings</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Flame className="w-4 h-4" />
+                            <span>{recipe.calories} kcal</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Users className="w-4 h-4" />
-                          <span>{recipe.servings} servings</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Flame className="w-4 h-4" />
-                          <span>{recipe.calories} kcal</span>
-                        </div>
-                      </div>
-                      {!isClient && recipe.created_by && (
-                        <p className="text-xs text-gray-500 truncate">
-                          👤 {recipe.created_by}
+                        {!isClient && recipe.created_by && (
+                          <p className="text-xs text-gray-500 truncate">
+                            👤 {recipe.created_by}
+                          </p>
+                        )}
+                        <p className="text-xs text-gray-500 mb-3">
+                          📅 {format(new Date(recipe.created_date), 'MMM d, yyyy')}
                         </p>
-                      )}
-                      <p className="text-xs text-gray-500">
-                        📅 {format(new Date(recipe.created_date), 'MMM d, yyyy')}
-                      </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => setSelectedRecipe(recipe)}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700"
+                          size="sm"
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          View
+                        </Button>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            downloadRecipe(recipe);
+                          }}
+                          className="flex-1 bg-green-600 hover:bg-green-700"
+                          size="sm"
+                        >
+                          <Download className="w-4 h-4 mr-1" />
+                          Download
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
