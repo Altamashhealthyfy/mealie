@@ -135,22 +135,26 @@ export default function CustomDomainSettings() {
   };
 
   const handleVerifyDomain = async () => {
+    if (!coachProfile?.custom_domain) {
+      alert("No domain to verify");
+      return;
+    }
+
     setIsVerifying(true);
     try {
-      // In a real implementation, this would call a backend function to verify DNS records
-      // For now, we'll simulate verification
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await base44.functions.invoke('verifyCustomDomain', { 
+        domain: coachProfile.custom_domain 
+      });
       
-      // Here you would actually verify the DNS records
-      // For demo purposes, we'll just show a message
-      alert("🔍 Verification in progress...\n\nWe're checking your DNS records. This may take a few minutes. You'll be notified once verification is complete.");
-      
-      // In production, you'd call something like:
-      // await base44.functions.invoke('verifyCustomDomain', { domain: coachProfile.custom_domain });
-      
+      if (response.data.success) {
+        await queryClient.invalidateQueries(['coachProfile']);
+        alert(response.data.message);
+      } else {
+        alert(response.data.message);
+      }
     } catch (error) {
       console.error("Verification error:", error);
-      alert("❌ Verification check failed. Please try again.");
+      alert("❌ Verification check failed. Please ensure DNS records are properly configured and try again.");
     } finally {
       setIsVerifying(false);
     }
