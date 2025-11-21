@@ -1141,7 +1141,15 @@ Return structured meal plan with:
                     Generate New Meal Plan with AI
                   </CardTitle>
                   <CardDescription>
-                    ⚠️ Costs ₹10 per plan - Use templates instead to save money!
+                    {user?.user_type === 'student_coach' && coachPlan ? (
+                      availableAICredits > 0 ? (
+                        '✅ FREE with your AI credits - Use templates to save credits!'
+                      ) : (
+                        `⚠️ Costs ₹${coachPlan.ai_credit_price || 10} per plan - Use templates instead to save money!`
+                      )
+                    ) : (
+                      '⚠️ Costs ₹10 per plan - Use templates instead to save money!'
+                    )}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -1252,41 +1260,45 @@ Return structured meal plan with:
                     </div>
                   </div>
 
-                  <Alert className="border-2 border-yellow-500 bg-yellow-50">
-                    <AlertTriangle className="w-5 h-5 text-yellow-600" />
-                    <AlertDescription className="ml-2">
-                      <div className="space-y-2">
-                        {user?.user_type === 'student_coach' && coachPlan ? (
-                          <>
-                            <p className="font-semibold text-yellow-900">
-                              {availableAICredits > 0 ? '✅ FREE Generation (using credits)' : `💸 Cost: ₹${coachPlan.ai_credit_price || 10} per generation`}
-                            </p>
-                            <p className="text-sm text-yellow-800">
-                              Available Credits: {availableAICredits === Infinity ? 'Unlimited' : availableAICredits}
-                            </p>
-                          </>
-                        ) : (
-                          <>
-                            <p className="font-semibold text-yellow-900">💸 This will cost ₹10</p>
-                            <p className="text-sm text-yellow-800">
-                              You've used {usage?.meal_plans_generated || 0} / {usage?.plan_limits?.meal_plans || 20} AI generations this month
-                            </p>
-                          </>
-                        )}
-                        <div className="p-3 bg-green-100 border border-green-300 rounded-lg mt-2">
-                          <p className="text-sm font-semibold text-green-900 mb-1">💡 Save Money!</p>
-                          <p className="text-xs text-green-800">
-                            After generating, click "Save as Template" to reuse it FREE unlimited times!
+                  {user?.user_type === 'student_coach' && coachPlan ? (
+                    <Alert className={`border-2 ${availableAICredits > 0 ? 'border-green-500 bg-green-50' : 'border-yellow-500 bg-yellow-50'}`}>
+                      <AlertTriangle className={`w-5 h-5 ${availableAICredits > 0 ? 'text-green-600' : 'text-yellow-600'}`} />
+                      <AlertDescription className="ml-2">
+                        <div className="space-y-2">
+                          <p className={`font-semibold ${availableAICredits > 0 ? 'text-green-900' : 'text-yellow-900'}`}>
+                            {availableAICredits > 0 ? '✅ FREE Generation (using your AI credits)' : `💸 Cost: ₹${coachPlan.ai_credit_price || 10} per generation`}
                           </p>
-                          {user?.user_type === 'student_coach' && coachPlan && (
-                            <p className="text-xs text-green-800 mt-2">
-                              💳 Available Credits: {availableAICredits === Infinity ? 'Unlimited' : availableAICredits}
+                          <p className={`text-sm ${availableAICredits > 0 ? 'text-green-800' : 'text-yellow-800'}`}>
+                            AI Credits Available: {availableAICredits === Infinity ? 'Unlimited ∞' : availableAICredits}
+                          </p>
+                          <div className="p-3 bg-blue-100 border border-blue-300 rounded-lg mt-2">
+                            <p className="text-sm font-semibold text-blue-900 mb-1">💡 Save Money!</p>
+                            <p className="text-xs text-blue-800">
+                              After generating, click "Save as Template" to reuse it FREE unlimited times!
                             </p>
-                          )}
+                          </div>
                         </div>
-                      </div>
-                    </AlertDescription>
-                  </Alert>
+                      </AlertDescription>
+                    </Alert>
+                  ) : (
+                    <Alert className="border-2 border-yellow-500 bg-yellow-50">
+                      <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                      <AlertDescription className="ml-2">
+                        <div className="space-y-2">
+                          <p className="font-semibold text-yellow-900">💸 This will cost ₹10</p>
+                          <p className="text-sm text-yellow-800">
+                            You've used {usage?.meal_plans_generated || 0} / {usage?.plan_limits?.meal_plans || 20} AI generations this month
+                          </p>
+                          <div className="p-3 bg-green-100 border border-green-300 rounded-lg mt-2">
+                            <p className="text-sm font-semibold text-green-900 mb-1">💡 Save Money!</p>
+                            <p className="text-xs text-green-800">
+                              After generating, click "Save as Template" to reuse it FREE unlimited times!
+                            </p>
+                          </div>
+                        </div>
+                      </AlertDescription>
+                    </Alert>
+                  )}
 
                   <Button
                     onClick={generateMealPlan}
