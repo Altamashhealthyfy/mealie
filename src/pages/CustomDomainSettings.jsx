@@ -26,6 +26,9 @@ export default function CustomDomainSettings() {
   const [isAdding, setIsAdding] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [autoVerifyAttempts, setAutoVerifyAttempts] = useState(0);
+  const [editBranding, setEditBranding] = useState(false);
+  const [brandingName, setBrandingName] = useState("");
+  const [brandingTagline, setBrandingTagline] = useState("");
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -76,6 +79,13 @@ export default function CustomDomainSettings() {
       queryClient.invalidateQueries(['coachProfile']);
     },
   });
+
+  React.useEffect(() => {
+    if (coachProfile) {
+      setBrandingName(coachProfile.custom_branding_name || coachProfile.business_name || '');
+      setBrandingTagline(coachProfile.tagline || '');
+    }
+  }, [coachProfile]);
 
   const handleAddDomain = async () => {
     if (!domain.trim()) {
@@ -134,6 +144,19 @@ export default function CustomDomainSettings() {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     alert("✅ Copied to clipboard!");
+  };
+
+  const handleSaveBranding = async () => {
+    try {
+      await updateProfileMutation.mutateAsync({
+        custom_branding_name: brandingName,
+        tagline: brandingTagline
+      });
+      setEditBranding(false);
+      alert('✅ Branding updated successfully!');
+    } catch (error) {
+      alert('❌ Failed to update branding');
+    }
   };
 
   const handleVerifyDomain = async (silent = false) => {
@@ -249,9 +272,103 @@ export default function CustomDomainSettings() {
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-6">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Custom Domain Settings</h1>
-          <p className="text-gray-600">Connect your own domain to your coaching platform</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Custom Domain & Branding</h1>
+          <p className="text-gray-600">Configure your custom domain and platform branding</p>
         </div>
+
+        {/* Custom Branding Section */}
+        <Card className="border-none shadow-xl">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Globe className="w-5 h-5 text-purple-600" />
+              Platform Branding
+            </CardTitle>
+            <CardDescription>
+              Customize how your platform appears to your clients
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {!editBranding ? (
+              <>
+                <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-2 border-purple-200">
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-sm text-gray-600">Platform Name</p>
+                      <p className="text-xl font-bold text-gray-900">
+                        {coachProfile?.custom_branding_name || coachProfile?.business_name || 'Mealie'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Tagline</p>
+                      <p className="text-gray-700">
+                        {coachProfile?.tagline || 'Dietitian Platform'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => setEditBranding(true)}
+                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                >
+                  Edit Branding
+                </Button>
+              </>
+            ) : (
+              <>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="brandingName">Platform Name *</Label>
+                    <Input
+                      id="brandingName"
+                      value={brandingName}
+                      onChange={(e) => setBrandingName(e.target.value)}
+                      placeholder="e.g., NutriCare Pro"
+                      className="h-12"
+                    />
+                    <p className="text-xs text-gray-500">
+                      This name will replace "Mealie" throughout the platform
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="brandingTagline">Tagline</Label>
+                    <Input
+                      id="brandingTagline"
+                      value={brandingTagline}
+                      onChange={(e) => setBrandingTagline(e.target.value)}
+                      placeholder="e.g., Your Health, Our Priority"
+                      className="h-12"
+                    />
+                    <p className="text-xs text-gray-500">
+                      Appears below the platform name
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleSaveBranding}
+                    disabled={!brandingName || updateProfileMutation.isPending}
+                    className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  >
+                    {updateProfileMutation.isPending ? 'Saving...' : 'Save Branding'}
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setEditBranding(false);
+                      setBrandingName(coachProfile?.custom_branding_name || coachProfile?.business_name || '');
+                      setBrandingTagline(coachProfile?.tagline || '');
+                    }}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Current Domain Status */}
         {coachProfile?.custom_domain && (
