@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Calendar, Loader2, Plus, Users, Eye, CheckCircle, Copy, AlertTriangle, Zap, Star, Download, Clock, Target, TrendingUp, Edit, Trash2 } from "lucide-react";
+import { Sparkles, Calendar, Loader2, Plus, Users, Eye, CheckCircle, Copy, AlertTriangle, Zap, Star, Download, Clock, Target, TrendingUp, Edit, Trash2, CreditCard } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
@@ -806,7 +806,16 @@ Return structured meal plan with:
                 <Alert className="mt-4 bg-orange-50 border-orange-300">
                   <AlertTriangle className="w-5 h-5 text-orange-600" />
                   <AlertDescription className="text-orange-900">
-                    <strong>Low on credits!</strong> You have {availableAICredits} AI credits remaining. Purchase more to continue generating.
+                    <strong>Low on credits!</strong> You have {availableAICredits} AI credits remaining.
+                    <Button
+                      onClick={() => window.location.href = createPageUrl('PurchaseAICredits')}
+                      variant="outline"
+                      size="sm"
+                      className="ml-3 bg-white hover:bg-orange-50 border-orange-300"
+                    >
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Buy More
+                    </Button>
                   </AlertDescription>
                 </Alert>
               )}

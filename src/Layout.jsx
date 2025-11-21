@@ -72,6 +72,12 @@ const dietitianNavigation = [
     roles: ['student_coach'],
   },
   {
+    title: "Buy AI Credits",
+    url: createPageUrl("PurchaseAICredits"),
+    icon: Sparkles,
+    roles: ['student_coach'],
+  },
+  {
     title: "Payment Setup",
     url: createPageUrl("CoachPaymentSetup"),
     icon: CreditCard,
