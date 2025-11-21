@@ -80,6 +80,28 @@ export default function Recipes() {
     enabled: !!user,
   });
 
+  const { data: coachSubscription } = useQuery({
+    queryKey: ['coachSubscription', user?.email],
+    queryFn: async () => {
+      const subs = await base44.entities.HealthCoachSubscription.filter({ 
+        coach_email: user?.email,
+        status: 'active'
+      });
+      return subs[0] || null;
+    },
+    enabled: !!user && user?.user_type === 'student_coach',
+  });
+
+  const { data: coachPlan } = useQuery({
+    queryKey: ['coachPlan', coachSubscription?.plan_id],
+    queryFn: async () => {
+      if (!coachSubscription?.plan_id) return null;
+      const plans = await base44.entities.HealthCoachPlan.filter({ id: coachSubscription.plan_id });
+      return plans[0] || null;
+    },
+    enabled: !!coachSubscription?.plan_id,
+  });
+
   const createRecipeMutation = useMutation({
     mutationFn: (data) => base44.entities.Recipe.create(data),
     onSuccess: () => {
@@ -497,9 +519,9 @@ Enjoy your cooking! 🍽️✨
     return user?.user_type === 'super_admin' || recipe.created_by === user?.email;
   };
 
-  // ADMIN-ONLY: Upload and AI generation
-  const canUploadRecipe = isSuperAdmin;
-  const canGenerateAIRecipe = isSuperAdmin;
+  // PERMISSIONS: Upload and AI generation based on plan
+  const canUploadRecipe = isSuperAdmin || (user?.user_type === 'student_coach' && coachPlan?.can_create_recipes);
+  const canGenerateAIRecipe = isSuperAdmin || (user?.user_type === 'student_coach' && coachPlan?.can_create_recipes);
 
   return (
     <div className="min-h-screen p-4 md:p-8">
@@ -558,12 +580,22 @@ Enjoy your cooking! 🍽️✨
           </Alert>
         )}
 
-        {/* ADMIN-ONLY NOTICE */}
-        {!isSuperAdmin && !isClient && (
+        {/* PLAN-BASED NOTICE for student_coach without recipe creation */}
+        {user?.user_type === 'student_coach' && !coachPlan?.can_create_recipes && (
           <Alert className="bg-orange-50 border-orange-500">
             <AlertTriangle className="w-5 h-5 text-orange-600" />
             <AlertDescription className="text-orange-900">
-              <strong>Limited Access:</strong> Only Super Admins can upload recipes or use AI generation. You can view, edit your own recipes, and download.
+              <strong>Upgrade Required:</strong> Recipe creation and AI generation are not included in your current plan. Upgrade your subscription to unlock these features. You can view and download recipes.
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {/* LIMITED ACCESS NOTICE for team members */}
+        {user?.user_type === 'team_member' && (
+          <Alert className="bg-orange-50 border-orange-500">
+            <AlertTriangle className="w-5 h-5 text-orange-600" />
+            <AlertDescription className="text-orange-900">
+              <strong>Limited Access:</strong> Only Super Admins and Health Coaches with recipe creation permission can upload or generate recipes. You can view, edit your own recipes, and download.
             </AlertDescription>
           </Alert>
         )}
