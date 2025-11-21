@@ -1333,7 +1333,7 @@ Enjoy your cooking! 🍽️✨
                   <p className="text-gray-700 leading-relaxed">{selectedRecipe.description}</p>
                 )}
 
-                {!isClient && (
+                {isSuperAdmin && (
                   <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
