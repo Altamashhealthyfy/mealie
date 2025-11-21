@@ -916,9 +916,12 @@ Enjoy your cooking! 🍽️✨
                       </div>
                     )}
                     
-                    <CardHeader onClick={() => setSelectedRecipe(recipe)} className="cursor-pointer">
+                    <CardHeader>
                       <CardTitle className="text-xl line-clamp-2">{recipe.name}</CardTitle>
-                      <div className="flex flex-wrap gap-2 mt-2">
+                      <p className="text-sm text-gray-600 line-clamp-2 mt-2">{recipe.description}</p>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex flex-wrap gap-2">
                         <Badge className="bg-orange-100 text-orange-700 capitalize">
                           {recipe.meal_type}
                         </Badge>
@@ -929,32 +932,30 @@ Enjoy your cooking! 🍽️✨
                           {recipe.regional_cuisine}
                         </Badge>
                       </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div onClick={() => setSelectedRecipe(recipe)} className="cursor-pointer">
-                        <p className="text-gray-600 text-sm line-clamp-2 mb-4">{recipe.description}</p>
-                        <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            <span>{(recipe.prep_time || 0) + (recipe.cook_time || 0)} min</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Users className="w-4 h-4" />
-                            <span>{recipe.servings} servings</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Flame className="w-4 h-4" />
-                            <span>{recipe.calories} kcal</span>
-                          </div>
+
+                      <div className="flex items-center justify-between text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          <span>{(recipe.prep_time || 0) + (recipe.cook_time || 0)} min</span>
                         </div>
+                        <div className="flex items-center gap-1">
+                          <Users className="w-4 h-4" />
+                          <span>{recipe.servings} servings</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Flame className="w-4 h-4" />
+                          <span>{recipe.calories} kcal</span>
+                        </div>
+                      </div>
+
+                      <div className="text-xs text-gray-500 space-y-1">
+                        <p>📥 {recipe.download_count || 0} downloads</p>
                         {!isClient && recipe.created_by && (
-                          <p className="text-xs text-gray-500 truncate">
-                            👤 {recipe.created_by}
+                          <p className="truncate">
+                            👤 <span className="font-semibold">{recipe.created_by}</span>
                           </p>
                         )}
-                        <p className="text-xs text-gray-500">
-                          📅 {format(new Date(recipe.created_date), 'MMM d, yyyy')}
-                        </p>
+                        <p>📅 {format(new Date(recipe.created_date), 'MMM d, yyyy')}</p>
                       </div>
                       
                       <div className="space-y-2">
