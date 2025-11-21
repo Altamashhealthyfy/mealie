@@ -59,6 +59,7 @@ import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
 import CustomDomainSettings from './pages/CustomDomainSettings';
 import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
+import PurchaseAICredits from './pages/PurchaseAICredits';
 import __Layout from './Layout.jsx';
 
 
@@ -124,6 +125,7 @@ export const PAGES = {
     "AdminSubscriptionManager": AdminSubscriptionManager,
     "CustomDomainSettings": CustomDomainSettings,
     "ClientAnalyticsDashboard": ClientAnalyticsDashboard,
+    "PurchaseAICredits": PurchaseAICredits,
 }
 
 export const pagesConfig = {
