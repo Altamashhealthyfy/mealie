@@ -91,11 +91,15 @@ export default function PurchaseAICredits() {
           handler: async function (response) {
             try {
               // Verify payment
-              await base44.functions.invoke('verifyCoachPayment', {
+              const verifyResult = await base44.functions.invoke('verifyCoachPayment', {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature
               });
+
+              if (!verifyResult.data.success) {
+                throw new Error('Payment verification failed');
+              }
 
               // Update subscription with purchased credits
               await base44.entities.HealthCoachSubscription.update(coachSubscription.id, {
@@ -114,8 +118,15 @@ export default function PurchaseAICredits() {
                 description: `Purchased ${amount} AI credits`
               });
 
+              // Invalidate queries immediately
+              await queryClient.invalidateQueries(['coachSubscription']);
+              await queryClient.invalidateQueries(['aiCreditTransactions']);
+              await queryClient.refetchQueries(['coachSubscription']);
+              await queryClient.refetchQueries(['aiCreditTransactions']);
+
               resolve(response);
             } catch (error) {
+              console.error('Payment processing error:', error);
               reject(error);
             }
           },
@@ -133,10 +144,12 @@ export default function PurchaseAICredits() {
         rzp.open();
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['coachSubscription']);
-      queryClient.invalidateQueries(['aiCreditTransactions']);
-      alert('✅ AI Credits purchased successfully!');
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(['coachSubscription']);
+      await queryClient.invalidateQueries(['aiCreditTransactions']);
+      await queryClient.refetchQueries(['coachSubscription']);
+      await queryClient.refetchQueries(['aiCreditTransactions']);
+      alert('✅ AI Credits purchased successfully! Your balance has been updated.');
       setCreditsAmount(10);
     },
     onError: (error) => {
