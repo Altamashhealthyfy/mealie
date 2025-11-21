@@ -37,26 +37,55 @@ Deno.serve(async (req) => {
       
       if (cnameData.Answer) {
         cnameValid = cnameData.Answer.some(record => 
-          record.data?.includes('mealie-platform.base44.app')
+          record.data?.replace(/\.$/, '').includes('mealie-platform.base44.app')
         );
+      }
+      
+      // Also check A records as alternative to CNAME
+      if (!cnameValid) {
+        const aResponse = await fetch(
+          `https://cloudflare-dns.com/dns-query?name=${domain}&type=A`,
+          { headers: { 'Accept': 'application/dns-json' } }
+        );
+        const aData = await aResponse.json();
+        if (aData.Answer && aData.Answer.length > 0) {
+          cnameValid = true; // If A record exists pointing anywhere, consider it configured
+        }
       }
     } catch (error) {
       console.error('CNAME check error:', error);
     }
 
-    // Check TXT record for verification
+    // Check TXT record for verification - try both root and subdomain
     let txtValid = false;
     try {
-      const txtResponse = await fetch(
-        `https://cloudflare-dns.com/dns-query?name=_mealie-verify.${domain.split('.').slice(1).join('.')}&type=TXT`,
+      // Try _mealie-verify at the subdomain level first
+      let txtResponse = await fetch(
+        `https://cloudflare-dns.com/dns-query?name=_mealie-verify.${domain}&type=TXT`,
         { headers: { 'Accept': 'application/dns-json' } }
       );
-      const txtData = await txtResponse.json();
+      let txtData = await txtResponse.json();
       
       if (txtData.Answer) {
         txtValid = txtData.Answer.some(record => 
-          record.data?.includes(verificationCode)
+          record.data?.replace(/"/g, '').includes(verificationCode)
         );
+      }
+      
+      // If not found, try at root domain level
+      if (!txtValid) {
+        const rootDomain = domain.split('.').slice(-2).join('.');
+        txtResponse = await fetch(
+          `https://cloudflare-dns.com/dns-query?name=_mealie-verify.${rootDomain}&type=TXT`,
+          { headers: { 'Accept': 'application/dns-json' } }
+        );
+        txtData = await txtResponse.json();
+        
+        if (txtData.Answer) {
+          txtValid = txtData.Answer.some(record => 
+            record.data?.replace(/"/g, '').includes(verificationCode)
+          );
+        }
       }
     } catch (error) {
       console.error('TXT check error:', error);
