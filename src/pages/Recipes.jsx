@@ -930,7 +930,7 @@ Enjoy your cooking! 🍽️✨
                         </Badge>
                       </div>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-4">
                       <div onClick={() => setSelectedRecipe(recipe)} className="cursor-pointer">
                         <p className="text-gray-600 text-sm line-clamp-2 mb-4">{recipe.description}</p>
                         <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
@@ -952,29 +952,29 @@ Enjoy your cooking! 🍽️✨
                             👤 {recipe.created_by}
                           </p>
                         )}
-                        <p className="text-xs text-gray-500 mb-3">
+                        <p className="text-xs text-gray-500">
                           📅 {format(new Date(recipe.created_date), 'MMM d, yyyy')}
                         </p>
                       </div>
-                      <div className="flex gap-2">
+                      
+                      <div className="space-y-2">
                         <Button
                           onClick={() => setSelectedRecipe(recipe)}
-                          className="flex-1 bg-blue-600 hover:bg-blue-700"
-                          size="sm"
+                          className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 h-12 font-semibold"
                         >
-                          <Eye className="w-4 h-4 mr-1" />
-                          View
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Recipe Details
                         </Button>
                         <Button
                           onClick={(e) => {
                             e.stopPropagation();
                             downloadRecipe(recipe);
                           }}
-                          className="flex-1 bg-green-600 hover:bg-green-700"
-                          size="sm"
+                          variant="outline"
+                          className="w-full h-11 border-2 border-green-500 text-green-700 hover:bg-green-50"
                         >
-                          <Download className="w-4 h-4 mr-1" />
-                          Download
+                          <Download className="w-4 h-4 mr-2" />
+                          Download Recipe
                         </Button>
                       </div>
                     </CardContent>
