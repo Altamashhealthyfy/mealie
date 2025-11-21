@@ -427,7 +427,7 @@ export default function CustomDomainSettings() {
                 <AlertTriangle className="w-5 h-5 text-orange-600" />
                 <AlertDescription className="text-orange-900">
                   <strong>⏰ DNS Propagation Time:</strong><br/>
-                  DNS changes can take 24-48 hours to propagate. We'll automatically verify your domain once the records are detected.
+                  DNS changes can take 24-48 hours to propagate. Click the button below to check verification status.
                 </AlertDescription>
               </Alert>
 
@@ -435,18 +435,18 @@ export default function CustomDomainSettings() {
                 <Button
                   onClick={handleVerifyDomain}
                   disabled={isVerifying}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-lg"
                   size="lg"
                 >
                   {isVerifying ? (
                     <>
                       <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
-                      Verifying...
+                      Checking DNS Records...
                     </>
                   ) : (
                     <>
                       <CheckCircle className="w-5 h-5 mr-2" />
-                      Verify DNS Records
+                      Verify Domain Records
                     </>
                   )}
                 </Button>
