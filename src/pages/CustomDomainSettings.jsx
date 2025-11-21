@@ -317,21 +317,22 @@ export default function CustomDomainSettings() {
                 </Alert>
               )}
 
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <Button
-                  onClick={handleVerifyDomain}
+                  onClick={() => handleVerifyDomain(false)}
                   disabled={isVerifying || status === 'active'}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 shadow-lg"
+                  size="lg"
                 >
                   {isVerifying ? (
                     <>
-                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                      Verifying...
+                      <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
+                      Checking DNS Records...
                     </>
                   ) : (
                     <>
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Verify Domain
+                      <CheckCircle className="w-5 h-5 mr-2" />
+                      Verify Domain Records
                     </>
                   )}
                 </Button>
@@ -339,6 +340,7 @@ export default function CustomDomainSettings() {
                   variant="destructive"
                   onClick={handleRemoveDomain}
                   disabled={updateProfileMutation.isPending}
+                  size="lg"
                 >
                   Remove Domain
                 </Button>
