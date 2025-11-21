@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DollarSign, Calendar, Search, TrendingUp, CreditCard, Lock, Download, Filter, MoreVertical, CheckCircle2, RefreshCw } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DollarSign, Calendar, Search, TrendingUp, CreditCard, Lock, Download, Filter, MoreVertical, CheckCircle2, RefreshCw, X } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachMonthOfInterval } from "date-fns";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
@@ -16,6 +17,7 @@ export default function PaymentHistory() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [view, setView] = useState("razorpay"); // razorpay, client, all
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -338,7 +340,11 @@ export default function PaymentHistory() {
                     ₹{earnings.toLocaleString()}
                   </div>
                   <div className="text-right">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setSelectedPlan(plan)}
+                    >
                       View invoices
                     </Button>
                   </div>
@@ -473,6 +479,79 @@ export default function PaymentHistory() {
             )}
           </CardContent>
         </Card>
+
+        <Dialog open={!!selectedPlan} onOpenChange={() => setSelectedPlan(null)}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center justify-between">
+                <span>{selectedPlan} - Invoices</span>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => setSelectedPlan(null)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              {coachSubscriptions
+                .filter(sub => (sub.plan_name || 'Unknown Plan') === selectedPlan)
+                .map(sub => (
+                  <Card key={sub.id} className="border shadow-sm">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-2 flex-1">
+                          <div className="flex items-center gap-3">
+                            <Badge className={`${
+                              sub.status === 'active' ? 'bg-green-500' :
+                              sub.status === 'failed' ? 'bg-red-500' :
+                              sub.status === 'expired' ? 'bg-orange-500' :
+                              'bg-gray-500'
+                            } text-white`}>
+                              {sub.status.toUpperCase()}
+                            </Badge>
+                            <span className="text-sm text-gray-500">
+                              {format(new Date(sub.created_date), 'MMM dd, yyyy h:mm a')}
+                            </span>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-sm text-gray-600">Customer</p>
+                              <p className="font-medium text-gray-900">{sub.coach_name}</p>
+                              <p className="text-sm text-blue-600">{sub.coach_email}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-600">Amount</p>
+                              <p className="text-2xl font-bold text-gray-900">₹{sub.amount}</p>
+                              <p className="text-sm text-gray-500 capitalize">{sub.billing_cycle}</p>
+                            </div>
+                          </div>
+
+                          {sub.razorpay_payment_id && (
+                            <div className="pt-2 border-t">
+                              <p className="text-xs text-gray-500">Payment ID: {sub.razorpay_payment_id}</p>
+                              {sub.razorpay_order_id && (
+                                <p className="text-xs text-gray-500">Order ID: {sub.razorpay_order_id}</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              
+              {coachSubscriptions.filter(sub => (sub.plan_name || 'Unknown Plan') === selectedPlan).length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  No invoices found for this plan
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
