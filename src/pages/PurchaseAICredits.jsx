@@ -68,81 +68,90 @@ export default function PurchaseAICredits() {
     mutationFn: async (amount) => {
       const totalCost = amount * (coachPlan?.ai_credit_price || 10);
       
-      // Create Razorpay order
-      const orderResponse = await base44.functions.invoke('createCoachPayment', {
-        coach_email: user.email,
-        amount: totalCost,
-        description: `Purchase ${amount} AI Credits`,
-        payment_type: 'ai_credits'
-      });
+      try {
+        // Create Razorpay order
+        const orderResponse = await base44.functions.invoke('createCoachPayment', {
+          coachEmail: user.email,
+          amount: totalCost,
+          currency: 'INR',
+          description: `Purchase ${amount} AI Credits`,
+          payment_type: 'ai_credits'
+        });
 
-      if (!orderResponse?.data?.order_id) {
-        throw new Error('Failed to create payment order');
-      }
+        if (!orderResponse?.data?.order_id) {
+          throw new Error('Failed to create payment order');
+        }
 
-      return new Promise((resolve, reject) => {
-        const options = {
-          key: orderResponse.data.razorpay_key_id,
-          amount: orderResponse.data.amount,
-          currency: orderResponse.data.currency,
-          name: 'Mealie Pro',
-          description: `${amount} AI Credits`,
-          order_id: orderResponse.data.order_id,
-          handler: async function (response) {
-            try {
-              // Verify payment
-              const verifyResult = await base44.functions.invoke('verifyCoachPayment', {
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature
-              });
-
-              if (!verifyResult.data.success) {
-                throw new Error('Payment verification failed');
-              }
-
-              // Update subscription with purchased credits
-              await base44.entities.HealthCoachSubscription.update(coachSubscription.id, {
-                ai_credits_purchased: (coachSubscription.ai_credits_purchased || 0) + amount
-              });
-
-              // Record transaction
-              await base44.entities.AICreditsTransaction.create({
-                coach_email: user.email,
-                subscription_id: coachSubscription.id,
-                transaction_type: 'purchase',
-                credits_amount: amount,
-                cost: totalCost,
-                payment_id: response.razorpay_payment_id,
-                payment_status: 'completed',
-                description: `Purchased ${amount} AI credits`
-              });
-
-              // Invalidate queries immediately
-              await queryClient.invalidateQueries(['coachSubscription']);
-              await queryClient.invalidateQueries(['aiCreditTransactions']);
-              await queryClient.refetchQueries(['coachSubscription']);
-              await queryClient.refetchQueries(['aiCreditTransactions']);
-
-              resolve(response);
-            } catch (error) {
-              console.error('Payment processing error:', error);
-              reject(error);
-            }
-          },
-          modal: {
-            ondismiss: function() {
-              reject(new Error('Payment cancelled by user'));
-            }
-          },
-          theme: {
-            color: '#F97316'
+        return new Promise((resolve, reject) => {
+          if (!window.Razorpay) {
+            reject(new Error('Razorpay SDK not loaded'));
+            return;
           }
-        };
 
-        const rzp = new window.Razorpay(options);
-        rzp.open();
-      });
+          const options = {
+            key: orderResponse.data.razorpay_key_id,
+            amount: orderResponse.data.amount,
+            currency: orderResponse.data.currency,
+            name: 'Mealie Pro',
+            description: `${amount} AI Credits`,
+            order_id: orderResponse.data.order_id,
+            handler: async function (response) {
+              try {
+                // Verify payment
+                const verifyResult = await base44.functions.invoke('verifyCoachPayment', {
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature
+                });
+
+                if (!verifyResult?.data?.success) {
+                  throw new Error('Payment verification failed');
+                }
+
+                // Update subscription with purchased credits
+                await base44.entities.HealthCoachSubscription.update(coachSubscription.id, {
+                  ai_credits_purchased: (coachSubscription.ai_credits_purchased || 0) + amount
+                });
+
+                // Record transaction
+                await base44.entities.AICreditsTransaction.create({
+                  coach_email: user.email,
+                  subscription_id: coachSubscription.id,
+                  transaction_type: 'purchase',
+                  credits_amount: amount,
+                  cost: totalCost,
+                  payment_id: response.razorpay_payment_id,
+                  payment_status: 'completed',
+                  description: `Purchased ${amount} AI credits`
+                });
+
+                resolve(response);
+              } catch (error) {
+                console.error('Payment processing error:', error);
+                reject(error);
+              }
+            },
+            modal: {
+              ondismiss: function() {
+                reject(new Error('Payment cancelled by user'));
+              }
+            },
+            theme: {
+              color: '#F97316'
+            }
+          };
+
+          const rzp = new window.Razorpay(options);
+          rzp.on('payment.failed', function (response) {
+            console.error('Payment failed:', response.error);
+            reject(new Error(response.error.description || 'Payment failed'));
+          });
+          rzp.open();
+        });
+      } catch (error) {
+        console.error('Order creation error:', error);
+        throw error;
+      }
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries(['coachSubscription']);
@@ -154,7 +163,11 @@ export default function PurchaseAICredits() {
     },
     onError: (error) => {
       console.error('Payment error:', error);
-      alert('❌ Payment failed. Please try again.');
+      if (error.message === 'Payment cancelled by user') {
+        alert('Payment was cancelled.');
+      } else {
+        alert('❌ Payment failed: ' + (error.message || 'Please try again.'));
+      }
     }
   });
 
