@@ -419,23 +419,42 @@ export default function CustomDomainSettings() {
 
                   <Alert className="bg-blue-50 border-blue-500">
                     <AlertDescription className="text-blue-900">
-                      <h4 className="font-bold text-lg mb-3">🎉 What's Next?</h4>
-                      <ol className="space-y-2 text-sm">
+                      <h4 className="font-bold text-lg mb-3">🎉 Domain Verified Successfully!</h4>
+                      <p className="mb-3 text-sm">Your custom domain <strong>{coachProfile.custom_domain}</strong> has been verified and is now active.</p>
+                      
+                      <h5 className="font-bold mb-2">What Happens Now:</h5>
+                      <ol className="space-y-2 text-sm mb-4">
                         <li className="flex items-start gap-2">
                           <span className="font-bold text-blue-600">1.</span>
-                          <span><strong>Test Your Domain:</strong> Visit <a href={`https://${coachProfile.custom_domain}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">{coachProfile.custom_domain}</a> to ensure it's working</span>
+                          <span><strong>Automatic Routing:</strong> Your domain now points to your Mealie platform automatically</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="font-bold text-blue-600">2.</span>
-                          <span><strong>Share with Clients:</strong> Your clients can now access your platform using your custom domain</span>
+                          <span><strong>SSL Certificate:</strong> HTTPS is automatically enabled for secure connections</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <span className="font-bold text-blue-600">3.</span>
-                          <span><strong>Update Marketing:</strong> Use your custom domain in emails, social media, and business cards</span>
+                          <span><strong>White Label Active:</strong> Your custom branding is displayed when clients access via <strong>{coachProfile.custom_domain}</strong></span>
+                        </li>
+                      </ol>
+
+                      <h5 className="font-bold mb-2">Next Steps for You:</h5>
+                      <ol className="space-y-2 text-sm">
+                        <li className="flex items-start gap-2">
+                          <span className="font-bold text-green-600">✓</span>
+                          <span><strong>Test Now:</strong> Visit <a href={`https://${coachProfile.custom_domain}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">{coachProfile.custom_domain}</a> and login</span>
                         </li>
                         <li className="flex items-start gap-2">
-                          <span className="font-bold text-blue-600">4.</span>
-                          <span><strong>White Label Complete:</strong> Your platform now displays your custom branding to all clients accessing via your domain</span>
+                          <span className="font-bold text-green-600">✓</span>
+                          <span><strong>Share with Clients:</strong> Send them your custom domain link for access</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="font-bold text-green-600">✓</span>
+                          <span><strong>Update Marketing Materials:</strong> Use your domain in emails, social media, and business cards</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="font-bold text-green-600">✓</span>
+                          <span><strong>Customize Branding:</strong> Edit your platform name and tagline above to complete white-labeling</span>
                         </li>
                       </ol>
                     </AlertDescription>
