@@ -947,6 +947,60 @@ export default function UserPermissionManagement() {
           </DialogContent>
         </Dialog>
 
+        {/* Change Password Dialog */}
+        {selectedCoachForPassword && (
+          <Dialog open={changePasswordDialog} onOpenChange={setChangePasswordDialog}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Key className="w-5 h-5 text-blue-600" />
+                  Change Password
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
+                <Card className="border-none shadow-lg bg-gradient-to-r from-blue-500 to-cyan-600 text-white">
+                  <CardContent className="p-4">
+                    <p className="text-sm">
+                      <strong>Coach:</strong> {selectedCoachForPassword.full_name}
+                    </p>
+                    <p className="text-xs opacity-90">{selectedCoachForPassword.email}</p>
+                  </CardContent>
+                </Card>
+
+                <div className="space-y-2">
+                  <Label>New Password *</Label>
+                  <Input
+                    type="password"
+                    placeholder="Minimum 6 characters"
+                    value={newPasswordForCoach}
+                    onChange={(e) => setNewPasswordForCoach(e.target.value)}
+                  />
+                </div>
+
+                <Alert className="bg-yellow-50 border-yellow-500">
+                  <AlertDescription className="text-sm text-yellow-900">
+                    <strong>Warning:</strong> This will immediately change the coach's password. They will need to use the new password to login.
+                  </AlertDescription>
+                </Alert>
+
+                <div className="flex gap-3 pt-4 border-t">
+                  <Button variant="outline" onClick={() => setChangePasswordDialog(false)} className="flex-1">
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleChangePassword}
+                    disabled={changePasswordMutation.isPending || newPasswordForCoach.length < 6}
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500"
+                  >
+                    <Key className="w-4 h-4 mr-2" />
+                    {changePasswordMutation.isPending ? 'Changing...' : 'Change Password'}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+
         {/* Global Client Permissions Dialog */}
         <Dialog open={editGlobalClientDialog} onOpenChange={setEditGlobalClientDialog}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
