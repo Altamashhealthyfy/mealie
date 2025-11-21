@@ -955,7 +955,9 @@ Enjoy your cooking! 🍽️✨
                             👤 <span className="font-semibold">{recipe.created_by}</span>
                           </p>
                         )}
-                        <p>📅 {format(new Date(recipe.created_date), 'MMM d, yyyy')}</p>
+                        {isSuperAdmin && (
+                          <p>📅 {format(new Date(recipe.created_date), 'MMM d, yyyy')}</p>
+                        )}
                       </div>
                       
                       <div className="space-y-2">
