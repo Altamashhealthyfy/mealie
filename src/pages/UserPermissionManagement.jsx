@@ -31,6 +31,9 @@ export default function UserPermissionManagement() {
   const [newCoachEmail, setNewCoachEmail] = useState("");
   const [newCoachName, setNewCoachName] = useState("");
   const [newCoachPassword, setNewCoachPassword] = useState("");
+  const [changePasswordDialog, setChangePasswordDialog] = useState(false);
+  const [selectedCoachForPassword, setSelectedCoachForPassword] = useState(null);
+  const [newPasswordForCoach, setNewPasswordForCoach] = useState("");
 
   const { data: currentUser } = useQuery({
     queryKey: ['currentUser'],
