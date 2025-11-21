@@ -71,7 +71,7 @@ export default function PurchaseAICredits() {
       try {
         // Create Razorpay order
         const orderResponse = await base44.functions.invoke('createCoachPayment', {
-          coachEmail: user.email,
+          coach_email: user.email,
           amount: totalCost,
           currency: 'INR',
           description: `Purchase ${amount} AI Credits`,
