@@ -173,7 +173,10 @@ export default function CustomDomainSettings() {
                 </AlertDescription>
               </Alert>
               <div className="mt-6 text-center">
-                <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">
+                <Button 
+                  onClick={() => window.location.href = createPageUrl('CoachSubscriptions')}
+                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                >
                   <Crown className="w-4 h-4 mr-2" />
                   View Plans & Upgrade
                 </Button>
