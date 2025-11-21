@@ -25,6 +25,7 @@ export default function CustomDomainSettings() {
   const [domain, setDomain] = useState("");
   const [isAdding, setIsAdding] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [autoVerifyAttempts, setAutoVerifyAttempts] = useState(0);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -135,9 +136,9 @@ export default function CustomDomainSettings() {
     alert("✅ Copied to clipboard!");
   };
 
-  const handleVerifyDomain = async () => {
+  const handleVerifyDomain = async (silent = false) => {
     if (!coachProfile?.custom_domain) {
-      alert("No domain to verify");
+      if (!silent) alert("No domain to verify");
       return;
     }
 
@@ -149,17 +150,34 @@ export default function CustomDomainSettings() {
       
       if (response.data.success) {
         await queryClient.invalidateQueries(['coachProfile']);
-        alert(response.data.message);
+        if (!silent) alert("✅ " + response.data.message);
+        return true;
       } else {
-        alert(response.data.message);
+        if (!silent) alert(response.data.message);
+        return false;
       }
     } catch (error) {
       console.error("Verification error:", error);
-      alert("❌ Verification check failed. Please ensure DNS records are properly configured and try again.");
+      if (!silent) alert("❌ Verification check failed. Please ensure DNS records are properly configured and try again.");
+      return false;
     } finally {
       setIsVerifying(false);
     }
   };
+
+  // Auto-verify when domain is pending
+  React.useEffect(() => {
+    if (coachProfile?.custom_domain_status === 'pending_verification' && autoVerifyAttempts < 3) {
+      const timer = setTimeout(async () => {
+        const verified = await handleVerifyDomain(true);
+        if (!verified) {
+          setAutoVerifyAttempts(prev => prev + 1);
+        }
+      }, 10000); // Check after 10 seconds
+      
+      return () => clearTimeout(timer);
+    }
+  }, [coachProfile?.custom_domain_status, autoVerifyAttempts]);
 
   const canUseDomain = plan?.can_custom_domain ?? false;
 
@@ -265,12 +283,18 @@ export default function CustomDomainSettings() {
               </div>
 
               {status === 'active' && coachProfile.domain_configured_date && (
-                <Alert className="bg-green-50 border-green-500">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <AlertDescription className="text-green-900">
-                    <strong>✅ Domain is active!</strong> Configured on {new Date(coachProfile.domain_configured_date).toLocaleDateString()}
-                  </AlertDescription>
-                </Alert>
+                <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-500">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-green-900">Domain Verified ✓</h3>
+                      <p className="text-green-700">Your custom domain is active and working perfectly!</p>
+                      <p className="text-sm text-green-600 mt-1">Configured on {new Date(coachProfile.domain_configured_date).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                </div>
               )}
 
               {status === 'pending_verification' && (
@@ -278,7 +302,7 @@ export default function CustomDomainSettings() {
                   <Clock className="w-5 h-5 text-yellow-600" />
                   <AlertDescription className="text-yellow-900">
                     <strong>⏳ Waiting for DNS verification</strong><br/>
-                    Follow the DNS setup instructions below. Verification can take up to 48 hours.
+                    Follow the DNS setup instructions below. Auto-checking DNS records... Click "Verify Domain" to check manually.
                   </AlertDescription>
                 </Alert>
               )}
