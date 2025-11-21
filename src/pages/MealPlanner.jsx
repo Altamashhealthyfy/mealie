@@ -104,6 +104,18 @@ export default function MealPlanner() {
     enabled: !!coachSubscription?.plan_id,
   });
 
+  const availableAICredits = React.useMemo(() => {
+    if (!coachSubscription || !coachPlan) return 0;
+    
+    const creditsIncluded = coachPlan.ai_credits_included || 0;
+    if (creditsIncluded === -1) return Infinity; // Unlimited
+    
+    const creditsUsed = coachSubscription.ai_credits_used_this_month || 0;
+    const creditsPurchased = coachSubscription.ai_credits_purchased || 0;
+    
+    return Math.max(0, creditsIncluded + creditsPurchased - creditsUsed);
+  }, [coachSubscription, coachPlan]);
+
   const { data: usage } = useQuery({
     queryKey: ['usage', user?.email, format(new Date(), 'yyyy-MM')],
     queryFn: async () => {
@@ -273,32 +285,17 @@ export default function MealPlanner() {
       return;
     }
 
-    const currentUsage = usage?.meal_plans_generated || 0;
-    
-    // Get AI generation limit from health coach plan (for student_coach) or default limits
-    let limit = 20; // Default for super_admin and team_member
-    
+    // Check AI credits for student_coach
     if (user?.user_type === 'student_coach') {
-      if (coachPlan?.ai_generation_limit !== undefined && coachPlan?.ai_generation_limit !== null) {
-        limit = coachPlan.ai_generation_limit;
-        
-        // -1 means unlimited
-        if (limit === -1) {
-          limit = Infinity;
-        }
-      } else {
-        // No plan found, show error
+      if (!coachPlan || !coachSubscription) {
         alert("⚠️ No active subscription found.\n\nPlease subscribe to a plan to use AI generation.");
         return;
       }
-    } else {
-      // For super_admin and team_member, use default
-      limit = usage?.plan_limits?.meal_plans || 20;
-    }
 
-    if (currentUsage >= limit && limit !== Infinity) {
-      setShowAIWarning(true);
-      return;
+      if (availableAICredits === 0) {
+        alert(`⚠️ No AI Credits Available!\n\nYou've used all your AI credits for this month.\n\nPurchase additional credits to continue generating meal plans.\n\nPrice: ₹${coachPlan.ai_credit_price || 10} per credit`);
+        return;
+      }
     }
 
     setGenerating(true);
@@ -599,6 +596,28 @@ Return structured meal plan with:
         target_calories: selectedClient.target_calories,
       });
 
+      // Deduct AI credit for student_coach
+      if (user?.user_type === 'student_coach' && coachSubscription) {
+        try {
+          await base44.entities.HealthCoachSubscription.update(coachSubscription.id, {
+            ai_credits_used_this_month: (coachSubscription.ai_credits_used_this_month || 0) + 1
+          });
+
+          await base44.entities.AICreditsTransaction.create({
+            coach_email: user.email,
+            subscription_id: coachSubscription.id,
+            transaction_type: 'usage',
+            credits_amount: -1,
+            usage_type: 'meal_plan_generation',
+            description: `AI meal plan generated for ${selectedClient.full_name}`
+          });
+
+          queryClient.invalidateQueries(['coachSubscription']);
+        } catch (error) {
+          console.error("Error recording AI credit usage:", error);
+        }
+      }
+
       await updateUsageMutation.mutateAsync({ type: 'meal_plan' });
 
     } catch (error) {
@@ -761,11 +780,38 @@ Return structured meal plan with:
         </div>
 
         {user?.user_type === 'student_coach' && coachPlan && (
-          <UsageLimitWarning 
-            usage={usage} 
-            limits={{ meal_plans: coachPlan.ai_generation_limit || 0 }} 
-            type="meal_plan" 
-          />
+          <Card className="border-none shadow-lg bg-gradient-to-r from-purple-50 to-pink-50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">AI Credits Available</p>
+                    <p className="text-3xl font-bold text-gray-900">
+                      {availableAICredits === Infinity ? '∞' : availableAICredits}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-600">Plan Includes</p>
+                  <p className="text-lg font-semibold text-gray-900">
+                    {coachPlan.ai_credits_included === -1 ? 'Unlimited' : coachPlan.ai_credits_included === 0 ? 'None' : `${coachPlan.ai_credits_included} credits/month`}
+                  </p>
+                  <p className="text-xs text-gray-500">₹{coachPlan.ai_credit_price || 10} per extra credit</p>
+                </div>
+              </div>
+              {availableAICredits < 5 && availableAICredits !== Infinity && (
+                <Alert className="mt-4 bg-orange-50 border-orange-300">
+                  <AlertTriangle className="w-5 h-5 text-orange-600" />
+                  <AlertDescription className="text-orange-900">
+                    <strong>Low on credits!</strong> You have {availableAICredits} AI credits remaining. Purchase more to continue generating.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
         )}
         {user?.user_type !== 'student_coach' && (
           <UsageLimitWarning usage={usage} limits={usage?.plan_limits} type="meal_plan" />
@@ -1135,7 +1181,7 @@ Return structured meal plan with:
                           </p>
                           {user?.user_type === 'student_coach' && coachPlan && (
                             <p className="text-xs text-green-800 mt-2">
-                              Your plan limit: {coachPlan.ai_generation_limit === -1 ? 'Unlimited' : `${coachPlan.ai_generation_limit} per month`}
+                              💳 Available Credits: {availableAICredits === Infinity ? 'Unlimited' : availableAICredits}
                             </p>
                           )}
                         </div>
