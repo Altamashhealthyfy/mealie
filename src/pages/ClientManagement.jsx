@@ -1347,16 +1347,13 @@ support@mealiepro.com`;
                   <div className="space-y-2">
                     <Label htmlFor="coach-select">Select Health Coach *</Label>
                     <Select
-                      value={selectedCoach || ''}
+                      value={selectedCoach}
                       onValueChange={setSelectedCoach}
                     >
                       <SelectTrigger id="coach-select" className="h-12">
                         <SelectValue placeholder="Choose health coach..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value={null}>
-                          <span className="text-gray-500">-- Select Coach --</span>
-                        </SelectItem>
                         {healthCoaches.map((coach) => (
                           <SelectItem key={coach.email} value={coach.email}>
                             <div className="flex items-center gap-2">
