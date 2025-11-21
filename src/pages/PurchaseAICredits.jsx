@@ -14,6 +14,17 @@ export default function PurchaseAICredits() {
   const queryClient = useQueryClient();
   const [creditsAmount, setCreditsAmount] = useState(10);
 
+  // Load Razorpay script
+  React.useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
