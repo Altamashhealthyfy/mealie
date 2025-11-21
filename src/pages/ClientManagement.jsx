@@ -56,6 +56,9 @@ export default function ClientManagement() {
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [clientToAssign, setClientToAssign] = useState(null);
   const [selectedTeamMember, setSelectedTeamMember] = useState('');
+  const [showAssignCoachDialog, setShowAssignCoachDialog] = useState(false);
+  const [clientToAssignCoach, setClientToAssignCoach] = useState(null);
+  const [selectedCoach, setSelectedCoach] = useState('');
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -123,6 +126,16 @@ export default function ClientManagement() {
       );
     },
     enabled: !!user && (user?.user_type === 'super_admin' || user?.user_type === 'student_coach'),
+    initialData: [],
+  });
+
+  const { data: healthCoaches } = useQuery({
+    queryKey: ['healthCoaches'],
+    queryFn: async () => {
+      const allUsers = await base44.entities.User.list();
+      return allUsers.filter(u => u.user_type === 'student_coach');
+    },
+    enabled: !!user && user?.user_type === 'super_admin',
     initialData: [],
   });
 
@@ -294,11 +307,27 @@ support@mealiepro.com`;
       setShowAssignDialog(false);
       setClientToAssign(null);
       setSelectedTeamMember('');
-      alert("✅ Client assigned successfully!");
+      alert("✅ Client assigned to team member successfully!");
     },
     onError: (error) => {
       console.error("Error assigning client:", error);
       alert("Error assigning client. Please try again.");
+    }
+  });
+
+  const assignCoachMutation = useMutation({
+    mutationFn: ({ clientId, coachEmail }) => 
+      base44.entities.Client.update(clientId, { created_by: coachEmail }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['clients']);
+      setShowAssignCoachDialog(false);
+      setClientToAssignCoach(null);
+      setSelectedCoach('');
+      alert("✅ Client assigned to health coach successfully!");
+    },
+    onError: (error) => {
+      console.error("Error assigning client to coach:", error);
+      alert("Error assigning client to coach. Please try again.");
     }
   });
 
@@ -438,6 +467,21 @@ support@mealiepro.com`;
     assignClientMutation.mutate({
       clientId: clientToAssign.id,
       teamMemberEmail: selectedTeamMember || null
+    });
+  };
+
+  const handleAssignCoach = (client) => {
+    setClientToAssignCoach(client);
+    setSelectedCoach(client.created_by || '');
+    setShowAssignCoachDialog(true);
+  };
+
+  const handleConfirmAssignCoach = () => {
+    if (!clientToAssignCoach || !selectedCoach) return;
+    
+    assignCoachMutation.mutate({
+      clientId: clientToAssignCoach.id,
+      coachEmail: selectedCoach
     });
   };
 
@@ -917,6 +961,20 @@ support@mealiepro.com`;
                     </Button>
                   </div>
 
+                  {/* Assign to Health Coach - Only for super_admin */}
+                  {user?.user_type === 'super_admin' && healthCoaches.length > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleAssignCoach(client)}
+                      className="w-full text-green-600 hover:bg-green-50 h-9 md:h-auto text-xs md:text-sm font-semibold"
+                      title="Assign to Health Coach"
+                    >
+                      <UserPlus className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                      Assign to Coach
+                    </Button>
+                  )}
+
                   {/* Assign Client - Only for coaches with team */}
                   {(user?.user_type === 'super_admin' || user?.user_type === 'student_coach') && teamMembers.length > 0 && (
                     <Button
@@ -931,10 +989,17 @@ support@mealiepro.com`;
                     </Button>
                   )}
 
-                  {/* Show assignment status */}
+                  {/* Show coach assignment */}
+                  {client.created_by && (
+                    <div className="text-xs text-center text-green-600 bg-green-50 p-2 rounded">
+                      🎓 Coach: {healthCoaches.find(c => c.email === client.created_by)?.full_name || client.created_by}
+                    </div>
+                  )}
+
+                  {/* Show team member assignment status */}
                   {client.assigned_to && (
                     <div className="text-xs text-center text-purple-600 bg-purple-50 p-2 rounded">
-                      👤 Assigned to: {teamMembers.find(m => m.email === client.assigned_to)?.full_name || client.assigned_to}
+                      👤 Team: {teamMembers.find(m => m.email === client.assigned_to)?.full_name || client.assigned_to}
                     </div>
                   )}
                 </CardContent>
@@ -1113,6 +1178,18 @@ support@mealiepro.com`;
                   </Button>
                 </div>
 
+                {/* Assign to Health Coach Button in View Dialog */}
+                {user?.user_type === 'super_admin' && healthCoaches.length > 0 && (
+                  <Button 
+                    variant="outline"
+                    className="w-full mt-2 text-green-600 hover:bg-green-50"
+                    onClick={() => handleAssignCoach(viewingClient)}
+                  >
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Assign to Health Coach
+                  </Button>
+                )}
+
                 {/* Assign/Reassign Button in View Dialog */}
                 {(user?.user_type === 'super_admin' || user?.user_type === 'student_coach') && teamMembers.length > 0 && (
                   <Button 
@@ -1223,6 +1300,87 @@ support@mealiepro.com`;
                 )}
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Assign to Health Coach Dialog */}
+        <Dialog open={showAssignCoachDialog} onOpenChange={setShowAssignCoachDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-2xl flex items-center gap-2">
+                <UserPlus className="w-6 h-6 text-green-600" />
+                Assign Client to Health Coach
+              </DialogTitle>
+              <DialogDescription>
+                {clientToAssignCoach && (
+                  <span>Assign <strong>{clientToAssignCoach.full_name}</strong> to a health coach</span>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="coach-select">Select Health Coach</Label>
+                <Select
+                  value={selectedCoach}
+                  onValueChange={setSelectedCoach}
+                >
+                  <SelectTrigger id="coach-select" className="h-12">
+                    <SelectValue placeholder="Choose health coach..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {healthCoaches.map((coach) => (
+                      <SelectItem key={coach.email} value={coach.email}>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{coach.full_name}</span>
+                          <Badge variant="outline" className="text-xs">
+                            {coach.email}
+                          </Badge>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {clientToAssignCoach?.created_by && (
+                <Alert className="bg-blue-50 border-blue-300">
+                  <AlertDescription className="text-sm text-blue-900">
+                    Currently assigned to: <strong>{healthCoaches.find(c => c.email === clientToAssignCoach.created_by)?.full_name || clientToAssignCoach.created_by}</strong>
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowAssignCoachDialog(false);
+                    setClientToAssignCoach(null);
+                    setSelectedCoach('');
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleConfirmAssignCoach}
+                  disabled={assignCoachMutation.isPending || !selectedCoach}
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                >
+                  {assignCoachMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Assigning...
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Assign to Coach
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
 
