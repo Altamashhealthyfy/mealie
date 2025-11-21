@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -107,6 +106,19 @@ export default function ClientManagement() {
       return allPlans.filter(plan => plan.created_by === user?.email);
     },
     enabled: !!user,
+    initialData: [],
+  });
+
+  const { data: teamMembers } = useQuery({
+    queryKey: ['teamMembers'],
+    queryFn: async () => {
+      const allUsers = await base44.entities.User.list();
+      return allUsers.filter(u => 
+        u.user_type === 'team_member' || 
+        u.user_type === 'student_team_member'
+      );
+    },
+    enabled: !!user && (user?.user_type === 'super_admin' || user?.user_type === 'student_coach'),
     initialData: [],
   });
 
@@ -270,6 +282,19 @@ support@mealiepro.com`;
     }
   });
 
+  const assignClientMutation = useMutation({
+    mutationFn: ({ clientId, teamMemberEmail }) => 
+      base44.entities.Client.update(clientId, { assigned_to: teamMemberEmail }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['clients']);
+      alert("✅ Client assigned successfully!");
+    },
+    onError: (error) => {
+      console.error("Error assigning client:", error);
+      alert("Error assigning client. Please try again.");
+    }
+  });
+
 
   const calculateMacros = () => {
     const { weight, height, age, gender, activity_level, goal } = formData;
@@ -391,6 +416,28 @@ support@mealiepro.com`;
   const handleDeleteClient = (client) => {
     if (window.confirm(`Are you sure you want to delete ${client.full_name}? This action cannot be undone.`)) {
       deleteClientMutation.mutate(client.id);
+    }
+  };
+
+  const handleAssignClient = (clientId, currentAssignment) => {
+    const assignedMember = teamMembers.find(m => m.email === currentAssignment);
+    const memberOptions = teamMembers.map(m => `${m.full_name} (${m.email})`).join('\n');
+    
+    const message = currentAssignment 
+      ? `Currently assigned to: ${assignedMember?.full_name || currentAssignment}\n\nSelect team member email to reassign, or leave blank to unassign:\n\n${memberOptions}`
+      : `Select team member email to assign:\n\n${memberOptions}`;
+    
+    const email = prompt(message, currentAssignment || '');
+    
+    if (email === null) return; // User cancelled
+    
+    if (email === '') {
+      // Unassign
+      assignClientMutation.mutate({ clientId, teamMemberEmail: null });
+    } else if (teamMembers.some(m => m.email === email)) {
+      assignClientMutation.mutate({ clientId, teamMemberEmail: email });
+    } else {
+      alert('Invalid email. Please select from the list of team members.');
     }
   };
 
@@ -869,6 +916,27 @@ support@mealiepro.com`;
                       Delete
                     </Button>
                   </div>
+
+                  {/* Assign Client - Only for coaches with team */}
+                  {(user?.user_type === 'super_admin' || user?.user_type === 'student_coach') && teamMembers.length > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleAssignClient(client.id, client.assigned_to)}
+                      className="w-full text-purple-600 hover:bg-purple-50 h-9 md:h-auto text-xs md:text-sm font-semibold"
+                      title="Assign to Team Member"
+                    >
+                      <UserPlus className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                      {client.assigned_to ? 'Reassign' : 'Assign to Team'}
+                    </Button>
+                  )}
+
+                  {/* Show assignment status */}
+                  {client.assigned_to && (
+                    <div className="text-xs text-center text-purple-600 bg-purple-50 p-2 rounded">
+                      👤 Assigned to: {teamMembers.find(m => m.email === client.assigned_to)?.full_name || client.assigned_to}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             );
@@ -1044,6 +1112,18 @@ support@mealiepro.com`;
                     <Stethoscope className="w-4 h-4 mr-2" /> Pro Plan
                   </Button>
                 </div>
+
+                {/* Assign/Reassign Button in View Dialog */}
+                {(user?.user_type === 'super_admin' || user?.user_type === 'student_coach') && teamMembers.length > 0 && (
+                  <Button 
+                    variant="outline"
+                    className="w-full mt-2 text-purple-600 hover:bg-purple-50"
+                    onClick={() => handleAssignClient(viewingClient.id, viewingClient.assigned_to)}
+                  >
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    {viewingClient.assigned_to ? 'Reassign to Team Member' : 'Assign to Team Member'}
+                  </Button>
+                )}
                 <Button variant="destructive" onClick={() => handleDeleteClient(viewingClient)} disabled={deleteClientMutation.isPending} className="w-full mt-4">
                   {deleteClientMutation.isPending ? 'Deleting...' : 'Delete Client'}
                 </Button>
