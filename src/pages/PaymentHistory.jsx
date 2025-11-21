@@ -137,6 +137,7 @@ export default function PaymentHistory() {
       sub.coach_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       sub.coach_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       sub.razorpay_payment_id?.toLowerCase().includes(searchQuery.toLowerCase());
+    // Show all statuses including failed payments
     const matchesStatus = statusFilter === "all" || sub.status === statusFilter;
     
     let matchesDate = true;
@@ -438,11 +439,15 @@ export default function PaymentHistory() {
                       <td className="py-4 px-4 text-center">
                         <Badge className={`${
                           sub.status === 'active' ? 'bg-green-500' :
-                          sub.status === 'expired' ? 'bg-red-500' :
-                          'bg-gray-500'
+                          sub.status === 'failed' ? 'bg-red-500' :
+                          sub.status === 'expired' ? 'bg-orange-500' :
+                          sub.status === 'cancelled' ? 'bg-gray-500' :
+                          'bg-yellow-500'
                         } text-white flex items-center gap-1 w-fit mx-auto`}>
                           <CheckCircle2 className="w-3 h-3" />
-                          {sub.status === 'active' ? 'SUCCESS' : sub.status.toUpperCase()}
+                          {sub.status === 'active' ? 'SUCCESS' : 
+                           sub.status === 'failed' ? 'FAILED' :
+                           sub.status.toUpperCase()}
                         </Badge>
                       </td>
                       <td className="py-4 px-4 text-center">
