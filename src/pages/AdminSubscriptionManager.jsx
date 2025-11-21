@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Crown, Plus, Trash2, AlertCircle, Users } from "lucide-react";
+import { Shield, Crown, Plus, Trash2, AlertCircle, Users, Globe, CheckCircle, Clock, XCircle, ExternalLink } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function AdminSubscriptionManager() {
@@ -47,6 +47,15 @@ export default function AdminSubscriptionManager() {
   const { data: clientPurchases } = useQuery({
     queryKey: ['allClientPurchases'],
     queryFn: async () => await base44.entities.ClientPlanPurchase.list('-created_date'),
+    initialData: [],
+  });
+
+  const { data: coachProfiles } = useQuery({
+    queryKey: ['allCoachProfiles'],
+    queryFn: async () => {
+      const allProfiles = await base44.entities.CoachProfile.list('-created_date');
+      return allProfiles.filter(p => p.custom_domain);
+    },
     initialData: [],
   });
 
@@ -183,9 +192,10 @@ export default function AdminSubscriptionManager() {
         </div>
 
         <Tabs defaultValue="coaches" className="space-y-6">
-          <TabsList className="grid grid-cols-2">
+          <TabsList className="grid grid-cols-3">
             <TabsTrigger value="coaches">Health Coaches</TabsTrigger>
             <TabsTrigger value="clients">Clients</TabsTrigger>
+            <TabsTrigger value="domains">Custom Domains</TabsTrigger>
           </TabsList>
 
           <TabsContent value="coaches" className="space-y-4">
@@ -282,6 +292,87 @@ export default function AdminSubscriptionManager() {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="domains" className="space-y-4">
+            <div className="grid gap-4">
+              {coachProfiles.length === 0 ? (
+                <Card className="border-none shadow-lg">
+                  <CardContent className="p-8 text-center">
+                    <Globe className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                    <p className="text-gray-600">No custom domains configured yet</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                coachProfiles.map((profile) => {
+                  const statusConfig = {
+                    not_configured: { icon: Globe, color: 'text-gray-500', bg: 'bg-gray-100', label: 'Not Configured' },
+                    pending_verification: { icon: Clock, color: 'text-yellow-600', bg: 'bg-yellow-100', label: 'Pending' },
+                    active: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-100', label: 'Active' },
+                    failed: { icon: XCircle, color: 'text-red-600', bg: 'bg-red-100', label: 'Failed' }
+                  };
+                  const status = profile.custom_domain_status || 'not_configured';
+                  const StatusIcon = statusConfig[status].icon;
+                  
+                  return (
+                    <Card key={profile.id} className="border-none shadow-lg">
+                      <CardContent className="p-6">
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <Globe className="w-6 h-6 text-blue-500" />
+                              <div>
+                                <h3 className="text-xl font-bold">{profile.custom_domain}</h3>
+                                <p className="text-sm text-gray-600">{profile.created_by}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge className={`${statusConfig[status].bg} ${statusConfig[status].color}`}>
+                                <StatusIcon className="w-4 h-4 mr-1" />
+                                {statusConfig[status].label}
+                              </Badge>
+                              {status === 'active' && (
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => window.open(`https://${profile.custom_domain}`, '_blank')}
+                                >
+                                  <ExternalLink className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {profile.business_name && (
+                            <div>
+                              <p className="text-sm text-gray-500">Business Name</p>
+                              <p className="font-semibold">{profile.business_name}</p>
+                            </div>
+                          )}
+                          
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <p className="text-gray-500">Verification Code</p>
+                              <code className="text-xs bg-gray-100 px-2 py-1 rounded">
+                                {profile.domain_verification_code || 'N/A'}
+                              </code>
+                            </div>
+                            {profile.domain_configured_date && (
+                              <div>
+                                <p className="text-gray-500">Configured Date</p>
+                                <p className="font-semibold">
+                                  {new Date(profile.domain_configured_date).toLocaleDateString()}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })
+              )}
             </div>
           </TabsContent>
         </Tabs>
