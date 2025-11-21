@@ -1441,39 +1441,51 @@ support@mealiepro.com`;
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label htmlFor="team-member">Select Team Member</Label>
-                <Select
-                  value={selectedTeamMember}
-                  onValueChange={setSelectedTeamMember}
-                >
-                  <SelectTrigger id="team-member" className="h-12">
-                    <SelectValue placeholder="Choose team member..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={null}>
-                      <span className="text-gray-500">Unassign (No team member)</span>
-                    </SelectItem>
-                    {teamMembers.map((member) => (
-                      <SelectItem key={member.email} value={member.email}>
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{member.full_name}</span>
-                          <Badge variant="outline" className="text-xs">
-                            {member.email}
-                          </Badge>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {clientToAssign?.assigned_to && (
-                <Alert className="bg-blue-50 border-blue-300">
-                  <AlertDescription className="text-sm text-blue-900">
-                    Currently assigned to: <strong>{teamMembers.find(m => m.email === clientToAssign.assigned_to)?.full_name || clientToAssign.assigned_to}</strong>
+              {teamMembers.length === 0 ? (
+                <Alert className="bg-yellow-50 border-yellow-300">
+                  <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                  <AlertDescription className="text-sm text-yellow-900">
+                    <strong>No Team Members Found</strong><br/>
+                    Please add team members first before assigning clients.
                   </AlertDescription>
                 </Alert>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="team-member">Select Team Member</Label>
+                    <Select
+                      value={selectedTeamMember}
+                      onValueChange={setSelectedTeamMember}
+                    >
+                      <SelectTrigger id="team-member" className="h-12">
+                        <SelectValue placeholder="Choose team member..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={null}>
+                          <span className="text-gray-500">Unassign (No team member)</span>
+                        </SelectItem>
+                        {teamMembers.map((member) => (
+                          <SelectItem key={member.email} value={member.email}>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{member.full_name}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {member.email}
+                              </Badge>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {clientToAssign?.assigned_to && (
+                    <Alert className="bg-blue-50 border-blue-300">
+                      <AlertDescription className="text-sm text-blue-900">
+                        Currently assigned to: <strong>{teamMembers.find(m => m.email === clientToAssign.assigned_to)?.full_name || clientToAssign.assigned_to}</strong>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </>
               )}
 
               <div className="flex gap-3">
@@ -1490,7 +1502,7 @@ support@mealiepro.com`;
                 </Button>
                 <Button
                   onClick={handleConfirmAssign}
-                  disabled={assignClientMutation.isPending}
+                  disabled={assignClientMutation.isPending || teamMembers.length === 0}
                   className="flex-1 bg-purple-600 hover:bg-purple-700"
                 >
                   {assignClientMutation.isPending ? (
