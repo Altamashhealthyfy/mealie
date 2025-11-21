@@ -316,6 +316,17 @@ export default function Layout({ children, currentPageName }) {
     enabled: !!user && user?.user_type === 'client',
   });
 
+  // Fetch coach branding for clients
+  const { data: clientCoachBranding } = useQuery({
+    queryKey: ['clientCoachBranding', clientProfile?.assigned_coach],
+    queryFn: async () => {
+      if (!clientProfile?.assigned_coach) return null;
+      const profiles = await base44.entities.CoachProfile.filter({ created_by: clientProfile.assigned_coach });
+      return profiles[0] || null;
+    },
+    enabled: !!clientProfile?.assigned_coach && user?.user_type === 'client',
+  });
+
   const { data: securitySettings } = useQuery({
     queryKey: ['securitySettings'],
     queryFn: async () => {
@@ -503,10 +514,11 @@ export default function Layout({ children, currentPageName }) {
 
   const profilePhotoUrl = user?.profile_photo_url || clientProfile?.profile_photo_url || null;
 
-  // Determine branding to display
-  const brandingName = customBranding?.name || coachProfile?.custom_branding_name || coachProfile?.business_name || 'Mealie';
-  const brandingTagline = customBranding?.tagline || coachProfile?.tagline || (isDietitian ? 'Dietitian Platform' : 'Client Portal');
-  const brandingLogo = customBranding?.logo_url || coachProfile?.logo_url;
+  // Determine branding to display (coaches see their own, clients see their coach's)
+  const activeBranding = isDietitian ? coachProfile : clientCoachBranding;
+  const brandingName = customBranding?.name || activeBranding?.custom_branding_name || activeBranding?.business_name || 'Mealie';
+  const brandingTagline = customBranding?.tagline || activeBranding?.tagline || (isDietitian ? 'Dietitian Platform' : 'Client Portal');
+  const brandingLogo = customBranding?.logo_url || activeBranding?.logo_url;
 
   const handleLogout = async () => {
     if (window.confirm("Are you sure you want to logout?")) {
