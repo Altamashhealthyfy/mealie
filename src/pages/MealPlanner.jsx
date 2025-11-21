@@ -293,8 +293,85 @@ export default function MealPlanner() {
       }
 
       if (availableAICredits === 0) {
-        alert(`⚠️ No AI Credits Available!\n\nYou've used all your AI credits for this month.\n\nPurchase additional credits to continue generating meal plans.\n\nPrice: ₹${coachPlan.ai_credit_price || 10} per credit`);
-        return;
+        const confirmed = window.confirm(
+          `⚠️ No AI Credits Available!\n\n` +
+          `Cost: ₹${coachPlan.ai_credit_price || 10} per generation\n\n` +
+          `Click OK to pay and generate, or Cancel to purchase credits in bulk.`
+        );
+        
+        if (!confirmed) {
+          window.location.href = createPageUrl('PurchaseAICredits');
+          return;
+        }
+
+        // Process payment for 1 credit
+        try {
+          const totalCost = coachPlan.ai_credit_price || 10;
+          
+          const orderResponse = await base44.functions.invoke('createCoachPayment', {
+            coach_email: user.email,
+            amount: totalCost,
+            description: `1 AI Credit for Meal Plan Generation`,
+            payment_type: 'ai_credits'
+          });
+
+          await new Promise((resolve, reject) => {
+            const options = {
+              key: process.env.RAZORPAY_KEY_ID || 'rzp_test_key',
+              amount: totalCost * 100,
+              currency: 'INR',
+              name: 'Mealie Pro',
+              description: '1 AI Credit',
+              order_id: orderResponse.order_id,
+              handler: async function (response) {
+                try {
+                  await base44.functions.invoke('verifyCoachPayment', {
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature
+                  });
+
+                  await base44.entities.HealthCoachSubscription.update(coachSubscription.id, {
+                    ai_credits_purchased: (coachSubscription.ai_credits_purchased || 0) + 1
+                  });
+
+                  await base44.entities.AICreditsTransaction.create({
+                    coach_email: user.email,
+                    subscription_id: coachSubscription.id,
+                    transaction_type: 'purchase',
+                    credits_amount: 1,
+                    cost: totalCost,
+                    payment_id: response.razorpay_payment_id,
+                    payment_status: 'completed',
+                    description: `Purchased 1 AI credit for meal plan generation`
+                  });
+
+                  queryClient.invalidateQueries(['coachSubscription']);
+                  resolve(response);
+                } catch (error) {
+                  reject(error);
+                }
+              },
+              modal: {
+                ondismiss: function() {
+                  reject(new Error('Payment cancelled'));
+                }
+              },
+              theme: {
+                color: '#F97316'
+              }
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.open();
+          });
+
+          alert('✅ Payment successful! Generating meal plan...');
+        } catch (error) {
+          console.error('Payment error:', error);
+          alert('❌ Payment failed or cancelled. Please try again.');
+          return;
+        }
       }
     }
 
