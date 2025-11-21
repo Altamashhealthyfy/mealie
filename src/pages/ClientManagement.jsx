@@ -1006,7 +1006,7 @@ support@mealiepro.com`;
                   )}
 
                   {/* Assign Client - Only for coaches with team */}
-                  {(user?.user_type === 'super_admin' || user?.user_type === 'student_coach') && teamMembers.length > 0 && (
+                  {(user?.user_type === 'super_admin' || user?.user_type === 'student_coach') && teamMembers && teamMembers.length > 0 && (
                     <Button
                       variant="outline"
                       size="sm"
@@ -1221,7 +1221,7 @@ support@mealiepro.com`;
                 )}
 
                 {/* Assign/Reassign Button in View Dialog */}
-                {(user?.user_type === 'super_admin' || user?.user_type === 'student_coach') && teamMembers.length > 0 && (
+                {(user?.user_type === 'super_admin' || user?.user_type === 'student_coach') && teamMembers && teamMembers.length > 0 && (
                   <Button 
                     variant="outline"
                     className="w-full mt-2 text-purple-600 hover:bg-purple-50"
