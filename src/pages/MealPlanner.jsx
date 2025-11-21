@@ -1145,10 +1145,10 @@ Return structured meal plan with:
                       availableAICredits > 0 ? (
                         '✅ FREE with your AI credits - Use templates to save credits!'
                       ) : (
-                        `⚠️ Costs ₹${coachPlan.ai_credit_price || 10} per plan - Use templates instead to save money!`
+                        `⚠️ Costs ₹${coachPlan.ai_credit_price || 10} per plan - Use templates to save money!`
                       )
                     ) : (
-                      '⚠️ Costs ₹10 per plan - Use templates instead to save money!'
+                      `⚠️ Costs ₹${coachPlan?.ai_credit_price || 10} per plan - Use templates to save money!`
                     )}
                   </CardDescription>
                 </CardHeader>
@@ -1285,7 +1285,7 @@ Return structured meal plan with:
                       <AlertTriangle className="w-5 h-5 text-yellow-600" />
                       <AlertDescription className="ml-2">
                         <div className="space-y-2">
-                          <p className="font-semibold text-yellow-900">💸 This will cost ₹10</p>
+                          <p className="font-semibold text-yellow-900">💸 This will cost ₹{coachPlan?.ai_credit_price || 10}</p>
                           <p className="text-sm text-yellow-800">
                             You've used {usage?.meal_plans_generated || 0} / {usage?.plan_limits?.meal_plans || 20} AI generations this month
                           </p>
