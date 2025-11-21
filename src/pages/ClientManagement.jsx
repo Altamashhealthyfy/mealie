@@ -125,13 +125,27 @@ export default function ClientManagement() {
   });
 
   const { data: teamMembers } = useQuery({
-    queryKey: ['teamMembers'],
+    queryKey: ['teamMembers', user?.email],
     queryFn: async () => {
       const allUsers = await base44.entities.User.list();
-      return allUsers.filter(u => 
-        u.user_type === 'team_member' || 
-        u.user_type === 'student_team_member'
-      );
+      
+      // Super admin sees all team members
+      if (user?.user_type === 'super_admin') {
+        return allUsers.filter(u => 
+          u.user_type === 'team_member' || 
+          u.user_type === 'student_team_member'
+        );
+      }
+      
+      // Student coach sees only their own team members
+      if (user?.user_type === 'student_coach') {
+        return allUsers.filter(u => 
+          (u.user_type === 'student_team_member') && 
+          (u.created_by === user?.email)
+        );
+      }
+      
+      return [];
     },
     enabled: !!user && (user?.user_type === 'super_admin' || user?.user_type === 'student_coach'),
     initialData: [],
