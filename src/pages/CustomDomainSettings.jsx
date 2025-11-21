@@ -403,18 +403,44 @@ export default function CustomDomainSettings() {
               </div>
 
               {status === 'active' && coachProfile.domain_configured_date && (
-                <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-500">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                      <CheckCircle className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-green-900">Domain Verified ✓</h3>
-                      <p className="text-green-700">Your custom domain is active and working perfectly!</p>
-                      <p className="text-sm text-green-600 mt-1">Configured on {new Date(coachProfile.domain_configured_date).toLocaleDateString()}</p>
+                <>
+                  <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-500">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-green-900">Domain Verified ✓</h3>
+                        <p className="text-green-700">Your custom domain is active and working perfectly!</p>
+                        <p className="text-sm text-green-600 mt-1">Configured on {new Date(coachProfile.domain_configured_date).toLocaleDateString()}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+
+                  <Alert className="bg-blue-50 border-blue-500">
+                    <AlertDescription className="text-blue-900">
+                      <h4 className="font-bold text-lg mb-3">🎉 What's Next?</h4>
+                      <ol className="space-y-2 text-sm">
+                        <li className="flex items-start gap-2">
+                          <span className="font-bold text-blue-600">1.</span>
+                          <span><strong>Test Your Domain:</strong> Visit <a href={`https://${coachProfile.custom_domain}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">{coachProfile.custom_domain}</a> to ensure it's working</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="font-bold text-blue-600">2.</span>
+                          <span><strong>Share with Clients:</strong> Your clients can now access your platform using your custom domain</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="font-bold text-blue-600">3.</span>
+                          <span><strong>Update Marketing:</strong> Use your custom domain in emails, social media, and business cards</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="font-bold text-blue-600">4.</span>
+                          <span><strong>White Label Complete:</strong> Your platform now displays your custom branding to all clients accessing via your domain</span>
+                        </li>
+                      </ol>
+                    </AlertDescription>
+                  </Alert>
+                </>
               )}
 
               {status === 'pending_verification' && (
