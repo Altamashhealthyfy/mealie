@@ -28,6 +28,7 @@ export default function HealthCoachPlans() {
     can_create_client_plans: false,
     can_access_pro_plans: false,
     can_manage_team: false,
+    can_custom_domain: false,
     ai_generation_limit: -1,
     status: "active",
     sort_order: 0
@@ -103,6 +104,7 @@ export default function HealthCoachPlans() {
       can_access_pro_plans: false,
       can_manage_team: false,
       can_create_recipes: false,
+      can_custom_domain: false,
       ai_credits_included: 0,
       ai_credit_price: 10,
       ai_generation_limit: -1,
@@ -128,6 +130,7 @@ export default function HealthCoachPlans() {
       can_access_pro_plans: plan.can_access_pro_plans || false,
       can_manage_team: plan.can_manage_team || false,
       can_create_recipes: plan.can_create_recipes || false,
+      can_custom_domain: plan.can_custom_domain || false,
       ai_credits_included: plan.ai_credits_included || 0,
       ai_credit_price: plan.ai_credit_price || 10,
       ai_generation_limit: plan.ai_generation_limit,
@@ -239,6 +242,7 @@ export default function HealthCoachPlans() {
                   <p>Create Plans: {plan.can_create_client_plans ? 'Yes' : 'No'}</p>
                   <p>Pro Plans 💎: {plan.can_access_pro_plans ? 'Yes' : 'No'}</p>
                   <p>Create Recipes 🍳: {plan.can_create_recipes ? 'Yes' : 'No'}</p>
+                  <p>Custom Domain 🌐: {plan.can_custom_domain ? 'Yes' : 'No'}</p>
                 </div>
 
                 <div className="flex gap-2 pt-4">
@@ -414,6 +418,16 @@ export default function HealthCoachPlans() {
                   <Switch
                     checked={formData.can_create_recipes}
                     onCheckedChange={(checked) => setFormData({ ...formData, can_create_recipes: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 bg-green-50 rounded border border-green-200">
+                  <div>
+                    <Label>Can Use Custom Domain 🌐</Label>
+                    <p className="text-xs text-gray-600 mt-1">Allow custom domain (e.g., coaching.mysite.com)</p>
+                  </div>
+                  <Switch
+                    checked={formData.can_custom_domain}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_custom_domain: checked })}
                   />
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
