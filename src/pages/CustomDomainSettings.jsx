@@ -293,13 +293,32 @@ export default function CustomDomainSettings() {
                 </Alert>
               )}
 
-              <Button
-                variant="destructive"
-                onClick={handleRemoveDomain}
-                disabled={updateProfileMutation.isPending}
-              >
-                Remove Domain
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleVerifyDomain}
+                  disabled={isVerifying || status === 'active'}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                >
+                  {isVerifying ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Verifying...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Verify Domain
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleRemoveDomain}
+                  disabled={updateProfileMutation.isPending}
+                >
+                  Remove Domain
+                </Button>
+              </div>
             </CardContent>
           </Card>
         )}
