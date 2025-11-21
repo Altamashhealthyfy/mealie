@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Crown, Plus, Trash2, AlertCircle, Users, Globe, CheckCircle, Clock, XCircle, ExternalLink } from "lucide-react";
+import { Shield, Crown, Plus, Trash2, AlertCircle, Users, Globe, CheckCircle, Clock, XCircle, ExternalLink, RefreshCw } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function AdminSubscriptionManager() {
@@ -20,6 +20,7 @@ export default function AdminSubscriptionManager() {
   const [selectedCoachPlan, setSelectedCoachPlan] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [selectedClientPlan, setSelectedClientPlan] = useState("");
+  const [verifyingDomain, setVerifyingDomain] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -165,6 +166,30 @@ export default function AdminSubscriptionManager() {
       return;
     }
     grantClientAccessMutation.mutate({ client_email: clientEmail, plan_id: selectedClientPlan });
+  };
+
+  const handleVerifyDomain = async (domain) => {
+    if (!domain) {
+      alert("No domain to verify");
+      return;
+    }
+
+    setVerifyingDomain(domain);
+    try {
+      const response = await base44.functions.invoke('verifyCustomDomain', { domain });
+      
+      if (response.data.success) {
+        await queryClient.invalidateQueries(['allCoachProfiles']);
+        alert(response.data.message);
+      } else {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      console.error("Verification error:", error);
+      alert("❌ Verification check failed. Please ensure DNS records are properly configured.");
+    } finally {
+      setVerifyingDomain(null);
+    }
   };
 
   if (user?.user_type !== 'super_admin') {
@@ -332,6 +357,26 @@ export default function AdminSubscriptionManager() {
                                 <StatusIcon className="w-4 h-4 mr-1" />
                                 {statusConfig[status].label}
                               </Badge>
+                              {status !== 'active' && (
+                                <Button
+                                  onClick={() => handleVerifyDomain(profile.custom_domain)}
+                                  disabled={verifyingDomain === profile.custom_domain}
+                                  className="bg-purple-600 hover:bg-purple-700"
+                                  size="sm"
+                                >
+                                  {verifyingDomain === profile.custom_domain ? (
+                                    <>
+                                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                                      Verifying...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CheckCircle className="w-4 h-4 mr-2" />
+                                      Verify
+                                    </>
+                                  )}
+                                </Button>
+                              )}
                               {status === 'active' && (
                                 <Button
                                   variant="outline"
