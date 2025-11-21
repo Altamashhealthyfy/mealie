@@ -607,14 +607,24 @@ export default function UserPermissionManagement() {
                               Edit Permissions
                             </Button>
                             {userType === 'student_coach' && (
-                              <Button
-                                onClick={() => handleAssignPlan(user)}
-                                variant="outline"
-                                className="w-full border-green-500 text-green-700 hover:bg-green-50"
-                              >
-                                <Award className="w-4 h-4 mr-2" />
-                                {assignedPlan ? 'Change Plan' : 'Assign Plan'}
-                              </Button>
+                              <>
+                                <Button
+                                  onClick={() => handleAssignPlan(user)}
+                                  variant="outline"
+                                  className="w-full border-green-500 text-green-700 hover:bg-green-50"
+                                >
+                                  <Award className="w-4 h-4 mr-2" />
+                                  {assignedPlan ? 'Change Plan' : 'Assign Plan'}
+                                </Button>
+                                <Button
+                                  onClick={() => handleOpenChangePassword(user)}
+                                  variant="outline"
+                                  className="w-full border-blue-500 text-blue-700 hover:bg-blue-50"
+                                >
+                                  <Key className="w-4 h-4 mr-2" />
+                                  Change Password
+                                </Button>
+                              </>
                             )}
                           </div>
                         </CardContent>
