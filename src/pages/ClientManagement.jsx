@@ -32,6 +32,7 @@ import {
   Send,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -52,6 +53,9 @@ export default function ClientManagement() {
   const [showWhatsAppDialog, setShowWhatsAppDialog] = useState(false);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
   const [selectedClientForNotifications, setSelectedClientForNotifications] = useState(null);
+  const [showAssignDialog, setShowAssignDialog] = useState(false);
+  const [clientToAssign, setClientToAssign] = useState(null);
+  const [selectedTeamMember, setSelectedTeamMember] = useState('');
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -287,6 +291,9 @@ support@mealiepro.com`;
       base44.entities.Client.update(clientId, { assigned_to: teamMemberEmail }),
     onSuccess: () => {
       queryClient.invalidateQueries(['clients']);
+      setShowAssignDialog(false);
+      setClientToAssign(null);
+      setSelectedTeamMember('');
       alert("✅ Client assigned successfully!");
     },
     onError: (error) => {
@@ -419,26 +426,19 @@ support@mealiepro.com`;
     }
   };
 
-  const handleAssignClient = (clientId, currentAssignment) => {
-    const assignedMember = teamMembers.find(m => m.email === currentAssignment);
-    const memberOptions = teamMembers.map(m => `${m.full_name} (${m.email})`).join('\n');
+  const handleAssignClient = (client) => {
+    setClientToAssign(client);
+    setSelectedTeamMember(client.assigned_to || '');
+    setShowAssignDialog(true);
+  };
+
+  const handleConfirmAssign = () => {
+    if (!clientToAssign) return;
     
-    const message = currentAssignment 
-      ? `Currently assigned to: ${assignedMember?.full_name || currentAssignment}\n\nSelect team member email to reassign, or leave blank to unassign:\n\n${memberOptions}`
-      : `Select team member email to assign:\n\n${memberOptions}`;
-    
-    const email = prompt(message, currentAssignment || '');
-    
-    if (email === null) return; // User cancelled
-    
-    if (email === '') {
-      // Unassign
-      assignClientMutation.mutate({ clientId, teamMemberEmail: null });
-    } else if (teamMembers.some(m => m.email === email)) {
-      assignClientMutation.mutate({ clientId, teamMemberEmail: email });
-    } else {
-      alert('Invalid email. Please select from the list of team members.');
-    }
+    assignClientMutation.mutate({
+      clientId: clientToAssign.id,
+      teamMemberEmail: selectedTeamMember || null
+    });
   };
 
   const filteredClients = clients.filter(client => {
@@ -922,7 +922,7 @@ support@mealiepro.com`;
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleAssignClient(client.id, client.assigned_to)}
+                      onClick={() => handleAssignClient(client)}
                       className="w-full text-purple-600 hover:bg-purple-50 h-9 md:h-auto text-xs md:text-sm font-semibold"
                       title="Assign to Team Member"
                     >
@@ -1118,7 +1118,7 @@ support@mealiepro.com`;
                   <Button 
                     variant="outline"
                     className="w-full mt-2 text-purple-600 hover:bg-purple-50"
-                    onClick={() => handleAssignClient(viewingClient.id, viewingClient.assigned_to)}
+                    onClick={() => handleAssignClient(viewingClient)}
                   >
                     <UserPlus className="w-4 h-4 mr-2" />
                     {viewingClient.assigned_to ? 'Reassign to Team Member' : 'Assign to Team Member'}
@@ -1223,6 +1223,90 @@ support@mealiepro.com`;
                 )}
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Assign Client Dialog */}
+        <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-2xl flex items-center gap-2">
+                <UserPlus className="w-6 h-6 text-purple-600" />
+                Assign Client to Team
+              </DialogTitle>
+              <DialogDescription>
+                {clientToAssign && (
+                  <span>Assign <strong>{clientToAssign.full_name}</strong> to a team member</span>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="team-member">Select Team Member</Label>
+                <Select
+                  value={selectedTeamMember}
+                  onValueChange={setSelectedTeamMember}
+                >
+                  <SelectTrigger id="team-member" className="h-12">
+                    <SelectValue placeholder="Choose team member..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={null}>
+                      <span className="text-gray-500">Unassign (No team member)</span>
+                    </SelectItem>
+                    {teamMembers.map((member) => (
+                      <SelectItem key={member.email} value={member.email}>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{member.full_name}</span>
+                          <Badge variant="outline" className="text-xs">
+                            {member.email}
+                          </Badge>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {clientToAssign?.assigned_to && (
+                <Alert className="bg-blue-50 border-blue-300">
+                  <AlertDescription className="text-sm text-blue-900">
+                    Currently assigned to: <strong>{teamMembers.find(m => m.email === clientToAssign.assigned_to)?.full_name || clientToAssign.assigned_to}</strong>
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowAssignDialog(false);
+                    setClientToAssign(null);
+                    setSelectedTeamMember('');
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleConfirmAssign}
+                  disabled={assignClientMutation.isPending}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                >
+                  {assignClientMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Assigning...
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      {selectedTeamMember ? 'Assign' : 'Unassign'}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
 
