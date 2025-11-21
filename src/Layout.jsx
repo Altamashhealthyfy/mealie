@@ -268,11 +268,43 @@ const businessNavigation = [
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
+  const [customBranding, setCustomBranding] = React.useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
     retry: false,
+  });
+
+  // Detect custom domain and fetch branding
+  React.useEffect(() => {
+    const detectCustomDomain = async () => {
+      const hostname = window.location.hostname;
+      const isCustomDomain = !hostname.includes('base44.app') && !hostname.includes('localhost');
+      
+      if (isCustomDomain) {
+        try {
+          const response = await base44.functions.invoke('getCoachByDomain', { domain: hostname });
+          if (response.data?.branding) {
+            setCustomBranding(response.data.branding);
+          }
+        } catch (error) {
+          console.error('Failed to fetch custom branding:', error);
+        }
+      }
+    };
+    
+    detectCustomDomain();
+  }, []);
+
+  // Fetch coach profile for branding (for coaches on regular domain)
+  const { data: coachProfile } = useQuery({
+    queryKey: ['coachProfile', user?.email],
+    queryFn: async () => {
+      const profiles = await base44.entities.CoachProfile.filter({ created_by: user?.email });
+      return profiles[0] || null;
+    },
+    enabled: !!user && user?.user_type === 'student_coach',
   });
 
   const { data: clientProfile } = useQuery({
@@ -471,6 +503,11 @@ export default function Layout({ children, currentPageName }) {
 
   const profilePhotoUrl = user?.profile_photo_url || clientProfile?.profile_photo_url || null;
 
+  // Determine branding to display
+  const brandingName = customBranding?.name || coachProfile?.custom_branding_name || coachProfile?.business_name || 'Mealie';
+  const brandingTagline = customBranding?.tagline || coachProfile?.tagline || (isDietitian ? 'Dietitian Platform' : 'Client Portal');
+  const brandingLogo = customBranding?.logo_url || coachProfile?.logo_url;
+
   const handleLogout = async () => {
     if (window.confirm("Are you sure you want to logout?")) {
       try {
@@ -498,15 +535,19 @@ export default function Layout({ children, currentPageName }) {
         <Sidebar className="border-r border-orange-100 bg-white/80 backdrop-blur-sm">
           <SidebarHeader className="border-b border-orange-100 p-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
-                <ChefHat className="w-6 h-6 text-white" />
-              </div>
+              {brandingLogo ? (
+                <img src={brandingLogo} alt={brandingName} className="w-10 h-10 rounded-xl object-cover shadow-lg" />
+              ) : (
+                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <ChefHat className="w-6 h-6 text-white" />
+                </div>
+              )}
               <div>
                 <h2 className="font-bold text-xl text-gray-900">
-                  Mealie
+                  {brandingName}
                 </h2>
                 <p className="text-xs text-orange-600 font-medium">
-                  {isDietitian ? 'Dietitian Platform' : 'Client Portal'}
+                  {brandingTagline}
                 </p>
               </div>
             </div>
@@ -645,9 +686,13 @@ export default function Layout({ children, currentPageName }) {
             <div className="flex items-center gap-4">
               <SidebarTrigger className="hover:bg-orange-50 p-2 rounded-lg transition-colors duration-200" />
               <div className="flex items-center gap-2">
-                <ChefHat className="w-6 h-6 text-orange-500" />
+                {brandingLogo ? (
+                  <img src={brandingLogo} alt={brandingName} className="w-6 h-6 rounded object-cover" />
+                ) : (
+                  <ChefHat className="w-6 h-6 text-orange-500" />
+                )}
                 <h1 className="text-xl font-bold text-gray-900">
-                  Mealie
+                  {brandingName}
                 </h1>
               </div>
             </div>
