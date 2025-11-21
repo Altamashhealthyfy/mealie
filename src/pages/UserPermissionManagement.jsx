@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Search, Shield, Save, Edit2, Crown, UserCog, GraduationCap, Eye, Edit, Trash2, Award } from "lucide-react";
+import { Users, Search, Shield, Save, Edit2, Crown, UserCog, GraduationCap, Eye, Edit, Trash2, Award, UserPlus } from "lucide-react";
 
 export default function UserPermissionManagement() {
   const queryClient = useQueryClient();
@@ -27,6 +27,10 @@ export default function UserPermissionManagement() {
   const [selectedCoachForPlan, setSelectedCoachForPlan] = useState(null);
   const [selectedPlanId, setSelectedPlanId] = useState("");
   const [billingCycle, setBillingCycle] = useState("monthly");
+  const [createCoachDialog, setCreateCoachDialog] = useState(false);
+  const [newCoachEmail, setNewCoachEmail] = useState("");
+  const [newCoachName, setNewCoachName] = useState("");
+  const [newCoachPassword, setNewCoachPassword] = useState("");
 
   const { data: currentUser } = useQuery({
     queryKey: ['currentUser'],
@@ -162,6 +166,28 @@ export default function UserPermissionManagement() {
     },
   });
 
+  const createCoachMutation = useMutation({
+    mutationFn: async ({ email, name, password }) => {
+      return await base44.functions.invoke('createUserWithPassword', {
+        email,
+        full_name: name,
+        password,
+        user_type: 'student_coach'
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['allUsers']);
+      setCreateCoachDialog(false);
+      setNewCoachEmail("");
+      setNewCoachName("");
+      setNewCoachPassword("");
+      alert('✅ Health Coach created successfully!');
+    },
+    onError: (error) => {
+      alert('❌ Failed to create coach: ' + (error.response?.data?.error || error.message));
+    }
+  });
+
   if (currentUser?.user_type !== 'super_admin') {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
@@ -239,6 +265,22 @@ export default function UserPermissionManagement() {
       coachEmail: selectedCoachForPlan.email,
       planId: selectedPlanId,
       billingCycle: billingCycle
+    });
+  };
+
+  const handleCreateCoach = () => {
+    if (!newCoachEmail || !newCoachName || !newCoachPassword) {
+      alert('Please fill all fields');
+      return;
+    }
+    if (newCoachPassword.length < 6) {
+      alert('Password must be at least 6 characters');
+      return;
+    }
+    createCoachMutation.mutate({
+      email: newCoachEmail,
+      name: newCoachName,
+      password: newCoachPassword
     });
   };
 
@@ -475,6 +517,23 @@ export default function UserPermissionManagement() {
             const isCoachTab = userType === 'student_coach';
             return (
               <TabsContent key={userType} value={userType}>
+                {isCoachTab && (
+                  <Card className="border-none shadow-lg bg-gradient-to-r from-orange-50 to-red-50 mb-6">
+                    <CardContent className="p-6 flex items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-1">Create New Health Coach</h3>
+                        <p className="text-sm text-gray-600">Manually add a new health coach to the platform</p>
+                      </div>
+                      <Button
+                        onClick={() => setCreateCoachDialog(true)}
+                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                      >
+                        <UserPlus className="w-4 h-4 mr-2" />
+                        Create Health Coach
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredUsers.map(user => {
                     const hasCustomPerms = !!getUserCustomPermissions(user.email);
@@ -777,6 +836,68 @@ export default function UserPermissionManagement() {
             </DialogContent>
           </Dialog>
         )}
+
+        {/* Create Health Coach Dialog */}
+        <Dialog open={createCoachDialog} onOpenChange={setCreateCoachDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-orange-600" />
+                Create New Health Coach
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label>Full Name *</Label>
+                <Input
+                  placeholder="Enter full name"
+                  value={newCoachName}
+                  onChange={(e) => setNewCoachName(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Email Address *</Label>
+                <Input
+                  type="email"
+                  placeholder="coach@example.com"
+                  value={newCoachEmail}
+                  onChange={(e) => setNewCoachEmail(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Password *</Label>
+                <Input
+                  type="password"
+                  placeholder="Minimum 6 characters"
+                  value={newCoachPassword}
+                  onChange={(e) => setNewCoachPassword(e.target.value)}
+                />
+              </div>
+
+              <Alert className="bg-blue-50 border-blue-500">
+                <AlertDescription className="text-sm">
+                  The health coach will be created with 'student_coach' role. You can assign a plan to them after creation.
+                </AlertDescription>
+              </Alert>
+
+              <div className="flex gap-3 pt-4 border-t">
+                <Button variant="outline" onClick={() => setCreateCoachDialog(false)} className="flex-1">
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleCreateCoach}
+                  disabled={createCoachMutation.isPending}
+                  className="flex-1 bg-gradient-to-r from-orange-500 to-red-500"
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  {createCoachMutation.isPending ? 'Creating...' : 'Create Coach'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Global Client Permissions Dialog */}
         <Dialog open={editGlobalClientDialog} onOpenChange={setEditGlobalClientDialog}>
