@@ -931,9 +931,9 @@ Return structured meal plan with:
                   <h3 className="text-2xl font-bold text-gray-900 mb-2">Create Your First Template!</h3>
                   <p className="text-gray-600 mb-6">Templates save you money - use them unlimited times for FREE!</p>
                   <div className="space-y-2 text-sm text-gray-700 text-left max-w-md mx-auto">
-                    <p>✅ Generate 1 AI meal plan (costs ₹10)</p>
+                    <p>✅ Generate 1 AI meal plan (costs ₹{coachPlan?.ai_credit_price || 10})</p>
                     <p>✅ Save it as template (FREE forever)</p>
-                    <p>✅ Use for 100 clients (₹0 instead of ₹1000!)</p>
+                    <p>✅ Use for 100 clients (₹0 instead of ₹{(coachPlan?.ai_credit_price || 10) * 100}!)</p>
                   </div>
                   <Button 
                     className="mt-6 bg-gradient-to-r from-green-500 to-emerald-500"
@@ -1316,7 +1316,7 @@ Return structured meal plan with:
                         {user?.user_type === 'student_coach' && coachPlan ? (
                           availableAICredits > 0 ? 'Generate Meal Plan (FREE with credits)' : `Generate Meal Plan (₹${coachPlan.ai_credit_price || 10})`
                         ) : (
-                          'Generate with AI (₹10)'
+                          `Generate with AI (₹${coachPlan?.ai_credit_price || 10})`
                         )}
                       </>
                     )}
@@ -1580,7 +1580,7 @@ Return structured meal plan with:
                 <p className="text-lg">You've used all {user?.user_type === 'student_coach' && coachPlan ? (coachPlan.ai_generation_limit === -1 ? 'unlimited' : coachPlan.ai_generation_limit) : (usage?.plan_limits?.meal_plans || 20)} AI generations for this month.</p>
                 
                 <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg">
-                  <p className="font-semibold text-red-900 mb-2">💸 Each additional plan costs ₹10</p>
+                  <p className="font-semibold text-red-900 mb-2">💸 Each additional plan costs ₹{coachPlan?.ai_credit_price || 10}</p>
                   <p className="text-sm text-red-800">This will be added to your monthly bill.</p>
                 </div>
 
@@ -1616,7 +1616,7 @@ Return structured meal plan with:
                       generateMealPlan(); 
                     }}
                   >
-                    Generate Anyway (₹10)
+                    Generate Anyway (₹{coachPlan?.ai_credit_price || 10})
                   </Button>
                 </div>
               </DialogDescription>
