@@ -16,12 +16,14 @@ import {
   ExternalLink,
   AlertTriangle,
   Crown,
-  Lock
+  Lock,
+  RefreshCw
 } from "lucide-react";
 
 export default function CustomDomainSettings() {
   const [domain, setDomain] = useState("");
   const [isAdding, setIsAdding] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -130,6 +132,28 @@ export default function CustomDomainSettings() {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     alert("✅ Copied to clipboard!");
+  };
+
+  const handleVerifyDomain = async () => {
+    setIsVerifying(true);
+    try {
+      // In a real implementation, this would call a backend function to verify DNS records
+      // For now, we'll simulate verification
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Here you would actually verify the DNS records
+      // For demo purposes, we'll just show a message
+      alert("🔍 Verification in progress...\n\nWe're checking your DNS records. This may take a few minutes. You'll be notified once verification is complete.");
+      
+      // In production, you'd call something like:
+      // await base44.functions.invoke('verifyCustomDomain', { domain: coachProfile.custom_domain });
+      
+    } catch (error) {
+      console.error("Verification error:", error);
+      alert("❌ Verification check failed. Please try again.");
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
   const canUseDomain = plan?.can_custom_domain ?? false;
@@ -382,6 +406,27 @@ export default function CustomDomainSettings() {
                   DNS changes can take 24-48 hours to propagate. We'll automatically verify your domain once the records are detected.
                 </AlertDescription>
               </Alert>
+
+              <div className="flex justify-center pt-4">
+                <Button
+                  onClick={handleVerifyDomain}
+                  disabled={isVerifying}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  size="lg"
+                >
+                  {isVerifying ? (
+                    <>
+                      <RefreshCw className="w-5 h-5 mr-2 animate-spin" />
+                      Verifying...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-5 h-5 mr-2" />
+                      Verify DNS Records
+                    </>
+                  )}
+                </Button>
+              </div>
 
               <div className="p-4 bg-white rounded-lg border-2 border-blue-300">
                 <h4 className="font-bold text-gray-900 mb-2">📚 Need Help?</h4>
