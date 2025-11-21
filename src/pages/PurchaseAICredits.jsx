@@ -83,8 +83,8 @@ export default function PurchaseAICredits() {
       return new Promise((resolve, reject) => {
         const options = {
           key: orderResponse.data.razorpay_key_id,
-          amount: totalCost * 100,
-          currency: 'INR',
+          amount: orderResponse.data.amount,
+          currency: orderResponse.data.currency,
           name: 'Mealie Pro',
           description: `${amount} AI Credits`,
           order_id: orderResponse.data.order_id,

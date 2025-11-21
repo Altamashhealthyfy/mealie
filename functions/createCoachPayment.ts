@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
         });
 
         const order = await razorpay.orders.create({
-            amount: amount,
+            amount: amount * 100,
             currency: currency || 'INR',
             receipt: payment_type === 'ai_credits' ? `ai_credits_${Date.now()}` : `coach_sub_${subscriptionId || Date.now()}`,
             notes: {
