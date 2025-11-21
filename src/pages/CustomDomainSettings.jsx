@@ -171,17 +171,20 @@ export default function CustomDomainSettings() {
         domain: coachProfile.custom_domain 
       });
       
-      if (response.data.success) {
+      if (response?.data?.success) {
+        // Refetch coach profile to get updated status
         await queryClient.invalidateQueries(['coachProfile']);
-        if (!silent) alert("✅ " + response.data.message);
+        await queryClient.refetchQueries(['coachProfile']);
+        if (!silent) alert("✅ Domain verified successfully! Your custom domain is now active.");
         return true;
       } else {
-        if (!silent) alert(response.data.message);
+        const message = response?.data?.message || "DNS records not found or invalid. Please check your DNS settings.";
+        if (!silent) alert("❌ " + message);
         return false;
       }
     } catch (error) {
       console.error("Verification error:", error);
-      if (!silent) alert("❌ Verification check failed. Please ensure DNS records are properly configured and try again.");
+      if (!silent) alert("❌ Verification failed. Please ensure DNS records are configured correctly and have propagated.");
       return false;
     } finally {
       setIsVerifying(false);
