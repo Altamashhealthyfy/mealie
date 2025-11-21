@@ -82,6 +82,28 @@ export default function MealPlanner() {
     initialData: [],
   });
 
+  const { data: coachSubscription } = useQuery({
+    queryKey: ['coachSubscription', user?.email],
+    queryFn: async () => {
+      const subs = await base44.entities.HealthCoachSubscription.filter({ 
+        coach_email: user?.email,
+        status: 'active'
+      });
+      return subs[0] || null;
+    },
+    enabled: !!user && user?.user_type === 'student_coach',
+  });
+
+  const { data: coachPlan } = useQuery({
+    queryKey: ['coachPlan', coachSubscription?.plan_id],
+    queryFn: async () => {
+      if (!coachSubscription?.plan_id) return null;
+      const plans = await base44.entities.HealthCoachPlan.filter({ id: coachSubscription.plan_id });
+      return plans[0] || null;
+    },
+    enabled: !!coachSubscription?.plan_id,
+  });
+
   const { data: usage } = useQuery({
     queryKey: ['usage', user?.email, format(new Date(), 'yyyy-MM')],
     queryFn: async () => {
@@ -252,9 +274,29 @@ export default function MealPlanner() {
     }
 
     const currentUsage = usage?.meal_plans_generated || 0;
-    const limit = usage?.plan_limits?.meal_plans || 20;
+    
+    // Get AI generation limit from health coach plan (for student_coach) or default limits
+    let limit = 20; // Default for super_admin and team_member
+    
+    if (user?.user_type === 'student_coach') {
+      if (coachPlan?.ai_generation_limit !== undefined && coachPlan?.ai_generation_limit !== null) {
+        limit = coachPlan.ai_generation_limit;
+        
+        // -1 means unlimited
+        if (limit === -1) {
+          limit = Infinity;
+        }
+      } else {
+        // No plan found, show error
+        alert("⚠️ No active subscription found.\n\nPlease subscribe to a plan to use AI generation.");
+        return;
+      }
+    } else {
+      // For super_admin and team_member, use default
+      limit = usage?.plan_limits?.meal_plans || 20;
+    }
 
-    if (currentUsage >= limit) {
+    if (currentUsage >= limit && limit !== Infinity) {
       setShowAIWarning(true);
       return;
     }
@@ -718,7 +760,16 @@ Return structured meal plan with:
           </div>
         </div>
 
-        <UsageLimitWarning usage={usage} limits={usage?.plan_limits} type="meal_plan" />
+        {user?.user_type === 'student_coach' && coachPlan && (
+          <UsageLimitWarning 
+            usage={usage} 
+            limits={{ meal_plans: coachPlan.ai_generation_limit || 0 }} 
+            type="meal_plan" 
+          />
+        )}
+        {user?.user_type !== 'student_coach' && (
+          <UsageLimitWarning usage={usage} limits={usage?.plan_limits} type="meal_plan" />
+        )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4">
@@ -1082,6 +1133,11 @@ Return structured meal plan with:
                           <p className="text-xs text-green-800">
                             After generating, click "Save as Template" to reuse it FREE unlimited times!
                           </p>
+                          {user?.user_type === 'student_coach' && coachPlan && (
+                            <p className="text-xs text-green-800 mt-2">
+                              Your plan limit: {coachPlan.ai_generation_limit === -1 ? 'Unlimited' : `${coachPlan.ai_generation_limit} per month`}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </AlertDescription>
@@ -1360,7 +1416,7 @@ Return structured meal plan with:
                 Monthly Limit Reached!
               </DialogTitle>
               <DialogDescription className="space-y-4 pt-4">
-                <p className="text-lg">You've used all {usage?.plan_limits?.meal_plans || 20} AI generations for this month.</p>
+                <p className="text-lg">You've used all {user?.user_type === 'student_coach' && coachPlan ? (coachPlan.ai_generation_limit === -1 ? 'unlimited' : coachPlan.ai_generation_limit) : (usage?.plan_limits?.meal_plans || 20)} AI generations for this month.</p>
                 
                 <div className="p-4 bg-red-50 border-2 border-red-200 rounded-lg">
                   <p className="font-semibold text-red-900 mb-2">💸 Each additional plan costs ₹10</p>
