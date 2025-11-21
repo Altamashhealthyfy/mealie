@@ -65,14 +65,18 @@ export default function PurchaseAICredits() {
         payment_type: 'ai_credits'
       });
 
+      if (!orderResponse?.data?.order_id) {
+        throw new Error('Failed to create payment order');
+      }
+
       return new Promise((resolve, reject) => {
         const options = {
-          key: process.env.RAZORPAY_KEY_ID || 'rzp_test_key',
+          key: orderResponse.data.razorpay_key_id,
           amount: totalCost * 100,
           currency: 'INR',
           name: 'Mealie Pro',
           description: `${amount} AI Credits`,
-          order_id: orderResponse.order_id,
+          order_id: orderResponse.data.order_id,
           handler: async function (response) {
             try {
               // Verify payment

@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { subscriptionId, amount, currency, coachName, coachEmail, planName } = await req.json();
+        const { subscriptionId, amount, currency, coachName, coachEmail, planName, description, payment_type } = await req.json();
 
         // Use platform Razorpay keys from environment
         const razorpayKeyId = Deno.env.get('RAZORPAY_KEY_ID');
@@ -27,12 +27,14 @@ Deno.serve(async (req) => {
 
         const order = await razorpay.orders.create({
             amount: amount,
-            currency: currency,
-            receipt: `coach_sub_${subscriptionId}`,
+            currency: currency || 'INR',
+            receipt: payment_type === 'ai_credits' ? `ai_credits_${Date.now()}` : `coach_sub_${subscriptionId || Date.now()}`,
             notes: {
-                subscription_id: subscriptionId,
-                coach_email: coachEmail,
-                plan_name: planName
+                subscription_id: subscriptionId || null,
+                coach_email: coachEmail || user.email,
+                plan_name: planName || null,
+                description: description || null,
+                payment_type: payment_type || 'subscription'
             }
         });
 
