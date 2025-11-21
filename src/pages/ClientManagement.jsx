@@ -485,7 +485,15 @@ support@mealiepro.com`;
   };
 
   const handleConfirmAssignCoach = () => {
-    if (!clientToAssignCoach || !selectedCoach) return;
+    if (!clientToAssignCoach) {
+      alert("No client selected");
+      return;
+    }
+    
+    if (!selectedCoach) {
+      alert("Please select a health coach");
+      return;
+    }
     
     assignCoachMutation.mutate({
       clientId: clientToAssignCoach.id,
@@ -1326,36 +1334,51 @@ support@mealiepro.com`;
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 mt-4">
-              <div className="space-y-2">
-                <Label htmlFor="coach-select">Select Health Coach</Label>
-                <Select
-                  value={selectedCoach}
-                  onValueChange={setSelectedCoach}
-                >
-                  <SelectTrigger id="coach-select" className="h-12">
-                    <SelectValue placeholder="Choose health coach..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {healthCoaches.map((coach) => (
-                      <SelectItem key={coach.email} value={coach.email}>
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{coach.full_name}</span>
-                          <Badge variant="outline" className="text-xs">
-                            {coach.email}
-                          </Badge>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {clientToAssignCoach?.assigned_coach && (
-                <Alert className="bg-blue-50 border-blue-300">
-                  <AlertDescription className="text-sm text-blue-900">
-                    Currently assigned to: <strong>{healthCoaches.find(c => c.email === clientToAssignCoach.assigned_coach)?.full_name || clientToAssignCoach.assigned_coach}</strong>
+              {healthCoaches.length === 0 ? (
+                <Alert className="bg-yellow-50 border-yellow-300">
+                  <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                  <AlertDescription className="text-sm text-yellow-900">
+                    <strong>No Health Coaches Found</strong><br/>
+                    Please create health coach accounts first before assigning clients.
                   </AlertDescription>
                 </Alert>
+              ) : (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="coach-select">Select Health Coach *</Label>
+                    <Select
+                      value={selectedCoach || ''}
+                      onValueChange={setSelectedCoach}
+                    >
+                      <SelectTrigger id="coach-select" className="h-12">
+                        <SelectValue placeholder="Choose health coach..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={null}>
+                          <span className="text-gray-500">-- Select Coach --</span>
+                        </SelectItem>
+                        {healthCoaches.map((coach) => (
+                          <SelectItem key={coach.email} value={coach.email}>
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">{coach.full_name}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {coach.email}
+                              </Badge>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {clientToAssignCoach?.assigned_coach && (
+                    <Alert className="bg-blue-50 border-blue-300">
+                      <AlertDescription className="text-sm text-blue-900">
+                        Currently assigned to: <strong>{healthCoaches.find(c => c.email === clientToAssignCoach.assigned_coach)?.full_name || clientToAssignCoach.assigned_coach}</strong>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </>
               )}
 
               <div className="flex gap-3">
@@ -1372,7 +1395,7 @@ support@mealiepro.com`;
                 </Button>
                 <Button
                   onClick={handleConfirmAssignCoach}
-                  disabled={assignCoachMutation.isPending || !selectedCoach}
+                  disabled={assignCoachMutation.isPending || !selectedCoach || healthCoaches.length === 0}
                   className="flex-1 bg-green-600 hover:bg-green-700"
                 >
                   {assignCoachMutation.isPending ? (
