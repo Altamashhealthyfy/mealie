@@ -317,7 +317,7 @@ support@mealiepro.com`;
 
   const assignCoachMutation = useMutation({
     mutationFn: ({ clientId, coachEmail }) => 
-      base44.entities.Client.update(clientId, { created_by: coachEmail }),
+      base44.entities.Client.update(clientId, { assigned_coach: coachEmail }),
     onSuccess: () => {
       queryClient.invalidateQueries(['clients']);
       setShowAssignCoachDialog(false);
@@ -472,7 +472,7 @@ support@mealiepro.com`;
 
   const handleAssignCoach = (client) => {
     setClientToAssignCoach(client);
-    setSelectedCoach(client.created_by || '');
+    setSelectedCoach(client.assigned_coach || '');
     setShowAssignCoachDialog(true);
   };
 
@@ -990,9 +990,9 @@ support@mealiepro.com`;
                   )}
 
                   {/* Show coach assignment */}
-                  {client.created_by && (
+                  {client.assigned_coach && (
                     <div className="text-xs text-center text-green-600 bg-green-50 p-2 rounded">
-                      🎓 Coach: {healthCoaches.find(c => c.email === client.created_by)?.full_name || client.created_by}
+                      🎓 Coach: {healthCoaches.find(c => c.email === client.assigned_coach)?.full_name || client.assigned_coach}
                     </div>
                   )}
 
@@ -1342,10 +1342,10 @@ support@mealiepro.com`;
                 </Select>
               </div>
 
-              {clientToAssignCoach?.created_by && (
+              {clientToAssignCoach?.assigned_coach && (
                 <Alert className="bg-blue-50 border-blue-300">
                   <AlertDescription className="text-sm text-blue-900">
-                    Currently assigned to: <strong>{healthCoaches.find(c => c.email === clientToAssignCoach.created_by)?.full_name || clientToAssignCoach.created_by}</strong>
+                    Currently assigned to: <strong>{healthCoaches.find(c => c.email === clientToAssignCoach.assigned_coach)?.full_name || clientToAssignCoach.assigned_coach}</strong>
                   </AlertDescription>
                 </Alert>
               )}
