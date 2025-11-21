@@ -49,6 +49,16 @@ export default function FeatureControl() {
     queryFn: () => base44.auth.me(),
   });
 
+  const { data: healthCoachPlans, isLoading: plansLoading } = useQuery({
+    queryKey: ['healthCoachPlans'],
+    queryFn: async () => {
+      const plans = await base44.entities.HealthCoachPlan.list('sort_order');
+      return plans;
+    },
+    enabled: !!user && user.user_type === 'super_admin',
+    initialData: [],
+  });
+
   const { data: settings, isLoading } = useQuery({
     queryKey: ['securitySettings'],
     queryFn: async () => {
@@ -159,7 +169,7 @@ export default function FeatureControl() {
     );
   }
 
-  if (isLoading) {
+  if (isLoading || plansLoading) {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
         <div className="text-center">
@@ -170,32 +180,16 @@ export default function FeatureControl() {
     );
   }
 
-  const plans = [
-    {
-      key: 'basic_plan',
-      name: 'Basic Plan',
-      color: 'from-gray-500 to-slate-600',
-      badgeColor: 'bg-gray-600',
-      icon: Users,
-      description: '5 AI meal plans/recipes per month, unlimited downloads'
-    },
-    {
-      key: 'advanced_plan',
-      name: 'Advanced Plan',
-      color: 'from-blue-500 to-cyan-600',
-      badgeColor: 'bg-blue-600',
-      icon: TrendingUp,
-      description: '25-50 AI meal plans/recipes per month'
-    },
-    {
-      key: 'pro_plan',
-      name: 'Pro Plan',
-      color: 'from-purple-500 to-pink-600',
-      badgeColor: 'bg-purple-600',
-      icon: Crown,
-      description: 'Unlimited AI + all business tools for dietitians'
-    }
-  ];
+  const getPlanColor = (index) => {
+    const colors = [
+      { color: 'from-blue-500 to-cyan-600', badgeColor: 'bg-blue-600' },
+      { color: 'from-purple-500 to-pink-600', badgeColor: 'bg-purple-600' },
+      { color: 'from-orange-500 to-red-600', badgeColor: 'bg-orange-600' },
+      { color: 'from-green-500 to-emerald-600', badgeColor: 'bg-green-600' },
+      { color: 'from-indigo-500 to-violet-600', badgeColor: 'bg-indigo-600' },
+    ];
+    return colors[index % colors.length];
+  };
 
   const featureGroups = [
     {
@@ -691,8 +685,8 @@ export default function FeatureControl() {
               value="membership_plans"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
             >
-              <DollarSign className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Membership Plans</span>
+              <Crown className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Health Coach Plans</span>
               <span className="sm:hidden">Plans</span>
             </TabsTrigger>
             <TabsTrigger
@@ -729,162 +723,160 @@ export default function FeatureControl() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Membership Plans Tab */}
+          {/* Health Coach Plans Tab */}
           <TabsContent value="membership_plans">
             <div className="space-y-6">
               <Alert className="bg-purple-50 border-purple-500">
-                <DollarSign className="w-5 h-5 text-purple-600" />
+                <Crown className="w-5 h-5 text-purple-600" />
                 <AlertDescription className="text-purple-900">
-                  <strong>Plan-Based Access Control:</strong> Basic: 5 AI generations + unlimited downloads | Advanced: 25-50 AI generations | Pro: Unlimited AI + all business tools
+                  <strong>Health Coach Plan Configuration:</strong> These settings are read-only here. Manage all plan features (AI credits, custom domain, recipe creation, etc.) in <strong>Health Coach Plans</strong> page.
                 </AlertDescription>
               </Alert>
 
-              {plans.map(plan => {
-                const PlanIcon = plan.icon;
-                const planData = formData.membership_plans?.[plan.key] || {};
-                
-                return (
-                  <Card key={plan.key} className="border-none shadow-xl">
-                    <CardHeader className={`bg-gradient-to-r ${plan.color} text-white`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <PlanIcon className="w-6 h-6" />
-                          <div>
-                            <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                            <CardDescription className="text-white/90">{plan.description}</CardDescription>
+              {healthCoachPlans.length === 0 ? (
+                <Card className="border-none shadow-xl">
+                  <CardContent className="p-12 text-center">
+                    <Crown className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No Health Coach Plans Found</h3>
+                    <p className="text-gray-600 mb-6">Create plans in the Health Coach Plans page first</p>
+                    <Button
+                      onClick={() => window.location.href = createPageUrl('HealthCoachPlans')}
+                      className="bg-gradient-to-r from-purple-500 to-pink-500"
+                    >
+                      <Crown className="w-4 h-4 mr-2" />
+                      Go to Health Coach Plans
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                healthCoachPlans.map((plan, index) => {
+                  const planColors = getPlanColor(index);
+                  
+                  return (
+                    <Card key={plan.id} className="border-none shadow-xl">
+                      <CardHeader className={`bg-gradient-to-r ${planColors.color} text-white`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Crown className="w-6 h-6" />
+                            <div>
+                              <CardTitle className="text-2xl">{plan.plan_name}</CardTitle>
+                              <CardDescription className="text-white/90">{plan.plan_description}</CardDescription>
+                            </div>
+                          </div>
+                          <Badge className={`${planColors.badgeColor} text-white text-lg px-4 py-2`}>
+                            {plan.status === 'active' ? '✅ Active' : '❌ Inactive'}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-6 space-y-6">
+                        {/* Pricing Display (Read-Only) */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-6 border-b bg-gray-50 p-4 rounded-lg">
+                          <div className="space-y-1">
+                            <Label className="text-xs font-semibold text-gray-600">Monthly Price</Label>
+                            <p className="text-2xl font-bold text-gray-900">₹{plan.monthly_price}</p>
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs font-semibold text-gray-600">Yearly Price</Label>
+                            <p className="text-2xl font-bold text-gray-900">₹{plan.yearly_price}</p>
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs font-semibold text-gray-600">Max Clients</Label>
+                            <p className="text-2xl font-bold text-gray-900">{plan.max_clients === -1 ? '∞' : plan.max_clients}</p>
                           </div>
                         </div>
-                        <Badge className={`${plan.badgeColor} text-white text-lg px-4 py-2`}>
-                          {plan.key.replace('_plan', '').toUpperCase()}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="p-6 space-y-6">
-                      {/* Pricing Section */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-6 border-b">
-                        <div className="space-y-2">
-                          <Label className="text-sm font-semibold text-gray-700">Plan Name</Label>
-                          <Input
-                            value={planData.plan_name || plan.name}
-                            onChange={(e) => updatePlanPrice(plan.key, 'plan_name', e.target.value)}
-                            className="h-12 text-base"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-sm font-semibold text-gray-700">Monthly Price (₹)</Label>
-                          <Input
-                            type="number"
-                            value={planData.monthly_price || 0}
-                            onChange={(e) => updatePlanPrice(plan.key, 'monthly_price', parseInt(e.target.value))}
-                            className="h-12 text-base"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-sm font-semibold text-gray-700">Yearly Price (₹)</Label>
-                          <Input
-                            type="number"
-                            value={planData.yearly_price || 0}
-                            onChange={(e) => updatePlanPrice(plan.key, 'yearly_price', parseInt(e.target.value))}
-                            className="h-12 text-base"
-                          />
-                        </div>
-                      </div>
 
-                      {/* Features Section */}
-                      <div className="space-y-6">
-                        {featureGroups.map(group => {
-                          const GroupIcon = group.icon;
-                          return (
-                            <div key={group.title} className="space-y-3">
-                              <div className="flex items-center gap-2 pb-2 border-b">
-                                <GroupIcon className="w-5 h-5 text-gray-700" />
-                                <h3 className="font-bold text-gray-900">{group.title}</h3>
-                              </div>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {group.features.map(feature => {
-                                  if (feature.proOnly && plan.key !== 'pro_plan') return null;
-                                  
-                                  const FeatureIcon = feature.icon;
-                                  const isEnabled = planData.features?.[feature.key] ?? false;
-                                  
-                                  return (
-                                    <div
-                                      key={feature.key}
-                                      className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
-                                        getTypeBg(feature.type, isEnabled)
-                                      }`}
-                                    >
-                                      <div className="flex items-center gap-2 flex-1">
-                                        <FeatureIcon className={`w-4 h-4 ${isEnabled ? getTypeColor(feature.type) : 'text-gray-400'}`} />
-                                        <Label className="text-sm font-medium text-gray-900 cursor-pointer">
-                                          {feature.label}
-                                        </Label>
-                                      </div>
-                                      <Switch
-                                        checked={isEnabled}
-                                        onCheckedChange={(checked) => updatePlanFeature(plan.key, feature.key, checked)}
-                                      />
-                                    </div>
-                                  );
-                                })}
+                        {/* Key Features Display */}
+                        <div className="space-y-4">
+                          <h3 className="font-bold text-gray-900 text-lg flex items-center gap-2 border-b pb-2">
+                            <Sparkles className="w-5 h-5 text-purple-600" />
+                            Plan Features (Read-Only)
+                          </h3>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {/* AI Features */}
+                            <div className={`p-3 rounded-lg border-2 ${plan.can_use_ai_generation ? 'bg-purple-50 border-purple-300' : 'bg-gray-50 border-gray-200'}`}>
+                              <div className="flex items-center justify-between">
+                                <Label className="text-sm font-medium">AI Meal Plan Generation</Label>
+                                <Badge className={plan.can_use_ai_generation ? 'bg-purple-600' : 'bg-gray-400'}>
+                                  {plan.can_use_ai_generation ? '✅' : '❌'}
+                                </Badge>
                               </div>
                             </div>
-                          );
-                        })}
 
-                        {/* AI Limits & Settings */}
-                        <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                          <div className="space-y-2">
-                            <Label className="font-semibold text-gray-900 flex items-center gap-2">
-                              <Sparkles className="w-4 h-4 text-purple-600" />
-                              Monthly AI Meal Plan Limit
-                            </Label>
-                            <Input
-                              type="number"
-                              value={planData.features?.monthly_ai_meal_plan_limit ?? (plan.key === 'basic_plan' ? 5 : plan.key === 'advanced_plan' ? 40 : -1)}
-                              onChange={(e) => updatePlanFeature(plan.key, 'monthly_ai_meal_plan_limit', parseInt(e.target.value))}
-                              className="h-10"
-                            />
-                            <p className="text-xs text-gray-600">-1 for unlimited</p>
+                            <div className={`p-3 rounded-lg border-2 ${plan.can_create_recipes ? 'bg-green-50 border-green-300' : 'bg-gray-50 border-gray-200'}`}>
+                              <div className="flex items-center justify-between">
+                                <Label className="text-sm font-medium">Create Recipes</Label>
+                                <Badge className={plan.can_create_recipes ? 'bg-green-600' : 'bg-gray-400'}>
+                                  {plan.can_create_recipes ? '✅' : '❌'}
+                                </Badge>
+                              </div>
+                            </div>
+
+                            <div className={`p-3 rounded-lg border-2 ${plan.can_access_pro_plans ? 'bg-indigo-50 border-indigo-300' : 'bg-gray-50 border-gray-200'}`}>
+                              <div className="flex items-center justify-between">
+                                <Label className="text-sm font-medium">Pro Meal Plans</Label>
+                                <Badge className={plan.can_access_pro_plans ? 'bg-indigo-600' : 'bg-gray-400'}>
+                                  {plan.can_access_pro_plans ? '✅' : '❌'}
+                                </Badge>
+                              </div>
+                            </div>
+
+                            <div className={`p-3 rounded-lg border-2 ${plan.can_custom_domain ? 'bg-blue-50 border-blue-300' : 'bg-gray-50 border-gray-200'}`}>
+                              <div className="flex items-center justify-between">
+                                <Label className="text-sm font-medium">Custom Domain</Label>
+                                <Badge className={plan.can_custom_domain ? 'bg-blue-600' : 'bg-gray-400'}>
+                                  {plan.can_custom_domain ? '✅' : '❌'}
+                                </Badge>
+                              </div>
+                            </div>
+
+                            <div className={`p-3 rounded-lg border-2 ${plan.can_add_payment_gateway ? 'bg-orange-50 border-orange-300' : 'bg-gray-50 border-gray-200'}`}>
+                              <div className="flex items-center justify-between">
+                                <Label className="text-sm font-medium">Payment Gateway</Label>
+                                <Badge className={plan.can_add_payment_gateway ? 'bg-orange-600' : 'bg-gray-400'}>
+                                  {plan.can_add_payment_gateway ? '✅' : '❌'}
+                                </Badge>
+                              </div>
+                            </div>
+
+                            <div className={`p-3 rounded-lg border-2 ${plan.can_create_client_plans ? 'bg-pink-50 border-pink-300' : 'bg-gray-50 border-gray-200'}`}>
+                              <div className="flex items-center justify-between">
+                                <Label className="text-sm font-medium">Create Client Plans</Label>
+                                <Badge className={plan.can_create_client_plans ? 'bg-pink-600' : 'bg-gray-400'}>
+                                  {plan.can_create_client_plans ? '✅' : '❌'}
+                                </Badge>
+                              </div>
+                            </div>
                           </div>
-                          <div className="space-y-2">
-                            <Label className="font-semibold text-gray-900 flex items-center gap-2">
-                              <Sparkles className="w-4 h-4 text-purple-600" />
-                              Monthly AI Recipe Limit
-                            </Label>
-                            <Input
-                              type="number"
-                              value={planData.features?.monthly_ai_recipe_limit ?? (plan.key === 'basic_plan' ? 5 : plan.key === 'advanced_plan' ? 40 : -1)}
-                              onChange={(e) => updatePlanFeature(plan.key, 'monthly_ai_recipe_limit', parseInt(e.target.value))}
-                              className="h-10"
-                            />
-                            <p className="text-xs text-gray-600">-1 for unlimited</p>
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="font-semibold text-gray-900">Monthly AI Requests</Label>
-                            <Input
-                              type="number"
-                              value={planData.features?.monthly_ai_requests_limit ?? 50}
-                              onChange={(e) => updatePlanFeature(plan.key, 'monthly_ai_requests_limit', parseInt(e.target.value))}
-                              className="h-10"
-                            />
-                            <p className="text-xs text-gray-600">-1 for unlimited</p>
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="font-semibold text-gray-900">Max File Size (MB)</Label>
-                            <Input
-                              type="number"
-                              value={planData.features?.max_file_size_mb ?? 10}
-                              onChange={(e) => updatePlanFeature(plan.key, 'max_file_size_mb', parseInt(e.target.value))}
-                              className="h-10"
-                            />
+
+                          {/* AI Credits Display */}
+                          <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                            <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                              <Label className="text-xs font-semibold text-purple-700 mb-1 block">AI Credits Included</Label>
+                              <p className="text-3xl font-bold text-purple-900">
+                                {plan.ai_credits_included === -1 ? '∞' : plan.ai_credits_included}
+                              </p>
+                              <p className="text-xs text-purple-600 mt-1">per month</p>
+                            </div>
+                            <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                              <Label className="text-xs font-semibold text-green-700 mb-1 block">AI Credit Price</Label>
+                              <p className="text-3xl font-bold text-green-900">₹{plan.ai_credit_price}</p>
+                              <p className="text-xs text-green-600 mt-1">per additional credit</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+
+                        <Alert className="bg-blue-50 border-blue-300">
+                          <AlertTriangle className="w-5 h-5 text-blue-600" />
+                          <AlertDescription className="text-blue-900 text-sm">
+                            <strong>To Edit:</strong> Go to <strong>Health Coach Plans</strong> page to modify pricing, features, AI credits, and all other plan settings.
+                          </AlertDescription>
+                        </Alert>
+                      </CardContent>
+                    </Card>
+                  );
+                })
+              )}
             </div>
           </TabsContent>
 
