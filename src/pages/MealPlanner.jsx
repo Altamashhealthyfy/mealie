@@ -1256,10 +1256,23 @@ Return structured meal plan with:
                     <AlertTriangle className="w-5 h-5 text-yellow-600" />
                     <AlertDescription className="ml-2">
                       <div className="space-y-2">
-                        <p className="font-semibold text-yellow-900">💸 This will cost ₹10</p>
-                        <p className="text-sm text-yellow-800">
-                          You've used {usage?.meal_plans_generated || 0} / {usage?.plan_limits?.meal_plans || 20} AI generations this month
-                        </p>
+                        {user?.user_type === 'student_coach' && coachPlan ? (
+                          <>
+                            <p className="font-semibold text-yellow-900">
+                              {availableAICredits > 0 ? '✅ FREE Generation (using credits)' : `💸 Cost: ₹${coachPlan.ai_credit_price || 10} per generation`}
+                            </p>
+                            <p className="text-sm text-yellow-800">
+                              Available Credits: {availableAICredits === Infinity ? 'Unlimited' : availableAICredits}
+                            </p>
+                          </>
+                        ) : (
+                          <>
+                            <p className="font-semibold text-yellow-900">💸 This will cost ₹10</p>
+                            <p className="text-sm text-yellow-800">
+                              You've used {usage?.meal_plans_generated || 0} / {usage?.plan_limits?.meal_plans || 20} AI generations this month
+                            </p>
+                          </>
+                        )}
                         <div className="p-3 bg-green-100 border border-green-300 rounded-lg mt-2">
                           <p className="text-sm font-semibold text-green-900 mb-1">💡 Save Money!</p>
                           <p className="text-xs text-green-800">
@@ -1288,7 +1301,11 @@ Return structured meal plan with:
                     ) : (
                       <>
                         <Zap className="w-5 h-5 mr-2" />
-                        Generate with AI (₹10)
+                        {user?.user_type === 'student_coach' && coachPlan ? (
+                          availableAICredits > 0 ? 'Generate Meal Plan (FREE with credits)' : `Generate Meal Plan (₹${coachPlan.ai_credit_price || 10})`
+                        ) : (
+                          'Generate with AI (₹10)'
+                        )}
                       </>
                     )}
                   </Button>
