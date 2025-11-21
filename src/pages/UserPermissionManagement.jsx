@@ -305,6 +305,23 @@ export default function UserPermissionManagement() {
     });
   };
 
+  const handleOpenChangePassword = (coach) => {
+    setSelectedCoachForPassword(coach);
+    setNewPasswordForCoach("");
+    setChangePasswordDialog(true);
+  };
+
+  const handleChangePassword = () => {
+    if (!newPasswordForCoach || newPasswordForCoach.length < 6) {
+      alert('Password must be at least 6 characters');
+      return;
+    }
+    changePasswordMutation.mutate({
+      email: selectedCoachForPassword.email,
+      password: newPasswordForCoach
+    });
+  };
+
   const getCoachSubscription = (coachEmail) => {
     return coachSubscriptions.find(s => s.coach_email === coachEmail && s.status === 'active');
   };
