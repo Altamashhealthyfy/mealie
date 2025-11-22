@@ -69,6 +69,11 @@ export default function PurchaseAICredits() {
       const totalCost = amount * (coachPlan?.ai_credit_price || 10);
       
       try {
+        // Ensure Razorpay SDK is loaded
+        if (!window.Razorpay) {
+          throw new Error('Payment gateway not loaded. Please refresh the page and try again.');
+        }
+
         // Create Razorpay order
         const orderResponse = await base44.functions.invoke('createCoachPayment', {
           coach_email: user.email,
@@ -78,16 +83,13 @@ export default function PurchaseAICredits() {
           payment_type: 'ai_credits'
         });
 
+        console.log('Order Response:', orderResponse);
+
         if (!orderResponse?.data?.order_id) {
-          throw new Error('Failed to create payment order');
+          throw new Error('Failed to create payment order: ' + (orderResponse?.data?.error || 'Unknown error'));
         }
 
         return new Promise((resolve, reject) => {
-          if (!window.Razorpay) {
-            reject(new Error('Razorpay SDK not loaded'));
-            return;
-          }
-
           const options = {
             key: orderResponse.data.razorpay_key_id,
             amount: orderResponse.data.amount,
