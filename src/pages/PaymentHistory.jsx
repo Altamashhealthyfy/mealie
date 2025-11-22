@@ -87,6 +87,20 @@ export default function PaymentHistory() {
     initialData: [],
   });
 
+  const { data: clientPlanPurchases } = useQuery({
+    queryKey: ['allClientPlanPurchases'],
+    queryFn: async () => {
+      const allPurchases = await base44.entities.ClientPlanPurchase.list('-created_date');
+      if (user?.user_type === 'super_admin') {
+        return allPurchases;
+      }
+      // Filter for student_coach to show only their clients' purchases
+      return allPurchases.filter(purchase => purchase.coach_email === user?.email);
+    },
+    enabled: !!user,
+    initialData: [],
+  });
+
   const filteredSubscriptions = React.useMemo(() => subscriptions.filter(sub => {
     const matchesSearch = 
       sub.client_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -151,6 +165,26 @@ export default function PaymentHistory() {
     
     return matchesSearch && matchesStatus && matchesDate;
   }), [aiCreditsTransactions, searchQuery, statusFilter, dateFrom, dateTo]);
+
+  const filteredClientPurchases = React.useMemo(() => clientPlanPurchases.filter(purchase => {
+    const matchesSearch = 
+      purchase.client_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      purchase.client_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      purchase.coach_email?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || 
+      (statusFilter === "active" && purchase.payment_status === "completed") ||
+      (statusFilter === "failed" && purchase.payment_status === "failed");
+    
+    let matchesDate = true;
+    if (dateFrom) {
+      matchesDate = matchesDate && new Date(purchase.created_date) >= new Date(dateFrom);
+    }
+    if (dateTo) {
+      matchesDate = matchesDate && new Date(purchase.created_date) <= new Date(dateTo);
+    }
+    
+    return matchesSearch && matchesStatus && matchesDate;
+  }), [clientPlanPurchases, searchQuery, statusFilter, dateFrom, dateTo]);
 
   const successfulOrders = React.useMemo(() => 
     filteredRazorpayTransactions.filter(sub => sub.status === 'active').length,
@@ -282,6 +316,30 @@ export default function PaymentHistory() {
       .map(([coach, data]) => ({ coach, credits: data.credits, spent: data.spent }));
   }, [aiCreditsTransactions]);
 
+  // Client revenue by coach
+  const clientRevenueByCoach = React.useMemo(() => {
+    const coachRevenue = {};
+    
+    clientPlanPurchases
+      .filter(purchase => purchase.payment_status === 'completed')
+      .forEach(purchase => {
+        const coach = purchase.coach_email || 'Unknown';
+        if (!coachRevenue[coach]) {
+          coachRevenue[coach] = { revenue: 0, clients: new Set() };
+        }
+        coachRevenue[coach].revenue += purchase.amount || 0;
+        coachRevenue[coach].clients.add(purchase.client_email);
+      });
+
+    return Object.entries(coachRevenue)
+      .sort((a, b) => b[1].revenue - a[1].revenue)
+      .map(([coach, data]) => ({ 
+        coach, 
+        revenue: data.revenue, 
+        clientCount: data.clients.size 
+      }));
+  }, [clientPlanPurchases]);
+
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gray-50">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -358,7 +416,7 @@ export default function PaymentHistory() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className="border-none shadow-sm bg-white">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
@@ -466,6 +524,55 @@ export default function PaymentHistory() {
               </div>
             </CardContent>
           </Card>
+
+          {user?.user_type === 'super_admin' && (
+            <Card className="border-none shadow-sm bg-gradient-to-br from-green-50 to-emerald-50">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                      <CreditCard className="w-5 h-5 text-green-600" />
+                      Client Revenue
+                    </h3>
+                    <p className="text-sm text-gray-500">Revenue from client purchases</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4 max-h-[400px] overflow-y-auto">
+                  <div className="grid grid-cols-3 gap-4 pb-2 border-b text-sm font-medium text-gray-600 sticky top-0 bg-gradient-to-br from-green-50 to-emerald-50">
+                    <div>Coach</div>
+                    <div className="text-right">Clients</div>
+                    <div className="text-right">Revenue</div>
+                  </div>
+
+                  {clientRevenueByCoach.map(({ coach, clientCount, revenue }) => (
+                    <div key={coach} className="grid grid-cols-3 gap-4 items-center py-3 border-b border-green-100">
+                      <div>
+                        <p className="font-medium text-gray-900 text-sm truncate" title={coach}>
+                          {coach.split('@')[0]}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">{coach}</p>
+                      </div>
+                      <div className="text-right">
+                        <Badge className="bg-green-600 text-white">
+                          {clientCount} clients
+                        </Badge>
+                      </div>
+                      <div className="text-right font-semibold text-gray-900">
+                        ₹{revenue.toLocaleString()}
+                      </div>
+                    </div>
+                  ))}
+
+                  {clientRevenueByCoach.length === 0 && (
+                    <div className="text-center py-8 text-gray-500">
+                      No client purchases yet
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <Card className="border-none shadow-sm bg-white">
@@ -630,6 +737,62 @@ export default function PaymentHistory() {
                       </td>
                     </tr>
                   ))}
+                  {filteredClientPurchases.map((purchase) => (
+                    <tr key={`client-${purchase.id}`} className="border-b hover:bg-green-50 bg-green-25">
+                      <td className="py-4 px-4 text-sm">
+                        {format(new Date(purchase.created_date), 'dd MMM yyyy, h:mm a')}
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="w-4 h-4 text-green-600" />
+                          <p className="font-medium">{purchase.client_name}</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <p className="font-semibold">₹{purchase.amount}</p>
+                      </td>
+                      <td className="py-4 px-4 text-sm">
+                        <div className="space-y-1">
+                          <p className="text-blue-600">{purchase.client_email}</p>
+                          {user?.user_type === 'super_admin' && (
+                            <p className="text-xs text-gray-500">Coach: {purchase.coach_email}</p>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-sm">
+                        <div>
+                          <p className="font-medium flex items-center gap-1">
+                            <CreditCard className="w-3 h-3 text-green-600" />
+                            {purchase.plan_name}
+                          </p>
+                          <p className="text-xs text-gray-500">Client Plan Purchase</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-center">1</td>
+                      <td className="py-4 px-4 text-center">
+                        <Badge className="bg-green-100 text-green-800 capitalize">
+                          {purchase.duration_months} months
+                        </Badge>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <Badge className={`${
+                          purchase.payment_status === 'completed' ? 'bg-green-500' :
+                          purchase.payment_status === 'failed' ? 'bg-red-500' :
+                          'bg-yellow-500'
+                        } text-white flex items-center gap-1 w-fit mx-auto`}>
+                          <CheckCircle2 className="w-3 h-3" />
+                          {purchase.payment_status === 'completed' ? 'SUCCESS' : 
+                           purchase.payment_status === 'failed' ? 'FAILED' :
+                           purchase.payment_status?.toUpperCase() || 'PENDING'}
+                        </Badge>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
 
 
 
@@ -637,7 +800,7 @@ export default function PaymentHistory() {
               </table>
             </div>
 
-            {filteredRazorpayTransactions.length === 0 && filteredAICreditsTransactions.length === 0 && (
+            {filteredRazorpayTransactions.length === 0 && filteredAICreditsTransactions.length === 0 && filteredClientPurchases.length === 0 && (
               <div className="text-center py-12">
                 <DollarSign className="w-16 h-16 mx-auto text-gray-300 mb-4" />
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">No Transactions Found</h3>
