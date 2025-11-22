@@ -87,6 +87,83 @@ export default function PaymentHistory() {
     initialData: [],
   });
 
+  const filteredSubscriptions = React.useMemo(() => subscriptions.filter(sub => {
+    const matchesSearch = 
+      sub.client_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      sub.client_email?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || sub.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  }), [subscriptions, searchQuery, statusFilter]);
+
+  const totalRevenue = subscriptions
+    .filter(sub => sub.status === 'active')
+    .reduce((sum, sub) => sum + (sub.amount || 0), 0);
+
+  const activeSubscriptions = subscriptions.filter(sub => sub.status === 'active').length;
+
+  const totalRazorpayRevenue = coachSubscriptions
+    .filter(sub => sub.status === 'active')
+    .reduce((sum, sub) => sum + (sub.amount || 0), 0);
+
+  const razorpayByPlan = coachSubscriptions.reduce((acc, sub) => {
+    const plan = sub.plan_name || 'Unknown Plan';
+    if (!acc[plan]) {
+      acc[plan] = [];
+    }
+    acc[plan].push(sub);
+    return acc;
+  }, {});
+
+  const filteredRazorpayTransactions = React.useMemo(() => coachSubscriptions.filter(sub => {
+    const matchesSearch = 
+      sub.coach_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      sub.coach_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      sub.razorpay_payment_id?.toLowerCase().includes(searchQuery.toLowerCase());
+    // Show all statuses including failed payments
+    const matchesStatus = statusFilter === "all" || sub.status === statusFilter;
+    
+    let matchesDate = true;
+    if (dateFrom) {
+      matchesDate = matchesDate && new Date(sub.created_date) >= new Date(dateFrom);
+    }
+    if (dateTo) {
+      matchesDate = matchesDate && new Date(sub.created_date) <= new Date(dateTo);
+    }
+    
+    return matchesSearch && matchesStatus && matchesDate;
+  }), [coachSubscriptions, searchQuery, statusFilter, dateFrom, dateTo]);
+
+  const filteredAICreditsTransactions = React.useMemo(() => aiCreditsTransactions.filter(txn => {
+    const matchesSearch = 
+      txn.coach_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      txn.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || 
+      (statusFilter === "active" && txn.payment_status === "completed") ||
+      (statusFilter === "failed" && txn.payment_status === "failed");
+    
+    let matchesDate = true;
+    if (dateFrom) {
+      matchesDate = matchesDate && new Date(txn.created_date) >= new Date(dateFrom);
+    }
+    if (dateTo) {
+      matchesDate = matchesDate && new Date(txn.created_date) <= new Date(dateTo);
+    }
+    
+    return matchesSearch && matchesStatus && matchesDate;
+  }), [aiCreditsTransactions, searchQuery, statusFilter, dateFrom, dateTo]);
+
+  const successfulOrders = React.useMemo(() => 
+    filteredRazorpayTransactions.filter(sub => sub.status === 'active').length,
+    [filteredRazorpayTransactions]
+  );
+  
+  const totalEarnings = React.useMemo(() => 
+    filteredRazorpayTransactions
+      .filter(sub => sub.status === 'active')
+      .reduce((sum, sub) => sum + (sub.amount || 0), 0),
+    [filteredRazorpayTransactions]
+  );
+
   const canViewPaymentHistory = () => {
     if (user?.user_type === 'super_admin') {
       return securitySettings?.super_admin_permissions?.can_view_payment_history ?? true;
@@ -119,76 +196,6 @@ export default function PaymentHistory() {
       </div>
     );
   }
-
-  const filteredSubscriptions = subscriptions.filter(sub => {
-    const matchesSearch = 
-      sub.client_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      sub.client_email?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || sub.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  const totalRevenue = subscriptions
-    .filter(sub => sub.status === 'active')
-    .reduce((sum, sub) => sum + (sub.amount || 0), 0);
-
-  const activeSubscriptions = subscriptions.filter(sub => sub.status === 'active').length;
-
-  const totalRazorpayRevenue = coachSubscriptions
-    .filter(sub => sub.status === 'active')
-    .reduce((sum, sub) => sum + (sub.amount || 0), 0);
-
-  const razorpayByPlan = coachSubscriptions.reduce((acc, sub) => {
-    const plan = sub.plan_name || 'Unknown Plan';
-    if (!acc[plan]) {
-      acc[plan] = [];
-    }
-    acc[plan].push(sub);
-    return acc;
-  }, {});
-
-  const filteredRazorpayTransactions = coachSubscriptions.filter(sub => {
-    const matchesSearch = 
-      sub.coach_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      sub.coach_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      sub.razorpay_payment_id?.toLowerCase().includes(searchQuery.toLowerCase());
-    // Show all statuses including failed payments
-    const matchesStatus = statusFilter === "all" || sub.status === statusFilter;
-    
-    let matchesDate = true;
-    if (dateFrom) {
-      matchesDate = matchesDate && new Date(sub.created_date) >= new Date(dateFrom);
-    }
-    if (dateTo) {
-      matchesDate = matchesDate && new Date(sub.created_date) <= new Date(dateTo);
-    }
-    
-    return matchesSearch && matchesStatus && matchesDate;
-  });
-
-  const filteredAICreditsTransactions = aiCreditsTransactions.filter(txn => {
-    const matchesSearch = 
-      txn.coach_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      txn.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || 
-      (statusFilter === "active" && txn.payment_status === "completed") ||
-      (statusFilter === "failed" && txn.payment_status === "failed");
-    
-    let matchesDate = true;
-    if (dateFrom) {
-      matchesDate = matchesDate && new Date(txn.created_date) >= new Date(dateFrom);
-    }
-    if (dateTo) {
-      matchesDate = matchesDate && new Date(txn.created_date) <= new Date(dateTo);
-    }
-    
-    return matchesSearch && matchesStatus && matchesDate;
-  });
-
-  const successfulOrders = filteredRazorpayTransactions.filter(sub => sub.status === 'active').length;
-  const totalEarnings = filteredRazorpayTransactions
-    .filter(sub => sub.status === 'active')
-    .reduce((sum, sub) => sum + (sub.amount || 0), 0);
 
   const exportToCSV = () => {
     const headers = ['Date', 'Customer', 'Email', 'Plan', 'Amount', 'Billing Cycle', 'Status', 'Payment ID', 'Order ID'];
