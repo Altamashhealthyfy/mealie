@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { DollarSign, Calendar, Search, TrendingUp, CreditCard, Lock, Download, Filter, MoreVertical, CheckCircle2, RefreshCw, X } from "lucide-react";
+import { DollarSign, Calendar, Search, TrendingUp, CreditCard, Lock, Download, Filter, MoreVertical, CheckCircle2, RefreshCw, X, Sparkles } from "lucide-react";
 import { format, startOfMonth, endOfMonth, eachMonthOfInterval } from "date-fns";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
@@ -69,6 +69,19 @@ export default function PaymentHistory() {
       }
       return allSubs.filter(sub => sub.coach_email === user?.email)
         .sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    },
+    enabled: !!user,
+    initialData: [],
+  });
+
+  const { data: aiCreditsTransactions } = useQuery({
+    queryKey: ['allAICreditsTransactions'],
+    queryFn: async () => {
+      const allTxns = await base44.entities.AICreditsTransaction.list('-created_date');
+      if (user?.user_type === 'super_admin') {
+        return allTxns;
+      }
+      return allTxns.filter(txn => txn.coach_email === user?.email);
     },
     enabled: !!user,
     initialData: [],
@@ -148,6 +161,25 @@ export default function PaymentHistory() {
     }
     if (dateTo) {
       matchesDate = matchesDate && new Date(sub.created_date) <= new Date(dateTo);
+    }
+    
+    return matchesSearch && matchesStatus && matchesDate;
+  });
+
+  const filteredAICreditsTransactions = aiCreditsTransactions.filter(txn => {
+    const matchesSearch = 
+      txn.coach_email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      txn.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || 
+      (statusFilter === "active" && txn.payment_status === "completed") ||
+      (statusFilter === "failed" && txn.payment_status === "failed");
+    
+    let matchesDate = true;
+    if (dateFrom) {
+      matchesDate = matchesDate && new Date(txn.created_date) >= new Date(dateFrom);
+    }
+    if (dateTo) {
+      matchesDate = matchesDate && new Date(txn.created_date) <= new Date(dateTo);
     }
     
     return matchesSearch && matchesStatus && matchesDate;
@@ -463,6 +495,65 @@ export default function PaymentHistory() {
                       </td>
                     </tr>
                   ))}
+                  {filteredAICreditsTransactions.map((txn) => (
+                    <tr key={`ai-${txn.id}`} className="border-b hover:bg-purple-50 bg-purple-25">
+                      <td className="py-4 px-4 text-sm">
+                        {format(new Date(txn.created_date), 'dd MMM yyyy, h:mm a')}
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-purple-600" />
+                          <p className="font-medium">{txn.coach_email?.split('@')[0]}</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <p className="font-semibold">{txn.cost ? `₹${txn.cost}` : '-'}</p>
+                      </td>
+                      <td className="py-4 px-4 text-sm">
+                        <div className="space-y-1">
+                          <p className="text-blue-600">{txn.coach_email}</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-sm">
+                        <div>
+                          <p className="font-medium flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-purple-600" />
+                            AI Credits
+                          </p>
+                          <p className="text-xs text-gray-500">{txn.description}</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        {txn.credits_amount > 0 ? `+${txn.credits_amount}` : txn.credits_amount}
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <Badge className={`${
+                          txn.transaction_type === 'purchase' ? 'bg-purple-100 text-purple-800' :
+                          txn.transaction_type === 'usage' ? 'bg-orange-100 text-orange-800' :
+                          'bg-blue-100 text-blue-800'
+                        } capitalize`}>
+                          {txn.transaction_type}
+                        </Badge>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <Badge className={`${
+                          txn.payment_status === 'completed' ? 'bg-green-500' :
+                          txn.payment_status === 'failed' ? 'bg-red-500' :
+                          'bg-yellow-500'
+                        } text-white flex items-center gap-1 w-fit mx-auto`}>
+                          <CheckCircle2 className="w-3 h-3" />
+                          {txn.payment_status === 'completed' ? 'SUCCESS' : 
+                           txn.payment_status === 'failed' ? 'FAILED' :
+                           txn.payment_status?.toUpperCase() || 'N/A'}
+                        </Badge>
+                      </td>
+                      <td className="py-4 px-4 text-center">
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
 
 
 
@@ -470,7 +561,7 @@ export default function PaymentHistory() {
               </table>
             </div>
 
-            {filteredRazorpayTransactions.length === 0 && (
+            {filteredRazorpayTransactions.length === 0 && filteredAICreditsTransactions.length === 0 && (
               <div className="text-center py-12">
                 <DollarSign className="w-16 h-16 mx-auto text-gray-300 mb-4" />
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">No Transactions Found</h3>
