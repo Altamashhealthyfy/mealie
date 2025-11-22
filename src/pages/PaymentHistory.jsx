@@ -255,6 +255,26 @@ export default function PaymentHistory() {
       .map(([plan, earnings]) => ({ plan, earnings }));
   }, [coachSubscriptions]);
 
+  // AI Credits purchased per coach
+  const creditsPurchasedByCoach = React.useMemo(() => {
+    const coachCredits = {};
+    
+    aiCreditsTransactions
+      .filter(txn => txn.transaction_type === 'purchase' && txn.payment_status === 'completed')
+      .forEach(txn => {
+        const coach = txn.coach_email || 'Unknown';
+        if (!coachCredits[coach]) {
+          coachCredits[coach] = { credits: 0, spent: 0 };
+        }
+        coachCredits[coach].credits += txn.credits_amount || 0;
+        coachCredits[coach].spent += txn.cost || 0;
+      });
+
+    return Object.entries(coachCredits)
+      .sort((a, b) => b[1].credits - a[1].credits)
+      .map(([coach, data]) => ({ coach, credits: data.credits, spent: data.spent }));
+  }, [aiCreditsTransactions]);
+
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gray-50">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -331,66 +351,115 @@ export default function PaymentHistory() {
           </CardContent>
         </Card>
 
-        <Card className="border-none shadow-sm bg-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">Services earnings</h3>
-                <p className="text-sm text-gray-500">Last updated {format(new Date(), 'h')} hours ago</p>
-              </div>
-              <Button variant="outline" size="sm">
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Refresh
-              </Button>
-            </div>
-
-            <div className="mb-4 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                placeholder="Search by service"
-                className="pl-10"
-              />
-            </div>
-
-            <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-4 pb-2 border-b text-sm font-medium text-gray-600">
-                <div>Service</div>
-                <div className="text-right">Earnings</div>
-                <div className="text-right">Action</div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card className="border-none shadow-sm bg-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">Services earnings</h3>
+                  <p className="text-sm text-gray-500">Last updated {format(new Date(), 'h')} hours ago</p>
+                </div>
+                <Button variant="outline" size="sm">
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Refresh
+                </Button>
               </div>
 
-              {earningsByPlan.map(({ plan, earnings }) => (
-                <div key={plan} className="grid grid-cols-3 gap-4 items-center py-3 border-b">
-                  <div>
-                    <p className="font-medium text-gray-900">{plan}</p>
-                    <div className="flex gap-2 mt-1">
-                      <Badge className="bg-blue-100 text-blue-800 text-xs">ACTIVE</Badge>
-                      <Badge className="bg-green-100 text-green-800 text-xs">ONETIME</Badge>
+              <div className="mb-4 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  placeholder="Search by service"
+                  className="pl-10"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-4 pb-2 border-b text-sm font-medium text-gray-600">
+                  <div>Service</div>
+                  <div className="text-right">Earnings</div>
+                  <div className="text-right">Action</div>
+                </div>
+
+                {earningsByPlan.map(({ plan, earnings }) => (
+                  <div key={plan} className="grid grid-cols-3 gap-4 items-center py-3 border-b">
+                    <div>
+                      <p className="font-medium text-gray-900">{plan}</p>
+                      <div className="flex gap-2 mt-1">
+                        <Badge className="bg-blue-100 text-blue-800 text-xs">ACTIVE</Badge>
+                        <Badge className="bg-green-100 text-green-800 text-xs">ONETIME</Badge>
+                      </div>
+                    </div>
+                    <div className="text-right font-semibold text-gray-900">
+                      ₹{earnings.toLocaleString()}
+                    </div>
+                    <div className="text-right">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setSelectedPlan(plan)}
+                      >
+                        View invoices
+                      </Button>
                     </div>
                   </div>
-                  <div className="text-right font-semibold text-gray-900">
-                    ₹{earnings.toLocaleString()}
-                  </div>
-                  <div className="text-right">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setSelectedPlan(plan)}
-                    >
-                      View invoices
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                ))}
 
-              {earningsByPlan.length === 0 && (
-                <div className="text-center py-8 text-gray-500">
-                  No earnings data available
+                {earningsByPlan.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    No earnings data available
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm bg-gradient-to-br from-purple-50 to-pink-50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-purple-600" />
+                    AI Credits Purchased
+                  </h3>
+                  <p className="text-sm text-gray-500">Total credits bought by coaches</p>
                 </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+
+              <div className="space-y-4 max-h-[400px] overflow-y-auto">
+                <div className="grid grid-cols-3 gap-4 pb-2 border-b text-sm font-medium text-gray-600 sticky top-0 bg-gradient-to-br from-purple-50 to-pink-50">
+                  <div>Coach</div>
+                  <div className="text-right">Credits</div>
+                  <div className="text-right">Spent</div>
+                </div>
+
+                {creditsPurchasedByCoach.map(({ coach, credits, spent }) => (
+                  <div key={coach} className="grid grid-cols-3 gap-4 items-center py-3 border-b border-purple-100">
+                    <div>
+                      <p className="font-medium text-gray-900 text-sm truncate" title={coach}>
+                        {coach.split('@')[0]}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">{coach}</p>
+                    </div>
+                    <div className="text-right">
+                      <Badge className="bg-purple-600 text-white">
+                        {credits} credits
+                      </Badge>
+                    </div>
+                    <div className="text-right font-semibold text-gray-900">
+                      ₹{spent.toLocaleString()}
+                    </div>
+                  </div>
+                ))}
+
+                {creditsPurchasedByCoach.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    No AI credits purchased yet
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         <Card className="border-none shadow-sm bg-white">
           <CardContent className="p-6">
