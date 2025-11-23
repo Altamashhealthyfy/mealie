@@ -586,9 +586,6 @@ export default function Layout({ children, currentPageName }) {
                           {item.badge && (
                             <Badge className="ml-auto bg-purple-600 text-white">{item.badge}</Badge>
                           )}
-                          {item.title === 'Messages' && unreadCount > 0 && (
-                            <Badge className="ml-auto bg-red-500">{unreadCount}</Badge>
-                          )}
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
