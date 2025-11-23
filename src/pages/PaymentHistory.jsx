@@ -101,6 +101,16 @@ export default function PaymentHistory() {
     initialData: [],
   });
 
+  const { data: messages } = useQuery({
+    queryKey: ['allMessages'],
+    queryFn: async () => {
+      const allMessages = await base44.entities.Message.filter({ read: false });
+      return allMessages;
+    },
+    enabled: !!user,
+    initialData: [],
+  });
+
   const filteredSubscriptions = React.useMemo(() => subscriptions.filter(sub => {
     const matchesSearch = 
       sub.client_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -316,7 +326,7 @@ export default function PaymentHistory() {
       .map(([coach, data]) => ({ coach, credits: data.credits, spent: data.spent }));
   }, [aiCreditsTransactions]);
 
-  // Client revenue by coach
+  // Client revenue by coach with unread messages
   const clientRevenueByCoach = React.useMemo(() => {
     const coachRevenue = {};
     
@@ -325,20 +335,32 @@ export default function PaymentHistory() {
       .forEach(purchase => {
         const coach = purchase.coach_email || 'Unknown';
         if (!coachRevenue[coach]) {
-          coachRevenue[coach] = { revenue: 0, clients: new Set() };
+          coachRevenue[coach] = { revenue: 0, unreadMessages: 0 };
         }
         coachRevenue[coach].revenue += purchase.amount || 0;
-        coachRevenue[coach].clients.add(purchase.client_email);
       });
+
+    // Count unread messages per coach by matching client emails
+    messages.forEach(msg => {
+      // Find which coach this client belongs to
+      const clientPurchase = clientPlanPurchases.find(p => p.client_email === msg.created_by);
+      if (clientPurchase?.coach_email) {
+        const coach = clientPurchase.coach_email;
+        if (!coachRevenue[coach]) {
+          coachRevenue[coach] = { revenue: 0, unreadMessages: 0 };
+        }
+        coachRevenue[coach].unreadMessages += 1;
+      }
+    });
 
     return Object.entries(coachRevenue)
       .sort((a, b) => b[1].revenue - a[1].revenue)
       .map(([coach, data]) => ({ 
         coach, 
         revenue: data.revenue, 
-        clientCount: data.clients.size 
+        unreadMessages: data.unreadMessages 
       }));
-  }, [clientPlanPurchases]);
+  }, [clientPlanPurchases, messages]);
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gray-50">
@@ -541,11 +563,11 @@ export default function PaymentHistory() {
                 <div className="space-y-4 max-h-[400px] overflow-y-auto">
                   <div className="grid grid-cols-3 gap-4 pb-2 border-b text-sm font-medium text-gray-600 sticky top-0 bg-gradient-to-br from-green-50 to-emerald-50">
                     <div>Coach</div>
-                    <div className="text-right">Clients</div>
+                    <div className="text-right">Messages</div>
                     <div className="text-right">Revenue</div>
                   </div>
 
-                  {clientRevenueByCoach.map(({ coach, clientCount, revenue }) => (
+                  {clientRevenueByCoach.map(({ coach, unreadMessages, revenue }) => (
                     <div key={coach} className="grid grid-cols-3 gap-4 items-center py-3 border-b border-green-100">
                       <div>
                         <p className="font-medium text-gray-900 text-sm truncate" title={coach}>
@@ -554,9 +576,13 @@ export default function PaymentHistory() {
                         <p className="text-xs text-gray-500 truncate">{coach}</p>
                       </div>
                       <div className="text-right">
-                        <Badge className="bg-green-600 text-white">
-                          {clientCount} clients
-                        </Badge>
+                        {unreadMessages > 0 ? (
+                          <Badge className="bg-red-600 text-white">
+                            {unreadMessages} unread
+                          </Badge>
+                        ) : (
+                          <span className="text-gray-400 text-sm">-</span>
+                        )}
                       </div>
                       <div className="text-right font-semibold text-gray-900">
                         ₹{revenue.toLocaleString()}
