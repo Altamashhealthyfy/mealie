@@ -34,64 +34,58 @@ export default function DietitianDashboard() {
   });
 
   const { data: clients } = useQuery({
-    queryKey: ['clients'],
+    queryKey: ['dashboardClients', user?.email, user?.user_type],
     queryFn: async () => {
-      const allClients = await base44.entities.Client.list('-created_date');
-      
-      // Super admin sees ALL clients
       if (user?.user_type === 'super_admin') {
-        return allClients;
+        return await base44.entities.Client.list('-created_date', 50);
       }
-      
-      // Team members, student coaches - only see THEIR OWN clients
-      return allClients.filter(client => client.created_by === user?.email);
+      // Directly filter on server side for better performance
+      return await base44.entities.Client.filter({ created_by: user?.email }, '-created_date', 50);
     },
     enabled: !!user,
     initialData: [],
+    staleTime: 60000,
   });
 
   const { data: mealPlans } = useQuery({
-    queryKey: ['mealPlans'],
+    queryKey: ['dashboardMealPlans', user?.email, user?.user_type],
     queryFn: async () => {
-      const allPlans = await base44.entities.MealPlan.list('-created_date');
-      // Filter to only show plans created by current user (for team members)
       if (user?.user_type === 'super_admin') {
-        return allPlans;
+        return await base44.entities.MealPlan.list('-created_date', 20);
       }
-      return allPlans.filter(plan => plan.created_by === user?.email);
+      return await base44.entities.MealPlan.filter({ created_by: user?.email }, '-created_date', 20);
     },
     enabled: !!user,
     initialData: [],
+    staleTime: 60000,
   });
 
   const { data: appointments } = useQuery({
-    queryKey: ['appointments'],
-    queryFn: () => base44.entities.Appointment.list('-created_date', 10),
+    queryKey: ['dashboardAppointments'],
+    queryFn: () => base44.entities.Appointment.filter({ status: 'scheduled' }, '-date', 5),
     initialData: [],
+    staleTime: 60000,
   });
 
   const { data: messages } = useQuery({
-    queryKey: ['unreadMessages'],
-    queryFn: () => base44.entities.Message.filter({ read: false }),
+    queryKey: ['dashboardUnreadMessages'],
+    queryFn: () => base44.entities.Message.filter({ read: false }, '-created_date', 20),
     initialData: [],
+    staleTime: 30000,
   });
 
   const { data: mpessTracking } = useQuery({
-    queryKey: ['mpessTracking'],
-    queryFn: async () => {
-      const tracking = await base44.entities.MPESSTracker.list('-created_date', 100);
-      return tracking;
-    },
+    queryKey: ['dashboardMpess'],
+    queryFn: () => base44.entities.MPESSTracker.list('-created_date', 20),
     initialData: [],
+    staleTime: 60000,
   });
 
   const { data: progressLogs } = useQuery({
-    queryKey: ['progressLogs'],
-    queryFn: async () => {
-      const logs = await base44.entities.ProgressLog.list('-created_date', 50);
-      return logs;
-    },
+    queryKey: ['dashboardProgress'],
+    queryFn: () => base44.entities.ProgressLog.list('-created_date', 15),
     initialData: [],
+    staleTime: 60000,
   });
 
   // Get unique clients who have tracked MPESS
