@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -86,7 +85,10 @@ export default function Communication() {
         return allClients;
       }
       
-      return allClients.filter(client => client.created_by === user?.email);
+      // Health coaches can see clients they created OR clients assigned to them
+      return allClients.filter(client => 
+        client.created_by === user?.email || client.assigned_coach === user?.email
+      );
     },
     enabled: !!user,
     initialData: [],
