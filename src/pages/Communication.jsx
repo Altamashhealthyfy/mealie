@@ -77,28 +77,34 @@ export default function Communication() {
   });
 
   const { data: clients } = useQuery({
-    queryKey: ['clients'],
+    queryKey: ['clients', user?.email, user?.user_type],
     queryFn: async () => {
-      const allClients = await base44.entities.Client.list('-created_date');
-      
       if (user?.user_type === 'super_admin') {
-        return allClients;
+        return await base44.entities.Client.list('-created_date', 100);
       }
       
-      // Health coaches can see clients they created OR clients assigned to them
-      return allClients.filter(client => 
-        client.created_by === user?.email || client.assigned_coach === user?.email
-      );
+      // Fetch only clients created by or assigned to this coach
+      const [createdClients, assignedClients] = await Promise.all([
+        base44.entities.Client.filter({ created_by: user?.email }, '-created_date', 50),
+        base44.entities.Client.filter({ assigned_coach: user?.email }, '-created_date', 50)
+      ]);
+      
+      // Merge and deduplicate
+      const clientMap = new Map();
+      [...createdClients, ...assignedClients].forEach(c => clientMap.set(c.id, c));
+      return Array.from(clientMap.values());
     },
     enabled: !!user,
     initialData: [],
+    staleTime: 30000,
   });
 
   const { data: allMessages } = useQuery({
     queryKey: ['allMessages'],
-    queryFn: () => base44.entities.Message.list('-created_date'),
+    queryFn: () => base44.entities.Message.list('-created_date', 500),
     initialData: [],
-    refetchInterval: 5000,
+    refetchInterval: 10000,
+    staleTime: 5000,
   });
 
   const sendMessageMutation = useMutation({
