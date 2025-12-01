@@ -9,29 +9,33 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, ChefHat, Search, Heart, TrendingUp, Apple, Sparkles, User } from "lucide-react";
 
 export default function Home() {
-  const { data: user } = useQuery({
+  const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
     retry: false,
+    staleTime: 300000,
   });
 
   const { data: userProfile } = useQuery({
-    queryKey: ['userProfile'],
-    queryFn: () => base44.entities.UserProfile.filter({ created_by: user?.email }).then(res => res[0]),
-    enabled: !!user,
+    queryKey: ['homeUserProfile', user?.email],
+    queryFn: () => base44.entities.UserProfile.filter({ created_by: user?.email }, '-created_date', 1).then(res => res[0]),
+    enabled: !!user?.email,
+    staleTime: 300000,
   });
 
   const { data: activeMealPlan } = useQuery({
-    queryKey: ['activeMealPlan'],
-    queryFn: () => base44.entities.MealPlan.filter({ active: true, created_by: user?.email }).then(res => res[0]),
-    enabled: !!user,
+    queryKey: ['homeActiveMealPlan', user?.email],
+    queryFn: () => base44.entities.MealPlan.filter({ active: true, created_by: user?.email }, '-created_date', 1).then(res => res[0]),
+    enabled: !!user?.email,
+    staleTime: 300000,
   });
 
   const { data: recentTracking } = useQuery({
-    queryKey: ['recentTracking'],
-    queryFn: () => base44.entities.MPESSTracker.list('-created_date', 7),
-    enabled: !!user,
+    queryKey: ['homeRecentTracking', user?.email],
+    queryFn: () => base44.entities.MPESSTracker.filter({ created_by: user?.email }, '-created_date', 7),
+    enabled: !!user?.email,
     initialData: [],
+    staleTime: 300000,
   });
 
   const features = [
