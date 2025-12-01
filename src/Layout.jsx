@@ -391,9 +391,40 @@ export default function Layout({ children, currentPageName }) {
     enabled: !!coachSubscription?.plan_id,
   });
 
-  const filteredBusinessNav = businessNavigation.filter(item =>
-    !item.roles || item.roles.includes(userType)
-  );
+  // Filter business navigation based on user role AND coach plan permissions
+  const getFilteredBusinessNav = () => {
+    // First filter by role
+    let filtered = businessNavigation.filter(item =>
+      !item.roles || item.roles.includes(userType)
+    );
+
+    // For student_coach, also filter by plan permissions
+    if (userType === 'student_coach' && coachPlan) {
+      filtered = filtered.filter(item => {
+        // Map navigation items to plan permissions
+        const permissionMap = {
+          'Finance Manager': coachPlan.can_access_finance_manager,
+          'Marketing Hub': coachPlan.can_access_marketing_hub,
+          'Business GPTs': coachPlan.can_access_business_gpts,
+          'Template Manager': coachPlan.can_access_template_manager,
+          'Verticals Dashboard': coachPlan.can_access_verticals,
+          'Bulk Import': coachPlan.can_use_bulk_import,
+          'Team Attendance': coachPlan.can_access_team_attendance,
+          'My Team': coachPlan.can_manage_team,
+        };
+
+        // If there's a permission mapping, check it; otherwise allow
+        if (permissionMap.hasOwnProperty(item.title)) {
+          return permissionMap[item.title] === true;
+        }
+        return true;
+      });
+    }
+
+    return filtered;
+  };
+
+  const filteredBusinessNav = getFilteredBusinessNav();
 
   const getClientPermissions = () => {
     // If client has active subscription, use plan features
