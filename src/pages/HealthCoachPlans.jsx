@@ -256,11 +256,41 @@ export default function HealthCoachPlans() {
                   <p>Team Members: {plan.max_team_members === -1 ? 'Unlimited' : plan.max_team_members || 0}</p>
                   <p className="font-semibold text-purple-700">💳 AI Credits: {plan.ai_credits_included === -1 ? 'Unlimited' : plan.ai_credits_included === 0 ? 'None' : `${plan.ai_credits_included}/month`}</p>
                   <p className="text-xs text-gray-500">₹{plan.ai_credit_price || 10} per additional credit</p>
-                  <p>Payment Gateway: {plan.can_add_payment_gateway ? 'Yes' : 'No'}</p>
-                  <p>Create Plans: {plan.can_create_client_plans ? 'Yes' : 'No'}</p>
-                  <p>Pro Plans 💎: {plan.can_access_pro_plans ? 'Yes' : 'No'}</p>
-                  <p>Create Recipes 🍳: {plan.can_create_recipes ? 'Yes' : 'No'}</p>
-                  <p>Custom Domain 🌐: {plan.can_custom_domain ? 'Yes' : 'No'}</p>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 pt-2">
+                    <p className={plan.can_add_payment_gateway ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_add_payment_gateway ? '✓' : '✗'} Payment Gateway
+                    </p>
+                    <p className={plan.can_create_client_plans ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_create_client_plans ? '✓' : '✗'} Create Plans
+                    </p>
+                    <p className={plan.can_access_pro_plans ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_access_pro_plans ? '✓' : '✗'} Pro Plans 💎
+                    </p>
+                    <p className={plan.can_manage_team ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_manage_team ? '✓' : '✗'} Manage Team 👥
+                    </p>
+                    <p className={plan.can_create_recipes ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_create_recipes ? '✓' : '✗'} Create Recipes 🍳
+                    </p>
+                    <p className={plan.can_custom_domain ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_custom_domain ? '✓' : '✗'} Custom Domain 🌐
+                    </p>
+                    <p className={plan.can_access_business_tools ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_access_business_tools ? '✓' : '✗'} Business Tools 📊
+                    </p>
+                    <p className={plan.can_access_analytics ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_access_analytics ? '✓' : '✗'} Analytics 📈
+                    </p>
+                    <p className={plan.can_use_bulk_import ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_use_bulk_import ? '✓' : '✗'} Bulk Import 📥
+                    </p>
+                    <p className={plan.can_white_label ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_white_label ? '✓' : '✗'} White Label 🏷️
+                    </p>
+                    <p className={plan.can_send_whatsapp ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_send_whatsapp ? '✓' : '✗'} WhatsApp 💬
+                    </p>
+                  </div>
                 </div>
 
                 <div className="flex gap-2 pt-4">
