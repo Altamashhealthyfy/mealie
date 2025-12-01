@@ -27,6 +27,10 @@ import { createPageUrl } from "@/utils";
 
 export default function MarketingHub() {
   const { user, canAccessMarketingHub, isLoading: permissionsLoading } = useCoachPlanPermissions();
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [customPrompt, setCustomPrompt] = useState('');
+  const [generatedContent, setGeneratedContent] = useState('');
+  const [generating, setGenerating] = useState(false);
 
   // Check access for student_coach
   if (!permissionsLoading && user?.user_type === 'student_coach' && !canAccessMarketingHub) {
@@ -59,10 +63,6 @@ export default function MarketingHub() {
       </div>
     );
   }
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [customPrompt, setCustomPrompt] = useState('');
-  const [generatedContent, setGeneratedContent] = useState('');
-  const [generating, setGenerating] = useState(false);
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
