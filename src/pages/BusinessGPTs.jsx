@@ -7,9 +7,44 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Sparkles, Rocket, Loader2, ArrowRight, CheckCircle, Copy, Download, Diamond } from "lucide-react";
+import { Sparkles, Rocket, Loader2, ArrowRight, CheckCircle, Copy, Download, Diamond, Lock, Crown } from "lucide-react";
+import { useCoachPlanPermissions } from "@/components/permissions/useCoachPlanPermissions";
+import { createPageUrl } from "@/utils";
 
 export default function BusinessGPTs() {
+  const { user, canAccessBusinessGpts, isLoading: permissionsLoading } = useCoachPlanPermissions();
+
+  // Check access for student_coach
+  if (!permissionsLoading && user?.user_type === 'student_coach' && !canAccessBusinessGpts) {
+    return (
+      <div className="min-h-screen p-8 flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50">
+        <Card className="max-w-md border-none shadow-xl bg-white">
+          <CardHeader>
+            <Lock className="w-16 h-16 mx-auto text-purple-500 mb-4" />
+            <CardTitle className="text-center text-2xl">Feature Not Available</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-gray-600">
+              Business GPTs is not included in your current plan.
+            </p>
+            <Alert className="bg-purple-50 border-purple-300">
+              <Crown className="w-5 h-5 text-purple-600" />
+              <AlertDescription>
+                Upgrade your plan to access AI Launchpad GPT and build your business strategy.
+              </AlertDescription>
+            </Alert>
+            <Button 
+              onClick={() => window.location.href = createPageUrl('CoachSubscriptions')}
+              className="w-full bg-gradient-to-r from-purple-500 to-indigo-500"
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              Upgrade Plan
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   const [currentModule, setCurrentModule] = useState(0);
   const [answers, setAnswers] = useState({});
   const [generating, setGenerating] = useState(false);
