@@ -405,15 +405,25 @@ export default function CustomDomainSettings() {
               {status === 'active' && coachProfile.domain_configured_date && (
                 <>
                   <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-500">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                        <CheckCircle className="w-6 h-6 text-white" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                          <CheckCircle className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-green-900">Domain Verified ✓</h3>
+                          <p className="text-green-700">Your custom domain is active and working perfectly!</p>
+                          <p className="text-sm text-green-600 mt-1">Configured on {new Date(coachProfile.domain_configured_date).toLocaleDateString()}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-green-900">Domain Verified ✓</h3>
-                        <p className="text-green-700">Your custom domain is active and working perfectly!</p>
-                        <p className="text-sm text-green-600 mt-1">Configured on {new Date(coachProfile.domain_configured_date).toLocaleDateString()}</p>
-                      </div>
+                      <Button
+                        onClick={() => window.open(`https://${coachProfile.custom_domain}`, '_blank')}
+                        className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg"
+                        size="lg"
+                      >
+                        <ExternalLink className="w-5 h-5 mr-2" />
+                        Open Dashboard
+                      </Button>
                     </div>
                   </div>
 
