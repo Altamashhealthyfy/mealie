@@ -106,11 +106,6 @@ export default function TemplateLibraryManager() {
     is_premium: false
   });
 
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-  });
-
   const { data: coachSubscription } = useQuery({
     queryKey: ['coachSubscription', user?.email],
     queryFn: async () => {

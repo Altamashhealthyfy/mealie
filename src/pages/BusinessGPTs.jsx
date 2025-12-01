@@ -51,11 +51,6 @@ export default function BusinessGPTs() {
   const [output, setOutput] = useState(null);
   const [showDiamondSeed, setShowDiamondSeed] = useState(false);
 
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-  });
-
   // AI LAUNCHPAD GPT - Module-based flow
   const modules = [
     {

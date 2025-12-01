@@ -64,11 +64,6 @@ export default function MarketingHub() {
   const [generatedContent, setGeneratedContent] = useState('');
   const [generating, setGenerating] = useState(false);
 
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-  });
-
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     alert('✅ Copied to clipboard!');
