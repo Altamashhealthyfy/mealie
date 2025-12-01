@@ -13,6 +13,11 @@ import { createPageUrl } from "@/utils";
 
 export default function BusinessGPTs() {
   const { user, canAccessBusinessGpts, isLoading: permissionsLoading } = useCoachPlanPermissions();
+  const [currentModule, setCurrentModule] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [generating, setGenerating] = useState(false);
+  const [output, setOutput] = useState(null);
+  const [showDiamondSeed, setShowDiamondSeed] = useState(false);
 
   // Check access for student_coach
   if (!permissionsLoading && user?.user_type === 'student_coach' && !canAccessBusinessGpts) {
@@ -45,11 +50,6 @@ export default function BusinessGPTs() {
       </div>
     );
   }
-  const [currentModule, setCurrentModule] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [generating, setGenerating] = useState(false);
-  const [output, setOutput] = useState(null);
-  const [showDiamondSeed, setShowDiamondSeed] = useState(false);
 
   // AI LAUNCHPAD GPT - Module-based flow
   const modules = [
