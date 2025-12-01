@@ -430,6 +430,56 @@ export default function HealthCoachPlans() {
                     onCheckedChange={(checked) => setFormData({ ...formData, can_custom_domain: checked })}
                   />
                 </div>
+                <div className="flex items-center justify-between p-3 bg-indigo-50 rounded border border-indigo-200">
+                  <div>
+                    <Label>Can Access Business Tools 📊</Label>
+                    <p className="text-xs text-gray-600 mt-1">Marketing Hub, Business GPTs, Finance Manager</p>
+                  </div>
+                  <Switch
+                    checked={formData.can_access_business_tools}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_access_business_tools: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 bg-cyan-50 rounded border border-cyan-200">
+                  <div>
+                    <Label>Can Access Analytics 📈</Label>
+                    <p className="text-xs text-gray-600 mt-1">Advanced analytics and client reports</p>
+                  </div>
+                  <Switch
+                    checked={formData.can_access_analytics}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_access_analytics: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 bg-yellow-50 rounded border border-yellow-200">
+                  <div>
+                    <Label>Can Use Bulk Import 📥</Label>
+                    <p className="text-xs text-gray-600 mt-1">Import clients and data in bulk</p>
+                  </div>
+                  <Switch
+                    checked={formData.can_use_bulk_import}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_use_bulk_import: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 bg-pink-50 rounded border border-pink-200">
+                  <div>
+                    <Label>Can White Label 🏷️</Label>
+                    <p className="text-xs text-gray-600 mt-1">Use custom branding on the platform</p>
+                  </div>
+                  <Switch
+                    checked={formData.can_white_label}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_white_label: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 bg-teal-50 rounded border border-teal-200">
+                  <div>
+                    <Label>Can Send WhatsApp 💬</Label>
+                    <p className="text-xs text-gray-600 mt-1">Send WhatsApp messages to clients</p>
+                  </div>
+                  <Switch
+                    checked={formData.can_send_whatsapp}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_send_whatsapp: checked })}
+                  />
+                </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
                   <Label>Status Active</Label>
                   <Switch
