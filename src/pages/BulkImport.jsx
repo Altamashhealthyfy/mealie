@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -15,10 +15,47 @@ import {
   Calendar,
   GraduationCap,
   Heart,
-  Award
+  Award,
+  Lock,
+  Crown
 } from "lucide-react";
+import { useCoachPlanPermissions } from "@/components/permissions/useCoachPlanPermissions";
+import { createPageUrl } from "@/utils";
 
 export default function BulkImport() {
+  const { user, canUseBulkImport, isLoading: permissionsLoading } = useCoachPlanPermissions();
+
+  // Check access for student_coach
+  if (!permissionsLoading && user?.user_type === 'student_coach' && !canUseBulkImport) {
+    return (
+      <div className="min-h-screen p-8 flex items-center justify-center">
+        <Card className="max-w-md border-none shadow-xl bg-gradient-to-br from-yellow-50 to-amber-50">
+          <CardHeader>
+            <Lock className="w-16 h-16 mx-auto text-yellow-500 mb-4" />
+            <CardTitle className="text-center text-2xl">Feature Not Available</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-gray-600">
+              Bulk Import is not included in your current plan.
+            </p>
+            <Alert className="bg-white border-yellow-300">
+              <Crown className="w-5 h-5 text-yellow-600" />
+              <AlertDescription>
+                Upgrade your plan to bulk import clients and data.
+              </AlertDescription>
+            </Alert>
+            <Button 
+              onClick={() => window.location.href = createPageUrl('CoachSubscriptions')}
+              className="w-full bg-gradient-to-r from-yellow-500 to-amber-500"
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              Upgrade Plan
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   const queryClient = useQueryClient();
   const [file, setFile] = useState(null);
   const [importing, setImporting] = useState(false);

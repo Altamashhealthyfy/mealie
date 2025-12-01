@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Calendar as CalendarIcon,
   CheckCircle2,
@@ -12,11 +13,48 @@ import {
   Clock,
   Home,
   Users,
-  Download
+  Download,
+  Lock,
+  Crown
 } from "lucide-react";
 import { format } from "date-fns";
+import { useCoachPlanPermissions } from "@/components/permissions/useCoachPlanPermissions";
+import { createPageUrl } from "@/utils";
 
 export default function TeamAttendance() {
+  const { user, canAccessTeamAttendance, isLoading: permissionsLoading } = useCoachPlanPermissions();
+
+  // Check access for student_coach
+  if (!permissionsLoading && user?.user_type === 'student_coach' && !canAccessTeamAttendance) {
+    return (
+      <div className="min-h-screen p-8 flex items-center justify-center">
+        <Card className="max-w-md border-none shadow-xl bg-gradient-to-br from-lime-50 to-green-50">
+          <CardHeader>
+            <Lock className="w-16 h-16 mx-auto text-lime-500 mb-4" />
+            <CardTitle className="text-center text-2xl">Feature Not Available</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-gray-600">
+              Team Attendance is not included in your current plan.
+            </p>
+            <Alert className="bg-white border-lime-300">
+              <Crown className="w-5 h-5 text-lime-600" />
+              <AlertDescription>
+                Upgrade your plan to track team attendance.
+              </AlertDescription>
+            </Alert>
+            <Button 
+              onClick={() => window.location.href = createPageUrl('CoachSubscriptions')}
+              className="w-full bg-gradient-to-r from-lime-500 to-green-500"
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              Upgrade Plan
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   const queryClient = useQueryClient();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [markingAttendance, setMarkingAttendance] = useState(false);

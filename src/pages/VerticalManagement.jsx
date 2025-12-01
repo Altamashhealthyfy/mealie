@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   GraduationCap,
   Heart,
@@ -12,11 +13,48 @@ import {
   Users,
   DollarSign,
   Target,
-  Award
+  Award,
+  Lock,
+  Crown
 } from "lucide-react";
 import { format } from "date-fns";
+import { useCoachPlanPermissions } from "@/components/permissions/useCoachPlanPermissions";
+import { createPageUrl } from "@/utils";
 
 export default function VerticalManagement() {
+  const { user, canAccessVerticals, isLoading: permissionsLoading } = useCoachPlanPermissions();
+
+  // Check access for student_coach
+  if (!permissionsLoading && user?.user_type === 'student_coach' && !canAccessVerticals) {
+    return (
+      <div className="min-h-screen p-8 flex items-center justify-center">
+        <Card className="max-w-md border-none shadow-xl bg-gradient-to-br from-blue-50 to-cyan-50">
+          <CardHeader>
+            <Lock className="w-16 h-16 mx-auto text-blue-500 mb-4" />
+            <CardTitle className="text-center text-2xl">Feature Not Available</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-gray-600">
+              Verticals Dashboard is not included in your current plan.
+            </p>
+            <Alert className="bg-white border-blue-300">
+              <Crown className="w-5 h-5 text-blue-600" />
+              <AlertDescription>
+                Upgrade your plan to access business verticals management.
+              </AlertDescription>
+            </Alert>
+            <Button 
+              onClick={() => window.location.href = createPageUrl('CoachSubscriptions')}
+              className="w-full bg-gradient-to-r from-blue-500 to-cyan-500"
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              Upgrade Plan
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   const { data: leads } = useQuery({
     queryKey: ['leads'],
     queryFn: () => base44.entities.Lead.list('-created_date'),
