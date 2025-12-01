@@ -18,10 +18,47 @@ import {
   Sparkles,
   Loader2,
   CheckCircle,
-  PlusCircle
+  PlusCircle,
+  Lock,
+  Crown
 } from "lucide-react";
+import { useCoachPlanPermissions } from "@/components/permissions/useCoachPlanPermissions";
+import { createPageUrl } from "@/utils";
 
 export default function MarketingHub() {
+  const { user, canAccessMarketingHub, isLoading: permissionsLoading } = useCoachPlanPermissions();
+
+  // Check access for student_coach
+  if (!permissionsLoading && user?.user_type === 'student_coach' && !canAccessMarketingHub) {
+    return (
+      <div className="min-h-screen p-8 flex items-center justify-center">
+        <Card className="max-w-md border-none shadow-xl bg-gradient-to-br from-pink-50 to-rose-50">
+          <CardHeader>
+            <Lock className="w-16 h-16 mx-auto text-pink-500 mb-4" />
+            <CardTitle className="text-center text-2xl">Feature Not Available</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-gray-600">
+              Marketing Hub is not included in your current plan.
+            </p>
+            <Alert className="bg-white border-pink-300">
+              <Crown className="w-5 h-5 text-pink-600" />
+              <AlertDescription>
+                Upgrade your plan to access Marketing Hub with templates and AI content creator.
+              </AlertDescription>
+            </Alert>
+            <Button 
+              onClick={() => window.location.href = createPageUrl('CoachSubscriptions')}
+              className="w-full bg-gradient-to-r from-pink-500 to-rose-500"
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              Upgrade Plan
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [customPrompt, setCustomPrompt] = useState('');
   const [generatedContent, setGeneratedContent] = useState('');
