@@ -30,9 +30,13 @@ export default function HealthCoachPlans() {
     can_manage_team: false,
     can_create_recipes: false,
     can_custom_domain: false,
-    can_access_business_tools: false,
-    can_access_analytics: false,
+    can_access_finance_manager: false,
+    can_access_marketing_hub: false,
+    can_access_business_gpts: false,
+    can_access_template_manager: false,
+    can_access_verticals: false,
     can_use_bulk_import: false,
+    can_access_team_attendance: false,
     can_white_label: false,
     can_send_whatsapp: false,
     ai_credits_included: 0,
@@ -113,9 +117,13 @@ export default function HealthCoachPlans() {
       can_manage_team: false,
       can_create_recipes: false,
       can_custom_domain: false,
-      can_access_business_tools: false,
-      can_access_analytics: false,
+      can_access_finance_manager: false,
+      can_access_marketing_hub: false,
+      can_access_business_gpts: false,
+      can_access_template_manager: false,
+      can_access_verticals: false,
       can_use_bulk_import: false,
+      can_access_team_attendance: false,
       can_white_label: false,
       can_send_whatsapp: false,
       ai_credits_included: 0,
@@ -144,9 +152,13 @@ export default function HealthCoachPlans() {
       can_manage_team: plan.can_manage_team || false,
       can_create_recipes: plan.can_create_recipes || false,
       can_custom_domain: plan.can_custom_domain || false,
-      can_access_business_tools: plan.can_access_business_tools || false,
-      can_access_analytics: plan.can_access_analytics || false,
+      can_access_finance_manager: plan.can_access_finance_manager || false,
+      can_access_marketing_hub: plan.can_access_marketing_hub || false,
+      can_access_business_gpts: plan.can_access_business_gpts || false,
+      can_access_template_manager: plan.can_access_template_manager || false,
+      can_access_verticals: plan.can_access_verticals || false,
       can_use_bulk_import: plan.can_use_bulk_import || false,
+      can_access_team_attendance: plan.can_access_team_attendance || false,
       can_white_label: plan.can_white_label || false,
       can_send_whatsapp: plan.can_send_whatsapp || false,
       ai_credits_included: plan.ai_credits_included || 0,
@@ -275,14 +287,26 @@ export default function HealthCoachPlans() {
                     <p className={plan.can_custom_domain ? 'text-green-700' : 'text-gray-400'}>
                       {plan.can_custom_domain ? '✓' : '✗'} Custom Domain 🌐
                     </p>
-                    <p className={plan.can_access_business_tools ? 'text-green-700' : 'text-gray-400'}>
-                      {plan.can_access_business_tools ? '✓' : '✗'} Business Tools 📊
+                    <p className={plan.can_access_finance_manager ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_access_finance_manager ? '✓' : '✗'} Finance Manager 💰
                     </p>
-                    <p className={plan.can_access_analytics ? 'text-green-700' : 'text-gray-400'}>
-                      {plan.can_access_analytics ? '✓' : '✗'} Analytics 📈
+                    <p className={plan.can_access_marketing_hub ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_access_marketing_hub ? '✓' : '✗'} Marketing Hub 📣
+                    </p>
+                    <p className={plan.can_access_business_gpts ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_access_business_gpts ? '✓' : '✗'} Business GPTs 🤖
+                    </p>
+                    <p className={plan.can_access_template_manager ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_access_template_manager ? '✓' : '✗'} Template Manager 📁
+                    </p>
+                    <p className={plan.can_access_verticals ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_access_verticals ? '✓' : '✗'} Verticals 🎯
                     </p>
                     <p className={plan.can_use_bulk_import ? 'text-green-700' : 'text-gray-400'}>
                       {plan.can_use_bulk_import ? '✓' : '✗'} Bulk Import 📥
+                    </p>
+                    <p className={plan.can_access_team_attendance ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_access_team_attendance ? '✓' : '✗'} Team Attendance 📅
                     </p>
                     <p className={plan.can_white_label ? 'text-green-700' : 'text-gray-400'}>
                       {plan.can_white_label ? '✓' : '✗'} White Label 🏷️
@@ -478,24 +502,54 @@ export default function HealthCoachPlans() {
                     onCheckedChange={(checked) => setFormData({ ...formData, can_custom_domain: checked })}
                   />
                 </div>
-                <div className="flex items-center justify-between p-3 bg-indigo-50 rounded border border-indigo-200">
+                <div className="flex items-center justify-between p-3 bg-emerald-50 rounded border border-emerald-200">
                   <div>
-                    <Label>Can Access Business Tools 📊</Label>
-                    <p className="text-xs text-gray-600 mt-1">Marketing Hub, Business GPTs, Finance Manager</p>
+                    <Label>Can Access Finance Manager 💰</Label>
+                    <p className="text-xs text-gray-600 mt-1">Client finance tracking and reports</p>
                   </div>
                   <Switch
-                    checked={formData.can_access_business_tools}
-                    onCheckedChange={(checked) => setFormData({ ...formData, can_access_business_tools: checked })}
+                    checked={formData.can_access_finance_manager}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_access_finance_manager: checked })}
                   />
                 </div>
-                <div className="flex items-center justify-between p-3 bg-cyan-50 rounded border border-cyan-200">
+                <div className="flex items-center justify-between p-3 bg-rose-50 rounded border border-rose-200">
                   <div>
-                    <Label>Can Access Analytics 📈</Label>
-                    <p className="text-xs text-gray-600 mt-1">Advanced analytics and client reports</p>
+                    <Label>Can Access Marketing Hub 📣</Label>
+                    <p className="text-xs text-gray-600 mt-1">Marketing templates and content creator</p>
                   </div>
                   <Switch
-                    checked={formData.can_access_analytics}
-                    onCheckedChange={(checked) => setFormData({ ...formData, can_access_analytics: checked })}
+                    checked={formData.can_access_marketing_hub}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_access_marketing_hub: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 bg-violet-50 rounded border border-violet-200">
+                  <div>
+                    <Label>Can Access Business GPTs 🤖</Label>
+                    <p className="text-xs text-gray-600 mt-1">AI assistants for business tasks</p>
+                  </div>
+                  <Switch
+                    checked={formData.can_access_business_gpts}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_access_business_gpts: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 bg-amber-50 rounded border border-amber-200">
+                  <div>
+                    <Label>Can Access Template Manager 📁</Label>
+                    <p className="text-xs text-gray-600 mt-1">Manage and upload templates</p>
+                  </div>
+                  <Switch
+                    checked={formData.can_access_template_manager}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_access_template_manager: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 bg-sky-50 rounded border border-sky-200">
+                  <div>
+                    <Label>Can Access Verticals Dashboard 🎯</Label>
+                    <p className="text-xs text-gray-600 mt-1">Business verticals management</p>
+                  </div>
+                  <Switch
+                    checked={formData.can_access_verticals}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_access_verticals: checked })}
                   />
                 </div>
                 <div className="flex items-center justify-between p-3 bg-yellow-50 rounded border border-yellow-200">
@@ -506,6 +560,16 @@ export default function HealthCoachPlans() {
                   <Switch
                     checked={formData.can_use_bulk_import}
                     onCheckedChange={(checked) => setFormData({ ...formData, can_use_bulk_import: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 bg-lime-50 rounded border border-lime-200">
+                  <div>
+                    <Label>Can Access Team Attendance 📅</Label>
+                    <p className="text-xs text-gray-600 mt-1">Track team attendance records</p>
+                  </div>
+                  <Switch
+                    checked={formData.can_access_team_attendance}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_access_team_attendance: checked })}
                   />
                 </div>
                 <div className="flex items-center justify-between p-3 bg-pink-50 rounded border border-pink-200">
