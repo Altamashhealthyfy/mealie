@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, ChefHat, Search, Heart, TrendingUp, Apple, Sparkles, User } from "lucide-react";
+import { Calendar, ChefHat, Search, Heart, TrendingUp, Apple, Sparkles, User, Loader2 } from "lucide-react";
 
 export default function Home() {
   const { data: user, isLoading: userLoading } = useQuery({
