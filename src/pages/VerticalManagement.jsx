@@ -82,31 +82,6 @@ export default function VerticalManagement() {
 
   // Health Coach Training Stats
   const coachLeads = leads.filter(l => l.business_vertical === 'health_coach_training');
-    queryKey: ['leads'],
-    queryFn: () => base44.entities.Lead.list('-created_date'),
-    initialData: [],
-  });
-
-  const { data: showcases } = useQuery({
-    queryKey: ['showcases'],
-    queryFn: () => base44.entities.Showcase.list('-showcase_date'),
-    initialData: [],
-  });
-
-  const { data: challenges } = useQuery({
-    queryKey: ['challenges'],
-    queryFn: () => base44.entities.Challenge.list('-start_date'),
-    initialData: [],
-  });
-
-  const { data: clients } = useQuery({
-    queryKey: ['clients'],
-    queryFn: () => base44.entities.Client.list('-created_date'),
-    initialData: [],
-  });
-
-  // Health Coach Training Stats
-  const coachLeads = leads.filter(l => l.business_vertical === 'health_coach_training');
   const silverBuyers = coachLeads.filter(l => l.pipeline_stage === 'silver_buyer').length;
   const diplomaBuyers = coachLeads.filter(l => l.pipeline_stage === 'diploma_buyer').length;
   const diamondBuyers = coachLeads.filter(l => l.pipeline_stage === 'diamond_buyer').length;
