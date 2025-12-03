@@ -24,6 +24,10 @@ import { createPageUrl } from "@/utils";
 
 export default function BulkImport() {
   const { user, canUseBulkImport, isLoading: permissionsLoading } = useCoachPlanPermissions();
+  const queryClient = useQueryClient();
+  const [file, setFile] = useState(null);
+  const [importing, setImporting] = useState(false);
+  const [result, setResult] = useState(null);
 
   // Check access for student_coach
   if (!permissionsLoading && user?.user_type === 'student_coach' && !canUseBulkImport) {
@@ -56,10 +60,6 @@ export default function BulkImport() {
       </div>
     );
   }
-  const queryClient = useQueryClient();
-  const [file, setFile] = useState(null);
-  const [importing, setImporting] = useState(false);
-  const [result, setResult] = useState(null);
 
   const handleImport = async (type, vertical) => {
     if (!file) return;

@@ -23,6 +23,9 @@ import { createPageUrl } from "@/utils";
 
 export default function TeamAttendance() {
   const { user, canAccessTeamAttendance, isLoading: permissionsLoading } = useCoachPlanPermissions();
+  const queryClient = useQueryClient();
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [markingAttendance, setMarkingAttendance] = useState(false);
 
   // Check access for student_coach
   if (!permissionsLoading && user?.user_type === 'student_coach' && !canAccessTeamAttendance) {
@@ -55,9 +58,6 @@ export default function TeamAttendance() {
       </div>
     );
   }
-  const queryClient = useQueryClient();
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [markingAttendance, setMarkingAttendance] = useState(false);
 
   const dateStr = format(selectedDate, 'yyyy-MM-dd');
 

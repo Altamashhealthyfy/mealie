@@ -36,40 +36,8 @@ import { createPageUrl } from "@/utils";
 
 export default function ClientFinanceManager() {
   const { user, canAccessFinanceManager, isLoading: permissionsLoading } = useCoachPlanPermissions();
-
-  // Check access for student_coach
-  if (!permissionsLoading && user?.user_type === 'student_coach' && !canAccessFinanceManager) {
-    return (
-      <div className="min-h-screen p-8 flex items-center justify-center">
-        <Card className="max-w-md border-none shadow-xl bg-gradient-to-br from-orange-50 to-amber-50">
-          <CardHeader>
-            <Lock className="w-16 h-16 mx-auto text-orange-500 mb-4" />
-            <CardTitle className="text-center text-2xl">Feature Not Available</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <p className="text-gray-600">
-              Finance Manager is not included in your current plan.
-            </p>
-            <Alert className="bg-white border-orange-300">
-              <Crown className="w-5 h-5 text-orange-600" />
-              <AlertDescription>
-                Upgrade your plan to access Finance Manager and track client finances.
-              </AlertDescription>
-            </Alert>
-            <Button 
-              onClick={() => window.location.href = createPageUrl('CoachSubscriptions')}
-              className="w-full bg-gradient-to-r from-orange-500 to-red-500"
-            >
-              <Crown className="w-4 h-4 mr-2" />
-              Upgrade Plan
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState("quick-add"); // Changed default
+  const [activeTab, setActiveTab] = useState("quick-add");
   const [showAddForm, setShowAddForm] = useState(false);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showCCPaymentForm, setShowCCPaymentForm] = useState(false);
@@ -120,6 +88,38 @@ export default function ClientFinanceManager() {
   const [programmeFilter, setProgrammeFilter] = useState('all');
   const [leadSourceFilter, setLeadSourceFilter] = useState('all');
   const [customerTypeFilter, setCustomerTypeFilter] = useState('all');
+
+  // Check access for student_coach
+  if (!permissionsLoading && user?.user_type === 'student_coach' && !canAccessFinanceManager) {
+    return (
+      <div className="min-h-screen p-8 flex items-center justify-center">
+        <Card className="max-w-md border-none shadow-xl bg-gradient-to-br from-orange-50 to-amber-50">
+          <CardHeader>
+            <Lock className="w-16 h-16 mx-auto text-orange-500 mb-4" />
+            <CardTitle className="text-center text-2xl">Feature Not Available</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-gray-600">
+              Finance Manager is not included in your current plan.
+            </p>
+            <Alert className="bg-white border-orange-300">
+              <Crown className="w-5 h-5 text-orange-600" />
+              <AlertDescription>
+                Upgrade your plan to access Finance Manager and track client finances.
+              </AlertDescription>
+            </Alert>
+            <Button 
+              onClick={() => window.location.href = createPageUrl('CoachSubscriptions')}
+              className="w-full bg-gradient-to-r from-orange-500 to-red-500"
+            >
+              <Crown className="w-4 h-4 mr-2" />
+              Upgrade Plan
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const { data: transactions } = useQuery({
     queryKey: ['clientTransactions'],

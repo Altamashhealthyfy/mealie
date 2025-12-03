@@ -24,6 +24,30 @@ import { createPageUrl } from "@/utils";
 export default function VerticalManagement() {
   const { user, canAccessVerticals, isLoading: permissionsLoading } = useCoachPlanPermissions();
 
+  const { data: leads } = useQuery({
+    queryKey: ['leads'],
+    queryFn: () => base44.entities.Lead.list('-created_date'),
+    initialData: [],
+  });
+
+  const { data: showcases } = useQuery({
+    queryKey: ['showcases'],
+    queryFn: () => base44.entities.Showcase.list('-showcase_date'),
+    initialData: [],
+  });
+
+  const { data: challenges } = useQuery({
+    queryKey: ['challenges'],
+    queryFn: () => base44.entities.Challenge.list('-start_date'),
+    initialData: [],
+  });
+
+  const { data: clients } = useQuery({
+    queryKey: ['clients'],
+    queryFn: () => base44.entities.Client.list('-created_date'),
+    initialData: [],
+  });
+
   // Check access for student_coach
   if (!permissionsLoading && user?.user_type === 'student_coach' && !canAccessVerticals) {
     return (
@@ -55,7 +79,9 @@ export default function VerticalManagement() {
       </div>
     );
   }
-  const { data: leads } = useQuery({
+
+  // Health Coach Training Stats
+  const coachLeads = leads.filter(l => l.business_vertical === 'health_coach_training');
     queryKey: ['leads'],
     queryFn: () => base44.entities.Lead.list('-created_date'),
     initialData: [],
