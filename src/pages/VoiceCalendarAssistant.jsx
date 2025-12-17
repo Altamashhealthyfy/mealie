@@ -11,6 +11,9 @@ import { format } from "date-fns";
 export default function VoiceCalendarAssistant() {
   const queryClient = useQueryClient();
   const [audioFile, setAudioFile] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [audioChunks, setAudioChunks] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [parsedIntent, setParsedIntent] = useState(null);
   const [transcription, setTranscription] = useState('');
@@ -30,6 +33,40 @@ export default function VoiceCalendarAssistant() {
     },
     initialData: [],
   });
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks = [];
+
+      recorder.ondataavailable = (e) => {
+        chunks.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        const file = new File([blob], 'recording.webm', { type: 'audio/webm' });
+        setAudioFile(file);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setAudioChunks(chunks);
+      setIsRecording(true);
+    } catch (error) {
+      alert('Microphone access denied. Please allow microphone access or upload an audio file.');
+      console.error('Mic error:', error);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      setIsRecording(false);
+    }
+  };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -180,6 +217,24 @@ export default function VoiceCalendarAssistant() {
           </CardHeader>
           <CardContent className="p-6 space-y-6">
             <div className="space-y-4">
+              {/* Microphone Recording */}
+              <div className="border-2 border-purple-300 rounded-lg p-8 text-center bg-purple-50">
+                <Mic className={`w-16 h-16 mx-auto mb-4 ${isRecording ? 'text-red-500 animate-pulse' : 'text-purple-500'}`} />
+                <h3 className="font-semibold mb-4">
+                  {isRecording ? '🔴 Recording...' : '🎤 Record Voice Command'}
+                </h3>
+                <Button
+                  onClick={isRecording ? stopRecording : startRecording}
+                  disabled={isProcessing}
+                  className={`${isRecording ? 'bg-red-600 hover:bg-red-700' : 'bg-purple-600 hover:bg-purple-700'}`}
+                >
+                  {isRecording ? 'Stop Recording' : 'Start Recording'}
+                </Button>
+              </div>
+
+              <div className="text-center text-gray-500 font-semibold">OR</div>
+
+              {/* File Upload */}
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
                 <Upload className="w-12 h-12 mx-auto mb-4 text-gray-400" />
                 <Input
