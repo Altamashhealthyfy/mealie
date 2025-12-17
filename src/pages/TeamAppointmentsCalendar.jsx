@@ -31,6 +31,38 @@ export default function TeamAppointmentsCalendar() {
     initialData: [],
   });
 
+  const { data: googleCalendarEvents = [] } = useQuery({
+    queryKey: ['googleCalendarEvents'],
+    queryFn: async () => {
+      if (!user?.gcal_connected) return [];
+      try {
+        const { data: result } = await base44.functions.invoke('listCalendarEvents', {
+          query_range: 'next_7_days',
+          timezone: 'Asia/Kolkata'
+        });
+        return result.events.map(event => ({
+          id: `gcal_${event.id}`,
+          title: event.summary,
+          date: event.start.dateTime ? event.start.dateTime.split('T')[0] : event.start.date,
+          time: event.start.dateTime ? new Date(event.start.dateTime).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }) : '00:00',
+          duration: event.start.dateTime && event.end.dateTime ? 
+            Math.round((new Date(event.end.dateTime) - new Date(event.start.dateTime)) / 60000) : 60,
+          status: 'scheduled',
+          client_name: event.summary,
+          notes: event.description || '',
+          source: 'google_calendar',
+          gcal_event_id: event.id
+        }));
+      } catch (error) {
+        console.error('Failed to fetch Google Calendar events:', error);
+        return [];
+      }
+    },
+    enabled: !!user?.gcal_connected,
+  });
+
+  const allAppointments = [...appointments, ...googleCalendarEvents];
+
   const { data: teamMembers } = useQuery({
     queryKey: ['teamMembers'],
     queryFn: async () => {
@@ -128,7 +160,7 @@ export default function TeamAppointmentsCalendar() {
   };
 
   const getFilteredAppointments = (filterType) => {
-    let filtered = appointments;
+    let filtered = allAppointments;
 
     // Filter by date
     if (filterType === 'today') {
@@ -189,6 +221,7 @@ export default function TeamAppointmentsCalendar() {
               <div className="flex flex-wrap gap-2 mb-2">
                 <Badge className={statusColors[appointment.status]}>{appointment.status}</Badge>
                 {appointment.source === 'voice' && <Badge variant="outline">🎤 Voice</Badge>}
+                {appointment.source === 'google_calendar' && <Badge variant="outline" className="bg-blue-100 text-blue-800">📅 Google Cal</Badge>}
               </div>
             </div>
           </div>
