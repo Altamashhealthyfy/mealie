@@ -60,6 +60,8 @@ import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
 import CustomDomainSettings from './pages/CustomDomainSettings';
 import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
 import PurchaseAICredits from './pages/PurchaseAICredits';
+import TeamAppointmentsCalendar from './pages/TeamAppointmentsCalendar';
+import AddTeamAppointment from './pages/AddTeamAppointment';
 import __Layout from './Layout.jsx';
 
 
@@ -126,6 +128,8 @@ export const PAGES = {
     "CustomDomainSettings": CustomDomainSettings,
     "ClientAnalyticsDashboard": ClientAnalyticsDashboard,
     "PurchaseAICredits": PurchaseAICredits,
+    "TeamAppointmentsCalendar": TeamAppointmentsCalendar,
+    "AddTeamAppointment": AddTeamAppointment,
 }
 
 export const pagesConfig = {
