@@ -37,24 +37,28 @@ export default function TeamAppointmentsCalendar() {
       if (!user?.gcal_connected) return [];
       try {
         const { data: result } = await base44.functions.invoke('listCalendarEvents', {
-          query_range: 'next_7_days',
           timezone: 'Asia/Kolkata'
         });
+        
+        if (!result.events) return [];
+        
         return result.events.map(event => ({
           id: `gcal_${event.id}`,
-          title: event.summary,
+          title: event.summary || 'Untitled Event',
           date: event.start.dateTime ? event.start.dateTime.split('T')[0] : event.start.date,
           time: event.start.dateTime ? new Date(event.start.dateTime).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }) : '00:00',
           duration: event.start.dateTime && event.end.dateTime ? 
             Math.round((new Date(event.end.dateTime) - new Date(event.start.dateTime)) / 60000) : 60,
           status: 'scheduled',
-          client_name: event.summary,
+          client_name: event.summary || 'Untitled Event',
           notes: event.description || '',
           source: 'google_calendar',
-          gcal_event_id: event.id
+          gcal_event_id: event.id,
+          assigned_to: user?.email
         }));
       } catch (error) {
         console.error('Failed to fetch Google Calendar events:', error);
+        alert('Google Calendar sync failed: ' + error.message);
         return [];
       }
     },
