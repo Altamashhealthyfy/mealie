@@ -62,6 +62,8 @@ import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
 import PurchaseAICredits from './pages/PurchaseAICredits';
 import TeamAppointmentsCalendar from './pages/TeamAppointmentsCalendar';
 import AddTeamAppointment from './pages/AddTeamAppointment';
+import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
+import GoogleCalendarSettings from './pages/GoogleCalendarSettings';
 import __Layout from './Layout.jsx';
 
 
@@ -130,6 +132,8 @@ export const PAGES = {
     "PurchaseAICredits": PurchaseAICredits,
     "TeamAppointmentsCalendar": TeamAppointmentsCalendar,
     "AddTeamAppointment": AddTeamAppointment,
+    "VoiceCalendarAssistant": VoiceCalendarAssistant,
+    "GoogleCalendarSettings": GoogleCalendarSettings,
 }
 
 export const pagesConfig = {
