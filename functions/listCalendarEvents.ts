@@ -9,21 +9,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body = await req.json();
-    const { date, date_range, timezone = 'Asia/Kolkata' } = body;
+    const { date, date_range, timezone = 'Asia/Kolkata' } = await req.json();
 
     // Get Google Calendar access token
-    let accessToken;
-    try {
-      accessToken = await base44.asServiceRole.connectors.getAccessToken('googlecalendar');
-    } catch (tokenError) {
-      console.error('Token error:', tokenError);
-      return Response.json({ 
-        error: 'Failed to get Google Calendar token', 
-        details: tokenError.message,
-        hint: 'Make sure Google Calendar is authorized in app settings'
-      }, { status: 403 });
-    }
+    const accessToken = await base44.asServiceRole.connectors.getAccessToken('googlecalendar');
 
     // Determine time range
     let timeMin, timeMax;
@@ -69,13 +58,7 @@ Deno.serve(async (req) => {
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('Google Calendar API error:', error);
-      return Response.json({ 
-        error: 'Failed to fetch calendar events', 
-        details: error,
-        calendarId,
-        hint: 'Check if calendar ID is correct and OAuth scopes are sufficient'
-      }, { status: response.status });
+      return Response.json({ error: 'Failed to fetch calendar events', details: error }, { status: response.status });
     }
 
     const data = await response.json();
