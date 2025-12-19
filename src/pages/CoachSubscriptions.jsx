@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Crown, Lock, Loader2, CreditCard } from "lucide-react";
+import { Check, Crown, Lock, Loader2, CreditCard, CheckCircle } from "lucide-react";
 
 export default function CoachSubscriptions() {
   const queryClient = useQueryClient();
@@ -272,11 +272,22 @@ export default function CoachSubscriptions() {
 
                 <Button
                   onClick={() => setSelectedPlan(plan)}
-                  disabled={mySubscription?.plan_id === plan.id && mySubscription?.status === 'active'}
-                  className="w-full bg-gradient-to-r from-purple-500 to-indigo-600"
+                  disabled={
+                    isProcessingPayment ||
+                    (mySubscription?.plan_id === plan.id && mySubscription?.status === 'active')
+                  }
+                  className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {mySubscription?.plan_id === plan.id && mySubscription?.status === 'active' ? 'Current Plan' :
-                    mySubscription && mySubscription.status === 'active' ? 'Upgrade/Downgrade' : 'Subscribe'}
+                  {mySubscription?.plan_id === plan.id && mySubscription?.status === 'active' ? (
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Current Plan
+                    </>
+                  ) : mySubscription && mySubscription.status === 'active' ? (
+                    'Change Plan'
+                  ) : (
+                    'Subscribe'
+                  )}
                 </Button>
               </CardContent>
             </Card>
