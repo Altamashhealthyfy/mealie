@@ -5,20 +5,42 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, Calendar, Lock, Shield } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CheckCircle, Calendar, Lock, Shield, Clock, MapPin, Loader2 } from "lucide-react";
+import { format } from "date-fns";
 
 export default function GoogleCalendarSettings() {
   const queryClient = useQueryClient();
+  const [isLoadingEvents, setIsLoadingEvents] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
 
+  const { data: calendarEvents = [], isLoading: eventsLoading } = useQuery({
+    queryKey: ['myCalendarEvents', user?.gcal_connected],
+    queryFn: async () => {
+      if (!user?.gcal_connected) return [];
+      try {
+        const { data } = await base44.functions.invoke('listCalendarEvents', {
+          timezone: 'Asia/Kolkata'
+        });
+        return data.events || [];
+      } catch (error) {
+        console.error('Failed to fetch calendar events:', error);
+        return [];
+      }
+    },
+    enabled: !!user?.gcal_connected,
+    refetchInterval: 60000, // Refresh every minute
+  });
+
   const updateUserMutation = useMutation({
     mutationFn: (data) => base44.auth.updateMe(data),
     onSuccess: () => {
       queryClient.invalidateQueries(['currentUser']);
+      queryClient.invalidateQueries(['myCalendarEvents']);
     },
   });
 
@@ -40,8 +62,14 @@ export default function GoogleCalendarSettings() {
     alert('Google Calendar disconnected');
   };
 
+  const refreshEvents = async () => {
+    setIsLoadingEvents(true);
+    await queryClient.invalidateQueries(['myCalendarEvents']);
+    setIsLoadingEvents(false);
+  };
+
   // Check if user has admin role
-  const isAdmin = user?.appointment_role === 'admin' || user?.user_type === 'super_admin';
+  const isAdmin = user?.user_type === 'super_admin' || user?.user_type === 'team_member' || user?.user_type === 'student_coach';
 
   if (!isAdmin) {
     return (
@@ -63,11 +91,19 @@ export default function GoogleCalendarSettings() {
 
   return (
     <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Google Calendar Settings</h1>
-          <p className="text-gray-600">Connect your Google Calendar to sync team appointments</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Google Calendar Management</h1>
+          <p className="text-gray-600">Connect and manage your Google Calendar integration</p>
         </div>
+
+        <Tabs defaultValue="connection" className="space-y-6">
+          <TabsList className="grid grid-cols-2 w-96">
+            <TabsTrigger value="connection">Connection</TabsTrigger>
+            <TabsTrigger value="calendar">My Calendar</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="connection"  className="space-y-6">{/* Keep existing connection card */}
 
         <Card className="border-none shadow-xl">
           <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
@@ -152,6 +188,139 @@ export default function GoogleCalendarSettings() {
             <p>✅ Team members can create appointments that sync to your calendar</p>
           </CardContent>
         </Card>
+          </TabsContent>
+
+          <TabsContent value="calendar" className="space-y-6">
+            {!user?.gcal_connected ? (
+              <Card className="border-none shadow-xl">
+                <CardContent className="p-12 text-center">
+                  <Calendar className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">Calendar Not Connected</h3>
+                  <p className="text-gray-600 mb-4">
+                    Connect your Google Calendar to view and manage events here
+                  </p>
+                  <Button
+                    onClick={markAsConnected}
+                    className="bg-gradient-to-r from-blue-500 to-cyan-500"
+                  >
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Connect Now
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Upcoming Events</h2>
+                    <p className="text-gray-600">Next 7 days from your Google Calendar</p>
+                  </div>
+                  <Button
+                    onClick={refreshEvents}
+                    variant="outline"
+                    disabled={isLoadingEvents || eventsLoading}
+                  >
+                    {isLoadingEvents || eventsLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Refreshing...
+                      </>
+                    ) : (
+                      <>
+                        <Calendar className="w-4 h-4 mr-2" />
+                        Refresh
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {eventsLoading ? (
+                  <Card className="border-none shadow-lg">
+                    <CardContent className="p-12 text-center">
+                      <Loader2 className="w-12 h-12 mx-auto animate-spin text-blue-500 mb-4" />
+                      <p className="text-gray-600">Loading your calendar events...</p>
+                    </CardContent>
+                  </Card>
+                ) : calendarEvents.length === 0 ? (
+                  <Card className="border-none shadow-lg">
+                    <CardContent className="p-12 text-center">
+                      <Calendar className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                      <h3 className="text-xl font-semibold mb-2">No Upcoming Events</h3>
+                      <p className="text-gray-600">
+                        You don't have any events scheduled in the next 7 days
+                      </p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid gap-4">
+                    {calendarEvents.map((event, idx) => (
+                      <Card key={idx} className="border-none shadow-lg hover:shadow-xl transition-shadow">
+                        <CardContent className="p-6">
+                          <div className="flex items-start gap-4">
+                            <div className="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg p-3 text-white text-center min-w-[60px]">
+                              <div className="text-2xl font-bold">
+                                {event.start.dateTime 
+                                  ? format(new Date(event.start.dateTime), 'd')
+                                  : format(new Date(event.start.date), 'd')}
+                              </div>
+                              <div className="text-xs uppercase">
+                                {event.start.dateTime 
+                                  ? format(new Date(event.start.dateTime), 'MMM')
+                                  : format(new Date(event.start.date), 'MMM')}
+                              </div>
+                            </div>
+
+                            <div className="flex-1">
+                              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                {event.summary || 'Untitled Event'}
+                              </h3>
+                              
+                              <div className="space-y-1 text-sm text-gray-600">
+                                {event.start.dateTime && (
+                                  <div className="flex items-center gap-2">
+                                    <Clock className="w-4 h-4" />
+                                    <span>
+                                      {format(new Date(event.start.dateTime), 'h:mm a')} - {' '}
+                                      {event.end.dateTime && format(new Date(event.end.dateTime), 'h:mm a')}
+                                    </span>
+                                  </div>
+                                )}
+                                
+                                {event.location && (
+                                  <div className="flex items-center gap-2">
+                                    <MapPin className="w-4 h-4" />
+                                    <span>{event.location}</span>
+                                  </div>
+                                )}
+                                
+                                {event.description && (
+                                  <p className="mt-2 text-gray-700">{event.description}</p>
+                                )}
+                              </div>
+
+                              {event.attendees && event.attendees.length > 0 && (
+                                <div className="mt-3">
+                                  <p className="text-xs text-gray-500 mb-1">Attendees:</p>
+                                  <div className="flex flex-wrap gap-1">
+                                    {event.attendees.map((attendee, i) => (
+                                      <Badge key={i} variant="outline" className="text-xs">
+                                        {attendee.email}
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
