@@ -713,21 +713,28 @@ QUICK SETUP (5 MINUTES):
               </CardHeader>
               <CardContent className="p-6">
                 {(() => {
-                  const monthTransactions = transactions.filter(t => 
-                    t.transaction_date && t.transaction_date.startsWith(selectedMonth)
-                  );
-                  const monthExpenses = expenses.filter(e => 
-                    e.expense_date && e.expense_date.startsWith(selectedMonth)
-                  );
+                  // Filter transactions for selected month
+                  const monthTransactions = transactions.filter(t => {
+                    if (!t.transaction_date) return false;
+                    const transactionMonth = t.transaction_date.substring(0, 7); // Get yyyy-MM
+                    return transactionMonth === selectedMonth;
+                  });
+                  
+                  const monthExpenses = expenses.filter(e => {
+                    if (!e.expense_date) return false;
+                    const expenseMonth = e.expense_date.substring(0, 7); // Get yyyy-MM
+                    return expenseMonth === selectedMonth;
+                  });
 
-                  const monthRevenue = monthTransactions.reduce((sum, t) => sum + t.amount_received, 0);
-                  const monthHfsRevenue = monthTransactions.filter(t => t.vertical === 'HFS').reduce((sum, t) => sum + t.amount_received, 0);
-                  const monthHfiRevenue = monthTransactions.filter(t => t.vertical === 'HFI').reduce((sum, t) => sum + t.amount_received, 0);
+                  // Calculate revenues with proper number handling
+                  const monthRevenue = monthTransactions.reduce((sum, t) => sum + (parseFloat(t.amount_received) || 0), 0);
+                  const monthHfsRevenue = monthTransactions.filter(t => t.vertical === 'HFS').reduce((sum, t) => sum + (parseFloat(t.amount_received) || 0), 0);
+                  const monthHfiRevenue = monthTransactions.filter(t => t.vertical === 'HFI').reduce((sum, t) => sum + (parseFloat(t.amount_received) || 0), 0);
 
-                  const monthTotalExpenses = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
-                  const monthHfsExpenses = monthExpenses.filter(e => e.vertical === 'HFS').reduce((sum, e) => sum + e.amount, 0);
-                  const monthHfiExpenses = monthExpenses.filter(e => e.vertical === 'HFI').reduce((sum, e) => sum + e.amount, 0);
-                  const monthCommonExpenses = monthExpenses.filter(e => e.vertical === 'Common').reduce((sum, e) => sum + e.amount, 0);
+                  const monthTotalExpenses = monthExpenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+                  const monthHfsExpenses = monthExpenses.filter(e => e.vertical === 'HFS').reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+                  const monthHfiExpenses = monthExpenses.filter(e => e.vertical === 'HFI').reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+                  const monthCommonExpenses = monthExpenses.filter(e => e.vertical === 'Common').reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
 
                   const monthNetProfit = monthRevenue - monthTotalExpenses;
 
