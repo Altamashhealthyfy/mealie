@@ -270,25 +270,20 @@ export default function CoachSubscriptions() {
                   {plan.can_create_client_plans && <p>📋 Create Client Plans</p>}
                 </div>
 
-                <Button
-                  onClick={() => setSelectedPlan(plan)}
-                  disabled={
-                    isProcessingPayment ||
-                    (mySubscription?.plan_id === plan.id && mySubscription?.status === 'active')
-                  }
-                  className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {mySubscription?.plan_id === plan.id && mySubscription?.status === 'active' ? (
-                    <>
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Current Plan
-                    </>
-                  ) : mySubscription && mySubscription.status === 'active' ? (
-                    'Change Plan'
-                  ) : (
-                    'Subscribe'
-                  )}
-                </Button>
+                {mySubscription?.plan_id === plan.id && mySubscription?.status === 'active' ? (
+                  <div className="w-full py-3 bg-green-100 text-green-800 rounded-lg flex items-center justify-center gap-2 font-semibold">
+                    <CheckCircle className="w-5 h-5" />
+                    Current Active Plan
+                  </div>
+                ) : (
+                  <Button
+                    onClick={() => setSelectedPlan(plan)}
+                    disabled={isProcessingPayment}
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-600"
+                  >
+                    {mySubscription && mySubscription.status === 'active' ? 'Change Plan' : 'Subscribe'}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ))}
