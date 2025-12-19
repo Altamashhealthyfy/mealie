@@ -37,7 +37,7 @@ import { createPageUrl } from "@/utils";
 export default function ClientFinanceManager() {
   const { user, canAccessFinanceManager, isLoading: permissionsLoading } = useCoachPlanPermissions();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState("quick-add");
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [showAddForm, setShowAddForm] = useState(false);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showCCPaymentForm, setShowCCPaymentForm] = useState(false);
@@ -52,6 +52,8 @@ export default function ClientFinanceManager() {
     payment_type: 'Full Payment',
     university_fee: 0,
   });
+
+  const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'));
 
   // Expense form
   const [expenseData, setExpenseData] = useState({
@@ -572,8 +574,8 @@ QUICK SETUP (5 MINUTES):
             <p className="text-gray-600">Income, Expenses & Credit Card Tracking</p>
           </div>
           <div className="flex gap-2">
-            <Badge className="bg-blue-600 text-white text-lg px-4 py-2">HFS: ₹{(hfsRevenue / 1000).toFixed(0)}K</Badge>
-            <Badge className="bg-green-600 text-white text-lg px-4 py-2">HFI: ₹{(hfiRevenue / 1000).toFixed(0)}K</Badge>
+            <Badge className="bg-blue-600 text-white text-lg px-4 py-2">HFS (Healthyfy Solutions): ₹{(hfsRevenue / 1000).toFixed(0)}K</Badge>
+            <Badge className="bg-green-600 text-white text-lg px-4 py-2">HFI (Healthyfy Institute): ₹{(hfiRevenue / 1000).toFixed(0)}K</Badge>
           </div>
         </div>
 
@@ -651,14 +653,14 @@ QUICK SETUP (5 MINUTES):
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-                <h3 className="font-bold text-blue-900 mb-2">HFS (Health For Success)</h3>
+                <h3 className="font-bold text-blue-900 mb-2">HFS (Healthyfy Solutions)</h3>
                 <p className="text-sm text-gray-700">Revenue: ₹{(hfsRevenue / 1000).toFixed(0)}K</p>
                 <p className="text-sm text-gray-700">Expenses: ₹{(hfsExpenses / 1000).toFixed(0)}K</p>
                 <p className="text-sm font-bold text-blue-900 mt-2">Profit: ₹{((hfsRevenue - hfsExpenses - (commonExpenses / 2)) / 1000).toFixed(0)}K</p>
               </div>
 
               <div className="p-4 bg-green-50 rounded-lg border-2 border-green-200">
-                <h3 className="font-bold text-green-900 mb-2">HFI (Health For India)</h3>
+                <h3 className="font-bold text-green-900 mb-2">HFI (Healthyfy Institute)</h3>
                 <p className="text-sm text-gray-700">Revenue: ₹{(hfiRevenue / 1000).toFixed(0)}K</p>
                 <p className="text-sm text-gray-700">Expenses: ₹{(hfiExpenses / 1000).toFixed(0)}K</p>
                 <p className="text-sm font-bold text-green-900 mt-2">Profit: ₹{((hfiRevenue - hfiExpenses - (commonExpenses / 2)) / 1000).toFixed(0)}K</p>
@@ -675,7 +677,11 @@ QUICK SETUP (5 MINUTES):
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4">
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-5">
+            <TabsTrigger value="dashboard" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white">
+              <Calendar className="w-4 h-4 mr-2" />
+              Dashboard
+            </TabsTrigger>
             <TabsTrigger value="quick-add" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white">
               <Plus className="w-4 h-4 mr-2" />
               Quick Add
@@ -684,6 +690,257 @@ QUICK SETUP (5 MINUTES):
             <TabsTrigger value="expenses">Expenses</TabsTrigger>
             <TabsTrigger value="credit-cards">Credit Cards</TabsTrigger>
           </TabsList>
+
+          {/* DASHBOARD TAB */}
+          <TabsContent value="dashboard">
+            <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
+              <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-2xl flex items-center gap-2">
+                    <Calendar className="w-6 h-6" />
+                    Month-Wise Finance Dashboard
+                  </CardTitle>
+                  <div className="flex items-center gap-3">
+                    <Label className="text-white font-semibold">Select Month:</Label>
+                    <Input
+                      type="month"
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(e.target.value)}
+                      className="w-48 bg-white text-gray-900"
+                    />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                {(() => {
+                  const monthTransactions = transactions.filter(t => 
+                    t.transaction_date && t.transaction_date.startsWith(selectedMonth)
+                  );
+                  const monthExpenses = expenses.filter(e => 
+                    e.expense_date && e.expense_date.startsWith(selectedMonth)
+                  );
+
+                  const monthRevenue = monthTransactions.reduce((sum, t) => sum + t.amount_received, 0);
+                  const monthHfsRevenue = monthTransactions.filter(t => t.vertical === 'HFS').reduce((sum, t) => sum + t.amount_received, 0);
+                  const monthHfiRevenue = monthTransactions.filter(t => t.vertical === 'HFI').reduce((sum, t) => sum + t.amount_received, 0);
+
+                  const monthTotalExpenses = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
+                  const monthHfsExpenses = monthExpenses.filter(e => e.vertical === 'HFS').reduce((sum, e) => sum + e.amount, 0);
+                  const monthHfiExpenses = monthExpenses.filter(e => e.vertical === 'HFI').reduce((sum, e) => sum + e.amount, 0);
+                  const monthCommonExpenses = monthExpenses.filter(e => e.vertical === 'Common').reduce((sum, e) => sum + e.amount, 0);
+
+                  const monthNetProfit = monthRevenue - monthTotalExpenses;
+
+                  return (
+                    <div className="space-y-6">
+                      <Alert className="bg-blue-50 border-blue-500">
+                        <CheckCircle className="w-4 h-4 text-blue-600" />
+                        <AlertDescription>
+                          <strong>Viewing data for:</strong> {new Date(selectedMonth + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                        </AlertDescription>
+                      </Alert>
+
+                      {/* Month Stats */}
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
+                          <CardContent className="p-4">
+                            <p className="text-xs text-gray-600 mb-1">Total Revenue</p>
+                            <p className="text-2xl font-bold text-blue-600">₹{(monthRevenue / 1000).toFixed(0)}K</p>
+                            <p className="text-xs text-gray-500 mt-1">{monthTransactions.length} transactions</p>
+                          </CardContent>
+                        </Card>
+
+                        <Card className="border-none shadow-lg bg-gradient-to-br from-red-50 to-orange-50">
+                          <CardContent className="p-4">
+                            <p className="text-xs text-gray-600 mb-1">Total Expenses</p>
+                            <p className="text-2xl font-bold text-red-600">₹{(monthTotalExpenses / 1000).toFixed(0)}K</p>
+                            <p className="text-xs text-gray-500 mt-1">{monthExpenses.length} expenses</p>
+                          </CardContent>
+                        </Card>
+
+                        <Card className="border-none shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
+                          <CardContent className="p-4">
+                            <p className="text-xs text-gray-600 mb-1">Net Profit</p>
+                            <p className="text-2xl font-bold text-green-600">₹{(monthNetProfit / 1000).toFixed(0)}K</p>
+                            <p className="text-xs text-gray-500 mt-1">{monthNetProfit > 0 ? 'Profitable' : 'Loss'}</p>
+                          </CardContent>
+                        </Card>
+
+                        <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
+                          <CardContent className="p-4">
+                            <p className="text-xs text-gray-600 mb-1">Profit Margin</p>
+                            <p className="text-2xl font-bold text-purple-600">
+                              {monthRevenue > 0 ? ((monthNetProfit / monthRevenue) * 100).toFixed(1) : 0}%
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {monthRevenue > 0 && ((monthNetProfit / monthRevenue) * 100) > 30 ? 'Excellent' : 
+                               monthRevenue > 0 && ((monthNetProfit / monthRevenue) * 100) > 15 ? 'Good' : 'Need Improvement'}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      </div>
+
+                      {/* Vertical Breakdown */}
+                      <Card className="border-none shadow-lg">
+                        <CardHeader>
+                          <CardTitle>Vertical-wise Breakdown</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                              <h3 className="font-bold text-blue-900 mb-3">HFS (Healthyfy Solutions)</h3>
+                              <div className="space-y-2">
+                                <div className="flex justify-between">
+                                  <span className="text-sm text-gray-700">Revenue:</span>
+                                  <span className="font-semibold text-blue-900">₹{(monthHfsRevenue / 1000).toFixed(0)}K</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-sm text-gray-700">Expenses:</span>
+                                  <span className="font-semibold text-red-600">₹{(monthHfsExpenses / 1000).toFixed(0)}K</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-sm text-gray-700">Common (50%):</span>
+                                  <span className="font-semibold text-orange-600">₹{(monthCommonExpenses / 2 / 1000).toFixed(0)}K</span>
+                                </div>
+                                <div className="border-t pt-2 flex justify-between">
+                                  <span className="text-sm font-bold text-blue-900">Net Profit:</span>
+                                  <span className="font-bold text-blue-900">
+                                    ₹{((monthHfsRevenue - monthHfsExpenses - (monthCommonExpenses / 2)) / 1000).toFixed(0)}K
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="p-4 bg-green-50 rounded-lg border-2 border-green-200">
+                              <h3 className="font-bold text-green-900 mb-3">HFI (Healthyfy Institute)</h3>
+                              <div className="space-y-2">
+                                <div className="flex justify-between">
+                                  <span className="text-sm text-gray-700">Revenue:</span>
+                                  <span className="font-semibold text-green-900">₹{(monthHfiRevenue / 1000).toFixed(0)}K</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-sm text-gray-700">Expenses:</span>
+                                  <span className="font-semibold text-red-600">₹{(monthHfiExpenses / 1000).toFixed(0)}K</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-sm text-gray-700">Common (50%):</span>
+                                  <span className="font-semibold text-orange-600">₹{(monthCommonExpenses / 2 / 1000).toFixed(0)}K</span>
+                                </div>
+                                <div className="border-t pt-2 flex justify-between">
+                                  <span className="text-sm font-bold text-green-900">Net Profit:</span>
+                                  <span className="font-bold text-green-900">
+                                    ₹{((monthHfiRevenue - monthHfiExpenses - (monthCommonExpenses / 2)) / 1000).toFixed(0)}K
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Month Transactions */}
+                      <Card className="border-none shadow-lg">
+                        <CardHeader>
+                          <CardTitle>Month Transactions ({monthTransactions.length})</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="overflow-x-auto">
+                            <table className="w-full">
+                              <thead className="bg-gray-50 border-b">
+                                <tr>
+                                  <th className="p-3 text-left text-sm font-semibold">Date</th>
+                                  <th className="p-3 text-left text-sm font-semibold">Vertical</th>
+                                  <th className="p-3 text-left text-sm font-semibold">Client</th>
+                                  <th className="p-3 text-left text-sm font-semibold">Programme</th>
+                                  <th className="p-3 text-right text-sm font-semibold">Amount</th>
+                                  <th className="p-3 text-left text-sm font-semibold">Type</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {monthTransactions.length > 0 ? monthTransactions.map((t) => (
+                                  <tr key={t.id} className="border-b hover:bg-gray-50">
+                                    <td className="p-3 text-sm">{t.transaction_date}</td>
+                                    <td className="p-3">
+                                      <Badge className={t.vertical === 'HFS' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}>
+                                        {t.vertical}
+                                      </Badge>
+                                    </td>
+                                    <td className="p-3 text-sm font-semibold">{t.client_name}</td>
+                                    <td className="p-3">
+                                      <Badge className="bg-purple-100 text-purple-700">{t.programme_type}</Badge>
+                                    </td>
+                                    <td className="p-3 text-right font-semibold text-green-600">₹{t.amount_received?.toLocaleString()}</td>
+                                    <td className="p-3">
+                                      <Badge variant="outline">{t.customer_type}</Badge>
+                                    </td>
+                                  </tr>
+                                )) : (
+                                  <tr>
+                                    <td colSpan="6" className="p-8 text-center text-gray-500">
+                                      No transactions found for this month
+                                    </td>
+                                  </tr>
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Month Expenses */}
+                      <Card className="border-none shadow-lg">
+                        <CardHeader>
+                          <CardTitle>Month Expenses ({monthExpenses.length})</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="overflow-x-auto">
+                            <table className="w-full">
+                              <thead className="bg-gray-50 border-b">
+                                <tr>
+                                  <th className="p-3 text-left text-sm font-semibold">Date</th>
+                                  <th className="p-3 text-left text-sm font-semibold">Vertical</th>
+                                  <th className="p-3 text-left text-sm font-semibold">Category</th>
+                                  <th className="p-3 text-left text-sm font-semibold">Description</th>
+                                  <th className="p-3 text-right text-sm font-semibold">Amount</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {monthExpenses.length > 0 ? monthExpenses.map((e) => (
+                                  <tr key={e.id} className="border-b hover:bg-gray-50">
+                                    <td className="p-3 text-sm">{e.expense_date}</td>
+                                    <td className="p-3">
+                                      <Badge className={
+                                        e.vertical === 'HFS' ? 'bg-blue-100 text-blue-700' :
+                                        e.vertical === 'HFI' ? 'bg-green-100 text-green-700' :
+                                        'bg-purple-100 text-purple-700'
+                                      }>
+                                        {e.vertical}
+                                      </Badge>
+                                    </td>
+                                    <td className="p-3">
+                                      <Badge variant="outline">{e.expense_category}</Badge>
+                                    </td>
+                                    <td className="p-3 text-sm">{e.expense_description}</td>
+                                    <td className="p-3 text-right font-semibold text-red-600">₹{e.amount?.toLocaleString()}</td>
+                                  </tr>
+                                )) : (
+                                  <tr>
+                                    <td colSpan="5" className="p-8 text-center text-gray-500">
+                                      No expenses found for this month
+                                    </td>
+                                  </tr>
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* QUICK ADD TAB */}
           <TabsContent value="quick-add">
