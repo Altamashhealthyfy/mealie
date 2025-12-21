@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { createPageUrl } from "@/utils";
 import {
   Users,
@@ -22,7 +24,10 @@ import {
   GraduationCap,
   Building2,
   Trash2,
-  Edit
+  Edit,
+  ClipboardList,
+  Plus,
+  Calendar as CalendarIcon
 } from "lucide-react";
 
 export default function TeamManagement() {
@@ -35,6 +40,16 @@ export default function TeamManagement() {
     email: "",
     password: "",
     user_type: "team_member"
+  });
+
+  const [showAddTaskDialog, setShowAddTaskDialog] = useState(false);
+  const [taskFormData, setTaskFormData] = useState({
+    title: "",
+    description: "",
+    assigned_to: "",
+    priority: "medium",
+    status: "todo",
+    due_date: ""
   });
 
   const { data: user } = useQuery({
@@ -116,6 +131,46 @@ export default function TeamManagement() {
       setShowDetailDialog(false);
       setSelectedMember(null);
       alert('✅ User updated successfully!');
+    },
+  });
+
+  const { data: tasks = [] } = useQuery({
+    queryKey: ['teamTasks'],
+    queryFn: async () => {
+      const allTasks = await base44.entities.Task.list('-created_date');
+      return allTasks;
+    },
+    enabled: !!user,
+  });
+
+  const createTaskMutation = useMutation({
+    mutationFn: async (data) => {
+      return await base44.entities.Task.create({
+        ...data,
+        assigned_by: user?.email
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['teamTasks']);
+      setShowAddTaskDialog(false);
+      setTaskFormData({
+        title: "",
+        description: "",
+        assigned_to: "",
+        priority: "medium",
+        status: "todo",
+        due_date: ""
+      });
+      alert('✅ Task created successfully!');
+    },
+  });
+
+  const updateTaskMutation = useMutation({
+    mutationFn: async ({ taskId, data }) => {
+      return await base44.entities.Task.update(taskId, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['teamTasks']);
     },
   });
 
@@ -203,6 +258,18 @@ export default function TeamManagement() {
     );
   }
 
+  const handleCreateTask = () => {
+    if (!taskFormData.title || !taskFormData.assigned_to) {
+      alert('Please fill in task title and assign to someone');
+      return;
+    }
+    createTaskMutation.mutate(taskFormData);
+  };
+
+  const handleTaskStatusChange = (taskId, newStatus) => {
+    updateTaskMutation.mutate({ taskId, data: { status: newStatus } });
+  };
+
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -252,8 +319,23 @@ export default function TeamManagement() {
           </Alert>
         )}
 
-        {/* Users List */}
-        <Card className="border-none shadow-xl">
+        {/* Main Tabs */}
+        <Tabs defaultValue="team" className="space-y-6">
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-2">
+            <TabsTrigger value="team">
+              <Users className="w-4 h-4 mr-2" />
+              Team Members
+            </TabsTrigger>
+            <TabsTrigger value="tasks">
+              <ClipboardList className="w-4 h-4 mr-2" />
+              Tasks
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Team Members Tab */}
+          <TabsContent value="team" className="space-y-8">
+            {/* Users List */}
+            <Card className="border-none shadow-xl">
           <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white">
             <CardTitle className="text-2xl flex items-center justify-between">
               <span>Team Members</span>
@@ -332,8 +414,8 @@ export default function TeamManagement() {
           </CardContent>
         </Card>
 
-        {/* Super Admin Instructions */}
-        {isSuperAdmin && (
+            {/* Super Admin Instructions */}
+            {isSuperAdmin && (
           <Card className="border-none shadow-xl bg-gradient-to-br from-purple-50 to-pink-50">
             <CardHeader>
               <CardTitle className="text-2xl flex items-center gap-2">
@@ -398,8 +480,8 @@ export default function TeamManagement() {
           </Card>
         )}
 
-        {/* Student Coach Instructions */}
-        {isStudentCoach && (
+            {/* Student Coach Instructions */}
+            {isStudentCoach && (
           <Card className="border-none shadow-xl bg-gradient-to-br from-green-50 to-emerald-50">
             <CardHeader>
               <CardTitle className="text-2xl flex items-center gap-2">
@@ -438,8 +520,8 @@ export default function TeamManagement() {
           </Card>
         )}
 
-        {/* Step-by-Step Guide */}
-        <Card className="border-none shadow-xl">
+            {/* Step-by-Step Guide */}
+            <Card className="border-none shadow-xl">
           <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
             <CardTitle className="text-3xl">📋 How to Add Team Members</CardTitle>
           </CardHeader>
@@ -602,8 +684,8 @@ export default function TeamManagement() {
           </CardContent>
         </Card>
 
-        {/* User Hierarchy Chart */}
-        <Card className="border-none shadow-xl bg-gradient-to-br from-gray-50 to-white">
+            {/* User Hierarchy Chart */}
+            <Card className="border-none shadow-xl bg-gradient-to-br from-gray-50 to-white">
           <CardHeader>
             <CardTitle className="text-2xl">📊 User Hierarchy</CardTitle>
           </CardHeader>
@@ -654,7 +736,113 @@ export default function TeamManagement() {
               </div>
             </div>
           </CardContent>
-        </Card>
+            </Card>
+          </TabsContent>
+
+          {/* Tasks Tab */}
+          <TabsContent value="tasks" className="space-y-6">
+            <Card className="border-none shadow-xl">
+              <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-2xl flex items-center gap-2">
+                    <ClipboardList className="w-6 h-6" />
+                    Team Tasks
+                  </CardTitle>
+                  <Button 
+                    onClick={() => setShowAddTaskDialog(true)}
+                    className="bg-white text-orange-600 hover:bg-gray-100"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Task
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                {tasks.length === 0 ? (
+                  <div className="text-center py-12">
+                    <ClipboardList className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No tasks yet</h3>
+                    <p className="text-gray-600 mb-4">Create tasks and assign them to your team members</p>
+                    <Button 
+                      onClick={() => setShowAddTaskDialog(true)}
+                      className="bg-orange-500 hover:bg-orange-600"
+                    >
+                      <Plus className="w-5 h-5 mr-2" />
+                      Create First Task
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {tasks.map(task => {
+                      const assignedUser = filteredTeamMembers.find(m => m.email === task.assigned_to);
+                      const priorityColors = {
+                        low: 'bg-blue-100 text-blue-700',
+                        medium: 'bg-yellow-100 text-yellow-700',
+                        high: 'bg-red-100 text-red-700',
+                        urgent: 'bg-purple-100 text-purple-700'
+                      };
+                      const statusColors = {
+                        todo: 'bg-gray-100 text-gray-700',
+                        in_progress: 'bg-blue-100 text-blue-700',
+                        review: 'bg-orange-100 text-orange-700',
+                        done: 'bg-green-100 text-green-700'
+                      };
+                      
+                      return (
+                        <div key={task.id} className="p-4 bg-gray-50 rounded-lg border hover:border-orange-300 transition-colors">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex-1">
+                              <h3 className="font-bold text-gray-900 text-lg mb-1">{task.title}</h3>
+                              {task.description && (
+                                <p className="text-sm text-gray-600 mb-2">{task.description}</p>
+                              )}
+                              <div className="flex flex-wrap gap-2">
+                                <Badge className={priorityColors[task.priority]}>
+                                  {task.priority} priority
+                                </Badge>
+                                <Badge className={statusColors[task.status]}>
+                                  {task.status.replace('_', ' ')}
+                                </Badge>
+                                {assignedUser && (
+                                  <Badge variant="outline" className="flex items-center gap-1">
+                                    <Users className="w-3 h-3" />
+                                    {assignedUser.full_name}
+                                  </Badge>
+                                )}
+                                {task.due_date && (
+                                  <Badge variant="outline" className="flex items-center gap-1">
+                                    <CalendarIcon className="w-3 h-3" />
+                                    {new Date(task.due_date).toLocaleDateString()}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Select 
+                              value={task.status} 
+                              onValueChange={(value) => handleTaskStatusChange(task.id, value)}
+                            >
+                              <SelectTrigger className="w-40">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="todo">To Do</SelectItem>
+                                <SelectItem value="in_progress">In Progress</SelectItem>
+                                <SelectItem value="review">Review</SelectItem>
+                                <SelectItem value="done">Done</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         {/* Member Detail Dialog */}
         <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
@@ -819,6 +1007,86 @@ export default function TeamManagement() {
                 className="w-full bg-blue-600 hover:bg-blue-700"
               >
                 {addUserMutation.isPending ? 'Adding...' : 'Add User'}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Task Dialog */}
+        <Dialog open={showAddTaskDialog} onOpenChange={setShowAddTaskDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New Task</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Task Title *</Label>
+                <Input
+                  value={taskFormData.title}
+                  onChange={(e) => setTaskFormData({...taskFormData, title: e.target.value})}
+                  placeholder="e.g., Create meal plans for new clients"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={taskFormData.description}
+                  onChange={(e) => setTaskFormData({...taskFormData, description: e.target.value})}
+                  placeholder="Task details..."
+                  rows={3}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Assign To *</Label>
+                <Select 
+                  value={taskFormData.assigned_to} 
+                  onValueChange={(value) => setTaskFormData({...taskFormData, assigned_to: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select team member" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {filteredTeamMembers.map(member => (
+                      <SelectItem key={member.id} value={member.email}>
+                        {member.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Priority</Label>
+                  <Select 
+                    value={taskFormData.priority} 
+                    onValueChange={(value) => setTaskFormData({...taskFormData, priority: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="urgent">Urgent</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Due Date</Label>
+                  <Input
+                    type="date"
+                    value={taskFormData.due_date}
+                    onChange={(e) => setTaskFormData({...taskFormData, due_date: e.target.value})}
+                  />
+                </div>
+              </div>
+              <Button
+                onClick={handleCreateTask}
+                disabled={createTaskMutation.isPending}
+                className="w-full bg-orange-500 hover:bg-orange-600"
+              >
+                {createTaskMutation.isPending ? 'Creating...' : 'Create Task'}
               </Button>
             </div>
           </DialogContent>
