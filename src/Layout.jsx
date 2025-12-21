@@ -175,18 +175,6 @@ const paymentNavigation = [
 
 const businessNavigation = [
   {
-    title: "Team Appointments",
-    url: createPageUrl("TeamAppointmentsCalendar"),
-    icon: Calendar,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
-  },
-  {
-    title: "Google Calendar",
-    url: createPageUrl("GoogleCalendarSettings"),
-    icon: Settings,
-    roles: ['super_admin', 'team_member', 'student_coach'],
-  },
-  {
     title: "Health Coach Plans",
     url: createPageUrl("HealthCoachPlans"),
     icon: Crown,
