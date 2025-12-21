@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+
 import { Label } from "@/components/ui/label";
 import { Calendar, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -25,8 +25,7 @@ export default function AddTeamAppointment() {
     date: '',
     time: '',
     duration: 30,
-    assigned_to: '',
-    sync_to_gcal: true
+    assigned_to: ''
   });
 
   const { data: user } = useQuery({
@@ -61,36 +60,9 @@ export default function AddTeamAppointment() {
     setIsSaving(true);
 
     try {
-      let gcal_event_id = null;
-
-      // Create Google Calendar event if sync enabled
-      if (formData.sync_to_gcal && user.gcal_connected) {
-        try {
-          const startDateTime = new Date(`${formData.date}T${formData.time}`);
-          const endDateTime = new Date(startDateTime.getTime() + formData.duration * 60000);
-
-          const { data: gcalResult } = await base44.functions.invoke('createCalendarEvent', {
-            title: `${formData.title || 'Appointment'} - ${formData.client_name}`,
-            start_datetime: startDateTime.toISOString(),
-            end_datetime: endDateTime.toISOString(),
-            description: `Client: ${formData.client_name}\nPhone: ${formData.phone}\nNotes: ${formData.notes || 'N/A'}`,
-            timezone: 'Asia/Kolkata'
-          });
-
-          gcal_event_id = gcalResult.event_id;
-        } catch (error) {
-          console.error('Failed to create Google Calendar event:', error);
-          if (!confirm('Failed to sync with Google Calendar. Continue without syncing?')) {
-            setIsSaving(false);
-            return;
-          }
-        }
-      }
-
       // Create appointment record
       const appointment = await createAppointmentMutation.mutateAsync({
         ...formData,
-        gcal_event_id,
         status: 'scheduled',
         source: 'manual'
       });
@@ -222,17 +194,6 @@ export default function AddTeamAppointment() {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div className="flex items-center gap-2 p-4 bg-blue-50 rounded-lg">
-                <Switch
-                  checked={formData.sync_to_gcal}
-                  onCheckedChange={(checked) => setFormData({ ...formData, sync_to_gcal: checked })}
-                />
-                <Label>Sync to Google Calendar</Label>
-                {!user?.gcal_connected && (
-                  <span className="text-sm text-red-600 ml-2">(Calendar not connected)</span>
-                )}
               </div>
 
               <div className="flex gap-4">
