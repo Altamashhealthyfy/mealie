@@ -291,11 +291,11 @@ export default function TeamManagement() {
                 </Badge>
               )}
             </div>
-            <h1 className="text-5xl font-bold text-gray-900 mb-2">My Team</h1>
+            <h1 className="text-5xl font-bold text-gray-900 mb-2">Team Management</h1>
             <p className="text-xl text-gray-600">
               {isSuperAdmin 
-                ? 'Manage your team members and student coaches' 
-                : 'Manage your team members who help with your clients'
+                ? 'Manage tasks and team members' 
+                : 'Manage tasks and team members'
               }
             </p>
           </div>
