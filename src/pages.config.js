@@ -1,139 +1,139 @@
-import Home from './pages/Home';
-import Profile from './pages/Profile';
-import MealPlanner from './pages/MealPlanner';
-import Recipes from './pages/Recipes';
-import FoodLookup from './pages/FoodLookup';
-import MPESSTracker from './pages/MPESSTracker';
-import DietitianDashboard from './pages/DietitianDashboard';
-import ClientManagement from './pages/ClientManagement';
-import BusinessPlan from './pages/BusinessPlan';
-import MarketingHub from './pages/MarketingHub';
-import PaymentSetup from './pages/PaymentSetup';
+import AddTeamAppointment from './pages/AddTeamAppointment';
+import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
 import Appointments from './pages/Appointments';
-import Communication from './pages/Communication';
-import ClientCommunication from './pages/ClientCommunication';
-import Documentation from './pages/Documentation';
-import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
-import FoodLog from './pages/FoodLog';
-import ProgressTracking from './pages/ProgressTracking';
-import TeamManagement from './pages/TeamManagement';
+import BulkImport from './pages/BulkImport';
 import BusinessGPTs from './pages/BusinessGPTs';
 import BusinessHub from './pages/BusinessHub';
-import LeadsPipeline from './pages/LeadsPipeline';
-import WebinarManagement from './pages/WebinarManagement';
-import PaymentTracking from './pages/PaymentTracking';
-import TaskBoard from './pages/TaskBoard';
-import TeamDashboard from './pages/TeamDashboard';
-import ProjectManagement from './pages/ProjectManagement';
+import BusinessPlan from './pages/BusinessPlan';
 import CallCenter from './pages/CallCenter';
 import CallCenterAdmin from './pages/CallCenterAdmin';
-import BulkImport from './pages/BulkImport';
-import TeamAttendance from './pages/TeamAttendance';
+import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
+import ClientCommunication from './pages/ClientCommunication';
+import ClientFinanceManager from './pages/ClientFinanceManager';
+import ClientManagement from './pages/ClientManagement';
+import ClientPlanBuilder from './pages/ClientPlanBuilder';
+import ClientPlanManagement from './pages/ClientPlanManagement';
+import ClientPlans from './pages/ClientPlans';
+import ClinicalIntake from './pages/ClinicalIntake';
+import CoachPaymentSetup from './pages/CoachPaymentSetup';
+import CoachSubscription from './pages/CoachSubscription';
+import CoachSubscriptions from './pages/CoachSubscriptions';
+import Communication from './pages/Communication';
+import CustomDomainSettings from './pages/CustomDomainSettings';
+import DietitianDashboard from './pages/DietitianDashboard';
+import Documentation from './pages/Documentation';
+import FeatureControl from './pages/FeatureControl';
+import FoodLog from './pages/FoodLog';
+import FoodLookup from './pages/FoodLookup';
+import GoogleCalendarSettings from './pages/GoogleCalendarSettings';
+import HealthCoachPlans from './pages/HealthCoachPlans';
+import Home from './pages/Home';
 import IncomeExpense from './pages/IncomeExpense';
 import InstallmentTracker from './pages/InstallmentTracker';
-import VerticalManagement from './pages/VerticalManagement';
-import TemplateLibraryManager from './pages/TemplateLibraryManager';
-import TemplateLibrary from './pages/TemplateLibrary';
-import UsageDashboard from './pages/UsageDashboard';
-import TeamSetup from './pages/TeamSetup';
-import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
-import ClientFinanceManager from './pages/ClientFinanceManager';
-import ClinicalIntake from './pages/ClinicalIntake';
+import LeadsPipeline from './pages/LeadsPipeline';
+import MPESSTracker from './pages/MPESSTracker';
+import MarketingHub from './pages/MarketingHub';
+import MealPlanner from './pages/MealPlanner';
 import MealPlansPro from './pages/MealPlansPro';
+import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
+import NotificationSettings from './pages/NotificationSettings';
+import PaymentGatewaySettings from './pages/PaymentGatewaySettings';
+import PaymentHistory from './pages/PaymentHistory';
+import PaymentSetup from './pages/PaymentSetup';
+import PaymentTracking from './pages/PaymentTracking';
 import PlatformReference from './pages/PlatformReference';
 import PricingPlans from './pages/PricingPlans';
-import NotificationSettings from './pages/NotificationSettings';
-import SecuritySettings from './pages/SecuritySettings';
-import FeatureControl from './pages/FeatureControl';
-import PaymentGatewaySettings from './pages/PaymentGatewaySettings';
-import ClientPlanManagement from './pages/ClientPlanManagement';
-import PaymentHistory from './pages/PaymentHistory';
-import CoachSubscription from './pages/CoachSubscription';
-import ClientPlans from './pages/ClientPlans';
-import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import UserPermissionManagement from './pages/UserPermissionManagement';
-import HealthCoachPlans from './pages/HealthCoachPlans';
-import CoachSubscriptions from './pages/CoachSubscriptions';
-import ClientPlanBuilder from './pages/ClientPlanBuilder';
-import CoachPaymentSetup from './pages/CoachPaymentSetup';
-import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
-import CustomDomainSettings from './pages/CustomDomainSettings';
-import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
+import Profile from './pages/Profile';
+import ProgressTracking from './pages/ProgressTracking';
+import ProjectManagement from './pages/ProjectManagement';
 import PurchaseAICredits from './pages/PurchaseAICredits';
+import Recipes from './pages/Recipes';
+import SecuritySettings from './pages/SecuritySettings';
+import TaskBoard from './pages/TaskBoard';
 import TeamAppointmentsCalendar from './pages/TeamAppointmentsCalendar';
-import AddTeamAppointment from './pages/AddTeamAppointment';
+import TeamAttendance from './pages/TeamAttendance';
+import TeamDashboard from './pages/TeamDashboard';
+import TeamManagement from './pages/TeamManagement';
+import TeamSetup from './pages/TeamSetup';
+import TemplateLibrary from './pages/TemplateLibrary';
+import TemplateLibraryManager from './pages/TemplateLibraryManager';
+import UsageDashboard from './pages/UsageDashboard';
+import UserPermissionManagement from './pages/UserPermissionManagement';
+import VerticalManagement from './pages/VerticalManagement';
 import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
-import GoogleCalendarSettings from './pages/GoogleCalendarSettings';
+import WebinarManagement from './pages/WebinarManagement';
+import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
+import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Home": Home,
-    "Profile": Profile,
-    "MealPlanner": MealPlanner,
-    "Recipes": Recipes,
-    "FoodLookup": FoodLookup,
-    "MPESSTracker": MPESSTracker,
-    "DietitianDashboard": DietitianDashboard,
-    "ClientManagement": ClientManagement,
-    "BusinessPlan": BusinessPlan,
-    "MarketingHub": MarketingHub,
-    "PaymentSetup": PaymentSetup,
+    "AddTeamAppointment": AddTeamAppointment,
+    "AdminSubscriptionManager": AdminSubscriptionManager,
     "Appointments": Appointments,
-    "Communication": Communication,
-    "ClientCommunication": ClientCommunication,
-    "Documentation": Documentation,
-    "MyAssignedMealPlan": MyAssignedMealPlan,
-    "FoodLog": FoodLog,
-    "ProgressTracking": ProgressTracking,
-    "TeamManagement": TeamManagement,
+    "BulkImport": BulkImport,
     "BusinessGPTs": BusinessGPTs,
     "BusinessHub": BusinessHub,
-    "LeadsPipeline": LeadsPipeline,
-    "WebinarManagement": WebinarManagement,
-    "PaymentTracking": PaymentTracking,
-    "TaskBoard": TaskBoard,
-    "TeamDashboard": TeamDashboard,
-    "ProjectManagement": ProjectManagement,
+    "BusinessPlan": BusinessPlan,
     "CallCenter": CallCenter,
     "CallCenterAdmin": CallCenterAdmin,
-    "BulkImport": BulkImport,
-    "TeamAttendance": TeamAttendance,
+    "ClientAnalyticsDashboard": ClientAnalyticsDashboard,
+    "ClientCommunication": ClientCommunication,
+    "ClientFinanceManager": ClientFinanceManager,
+    "ClientManagement": ClientManagement,
+    "ClientPlanBuilder": ClientPlanBuilder,
+    "ClientPlanManagement": ClientPlanManagement,
+    "ClientPlans": ClientPlans,
+    "ClinicalIntake": ClinicalIntake,
+    "CoachPaymentSetup": CoachPaymentSetup,
+    "CoachSubscription": CoachSubscription,
+    "CoachSubscriptions": CoachSubscriptions,
+    "Communication": Communication,
+    "CustomDomainSettings": CustomDomainSettings,
+    "DietitianDashboard": DietitianDashboard,
+    "Documentation": Documentation,
+    "FeatureControl": FeatureControl,
+    "FoodLog": FoodLog,
+    "FoodLookup": FoodLookup,
+    "GoogleCalendarSettings": GoogleCalendarSettings,
+    "HealthCoachPlans": HealthCoachPlans,
+    "Home": Home,
     "IncomeExpense": IncomeExpense,
     "InstallmentTracker": InstallmentTracker,
-    "VerticalManagement": VerticalManagement,
-    "TemplateLibraryManager": TemplateLibraryManager,
-    "TemplateLibrary": TemplateLibrary,
-    "UsageDashboard": UsageDashboard,
-    "TeamSetup": TeamSetup,
-    "WebinarPerformanceTracker": WebinarPerformanceTracker,
-    "ClientFinanceManager": ClientFinanceManager,
-    "ClinicalIntake": ClinicalIntake,
+    "LeadsPipeline": LeadsPipeline,
+    "MPESSTracker": MPESSTracker,
+    "MarketingHub": MarketingHub,
+    "MealPlanner": MealPlanner,
     "MealPlansPro": MealPlansPro,
+    "MyAssignedMealPlan": MyAssignedMealPlan,
+    "NotificationSettings": NotificationSettings,
+    "PaymentGatewaySettings": PaymentGatewaySettings,
+    "PaymentHistory": PaymentHistory,
+    "PaymentSetup": PaymentSetup,
+    "PaymentTracking": PaymentTracking,
     "PlatformReference": PlatformReference,
     "PricingPlans": PricingPlans,
-    "NotificationSettings": NotificationSettings,
-    "SecuritySettings": SecuritySettings,
-    "FeatureControl": FeatureControl,
-    "PaymentGatewaySettings": PaymentGatewaySettings,
-    "ClientPlanManagement": ClientPlanManagement,
-    "PaymentHistory": PaymentHistory,
-    "CoachSubscription": CoachSubscription,
-    "ClientPlans": ClientPlans,
-    "WhiteLabelSubscription": WhiteLabelSubscription,
-    "UserPermissionManagement": UserPermissionManagement,
-    "HealthCoachPlans": HealthCoachPlans,
-    "CoachSubscriptions": CoachSubscriptions,
-    "ClientPlanBuilder": ClientPlanBuilder,
-    "CoachPaymentSetup": CoachPaymentSetup,
-    "AdminSubscriptionManager": AdminSubscriptionManager,
-    "CustomDomainSettings": CustomDomainSettings,
-    "ClientAnalyticsDashboard": ClientAnalyticsDashboard,
+    "Profile": Profile,
+    "ProgressTracking": ProgressTracking,
+    "ProjectManagement": ProjectManagement,
     "PurchaseAICredits": PurchaseAICredits,
+    "Recipes": Recipes,
+    "SecuritySettings": SecuritySettings,
+    "TaskBoard": TaskBoard,
     "TeamAppointmentsCalendar": TeamAppointmentsCalendar,
-    "AddTeamAppointment": AddTeamAppointment,
+    "TeamAttendance": TeamAttendance,
+    "TeamDashboard": TeamDashboard,
+    "TeamManagement": TeamManagement,
+    "TeamSetup": TeamSetup,
+    "TemplateLibrary": TemplateLibrary,
+    "TemplateLibraryManager": TemplateLibraryManager,
+    "UsageDashboard": UsageDashboard,
+    "UserPermissionManagement": UserPermissionManagement,
+    "VerticalManagement": VerticalManagement,
     "VoiceCalendarAssistant": VoiceCalendarAssistant,
-    "GoogleCalendarSettings": GoogleCalendarSettings,
+    "WebinarManagement": WebinarManagement,
+    "WebinarPerformanceTracker": WebinarPerformanceTracker,
+    "WhiteLabelSubscription": WhiteLabelSubscription,
 }
 
 export const pagesConfig = {

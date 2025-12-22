@@ -235,7 +235,7 @@ const businessNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
-    title: "My Team",
+    title: "Team Management",
     url: createPageUrl("TeamManagement"),
     icon: UserPlus,
     roles: ['super_admin', 'student_coach'],

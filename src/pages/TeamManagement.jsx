@@ -320,15 +320,15 @@ export default function TeamManagement() {
         )}
 
         {/* Main Tabs */}
-        <Tabs defaultValue="team" className="space-y-6">
+        <Tabs defaultValue="tasks" className="space-y-6">
           <TabsList className="bg-white/80 backdrop-blur grid grid-cols-2">
+            <TabsTrigger value="tasks">
+              <ClipboardList className="w-4 h-4 mr-2" />
+              Tasks Board
+            </TabsTrigger>
             <TabsTrigger value="team">
               <Users className="w-4 h-4 mr-2" />
               Team Members
-            </TabsTrigger>
-            <TabsTrigger value="tasks">
-              <ClipboardList className="w-4 h-4 mr-2" />
-              Tasks
             </TabsTrigger>
           </TabsList>
 
@@ -741,106 +741,226 @@ export default function TeamManagement() {
 
           {/* Tasks Tab */}
           <TabsContent value="tasks" className="space-y-6">
-            <Card className="border-none shadow-xl">
-              <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-2xl flex items-center gap-2">
-                    <ClipboardList className="w-6 h-6" />
-                    Team Tasks
-                  </CardTitle>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-gray-900">Tasks Board</h2>
+              <Button 
+                onClick={() => setShowAddTaskDialog(true)}
+                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Task
+              </Button>
+            </div>
+
+            {tasks.length === 0 ? (
+              <Card className="border-none shadow-xl">
+                <CardContent className="p-12 text-center">
+                  <ClipboardList className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No tasks yet</h3>
+                  <p className="text-gray-600 mb-4">Create tasks and assign them to your team members</p>
                   <Button 
                     onClick={() => setShowAddTaskDialog(true)}
-                    className="bg-white text-orange-600 hover:bg-gray-100"
+                    className="bg-orange-500 hover:bg-orange-600"
                   >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Task
+                    <Plus className="w-5 h-5 mr-2" />
+                    Create First Task
                   </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                {tasks.length === 0 ? (
-                  <div className="text-center py-12">
-                    <ClipboardList className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No tasks yet</h3>
-                    <p className="text-gray-600 mb-4">Create tasks and assign them to your team members</p>
-                    <Button 
-                      onClick={() => setShowAddTaskDialog(true)}
-                      className="bg-orange-500 hover:bg-orange-600"
-                    >
-                      <Plus className="w-5 h-5 mr-2" />
-                      Create First Task
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {tasks.map(task => {
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* TO-DO Column */}
+                <Card className="border-none shadow-xl bg-gradient-to-br from-gray-50 to-white">
+                  <CardHeader className="bg-gray-100 border-b">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-gray-400"></div>
+                      TO-DO
+                      <Badge className="ml-auto bg-gray-500">
+                        {tasks.filter(t => t.status === 'todo').length}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-3 min-h-[400px]">
+                    {tasks.filter(t => t.status === 'todo').map(task => {
                       const assignedUser = filteredTeamMembers.find(m => m.email === task.assigned_to);
                       const priorityColors = {
-                        low: 'bg-blue-100 text-blue-700',
-                        medium: 'bg-yellow-100 text-yellow-700',
-                        high: 'bg-red-100 text-red-700',
-                        urgent: 'bg-purple-100 text-purple-700'
-                      };
-                      const statusColors = {
-                        todo: 'bg-gray-100 text-gray-700',
-                        in_progress: 'bg-blue-100 text-blue-700',
-                        review: 'bg-orange-100 text-orange-700',
-                        done: 'bg-green-100 text-green-700'
+                        low: 'bg-blue-100 text-blue-700 border-blue-200',
+                        medium: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+                        high: 'bg-red-100 text-red-700 border-red-200',
+                        urgent: 'bg-purple-100 text-purple-700 border-purple-200'
                       };
                       
                       return (
-                        <div key={task.id} className="p-4 bg-gray-50 rounded-lg border hover:border-orange-300 transition-colors">
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex-1">
-                              <h3 className="font-bold text-gray-900 text-lg mb-1">{task.title}</h3>
-                              {task.description && (
-                                <p className="text-sm text-gray-600 mb-2">{task.description}</p>
-                              )}
-                              <div className="flex flex-wrap gap-2">
-                                <Badge className={priorityColors[task.priority]}>
-                                  {task.priority} priority
-                                </Badge>
-                                <Badge className={statusColors[task.status]}>
-                                  {task.status.replace('_', ' ')}
-                                </Badge>
-                                {assignedUser && (
-                                  <Badge variant="outline" className="flex items-center gap-1">
-                                    <Users className="w-3 h-3" />
-                                    {assignedUser.full_name}
-                                  </Badge>
-                                )}
-                                {task.due_date && (
-                                  <Badge variant="outline" className="flex items-center gap-1">
-                                    <CalendarIcon className="w-3 h-3" />
-                                    {new Date(task.due_date).toLocaleDateString()}
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
+                        <div key={task.id} className="p-3 bg-white rounded-lg border-2 border-gray-200 hover:border-orange-300 transition-all shadow-sm">
+                          <h4 className="font-bold text-gray-900 mb-2">{task.title}</h4>
+                          {task.description && (
+                            <p className="text-xs text-gray-600 mb-2 line-clamp-2">{task.description}</p>
+                          )}
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            <Badge className={`text-xs ${priorityColors[task.priority]}`}>
+                              {task.priority}
+                            </Badge>
+                            {assignedUser && (
+                              <Badge variant="outline" className="text-xs flex items-center gap-1">
+                                <Users className="w-3 h-3" />
+                                {assignedUser.full_name}
+                              </Badge>
+                            )}
                           </div>
-                          <div className="flex gap-2">
-                            <Select 
-                              value={task.status} 
-                              onValueChange={(value) => handleTaskStatusChange(task.id, value)}
+                          {task.due_date && (
+                            <p className="text-xs text-gray-500 flex items-center gap-1">
+                              <CalendarIcon className="w-3 h-3" />
+                              {new Date(task.due_date).toLocaleDateString()}
+                            </p>
+                          )}
+                          <div className="mt-2 pt-2 border-t flex gap-1">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleTaskStatusChange(task.id, 'in_progress')}
+                              className="flex-1 text-xs"
                             >
-                              <SelectTrigger className="w-40">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="todo">To Do</SelectItem>
-                                <SelectItem value="in_progress">In Progress</SelectItem>
-                                <SelectItem value="review">Review</SelectItem>
-                                <SelectItem value="done">Done</SelectItem>
-                              </SelectContent>
-                            </Select>
+                              Start →
+                            </Button>
                           </div>
                         </div>
                       );
                     })}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </Card>
+
+                {/* DOING Column */}
+                <Card className="border-none shadow-xl bg-gradient-to-br from-blue-50 to-white">
+                  <CardHeader className="bg-blue-100 border-b">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                      DOING
+                      <Badge className="ml-auto bg-blue-500">
+                        {tasks.filter(t => t.status === 'in_progress').length}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-3 min-h-[400px]">
+                    {tasks.filter(t => t.status === 'in_progress').map(task => {
+                      const assignedUser = filteredTeamMembers.find(m => m.email === task.assigned_to);
+                      const priorityColors = {
+                        low: 'bg-blue-100 text-blue-700 border-blue-200',
+                        medium: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+                        high: 'bg-red-100 text-red-700 border-red-200',
+                        urgent: 'bg-purple-100 text-purple-700 border-purple-200'
+                      };
+                      
+                      return (
+                        <div key={task.id} className="p-3 bg-white rounded-lg border-2 border-blue-300 hover:border-blue-400 transition-all shadow-sm">
+                          <h4 className="font-bold text-gray-900 mb-2">{task.title}</h4>
+                          {task.description && (
+                            <p className="text-xs text-gray-600 mb-2 line-clamp-2">{task.description}</p>
+                          )}
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            <Badge className={`text-xs ${priorityColors[task.priority]}`}>
+                              {task.priority}
+                            </Badge>
+                            {assignedUser && (
+                              <Badge variant="outline" className="text-xs flex items-center gap-1">
+                                <Users className="w-3 h-3" />
+                                {assignedUser.full_name}
+                              </Badge>
+                            )}
+                          </div>
+                          {task.due_date && (
+                            <p className="text-xs text-gray-500 flex items-center gap-1">
+                              <CalendarIcon className="w-3 h-3" />
+                              {new Date(task.due_date).toLocaleDateString()}
+                            </p>
+                          )}
+                          <div className="mt-2 pt-2 border-t flex gap-1">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleTaskStatusChange(task.id, 'todo')}
+                              className="flex-1 text-xs"
+                            >
+                              ← Back
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              className="flex-1 text-xs bg-green-500 hover:bg-green-600"
+                              onClick={() => handleTaskStatusChange(task.id, 'done')}
+                            >
+                              Done ✓
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </CardContent>
+                </Card>
+
+                {/* DONE Column */}
+                <Card className="border-none shadow-xl bg-gradient-to-br from-green-50 to-white">
+                  <CardHeader className="bg-green-100 border-b">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                      DONE
+                      <Badge className="ml-auto bg-green-500">
+                        {tasks.filter(t => t.status === 'done').length}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-3 min-h-[400px]">
+                    {tasks.filter(t => t.status === 'done').map(task => {
+                      const assignedUser = filteredTeamMembers.find(m => m.email === task.assigned_to);
+                      const priorityColors = {
+                        low: 'bg-blue-100 text-blue-700 border-blue-200',
+                        medium: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+                        high: 'bg-red-100 text-red-700 border-red-200',
+                        urgent: 'bg-purple-100 text-purple-700 border-purple-200'
+                      };
+                      
+                      return (
+                        <div key={task.id} className="p-3 bg-white rounded-lg border-2 border-green-300 hover:border-green-400 transition-all shadow-sm opacity-75">
+                          <h4 className="font-bold text-gray-900 mb-2 line-through">{task.title}</h4>
+                          {task.description && (
+                            <p className="text-xs text-gray-600 mb-2 line-clamp-2">{task.description}</p>
+                          )}
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            <Badge className={`text-xs ${priorityColors[task.priority]}`}>
+                              {task.priority}
+                            </Badge>
+                            {assignedUser && (
+                              <Badge variant="outline" className="text-xs flex items-center gap-1">
+                                <Users className="w-3 h-3" />
+                                {assignedUser.full_name}
+                              </Badge>
+                            )}
+                            <Badge className="text-xs bg-green-100 text-green-700">
+                              <CheckCircle2 className="w-3 h-3 mr-1" />
+                              Completed
+                            </Badge>
+                          </div>
+                          {task.due_date && (
+                            <p className="text-xs text-gray-500 flex items-center gap-1">
+                              <CalendarIcon className="w-3 h-3" />
+                              {new Date(task.due_date).toLocaleDateString()}
+                            </p>
+                          )}
+                          <div className="mt-2 pt-2 border-t">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => handleTaskStatusChange(task.id, 'in_progress')}
+                              className="w-full text-xs"
+                            >
+                              ← Reopen
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
 
