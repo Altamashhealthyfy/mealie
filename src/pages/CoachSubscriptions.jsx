@@ -167,17 +167,22 @@ export default function CoachSubscriptions() {
                 }
               });
 
+              // Force immediate refetch to update UI
+              await queryClient.invalidateQueries(['myCoachSubscription']);
+              await queryClient.refetchQueries(['myCoachSubscription']);
+
               setSelectedPlan(null);
+              setIsProcessingPayment(false);
               alert('✅ Payment successful! Your plan is now active.');
             } else {
               alert('❌ Payment verification failed. Please contact support.');
+              setIsProcessingPayment(false);
             }
-          } catch (error) {
+            } catch (error) {
             console.error('Payment verification error:', error);
             alert('❌ Payment verification failed. Please contact support.');
-          } finally {
             setIsProcessingPayment(false);
-          }
+            }
         },
         modal: {
           ondismiss: function () {

@@ -40,6 +40,7 @@ import PaymentGatewaySettings from './pages/PaymentGatewaySettings';
 import PaymentHistory from './pages/PaymentHistory';
 import PaymentSetup from './pages/PaymentSetup';
 import PaymentTracking from './pages/PaymentTracking';
+import PlatformBrandingTracker from './pages/PlatformBrandingTracker';
 import PlatformReference from './pages/PlatformReference';
 import PricingPlans from './pages/PricingPlans';
 import Profile from './pages/Profile';
@@ -63,7 +64,6 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import PlatformBrandingTracker from './pages/PlatformBrandingTracker';
 import __Layout from './Layout.jsx';
 
 
@@ -110,6 +110,7 @@ export const PAGES = {
     "PaymentHistory": PaymentHistory,
     "PaymentSetup": PaymentSetup,
     "PaymentTracking": PaymentTracking,
+    "PlatformBrandingTracker": PlatformBrandingTracker,
     "PlatformReference": PlatformReference,
     "PricingPlans": PricingPlans,
     "Profile": Profile,
@@ -133,7 +134,6 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "PlatformBrandingTracker": PlatformBrandingTracker,
 }
 
 export const pagesConfig = {
