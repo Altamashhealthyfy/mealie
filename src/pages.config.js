@@ -66,6 +66,8 @@ import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import ClientReports from './pages/ClientReports';
 import AutomatedCheckIns from './pages/AutomatedCheckIns';
+import MyGoals from './pages/MyGoals';
+import ClientGoals from './pages/ClientGoals';
 import __Layout from './Layout.jsx';
 
 
@@ -138,6 +140,8 @@ export const PAGES = {
     "WhiteLabelSubscription": WhiteLabelSubscription,
     "ClientReports": ClientReports,
     "AutomatedCheckIns": AutomatedCheckIns,
+    "MyGoals": MyGoals,
+    "ClientGoals": ClientGoals,
 }
 
 export const pagesConfig = {
