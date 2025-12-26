@@ -427,6 +427,35 @@ export default function CustomDomainSettings() {
                     </div>
                   </div>
 
+                  <Alert className="bg-orange-50 border-orange-500">
+                    <AlertTriangle className="w-5 h-5 text-orange-600" />
+                    <AlertDescription className="text-orange-900">
+                      <h4 className="font-bold text-lg mb-2">⚠️ Getting SSL/HTTPS Errors?</h4>
+                      <p className="mb-3 text-sm">If you see "ERR_SSL_VERSION_OR_CIPHER_MISMATCH" or "This site can't provide a secure connection":</p>
+                      
+                      <ol className="space-y-2 text-sm mb-3">
+                        <li className="flex items-start gap-2">
+                          <span className="font-bold text-orange-600">1.</span>
+                          <span><strong>SSL Certificate Provisioning:</strong> It takes 5-15 minutes after DNS verification for SSL certificate to be automatically issued</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="font-bold text-orange-600">2.</span>
+                          <span><strong>Wait & Refresh:</strong> Wait 15-30 minutes then try accessing your domain again</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="font-bold text-orange-600">3.</span>
+                          <span><strong>Clear Browser Cache:</strong> Clear your browser cache and try in incognito/private mode</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="font-bold text-orange-600">4.</span>
+                          <span><strong>Still Not Working?</strong> Contact support with your domain name for SSL certificate troubleshooting</span>
+                        </li>
+                      </ol>
+
+                      <p className="text-xs text-orange-700 font-semibold">Note: SSL certificates are automatically provisioned by Base44 platform infrastructure. No manual action needed - just wait a bit!</p>
+                    </AlertDescription>
+                  </Alert>
+
                   <Alert className="bg-blue-50 border-blue-500">
                     <AlertDescription className="text-blue-900">
                       <h4 className="font-bold text-lg mb-3">🎉 Domain Verified Successfully!</h4>
