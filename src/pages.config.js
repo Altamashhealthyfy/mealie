@@ -19,7 +19,6 @@ import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachSubscription from './pages/CoachSubscription';
 import CoachSubscriptions from './pages/CoachSubscriptions';
 import Communication from './pages/Communication';
-import CustomDomainSettings from './pages/CustomDomainSettings';
 import DietitianDashboard from './pages/DietitianDashboard';
 import Documentation from './pages/Documentation';
 import FeatureControl from './pages/FeatureControl';
@@ -64,7 +63,7 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import AdminCustomDomains from './pages/AdminCustomDomains';
+import PlatformBrandingTracker from './pages/PlatformBrandingTracker';
 import __Layout from './Layout.jsx';
 
 
@@ -90,7 +89,6 @@ export const PAGES = {
     "CoachSubscription": CoachSubscription,
     "CoachSubscriptions": CoachSubscriptions,
     "Communication": Communication,
-    "CustomDomainSettings": CustomDomainSettings,
     "DietitianDashboard": DietitianDashboard,
     "Documentation": Documentation,
     "FeatureControl": FeatureControl,
@@ -135,7 +133,7 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "AdminCustomDomains": AdminCustomDomains,
+    "PlatformBrandingTracker": PlatformBrandingTracker,
 }
 
 export const pagesConfig = {

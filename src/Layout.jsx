@@ -142,12 +142,6 @@ const paymentNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
-    title: "Custom Domain",
-    url: createPageUrl("CustomDomainSettings"),
-    icon: Globe,
-    roles: ['student_coach'],
-  },
-  {
     title: "Create Client Plans",
     url: createPageUrl("ClientPlanBuilder"),
     icon: Users,
@@ -181,8 +175,8 @@ const businessNavigation = [
     roles: ['super_admin'],
   },
   {
-    title: "Custom Domains",
-    url: createPageUrl("AdminCustomDomains"),
+    title: "Platform Branding",
+    url: createPageUrl("PlatformBrandingTracker"),
     icon: Globe,
     roles: ['super_admin'],
   },
