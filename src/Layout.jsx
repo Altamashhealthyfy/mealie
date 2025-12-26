@@ -181,6 +181,12 @@ const businessNavigation = [
     roles: ['super_admin'],
   },
   {
+    title: "Custom Domains",
+    url: createPageUrl("AdminCustomDomains"),
+    icon: Globe,
+    roles: ['super_admin'],
+  },
+  {
     title: "Subscription Manager",
     url: createPageUrl("AdminSubscriptionManager"),
     icon: Shield,
