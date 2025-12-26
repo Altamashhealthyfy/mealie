@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, Plus, Scale, Calendar, Edit, Trash2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TrendingUp, TrendingDown, Plus, Scale, Calendar, Edit, Trash2, Camera, Ruler, Activity, Image as ImageIcon } from "lucide-react";
 import { format } from "date-fns";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 export default function ProgressTracking() {
   const queryClient = useQueryClient();
@@ -145,6 +146,38 @@ export default function ProgressTracking() {
     date: format(new Date(log.date), 'MMM d'),
     weight: log.weight,
   }));
+
+  // Prepare measurements chart data
+  const measurementData = progressLogs
+    .filter(log => log.measurements && Object.keys(log.measurements).length > 0)
+    .map(log => ({
+      date: format(new Date(log.date), 'MMM d'),
+      chest: log.measurements?.chest || null,
+      waist: log.measurements?.waist || null,
+      hips: log.measurements?.hips || null,
+      arms: log.measurements?.arms || null,
+    }));
+
+  // Prepare wellness metrics chart data
+  const wellnessData = progressLogs
+    .filter(log => log.energy_level || log.sleep_quality || log.stress_level)
+    .map(log => ({
+      date: format(new Date(log.date), 'MMM d'),
+      energy: log.energy_level || 0,
+      sleep: log.sleep_quality || 0,
+      stress: log.stress_level || 0,
+    }));
+
+  // Prepare adherence chart data
+  const adherenceData = progressLogs
+    .filter(log => log.meal_adherence !== null && log.meal_adherence !== undefined)
+    .map(log => ({
+      date: format(new Date(log.date), 'MMM d'),
+      adherence: log.meal_adherence,
+    }));
+
+  // Get logs with photos for comparison
+  const logsWithPhotos = progressLogs.filter(log => log.photos && log.photos.length > 0);
 
   if (!clientProfile) {
     return (
@@ -392,31 +425,294 @@ export default function ProgressTracking() {
           </Card>
         </div>
 
-        {/* Weight Chart */}
-        {chartData.length > 0 && (
-          <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-            <CardHeader>
-              <CardTitle>Weight Trend</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis domain={['dataMin - 2', 'dataMax + 2']} />
-                  <Tooltip />
-                  <Line 
-                    type="monotone" 
-                    dataKey="weight" 
-                    stroke="#f97316" 
-                    strokeWidth={3}
-                    dot={{ fill: '#f97316', r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        )}
+        {/* Enhanced Charts Tabs */}
+        <Tabs defaultValue="weight" className="space-y-6">
+          <TabsList className="grid grid-cols-5 bg-white/80 backdrop-blur">
+            <TabsTrigger value="weight">
+              <Scale className="w-4 h-4 mr-2" />
+              Weight
+            </TabsTrigger>
+            <TabsTrigger value="measurements">
+              <Ruler className="w-4 h-4 mr-2" />
+              Measurements
+            </TabsTrigger>
+            <TabsTrigger value="wellness">
+              <Activity className="w-4 h-4 mr-2" />
+              Wellness
+            </TabsTrigger>
+            <TabsTrigger value="adherence">
+              <Calendar className="w-4 h-4 mr-2" />
+              Adherence
+            </TabsTrigger>
+            <TabsTrigger value="photos">
+              <Camera className="w-4 h-4 mr-2" />
+              Photos
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Weight Chart */}
+          <TabsContent value="weight">
+            {chartData.length > 0 ? (
+              <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+                <CardHeader>
+                  <CardTitle>Weight Trend Over Time</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis domain={['dataMin - 2', 'dataMax + 2']} />
+                      <Tooltip />
+                      <Legend />
+                      <Line 
+                        type="monotone" 
+                        dataKey="weight" 
+                        stroke="#f97316" 
+                        strokeWidth={3}
+                        dot={{ fill: '#f97316', r: 6 }}
+                        name="Weight (kg)"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <Scale className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-600">No weight data logged yet</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Measurements Chart */}
+          <TabsContent value="measurements">
+            {measurementData.length > 0 ? (
+              <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+                <CardHeader>
+                  <CardTitle>Body Measurements Progress</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <LineChart data={measurementData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="chest" stroke="#3b82f6" strokeWidth={2} name="Chest (cm)" />
+                      <Line type="monotone" dataKey="waist" stroke="#f97316" strokeWidth={2} name="Waist (cm)" />
+                      <Line type="monotone" dataKey="hips" stroke="#10b981" strokeWidth={2} name="Hips (cm)" />
+                      <Line type="monotone" dataKey="arms" stroke="#8b5cf6" strokeWidth={2} name="Arms (cm)" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <Ruler className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-600">No measurements logged yet</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Wellness Metrics Chart */}
+          <TabsContent value="wellness">
+            {wellnessData.length > 0 ? (
+              <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+                <CardHeader>
+                  <CardTitle>Wellness Metrics Trend</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <BarChart data={wellnessData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis domain={[0, 5]} />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="energy" fill="#10b981" name="Energy Level" />
+                      <Bar dataKey="sleep" fill="#3b82f6" name="Sleep Quality" />
+                      <Bar dataKey="stress" fill="#ef4444" name="Stress Level" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <Activity className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-600">No wellness data logged yet</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Adherence Chart */}
+          <TabsContent value="adherence">
+            {adherenceData.length > 0 ? (
+              <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+                <CardHeader>
+                  <CardTitle>Meal Plan Adherence Over Time</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <LineChart data={adherenceData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis domain={[0, 100]} />
+                      <Tooltip />
+                      <Legend />
+                      <Line 
+                        type="monotone" 
+                        dataKey="adherence" 
+                        stroke="#10b981" 
+                        strokeWidth={3}
+                        dot={{ fill: '#10b981', r: 6 }}
+                        name="Adherence (%)"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <Calendar className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-600">No adherence data logged yet</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Progress Photos */}
+          <TabsContent value="photos">
+            {logsWithPhotos.length > 0 ? (
+              <div className="space-y-6">
+                {/* Side-by-side comparison */}
+                {logsWithPhotos.length >= 2 && (
+                  <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <ImageIcon className="w-6 h-6 text-purple-600" />
+                        Before & After Comparison
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 gap-6">
+                        {/* First photo */}
+                        <div className="space-y-3">
+                          <Badge className="bg-blue-500 text-white">
+                            Before - {format(new Date(logsWithPhotos[0].date), 'MMM d, yyyy')}
+                          </Badge>
+                          <div className="grid grid-cols-1 gap-3">
+                            {logsWithPhotos[0].photos.slice(0, 2).map((photo, idx) => (
+                              <img
+                                key={idx}
+                                src={photo}
+                                alt={`Before ${idx + 1}`}
+                                className="w-full rounded-lg shadow-lg object-cover aspect-square border-4 border-blue-300"
+                              />
+                            ))}
+                          </div>
+                          <div className="text-center p-3 bg-white rounded-lg">
+                            <p className="text-sm text-gray-600">Starting Weight</p>
+                            <p className="text-2xl font-bold text-blue-600">{logsWithPhotos[0].weight} kg</p>
+                          </div>
+                        </div>
+
+                        {/* Latest photo */}
+                        <div className="space-y-3">
+                          <Badge className="bg-green-500 text-white">
+                            After - {format(new Date(logsWithPhotos[logsWithPhotos.length - 1].date), 'MMM d, yyyy')}
+                          </Badge>
+                          <div className="grid grid-cols-1 gap-3">
+                            {logsWithPhotos[logsWithPhotos.length - 1].photos.slice(0, 2).map((photo, idx) => (
+                              <img
+                                key={idx}
+                                src={photo}
+                                alt={`After ${idx + 1}`}
+                                className="w-full rounded-lg shadow-lg object-cover aspect-square border-4 border-green-300"
+                              />
+                            ))}
+                          </div>
+                          <div className="text-center p-3 bg-white rounded-lg">
+                            <p className="text-sm text-gray-600">Current Weight</p>
+                            <p className="text-2xl font-bold text-green-600">{logsWithPhotos[logsWithPhotos.length - 1].weight} kg</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Stats */}
+                      <div className="mt-6 p-4 bg-white rounded-lg border-2 border-purple-200">
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div>
+                            <p className="text-sm text-gray-600">Weight Change</p>
+                            <p className={`text-2xl font-bold ${logsWithPhotos[logsWithPhotos.length - 1].weight - logsWithPhotos[0].weight < 0 ? 'text-green-600' : 'text-orange-600'}`}>
+                              {(logsWithPhotos[logsWithPhotos.length - 1].weight - logsWithPhotos[0].weight).toFixed(1)} kg
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600">Days Tracked</p>
+                            <p className="text-2xl font-bold text-purple-600">
+                              {Math.floor((new Date(logsWithPhotos[logsWithPhotos.length - 1].date) - new Date(logsWithPhotos[0].date)) / (1000 * 60 * 60 * 24))}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600">Total Photos</p>
+                            <p className="text-2xl font-bold text-pink-600">
+                              {logsWithPhotos.reduce((sum, log) => sum + (log.photos?.length || 0), 0)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* All photo timeline */}
+                <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+                  <CardHeader>
+                    <CardTitle>Progress Photo Timeline</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {logsWithPhotos.map((log) => (
+                        log.photos.map((photo, idx) => (
+                          <div key={`${log.id}-${idx}`} className="space-y-2">
+                            <img
+                              src={photo}
+                              alt={`Progress ${format(new Date(log.date), 'MMM d')}`}
+                              className="w-full rounded-lg shadow-lg object-cover aspect-square border-2 border-gray-200 hover:border-orange-400 transition-all cursor-pointer"
+                              onClick={() => window.open(photo, '_blank')}
+                            />
+                            <div className="text-center">
+                              <p className="text-xs text-gray-600">{format(new Date(log.date), 'MMM d, yyyy')}</p>
+                              <p className="text-sm font-semibold text-gray-900">{log.weight} kg</p>
+                            </div>
+                          </div>
+                        ))
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : (
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <Camera className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Progress Photos</h3>
+                  <p className="text-gray-600 mb-4">Start capturing your transformation!</p>
+                  <p className="text-sm text-gray-500">Upload photos when logging your progress to track visual changes over time</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
 
         {/* Progress Logs */}
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur">

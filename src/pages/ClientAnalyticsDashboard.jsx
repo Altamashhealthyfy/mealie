@@ -329,6 +329,128 @@ export default function ClientAnalyticsDashboard() {
 
           {/* Progress Tracking Tab */}
           <TabsContent value="progress" className="space-y-6">
+            {/* Consolidated Progress Dashboard */}
+            <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
+              <CardHeader>
+                <CardTitle className="text-2xl">📊 All Clients Progress Overview</CardTitle>
+                <CardDescription>Quick snapshot of everyone's progress</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="p-4 bg-white rounded-lg shadow">
+                    <div className="flex items-center gap-3 mb-2">
+                      <TrendingDown className="w-8 h-8 text-green-600" />
+                      <div>
+                        <p className="text-sm text-gray-600">Losing Weight</p>
+                        <p className="text-3xl font-bold text-green-600">
+                          {analytics.clientProgress.filter(p => p.weightChange < 0).length}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Avg: {analytics.clientProgress.filter(p => p.weightChange < 0).length > 0 
+                        ? (analytics.clientProgress.filter(p => p.weightChange < 0).reduce((sum, p) => sum + p.weightChange, 0) / analytics.clientProgress.filter(p => p.weightChange < 0).length).toFixed(1)
+                        : '0'} kg
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-white rounded-lg shadow">
+                    <div className="flex items-center gap-3 mb-2">
+                      <TrendingUp className="w-8 h-8 text-blue-600" />
+                      <div>
+                        <p className="text-sm text-gray-600">Gaining Weight</p>
+                        <p className="text-3xl font-bold text-blue-600">
+                          {analytics.clientProgress.filter(p => p.weightChange > 0).length}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Avg: +{analytics.clientProgress.filter(p => p.weightChange > 0).length > 0 
+                        ? (analytics.clientProgress.filter(p => p.weightChange > 0).reduce((sum, p) => sum + p.weightChange, 0) / analytics.clientProgress.filter(p => p.weightChange > 0).length).toFixed(1)
+                        : '0'} kg
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-white rounded-lg shadow">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Award className="w-8 h-8 text-yellow-600" />
+                      <div>
+                        <p className="text-sm text-gray-600">Top Performer</p>
+                        <p className="text-xl font-bold text-yellow-600">
+                          {analytics.clientProgress.filter(p => p.weightChange < 0).sort((a, b) => a.weightChange - b.weightChange)[0]?.client.full_name.split(' ')[0] || 'N/A'}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      {analytics.clientProgress.filter(p => p.weightChange < 0)[0]?.weightChange.toFixed(1) || '0'} kg lost
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-white rounded-lg shadow">
+                    <div className="flex items-center gap-3 mb-2">
+                      <Target className="w-8 h-8 text-purple-600" />
+                      <div>
+                        <p className="text-sm text-gray-600">Tracking Clients</p>
+                        <p className="text-3xl font-bold text-purple-600">
+                          {analytics.clientProgress.length}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      {((analytics.clientProgress.length / analytics.totalClients) * 100).toFixed(0)}% of all clients
+                    </p>
+                  </div>
+                </div>
+
+                {/* At-risk and excelling clients */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+                  {/* Excelling Clients */}
+                  <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg border-2 border-green-300">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Award className="w-6 h-6 text-green-700" />
+                      <h3 className="font-bold text-green-900">🌟 Excelling (High Adherence)</h3>
+                    </div>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {analytics.clientAdherence
+                        .filter(c => c.adherence >= 80)
+                        .slice(0, 5)
+                        .map(item => (
+                          <div key={item.client.id} className="flex items-center justify-between p-2 bg-white/80 rounded">
+                            <span className="text-sm font-semibold text-gray-900">{item.client.full_name}</span>
+                            <Badge className="bg-green-600 text-white">{item.adherence.toFixed(0)}%</Badge>
+                          </div>
+                        ))}
+                      {analytics.clientAdherence.filter(c => c.adherence >= 80).length === 0 && (
+                        <p className="text-sm text-gray-600 text-center py-2">No clients with 80%+ adherence yet</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* At-risk Clients */}
+                  <div className="p-4 bg-gradient-to-br from-red-100 to-orange-100 rounded-lg border-2 border-red-300">
+                    <div className="flex items-center gap-2 mb-3">
+                      <AlertTriangle className="w-6 h-6 text-red-700" />
+                      <h3 className="font-bold text-red-900">⚠️ Off-Track (Low Adherence)</h3>
+                    </div>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {analytics.clientAdherence
+                        .filter(c => c.adherence < 50)
+                        .slice(0, 5)
+                        .map(item => (
+                          <div key={item.client.id} className="flex items-center justify-between p-2 bg-white/80 rounded">
+                            <span className="text-sm font-semibold text-gray-900">{item.client.full_name}</span>
+                            <Badge className="bg-red-600 text-white">{item.adherence.toFixed(0)}%</Badge>
+                          </div>
+                        ))}
+                      {analytics.clientAdherence.filter(c => c.adherence < 50).length === 0 && (
+                        <p className="text-sm text-gray-600 text-center py-2">No at-risk clients 🎉</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Weight Trend Chart */}
               <Card className="border-none shadow-lg col-span-2">
