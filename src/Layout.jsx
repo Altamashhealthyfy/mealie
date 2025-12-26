@@ -108,6 +108,12 @@ const dietitianNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
+    title: "Client Habits",
+    url: createPageUrl("ClientHabits"),
+    icon: CheckCircle,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
     title: "Messages",
     url: createPageUrl("Communication"),
     icon: MessageSquare,
@@ -493,10 +499,16 @@ export default function Layout({ children, currentPageName }) {
         show: permissions?.can_view_progress ?? true,
         },
         {
-        title: "My Goals",
-        url: createPageUrl("MyGoals"),
-        icon: Target,
-        show: true,
+          title: "My Goals",
+          url: createPageUrl("MyGoals"),
+          icon: Target,
+          show: true,
+        },
+        {
+          title: "My Habits",
+          url: createPageUrl("MyHabits"),
+          icon: CheckCircle,
+          show: true,
         },
       {
         title: "MPESS Wellness",

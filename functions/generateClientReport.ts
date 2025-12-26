@@ -13,6 +13,24 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { clientId, clientName, reportPeriod, dateRange, metrics, customNotes, clientData } = body;
 
+    // Fetch habit data
+    const habits = await base44.asServiceRole.entities.Habit.filter({ client_id: clientId, active: true });
+    const habitLogs = await base44.asServiceRole.entities.HabitLog.filter({ client_id: clientId });
+    
+    const periodHabitLogs = habitLogs.filter(log => {
+      const logDate = new Date(log.date);
+      return logDate >= new Date(dateRange.start) && logDate <= new Date(dateRange.end);
+    });
+
+    const habitStats = {
+      totalHabits: habits.length,
+      totalCompletions: periodHabitLogs.length,
+      bestStreak: Math.max(...habits.map(h => h.best_streak || 0), 0),
+      avgStreak: habits.length > 0 
+        ? habits.reduce((sum, h) => sum + (h.current_streak || 0), 0) / habits.length 
+        : 0,
+    };
+
     // Create PDF
     const doc = new jsPDF();
     let yPos = 20;
@@ -127,6 +145,30 @@ Deno.serve(async (req) => {
         yPos += 7;
       }
       yPos += 10;
+    }
+
+    // Habit Tracking
+    if (habitStats.totalHabits > 0) {
+      if (yPos > 240) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text('Habit Consistency', 20, yPos);
+      yPos += 10;
+
+      doc.setFontSize(11);
+      doc.setFont(undefined, 'normal');
+      doc.text(`Active Habits: ${habitStats.totalHabits}`, 25, yPos);
+      yPos += 7;
+      doc.text(`Completions This Period: ${habitStats.totalCompletions}`, 25, yPos);
+      yPos += 7;
+      doc.text(`Best Streak: ${habitStats.bestStreak} days`, 25, yPos);
+      yPos += 7;
+      doc.text(`Average Current Streak: ${habitStats.avgStreak.toFixed(1)} days`, 25, yPos);
+      yPos += 15;
     }
 
     // Coach's Notes
