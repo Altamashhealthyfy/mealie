@@ -114,6 +114,12 @@ const dietitianNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
+    title: "Automated Check-Ins",
+    url: createPageUrl("AutomatedCheckIns"),
+    icon: Bell,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
     title: "Meal Plans",
     url: createPageUrl("MealPlanner"),
     icon: ChefHat,
