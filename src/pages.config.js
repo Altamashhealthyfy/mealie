@@ -1,7 +1,6 @@
 import AddTeamAppointment from './pages/AddTeamAppointment';
 import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
 import Appointments from './pages/Appointments';
-import AutomatedCheckIns from './pages/AutomatedCheckIns';
 import BulkImport from './pages/BulkImport';
 import BusinessGPTs from './pages/BusinessGPTs';
 import BusinessHub from './pages/BusinessHub';
@@ -11,13 +10,10 @@ import CallCenterAdmin from './pages/CallCenterAdmin';
 import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
 import ClientCommunication from './pages/ClientCommunication';
 import ClientFinanceManager from './pages/ClientFinanceManager';
-import ClientGoals from './pages/ClientGoals';
-import ClientHabits from './pages/ClientHabits';
 import ClientManagement from './pages/ClientManagement';
 import ClientPlanBuilder from './pages/ClientPlanBuilder';
 import ClientPlanManagement from './pages/ClientPlanManagement';
 import ClientPlans from './pages/ClientPlans';
-import ClientReports from './pages/ClientReports';
 import ClinicalIntake from './pages/ClinicalIntake';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachSubscription from './pages/CoachSubscription';
@@ -39,8 +35,6 @@ import MarketingHub from './pages/MarketingHub';
 import MealPlanner from './pages/MealPlanner';
 import MealPlansPro from './pages/MealPlansPro';
 import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
-import MyGoals from './pages/MyGoals';
-import MyHabits from './pages/MyHabits';
 import NotificationSettings from './pages/NotificationSettings';
 import PaymentGatewaySettings from './pages/PaymentGatewaySettings';
 import PaymentHistory from './pages/PaymentHistory';
@@ -70,6 +64,7 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
+import ClientReports from './pages/ClientReports';
 import __Layout from './Layout.jsx';
 
 
@@ -77,7 +72,6 @@ export const PAGES = {
     "AddTeamAppointment": AddTeamAppointment,
     "AdminSubscriptionManager": AdminSubscriptionManager,
     "Appointments": Appointments,
-    "AutomatedCheckIns": AutomatedCheckIns,
     "BulkImport": BulkImport,
     "BusinessGPTs": BusinessGPTs,
     "BusinessHub": BusinessHub,
@@ -87,13 +81,10 @@ export const PAGES = {
     "ClientAnalyticsDashboard": ClientAnalyticsDashboard,
     "ClientCommunication": ClientCommunication,
     "ClientFinanceManager": ClientFinanceManager,
-    "ClientGoals": ClientGoals,
-    "ClientHabits": ClientHabits,
     "ClientManagement": ClientManagement,
     "ClientPlanBuilder": ClientPlanBuilder,
     "ClientPlanManagement": ClientPlanManagement,
     "ClientPlans": ClientPlans,
-    "ClientReports": ClientReports,
     "ClinicalIntake": ClinicalIntake,
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachSubscription": CoachSubscription,
@@ -115,8 +106,6 @@ export const PAGES = {
     "MealPlanner": MealPlanner,
     "MealPlansPro": MealPlansPro,
     "MyAssignedMealPlan": MyAssignedMealPlan,
-    "MyGoals": MyGoals,
-    "MyHabits": MyHabits,
     "NotificationSettings": NotificationSettings,
     "PaymentGatewaySettings": PaymentGatewaySettings,
     "PaymentHistory": PaymentHistory,
@@ -146,6 +135,7 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
+    "ClientReports": ClientReports,
 }
 
 export const pagesConfig = {
