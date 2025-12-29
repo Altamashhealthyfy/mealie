@@ -12,6 +12,7 @@ import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
 import ClientCommunication from './pages/ClientCommunication';
 import ClientFinanceManager from './pages/ClientFinanceManager';
 import ClientGoals from './pages/ClientGoals';
+import ClientHabits from './pages/ClientHabits';
 import ClientManagement from './pages/ClientManagement';
 import ClientPlanBuilder from './pages/ClientPlanBuilder';
 import ClientPlanManagement from './pages/ClientPlanManagement';
@@ -39,6 +40,7 @@ import MealPlanner from './pages/MealPlanner';
 import MealPlansPro from './pages/MealPlansPro';
 import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
 import MyGoals from './pages/MyGoals';
+import MyHabits from './pages/MyHabits';
 import NotificationSettings from './pages/NotificationSettings';
 import PaymentGatewaySettings from './pages/PaymentGatewaySettings';
 import PaymentHistory from './pages/PaymentHistory';
@@ -68,8 +70,6 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import MyHabits from './pages/MyHabits';
-import ClientHabits from './pages/ClientHabits';
 import __Layout from './Layout.jsx';
 
 
@@ -88,6 +88,7 @@ export const PAGES = {
     "ClientCommunication": ClientCommunication,
     "ClientFinanceManager": ClientFinanceManager,
     "ClientGoals": ClientGoals,
+    "ClientHabits": ClientHabits,
     "ClientManagement": ClientManagement,
     "ClientPlanBuilder": ClientPlanBuilder,
     "ClientPlanManagement": ClientPlanManagement,
@@ -115,6 +116,7 @@ export const PAGES = {
     "MealPlansPro": MealPlansPro,
     "MyAssignedMealPlan": MyAssignedMealPlan,
     "MyGoals": MyGoals,
+    "MyHabits": MyHabits,
     "NotificationSettings": NotificationSettings,
     "PaymentGatewaySettings": PaymentGatewaySettings,
     "PaymentHistory": PaymentHistory,
@@ -144,8 +146,6 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "MyHabits": MyHabits,
-    "ClientHabits": ClientHabits,
 }
 
 export const pagesConfig = {

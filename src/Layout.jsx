@@ -33,7 +33,9 @@ import {
   Crown,
   Receipt,
   Settings,
-  Globe
+  Globe,
+  CheckCircle,
+  Bell
 } from "lucide-react";
 import {
   Sidebar,
