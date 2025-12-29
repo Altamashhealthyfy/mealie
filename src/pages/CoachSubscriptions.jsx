@@ -243,9 +243,11 @@ export default function CoachSubscriptions() {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {plans.map(plan => (
-            <Card key={plan.id} className="border-none shadow-xl">
-              <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white">
+          {plans.map(plan => {
+            const isActivePlan = mySubscription?.plan_id === plan.id && mySubscription?.status === 'active';
+            return (
+            <Card key={plan.id} className={`border-none shadow-xl ${isActivePlan ? 'opacity-60 bg-gray-100' : ''}`}>
+              <CardHeader className={`bg-gradient-to-r from-purple-500 to-indigo-600 text-white ${isActivePlan ? 'opacity-70' : ''}`}>
                 <div className="flex items-center justify-between mb-2">
                   <Crown className="w-8 h-8" />
                   <Badge className="bg-white text-purple-600">COACH</Badge>
@@ -275,11 +277,14 @@ export default function CoachSubscriptions() {
                   {plan.can_create_client_plans && <p>📋 Create Client Plans</p>}
                 </div>
 
-                {mySubscription?.plan_id === plan.id && mySubscription?.status === 'active' ? (
-                  <div className="w-full py-3 bg-green-100 text-green-800 rounded-lg flex items-center justify-center gap-2 font-semibold">
-                    <CheckCircle className="w-5 h-5" />
+                {isActivePlan ? (
+                  <Button
+                    disabled
+                    className="w-full bg-gray-400 text-gray-600 cursor-not-allowed"
+                  >
+                    <CheckCircle className="w-5 h-5 mr-2" />
                     Current Active Plan
-                  </div>
+                  </Button>
                 ) : (
                   <Button
                     onClick={() => setSelectedPlan(plan)}
@@ -289,9 +294,10 @@ export default function CoachSubscriptions() {
                     {mySubscription && mySubscription.status === 'active' ? 'Change Plan' : 'Subscribe'}
                   </Button>
                 )}
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+                </Card>
+                );
+                })}
         </div>
 
         <Dialog open={!!selectedPlan} onOpenChange={() => setSelectedPlan(null)}>
