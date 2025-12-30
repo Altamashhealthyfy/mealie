@@ -19,8 +19,6 @@ import ClinicalIntake from './pages/ClinicalIntake';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachSubscription from './pages/CoachSubscription';
 import CoachSubscriptions from './pages/CoachSubscriptions';
-import Communication from './pages/Communication';
-import DietitianDashboard from './pages/DietitianDashboard';
 import Documentation from './pages/Documentation';
 import FeatureControl from './pages/FeatureControl';
 import FoodLog from './pages/FoodLog';
@@ -65,6 +63,8 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
+import Communication from './pages/Communication';
+import DietitianDashboard from './pages/DietitianDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -90,8 +90,6 @@ export const PAGES = {
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachSubscription": CoachSubscription,
     "CoachSubscriptions": CoachSubscriptions,
-    "Communication": Communication,
-    "DietitianDashboard": DietitianDashboard,
     "Documentation": Documentation,
     "FeatureControl": FeatureControl,
     "FoodLog": FoodLog,
@@ -136,6 +134,8 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
+    "Communication": Communication,
+    "DietitianDashboard": DietitianDashboard,
 }
 
 export const pagesConfig = {

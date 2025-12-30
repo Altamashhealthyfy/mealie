@@ -40,7 +40,10 @@ export default function Communication() {
   const fileInputRef = useRef(null);
 
   const formatToIST = (dateString) => {
-    const date = new Date(dateString);
+    if (!dateString) return '';
+    // Ensure proper UTC parsing by appending 'Z' if not present
+    const utcString = dateString.includes('Z') ? dateString : dateString + 'Z';
+    const date = new Date(utcString);
     return new Intl.DateTimeFormat('en-IN', {
       timeZone: 'Asia/Kolkata',
       hour: 'numeric',
@@ -50,7 +53,9 @@ export default function Communication() {
   };
 
   const formatDateTimeIST = (dateString) => {
-    const date = new Date(dateString);
+    if (!dateString) return '';
+    const utcString = dateString.includes('Z') ? dateString : dateString + 'Z';
+    const date = new Date(utcString);
     return new Intl.DateTimeFormat('en-IN', {
       timeZone: 'Asia/Kolkata',
       month: 'short',

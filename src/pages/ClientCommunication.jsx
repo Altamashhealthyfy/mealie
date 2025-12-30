@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -34,7 +33,10 @@ export default function ClientCommunication() {
   const fileInputRef = useRef(null);
 
   const formatToIST = (dateString) => {
-    const date = new Date(dateString);
+    if (!dateString) return '';
+    // Ensure proper UTC parsing by appending 'Z' if not present
+    const utcString = dateString.includes('Z') ? dateString : dateString + 'Z';
+    const date = new Date(utcString);
     return new Intl.DateTimeFormat('en-IN', {
       timeZone: 'Asia/Kolkata',
       hour: 'numeric',
