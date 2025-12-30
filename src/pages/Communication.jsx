@@ -99,9 +99,9 @@ export default function Communication() {
     staleTime: 30000,
   });
 
-  const { data: allMessages } = useQuery({
+  const { data: allMessages, isLoading: messagesLoading } = useQuery({
     queryKey: ['allMessages'],
-    queryFn: () => base44.entities.Message.list('-created_date', 500),
+    queryFn: () => base44.entities.Message.list('-created_date', 200),
     initialData: [],
     refetchInterval: 10000,
     staleTime: 5000,
@@ -349,7 +349,7 @@ export default function Communication() {
           <div className="grid grid-cols-12 h-full">
             {/* Client List Sidebar */}
             <div className="col-span-12 md:col-span-4 border-r border-gray-200 flex flex-col">
-              <CardHeader className="border-b border-gray-200 flex-shrink-0">
+              <CardHeader className="border-b border-gray-200 flex-shrink-0" id="message-clients-list">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <Input
@@ -364,7 +364,12 @@ export default function Communication() {
               <div className="flex-1 overflow-hidden relative">
                 <ScrollArea className="h-full" style={{ height: 'calc(100vh - 330px)' }}>
                   <div className="p-2">
-                    {sortedClients.length === 0 ? (
+                    {messagesLoading ? (
+                      <div className="text-center py-12">
+                        <Loader2 className="w-8 h-8 mx-auto text-orange-500 animate-spin mb-3" />
+                        <p className="text-gray-600">Loading messages...</p>
+                      </div>
+                    ) : sortedClients.length === 0 ? (
                       <div className="text-center py-12">
                         <MessageSquare className="w-12 h-12 mx-auto text-gray-300 mb-3" />
                         <p className="text-gray-600">No clients found</p>
@@ -439,7 +444,7 @@ export default function Communication() {
               {selectedClient ? (
                 <>
                   {/* Chat Header */}
-                  <CardHeader className="border-b border-gray-200 flex-shrink-0">
+                  <CardHeader className="border-b border-gray-200 flex-shrink-0" id="message-chat-area">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
                         <span className="text-white font-medium">
@@ -531,7 +536,7 @@ export default function Communication() {
                   </div>
 
                   {/* Send Message Box */}
-                  <div className="p-4 border-t-2 border-orange-500 bg-white flex-shrink-0">
+                  <div className="p-4 border-t-2 border-orange-500 bg-white flex-shrink-0" id="message-send-box">
                     {attachedFile && (
                       <div className="mb-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
                         <div className="flex items-center gap-2">
