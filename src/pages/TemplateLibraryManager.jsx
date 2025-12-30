@@ -620,29 +620,58 @@ Extract:
                   {formData.category === 'meal_plan' && (
                     <>
                       <div className="space-y-2">
-                        <Label className="text-sm">Calories</Label>
-                        <Input
-                          type="number"
-                          placeholder="1500"
-                          value={formData.target_calories}
-                          onChange={(e) => setFormData({...formData, target_calories: e.target.value})}
-                          className="h-10 md:h-auto"
-                        />
+                       <Label className="text-sm">Subcategory</Label>
+                       <Select
+                         value={formData.subcategory}
+                         onValueChange={(value) => setFormData({...formData, subcategory: value})}
+                       >
+                         <SelectTrigger className="h-10 md:h-auto">
+                           <SelectValue />
+                         </SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="weight_loss">Weight Loss</SelectItem>
+                           <SelectItem value="weight_gain">Weight Gain</SelectItem>
+                           <SelectItem value="diabetes">Diabetes</SelectItem>
+                           <SelectItem value="pcos">PCOS</SelectItem>
+                           <SelectItem value="thyroid">Thyroid</SelectItem>
+                           <SelectItem value="pregnancy">Pregnancy</SelectItem>
+                           <SelectItem value="kids">Kids</SelectItem>
+                           <SelectItem value="muscle_gain">Muscle Gain</SelectItem>
+                           <SelectItem value="maintenance">Maintenance</SelectItem>
+                           <SelectItem value="eggetarian">Eggetarian Diet</SelectItem>
+                           <SelectItem value="cholesterol">Cholesterol Management</SelectItem>
+                           <SelectItem value="clinical_nutrition">Clinical Nutrition</SelectItem>
+                           <SelectItem value="triglycerides">Triglycerides Control</SelectItem>
+                           <SelectItem value="gluten_free">Gluten-Free Diet</SelectItem>
+                           <SelectItem value="general">General</SelectItem>
+                         </SelectContent>
+                       </Select>
                       </div>
 
                       <div className="space-y-2">
-                        <Label className="text-sm">Duration</Label>
-                        <Input
-                          type="number"
-                          placeholder="7"
-                          value={formData.duration}
-                          onChange={(e) => setFormData({...formData, duration: e.target.value})}
-                          className="h-10 md:h-auto"
-                        />
+                       <Label className="text-sm">Calories</Label>
+                       <Input
+                         type="number"
+                         placeholder="1500"
+                         value={formData.target_calories}
+                         onChange={(e) => setFormData({...formData, target_calories: e.target.value})}
+                         className="h-10 md:h-auto"
+                       />
                       </div>
-                    </>
-                  )}
-                </div>
+
+                      <div className="space-y-2">
+                       <Label className="text-sm">Duration</Label>
+                       <Input
+                         type="number"
+                         placeholder="7"
+                         value={formData.duration}
+                         onChange={(e) => setFormData({...formData, duration: e.target.value})}
+                         className="h-10 md:h-auto"
+                       />
+                      </div>
+                      </>
+                      )}
+                      </div>
 
                 <div className="space-y-2">
                   <Label className="text-sm">Description</Label>
