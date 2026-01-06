@@ -530,14 +530,9 @@ support@mealiepro.com`;
       return;
     }
     
-    if (!selectedCoach) {
-      alert("Please select a health coach");
-      return;
-    }
-    
     assignCoachMutation.mutate({
       clientId: clientToAssignCoach.id,
-      coachEmail: selectedCoach
+      coachEmail: selectedCoach || null
     });
   };
 
@@ -1539,7 +1534,7 @@ support@mealiepro.com`;
               ) : (
                 <>
                   <div className="space-y-2">
-                    <Label htmlFor="coach-select">Select Health Coach *</Label>
+                    <Label htmlFor="coach-select">Select Health Coach</Label>
                     <Select
                       value={selectedCoach}
                       onValueChange={setSelectedCoach}
@@ -1548,6 +1543,9 @@ support@mealiepro.com`;
                         <SelectValue placeholder="Choose health coach..." />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value={null}>
+                          <span className="text-gray-500">Unassign (No health coach)</span>
+                        </SelectItem>
                         {healthCoaches.map((coach) => (
                           <SelectItem key={coach.email} value={coach.email}>
                             <div className="flex items-center gap-2">
@@ -1586,18 +1584,18 @@ support@mealiepro.com`;
                 </Button>
                 <Button
                   onClick={handleConfirmAssignCoach}
-                  disabled={assignCoachMutation.isPending || !selectedCoach || healthCoaches.length === 0}
+                  disabled={assignCoachMutation.isPending || healthCoaches.length === 0}
                   className="flex-1 bg-green-600 hover:bg-green-700"
                 >
                   {assignCoachMutation.isPending ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Assigning...
+                      {selectedCoach ? 'Assigning...' : 'Unassigning...'}
                     </>
                   ) : (
                     <>
                       <UserPlus className="w-4 h-4 mr-2" />
-                      Assign to Coach
+                      {selectedCoach ? 'Assign to Coach' : 'Unassign Coach'}
                     </>
                   )}
                 </Button>
