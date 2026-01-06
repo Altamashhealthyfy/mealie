@@ -680,9 +680,197 @@ export default function ProgressTracking() {
           </Card>
         </div>
 
+        {/* Goals Section */}
+        <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Target className="w-6 h-6 text-purple-600" />
+                My Goals
+              </CardTitle>
+              {canEditProgress && (
+                <Button onClick={() => setShowGoalDialog(true)} size="sm" className="bg-purple-600">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Goal
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {goals && goals.filter(g => g.status === 'active').length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {goals.filter(g => g.status === 'active').map((goal) => {
+                  const progress = ((goal.current_value || goal.start_value || 0) / goal.target_value) * 100;
+                  const remaining = goal.target_value - (goal.current_value || goal.start_value || 0);
+                  return (
+                    <Card key={goal.id} className="bg-white">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900">{goal.title}</h4>
+                            {goal.description && (
+                              <p className="text-xs text-gray-600 mt-1">{goal.description}</p>
+                            )}
+                          </div>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="sm" onClick={() => handleEditGoal(goal)}>
+                              <Edit className="w-3 h-3" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleDeleteGoal(goal)}>
+                              <Trash2 className="w-3 h-3 text-red-500" />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-600">Progress</span>
+                            <span className="font-medium">{Math.round(progress)}%</span>
+                          </div>
+                          <Progress value={progress} className="h-2" />
+                          <div className="flex justify-between text-xs text-gray-600">
+                            <span>Current: {goal.current_value || goal.start_value || 0} {goal.unit}</span>
+                            <span>Target: {goal.target_value} {goal.unit}</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <Badge variant={goal.priority === 'high' ? 'destructive' : 'secondary'}>
+                              {goal.priority} priority
+                            </Badge>
+                            {goal.target_date && (
+                              <span className="text-gray-600">Due: {format(new Date(goal.target_date), 'MMM d, yyyy')}</span>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Target className="w-12 h-12 mx-auto text-gray-300 mb-2" />
+                <p className="text-gray-600 mb-2">No active goals yet</p>
+                {canEditProgress && (
+                  <Button onClick={() => setShowGoalDialog(true)} variant="outline" size="sm">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Set Your First Goal
+                  </Button>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Goal Dialog */}
+        <Dialog open={showGoalDialog} onOpenChange={setShowGoalDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{editingGoal ? 'Edit Goal' : 'Create New Goal'}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label>Goal Type</Label>
+                <Select value={goalData.goal_type} onValueChange={(v) => setGoalData({...goalData, goal_type: v})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="weight">Weight Goal</SelectItem>
+                    <SelectItem value="body_measurement">Body Measurement</SelectItem>
+                    <SelectItem value="wellness">Wellness Goal</SelectItem>
+                    <SelectItem value="habit">Habit Goal</SelectItem>
+                    <SelectItem value="custom">Custom Goal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Goal Title *</Label>
+                <Input
+                  value={goalData.title || ''}
+                  onChange={(e) => setGoalData({...goalData, title: e.target.value})}
+                  placeholder="e.g., Lose 5kg"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Description</Label>
+                <Textarea
+                  value={goalData.description || ''}
+                  onChange={(e) => setGoalData({...goalData, description: e.target.value})}
+                  placeholder="Why is this goal important?"
+                  rows={2}
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>Start Value</Label>
+                  <Input
+                    type="number"
+                    value={goalData.start_value || ''}
+                    onChange={(e) => setGoalData({...goalData, start_value: parseFloat(e.target.value)})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Current Value</Label>
+                  <Input
+                    type="number"
+                    value={goalData.current_value || ''}
+                    onChange={(e) => setGoalData({...goalData, current_value: parseFloat(e.target.value)})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Target Value *</Label>
+                  <Input
+                    type="number"
+                    value={goalData.target_value || ''}
+                    onChange={(e) => setGoalData({...goalData, target_value: parseFloat(e.target.value)})}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Unit</Label>
+                  <Input
+                    value={goalData.unit || ''}
+                    onChange={(e) => setGoalData({...goalData, unit: e.target.value})}
+                    placeholder="kg, cm, days, etc."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Target Date</Label>
+                  <Input
+                    type="date"
+                    value={goalData.target_date || ''}
+                    onChange={(e) => setGoalData({...goalData, target_date: e.target.value})}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Priority</Label>
+                <Select value={goalData.priority} onValueChange={(v) => setGoalData({...goalData, priority: v})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => { setShowGoalDialog(false); setEditingGoal(null); }} className="flex-1">
+                  Cancel
+                </Button>
+                <Button onClick={() => saveGoalMutation.mutate(goalData)} disabled={!goalData.title || !goalData.target_value} className="flex-1">
+                  {editingGoal ? 'Update' : 'Create'} Goal
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* Enhanced Charts Tabs */}
         <Tabs defaultValue="weight" className="space-y-6">
-          <TabsList className="grid grid-cols-5 bg-white/80 backdrop-blur">
+          <TabsList className="grid grid-cols-6 bg-white/80 backdrop-blur">
             <TabsTrigger value="weight">
               <Scale className="w-4 h-4 mr-2" />
               Weight
@@ -694,6 +882,10 @@ export default function ProgressTracking() {
             <TabsTrigger value="wellness">
               <Activity className="w-4 h-4 mr-2" />
               Wellness
+            </TabsTrigger>
+            <TabsTrigger value="mood">
+              <Smile className="w-4 h-4 mr-2" />
+              Mood
             </TabsTrigger>
             <TabsTrigger value="adherence">
               <Calendar className="w-4 h-4 mr-2" />
@@ -802,6 +994,43 @@ export default function ProgressTracking() {
                 <CardContent className="p-12 text-center">
                   <Activity className="w-16 h-16 mx-auto text-gray-300 mb-4" />
                   <p className="text-gray-600">No wellness data logged yet</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Mood Chart */}
+          <TabsContent value="mood">
+            {moodData.length > 0 ? (
+              <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+                <CardHeader>
+                  <CardTitle>Mood Tracking Over Time</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <LineChart data={moodData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis domain={[0, 5]} ticks={[1, 2, 3, 4, 5]} />
+                      <Tooltip />
+                      <Legend />
+                      <Line 
+                        type="monotone" 
+                        dataKey="mood" 
+                        stroke="#ec4899" 
+                        strokeWidth={3}
+                        dot={{ fill: '#ec4899', r: 6 }}
+                        name="Mood (1-5)"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <Smile className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-600">No mood data logged yet</p>
                 </CardContent>
               </Card>
             )}
@@ -1088,8 +1317,21 @@ export default function ProgressTracking() {
                       </div>
                     )}
 
-                    {(log.energy_level || log.sleep_quality || log.stress_level) && (
-                      <div className="flex gap-4 mb-3">
+                    {(log.mood || log.energy_level || log.sleep_quality || log.stress_level) && (
+                      <div className="flex gap-4 mb-3 flex-wrap">
+                        {log.mood && (
+                          <div className="text-sm">
+                            <span className="text-gray-600">Mood:</span>
+                            <span className="ml-1 font-medium capitalize">
+                              {log.mood === 'excellent' && '😄'}
+                              {log.mood === 'good' && '😊'}
+                              {log.mood === 'okay' && '😐'}
+                              {log.mood === 'low' && '😕'}
+                              {log.mood === 'very_low' && '😢'}
+                              {' '}{log.mood.replace('_', ' ')}
+                            </span>
+                          </div>
+                        )}
                         {log.energy_level && (
                           <div className="text-sm">
                             <span className="text-gray-600">Energy:</span>
