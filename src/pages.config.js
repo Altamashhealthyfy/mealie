@@ -65,6 +65,8 @@ import DietitianDashboard from './pages/DietitianDashboard';
 import ClientCommunication from './pages/ClientCommunication';
 import Communication from './pages/Communication';
 import TemplateLibraryManager from './pages/TemplateLibraryManager';
+import ClientAssessments from './pages/ClientAssessments';
+import MyAssessment from './pages/MyAssessment';
 import __Layout from './Layout.jsx';
 
 
@@ -136,6 +138,8 @@ export const PAGES = {
     "ClientCommunication": ClientCommunication,
     "Communication": Communication,
     "TemplateLibraryManager": TemplateLibraryManager,
+    "ClientAssessments": ClientAssessments,
+    "MyAssessment": MyAssessment,
 }
 
 export const pagesConfig = {
