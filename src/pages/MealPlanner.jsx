@@ -264,9 +264,31 @@ export default function MealPlanner() {
       return;
     }
 
+    // Expand template meals to all days if needed
+    let expandedMeals = [...template.meals];
+    
+    // Check if template has meals for all days
+    const uniqueDays = [...new Set(template.meals.map(m => m.day))];
+    const maxDay = Math.max(...uniqueDays);
+    
+    // If template has fewer days than duration, expand it
+    if (maxDay < template.duration) {
+      for (let day = maxDay + 1; day <= template.duration; day++) {
+        const cycleDay = ((day - 1) % maxDay) + 1;
+        const dayMeals = template.meals.filter(m => m.day === cycleDay);
+        
+        dayMeals.forEach(meal => {
+          expandedMeals.push({
+            ...meal,
+            day: day
+          });
+        });
+      }
+    }
+
     setGeneratedPlan({
       plan_name: `${template.name} - ${selectedClient.full_name}`,
-      meals: template.meals,
+      meals: expandedMeals,
       client_id: selectedClient.id,
       client_name: selectedClient.full_name,
       duration: template.duration,
@@ -302,13 +324,37 @@ export default function MealPlanner() {
     if (!confirmed) return;
 
     try {
+      // Expand template meals to all days if needed
+      let expandedMeals = [...template.meals];
+      
+      // Check if template has meals for all days
+      const uniqueDays = [...new Set(template.meals.map(m => m.day))];
+      const maxDay = Math.max(...uniqueDays);
+      
+      // If template has fewer days than duration, expand it
+      if (maxDay < template.duration) {
+        const mealsPerDay = template.meals.filter(m => m.day === 1);
+        
+        for (let day = maxDay + 1; day <= template.duration; day++) {
+          const cycleDay = ((day - 1) % maxDay) + 1;
+          const dayMeals = template.meals.filter(m => m.day === cycleDay);
+          
+          dayMeals.forEach(meal => {
+            expandedMeals.push({
+              ...meal,
+              day: day
+            });
+          });
+        }
+      }
+
       await savePlanMutation.mutateAsync({
         client_id: selectedClient.id,
         name: `${template.name} - ${selectedClient.full_name}`,
         duration: template.duration,
         meal_pattern: 'daily',
         target_calories: template.target_calories,
-        meals: template.meals,
+        meals: expandedMeals,
         food_preference: template.food_preference,
         regional_preference: template.regional_preference,
         active: true,
