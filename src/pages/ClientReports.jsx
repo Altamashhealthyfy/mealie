@@ -207,7 +207,7 @@ export default function ClientReports() {
             <CardTitle>Report Configuration</CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-4 md:gap-6">
               <div className="space-y-2">
                 <Label>Select Client *</Label>
                 <div className="relative mb-2">

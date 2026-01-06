@@ -130,10 +130,10 @@ export default function Home() {
               <Sparkles className="w-6 h-6 text-yellow-300" />
               <Badge className="bg-white/20 text-white border-white/30">MPESS Framework</Badge>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4">
               Welcome to Mealie
             </h1>
-            <p className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl">
+            <p className="text-base sm:text-lg md:text-2xl text-white/90 mb-6 sm:mb-8 max-w-2xl">
               Your personalized Indian meal planning assistant for a balanced, healthy lifestyle
             </p>
             {!userProfile ? (
@@ -351,7 +351,7 @@ export default function Home() {
             <p className="text-gray-700 mb-6 leading-relaxed">
               MPESS is a holistic wellness framework that goes beyond just nutrition to help you achieve complete wellbeing.
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
               {[
                 { letter: "M", word: "Mind", desc: "Mental wellness & affirmations", color: "from-blue-500 to-cyan-500" },
                 { letter: "P", word: "Physical", desc: "Movement & hydration", color: "from-green-500 to-emerald-500" },

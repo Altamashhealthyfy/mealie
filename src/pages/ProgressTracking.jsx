@@ -269,7 +269,7 @@ export default function ProgressTracking() {
                     Log Progress
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[95vw]">
                   <DialogHeader>
                     <DialogTitle>{editingLog ? 'Edit Progress' : 'Log Your Progress'}</DialogTitle>
                   </DialogHeader>
@@ -307,7 +307,7 @@ export default function ProgressTracking() {
                         </Select>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label className="flex items-center gap-2">
                             <Zap className="w-4 h-4 text-yellow-500" />
@@ -362,7 +362,7 @@ export default function ProgressTracking() {
                         <Ruler className="w-5 h-5 text-orange-600" />
                         Body Measurements (cm)
                       </h3>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <Input placeholder="Neck" type="number" step="0.1" value={formData.measurements?.neck || ''}
                           onChange={(e) => setFormData({...formData, measurements: {...formData.measurements, neck: parseFloat(e.target.value)}})} />
                         <Input placeholder="Chest" type="number" step="0.1" value={formData.measurements?.chest || ''}
@@ -385,7 +385,7 @@ export default function ProgressTracking() {
                     {/* Progress Photos */}
                     <div className="space-y-3">
                       <Label>Progress Photos</Label>
-                      <div className="grid grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         {['front', 'side', 'back'].map(type => (
                           <div key={type} className="space-y-2">
                             <Label className="text-sm capitalize">{type} View</Label>
@@ -474,7 +474,7 @@ export default function ProgressTracking() {
                       placeholder="Why is this goal important?" rows={2} />
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="space-y-2">
                       <Label>Start Value</Label>
                       <Input type="number" step="0.1" value={goalData.start_value || ''}

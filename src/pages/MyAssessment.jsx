@@ -147,7 +147,7 @@ export default function MyAssessment() {
             <CardTitle className="text-2xl">Complete Your Health Assessment</CardTitle>
             <p className="text-white/90 text-sm mt-2">Help us understand your health better</p>
           </CardHeader>
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="mb-8">
               <div className="flex justify-between mb-2">
                 {steps.map((step, idx) => (
@@ -313,7 +313,7 @@ function LifestyleHabitsForm({ formData, setFormData }) {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Sleep Hours (per night)</Label>
           <Input

@@ -234,7 +234,7 @@ export default function Profile() {
         {/* PROFILE PHOTO DISPLAY & UPLOAD */}
         {canEditProfile && (
           <Card className="border-none shadow-xl bg-gradient-to-br from-indigo-50 to-blue-50">
-            <CardContent className="p-8">
+            <CardContent className="p-4 sm:p-6 md:p-8">
               <div className="flex flex-col items-center gap-6">
                 {/* Large Profile Photo Display */}
                 <div className="relative">
