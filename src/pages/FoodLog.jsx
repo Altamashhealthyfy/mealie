@@ -68,15 +68,21 @@ export default function FoodLog() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: (data) => base44.entities.FoodLog.create({
-      ...data,
-      client_id: clientProfile.id,
-    }),
+    mutationFn: (data) => {
+      if (editingLog) {
+        return base44.entities.FoodLog.update(editingLog.id, data);
+      }
+      return base44.entities.FoodLog.create({
+        ...data,
+        client_id: clientProfile.id,
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['todayFoodLogs']);
       setShowAddDialog(false);
+      setEditingLog(null);
       setFormData({ meal_type: 'breakfast', date: format(new Date(), 'yyyy-MM-dd'), photo_url: null });
-      alert('Food log saved!');
+      alert(editingLog ? 'Food log updated!' : 'Food log saved!');
     },
   });
 
