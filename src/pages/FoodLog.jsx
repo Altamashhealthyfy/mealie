@@ -10,13 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Utensils, Camera, Trash2 } from "lucide-react";
+import { Plus, Utensils, Camera, Trash2, Edit } from "lucide-react";
 import { format } from "date-fns";
 
 export default function FoodLog() {
   const queryClient = useQueryClient();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [editingLog, setEditingLog] = useState(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [formData, setFormData] = useState({
     meal_type: 'breakfast',
@@ -108,6 +109,29 @@ export default function FoodLog() {
     }
   };
 
+  const handleEdit = (log) => {
+    setEditingLog(log);
+    setFormData({
+      meal_type: log.meal_type,
+      meal_name: log.meal_name,
+      items: log.items,
+      portion_sizes: log.portion_sizes,
+      calories: log.calories,
+      protein: log.protein,
+      carbs: log.carbs,
+      fats: log.fats,
+      photo_url: log.photo_url,
+      notes: log.notes,
+    });
+    setShowAddDialog(true);
+  };
+
+  const handleDialogClose = () => {
+    setShowAddDialog(false);
+    setEditingLog(null);
+    setFormData({ meal_type: 'breakfast', date: format(new Date(), 'yyyy-MM-dd'), photo_url: null });
+  };
+
   const handleSubmit = () => {
     saveMutation.mutate({
       ...formData,
@@ -148,7 +172,7 @@ export default function FoodLog() {
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Food Log</h1>
             <p className="text-gray-600">Track your daily food intake</p>
           </div>
-          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+          <Dialog open={showAddDialog} onOpenChange={(open) => !open && handleDialogClose()}>
             <DialogTrigger asChild>
               <Button className="bg-gradient-to-r from-orange-500 to-red-500">
                 <Plus className="w-4 h-4 mr-2" />
@@ -157,7 +181,7 @@ export default function FoodLog() {
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>Log Your Meal</DialogTitle>
+                <DialogTitle>{editingLog ? 'Edit Meal' : 'Log Your Meal'}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 <div className="space-y-2">
@@ -291,13 +315,22 @@ export default function FoodLog() {
                   </div>
                 </div>
 
-                <Button
-                  onClick={handleSubmit}
-                  disabled={saveMutation.isPending || uploadingPhoto}
-                  className="w-full bg-gradient-to-r from-orange-500 to-red-500"
-                >
-                  {saveMutation.isPending ? 'Saving...' : 'Save Food Log'}
-                </Button>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={handleDialogClose}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={saveMutation.isPending || uploadingPhoto}
+                    className="flex-1 bg-gradient-to-r from-orange-500 to-red-500"
+                  >
+                    {saveMutation.isPending ? 'Saving...' : editingLog ? 'Update Food Log' : 'Save Food Log'}
+                  </Button>
+                </div>
               </div>
             </DialogContent>
           </Dialog>
@@ -401,6 +434,13 @@ export default function FoodLog() {
                             <p className="text-xs text-gray-500">kcal</p>
                           </div>
                         )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEdit(log)}
+                        >
+                          <Edit className="w-4 h-4 text-blue-500" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="icon"
