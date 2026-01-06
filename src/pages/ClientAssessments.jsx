@@ -8,14 +8,16 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ClipboardList, Plus, Eye, FileText, Download, Calendar, CheckCircle, Clock, AlertCircle, Loader2 } from "lucide-react";
+import { ClipboardList, Plus, Eye, FileText, Download, Calendar, CheckCircle, Clock, AlertCircle, Loader2, GitCompare, Paperclip } from "lucide-react";
 import { format } from "date-fns";
 
 export default function ClientAssessments() {
   const queryClient = useQueryClient();
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [viewingAssessment, setViewingAssessment] = useState(null);
+  const [comparingClient, setComparingClient] = useState(null);
   const [generatingReport, setGeneratingReport] = useState(null);
 
   const { data: user } = useQuery({
@@ -62,6 +64,18 @@ export default function ClientAssessments() {
     initialData: [],
   });
 
+  const { data: templates } = useQuery({
+    queryKey: ['assessmentTemplates', user?.email],
+    queryFn: async () => {
+      if (user?.user_type === 'super_admin') {
+        return await base44.entities.AssessmentTemplate.list();
+      }
+      return await base44.entities.AssessmentTemplate.filter({ created_by: user?.email });
+    },
+    enabled: !!user && isDietitian,
+    initialData: [],
+  });
+
   const assignMutation = useMutation({
     mutationFn: (data) => base44.entities.ClientAssessment.create(data),
     onSuccess: () => {
@@ -95,6 +109,7 @@ export default function ClientAssessments() {
       client_name: selectedClient.full_name,
       assigned_by: user.email,
       status: 'pending',
+      template_id: selectedTemplate || null,
     });
   };
 
@@ -177,6 +192,25 @@ export default function ClientAssessments() {
                       </SelectContent>
                     </Select>
                   </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Assessment Template (optional)</label>
+                    <Select 
+                      value={selectedTemplate} 
+                      onValueChange={setSelectedTemplate}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Use default template" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="default">Default Template</SelectItem>
+                        {templates.map(template => (
+                          <SelectItem key={template.id} value={template.id}>
+                            {template.template_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <Button 
                     onClick={handleAssignAssessment}
                     disabled={assignMutation.isPending}
@@ -243,6 +277,8 @@ export default function ClientAssessments() {
               onView={setViewingAssessment}
               onGenerateReport={handleGenerateReport}
               generatingReport={generatingReport}
+              onCompare={setComparingClient}
+              clients={clients}
             />
           </TabsContent>
 
@@ -287,12 +323,26 @@ export default function ClientAssessments() {
             </DialogContent>
           </Dialog>
         )}
+
+        {comparingClient && (
+          <Dialog open={!!comparingClient} onOpenChange={() => setComparingClient(null)}>
+            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Compare Assessments - {comparingClient.full_name}</DialogTitle>
+              </DialogHeader>
+              <AssessmentComparison 
+                clientId={comparingClient.id} 
+                assessments={assessments.filter(a => a.client_id === comparingClient.id && a.status === 'completed')} 
+              />
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </div>
   );
 }
 
-function AssessmentList({ assessments, isDietitian, onView, onGenerateReport, generatingReport }) {
+function AssessmentList({ assessments, isDietitian, onView, onGenerateReport, generatingReport, onCompare }) {
   if (assessments.length === 0) {
     return (
       <Card className="border-none shadow-lg">
@@ -335,6 +385,12 @@ function AssessmentList({ assessments, isDietitian, onView, onGenerateReport, ge
                   <Eye className="w-4 h-4 mr-2" />
                   View
                 </Button>
+                {isDietitian && assessment.uploaded_files?.length > 0 && (
+                  <Button variant="outline" size="sm">
+                    <Paperclip className="w-4 h-4 mr-2" />
+                    {assessment.uploaded_files.length}
+                  </Button>
+                )}
                 {isDietitian && assessment.status === 'completed' && (
                   <>
                     {assessment.report_url ? (
@@ -386,6 +442,79 @@ function AssessmentList({ assessments, isDietitian, onView, onGenerateReport, ge
   );
 }
 
+function AssessmentComparison({ clientId, assessments }) {
+  if (assessments.length < 2) {
+    return (
+      <div className="text-center py-8">
+        <GitCompare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+        <p className="text-gray-600">Need at least 2 completed assessments to compare</p>
+      </div>
+    );
+  }
+
+  const sorted = assessments.sort((a, b) => new Date(a.assessment_date) - new Date(b.assessment_date));
+  const first = sorted[0];
+  const latest = sorted[sorted.length - 1];
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-6">
+        <Card className="bg-blue-50">
+          <CardHeader>
+            <CardTitle className="text-sm">First Assessment</CardTitle>
+            <p className="text-xs text-gray-600">{format(new Date(first.assessment_date), 'MMM d, yyyy')}</p>
+          </CardHeader>
+        </Card>
+        <Card className="bg-green-50">
+          <CardHeader>
+            <CardTitle className="text-sm">Latest Assessment</CardTitle>
+            <p className="text-xs text-gray-600">{format(new Date(latest.assessment_date), 'MMM d, yyyy')}</p>
+          </CardHeader>
+        </Card>
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="font-semibold text-lg">Health Goals Comparison</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="p-4 bg-blue-50 rounded-lg">
+            <p className="text-sm font-semibold mb-2">Initial Goal</p>
+            <p className="text-sm">{first.health_goals?.primary_goal?.replace('_', ' ') || 'N/A'}</p>
+            <p className="text-xs text-gray-600 mt-1">Target: {first.health_goals?.target_weight || 'N/A'} kg</p>
+          </div>
+          <div className="p-4 bg-green-50 rounded-lg">
+            <p className="text-sm font-semibold mb-2">Current Goal</p>
+            <p className="text-sm">{latest.health_goals?.primary_goal?.replace('_', ' ') || 'N/A'}</p>
+            <p className="text-xs text-gray-600 mt-1">Target: {latest.health_goals?.target_weight || 'N/A'} kg</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        <h3 className="font-semibold text-lg">Lifestyle Changes</h3>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="font-semibold mb-2">Sleep</p>
+            <p>Initial: {first.lifestyle_habits?.sleep_hours || 'N/A'} hrs</p>
+            <p>Latest: {latest.lifestyle_habits?.sleep_hours || 'N/A'} hrs</p>
+          </div>
+          <div>
+            <p className="font-semibold mb-2">Water Intake</p>
+            <p>Initial: {first.lifestyle_habits?.water_intake_liters || 'N/A'}L</p>
+            <p>Latest: {latest.lifestyle_habits?.water_intake_liters || 'N/A'}L</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-4 bg-gray-50 rounded-lg">
+        <p className="text-sm font-semibold mb-2">Progress Summary</p>
+        <p className="text-xs text-gray-700">
+          Time between assessments: {Math.floor((new Date(latest.assessment_date) - new Date(first.assessment_date)) / (1000 * 60 * 60 * 24))} days
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function AssessmentDetails({ assessment }) {
   if (assessment.status === 'pending') {
     return (
@@ -398,6 +527,24 @@ function AssessmentDetails({ assessment }) {
 
   return (
     <div className="space-y-6">
+      {assessment.uploaded_files && assessment.uploaded_files.length > 0 && (
+        <div>
+          <h3 className="font-semibold text-lg mb-3 text-purple-600">Uploaded Documents</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {assessment.uploaded_files.map((file, idx) => (
+              <a
+                key={idx}
+                href={file.file_url}
+                target="_blank"
+                className="flex items-center gap-2 p-3 border rounded-lg hover:bg-gray-50"
+              >
+                <Paperclip className="w-4 h-4" />
+                <span className="text-sm truncate">{file.file_name}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
       {assessment.medical_history && (
         <div>
           <h3 className="font-semibold text-lg mb-3 text-orange-600">Medical History</h3>

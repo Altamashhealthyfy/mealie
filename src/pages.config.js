@@ -67,6 +67,7 @@ import Communication from './pages/Communication';
 import TemplateLibraryManager from './pages/TemplateLibraryManager';
 import ClientAssessments from './pages/ClientAssessments';
 import MyAssessment from './pages/MyAssessment';
+import AssessmentTemplates from './pages/AssessmentTemplates';
 import __Layout from './Layout.jsx';
 
 
@@ -140,6 +141,7 @@ export const PAGES = {
     "TemplateLibraryManager": TemplateLibraryManager,
     "ClientAssessments": ClientAssessments,
     "MyAssessment": MyAssessment,
+    "AssessmentTemplates": AssessmentTemplates,
 }
 
 export const pagesConfig = {

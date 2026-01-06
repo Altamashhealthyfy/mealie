@@ -9,17 +9,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, ArrowRight, ArrowLeft, Loader2 } from "lucide-react";
+import { CheckCircle, ArrowRight, ArrowLeft, Loader2, Paperclip, X } from "lucide-react";
 
 export default function MyAssessment() {
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(0);
+  const [uploadingFile, setUploadingFile] = useState(false);
   const [formData, setFormData] = useState({
     medical_history: {},
     lifestyle_habits: {},
     dietary_preferences: {},
     fitness_level: {},
     health_goals: {},
+    uploaded_files: [],
   });
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -52,9 +54,46 @@ export default function MyAssessment() {
         fitness_level: assessment.fitness_level || {},
         health_goals: assessment.health_goals || {},
         additional_notes: assessment.additional_notes || '',
+        uploaded_files: assessment.uploaded_files || [],
       });
     }
   }, [assessment]);
+
+  const handleFileUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setUploadingFile(true);
+    try {
+      const uploadPromises = files.map(async (file) => {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        return {
+          file_name: file.name,
+          file_url: file_url,
+          file_type: file.type,
+          uploaded_date: new Date().toISOString(),
+        };
+      });
+
+      const uploadedFiles = await Promise.all(uploadPromises);
+      setFormData({
+        ...formData,
+        uploaded_files: [...formData.uploaded_files, ...uploadedFiles],
+      });
+    } catch (error) {
+      console.error('File upload failed:', error);
+      alert('Failed to upload files');
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
+  const removeFile = (index) => {
+    setFormData({
+      ...formData,
+      uploaded_files: formData.uploaded_files.filter((_, i) => i !== index),
+    });
+  };
 
   const handleSubmit = () => {
     const dataToSave = {
@@ -128,7 +167,46 @@ export default function MyAssessment() {
               {currentStep === 1 && <LifestyleHabitsForm formData={formData} setFormData={setFormData} />}
               {currentStep === 2 && <DietaryPreferencesForm formData={formData} setFormData={setFormData} />}
               {currentStep === 3 && <FitnessLevelForm formData={formData} setFormData={setFormData} />}
-              {currentStep === 4 && <HealthGoalsForm formData={formData} setFormData={setFormData} />}
+              {currentStep === 4 && (
+                <>
+                  <HealthGoalsForm formData={formData} setFormData={setFormData} />
+                  <div className="space-y-3 pt-4 border-t">
+                    <Label>Upload Supporting Documents (optional)</Label>
+                    <div className="border-2 border-dashed rounded-lg p-4">
+                      <input
+                        type="file"
+                        multiple
+                        onChange={handleFileUpload}
+                        disabled={uploadingFile}
+                        className="hidden"
+                        id="file-upload"
+                      />
+                      <label htmlFor="file-upload" className="cursor-pointer block text-center">
+                        <Paperclip className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                        <p className="text-sm text-gray-600">
+                          {uploadingFile ? 'Uploading...' : 'Click to upload lab reports, prescriptions, etc.'}
+                        </p>
+                      </label>
+                      {formData.uploaded_files.length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          {formData.uploaded_files.map((file, idx) => (
+                            <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                              <span className="text-sm truncate flex-1">{file.file_name}</span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeFile(idx)}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="flex justify-between mt-8">
@@ -151,7 +229,7 @@ export default function MyAssessment() {
               ) : (
                 <Button
                   onClick={handleSubmit}
-                  disabled={updateMutation.isPending}
+                  disabled={updateMutation.isPending || uploadingFile}
                   className="bg-gradient-to-r from-green-500 to-emerald-500"
                 >
                   {updateMutation.isPending ? (
