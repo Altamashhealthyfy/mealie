@@ -55,7 +55,7 @@ export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGe
   };
 
   const handleSavePlan = () => {
-    onSave({ ...editablePlan, id: initialPlan?.id });
+    onSave({ ...editablePlan, id: plan?.id });
   };
 
   const updateEditingMealItems = (itemsText) => {
