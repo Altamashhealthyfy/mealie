@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ClipboardList, Plus, Eye, FileText, Download, Calendar, CheckCircle, Clock, AlertCircle, Loader2, GitCompare, Paperclip } from "lucide-react";
 import { format } from "date-fns";
+import { createPageUrl } from "@/utils";
 
 export default function ClientAssessments() {
   const queryClient = useQueryClient();
@@ -428,7 +429,7 @@ function AssessmentList({ assessments, isDietitian, onView, onGenerateReport, ge
                   <Button
                     size="sm"
                     className="bg-gradient-to-r from-orange-500 to-red-500"
-                    onClick={() => window.location.href = `/my-assessment?id=${assessment.id}`}
+                    onClick={() => window.location.href = createPageUrl('MyAssessment') + `?id=${assessment.id}`}
                   >
                     Start Assessment
                   </Button>
