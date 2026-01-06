@@ -1,6 +1,7 @@
 import AddTeamAppointment from './pages/AddTeamAppointment';
 import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
 import Appointments from './pages/Appointments';
+import AssessmentTemplates from './pages/AssessmentTemplates';
 import BulkImport from './pages/BulkImport';
 import BusinessGPTs from './pages/BusinessGPTs';
 import BusinessHub from './pages/BusinessHub';
@@ -8,6 +9,8 @@ import BusinessPlan from './pages/BusinessPlan';
 import CallCenter from './pages/CallCenter';
 import CallCenterAdmin from './pages/CallCenterAdmin';
 import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
+import ClientAssessments from './pages/ClientAssessments';
+import ClientCommunication from './pages/ClientCommunication';
 import ClientFinanceManager from './pages/ClientFinanceManager';
 import ClientManagement from './pages/ClientManagement';
 import ClientPlanBuilder from './pages/ClientPlanBuilder';
@@ -18,6 +21,8 @@ import ClinicalIntake from './pages/ClinicalIntake';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachSubscription from './pages/CoachSubscription';
 import CoachSubscriptions from './pages/CoachSubscriptions';
+import Communication from './pages/Communication';
+import DietitianDashboard from './pages/DietitianDashboard';
 import Documentation from './pages/Documentation';
 import FeatureControl from './pages/FeatureControl';
 import FoodLog from './pages/FoodLog';
@@ -32,6 +37,7 @@ import MPESSTracker from './pages/MPESSTracker';
 import MarketingHub from './pages/MarketingHub';
 import MealPlanner from './pages/MealPlanner';
 import MealPlansPro from './pages/MealPlansPro';
+import MyAssessment from './pages/MyAssessment';
 import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
 import NotificationSettings from './pages/NotificationSettings';
 import PaymentGatewaySettings from './pages/PaymentGatewaySettings';
@@ -46,6 +52,8 @@ import ProgressTracking from './pages/ProgressTracking';
 import ProjectManagement from './pages/ProjectManagement';
 import PurchaseAICredits from './pages/PurchaseAICredits';
 import Recipes from './pages/Recipes';
+import ResourceLibrary from './pages/ResourceLibrary';
+import ResourceManager from './pages/ResourceManager';
 import SecuritySettings from './pages/SecuritySettings';
 import TaskBoard from './pages/TaskBoard';
 import TeamAppointmentsCalendar from './pages/TeamAppointmentsCalendar';
@@ -54,6 +62,7 @@ import TeamDashboard from './pages/TeamDashboard';
 import TeamManagement from './pages/TeamManagement';
 import TeamSetup from './pages/TeamSetup';
 import TemplateLibrary from './pages/TemplateLibrary';
+import TemplateLibraryManager from './pages/TemplateLibraryManager';
 import UsageDashboard from './pages/UsageDashboard';
 import UserPermissionManagement from './pages/UserPermissionManagement';
 import VerticalManagement from './pages/VerticalManagement';
@@ -61,15 +70,6 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import DietitianDashboard from './pages/DietitianDashboard';
-import ClientCommunication from './pages/ClientCommunication';
-import Communication from './pages/Communication';
-import TemplateLibraryManager from './pages/TemplateLibraryManager';
-import ClientAssessments from './pages/ClientAssessments';
-import MyAssessment from './pages/MyAssessment';
-import AssessmentTemplates from './pages/AssessmentTemplates';
-import ResourceLibrary from './pages/ResourceLibrary';
-import ResourceManager from './pages/ResourceManager';
 import __Layout from './Layout.jsx';
 
 
@@ -77,6 +77,7 @@ export const PAGES = {
     "AddTeamAppointment": AddTeamAppointment,
     "AdminSubscriptionManager": AdminSubscriptionManager,
     "Appointments": Appointments,
+    "AssessmentTemplates": AssessmentTemplates,
     "BulkImport": BulkImport,
     "BusinessGPTs": BusinessGPTs,
     "BusinessHub": BusinessHub,
@@ -84,6 +85,8 @@ export const PAGES = {
     "CallCenter": CallCenter,
     "CallCenterAdmin": CallCenterAdmin,
     "ClientAnalyticsDashboard": ClientAnalyticsDashboard,
+    "ClientAssessments": ClientAssessments,
+    "ClientCommunication": ClientCommunication,
     "ClientFinanceManager": ClientFinanceManager,
     "ClientManagement": ClientManagement,
     "ClientPlanBuilder": ClientPlanBuilder,
@@ -94,6 +97,8 @@ export const PAGES = {
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachSubscription": CoachSubscription,
     "CoachSubscriptions": CoachSubscriptions,
+    "Communication": Communication,
+    "DietitianDashboard": DietitianDashboard,
     "Documentation": Documentation,
     "FeatureControl": FeatureControl,
     "FoodLog": FoodLog,
@@ -108,6 +113,7 @@ export const PAGES = {
     "MarketingHub": MarketingHub,
     "MealPlanner": MealPlanner,
     "MealPlansPro": MealPlansPro,
+    "MyAssessment": MyAssessment,
     "MyAssignedMealPlan": MyAssignedMealPlan,
     "NotificationSettings": NotificationSettings,
     "PaymentGatewaySettings": PaymentGatewaySettings,
@@ -122,6 +128,8 @@ export const PAGES = {
     "ProjectManagement": ProjectManagement,
     "PurchaseAICredits": PurchaseAICredits,
     "Recipes": Recipes,
+    "ResourceLibrary": ResourceLibrary,
+    "ResourceManager": ResourceManager,
     "SecuritySettings": SecuritySettings,
     "TaskBoard": TaskBoard,
     "TeamAppointmentsCalendar": TeamAppointmentsCalendar,
@@ -130,6 +138,7 @@ export const PAGES = {
     "TeamManagement": TeamManagement,
     "TeamSetup": TeamSetup,
     "TemplateLibrary": TemplateLibrary,
+    "TemplateLibraryManager": TemplateLibraryManager,
     "UsageDashboard": UsageDashboard,
     "UserPermissionManagement": UserPermissionManagement,
     "VerticalManagement": VerticalManagement,
@@ -137,15 +146,6 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "DietitianDashboard": DietitianDashboard,
-    "ClientCommunication": ClientCommunication,
-    "Communication": Communication,
-    "TemplateLibraryManager": TemplateLibraryManager,
-    "ClientAssessments": ClientAssessments,
-    "MyAssessment": MyAssessment,
-    "AssessmentTemplates": AssessmentTemplates,
-    "ResourceLibrary": ResourceLibrary,
-    "ResourceManager": ResourceManager,
 }
 
 export const pagesConfig = {
