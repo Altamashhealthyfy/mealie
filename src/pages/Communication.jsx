@@ -81,6 +81,15 @@ export default function Communication() {
     queryFn: () => base44.auth.me(),
   });
 
+  const { data: coaches } = useQuery({
+    queryKey: ['coaches'],
+    queryFn: async () => {
+      const allUsers = await base44.entities.User.list();
+      return allUsers.filter(u => ['super_admin', 'team_member', 'student_coach'].includes(u.user_type));
+    },
+    initialData: [],
+  });
+
   const { data: clients } = useQuery({
     queryKey: ['clients', user?.email, user?.user_type],
     queryFn: async () => {
@@ -431,6 +440,13 @@ export default function Communication() {
                                     isSelected ? 'text-white/60' : 'text-gray-500'
                                   }`}>
                                     {formatDateTimeIST(lastMessage.created_date)}
+                                  </p>
+                                )}
+                                {client.assigned_coach && (
+                                  <p className={`text-xs mt-1 ${
+                                    isSelected ? 'text-white/80' : 'text-green-600'
+                                  }`}>
+                                    🎓 Coach: {coaches.find(c => c.email === client.assigned_coach)?.full_name || client.assigned_coach}
                                   </p>
                                 )}
                               </div>
