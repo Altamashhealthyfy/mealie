@@ -48,6 +48,7 @@ export default function ClientManagement() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [coachFilter, setCoachFilter] = useState("all");
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [viewingClient, setViewingClient] = useState(null);
@@ -566,7 +567,9 @@ support@mealiepro.com`;
       client.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       client.email?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "all" || client.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesCoach = coachFilter === "all" || 
+      (coachFilter === "unassigned" ? !client.assigned_coach : client.assigned_coach === coachFilter);
+    return matchesSearch && matchesStatus && matchesCoach;
   });
 
   return (
@@ -889,19 +892,19 @@ support@mealiepro.com`;
         {/* Search and Filter - Responsive */}
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
           <CardContent className="p-4 md:p-6">
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-              <div className="flex-1 relative">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+              <div className="relative sm:col-span-2 lg:col-span-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
                 <Input
-                  placeholder="Search clients..."
+                  placeholder="Search by name or email..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9 md:pl-10 h-10 md:h-auto text-sm md:text-base"
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-48 h-10 md:h-auto">
-                  <SelectValue />
+                <SelectTrigger className="h-10 md:h-auto">
+                  <SelectValue placeholder="Filter by Status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
@@ -910,6 +913,22 @@ support@mealiepro.com`;
                   <SelectItem value="completed">Completed</SelectItem>
                 </SelectContent>
               </Select>
+              {user?.user_type === 'super_admin' && healthCoaches.length > 0 && (
+                <Select value={coachFilter} onValueChange={setCoachFilter}>
+                  <SelectTrigger className="h-10 md:h-auto">
+                    <SelectValue placeholder="Filter by Coach" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Coaches</SelectItem>
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                    {healthCoaches.map((coach) => (
+                      <SelectItem key={coach.email} value={coach.email}>
+                        {coach.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </CardContent>
         </Card>
