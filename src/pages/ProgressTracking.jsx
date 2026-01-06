@@ -82,6 +82,16 @@ export default function ProgressTracking() {
     initialData: [],
   });
 
+  const { data: mpessLogs } = useQuery({
+    queryKey: ['myMPESSLogs', user?.email],
+    queryFn: async () => {
+      const logs = await base44.entities.MPESSTracker.filter({ created_by: user?.email });
+      return logs.sort((a, b) => new Date(a.date) - new Date(b.date));
+    },
+    enabled: !!user,
+    initialData: [],
+  });
+
   const saveMutation = useMutation({
     mutationFn: (data) => {
       if (editingLog) {
@@ -704,7 +714,7 @@ export default function ProgressTracking() {
                 <CardTitle className="text-base sm:text-lg md:text-xl">Progress History</CardTitle>
               </CardHeader>
               <CardContent className="p-4 md:p-6">
-                {progressLogs.length === 0 ? (
+                {progressLogs.length === 0 && mpessLogs.length === 0 ? (
                   <div className="text-center py-8 sm:py-12">
                     <Scale className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-gray-300 mb-3 sm:mb-4" />
                     <p className="text-sm sm:text-base text-gray-600">No progress logged yet</p>
@@ -716,8 +726,12 @@ export default function ProgressTracking() {
                   </div>
                 ) : (
                   <div className="space-y-3 sm:space-y-4">
+                    {/* Progress Logs */}
                     {progressLogs.slice().reverse().map((log) => (
-                      <div key={log.id} className="p-3 sm:p-4 border rounded-lg hover:bg-gray-50">
+                      <div key={`progress-${log.id}`} className="p-3 sm:p-4 border-2 border-orange-200 rounded-lg hover:bg-orange-50 bg-white">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-orange-500 text-white">Progress Log</Badge>
+                        </div>
                         <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-3 mb-3">
                           <div className="min-w-0">
                             <p className="font-semibold text-sm sm:text-base">{format(new Date(log.date), 'MMMM d, yyyy')}</p>
@@ -751,6 +765,60 @@ export default function ProgressTracking() {
                         {log.notes && <p className="text-xs sm:text-sm text-gray-700 bg-gray-50 p-2 sm:p-3 rounded break-words">{log.notes}</p>}
                       </div>
                     ))}
+
+                    {/* MPESS Logs */}
+                    {mpessLogs.slice().reverse().map((mpess) => {
+                      const practices = [];
+                      if (mpess.mind_practices?.affirmations_completed) practices.push('🧠 Affirmations');
+                      if (mpess.physical_practices?.movement_done) practices.push('🏃 Movement');
+                      if (mpess.emotional_practices?.journaling_done) practices.push('📝 Journaling');
+                      if (mpess.social_practices?.bonding_activity_done) practices.push('👥 Social');
+                      if (mpess.spiritual_practices?.meditation_done) practices.push('🧘 Meditation');
+
+                      return (
+                        <div key={`mpess-${mpess.id}`} className="p-3 sm:p-4 border-2 border-purple-200 rounded-lg hover:bg-purple-50 bg-white">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge className="bg-purple-500 text-white">MPESS Wellness</Badge>
+                          </div>
+                          <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-3 mb-3">
+                            <div className="min-w-0">
+                              <p className="font-semibold text-sm sm:text-base">{format(new Date(mpess.date), 'MMMM d, yyyy')}</p>
+                              {mpess.overall_rating && (
+                                <p className="text-xs sm:text-sm text-gray-600">
+                                  Overall Rating: <span className="font-medium text-purple-600">{mpess.overall_rating}/5 ⭐</span>
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          {practices.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              {practices.map((practice, idx) => (
+                                <Badge key={idx} variant="outline" className="text-xs">{practice}</Badge>
+                              ))}
+                            </div>
+                          )}
+
+                          {mpess.emotional_practices?.mood && (
+                            <div className="text-xs sm:text-sm text-gray-700 mb-1">
+                              Mood: <span className="font-medium capitalize">{mpess.emotional_practices.mood}</span>
+                            </div>
+                          )}
+
+                          {mpess.physical_practices?.water_intake && (
+                            <div className="text-xs sm:text-sm text-gray-700 mb-1">
+                              💧 Water: <span className="font-medium">{mpess.physical_practices.water_intake}L</span>
+                            </div>
+                          )}
+
+                          {(mpess.mind_practices?.notes || mpess.emotional_practices?.notes) && (
+                            <p className="text-xs sm:text-sm text-gray-700 bg-purple-50 p-2 sm:p-3 rounded break-words mt-2">
+                              {mpess.mind_practices?.notes || mpess.emotional_practices?.notes}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>
