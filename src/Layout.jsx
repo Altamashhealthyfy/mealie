@@ -517,6 +517,12 @@ export default function Layout({ children, currentPageName }) {
         show: permissions?.can_view_messages ?? true,
       },
       {
+        title: "My Assessments",
+        url: createPageUrl("ClientAssessments"),
+        icon: ClipboardList,
+        show: permissions?.can_view_assessments ?? true,
+      },
+      {
         title: "Recipes",
         url: createPageUrl("Recipes"),
         icon: ClipboardList,
