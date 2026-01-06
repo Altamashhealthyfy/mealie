@@ -553,13 +553,13 @@ function AssessmentList({ assessments, isDietitian, onView, onGenerateReport, ge
                     Delete
                   </Button>
                 )}
-                {!isDietitian && assessment.status === 'pending' && (
+                {!isDietitian && (assessment.status === 'pending' || assessment.status === 'in_progress' || assessment.status === 'completed') && (
                   <Button
                     size="sm"
                     className="bg-gradient-to-r from-orange-500 to-red-500"
                     onClick={() => window.location.href = createPageUrl('MyAssessment') + `?id=${assessment.id}`}
                   >
-                    Start Assessment
+                    {assessment.status === 'pending' ? 'Start Assessment' : 'Edit Assessment'}
                   </Button>
                 )}
               </div>
