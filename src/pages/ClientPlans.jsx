@@ -335,25 +335,46 @@ export default function ClientPlans() {
           </div>
         </div>
 
-        {mySubscription && mySubscription.status === 'active' && (
-          <Alert className="bg-green-50 border-green-500 flex items-center justify-between p-4">
-            <div className="flex items-center">
-                <Check className="w-5 h-5 text-green-600 mr-2" />
-                <AlertDescription>
-                    <strong>Active Plan:</strong> {mySubscription.plan_tier.toUpperCase()} • 
-                    Billing: {mySubscription.billing_cycle} • 
-                    Next billing: {new Date(mySubscription.next_billing_date).toLocaleDateString()}
-                </AlertDescription>
-            </div>
-            <Button
-                variant="destructive"
-                size="sm"
-                onClick={handleCancelSubscription}
-                disabled={unSubscribeMutation.isPending}
-            >
-                {unSubscribeMutation.isPending ? 'Cancelling...' : 'Unsubscribe'}
-            </Button>
-          </Alert>
+        {/* Current Subscription Status */}
+        {mySubscription && (
+          <Card className={`border-none shadow-lg ${mySubscription.status === 'active' ? 'bg-green-50' : 'bg-yellow-50'}`}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  {mySubscription.status === 'active' ? (
+                    <Check className="w-10 h-10 text-green-600" />
+                  ) : (
+                    <AlertTriangle className="w-10 h-10 text-yellow-600" />
+                  )}
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">
+                      {mySubscription.status === 'active' ? '✅ Active Subscription' : '⏳ Pending Subscription'}
+                    </h3>
+                    <p className="text-gray-700 mt-1">
+                      <strong>Plan:</strong> {mySubscription.plan_tier.toUpperCase()} Plan • 
+                      <strong> Billing:</strong> {mySubscription.billing_cycle} • 
+                      <strong> Amount:</strong> ₹{mySubscription.amount}
+                    </p>
+                    {mySubscription.status === 'active' && (
+                      <p className="text-sm text-gray-600 mt-1">
+                        Next billing: {new Date(mySubscription.next_billing_date).toLocaleDateString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                {mySubscription.status === 'active' && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleCancelSubscription}
+                    disabled={unSubscribeMutation.isPending}
+                  >
+                    {unSubscribeMutation.isPending ? 'Cancelling...' : 'Unsubscribe'}
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -386,14 +407,29 @@ export default function ClientPlans() {
                       <span className="text-sm">{feature}</span>
                     </div>
                   ))}
-                  <Button
-                    onClick={() => setSelectedPlan(plan)}
-                    disabled={mySubscription?.plan_tier === plan.id && mySubscription?.status === 'active'}
-                    className={`w-full bg-gradient-to-r ${plan.color}`}
-                  >
-                    {mySubscription?.plan_tier === plan.id && mySubscription?.status === 'active' ? 'Current Plan' : 
-                     mySubscription && mySubscription.status === 'active' ? 'Upgrade/Downgrade' : 'Subscribe'}
-                  </Button>
+                  {mySubscription?.plan_tier === plan.id ? (
+                    <div className="space-y-2">
+                      <Badge className={`w-full justify-center py-2 ${mySubscription.status === 'active' ? 'bg-green-600' : 'bg-yellow-600'}`}>
+                        {mySubscription.status === 'active' ? '✅ Your Current Plan' : '⏳ Payment Pending'}
+                      </Badge>
+                      {mySubscription.status === 'pending' && (
+                        <Button
+                          onClick={() => setSelectedPlan(plan)}
+                          variant="outline"
+                          className="w-full"
+                        >
+                          Complete Payment
+                        </Button>
+                      )}
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={() => setSelectedPlan(plan)}
+                      className={`w-full bg-gradient-to-r ${plan.color}`}
+                    >
+                      {mySubscription && mySubscription.status === 'active' ? 'Switch Plan' : 'Subscribe Now'}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             );
