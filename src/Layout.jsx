@@ -513,6 +513,12 @@ export default function Layout({ children, currentPageName }) {
         show: permissions?.can_view_assessments ?? true,
       },
       {
+        title: "My Appointments",
+        url: createPageUrl("ClientAppointments"),
+        icon: Calendar,
+        show: permissions?.can_view_appointments ?? true,
+      },
+      {
         title: "Food Lookup",
         url: createPageUrl("FoodLookup"),
         icon: Search,
