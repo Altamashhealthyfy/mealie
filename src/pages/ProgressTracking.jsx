@@ -251,9 +251,20 @@ export default function ProgressTracking() {
           </div>
           <div className="flex gap-3">
             {canEditProgress && (
-              <Dialog open={showAddDialog} onOpenChange={(open) => !open && setShowAddDialog(false)}>
+              <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
                 <DialogTrigger asChild>
-                  <Button className="bg-gradient-to-r from-orange-500 to-red-500">
+                  <Button 
+                    className="bg-gradient-to-r from-orange-500 to-red-500"
+                    onClick={() => {
+                      setEditingLog(null);
+                      setFormData({
+                        date: format(new Date(), 'yyyy-MM-dd'),
+                        measurements: {},
+                        wellness_metrics: {},
+                        photos: {}
+                      });
+                    }}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Log Progress
                   </Button>
