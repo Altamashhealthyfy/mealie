@@ -9,6 +9,7 @@ import BusinessPlan from './pages/BusinessPlan';
 import CallCenter from './pages/CallCenter';
 import CallCenterAdmin from './pages/CallCenterAdmin';
 import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
+import ClientAppointments from './pages/ClientAppointments';
 import ClientAssessments from './pages/ClientAssessments';
 import ClientCommunication from './pages/ClientCommunication';
 import ClientFinanceManager from './pages/ClientFinanceManager';
@@ -40,6 +41,7 @@ import MealPlansPro from './pages/MealPlansPro';
 import MyAssessment from './pages/MyAssessment';
 import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
 import NotificationSettings from './pages/NotificationSettings';
+import Notifications from './pages/Notifications';
 import PaymentGatewaySettings from './pages/PaymentGatewaySettings';
 import PaymentHistory from './pages/PaymentHistory';
 import PaymentSetup from './pages/PaymentSetup';
@@ -68,8 +70,6 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import ClientAppointments from './pages/ClientAppointments';
-import Notifications from './pages/Notifications';
 import __Layout from './Layout.jsx';
 
 
@@ -85,6 +85,7 @@ export const PAGES = {
     "CallCenter": CallCenter,
     "CallCenterAdmin": CallCenterAdmin,
     "ClientAnalyticsDashboard": ClientAnalyticsDashboard,
+    "ClientAppointments": ClientAppointments,
     "ClientAssessments": ClientAssessments,
     "ClientCommunication": ClientCommunication,
     "ClientFinanceManager": ClientFinanceManager,
@@ -116,6 +117,7 @@ export const PAGES = {
     "MyAssessment": MyAssessment,
     "MyAssignedMealPlan": MyAssignedMealPlan,
     "NotificationSettings": NotificationSettings,
+    "Notifications": Notifications,
     "PaymentGatewaySettings": PaymentGatewaySettings,
     "PaymentHistory": PaymentHistory,
     "PaymentSetup": PaymentSetup,
@@ -144,8 +146,6 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "ClientAppointments": ClientAppointments,
-    "Notifications": Notifications,
 }
 
 export const pagesConfig = {

@@ -173,7 +173,7 @@ export default function FoodLog() {
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Food Log</h1>
             <p className="text-sm md:text-base text-gray-600">Track your daily food intake</p>
@@ -185,9 +185,9 @@ export default function FoodLog() {
                 Log Food
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle className="text-xl md:text-2xl">{editingLog ? 'Edit Meal' : 'Log Your Meal'}</DialogTitle>
+                <DialogTitle>{editingLog ? 'Edit Meal' : 'Log Your Meal'}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 <div className="space-y-2">
@@ -363,10 +363,10 @@ export default function FoodLog() {
             {/* Daily Summary */}
             <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
               <CardHeader>
-                <CardTitle className="text-base md:text-lg">Today's Summary - {format(selectedDate, 'MMM d, yyyy')}</CardTitle>
+                <CardTitle className="text-base md:text-lg lg:text-xl">Today's Summary - {format(selectedDate, 'MMM d, yyyy')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   <div>
                     <div className="flex justify-between mb-2">
                       <span className="text-xs md:text-sm text-gray-600">Calories</span>
@@ -403,12 +403,12 @@ export default function FoodLog() {
             {/* Food Logs List */}
             {todayLogs.length === 0 ? (
               <Card className="border-none shadow-lg">
-                <CardContent className="p-12 text-center">
-                  <Utensils className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                <CardContent className="p-8 md:p-12 text-center">
+                  <Utensils className="w-12 h-12 md:w-16 md:h-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
                     No Food Logged Yet
                   </h3>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-sm md:text-base text-gray-600 mb-4">
                     Start tracking your meals for {format(selectedDate, 'MMMM d')}
                   </p>
                   <Button
@@ -424,14 +424,14 @@ export default function FoodLog() {
               todayLogs.map((log) => (
                 <Card key={log.id} className="border-none shadow-lg bg-white/80 backdrop-blur">
                   <CardHeader>
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
                           <Badge variant="outline" className="text-orange-600 border-orange-300 capitalize text-xs">
                             {log.meal_type.replace('_', ' ')}
                           </Badge>
                         </div>
-                        <CardTitle className="text-lg md:text-xl break-words">{log.meal_name || 'Meal'}</CardTitle>
+                        <CardTitle className="text-lg md:text-xl">{log.meal_name || 'Meal'}</CardTitle>
                       </div>
                       <div className="flex items-center gap-2 self-end sm:self-start">
                         {log.calories && (
@@ -444,8 +444,9 @@ export default function FoodLog() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleEdit(log)}
+                          className="h-8 w-8 md:h-10 md:w-10"
                         >
-                          <Edit className="w-4 h-4 text-blue-500" />
+                          <Edit className="w-3 h-3 md:w-4 md:h-4 text-blue-500" />
                         </Button>
                         <Button
                           variant="ghost"
@@ -455,13 +456,14 @@ export default function FoodLog() {
                               deleteMutation.mutate(log.id);
                             }
                           }}
+                          className="h-8 w-8 md:h-10 md:w-10"
                         >
-                          <Trash2 className="w-4 h-4 text-red-500" />
+                          <Trash2 className="w-3 h-3 md:w-4 md:h-4 text-red-500" />
                         </Button>
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-3 md:space-y-4">
                     {log.items && log.items.length > 0 && (
                       <div>
                         <h4 className="text-sm md:text-base font-semibold text-gray-900 mb-2">What I Ate</h4>
@@ -475,19 +477,19 @@ export default function FoodLog() {
 
                     {(log.protein || log.carbs || log.fats) && (
                       <div className="grid grid-cols-3 gap-2">
-                        {log.protein && (
+                        {log.protein > 0 && (
                           <div className="p-2 bg-red-50 rounded-lg">
                             <p className="text-xs text-gray-600">Protein</p>
                             <p className="text-base md:text-lg font-bold text-red-600">{log.protein}g</p>
                           </div>
                         )}
-                        {log.carbs && (
+                        {log.carbs > 0 && (
                           <div className="p-2 bg-yellow-50 rounded-lg">
                             <p className="text-xs text-gray-600">Carbs</p>
                             <p className="text-base md:text-lg font-bold text-yellow-600">{log.carbs}g</p>
                           </div>
                         )}
-                        {log.fats && (
+                        {log.fats > 0 && (
                           <div className="p-2 bg-purple-50 rounded-lg">
                             <p className="text-xs text-gray-600">Fats</p>
                             <p className="text-base md:text-lg font-bold text-purple-600">{log.fats}g</p>
@@ -509,7 +511,7 @@ export default function FoodLog() {
                     )}
 
                     {log.notes && (
-                      <div className="p-3 bg-gray-50 rounded-lg">
+                      <div className="p-2 md:p-3 bg-gray-50 rounded-lg">
                         <p className="text-xs md:text-sm text-gray-700 break-words">{log.notes}</p>
                       </div>
                     )}
