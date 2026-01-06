@@ -60,10 +60,16 @@ export default function ClientProgressDashboard({ client, onClose }) {
   const { data: progressLogs } = useQuery({
     queryKey: ['clientProgressLogs', client.id],
     queryFn: async () => {
-      const logs = await base44.entities.ProgressLog.filter({ client_id: client.id });
-      return logs.sort((a, b) => new Date(a.date) - new Date(b.date));
+      try {
+        const logs = await base44.entities.ProgressLog.filter({ client_id: client.id });
+        return logs.sort((a, b) => new Date(a.date) - new Date(b.date));
+      } catch (error) {
+        console.error('Progress logs fetch error:', error);
+        return [];
+      }
     },
     initialData: [],
+    enabled: !!client?.id,
   });
 
   // Fetch food logs
@@ -81,21 +87,32 @@ export default function ClientProgressDashboard({ client, onClose }) {
   const { data: goals } = useQuery({
     queryKey: ['clientGoals', client.id],
     queryFn: async () => {
-      const allGoals = await base44.entities.ProgressGoal.filter({ client_id: client.id });
-      return allGoals.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+      try {
+        const allGoals = await base44.entities.ProgressGoal.filter({ client_id: client.id });
+        return allGoals.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+      } catch (error) {
+        console.error('Goals fetch error:', error);
+        return [];
+      }
     },
     initialData: [],
+    enabled: !!client?.id,
   });
 
   // Fetch MPESS tracking
   const { data: mpessLogs } = useQuery({
     queryKey: ['clientMPESS', client.id],
     queryFn: async () => {
-      const logs = await base44.entities.MPESSTracker.filter({ created_by: client.email });
-      return logs.sort((a, b) => new Date(b.date) - new Date(a.date));
+      try {
+        const logs = await base44.entities.MPESSTracker.filter({ created_by: client.email });
+        return logs.sort((a, b) => new Date(b.date) - new Date(a.date));
+      } catch (error) {
+        console.error('MPESS fetch error:', error);
+        return [];
+      }
     },
     initialData: [],
-    enabled: !!client.email,
+    enabled: !!client?.email,
   });
 
   const saveGoalMutation = useMutation({
@@ -131,7 +148,7 @@ export default function ClientProgressDashboard({ client, onClose }) {
   });
 
   // Prepare chart data
-  const weightChartData = progressLogs.map(log => ({
+  const weightChartData = (progressLogs || []).map(log => ({
     date: format(new Date(log.date), 'MMM d'),
     weight: log.weight,
     targetWeight: client.target_weight
@@ -139,7 +156,7 @@ export default function ClientProgressDashboard({ client, onClose }) {
 
   // Daily calorie intake from food logs
   const calorieData = {};
-  foodLogs.forEach(log => {
+  (foodLogs || []).forEach(log => {
     if (!calorieData[log.date]) {
       calorieData[log.date] = 0;
     }
@@ -156,27 +173,27 @@ export default function ClientProgressDashboard({ client, onClose }) {
     }));
 
   // Wellness metrics
-  const wellnessData = progressLogs
+  const wellnessData = (progressLogs || [])
     .filter(log => log.wellness_metrics)
     .slice(-14)
     .map(log => ({
       date: format(new Date(log.date), 'MMM d'),
-      energy: log.wellness_metrics.energy_level,
-      sleep: log.wellness_metrics.sleep_quality,
-      stress: log.wellness_metrics.stress_level,
+      energy: log.wellness_metrics?.energy_level || 0,
+      sleep: log.wellness_metrics?.sleep_quality || 0,
+      stress: log.wellness_metrics?.stress_level || 0,
     }));
 
   // Calculate stats
-  const latestLog = progressLogs[progressLogs.length - 1];
-  const initialWeight = client.initial_weight || client.weight;
-  const currentWeight = latestLog?.weight || client.weight;
+  const latestLog = (progressLogs || [])[progressLogs?.length - 1];
+  const initialWeight = client?.initial_weight || client?.weight || 0;
+  const currentWeight = latestLog?.weight || client?.weight || 0;
   const weightChange = initialWeight ? currentWeight - initialWeight : 0;
-  const weightProgress = client.target_weight 
+  const weightProgress = client?.target_weight 
     ? ((initialWeight - currentWeight) / (initialWeight - client.target_weight) * 100).toFixed(1)
     : 0;
 
-  const activeGoals = goals.filter(g => g.status === 'active');
-  const completedGoals = goals.filter(g => g.status === 'completed');
+  const activeGoals = (goals || []).filter(g => g.status === 'active');
+  const completedGoals = (goals || []).filter(g => g.status === 'completed');
 
   const handleEditGoal = (goal) => {
     setEditingGoal(goal);
