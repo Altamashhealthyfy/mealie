@@ -1474,7 +1474,6 @@ support@mealiepro.com`;
                               variant="outline"
                               size="sm"
                               onClick={() => {
-                                setViewingClientPlans(null);
                                 navigate(`${createPageUrl("MealPlanner")}?viewPlan=${plan.id}`);
                               }}
                             >
