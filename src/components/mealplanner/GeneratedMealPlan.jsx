@@ -11,15 +11,15 @@ import { Calendar, Save, RefreshCw, ChefHat, Lightbulb, Edit, Check, X, Download
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { base44 } from "@/api/base44Client";
 
-export default function GeneratedMealPlan({ plan: initialPlan, onSave, onSaveAsTemplate, onGenerateNew, isSaving }) {
-  const [editablePlan, setEditablePlan] = useState(initialPlan);
+export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGenerateNew, isSaving }) {
+  const [editablePlan, setEditablePlan] = useState(plan);
   const [editingMeal, setEditingMeal] = useState(null);
   const [copiedText, setCopiedText] = useState(false);
   const [recalculating, setRecalculating] = useState(false);
 
   React.useEffect(() => {
-    setEditablePlan(initialPlan);
-  }, [initialPlan]);
+    setEditablePlan(plan);
+  }, [plan]);
 
   const mealTypes = ["Early Morning", "Breakfast", "Mid-Morning", "Lunch", "Evening Snack", "Dinner"];
 
@@ -264,12 +264,12 @@ Use ICMR data and standard Indian portion sizes. Be precise.`;
                 {isSaving ? (
                   <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Assigning to Client...
+                    {plan?.id ? 'Updating Plan...' : 'Assigning to Client...'}
                   </>
                 ) : (
                   <>
                     <CheckCircle className="w-5 h-5 mr-2" />
-                    Assign to Client
+                    {plan?.id ? 'Update Plan' : 'Assign to Client'}
                   </>
                 )}
               </Button>
