@@ -26,22 +26,20 @@ export default function ClientPlanManagement() {
   const { data: clients } = useQuery({
     queryKey: ['myClients', user?.email],
     queryFn: async () => {
-      const allClients = await base44.entities.Client.list('-created_date');
-      
       if (user?.user_type === 'super_admin') {
-        return allClients;
+        return await base44.entities.Client.list();
       }
       
-      // Student coaches see clients they created OR clients assigned to them
+      // For student_coach - show clients they created OR clients assigned to them
       if (user?.user_type === 'student_coach') {
+        const allClients = await base44.entities.Client.list();
         return allClients.filter(client => 
           client.created_by === user?.email || 
           client.assigned_coach === user?.email
         );
       }
       
-      // Team members see only clients they created
-      return allClients.filter(client => client.created_by === user?.email);
+      return await base44.entities.Client.filter({ created_by: user?.email });
     },
     enabled: !!user,
     initialData: [],

@@ -50,7 +50,7 @@ export default function MealPlanner() {
         return allClients;
       }
       
-      // Student coaches see clients they created OR clients assigned to them
+      // For student_coach - show clients they created OR clients assigned to them
       if (user?.user_type === 'student_coach') {
         return allClients.filter(client => 
           client.created_by === user?.email || 
@@ -58,7 +58,6 @@ export default function MealPlanner() {
         );
       }
       
-      // Team members see only clients they created
       return allClients.filter(client => client.created_by === user?.email);
     },
     enabled: !!user && user?.user_type !== 'client',
@@ -785,6 +784,7 @@ Return structured meal plan with:
   const canEditTemplate = (template) => {
     return user?.user_type === 'super_admin' || 
            user?.user_type === 'team_member' || 
+           user?.user_type === 'student_coach' ||
            template.created_by === user?.email;
     };
 
@@ -795,6 +795,7 @@ Return structured meal plan with:
   const canDeleteTemplate = (template) => {
     return user?.user_type === 'super_admin' || 
            user?.user_type === 'team_member' || 
+           user?.user_type === 'student_coach' ||
            template.created_by === user?.email;
     };
 
