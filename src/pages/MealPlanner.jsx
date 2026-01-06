@@ -287,6 +287,46 @@ export default function MealPlanner() {
     setActiveTab("generate");
   };
 
+  const assignTemplateDirectly = async (template) => {
+    if (!selectedClient) {
+      alert("Please select a client first");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Assign "${template.name}" to ${selectedClient.full_name}?\n\n` +
+      `This will assign all ${template.duration} days of the meal plan.\n` +
+      `You can view and edit it later from "My Plans" tab.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await savePlanMutation.mutateAsync({
+        client_id: selectedClient.id,
+        name: `${template.name} - ${selectedClient.full_name}`,
+        duration: template.duration,
+        meal_pattern: 'daily',
+        target_calories: template.target_calories,
+        meals: template.meals,
+        food_preference: template.food_preference,
+        regional_preference: template.regional_preference,
+        active: true,
+        created_by: user?.email,
+      });
+
+      await base44.entities.MealPlanTemplate.update(template.id, {
+        times_used: (template.times_used || 0) + 1
+      });
+
+      queryClient.invalidateQueries(['mealPlanTemplates']);
+      setActiveTab("saved");
+    } catch (error) {
+      console.error("Failed to assign template:", error);
+      alert("Failed to assign template. Please try again.");
+    }
+  };
+
   const generateMealPlan = async () => {
     if (!selectedClient) {
       alert("Please select a client first");
@@ -716,18 +756,41 @@ Return structured meal plan with:
   const handleSavePlan = (editedPlan) => {
     if (!editedPlan) return;
     
-    savePlanMutation.mutate({
-      client_id: editedPlan.client_id,
-      name: editedPlan.plan_name,
-      duration: editedPlan.duration,
-      meal_pattern: editedPlan.meal_pattern,
-      target_calories: editedPlan.target_calories,
-      meals: editedPlan.meals,
-      food_preference: editedPlan.food_preference,
-      regional_preference: editedPlan.regional_preference,
-      active: true,
-      created_by: user?.email,
-    });
+    // Check if this is an update to existing plan
+    if (editedPlan.id) {
+      const updateMutation = useMutation({
+        mutationFn: (data) => base44.entities.MealPlan.update(editedPlan.id, data),
+        onSuccess: async () => {
+          await queryClient.invalidateQueries(['mealPlans']);
+          setGeneratedPlan(null);
+          setSelectedClientId(null);
+          alert(`✅ Meal plan updated successfully!`);
+        },
+      });
+      
+      updateMutation.mutate({
+        name: editedPlan.plan_name,
+        duration: editedPlan.duration,
+        meal_pattern: editedPlan.meal_pattern,
+        target_calories: editedPlan.target_calories,
+        meals: editedPlan.meals,
+        food_preference: editedPlan.food_preference,
+        regional_preference: editedPlan.regional_preference,
+      });
+    } else {
+      savePlanMutation.mutate({
+        client_id: editedPlan.client_id,
+        name: editedPlan.plan_name,
+        duration: editedPlan.duration,
+        meal_pattern: editedPlan.meal_pattern,
+        target_calories: editedPlan.target_calories,
+        meals: editedPlan.meals,
+        food_preference: editedPlan.food_preference,
+        regional_preference: editedPlan.regional_preference,
+        active: true,
+        created_by: user?.email,
+      });
+    }
   };
 
   const handleSaveAsTemplate = (plan) => {
@@ -1053,14 +1116,25 @@ Return structured meal plan with:
                           <p className="text-xs text-green-700">FREE - Unlimited uses!</p>
                         </div>
 
-                        <Button
-                          onClick={() => cloneTemplate(template)}
-                          disabled={!selectedClient}
-                          className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-                        >
-                          <Copy className="w-4 h-4 mr-2" />
-                          Clone & Customize
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => assignTemplateDirectly(template)}
+                            disabled={!selectedClient}
+                            className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                          >
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Assign Now
+                          </Button>
+                          <Button
+                            onClick={() => cloneTemplate(template)}
+                            disabled={!selectedClient}
+                            variant="outline"
+                            className="flex-1"
+                          >
+                            <Copy className="w-4 h-4 mr-2" />
+                            Customize
+                          </Button>
+                        </div>
 
                         {canEditTemplate(template) && (
                           <div className="flex gap-2">
@@ -1408,7 +1482,7 @@ Return structured meal plan with:
                           </div>
                         </CardHeader>
                         <CardContent>
-                          <div className="flex gap-2">
+                          <div className="flex flex-col sm:flex-row gap-2">
                             <Button 
                               variant="outline" 
                               className="flex-1"
@@ -1416,6 +1490,21 @@ Return structured meal plan with:
                             >
                               <Eye className="w-4 h-4 mr-2" />
                               View Details
+                            </Button>
+                            <Button 
+                              className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                              onClick={() => {
+                                const editPlan = {
+                                  ...plan,
+                                  plan_name: plan.name,
+                                  client_name: planClient?.full_name || 'Unknown Client'
+                                };
+                                setGeneratedPlan(editPlan);
+                                setActiveTab("generate");
+                              }}
+                            >
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit Plan
                             </Button>
                           </div>
                         </CardContent>

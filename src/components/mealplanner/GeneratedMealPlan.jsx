@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,30 @@ import { Calendar, Save, RefreshCw, ChefHat, Lightbulb, Edit, Check, X, Download
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { base44 } from "@/api/base44Client";
 
-export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGenerateNew, isSaving }) {
+export default function GeneratedMealPlan({ plan: initialPlan, onSave, onSaveAsTemplate, onGenerateNew, isSaving }) {
+  const [plan, setPlan] = React.useState(initialPlan);
+  const [editingMeal, setEditingMeal] = React.useState(null);
+  const [showEditDialog, setShowEditDialog] = React.useState(false);
+
+  React.useEffect(() => {
+    setPlan(initialPlan);
+  }, [initialPlan]);
+
+  const handleEditMeal = (meal) => {
+    setEditingMeal({ ...meal });
+    setShowEditDialog(true);
+  };
+
+  const handleSaveMealEdit = () => {
+    const updatedMeals = plan.meals.map(m => 
+      m.day === editingMeal.day && m.meal_type === editingMeal.meal_type ? editingMeal : m
+    );
+    setPlan({ ...plan, meals: updatedMeals });
+    setShowEditDialog(false);
+    setEditingMeal(null);
+  };
+
+  const originalFunction = ({ plan, onSave, onSaveAsTemplate, onGenerateNew, isSaving }) => {
   const [editablePlan, setEditablePlan] = useState(plan);
   const [editingMeal, setEditingMeal] = useState(null);
   const [copiedText, setCopiedText] = useState(false);
