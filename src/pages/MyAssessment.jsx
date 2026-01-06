@@ -37,6 +37,15 @@ export default function MyAssessment() {
     enabled: !!assessmentId,
   });
 
+  const { data: template } = useQuery({
+    queryKey: ['template', assessment?.template_id],
+    queryFn: async () => {
+      const templates = await base44.entities.AssessmentTemplate.filter({ id: assessment.template_id });
+      return templates[0];
+    },
+    enabled: !!assessment?.template_id,
+  });
+
   const updateMutation = useMutation({
     mutationFn: (data) => base44.entities.ClientAssessment.update(assessmentId, data),
     onSuccess: () => {
@@ -56,6 +65,7 @@ export default function MyAssessment() {
         health_goals: assessment.health_goals || {},
         additional_notes: assessment.additional_notes || '',
         uploaded_files: assessment.uploaded_files || [],
+        custom_responses: assessment.custom_responses || {},
       });
     }
   }, [assessment]);
@@ -110,13 +120,22 @@ export default function MyAssessment() {
     updateMutation.mutate(dataToSave);
   };
 
-  const steps = [
-    { title: 'Medical History', key: 'medical_history' },
-    { title: 'Lifestyle Habits', key: 'lifestyle_habits' },
-    { title: 'Dietary Preferences', key: 'dietary_preferences' },
-    { title: 'Fitness Level', key: 'fitness_level' },
-    { title: 'Health Goals', key: 'health_goals' },
-  ];
+  const standardSteps = [
+    { title: 'Medical History', key: 'medical_history', include: template?.include_medical_history !== false },
+    { title: 'Lifestyle Habits', key: 'lifestyle_habits', include: template?.include_lifestyle_habits !== false },
+    { title: 'Dietary Preferences', key: 'dietary_preferences', include: template?.include_dietary_preferences !== false },
+    { title: 'Fitness Level', key: 'fitness_level', include: template?.include_fitness_level !== false },
+    { title: 'Health Goals', key: 'health_goals', include: template?.include_health_goals !== false },
+  ].filter(step => step.include);
+
+  const customSteps = (template?.custom_sections || []).map(section => ({
+    title: section.section_title,
+    key: section.section_key,
+    isCustom: true,
+    section: section,
+  }));
+
+  const steps = [...standardSteps, ...customSteps];
 
   const progressPercentage = ((currentStep + 1) / steps.length) * 100;
 
@@ -164,49 +183,55 @@ export default function MyAssessment() {
             </div>
 
             <div className="space-y-6">
-              {currentStep === 0 && <MedicalHistoryForm formData={formData} setFormData={setFormData} />}
-              {currentStep === 1 && <LifestyleHabitsForm formData={formData} setFormData={setFormData} />}
-              {currentStep === 2 && <DietaryPreferencesForm formData={formData} setFormData={setFormData} />}
-              {currentStep === 3 && <FitnessLevelForm formData={formData} setFormData={setFormData} />}
-              {currentStep === 4 && (
-                <>
-                  <HealthGoalsForm formData={formData} setFormData={setFormData} />
-                  <div className="space-y-3 pt-4 border-t">
-                    <Label>Upload Supporting Documents (optional)</Label>
-                    <div className="border-2 border-dashed rounded-lg p-4">
-                      <input
-                        type="file"
-                        multiple
-                        onChange={handleFileUpload}
-                        disabled={uploadingFile}
-                        className="hidden"
-                        id="file-upload"
-                      />
-                      <label htmlFor="file-upload" className="cursor-pointer block text-center">
-                        <Paperclip className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                        <p className="text-sm text-gray-600">
-                          {uploadingFile ? 'Uploading...' : 'Click to upload lab reports, prescriptions, etc.'}
-                        </p>
-                      </label>
-                      {formData.uploaded_files.length > 0 && (
-                        <div className="mt-3 space-y-2">
-                          {formData.uploaded_files.map((file, idx) => (
-                            <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                              <span className="text-sm truncate flex-1">{file.file_name}</span>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removeFile(idx)}
-                              >
-                                <X className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
+              {steps[currentStep]?.key === 'medical_history' && <MedicalHistoryForm formData={formData} setFormData={setFormData} />}
+              {steps[currentStep]?.key === 'lifestyle_habits' && <LifestyleHabitsForm formData={formData} setFormData={setFormData} />}
+              {steps[currentStep]?.key === 'dietary_preferences' && <DietaryPreferencesForm formData={formData} setFormData={setFormData} />}
+              {steps[currentStep]?.key === 'fitness_level' && <FitnessLevelForm formData={formData} setFormData={setFormData} />}
+              {steps[currentStep]?.key === 'health_goals' && <HealthGoalsForm formData={formData} setFormData={setFormData} />}
+              {steps[currentStep]?.isCustom && (
+                <CustomSectionForm 
+                  section={steps[currentStep].section} 
+                  formData={formData} 
+                  setFormData={setFormData} 
+                />
+              )}
+              
+              {currentStep === steps.length - 1 && (
+                <div className="space-y-3 pt-4 border-t">
+                  <Label>Upload Supporting Documents (optional)</Label>
+                  <div className="border-2 border-dashed rounded-lg p-4">
+                    <input
+                      type="file"
+                      multiple
+                      onChange={handleFileUpload}
+                      disabled={uploadingFile}
+                      className="hidden"
+                      id="file-upload"
+                    />
+                    <label htmlFor="file-upload" className="cursor-pointer block text-center">
+                      <Paperclip className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                      <p className="text-sm text-gray-600">
+                        {uploadingFile ? 'Uploading...' : 'Click to upload lab reports, prescriptions, etc.'}
+                      </p>
+                    </label>
+                    {formData.uploaded_files.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {formData.uploaded_files.map((file, idx) => (
+                          <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span className="text-sm truncate flex-1">{file.file_name}</span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeFile(idx)}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </>
+                </div>
               )}
             </div>
 
@@ -588,6 +613,122 @@ function HealthGoalsForm({ formData, setFormData }) {
           rows={3}
         />
       </div>
+    </div>
+  );
+}
+
+function CustomSectionForm({ section, formData, setFormData }) {
+  const updateCustomResponse = (questionId, value) => {
+    setFormData({
+      ...formData,
+      custom_responses: {
+        ...formData.custom_responses,
+        [questionId]: value
+      }
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      {section.section_description && (
+        <p className="text-sm text-gray-600">{section.section_description}</p>
+      )}
+      
+      {section.questions?.map((question) => (
+        <div key={question.question_id} className="space-y-2">
+          <Label>
+            {question.question_text}
+            {question.required && <span className="text-red-500 ml-1">*</span>}
+          </Label>
+          {question.help_text && (
+            <p className="text-xs text-gray-500">{question.help_text}</p>
+          )}
+
+          {question.question_type === 'text' && (
+            <Input
+              value={formData.custom_responses?.[question.question_id] || ''}
+              onChange={(e) => updateCustomResponse(question.question_id, e.target.value)}
+              placeholder={question.placeholder}
+              required={question.required}
+            />
+          )}
+
+          {question.question_type === 'textarea' && (
+            <Textarea
+              value={formData.custom_responses?.[question.question_id] || ''}
+              onChange={(e) => updateCustomResponse(question.question_id, e.target.value)}
+              placeholder={question.placeholder}
+              rows={4}
+              required={question.required}
+            />
+          )}
+
+          {question.question_type === 'number' && (
+            <Input
+              type="number"
+              value={formData.custom_responses?.[question.question_id] || ''}
+              onChange={(e) => updateCustomResponse(question.question_id, parseFloat(e.target.value))}
+              placeholder={question.placeholder}
+              required={question.required}
+            />
+          )}
+
+          {question.question_type === 'select' && (
+            <Select
+              value={formData.custom_responses?.[question.question_id] || ''}
+              onValueChange={(val) => updateCustomResponse(question.question_id, val)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={question.placeholder || 'Select an option'} />
+              </SelectTrigger>
+              <SelectContent>
+                {question.options?.map((option) => (
+                  <SelectItem key={option} value={option}>{option}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+
+          {question.question_type === 'checkbox' && (
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                checked={formData.custom_responses?.[question.question_id] || false}
+                onCheckedChange={(checked) => updateCustomResponse(question.question_id, checked)}
+              />
+              <label className="text-sm">{question.placeholder}</label>
+            </div>
+          )}
+
+          {question.question_type === 'date' && (
+            <Input
+              type="date"
+              value={formData.custom_responses?.[question.question_id] || ''}
+              onChange={(e) => updateCustomResponse(question.question_id, e.target.value)}
+              required={question.required}
+            />
+          )}
+
+          {question.question_type === 'scale' && (
+            <div className="space-y-2">
+              <Input
+                type="range"
+                min={question.scale_min || 1}
+                max={question.scale_max || 10}
+                value={formData.custom_responses?.[question.question_id] || question.scale_min || 1}
+                onChange={(e) => updateCustomResponse(question.question_id, parseInt(e.target.value))}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>{question.scale_labels?.min_label || question.scale_min}</span>
+                <span className="font-semibold text-orange-600">
+                  {formData.custom_responses?.[question.question_id] || question.scale_min || 1}
+                </span>
+                <span>{question.scale_labels?.max_label || question.scale_max}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
