@@ -61,7 +61,15 @@ export default function Appointments() {
         return allClients;
       }
       
-      // Team members, student coaches - only see THEIR OWN clients
+      // Student coaches see clients they created OR clients assigned to them
+      if (user?.user_type === 'student_coach') {
+        return allClients.filter(client => 
+          client.created_by === user?.email || 
+          client.assigned_coach === user?.email
+        );
+      }
+      
+      // Team members, student team members - only see clients they created
       return allClients.filter(client => client.created_by === user?.email);
     },
     initialData: [],
