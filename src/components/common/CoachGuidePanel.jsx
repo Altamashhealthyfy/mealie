@@ -47,7 +47,7 @@ export default function CoachGuidePanel() {
     {
       icon: MessageSquare,
       title: "Client Communication",
-      description: "Message clients via email, WhatsApp, or in-app chat",
+      description: "Message clients via email or in-app chat",
       color: "from-cyan-500 to-blue-500",
       link: createPageUrl("Communication"),
       tips: ["Send bulk messages", "Use templates", "Track conversations"]
