@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import DashboardTour, { TourSkipPrompt } from "@/components/common/DashboardTour";
+import ClientOverviewWidget from "@/components/dashboard/ClientOverviewWidget";
+import NotificationCenter from "@/components/dashboard/NotificationCenter";
 import {
   Users,
   Calendar,
@@ -29,7 +31,6 @@ import {
 import { format } from "date-fns";
 import ActionItemsPanel from "@/components/dashboard/ActionItemsPanel";
 import CoachGuidePanel from "@/components/common/CoachGuidePanel";
-import ClientAlertsPanel from "@/components/dashboard/ClientAlertsPanel";
 
 export default function DietitianDashboard() {
   const navigate = useNavigate();
@@ -122,7 +123,12 @@ export default function DietitianDashboard() {
     staleTime: 60000,
   });
 
-  const today = new Date();
+  const { data: mealPlansData } = useQuery({
+    queryKey: ['dashboardMealPlansData'],
+    queryFn: () => base44.entities.MealPlan.list('-created_date', 200),
+    initialData: [],
+    staleTime: 60000,
+  });
 
   // Get unique clients who have tracked MPESS
   const mpessClientIds = [...new Set(mpessTracking.map(t => t.created_by))];
@@ -277,6 +283,19 @@ export default function DietitianDashboard() {
         {/* Coach Guide Panel */}
         <CoachGuidePanel />
 
+        {/* Client Overview Dashboard */}
+        <ClientOverviewWidget
+          clients={clients}
+          appointments={appointments}
+          progressLogs={progressLogs}
+          foodLogs={foodLogs}
+          goals={goals}
+          mealPlans={mealPlansData}
+        />
+
+        {/* Notification Center */}
+        <NotificationCenter user={user} />
+
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="dashboard-stats">
           {stats.map((stat) => (
@@ -301,14 +320,6 @@ export default function DietitianDashboard() {
           ))}
         </div>
 
-        {/* Client Alerts & Milestones */}
-        <ClientAlertsPanel
-          clients={clients}
-          progressLogs={progressLogs}
-          foodLogs={foodLogs}
-          messages={messages}
-        />
-
         {/* Action Items */}
         <ActionItemsPanel
           clients={clients}
@@ -319,67 +330,31 @@ export default function DietitianDashboard() {
           appointments={appointments}
         />
 
-        {/* Client Health Metrics Overview */}
-        <Card className="border-none shadow-xl bg-gradient-to-br from-purple-50 to-pink-50" id="client-growth">
+        {/* Client Growth Chart */}
+        <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50" id="client-growth">
           <CardHeader>
-            <CardTitle className="text-2xl flex items-center gap-2">
-              <TrendingUp className="w-6 h-6 text-purple-600" />
-              Client Health Metrics Overview
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-blue-500" />
+              Client Growth Analytics
             </CardTitle>
-            <CardDescription>Key health indicators across your client base</CardDescription>
+            <CardDescription>Track your client base growth and engagement</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-white rounded-lg p-4 shadow">
-                <p className="text-xs text-gray-600 mb-1">Total Weight Lost</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {progressLogs
-                    .filter(log => log.weight)
-                    .reduce((acc, log) => {
-                      const client = clients.find(c => c.id === log.client_id);
-                      if (client?.initial_weight && log.weight < client.initial_weight) {
-                        return acc + (client.initial_weight - log.weight);
-                      }
-                      return acc;
-                    }, 0)
-                    .toFixed(1)} kg
-                </p>
-                <p className="text-xs text-gray-500 mt-1">Across all clients</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 bg-white rounded-lg">
+                <p className="text-sm text-gray-600 mb-1">Total Clients</p>
+                <p className="text-2xl font-bold text-blue-600">{clients.length}</p>
+                <p className="text-xs text-gray-500 mt-1">All time</p>
               </div>
-              
-              <div className="bg-white rounded-lg p-4 shadow">
-                <p className="text-xs text-gray-600 mb-1">Avg. Compliance</p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {progressLogs.filter(log => log.meal_adherence).length > 0
-                    ? Math.round(
-                        progressLogs
-                          .filter(log => log.meal_adherence)
-                          .reduce((acc, log) => acc + log.meal_adherence, 0) /
-                          progressLogs.filter(log => log.meal_adherence).length
-                      )
-                    : 0}%
-                </p>
-                <p className="text-xs text-gray-500 mt-1">Meal plan adherence</p>
+              <div className="p-4 bg-white rounded-lg">
+                <p className="text-sm text-gray-600 mb-1">Active Clients</p>
+                <p className="text-2xl font-bold text-green-600">{activeClients.length}</p>
+                <p className="text-xs text-gray-500 mt-1">{((activeClients.length / Math.max(clients.length, 1)) * 100).toFixed(0)}% of total</p>
               </div>
-
-              <div className="bg-white rounded-lg p-4 shadow">
-                <p className="text-xs text-gray-600 mb-1">Active Trackers</p>
-                <p className="text-2xl font-bold text-orange-600">
-                  {[...new Set(progressLogs.filter(log => {
-                    const logDate = new Date(log.date);
-                    const daysDiff = Math.floor((today - logDate) / (1000 * 60 * 60 * 24));
-                    return daysDiff <= 7;
-                  }).map(log => log.client_id))].length}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">Logged this week</p>
-              </div>
-
-              <div className="bg-white rounded-lg p-4 shadow">
-                <p className="text-xs text-gray-600 mb-1">Avg. Wellness</p>
-                <p className="text-2xl font-bold text-purple-600">
-                  {avgMPESSRating}/5
-                </p>
-                <p className="text-xs text-gray-500 mt-1">MPESS rating</p>
+              <div className="p-4 bg-white rounded-lg">
+                <p className="text-sm text-gray-600 mb-1">New This Month</p>
+                <p className="text-2xl font-bold text-orange-600">{newClientsThisMonth}</p>
+                <p className="text-xs text-gray-500 mt-1">Last 30 days</p>
               </div>
             </div>
           </CardContent>
