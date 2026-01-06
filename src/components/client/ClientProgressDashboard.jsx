@@ -36,7 +36,9 @@ import {
   Edit,
   Trash2,
   CheckCircle2,
-  X
+  X,
+  Heart,
+  Image as ImageIcon
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -383,10 +385,13 @@ export default function ClientProgressDashboard({ client, onClose }) {
 
           {/* Charts Tabs */}
           <Tabs defaultValue="weight" className="space-y-4">
-            <TabsList className="grid grid-cols-3 bg-white/80 backdrop-blur">
+            <TabsList className="grid grid-cols-3 md:grid-cols-6 bg-white/80 backdrop-blur">
               <TabsTrigger value="weight"><Scale className="w-4 h-4 mr-2" />Weight</TabsTrigger>
               <TabsTrigger value="calories"><Utensils className="w-4 h-4 mr-2" />Calories</TabsTrigger>
               <TabsTrigger value="wellness"><Activity className="w-4 h-4 mr-2" />Wellness</TabsTrigger>
+              <TabsTrigger value="foodlog"><ImageIcon className="w-4 h-4 mr-2" />Food Log</TabsTrigger>
+              <TabsTrigger value="progress"><Calendar className="w-4 h-4 mr-2" />Progress</TabsTrigger>
+              <TabsTrigger value="mpess"><Heart className="w-4 h-4 mr-2" />MPESS</TabsTrigger>
             </TabsList>
 
             <TabsContent value="weight">
@@ -515,6 +520,263 @@ export default function ClientProgressDashboard({ client, onClose }) {
                     <div className="text-center py-12">
                       <Activity className="w-16 h-16 mx-auto text-gray-300 mb-4" />
                       <p className="text-gray-600">No wellness data logged yet</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="foodlog">
+              <Card className="border-none shadow-lg">
+                <CardHeader>
+                  <CardTitle>Food Log with Photos</CardTitle>
+                  <CardDescription>Recent meal entries from {client.full_name}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {foodLogs.length > 0 ? (
+                    <div className="space-y-4 max-h-[500px] overflow-y-auto">
+                      {foodLogs.slice().reverse().slice(0, 10).map((log) => (
+                        <Card key={log.id} className="border-2 hover:shadow-md transition-shadow">
+                          <CardContent className="p-4">
+                            <div className="flex flex-col md:flex-row gap-4">
+                              {log.photo_url && (
+                                <img 
+                                  src={log.photo_url} 
+                                  alt={log.meal_name || log.meal_type}
+                                  className="w-full md:w-32 h-32 object-cover rounded-lg"
+                                />
+                              )}
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div>
+                                    <h5 className="font-semibold text-lg">{log.meal_name || log.meal_type}</h5>
+                                    <p className="text-sm text-gray-600">{format(new Date(log.date), 'MMM d, yyyy')}</p>
+                                  </div>
+                                  <Badge variant="outline" className="capitalize">{log.meal_type?.replace('_', ' ')}</Badge>
+                                </div>
+                                
+                                {log.items && log.items.length > 0 && (
+                                  <div className="mb-2">
+                                    <p className="text-sm text-gray-700">
+                                      <strong>Items:</strong> {log.items.join(', ')}
+                                    </p>
+                                  </div>
+                                )}
+
+                                {log.calories && (
+                                  <div className="flex gap-4 text-sm">
+                                    <span className="font-medium text-orange-600">{log.calories} cal</span>
+                                    {log.protein && <span className="text-blue-600">P: {log.protein}g</span>}
+                                    {log.carbs && <span className="text-green-600">C: {log.carbs}g</span>}
+                                    {log.fats && <span className="text-purple-600">F: {log.fats}g</span>}
+                                  </div>
+                                )}
+
+                                {log.notes && (
+                                  <p className="text-sm text-gray-600 mt-2 italic">{log.notes}</p>
+                                )}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <Utensils className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                      <p className="text-gray-600">No food logs yet</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="progress">
+              <Card className="border-none shadow-lg">
+                <CardHeader>
+                  <CardTitle>Progress Tracking History</CardTitle>
+                  <CardDescription>Weight, measurements, and wellness entries</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {progressLogs.length > 0 ? (
+                    <div className="space-y-4 max-h-[500px] overflow-y-auto">
+                      {progressLogs.slice().reverse().map((log) => (
+                        <Card key={log.id} className="border-2 hover:shadow-md transition-shadow">
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between mb-3">
+                              <div>
+                                <h5 className="font-semibold text-lg">{format(new Date(log.date), 'MMMM d, yyyy')}</h5>
+                                <p className="text-2xl font-bold text-green-600 mt-1">{log.weight} kg</p>
+                              </div>
+                              {log.wellness_metrics?.mood && (
+                                <Badge variant="outline" className="capitalize">{log.wellness_metrics.mood}</Badge>
+                              )}
+                            </div>
+
+                            {log.measurements && Object.keys(log.measurements).length > 0 && (
+                              <div className="mb-3 p-3 bg-blue-50 rounded-lg">
+                                <p className="text-sm font-semibold text-blue-900 mb-2">Body Measurements (cm)</p>
+                                <div className="grid grid-cols-3 gap-2 text-sm">
+                                  {Object.entries(log.measurements).map(([key, value]) => (
+                                    value && (
+                                      <div key={key}>
+                                        <span className="text-gray-600 capitalize">{key.replace('_', ' ')}: </span>
+                                        <span className="font-medium">{value}</span>
+                                      </div>
+                                    )
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {log.wellness_metrics && (
+                              <div className="flex flex-wrap gap-3 text-sm mb-2">
+                                {log.wellness_metrics.energy_level && (
+                                  <span className="text-yellow-600">⚡ Energy: {log.wellness_metrics.energy_level}/10</span>
+                                )}
+                                {log.wellness_metrics.sleep_quality && (
+                                  <span className="text-indigo-600">😴 Sleep: {log.wellness_metrics.sleep_quality}/10</span>
+                                )}
+                                {log.wellness_metrics.stress_level && (
+                                  <span className="text-red-600">😰 Stress: {log.wellness_metrics.stress_level}/10</span>
+                                )}
+                                {log.wellness_metrics.water_intake && (
+                                  <span className="text-blue-600">💧 Water: {log.wellness_metrics.water_intake}L</span>
+                                )}
+                              </div>
+                            )}
+
+                            {log.photos && Object.keys(log.photos).filter(k => log.photos[k]).length > 0 && (
+                              <div className="flex gap-2 mt-3">
+                                {Object.entries(log.photos).map(([type, url]) => (
+                                  url && (
+                                    <img 
+                                      key={type}
+                                      src={url} 
+                                      alt={type}
+                                      className="w-20 h-20 object-cover rounded border-2 border-orange-300"
+                                      title={`${type} view`}
+                                    />
+                                  )
+                                ))}
+                              </div>
+                            )}
+
+                            {log.notes && (
+                              <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded mt-3">{log.notes}</p>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <Calendar className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                      <p className="text-gray-600">No progress logs yet</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="mpess">
+              <Card className="border-none shadow-lg">
+                <CardHeader>
+                  <CardTitle>MPESS Wellness Tracker</CardTitle>
+                  <CardDescription>Mind, Physical, Emotional, Social, Spiritual practices</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {mpessLogs.length > 0 ? (
+                    <div className="space-y-4 max-h-[500px] overflow-y-auto">
+                      {mpessLogs.slice().reverse().slice(0, 15).map((log) => (
+                        <Card key={log.id} className="border-2 hover:shadow-md transition-shadow">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <h5 className="font-semibold text-lg">{format(new Date(log.date), 'MMMM d, yyyy')}</h5>
+                              {log.overall_rating && (
+                                <div className="flex items-center gap-1">
+                                  {[...Array(log.overall_rating)].map((_, i) => (
+                                    <span key={i} className="text-yellow-500">⭐</span>
+                                  ))}
+                                  <span className="text-sm text-gray-600 ml-1">{log.overall_rating}/5</span>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                              {/* Mind */}
+                              {log.mind_practices && (
+                                <div className="p-2 bg-blue-50 rounded">
+                                  <p className="text-xs font-semibold text-blue-900 mb-1">🧠 Mind</p>
+                                  <div className="text-xs space-y-1">
+                                    {log.mind_practices.affirmations_completed && <p>✓ Affirmations</p>}
+                                    {log.mind_practices.stress_relief_done && <p>✓ Stress Relief</p>}
+                                    {log.mind_practices.sleep_guidance_followed && <p>✓ Sleep Guide</p>}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Physical */}
+                              {log.physical_practices && (
+                                <div className="p-2 bg-green-50 rounded">
+                                  <p className="text-xs font-semibold text-green-900 mb-1">💪 Physical</p>
+                                  <div className="text-xs space-y-1">
+                                    {log.physical_practices.movement_done && <p>✓ Movement</p>}
+                                    {log.physical_practices.posture_awareness && <p>✓ Posture</p>}
+                                    {log.physical_practices.hydration_met && <p>✓ Hydration</p>}
+                                    {log.physical_practices.water_intake && (
+                                      <p className="font-medium">{log.physical_practices.water_intake}L water</p>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Emotional */}
+                              {log.emotional_practices && (
+                                <div className="p-2 bg-pink-50 rounded">
+                                  <p className="text-xs font-semibold text-pink-900 mb-1">❤️ Emotional</p>
+                                  <div className="text-xs space-y-1">
+                                    {log.emotional_practices.journaling_done && <p>✓ Journaling</p>}
+                                    {log.emotional_practices.emotion_release_done && <p>✓ Release</p>}
+                                    {log.emotional_practices.breathwork_done && <p>✓ Breathwork</p>}
+                                    {log.emotional_practices.mood && (
+                                      <p className="font-medium capitalize">{log.emotional_practices.mood}</p>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Social */}
+                              {log.social_practices && (
+                                <div className="p-2 bg-yellow-50 rounded">
+                                  <p className="text-xs font-semibold text-yellow-900 mb-1">👥 Social</p>
+                                  <div className="text-xs space-y-1">
+                                    {log.social_practices.bonding_activity_done && <p>✓ Bonding</p>}
+                                    {log.social_practices.connection_made && <p>✓ Connection</p>}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Spiritual */}
+                              {log.spiritual_practices && (
+                                <div className="p-2 bg-purple-50 rounded">
+                                  <p className="text-xs font-semibold text-purple-900 mb-1">🙏 Spiritual</p>
+                                  <div className="text-xs space-y-1">
+                                    {log.spiritual_practices.breathwork_done && <p>✓ Breathwork</p>}
+                                    {log.spiritual_practices.meditation_done && <p>✓ Meditation</p>}
+                                    {log.spiritual_practices.gratitude_journaling_done && <p>✓ Gratitude</p>}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <Heart className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                      <p className="text-gray-600">No MPESS tracking yet</p>
                     </div>
                   )}
                 </CardContent>
