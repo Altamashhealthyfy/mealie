@@ -291,7 +291,11 @@ export default function ClientCommunication() {
       <div className="max-w-5xl mx-auto">
         <div className="mb-6">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Messages</h1>
-          <p className="text-gray-600">Chat with your dietitian</p>
+          <p className="text-gray-600">
+            Chat with {clientProfile?.assigned_coach ? 
+              clientProfile.assigned_coach.split('@')[0] : 
+              'your health coach'}
+          </p>
         </div>
 
         <Card className="border-none shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 200px)' }}>
@@ -303,7 +307,12 @@ export default function ClientCommunication() {
                   <MessageSquare className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <CardTitle className="text-xl">Your Dietitian</CardTitle>
+                  <CardTitle className="text-xl">
+                    {clientProfile?.assigned_coach ? 
+                      clientProfile.assigned_coach.split('@')[0].charAt(0).toUpperCase() + 
+                      clientProfile.assigned_coach.split('@')[0].slice(1) : 
+                      'Your Health Coach'}
+                  </CardTitle>
                   <p className="text-sm text-gray-600">Always here to help you 💚</p>
                 </div>
               </div>
@@ -432,7 +441,9 @@ export default function ClientCommunication() {
                 <div className="flex-1">
                   <Textarea
                     ref={textareaRef}
-                    placeholder="Type your message to your dietitian..."
+                    placeholder={`Type your message to ${clientProfile?.assigned_coach ? 
+                      clientProfile.assigned_coach.split('@')[0] : 
+                      'your coach'}...`}
                     value={messageText}
                     onChange={(e) => setMessageText(e.target.value)}
                     onKeyPress={(e) => {
