@@ -17,8 +17,10 @@ export default function ProgressTracking() {
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingLog, setEditingLog] = useState(null);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [formData, setFormData] = useState({
     date: format(new Date(), 'yyyy-MM-dd'),
+    measurements: {},
   });
 
   const { data: user } = useQuery({
@@ -83,7 +85,7 @@ export default function ProgressTracking() {
       queryClient.invalidateQueries(['myProgressLogs']);
       setShowAddDialog(false);
       setEditingLog(null);
-      setFormData({ date: format(new Date(), 'yyyy-MM-dd') });
+      setFormData({ date: format(new Date(), 'yyyy-MM-dd'), measurements: {} });
       alert(editingLog ? 'Progress updated successfully!' : 'Progress logged successfully!');
     },
   });
@@ -95,6 +97,40 @@ export default function ProgressTracking() {
       alert('Progress entry deleted successfully!');
     },
   });
+
+  const handlePhotoUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    if (files.length > 3) {
+      alert('You can upload maximum 3 photos');
+      return;
+    }
+
+    setUploadingPhotos(true);
+    try {
+      const uploadPromises = files.map(file => 
+        base44.integrations.Core.UploadFile({ file })
+      );
+      const uploadResults = await Promise.all(uploadPromises);
+      const photoUrls = uploadResults.map(result => result.file_url);
+      
+      setFormData({ 
+        ...formData, 
+        photos: [...(formData.photos || []), ...photoUrls] 
+      });
+    } catch (error) {
+      console.error('Photo upload failed:', error);
+      alert('Failed to upload photos. Please try again.');
+    } finally {
+      setUploadingPhotos(false);
+    }
+  };
+
+  const removePhoto = (index) => {
+    const newPhotos = formData.photos.filter((_, i) => i !== index);
+    setFormData({ ...formData, photos: newPhotos });
+  };
 
   const handleSubmit = () => {
     if (!formData.weight) {
@@ -110,6 +146,7 @@ export default function ProgressTracking() {
       date: log.date,
       weight: log.weight,
       measurements: log.measurements || {},
+      photos: log.photos || [],
       energy_level: log.energy_level,
       sleep_quality: log.sleep_quality,
       stress_level: log.stress_level,
@@ -128,7 +165,7 @@ export default function ProgressTracking() {
   const handleDialogClose = () => {
     setShowAddDialog(false);
     setEditingLog(null);
-    setFormData({ date: format(new Date(), 'yyyy-MM-dd') });
+    setFormData({ date: format(new Date(), 'yyyy-MM-dd'), measurements: {} });
   };
 
   // Permission checks
@@ -212,7 +249,7 @@ export default function ProgressTracking() {
                   Log Progress
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>{editingLog ? 'Edit Progress' : 'Log Your Progress'}</DialogTitle>
                 </DialogHeader>
@@ -238,12 +275,25 @@ export default function ProgressTracking() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Measurements (optional)</Label>
+                    <Label>Body Measurements (optional)</Label>
                     <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm">Neck (cm)</Label>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          value={formData.measurements?.neck || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            measurements: {...formData.measurements, neck: parseFloat(e.target.value)}
+                          })}
+                        />
+                      </div>
                       <div>
                         <Label className="text-sm">Chest (cm)</Label>
                         <Input
                           type="number"
+                          step="0.1"
                           value={formData.measurements?.chest || ''}
                           onChange={(e) => setFormData({
                             ...formData,
@@ -252,13 +302,38 @@ export default function ProgressTracking() {
                         />
                       </div>
                       <div>
-                        <Label className="text-sm">Waist (cm)</Label>
+                        <Label className="text-sm">Upper Abdomen (2" above navel)</Label>
                         <Input
                           type="number"
-                          value={formData.measurements?.waist || ''}
+                          step="0.1"
+                          value={formData.measurements?.upper_abdomen || ''}
                           onChange={(e) => setFormData({
                             ...formData,
-                            measurements: {...formData.measurements, waist: parseFloat(e.target.value)}
+                            measurements: {...formData.measurements, upper_abdomen: parseFloat(e.target.value)}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm">Middle Abdomen (at navel)</Label>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          value={formData.measurements?.middle_abdomen || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            measurements: {...formData.measurements, middle_abdomen: parseFloat(e.target.value)}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm">Lower Abdomen (2" below navel)</Label>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          value={formData.measurements?.lower_abdomen || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            measurements: {...formData.measurements, lower_abdomen: parseFloat(e.target.value)}
                           })}
                         />
                       </div>
@@ -266,6 +341,7 @@ export default function ProgressTracking() {
                         <Label className="text-sm">Hips (cm)</Label>
                         <Input
                           type="number"
+                          step="0.1"
                           value={formData.measurements?.hips || ''}
                           onChange={(e) => setFormData({
                             ...formData,
@@ -274,13 +350,50 @@ export default function ProgressTracking() {
                         />
                       </div>
                       <div>
-                        <Label className="text-sm">Arms (cm)</Label>
+                        <Label className="text-sm">Left Arm (5" from shoulder)</Label>
                         <Input
                           type="number"
-                          value={formData.measurements?.arms || ''}
+                          step="0.1"
+                          value={formData.measurements?.left_arm || ''}
                           onChange={(e) => setFormData({
                             ...formData,
-                            measurements: {...formData.measurements, arms: parseFloat(e.target.value)}
+                            measurements: {...formData.measurements, left_arm: parseFloat(e.target.value)}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm">Right Arm (5" from shoulder)</Label>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          value={formData.measurements?.right_arm || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            measurements: {...formData.measurements, right_arm: parseFloat(e.target.value)}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm">Left Leg (8" from waist)</Label>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          value={formData.measurements?.left_leg || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            measurements: {...formData.measurements, left_leg: parseFloat(e.target.value)}
+                          })}
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-sm">Right Leg (8" from waist)</Label>
+                        <Input
+                          type="number"
+                          step="0.1"
+                          value={formData.measurements?.right_leg || ''}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            measurements: {...formData.measurements, right_leg: parseFloat(e.target.value)}
                           })}
                         />
                       </div>
@@ -342,6 +455,51 @@ export default function ProgressTracking() {
                     />
                   </div>
 
+                  <div className="space-y-2">
+                    <Label>Upload Progress Photos (Front & Side view recommended)</Label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-orange-500 transition-colors">
+                      <div className="text-center">
+                        <Camera className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handlePhotoUpload}
+                          disabled={uploadingPhotos}
+                          className="hidden"
+                          id="progress-photo-upload"
+                        />
+                        <label
+                          htmlFor="progress-photo-upload"
+                          className={`cursor-pointer text-sm text-gray-600 hover:text-orange-600 ${uploadingPhotos ? 'opacity-50' : ''}`}
+                        >
+                          {uploadingPhotos ? 'Uploading...' : 'Click to upload photos (max 3)'}
+                        </label>
+                        {formData.photos && formData.photos.length > 0 && (
+                          <div className="mt-3 grid grid-cols-3 gap-2">
+                            {formData.photos.map((photo, index) => (
+                              <div key={index} className="relative">
+                                <img
+                                  src={photo}
+                                  alt={`Progress ${index + 1}`}
+                                  className="w-full h-24 object-cover rounded-lg"
+                                />
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  className="absolute top-1 right-1 h-6 w-6 p-0"
+                                  onClick={() => removePhoto(index)}
+                                >
+                                  ×
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="flex gap-3">
                     <Button
                       variant="outline"
@@ -352,7 +510,7 @@ export default function ProgressTracking() {
                     </Button>
                     <Button
                       onClick={handleSubmit}
-                      disabled={saveMutation.isPending}
+                      disabled={saveMutation.isPending || uploadingPhotos}
                       className="flex-1 bg-gradient-to-r from-orange-500 to-red-500"
                     >
                       {saveMutation.isPending ? 'Saving...' : editingLog ? 'Update Progress' : 'Save Progress'}
@@ -782,32 +940,54 @@ export default function ProgressTracking() {
                       </div>
                     </div>
 
-                    {log.measurements && (
-                      <div className="grid grid-cols-4 gap-3 mb-3">
-                        {log.measurements.chest && (
-                          <div className="text-sm">
-                            <span className="text-gray-600">Chest:</span>
-                            <span className="ml-1 font-medium">{log.measurements.chest} cm</span>
-                          </div>
+                    {log.measurements && Object.keys(log.measurements).length > 0 && (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-3 text-xs">
+                        {log.measurements.neck && (
+                          <div><span className="text-gray-600">Neck:</span> <span className="font-medium">{log.measurements.neck}cm</span></div>
                         )}
-                        {log.measurements.waist && (
-                          <div className="text-sm">
-                            <span className="text-gray-600">Waist:</span>
-                            <span className="ml-1 font-medium">{log.measurements.waist} cm</span>
-                          </div>
+                        {log.measurements.chest && (
+                          <div><span className="text-gray-600">Chest:</span> <span className="font-medium">{log.measurements.chest}cm</span></div>
+                        )}
+                        {log.measurements.upper_abdomen && (
+                          <div><span className="text-gray-600">Upper Abd:</span> <span className="font-medium">{log.measurements.upper_abdomen}cm</span></div>
+                        )}
+                        {log.measurements.middle_abdomen && (
+                          <div><span className="text-gray-600">Mid Abd:</span> <span className="font-medium">{log.measurements.middle_abdomen}cm</span></div>
+                        )}
+                        {log.measurements.lower_abdomen && (
+                          <div><span className="text-gray-600">Lower Abd:</span> <span className="font-medium">{log.measurements.lower_abdomen}cm</span></div>
                         )}
                         {log.measurements.hips && (
-                          <div className="text-sm">
-                            <span className="text-gray-600">Hips:</span>
-                            <span className="ml-1 font-medium">{log.measurements.hips} cm</span>
-                          </div>
+                          <div><span className="text-gray-600">Hips:</span> <span className="font-medium">{log.measurements.hips}cm</span></div>
                         )}
-                        {log.measurements.arms && (
-                          <div className="text-sm">
-                            <span className="text-gray-600">Arms:</span>
-                            <span className="ml-1 font-medium">{log.measurements.arms} cm</span>
-                          </div>
+                        {log.measurements.left_arm && (
+                          <div><span className="text-gray-600">L Arm:</span> <span className="font-medium">{log.measurements.left_arm}cm</span></div>
                         )}
+                        {log.measurements.right_arm && (
+                          <div><span className="text-gray-600">R Arm:</span> <span className="font-medium">{log.measurements.right_arm}cm</span></div>
+                        )}
+                        {log.measurements.left_leg && (
+                          <div><span className="text-gray-600">L Leg:</span> <span className="font-medium">{log.measurements.left_leg}cm</span></div>
+                        )}
+                        {log.measurements.right_leg && (
+                          <div><span className="text-gray-600">R Leg:</span> <span className="font-medium">{log.measurements.right_leg}cm</span></div>
+                        )}
+                      </div>
+                    )}
+
+                    {log.photos && log.photos.length > 0 && (
+                      <div className="mb-3">
+                        <div className="flex gap-2 flex-wrap">
+                          {log.photos.map((photo, idx) => (
+                            <img
+                              key={idx}
+                              src={photo}
+                              alt={`Progress ${idx + 1}`}
+                              className="w-20 h-20 object-cover rounded-lg cursor-pointer hover:opacity-80"
+                              onClick={() => window.open(photo, '_blank')}
+                            />
+                          ))}
+                        </div>
                       </div>
                     )}
 
