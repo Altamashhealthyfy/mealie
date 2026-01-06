@@ -139,6 +139,7 @@ export default function ClientDashboard() {
     [goals]
   );
 
+  // Early return AFTER all hooks are defined
   if (!user || !clientProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -149,8 +150,6 @@ export default function ClientDashboard() {
       </div>
     );
   }
-
-
 
   return (
     <div className="min-h-screen p-4 md:p-8 space-y-6">
