@@ -8,7 +8,6 @@ import BusinessPlan from './pages/BusinessPlan';
 import CallCenter from './pages/CallCenter';
 import CallCenterAdmin from './pages/CallCenterAdmin';
 import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
-import ClientCommunication from './pages/ClientCommunication';
 import ClientFinanceManager from './pages/ClientFinanceManager';
 import ClientManagement from './pages/ClientManagement';
 import ClientPlanBuilder from './pages/ClientPlanBuilder';
@@ -55,7 +54,6 @@ import TeamDashboard from './pages/TeamDashboard';
 import TeamManagement from './pages/TeamManagement';
 import TeamSetup from './pages/TeamSetup';
 import TemplateLibrary from './pages/TemplateLibrary';
-import TemplateLibraryManager from './pages/TemplateLibraryManager';
 import UsageDashboard from './pages/UsageDashboard';
 import UserPermissionManagement from './pages/UserPermissionManagement';
 import VerticalManagement from './pages/VerticalManagement';
@@ -63,8 +61,10 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import Communication from './pages/Communication';
 import DietitianDashboard from './pages/DietitianDashboard';
+import ClientCommunication from './pages/ClientCommunication';
+import Communication from './pages/Communication';
+import TemplateLibraryManager from './pages/TemplateLibraryManager';
 import __Layout from './Layout.jsx';
 
 
@@ -79,7 +79,6 @@ export const PAGES = {
     "CallCenter": CallCenter,
     "CallCenterAdmin": CallCenterAdmin,
     "ClientAnalyticsDashboard": ClientAnalyticsDashboard,
-    "ClientCommunication": ClientCommunication,
     "ClientFinanceManager": ClientFinanceManager,
     "ClientManagement": ClientManagement,
     "ClientPlanBuilder": ClientPlanBuilder,
@@ -126,7 +125,6 @@ export const PAGES = {
     "TeamManagement": TeamManagement,
     "TeamSetup": TeamSetup,
     "TemplateLibrary": TemplateLibrary,
-    "TemplateLibraryManager": TemplateLibraryManager,
     "UsageDashboard": UsageDashboard,
     "UserPermissionManagement": UserPermissionManagement,
     "VerticalManagement": VerticalManagement,
@@ -134,8 +132,10 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "Communication": Communication,
     "DietitianDashboard": DietitianDashboard,
+    "ClientCommunication": ClientCommunication,
+    "Communication": Communication,
+    "TemplateLibraryManager": TemplateLibraryManager,
 }
 
 export const pagesConfig = {
