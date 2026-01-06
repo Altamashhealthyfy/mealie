@@ -71,9 +71,10 @@ export default function ClientProgressDashboard({ client, onClose }) {
     queryKey: ['clientFoodLogs', client.id],
     queryFn: async () => {
       const logs = await base44.entities.FoodLog.filter({ client_id: client.id });
-      return logs.sort((a, b) => new Date(a.date) - new Date(b.date));
+      return logs.sort((a, b) => new Date(b.date) - new Date(a.date));
     },
     initialData: [],
+    enabled: !!client.id,
   });
 
   // Fetch goals
@@ -90,10 +91,11 @@ export default function ClientProgressDashboard({ client, onClose }) {
   const { data: mpessLogs } = useQuery({
     queryKey: ['clientMPESS', client.id],
     queryFn: async () => {
-      const logs = await base44.entities.MPESSTracker.filter({ client_id: client.id });
-      return logs.sort((a, b) => new Date(a.date) - new Date(b.date));
+      const logs = await base44.entities.MPESSTracker.filter({ created_by: client.email });
+      return logs.sort((a, b) => new Date(b.date) - new Date(a.date));
     },
     initialData: [],
+    enabled: !!client.email,
   });
 
   const saveGoalMutation = useMutation({
@@ -530,12 +532,12 @@ export default function ClientProgressDashboard({ client, onClose }) {
               <Card className="border-none shadow-lg">
                 <CardHeader>
                   <CardTitle>Food Log with Photos</CardTitle>
-                  <CardDescription>Recent meal entries from {client.full_name}</CardDescription>
+                  <CardDescription>Recent meal entries from {client.full_name} ({foodLogs.length} total)</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {foodLogs.length > 0 ? (
                     <div className="space-y-4 max-h-[500px] overflow-y-auto">
-                      {foodLogs.slice().reverse().slice(0, 10).map((log) => (
+                      {foodLogs.slice(0, 15).map((log) => (
                         <Card key={log.id} className="border-2 hover:shadow-md transition-shadow">
                           <CardContent className="p-4">
                             <div className="flex flex-col md:flex-row gap-4">
