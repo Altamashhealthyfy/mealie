@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -30,10 +30,12 @@ import {
   Phone,
   TrendingUp,
   Send,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
-import { format } from "date-fns";
+import { format, differenceInDays } from "date-fns";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import WhatsAppSender from "@/components/notifications/WhatsAppSender";
@@ -41,6 +43,8 @@ import EmailSender from "@/components/notifications/EmailSender";
 import { EMAIL_TEMPLATES, fillTemplate } from "@/components/notifications/NotificationTemplates";
 import ImageUploader from "@/components/common/ImageUploader";
 import ClientProgressDashboard from "@/components/client/ClientProgressDashboard";
+import AdvancedFilters from "@/components/client/AdvancedFilters";
+import BulkActionsPanel from "@/components/client/BulkActionsPanel";
 
 export default function ClientManagement() {
   const queryClient = useQueryClient();
@@ -48,6 +52,12 @@ export default function ClientManagement() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [coachFilter, setCoachFilter] = useState("all");
+  const [goalFilter, setGoalFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("created_date");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [lastActiveFilter, setLastActiveFilter] = useState("all");
+  const [hasActivePlan, setHasActivePlan] = useState("all");
+  const [selectedClients, setSelectedClients] = useState([]);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
   const [viewingClient, setViewingClient] = useState(null);
@@ -162,6 +172,18 @@ export default function ClientManagement() {
       return allUsers.filter(u => u.user_type === 'student_coach');
     },
     enabled: !!user && user?.user_type === 'super_admin',
+    initialData: [],
+  });
+
+  const { data: progressLogs } = useQuery({
+    queryKey: ['allProgressLogs'],
+    queryFn: () => base44.entities.ProgressLog.list('-date', 1000),
+    initialData: [],
+  });
+
+  const { data: foodLogs } = useQuery({
+    queryKey: ['allFoodLogs'],
+    queryFn: () => base44.entities.FoodLog.list('-date', 1000),
     initialData: [],
   });
 
@@ -521,15 +543,112 @@ support@mealiepro.com`;
 
 
 
-  const filteredClients = clients.filter(client => {
-    const matchesSearch =
-      client.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      client.email?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || client.status === statusFilter;
-    const matchesCoach = coachFilter === "all" || 
-      (coachFilter === "unassigned" ? !client.assigned_coach : client.assigned_coach === coachFilter);
-    return matchesSearch && matchesStatus && matchesCoach;
-  });
+  const filteredAndSortedClients = useMemo(() => {
+    const today = new Date();
+    
+    let filtered = clients.filter(client => {
+      const matchesSearch =
+        client.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        client.phone?.includes(searchQuery);
+      const matchesStatus = statusFilter === "all" || client.status === statusFilter;
+      const matchesCoach = coachFilter === "all" || 
+        (coachFilter === "unassigned" ? !client.assigned_coach : client.assigned_coach === coachFilter);
+      const matchesGoal = goalFilter === "all" || client.goal === goalFilter;
+      
+      // Active plan filter
+      const clientHasActivePlan = mealPlans.some(p => p.client_id === client.id && p.active);
+      const matchesPlan = hasActivePlan === "all" || 
+        (hasActivePlan === "yes" ? clientHasActivePlan : !clientHasActivePlan);
+
+      // Last active filter
+      let matchesActive = true;
+      if (lastActiveFilter !== "all") {
+        const clientProgress = progressLogs.filter(l => l.client_id === client.id);
+        const clientFood = foodLogs.filter(l => l.client_id === client.id);
+        const lastProgress = clientProgress[0];
+        const lastFood = clientFood[0];
+        const lastActivity = [lastProgress?.date, lastFood?.date, client.created_date]
+          .filter(Boolean)
+          .sort((a, b) => new Date(b) - new Date(a))[0];
+        
+        if (lastActivity) {
+          const daysSince = differenceInDays(today, new Date(lastActivity));
+          matchesActive = 
+            (lastActiveFilter === "today" && daysSince === 0) ||
+            (lastActiveFilter === "week" && daysSince <= 7) ||
+            (lastActiveFilter === "month" && daysSince <= 30) ||
+            (lastActiveFilter === "inactive" && daysSince > 30);
+        } else {
+          matchesActive = lastActiveFilter === "inactive";
+        }
+      }
+
+      return matchesSearch && matchesStatus && matchesCoach && matchesGoal && matchesPlan && matchesActive;
+    });
+
+    // Sort clients
+    filtered.sort((a, b) => {
+      let compareValue = 0;
+
+      if (sortBy === 'full_name') {
+        compareValue = (a.full_name || '').localeCompare(b.full_name || '');
+      } else if (sortBy === 'created_date') {
+        compareValue = new Date(a.created_date) - new Date(b.created_date);
+      } else if (sortBy === 'last_active') {
+        const getLastActivity = (client) => {
+          const clientProgress = progressLogs.filter(l => l.client_id === client.id);
+          const clientFood = foodLogs.filter(l => l.client_id === client.id);
+          const dates = [
+            clientProgress[0]?.date,
+            clientFood[0]?.date,
+            client.created_date
+          ].filter(Boolean);
+          return dates.length > 0 ? new Date(Math.max(...dates.map(d => new Date(d)))) : new Date(0);
+        };
+        compareValue = getLastActivity(a) - getLastActivity(b);
+      } else if (sortBy === 'progress') {
+        const getProgress = (client) => {
+          const logs = progressLogs
+            .filter(l => l.client_id === client.id && l.weight)
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+          if (logs.length < 2) return 0;
+          return logs[0].weight - logs[logs.length - 1].weight;
+        };
+        compareValue = getProgress(a) - getProgress(b);
+      }
+
+      return sortOrder === 'asc' ? compareValue : -compareValue;
+    });
+
+    return filtered;
+  }, [clients, searchQuery, statusFilter, coachFilter, goalFilter, sortBy, sortOrder, 
+      lastActiveFilter, hasActivePlan, mealPlans, progressLogs, foodLogs]);
+
+  const activeFiltersCount = [
+    searchQuery !== '',
+    statusFilter !== 'all',
+    coachFilter !== 'all',
+    goalFilter !== 'all',
+    lastActiveFilter !== 'all',
+    hasActivePlan !== 'all',
+  ].filter(Boolean).length;
+
+  const toggleClientSelection = (clientId) => {
+    setSelectedClients(prev => 
+      prev.includes(clientId) 
+        ? prev.filter(id => id !== clientId)
+        : [...prev, clientId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedClients.length === filteredAndSortedClients.length) {
+      setSelectedClients([]);
+    } else {
+      setSelectedClients(filteredAndSortedClients.map(c => c.id));
+    }
+  };
 
   return (
     <div className="min-h-screen p-2 sm:p-4 md:p-8">
@@ -848,61 +967,93 @@ support@mealiepro.com`;
           </Dialog>
         </div>
 
-        {/* Search and Filter - Responsive */}
-        <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-          <CardContent className="p-4 md:p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-              <div className="relative sm:col-span-2 lg:col-span-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-400" />
-                <Input
-                  placeholder="Search by name or email..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 md:pl-10 h-10 md:h-auto text-sm md:text-base"
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="h-10 md:h-auto">
-                  <SelectValue placeholder="Filter by Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
-              {user?.user_type === 'super_admin' && healthCoaches.length > 0 && (
-                <Select value={coachFilter} onValueChange={setCoachFilter}>
-                  <SelectTrigger className="h-10 md:h-auto">
-                    <SelectValue placeholder="Filter by Coach" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Coaches</SelectItem>
-                    <SelectItem value="unassigned">Unassigned</SelectItem>
-                    {healthCoaches.map((coach) => (
-                      <SelectItem key={coach.email} value={coach.email}>
-                        {coach.full_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+        {/* Advanced Filters */}
+        <AdvancedFilters
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          coachFilter={coachFilter}
+          setCoachFilter={setCoachFilter}
+          goalFilter={goalFilter}
+          setGoalFilter={setGoalFilter}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+          lastActiveFilter={lastActiveFilter}
+          setLastActiveFilter={setLastActiveFilter}
+          hasActivePlan={hasActivePlan}
+          setHasActivePlan={setHasActivePlan}
+          healthCoaches={healthCoaches}
+          showCoachFilter={user?.user_type === 'super_admin'}
+          activeFiltersCount={activeFiltersCount}
+        />
+
+        {/* Bulk Actions */}
+        {selectedClients.length > 0 && (
+          <BulkActionsPanel
+            selectedClients={filteredAndSortedClients.filter(c => selectedClients.includes(c.id))}
+            onClose={() => setSelectedClients([])}
+            onSuccess={() => {
+              setSelectedClients([]);
+              queryClient.invalidateQueries();
+            }}
+          />
+        )}
+
+        {/* Selection Controls */}
+        {filteredAndSortedClients.length > 0 && (
+          <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleSelectAll}
+              className="flex items-center gap-2"
+            >
+              {selectedClients.length === filteredAndSortedClients.length ? (
+                <CheckSquare className="w-4 h-4 text-orange-600" />
+              ) : (
+                <Square className="w-4 h-4" />
               )}
-            </div>
-          </CardContent>
-        </Card>
+              <span className="text-sm">
+                {selectedClients.length === filteredAndSortedClients.length 
+                  ? 'Deselect All' 
+                  : 'Select All'}
+              </span>
+            </Button>
+            <p className="text-sm text-gray-600">
+              {selectedClients.length} of {filteredAndSortedClients.length} selected
+            </p>
+          </div>
+        )}
 
         {/* Clients Grid - Responsive */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
-          {filteredClients.map((client) => {
+          {filteredAndSortedClients.map((client) => {
+            const isSelected = selectedClients.includes(client.id);
             const clientPlans = mealPlans.filter(p => p.client_id === client.id);
             const activePlan = clientPlans.find(p => p.active);
 
             return (
-              <Card key={client.id} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all">
+              <Card key={client.id} className={`border-2 shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all ${
+                isSelected ? 'border-orange-500 bg-orange-50/50' : 'border-transparent'
+              }`}>
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleClientSelection(client.id)}
+                        className="p-1 h-auto"
+                      >
+                        {isSelected ? (
+                          <CheckSquare className="w-5 h-5 text-orange-600" />
+                        ) : (
+                          <Square className="w-5 h-5 text-gray-400" />
+                        )}
+                      </Button>
                       {client.profile_photo_url ? (
                         <img
                           src={client.profile_photo_url}
@@ -1068,7 +1219,7 @@ support@mealiepro.com`;
           })}
         </div>
 
-        {filteredClients.length === 0 && (
+        {filteredAndSortedClients.length === 0 && (
           <Card className="border-none shadow-lg">
             <CardContent className="p-8 md:p-12 text-center">
               <Users className="w-12 h-12 md:w-16 md:h-16 mx-auto text-gray-300 mb-4" />

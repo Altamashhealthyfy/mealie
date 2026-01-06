@@ -22,9 +22,12 @@ import {
   ArrowRight,
   Scale,
   TrendingDown,
-  Minus
+  Minus,
+  Target,
+  ClipboardList
 } from "lucide-react";
 import { format } from "date-fns";
+import ActionItemsPanel from "@/components/dashboard/ActionItemsPanel";
 
 export default function DietitianDashboard() {
   const navigate = useNavigate();
@@ -85,7 +88,34 @@ export default function DietitianDashboard() {
 
   const { data: progressLogs } = useQuery({
     queryKey: ['dashboardProgress'],
-    queryFn: () => base44.entities.ProgressLog.list('-created_date', 15),
+    queryFn: () => base44.entities.ProgressLog.list('-date', 500),
+    initialData: [],
+    staleTime: 60000,
+  });
+
+  const { data: foodLogs } = useQuery({
+    queryKey: ['dashboardFoodLogs'],
+    queryFn: () => base44.entities.FoodLog.list('-date', 500),
+    initialData: [],
+    staleTime: 60000,
+  });
+
+  const { data: assessments } = useQuery({
+    queryKey: ['dashboardAssessments'],
+    queryFn: async () => {
+      if (user?.user_type === 'super_admin') {
+        return await base44.entities.ClientAssessment.list('-created_date');
+      }
+      return await base44.entities.ClientAssessment.filter({ assigned_by: user?.email }, '-created_date');
+    },
+    enabled: !!user,
+    initialData: [],
+    staleTime: 60000,
+  });
+
+  const { data: goals } = useQuery({
+    queryKey: ['dashboardGoals'],
+    queryFn: () => base44.entities.ProgressGoal.list('-created_date'),
     initialData: [],
     staleTime: 60000,
   });
@@ -263,6 +293,16 @@ export default function DietitianDashboard() {
             </Link>
           ))}
         </div>
+
+        {/* Action Items */}
+        <ActionItemsPanel
+          clients={clients}
+          progressLogs={progressLogs}
+          foodLogs={foodLogs}
+          assessments={assessments}
+          goals={goals}
+          appointments={appointments}
+        />
 
         {/* Client Growth Chart */}
         <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50" id="client-growth">
