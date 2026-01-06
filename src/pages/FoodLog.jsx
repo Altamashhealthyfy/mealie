@@ -342,39 +342,37 @@ export default function FoodLog() {
           </Dialog>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
-          {/* Calendar - Hidden on mobile, shown on desktop */}
-          <Card className="border-none shadow-lg bg-white/80 backdrop-blur hidden lg:block">
-            <CardHeader className="p-4 md:p-6">
-              <CardTitle className="text-base md:text-lg">Select Date</CardTitle>
+        {/* Mobile Date Selector */}
+        <Card className="border-none shadow-lg bg-white/80 backdrop-blur lg:hidden mb-4">
+          <CardContent className="p-4 flex items-center gap-3">
+            <Label className="text-sm font-semibold whitespace-nowrap">Date:</Label>
+            <Input
+              type="date"
+              value={format(selectedDate, 'yyyy-MM-dd')}
+              onChange={(e) => setSelectedDate(new Date(e.target.value))}
+              className="flex-1"
+            />
+          </CardContent>
+        </Card>
+
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 sm:gap-6">
+          {/* Calendar - Desktop only, more compact */}
+          <Card className="border-none shadow-lg bg-white/80 backdrop-blur hidden lg:block lg:self-start lg:sticky lg:top-4">
+            <CardHeader className="p-4">
+              <CardTitle className="text-base">Select Date</CardTitle>
             </CardHeader>
-            <CardContent className="flex justify-center p-2 sm:p-4 md:p-6">
+            <CardContent className="p-4 pt-0">
               <Calendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
-                className="rounded-md border w-full"
-              />
-            </CardContent>
-          </Card>
-          
-          {/* Mobile Date Selector */}
-          <Card className="border-none shadow-lg bg-white/80 backdrop-blur lg:hidden">
-            <CardHeader className="p-4">
-              <CardTitle className="text-base">Select Date</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <Input
-                type="date"
-                value={format(selectedDate, 'yyyy-MM-dd')}
-                onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                className="w-full"
+                className="rounded-md border"
               />
             </CardContent>
           </Card>
 
           {/* Food Logs */}
-          <div className="lg:col-span-3 space-y-4 sm:space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Daily Summary */}
             <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
               <CardHeader className="p-4 md:p-6">
