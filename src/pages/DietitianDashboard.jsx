@@ -257,7 +257,7 @@ export default function DietitianDashboard() {
   ];
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
+    <div className="min-h-screen p-3 sm:p-4 md:p-8">
       <TourSkipPrompt 
         tourKey="dietitian_dashboard" 
         onStart={() => setStartTour(true)}
@@ -268,16 +268,16 @@ export default function DietitianDashboard() {
           steps={tourSteps}
         />
       )}
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 md:space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">
               Welcome back{user?.full_name ? `, ${user.full_name}` : ''}! 👋
             </h1>
-            <p className="text-gray-600">Here's what's happening with your practice today</p>
+            <p className="text-sm sm:text-base text-gray-600">Here's what's happening with your practice today</p>
           </div>
-          <Sparkles className="w-12 h-12 text-orange-500" />
+          <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-orange-500" />
         </div>
 
         {/* Coach Guide Panel */}

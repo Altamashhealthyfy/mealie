@@ -80,7 +80,7 @@ contactus@healthyfy.com`;
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center gap-2">
             <Mail className="w-6 h-6 text-green-600" />

@@ -86,19 +86,21 @@ export default function QuestionBuilder({
           </div>
 
           <div className="flex-1 space-y-3">
-            <div className="flex gap-2">
-              <Icon className="w-5 h-5 text-purple-600 mt-2" />
-              <Input
-                value={question.question_text}
-                onChange={(e) => onUpdate({ question_text: e.target.value })}
-                placeholder="Enter your question"
-                className="flex-1"
-              />
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex gap-2 flex-1">
+                <Icon className="w-5 h-5 text-purple-600 mt-2 shrink-0" />
+                <Input
+                  value={question.question_text}
+                  onChange={(e) => onUpdate({ question_text: e.target.value })}
+                  placeholder="Enter your question"
+                  className="flex-1"
+                />
+              </div>
               <Select
                 value={question.question_type}
                 onValueChange={(val) => onUpdate({ question_type: val })}
               >
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-full sm:w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -212,7 +214,7 @@ export default function QuestionBuilder({
                     Advanced
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
                   <DialogHeader>
                     <DialogTitle>Advanced Settings</DialogTitle>
                   </DialogHeader>

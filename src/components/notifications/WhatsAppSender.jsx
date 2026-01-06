@@ -50,7 +50,7 @@ export default function WhatsAppSender({ client, onClose, template = null }) {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl w-[95vw] sm:w-full">
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center gap-2">
             <MessageCircle className="w-6 h-6 text-green-600" />

@@ -35,7 +35,7 @@ export default function ConditionalLogicBuilder({ question, allQuestions, onUpda
 
   return (
     <Card className="bg-blue-50 border-blue-200">
-      <CardContent className="p-4 space-y-4">
+      <CardContent className="p-3 sm:p-4 space-y-3 sm:space-y-4">
         <div className="flex items-center justify-between">
           <Label className="text-sm font-semibold text-blue-900">
             Conditional Logic (Show/Hide Question)
