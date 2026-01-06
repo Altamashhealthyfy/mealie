@@ -70,14 +70,7 @@ export default function Home() {
     initialData: [],
   });
 
-  const { data: featuredResources } = useQuery({
-    queryKey: ['featuredResources'],
-    queryFn: async () => {
-      const resources = await base44.entities.Resource.filter({ featured: true, published: true });
-      return resources.slice(0, 3);
-    },
-    initialData: [],
-  });
+
 
   const features = [
     {
@@ -87,13 +80,7 @@ export default function Home() {
       color: "from-blue-500 to-cyan-500",
       link: createPageUrl("ProgressTracking"),
     },
-    {
-      title: "Resource Library",
-      description: "Educational content tailored to your goals",
-      icon: BookOpen,
-      color: "from-purple-500 to-pink-500",
-      link: createPageUrl("ResourceLibrary"),
-    },
+
     {
       title: "Messages",
       description: "Chat directly with your health coach",
@@ -283,36 +270,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* Featured Resources */}
-        {featuredResources.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <BookOpen className="w-6 h-6 text-orange-600" />
-                Featured Resources
-              </h2>
-              <Link to={createPageUrl("ResourceLibrary")}>
-                <Button variant="outline">Browse All</Button>
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-              {featuredResources.map(resource => (
-                <Link key={resource.id} to={createPageUrl("ResourceLibrary")}>
-                  <Card className="border-none shadow-lg hover:shadow-xl transition-all">
-                    {resource.thumbnail_url && (
-                      <img src={resource.thumbnail_url} alt={resource.title} className="w-full h-40 object-cover rounded-t-lg" />
-                    )}
-                    <CardHeader>
-                      <Badge className="w-fit capitalize mb-2">{resource.resource_type}</Badge>
-                      <CardTitle className="text-lg">{resource.title}</CardTitle>
-                      <CardDescription className="line-clamp-2">{resource.description}</CardDescription>
-                    </CardHeader>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
+
 
         {/* Quick Actions */}
         <div>

@@ -52,8 +52,6 @@ import ProgressTracking from './pages/ProgressTracking';
 import ProjectManagement from './pages/ProjectManagement';
 import PurchaseAICredits from './pages/PurchaseAICredits';
 import Recipes from './pages/Recipes';
-import ResourceLibrary from './pages/ResourceLibrary';
-import ResourceManager from './pages/ResourceManager';
 import SecuritySettings from './pages/SecuritySettings';
 import TaskBoard from './pages/TaskBoard';
 import TeamAppointmentsCalendar from './pages/TeamAppointmentsCalendar';
@@ -128,8 +126,6 @@ export const PAGES = {
     "ProjectManagement": ProjectManagement,
     "PurchaseAICredits": PurchaseAICredits,
     "Recipes": Recipes,
-    "ResourceLibrary": ResourceLibrary,
-    "ResourceManager": ResourceManager,
     "SecuritySettings": SecuritySettings,
     "TaskBoard": TaskBoard,
     "TeamAppointmentsCalendar": TeamAppointmentsCalendar,
