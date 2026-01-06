@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -18,6 +17,7 @@ export default function FoodLog() {
   const queryClient = useQueryClient();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [formData, setFormData] = useState({
     meal_type: 'breakfast',
     date: format(new Date(), 'yyyy-MM-dd'),
@@ -74,7 +74,7 @@ export default function FoodLog() {
     onSuccess: () => {
       queryClient.invalidateQueries(['todayFoodLogs']);
       setShowAddDialog(false);
-      setFormData({ meal_type: 'breakfast', date: format(new Date(), 'yyyy-MM-dd') });
+      setFormData({ meal_type: 'breakfast', date: format(new Date(), 'yyyy-MM-dd'), photo_url: null });
       alert('Food log saved!');
     },
   });
@@ -86,6 +86,27 @@ export default function FoodLog() {
       alert('Food log deleted!');
     },
   });
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 10485760) {
+      alert('Photo size must be less than 10 MB');
+      return;
+    }
+
+    setUploadingPhoto(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setFormData({ ...formData, photo_url: file_url });
+    } catch (error) {
+      console.error('Photo upload failed:', error);
+      alert('Failed to upload photo. Please try again.');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
 
   const handleSubmit = () => {
     saveMutation.mutate({
@@ -230,9 +251,49 @@ export default function FoodLog() {
                   />
                 </div>
 
+                <div className="space-y-2">
+                  <Label>Upload Food Photo (optional)</Label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-orange-500 transition-colors">
+                    <div className="text-center">
+                      <Camera className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhotoUpload}
+                        disabled={uploadingPhoto}
+                        className="hidden"
+                        id="food-photo-upload"
+                      />
+                      <label
+                        htmlFor="food-photo-upload"
+                        className={`cursor-pointer text-sm text-gray-600 hover:text-orange-600 ${uploadingPhoto ? 'opacity-50' : ''}`}
+                      >
+                        {uploadingPhoto ? 'Uploading...' : 'Click to upload photo'}
+                      </label>
+                      {formData.photo_url && (
+                        <div className="mt-3">
+                          <img
+                            src={formData.photo_url}
+                            alt="Food"
+                            className="max-h-40 mx-auto rounded-lg"
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="mt-2"
+                            onClick={() => setFormData({ ...formData, photo_url: null })}
+                          >
+                            Remove Photo
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <Button
                   onClick={handleSubmit}
-                  disabled={saveMutation.isPending}
+                  disabled={saveMutation.isPending || uploadingPhoto}
                   className="w-full bg-gradient-to-r from-orange-500 to-red-500"
                 >
                   {saveMutation.isPending ? 'Saving...' : 'Save Food Log'}
@@ -386,6 +447,18 @@ export default function FoodLog() {
                             <p className="text-lg font-bold text-purple-600">{log.fats}g</p>
                           </div>
                         )}
+                      </div>
+                    )}
+
+                    {log.photo_url && (
+                      <div>
+                        <h4 className="font-semibold text-gray-900 mb-2">Food Photo</h4>
+                        <img
+                          src={log.photo_url}
+                          alt="Food"
+                          className="w-full max-h-64 object-cover rounded-lg cursor-pointer"
+                          onClick={() => window.open(log.photo_url, '_blank')}
+                        />
                       </div>
                     )}
 
