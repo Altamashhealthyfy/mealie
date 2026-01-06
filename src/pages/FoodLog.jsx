@@ -343,8 +343,8 @@ export default function FoodLog() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
-          {/* Calendar */}
-          <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+          {/* Calendar - Hidden on mobile, shown on desktop */}
+          <Card className="border-none shadow-lg bg-white/80 backdrop-blur hidden lg:block">
             <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-base md:text-lg">Select Date</CardTitle>
             </CardHeader>
@@ -354,6 +354,21 @@ export default function FoodLog() {
                 selected={selectedDate}
                 onSelect={setSelectedDate}
                 className="rounded-md border w-full"
+              />
+            </CardContent>
+          </Card>
+          
+          {/* Mobile Date Selector */}
+          <Card className="border-none shadow-lg bg-white/80 backdrop-blur lg:hidden">
+            <CardHeader className="p-4">
+              <CardTitle className="text-base">Select Date</CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              <Input
+                type="date"
+                value={format(selectedDate, 'yyyy-MM-dd')}
+                onChange={(e) => setSelectedDate(new Date(e.target.value))}
+                className="w-full"
               />
             </CardContent>
           </Card>

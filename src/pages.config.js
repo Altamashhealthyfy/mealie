@@ -1,7 +1,5 @@
 import AddTeamAppointment from './pages/AddTeamAppointment';
 import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
-import Appointments from './pages/Appointments';
-import AssessmentTemplates from './pages/AssessmentTemplates';
 import BulkImport from './pages/BulkImport';
 import BusinessGPTs from './pages/BusinessGPTs';
 import BusinessHub from './pages/BusinessHub';
@@ -9,7 +7,6 @@ import BusinessPlan from './pages/BusinessPlan';
 import CallCenter from './pages/CallCenter';
 import CallCenterAdmin from './pages/CallCenterAdmin';
 import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
-import ClientAppointments from './pages/ClientAppointments';
 import ClientAssessments from './pages/ClientAssessments';
 import ClientCommunication from './pages/ClientCommunication';
 import ClientFinanceManager from './pages/ClientFinanceManager';
@@ -22,8 +19,6 @@ import ClinicalIntake from './pages/ClinicalIntake';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachSubscription from './pages/CoachSubscription';
 import CoachSubscriptions from './pages/CoachSubscriptions';
-import Communication from './pages/Communication';
-import DietitianDashboard from './pages/DietitianDashboard';
 import Documentation from './pages/Documentation';
 import FeatureControl from './pages/FeatureControl';
 import FoodLog from './pages/FoodLog';
@@ -38,7 +33,6 @@ import MPESSTracker from './pages/MPESSTracker';
 import MarketingHub from './pages/MarketingHub';
 import MealPlanner from './pages/MealPlanner';
 import MealPlansPro from './pages/MealPlansPro';
-import MyAssessment from './pages/MyAssessment';
 import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
 import NotificationSettings from './pages/NotificationSettings';
 import Notifications from './pages/Notifications';
@@ -70,14 +64,18 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
+import Appointments from './pages/Appointments';
+import AssessmentTemplates from './pages/AssessmentTemplates';
+import ClientAppointments from './pages/ClientAppointments';
+import Communication from './pages/Communication';
+import DietitianDashboard from './pages/DietitianDashboard';
+import MyAssessment from './pages/MyAssessment';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AddTeamAppointment": AddTeamAppointment,
     "AdminSubscriptionManager": AdminSubscriptionManager,
-    "Appointments": Appointments,
-    "AssessmentTemplates": AssessmentTemplates,
     "BulkImport": BulkImport,
     "BusinessGPTs": BusinessGPTs,
     "BusinessHub": BusinessHub,
@@ -85,7 +83,6 @@ export const PAGES = {
     "CallCenter": CallCenter,
     "CallCenterAdmin": CallCenterAdmin,
     "ClientAnalyticsDashboard": ClientAnalyticsDashboard,
-    "ClientAppointments": ClientAppointments,
     "ClientAssessments": ClientAssessments,
     "ClientCommunication": ClientCommunication,
     "ClientFinanceManager": ClientFinanceManager,
@@ -98,8 +95,6 @@ export const PAGES = {
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachSubscription": CoachSubscription,
     "CoachSubscriptions": CoachSubscriptions,
-    "Communication": Communication,
-    "DietitianDashboard": DietitianDashboard,
     "Documentation": Documentation,
     "FeatureControl": FeatureControl,
     "FoodLog": FoodLog,
@@ -114,7 +109,6 @@ export const PAGES = {
     "MarketingHub": MarketingHub,
     "MealPlanner": MealPlanner,
     "MealPlansPro": MealPlansPro,
-    "MyAssessment": MyAssessment,
     "MyAssignedMealPlan": MyAssignedMealPlan,
     "NotificationSettings": NotificationSettings,
     "Notifications": Notifications,
@@ -146,6 +140,12 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
+    "Appointments": Appointments,
+    "AssessmentTemplates": AssessmentTemplates,
+    "ClientAppointments": ClientAppointments,
+    "Communication": Communication,
+    "DietitianDashboard": DietitianDashboard,
+    "MyAssessment": MyAssessment,
 }
 
 export const pagesConfig = {
