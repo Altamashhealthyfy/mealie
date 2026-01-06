@@ -12,33 +12,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { base44 } from "@/api/base44Client";
 
 export default function GeneratedMealPlan({ plan: initialPlan, onSave, onSaveAsTemplate, onGenerateNew, isSaving }) {
-  const [plan, setPlan] = React.useState(initialPlan);
-  const [editingMeal, setEditingMeal] = React.useState(null);
-  const [showEditDialog, setShowEditDialog] = React.useState(false);
-
-  React.useEffect(() => {
-    setPlan(initialPlan);
-  }, [initialPlan]);
-
-  const handleEditMeal = (meal) => {
-    setEditingMeal({ ...meal });
-    setShowEditDialog(true);
-  };
-
-  const handleSaveMealEdit = () => {
-    const updatedMeals = plan.meals.map(m => 
-      m.day === editingMeal.day && m.meal_type === editingMeal.meal_type ? editingMeal : m
-    );
-    setPlan({ ...plan, meals: updatedMeals });
-    setShowEditDialog(false);
-    setEditingMeal(null);
-  };
-
-  const originalFunction = ({ plan, onSave, onSaveAsTemplate, onGenerateNew, isSaving }) => {
-  const [editablePlan, setEditablePlan] = useState(plan);
+  const [editablePlan, setEditablePlan] = useState(initialPlan);
   const [editingMeal, setEditingMeal] = useState(null);
   const [copiedText, setCopiedText] = useState(false);
   const [recalculating, setRecalculating] = useState(false);
+
+  React.useEffect(() => {
+    setEditablePlan(initialPlan);
+  }, [initialPlan]);
 
   const mealTypes = ["Early Morning", "Breakfast", "Mid-Morning", "Lunch", "Evening Snack", "Dinner"];
 
@@ -74,7 +55,7 @@ export default function GeneratedMealPlan({ plan: initialPlan, onSave, onSaveAsT
   };
 
   const handleSavePlan = () => {
-    onSave(editablePlan);
+    onSave({ ...editablePlan, id: initialPlan?.id });
   };
 
   const updateEditingMealItems = (itemsText) => {
