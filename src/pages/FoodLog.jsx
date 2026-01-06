@@ -173,21 +173,21 @@ export default function FoodLog() {
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Food Log</h1>
-            <p className="text-gray-600">Track your daily food intake</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Food Log</h1>
+            <p className="text-sm md:text-base text-gray-600">Track your daily food intake</p>
           </div>
           <Dialog open={showAddDialog} onOpenChange={(open) => !open && handleDialogClose()}>
             <DialogTrigger asChild>
-              <Button className="bg-gradient-to-r from-orange-500 to-red-500">
+              <Button className="bg-gradient-to-r from-orange-500 to-red-500 w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Log Food
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{editingLog ? 'Edit Meal' : 'Log Your Meal'}</DialogTitle>
+                <DialogTitle className="text-xl md:text-2xl">{editingLog ? 'Edit Meal' : 'Log Your Meal'}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 <div className="space-y-2">
@@ -346,9 +346,9 @@ export default function FoodLog() {
           {/* Calendar */}
           <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
             <CardHeader>
-              <CardTitle className="text-lg">Select Date</CardTitle>
+              <CardTitle className="text-base md:text-lg">Select Date</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex justify-center">
               <Calendar
                 mode="single"
                 selected={selectedDate}
@@ -363,37 +363,37 @@ export default function FoodLog() {
             {/* Daily Summary */}
             <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
               <CardHeader>
-                <CardTitle>Today's Summary - {format(selectedDate, 'MMMM d, yyyy')}</CardTitle>
+                <CardTitle className="text-base md:text-lg">Today's Summary - {format(selectedDate, 'MMM d, yyyy')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm text-gray-600">Calories</span>
-                      <span className="text-sm font-medium">
+                      <span className="text-xs md:text-sm text-gray-600">Calories</span>
+                      <span className="text-xs md:text-sm font-medium">
                         {totalCalories} / {targetCalories} kcal
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div className="w-full bg-gray-200 rounded-full h-2 md:h-3">
                       <div
-                        className="bg-gradient-to-r from-orange-500 to-red-500 h-3 rounded-full transition-all"
+                        className="bg-gradient-to-r from-orange-500 to-red-500 h-2 md:h-3 rounded-full transition-all"
                         style={{ width: `${Math.min(calorieProgress, 100)}%` }}
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="p-3 bg-white rounded-lg">
+                  <div className="grid grid-cols-3 gap-2 md:gap-4">
+                    <div className="p-2 md:p-3 bg-white rounded-lg">
                       <p className="text-xs text-gray-600">Protein</p>
-                      <p className="text-2xl font-bold text-red-600">{totalProtein}g</p>
+                      <p className="text-lg md:text-2xl font-bold text-red-600">{totalProtein}g</p>
                     </div>
-                    <div className="p-3 bg-white rounded-lg">
+                    <div className="p-2 md:p-3 bg-white rounded-lg">
                       <p className="text-xs text-gray-600">Carbs</p>
-                      <p className="text-2xl font-bold text-yellow-600">{totalCarbs}g</p>
+                      <p className="text-lg md:text-2xl font-bold text-yellow-600">{totalCarbs}g</p>
                     </div>
-                    <div className="p-3 bg-white rounded-lg">
+                    <div className="p-2 md:p-3 bg-white rounded-lg">
                       <p className="text-xs text-gray-600">Fats</p>
-                      <p className="text-2xl font-bold text-purple-600">{totalFats}g</p>
+                      <p className="text-lg md:text-2xl font-bold text-purple-600">{totalFats}g</p>
                     </div>
                   </div>
                 </div>
@@ -413,7 +413,7 @@ export default function FoodLog() {
                   </p>
                   <Button
                     onClick={() => setShowAddDialog(true)}
-                    className="bg-gradient-to-r from-orange-500 to-red-500"
+                    className="bg-gradient-to-r from-orange-500 to-red-500 w-full sm:w-auto"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Log Your First Meal
@@ -424,19 +424,19 @@ export default function FoodLog() {
               todayLogs.map((log) => (
                 <Card key={log.id} className="border-none shadow-lg bg-white/80 backdrop-blur">
                   <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                      <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <Badge variant="outline" className="text-orange-600 border-orange-300 capitalize">
+                          <Badge variant="outline" className="text-orange-600 border-orange-300 capitalize text-xs">
                             {log.meal_type.replace('_', ' ')}
                           </Badge>
                         </div>
-                        <CardTitle className="text-xl">{log.meal_name || 'Meal'}</CardTitle>
+                        <CardTitle className="text-lg md:text-xl break-words">{log.meal_name || 'Meal'}</CardTitle>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 self-end sm:self-start">
                         {log.calories && (
                           <div className="text-right">
-                            <p className="text-2xl font-bold text-orange-600">{log.calories}</p>
+                            <p className="text-xl md:text-2xl font-bold text-orange-600">{log.calories}</p>
                             <p className="text-xs text-gray-500">kcal</p>
                           </div>
                         )}
@@ -464,33 +464,33 @@ export default function FoodLog() {
                   <CardContent className="space-y-4">
                     {log.items && log.items.length > 0 && (
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-2">What I Ate</h4>
+                        <h4 className="text-sm md:text-base font-semibold text-gray-900 mb-2">What I Ate</h4>
                         <div className="space-y-1">
                           {log.items.map((item, i) => (
-                            <div key={i} className="text-gray-700">• {item}</div>
+                            <div key={i} className="text-sm md:text-base text-gray-700 break-words">• {item}</div>
                           ))}
                         </div>
                       </div>
                     )}
 
                     {(log.protein || log.carbs || log.fats) && (
-                      <div className="flex gap-2">
+                      <div className="grid grid-cols-3 gap-2">
                         {log.protein && (
-                          <div className="flex-1 p-2 bg-red-50 rounded-lg">
+                          <div className="p-2 bg-red-50 rounded-lg">
                             <p className="text-xs text-gray-600">Protein</p>
-                            <p className="text-lg font-bold text-red-600">{log.protein}g</p>
+                            <p className="text-base md:text-lg font-bold text-red-600">{log.protein}g</p>
                           </div>
                         )}
                         {log.carbs && (
-                          <div className="flex-1 p-2 bg-yellow-50 rounded-lg">
+                          <div className="p-2 bg-yellow-50 rounded-lg">
                             <p className="text-xs text-gray-600">Carbs</p>
-                            <p className="text-lg font-bold text-yellow-600">{log.carbs}g</p>
+                            <p className="text-base md:text-lg font-bold text-yellow-600">{log.carbs}g</p>
                           </div>
                         )}
                         {log.fats && (
-                          <div className="flex-1 p-2 bg-purple-50 rounded-lg">
+                          <div className="p-2 bg-purple-50 rounded-lg">
                             <p className="text-xs text-gray-600">Fats</p>
-                            <p className="text-lg font-bold text-purple-600">{log.fats}g</p>
+                            <p className="text-base md:text-lg font-bold text-purple-600">{log.fats}g</p>
                           </div>
                         )}
                       </div>
@@ -498,11 +498,11 @@ export default function FoodLog() {
 
                     {log.photo_url && (
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-2">Food Photo</h4>
+                        <h4 className="text-sm md:text-base font-semibold text-gray-900 mb-2">Food Photo</h4>
                         <img
                           src={log.photo_url}
                           alt="Food"
-                          className="w-full max-h-64 object-cover rounded-lg cursor-pointer"
+                          className="w-full max-h-48 md:max-h-64 object-cover rounded-lg cursor-pointer"
                           onClick={() => window.open(log.photo_url, '_blank')}
                         />
                       </div>
@@ -510,7 +510,7 @@ export default function FoodLog() {
 
                     {log.notes && (
                       <div className="p-3 bg-gray-50 rounded-lg">
-                        <p className="text-sm text-gray-700">{log.notes}</p>
+                        <p className="text-xs md:text-sm text-gray-700 break-words">{log.notes}</p>
                       </div>
                     )}
                   </CardContent>
