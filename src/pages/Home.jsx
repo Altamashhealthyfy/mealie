@@ -137,16 +137,16 @@ export default function Home() {
               Your personalized Indian meal planning assistant for a balanced, healthy lifestyle
             </p>
             {!userProfile ? (
-              <Link to={createPageUrl("Profile")}>
-                <Button size="lg" className="bg-white text-orange-600 hover:bg-orange-50 shadow-xl">
+              <Link to={createPageUrl("Profile")} className="w-full sm:w-auto">
+                <Button size="lg" className="bg-white text-orange-600 hover:bg-orange-50 shadow-xl w-full sm:w-auto">
                   <User className="w-5 h-5 mr-2" />
                   Complete Your Profile
                 </Button>
               </Link>
             ) : (
               <div className="flex flex-wrap gap-4">
-                <Link to={createPageUrl("FoodLookup")}>
-                  <Button size="lg" className="bg-white text-orange-600 hover:bg-orange-50 shadow-xl">
+                <Link to={createPageUrl("FoodLookup")} className="w-full sm:w-auto">
+                  <Button size="lg" className="bg-white text-orange-600 hover:bg-orange-50 shadow-xl w-full sm:w-auto">
                     <Search className="w-5 h-5 mr-2" />
                     Food Lookup
                   </Button>
@@ -164,7 +164,7 @@ export default function Home() {
 
         {/* Stats Cards - Enhanced for Clients */}
         {clientProfile && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
@@ -239,7 +239,7 @@ export default function Home() {
                 <Button variant="outline">View All</Button>
               </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {myGoals.map(goal => {
                 const progress = goal.start_value && goal.target_value 
                   ? Math.min(100, Math.abs(((goal.current_value - goal.start_value) / (goal.target_value - goal.start_value)) * 100))
@@ -295,7 +295,7 @@ export default function Home() {
                 <Button variant="outline">Browse All</Button>
               </Link>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
               {featuredResources.map(resource => (
                 <Link key={resource.id} to={createPageUrl("ResourceLibrary")}>
                   <Card className="border-none shadow-lg hover:shadow-xl transition-all">
@@ -316,7 +316,7 @@ export default function Home() {
 
         {/* Quick Actions */}
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">Quick Actions</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 md:mb-6">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature) => (
               <Link key={feature.title} to={feature.link}>

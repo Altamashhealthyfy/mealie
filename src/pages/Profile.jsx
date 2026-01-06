@@ -212,14 +212,14 @@ export default function Profile() {
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Your Profile</h1>
-            <p className="text-gray-600">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">Your Profile</h1>
+            <p className="text-sm md:text-base text-gray-600">
               {isClient ? 'Manage your personal information and health profile' : 'Set up your health profile for personalized meal plans'}
             </p>
           </div>
-          <Sparkles className="w-10 h-10 text-orange-500" />
+          <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-orange-500 shrink-0" />
         </div>
 
         {!canEditProfile && (
@@ -242,11 +242,11 @@ export default function Profile() {
                     <img
                       src={userFormData.profile_photo_url}
                       alt={user?.full_name || 'Profile'}
-                      className="w-40 h-40 rounded-full object-cover border-4 border-indigo-500 shadow-2xl"
+                      className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-indigo-500 shadow-2xl"
                     />
                   ) : (
-                    <div className="w-40 h-40 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full flex items-center justify-center shadow-2xl border-4 border-white">
-                      <span className="text-white font-bold text-5xl">
+                    <div className="w-32 h-32 sm:w-40 sm:h-40 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full flex items-center justify-center shadow-2xl border-4 border-white">
+                      <span className="text-white font-bold text-4xl sm:text-5xl">
                         {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
                       </span>
                     </div>
@@ -257,8 +257,8 @@ export default function Profile() {
                 </div>
 
                 <div className="text-center">
-                  <h3 className="text-2xl font-bold text-gray-900">{user?.full_name || 'User'}</h3>
-                  <p className="text-gray-600">{user?.email}</p>
+                  <h3 className="text-xl sm:text-2xl font-bold text-gray-900">{user?.full_name || 'User'}</h3>
+                  <p className="text-sm sm:text-base text-gray-600 break-all px-2">{user?.email}</p>
                 </div>
 
                 {canUploadUserPhoto && (
@@ -521,7 +521,7 @@ export default function Profile() {
               </Button>
 
               {calculatedValues.bmr && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                   <div className="p-4 bg-white rounded-xl shadow">
                     <p className="text-sm text-gray-600 mb-1">BMR</p>
                     <p className="text-2xl font-bold text-gray-900">{calculatedValues.bmr}</p>
