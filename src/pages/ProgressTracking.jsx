@@ -9,18 +9,25 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TrendingUp, TrendingDown, Plus, Scale, Calendar, Edit, Trash2, Camera, Ruler, Activity, Image as ImageIcon } from "lucide-react";
+import { TrendingUp, TrendingDown, Plus, Scale, Calendar, Edit, Trash2, Camera, Ruler, Activity, Image as ImageIcon, Target, Smile } from "lucide-react";
 import { format } from "date-fns";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 export default function ProgressTracking() {
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showGoalDialog, setShowGoalDialog] = useState(false);
   const [editingLog, setEditingLog] = useState(null);
+  const [editingGoal, setEditingGoal] = useState(null);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [formData, setFormData] = useState({
     date: format(new Date(), 'yyyy-MM-dd'),
     measurements: {},
+  });
+  const [goalData, setGoalData] = useState({
+    goal_type: 'weight',
+    status: 'active',
+    priority: 'medium',
   });
 
   const { data: user } = useQuery({
@@ -71,6 +78,18 @@ export default function ProgressTracking() {
     initialData: [],
   });
 
+  const { data: goals } = useQuery({
+    queryKey: ['myProgressGoals', clientProfile?.id],
+    queryFn: async () => {
+      const allGoals = await base44.entities.ProgressGoal.filter({
+        client_id: clientProfile?.id,
+      });
+      return allGoals.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    },
+    enabled: !!clientProfile,
+    initialData: [],
+  });
+
   const saveMutation = useMutation({
     mutationFn: (data) => {
       if (editingLog) {
@@ -95,6 +114,33 @@ export default function ProgressTracking() {
     onSuccess: () => {
       queryClient.invalidateQueries(['myProgressLogs']);
       alert('Progress entry deleted successfully!');
+    },
+  });
+
+  const saveGoalMutation = useMutation({
+    mutationFn: (data) => {
+      if (editingGoal) {
+        return base44.entities.ProgressGoal.update(editingGoal.id, data);
+      }
+      return base44.entities.ProgressGoal.create({
+        ...data,
+        client_id: clientProfile.id,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['myProgressGoals']);
+      setShowGoalDialog(false);
+      setEditingGoal(null);
+      setGoalData({ goal_type: 'weight', status: 'active', priority: 'medium' });
+      alert(editingGoal ? 'Goal updated!' : 'Goal created!');
+    },
+  });
+
+  const deleteGoalMutation = useMutation({
+    mutationFn: (id) => base44.entities.ProgressGoal.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['myProgressGoals']);
+      alert('Goal deleted!');
     },
   });
 
@@ -147,6 +193,7 @@ export default function ProgressTracking() {
       weight: log.weight,
       measurements: log.measurements || {},
       photos: log.photos || [],
+      mood: log.mood,
       energy_level: log.energy_level,
       sleep_quality: log.sleep_quality,
       stress_level: log.stress_level,
@@ -154,6 +201,30 @@ export default function ProgressTracking() {
       notes: log.notes,
     });
     setShowAddDialog(true);
+  };
+
+  const handleEditGoal = (goal) => {
+    setEditingGoal(goal);
+    setGoalData({
+      goal_type: goal.goal_type,
+      title: goal.title,
+      description: goal.description,
+      target_value: goal.target_value,
+      current_value: goal.current_value,
+      start_value: goal.start_value,
+      unit: goal.unit,
+      target_date: goal.target_date,
+      status: goal.status,
+      priority: goal.priority,
+      notes: goal.notes,
+    });
+    setShowGoalDialog(true);
+  };
+
+  const handleDeleteGoal = (goal) => {
+    if (window.confirm('Delete this goal?')) {
+      deleteGoalMutation.mutate(goal.id);
+    }
   };
 
   const handleDelete = (log) => {
@@ -203,6 +274,14 @@ export default function ProgressTracking() {
       energy: log.energy_level || 0,
       sleep: log.sleep_quality || 0,
       stress: log.stress_level || 0,
+    }));
+
+  // Prepare mood data
+  const moodData = progressLogs
+    .filter(log => log.mood)
+    .map(log => ({
+      date: format(new Date(log.date), 'MMM d'),
+      mood: log.mood === 'excellent' ? 5 : log.mood === 'good' ? 4 : log.mood === 'okay' ? 3 : log.mood === 'low' ? 2 : 1,
     }));
 
   // Prepare adherence chart data
@@ -400,7 +479,25 @@ export default function ProgressTracking() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="space-y-2">
+                      <Label>Mood</Label>
+                      <Select
+                        value={formData.mood || ''}
+                        onValueChange={(value) => setFormData({...formData, mood: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select mood" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="excellent">😄 Excellent</SelectItem>
+                          <SelectItem value="good">😊 Good</SelectItem>
+                          <SelectItem value="okay">😐 Okay</SelectItem>
+                          <SelectItem value="low">😕 Low</SelectItem>
+                          <SelectItem value="very_low">😢 Very Low</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <div className="space-y-2">
                       <Label>Energy Level (1-5)</Label>
                       <Input
