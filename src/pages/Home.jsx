@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, ChefHat, Search, Heart, TrendingUp, Apple, Sparkles, User, Loader2, BookOpen, Scale, Target, MessageCircle } from "lucide-react";
+import ClientGuidePanel from "@/components/common/ClientGuidePanel";
 
 export default function Home() {
   const { data: user, isLoading: userLoading } = useQuery({
@@ -270,7 +271,8 @@ export default function Home() {
           </div>
         )}
 
-
+        {/* Client Guide Panel */}
+        <ClientGuidePanel />
 
         {/* Quick Actions */}
         <div>
