@@ -177,6 +177,16 @@ export default function MealPlanner() {
     },
   });
 
+  const updatePlanMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.MealPlan.update(id, data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(['mealPlans']);
+      setGeneratedPlan(null);
+      setSelectedClientId(null);
+      alert(`✅ Meal plan updated successfully!`);
+    },
+  });
+
   const updateUsageMutation = useMutation({
     mutationFn: async ({ type }) => {
       if (!user?.email) throw new Error("User email is not available for usage tracking.");
@@ -804,24 +814,17 @@ Return structured meal plan with:
     
     // Check if this is an update to existing plan
     if (editedPlan.id) {
-      const updateMutation = useMutation({
-        mutationFn: (data) => base44.entities.MealPlan.update(editedPlan.id, data),
-        onSuccess: async () => {
-          await queryClient.invalidateQueries(['mealPlans']);
-          setGeneratedPlan(null);
-          setSelectedClientId(null);
-          alert(`✅ Meal plan updated successfully!`);
-        },
-      });
-      
-      updateMutation.mutate({
-        name: editedPlan.plan_name,
-        duration: editedPlan.duration,
-        meal_pattern: editedPlan.meal_pattern,
-        target_calories: editedPlan.target_calories,
-        meals: editedPlan.meals,
-        food_preference: editedPlan.food_preference,
-        regional_preference: editedPlan.regional_preference,
+      updatePlanMutation.mutate({
+        id: editedPlan.id,
+        data: {
+          name: editedPlan.plan_name,
+          duration: editedPlan.duration,
+          meal_pattern: editedPlan.meal_pattern,
+          target_calories: editedPlan.target_calories,
+          meals: editedPlan.meals,
+          food_preference: editedPlan.food_preference,
+          regional_preference: editedPlan.regional_preference,
+        }
       });
     } else {
       savePlanMutation.mutate({
