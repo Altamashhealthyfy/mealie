@@ -112,18 +112,6 @@ export default function MealPlanner() {
     enabled: !!coachSubscription?.plan_id,
   });
 
-  const availableAICredits = React.useMemo(() => {
-    if (!coachSubscription || !coachPlan) return 0;
-    
-    const creditsIncluded = coachPlan.ai_credits_included || 0;
-    if (creditsIncluded === -1) return Infinity; // Unlimited
-    
-    const creditsUsed = coachSubscription.ai_credits_used_this_month || 0;
-    const creditsPurchased = coachSubscription.ai_credits_purchased || 0;
-    
-    return Math.max(0, creditsIncluded + creditsPurchased - creditsUsed);
-  }, [coachSubscription, coachPlan]);
-
   const { data: usage } = useQuery({
     queryKey: ['usage', user?.email, format(new Date(), 'yyyy-MM')],
     queryFn: async () => {
@@ -140,6 +128,19 @@ export default function MealPlanner() {
     },
     enabled: !!user && user?.user_type !== 'client',
   });
+
+  // ALL useMemo MUST be after ALL useQuery hooks
+  const availableAICredits = React.useMemo(() => {
+    if (!coachSubscription || !coachPlan) return 0;
+    
+    const creditsIncluded = coachPlan.ai_credits_included || 0;
+    if (creditsIncluded === -1) return Infinity; // Unlimited
+    
+    const creditsUsed = coachSubscription.ai_credits_used_this_month || 0;
+    const creditsPurchased = coachSubscription.ai_credits_purchased || 0;
+    
+    return Math.max(0, creditsIncluded + creditsPurchased - creditsUsed);
+  }, [coachSubscription, coachPlan]);
 
   const saveTemplateMutation = useMutation({
     mutationFn: (templateData) => base44.entities.MealPlanTemplate.create(templateData),
