@@ -1273,7 +1273,7 @@ Return structured meal plan with:
               <ManualMealPlanBuilder
                 client={selectedClient}
                 onSave={handleSavePlan}
-                isSaving={savePlanMutation.isPending}
+                isSaving={savePlanMutation.isPending || updatePlanMutation.isPending}
               />
             )}
           </TabsContent>
@@ -1475,7 +1475,7 @@ Return structured meal plan with:
                 onSave={viewingPlan ? null : handleSavePlan}
                 onSaveAsTemplate={!viewingPlan && generatedPlan?.from_template !== true ? () => handleSaveAsTemplate(generatedPlan) : null}
                 onGenerateNew={handleGenerateNew}
-                isSaving={savePlanMutation.isPending}
+                isSaving={savePlanMutation.isPending || updatePlanMutation.isPending}
               />
             )}
           </TabsContent>
