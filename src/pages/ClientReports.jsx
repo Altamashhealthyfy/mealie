@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Download, Loader2, TrendingDown, TrendingUp, Calendar, Activity } from "lucide-react";
+import { FileText, Download, Loader2, TrendingDown, TrendingUp, Calendar, Activity, Search } from "lucide-react";
 import { format, subMonths, startOfMonth, endOfMonth, startOfQuarter, endOfQuarter } from "date-fns";
 
 export default function ClientReports() {
@@ -15,6 +15,7 @@ export default function ClientReports() {
   const [reportPeriod, setReportPeriod] = useState("month");
   const [customNotes, setCustomNotes] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -59,6 +60,12 @@ export default function ClientReports() {
     queryFn: () => base44.entities.MealPlan.filter({ client_id: selectedClient }),
     enabled: !!selectedClient,
   });
+
+  const filteredClients = clients.filter(c =>
+    c.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.phone?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const client = clients.find(c => c.id === selectedClient);
 
@@ -203,14 +210,27 @@ export default function ClientReports() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label>Select Client *</Label>
+                <div className="relative mb-2">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by name, email, or phone..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
+                </div>
                 <Select value={selectedClient} onValueChange={setSelectedClient}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choose a client" />
                   </SelectTrigger>
                   <SelectContent>
-                    {clients.map(client => (
+                    {filteredClients.map(client => (
                       <SelectItem key={client.id} value={client.id}>
-                        {client.full_name}
+                        <div className="flex flex-col">
+                          <span className="font-medium">{client.full_name}</span>
+                          <span className="text-xs text-gray-500">{client.email} {client.phone ? `• ${client.phone}` : ''}</span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
