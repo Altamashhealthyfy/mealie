@@ -122,23 +122,23 @@ export default function AssessmentTemplates() {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen p-2 sm:p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Assessment Templates</h1>
-            <p className="text-gray-600">Create custom assessment templates for your clients</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 md:mb-2">Assessment Templates</h1>
+            <p className="text-sm md:text-base text-gray-600">Create custom assessment templates for your clients</p>
           </div>
-          <Button onClick={() => setShowDialog(true)} className="bg-gradient-to-r from-orange-500 to-red-500">
+          <Button onClick={() => setShowDialog(true)} className="bg-gradient-to-r from-orange-500 to-red-500 w-full sm:w-auto">
             <Plus className="w-4 h-4 mr-2" />
             Create Template
           </Button>
         </div>
 
-        <div className="grid gap-4">
+        <div className="grid gap-3 md:gap-4">
           {templates.length === 0 ? (
             <Card className="border-2 border-dashed">
-              <CardContent className="p-12 text-center">
+              <CardContent className="p-6 md:p-12 text-center">
                 <FileText className="w-16 h-16 mx-auto text-gray-300 mb-4" />
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">No Templates Yet</h3>
                 <p className="text-gray-600 mb-4">Create your first assessment template to get started</p>
@@ -151,12 +151,12 @@ export default function AssessmentTemplates() {
           ) : (
             templates.map(template => (
               <Card key={template.id} className="border-none shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <FileText className="w-6 h-6 text-orange-500" />
-                        <h3 className="text-xl font-semibold">{template.template_name}</h3>
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex flex-col sm:flex-row items-start justify-between gap-3 md:gap-4">
+                    <div className="flex-1 min-w-0 w-full">
+                      <div className="flex items-center gap-2 md:gap-3 mb-2">
+                        <FileText className="w-5 h-5 md:w-6 md:h-6 text-orange-500" />
+                        <h3 className="text-lg md:text-xl font-semibold truncate">{template.template_name}</h3>
                         {template.version > 1 && (
                           <Badge variant="outline" className="text-xs">v{template.version}</Badge>
                         )}
@@ -188,12 +188,13 @@ export default function AssessmentTemplates() {
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-2">
+                    <div className="flex sm:flex-col gap-2 w-full sm:w-auto">
                       <Button 
                         variant="outline" 
                         size="sm" 
                         onClick={() => setViewingTemplate(template)}
                         title="Preview template"
+                        className="flex-1 sm:flex-none"
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
@@ -202,6 +203,7 @@ export default function AssessmentTemplates() {
                         size="sm" 
                         onClick={() => handleEdit(template)}
                         title="Edit template"
+                        className="flex-1 sm:flex-none"
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
@@ -210,6 +212,7 @@ export default function AssessmentTemplates() {
                         size="sm" 
                         onClick={() => handleDuplicate(template)}
                         title="Duplicate template"
+                        className="flex-1 sm:flex-none"
                       >
                         <Copy className="w-4 h-4" />
                       </Button>
@@ -222,6 +225,7 @@ export default function AssessmentTemplates() {
                           }
                         }}
                         title="Delete template"
+                        className="flex-1 sm:flex-none"
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />
                       </Button>
@@ -235,9 +239,9 @@ export default function AssessmentTemplates() {
 
         {/* Create/Edit Dialog */}
         <Dialog open={showDialog} onOpenChange={(open) => !open && handleDialogClose()}>
-          <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto">
+          <DialogContent className="w-[95vw] max-w-6xl max-h-[95vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-2xl">
+              <DialogTitle className="text-lg md:text-2xl">
                 {editingTemplate ? '✏️ Edit Template' : '➕ Create Assessment Template'}
               </DialogTitle>
             </DialogHeader>
@@ -262,9 +266,9 @@ export default function AssessmentTemplates() {
         {/* Preview Dialog */}
         {viewingTemplate && (
           <Dialog open={!!viewingTemplate} onOpenChange={() => setViewingTemplate(null)}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="text-2xl">👁️ Template Preview: {viewingTemplate.template_name}</DialogTitle>
+                <DialogTitle className="text-lg md:text-2xl">👁️ Template Preview: {viewingTemplate.template_name}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 <p className="text-gray-600">{viewingTemplate.description}</p>

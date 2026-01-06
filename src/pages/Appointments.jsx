@@ -188,18 +188,18 @@ export default function Appointments() {
     
     return (
       <Card className="border-none shadow-lg hover:shadow-xl transition-all bg-white/80 backdrop-blur">
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-start gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-medium">
+        <CardContent className="p-3 md:p-4">
+          <div className="flex items-start justify-between mb-2 md:mb-3 gap-2">
+            <div className="flex items-start gap-2 md:gap-3 min-w-0 flex-1">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-white font-medium text-sm md:text-base">
                   {client?.full_name?.charAt(0) || '?'}
                 </span>
               </div>
-              <div>
-                <h3 className="font-bold text-gray-900">{client?.full_name || 'Unknown Client'}</h3>
-                <p className="text-sm text-gray-600">{appointment.title}</p>
-                <div className="flex items-center gap-2 mt-1 flex-wrap">
+              <div className="min-w-0">
+                <h3 className="font-bold text-sm md:text-base text-gray-900 truncate">{client?.full_name || 'Unknown Client'}</h3>
+                <p className="text-xs md:text-sm text-gray-600 truncate">{appointment.title}</p>
+                <div className="flex items-center gap-1 md:gap-2 mt-1 flex-wrap">
                   <Badge variant="outline" className="capitalize text-xs">
                     {appointment.type?.replace('_', ' ')}
                   </Badge>
@@ -218,25 +218,27 @@ export default function Appointments() {
                 </div>
               </div>
             </div>
-            <div className="flex gap-1">
+            <div className="flex gap-1 flex-shrink-0">
               <Button
                 variant="ghost"
-                size="icon"
+                size="sm"
                 onClick={() => handleEdit(appointment)}
+                className="h-8 w-8 p-0"
               >
-                <Edit className="w-4 h-4" />
+                <Edit className="w-3 h-3 md:w-4 md:h-4" />
               </Button>
               <Button
                 variant="ghost"
-                size="icon"
+                size="sm"
                 onClick={() => handleDelete(appointment.id)}
+                className="h-8 w-8 p-0"
               >
-                <Trash2 className="w-4 h-4 text-red-500" />
+                <Trash2 className="w-3 h-3 md:w-4 md:h-4 text-red-500" />
               </Button>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-2 gap-2 md:gap-3 text-xs md:text-sm">
             <div className="flex items-center gap-2">
               <CalendarIcon className="w-4 h-4 text-gray-400" />
               <span>{format(new Date(appointment.date), 'MMM d, yyyy')}</span>
@@ -270,18 +272,18 @@ export default function Appointments() {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen p-2 sm:p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-0">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Appointments</h1>
-            <p className="text-gray-600">Manage your consultation schedule</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 md:mb-2">Appointments</h1>
+            <p className="text-sm md:text-base text-gray-600">Manage your consultation schedule</p>
           </div>
           <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
             <DialogTrigger asChild>
               <Button 
-                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 w-full sm:w-auto"
                 onClick={() => {
                   setSelectedAppointment(null);
                   setFormData({
@@ -299,9 +301,9 @@ export default function Appointments() {
                 New Appointment
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[95vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="text-2xl">
+                <DialogTitle className="text-xl md:text-2xl">
                   {selectedAppointment ? 'Edit Appointment' : 'Schedule New Appointment'}
                 </DialogTitle>
               </DialogHeader>
@@ -469,44 +471,44 @@ export default function Appointments() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
           <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                  <Clock className="w-6 h-6 text-white" />
+            <CardContent className="p-4 md:p-6">
+              <div className="flex items-center gap-2 md:gap-4">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                  <Clock className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Today</p>
-                  <p className="text-3xl font-bold text-gray-900">{todayAppointments.length}</p>
+                  <p className="text-xs md:text-sm text-gray-600">Today</p>
+                  <p className="text-2xl md:text-3xl font-bold text-gray-900">{todayAppointments.length}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-                  <CalendarIcon className="w-6 h-6 text-white" />
+            <CardContent className="p-4 md:p-6">
+              <div className="flex items-center gap-2 md:gap-4">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                  <CalendarIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Upcoming</p>
-                  <p className="text-3xl font-bold text-gray-900">{upcomingAppointments.length}</p>
+                  <p className="text-xs md:text-sm text-gray-600">Upcoming</p>
+                  <p className="text-2xl md:text-3xl font-bold text-gray-900">{upcomingAppointments.length}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                  <CheckCircle2 className="w-6 h-6 text-white" />
+            <CardContent className="p-4 md:p-6">
+              <div className="flex items-center gap-2 md:gap-4">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
+                  <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Completed</p>
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-xs md:text-sm text-gray-600">Completed</p>
+                  <p className="text-2xl md:text-3xl font-bold text-gray-900">
                     {appointments.filter(a => a.status === 'completed').length}
                   </p>
                 </div>
@@ -515,14 +517,14 @@ export default function Appointments() {
           </Card>
 
           <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center">
-                  <User className="w-6 h-6 text-white" />
+            <CardContent className="p-4 md:p-6">
+              <div className="flex items-center gap-2 md:gap-4">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center">
+                  <User className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Total</p>
-                  <p className="text-3xl font-bold text-gray-900">{appointments.length}</p>
+                  <p className="text-xs md:text-sm text-gray-600">Total</p>
+                  <p className="text-2xl md:text-3xl font-bold text-gray-900">{appointments.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -531,11 +533,11 @@ export default function Appointments() {
 
         {/* Filters */}
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-4 flex-wrap">
-              <Filter className="w-5 h-5 text-gray-400" />
+          <CardContent className="p-3 md:p-4">
+            <div className="flex items-center gap-2 md:gap-4 flex-wrap">
+              <Filter className="w-4 h-4 md:w-5 md:h-5 text-gray-400" />
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-full sm:w-36 md:w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -548,7 +550,7 @@ export default function Appointments() {
               </Select>
               
               <Select value={modeFilter} onValueChange={setModeFilter}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-full sm:w-36 md:w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -559,7 +561,7 @@ export default function Appointments() {
               </Select>
 
               <Select value={coachFilter} onValueChange={setCoachFilter}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-full sm:w-40 md:w-48">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -577,14 +579,14 @@ export default function Appointments() {
                 placeholder="From Date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="w-40"
+                className="w-full sm:w-36 md:w-40"
               />
               <Input
                 type="date"
                 placeholder="To Date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="w-40"
+                className="w-full sm:w-36 md:w-40"
               />
               
               {(statusFilter !== "all" || modeFilter !== "all" || coachFilter !== "all" || dateFrom || dateTo) && (
@@ -608,12 +610,12 @@ export default function Appointments() {
         </Card>
 
         {/* Appointments Tabs */}
-        <Tabs defaultValue="today" className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur shadow-lg">
-            <TabsTrigger value="today">Today ({todayAppointments.length})</TabsTrigger>
-            <TabsTrigger value="upcoming">Upcoming ({upcomingAppointments.length})</TabsTrigger>
-            <TabsTrigger value="past">Past ({pastAppointments.length})</TabsTrigger>
-            <TabsTrigger value="all">All ({filteredAppointments.length})</TabsTrigger>
+        <Tabs defaultValue="today" className="space-y-4 md:space-y-6">
+          <TabsList className="bg-white/80 backdrop-blur shadow-lg w-full grid grid-cols-4 h-auto">
+            <TabsTrigger value="today" className="text-xs sm:text-sm">Today ({todayAppointments.length})</TabsTrigger>
+            <TabsTrigger value="upcoming" className="text-xs sm:text-sm">Upcoming ({upcomingAppointments.length})</TabsTrigger>
+            <TabsTrigger value="past" className="text-xs sm:text-sm">Past ({pastAppointments.length})</TabsTrigger>
+            <TabsTrigger value="all" className="text-xs sm:text-sm">All ({filteredAppointments.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="today">

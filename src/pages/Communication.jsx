@@ -352,17 +352,17 @@ export default function Communication() {
   });
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
+    <div className="min-h-screen p-2 sm:p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Messages</h1>
-          <p className="text-gray-600">Communicate with your clients</p>
+        <div className="mb-4 md:mb-6">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 md:mb-2">Messages</h1>
+          <p className="text-sm md:text-base text-gray-600">Communicate with your clients</p>
         </div>
 
-        <Card className="border-none shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 200px)' }}>
-          <div className="grid grid-cols-12 h-full">
+        <Card className="border-none shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 160px)' }}>
+          <div className="flex flex-col md:grid md:grid-cols-12 h-full">
             {/* Client List Sidebar */}
-            <div className="col-span-12 md:col-span-4 border-r border-gray-200 flex flex-col">
+            <div className={`${selectedClient ? 'hidden md:flex' : 'flex'} md:col-span-4 border-r border-gray-200 flex-col h-full md:h-auto`}>
               <CardHeader className="border-b border-gray-200 flex-shrink-0" id="message-clients-list">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -461,20 +461,28 @@ export default function Communication() {
             </div>
 
             {/* Chat Area */}
-            <div className="col-span-12 md:col-span-8 flex flex-col">
+            <div className={`${selectedClient ? 'flex' : 'hidden md:flex'} md:col-span-8 flex-col h-full md:h-auto`}>
               {selectedClient ? (
                 <>
                   {/* Chat Header */}
-                  <CardHeader className="border-b border-gray-200 flex-shrink-0" id="message-chat-area">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-medium">
+                  <CardHeader className="border-b border-gray-200 flex-shrink-0 p-3 md:p-6" id="message-chat-area">
+                    <div className="flex items-center gap-2 md:gap-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedClient(null)}
+                        className="md:hidden mr-1"
+                      >
+                        ← Back
+                      </Button>
+                      <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-white font-medium text-sm md:text-base">
                           {selectedClient.full_name.charAt(0)}
                         </span>
                       </div>
-                      <div>
-                        <CardTitle className="text-xl">{selectedClient.full_name}</CardTitle>
-                        <p className="text-sm text-gray-600">{selectedClient.email}</p>
+                      <div className="min-w-0">
+                        <CardTitle className="text-base md:text-xl truncate">{selectedClient.full_name}</CardTitle>
+                        <p className="text-xs md:text-sm text-gray-600 truncate">{selectedClient.email}</p>
                         {selectedClient.assigned_coach && (
                           <p className="text-sm text-green-600 font-medium mt-1">
                             🎓 Coach: {coaches.find(c => c.email === selectedClient.assigned_coach)?.full_name || selectedClient.assigned_coach}
@@ -488,10 +496,10 @@ export default function Communication() {
                   <div className="flex-1 overflow-hidden relative">
                     <ScrollArea 
                       className="h-full" 
-                      style={{ height: 'calc(100vh - 480px)' }}
+                      style={{ height: 'calc(100vh - 400px)' }}
                       onScrollCapture={handleScroll}
                     >
-                      <div className="p-6 space-y-4">
+                      <div className="p-3 md:p-6 space-y-3 md:space-y-4">
                         {clientMessages.length === 0 ? (
                           <div className="text-center py-12">
                             <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
@@ -517,7 +525,7 @@ export default function Communication() {
                                 className={`flex ${isFromDietitian ? 'justify-end' : 'justify-start'}`}
                               >
                                 <div
-                                  className={`max-w-[70%] rounded-2xl p-4 shadow-md ${
+                                  className={`max-w-[85%] sm:max-w-[75%] md:max-w-[70%] rounded-2xl p-3 md:p-4 shadow-md ${
                                     isFromDietitian
                                       ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
                                       : 'bg-gray-100 text-gray-900'
@@ -562,9 +570,9 @@ export default function Communication() {
                   </div>
 
                   {/* Send Message Box */}
-                  <div className="p-4 border-t-2 border-orange-500 bg-white flex-shrink-0" id="message-send-box">
+                  <div className="p-2 sm:p-3 md:p-4 border-t-2 border-orange-500 bg-white flex-shrink-0" id="message-send-box">
                     {attachedFile && (
-                      <div className="mb-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="mb-2 md:mb-3 p-2 md:p-3 bg-blue-50 rounded-lg border border-blue-200">
                         <div className="flex items-center gap-2">
                           {getFileIcon(attachedFile.type)}
                           <div className="flex-1 min-w-0">
@@ -587,7 +595,7 @@ export default function Communication() {
                       </div>
                     )}
 
-                    <div className="flex items-end gap-3">
+                    <div className="flex items-end gap-2 md:gap-3">
                       <input
                         ref={fileInputRef}
                         type="file"
@@ -599,10 +607,10 @@ export default function Communication() {
                         variant="outline"
                         size="icon"
                         onClick={() => fileInputRef.current?.click()}
-                        className="h-[60px] w-[60px] flex-shrink-0 border-2 border-orange-300 hover:bg-orange-50"
+                        className="h-[50px] w-[50px] md:h-[60px] md:w-[60px] flex-shrink-0 border-2 border-orange-300 hover:bg-orange-50"
                         disabled={uploading || sendMessageMutation.isPending}
                       >
-                        <Paperclip className="w-5 h-5 text-orange-600" />
+                        <Paperclip className="w-4 h-4 md:w-5 md:h-5 text-orange-600" />
                       </Button>
                       <div className="flex-1">
                         <Textarea
@@ -616,7 +624,7 @@ export default function Communication() {
                               handleSendMessage();
                             }
                           }}
-                          className="resize-none min-h-[60px] text-sm border-2 border-orange-300 focus:border-orange-500"
+                          className="resize-none min-h-[50px] md:min-h-[60px] text-sm border-2 border-orange-300 focus:border-orange-500"
                           rows={2}
                           disabled={uploading}
                           autoFocus
@@ -625,7 +633,7 @@ export default function Communication() {
                       <Button
                         onClick={handleSendMessage}
                         disabled={sendMessageMutation.isPending || uploading}
-                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-[60px] px-6 font-semibold shadow-lg"
+                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-[50px] md:h-[60px] px-3 md:px-6 font-semibold shadow-lg text-sm md:text-base"
                       >
                         {(sendMessageMutation.isPending || uploading) ? (
                           <>

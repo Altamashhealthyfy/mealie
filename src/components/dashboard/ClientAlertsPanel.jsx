@@ -2,148 +2,170 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, TrendingDown, Clock, MessageCircle, CheckCircle } from "lucide-react";
+import { 
+  AlertTriangle, 
+  Trophy, 
+  MessageSquare,
+  TrendingUp,
+  Calendar,
+  ArrowRight
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { differenceInDays } from "date-fns";
 
-export default function ClientAlertsPanel({ clients, progressLogs, foodLogs, messages }) {
+export default function ClientAlertsPanel({ 
+  clients, 
+  progressLogs, 
+  foodLogs,
+  messages 
+}) {
   const today = new Date();
-  const alerts = [];
+  const sevenDaysAgo = new Date(today);
+  sevenDaysAgo.setDate(today.getDate() - 7);
 
-  clients.forEach(client => {
-    if (client.status !== 'active') return;
-
-    const clientProgress = progressLogs.filter(p => p.client_id === client.id);
-    const clientFood = foodLogs.filter(f => f.client_id === client.id);
-    const clientMessages = messages.filter(m => m.client_id === client.id && m.sender_type === 'client' && !m.read);
-
-    // Low adherence
-    const recentProgress = clientProgress.filter(p => {
-      const logDate = new Date(p.date);
-      const daysDiff = Math.floor((today - logDate) / (1000 * 60 * 60 * 24));
-      return daysDiff <= 7 && p.meal_adherence !== null;
-    });
-
-    if (recentProgress.length > 0) {
-      const avgAdherence = recentProgress.reduce((sum, p) => sum + (p.meal_adherence || 0), 0) / recentProgress.length;
-      if (avgAdherence < 60) {
-        alerts.push({
-          client,
-          type: 'low_compliance',
-          severity: avgAdherence < 40 ? 'high' : 'medium',
-          message: `${Math.round(avgAdherence)}% meal adherence`,
-          icon: TrendingDown,
-          color: 'text-red-600',
-          bgColor: 'bg-red-50',
-        });
-      }
-    }
-
-    // Inactive
-    const lastActivity = [...clientProgress, ...clientFood]
-      .map(log => new Date(log.date))
-      .sort((a, b) => b - a)[0];
-
-    if (lastActivity) {
-      const daysSinceActivity = Math.floor((today - lastActivity) / (1000 * 60 * 60 * 24));
-      if (daysSinceActivity >= 7) {
-        alerts.push({
-          client,
-          type: 'inactive',
-          severity: 'medium',
-          message: `No activity for ${daysSinceActivity} days`,
-          icon: Clock,
-          color: 'text-orange-600',
-          bgColor: 'bg-orange-50',
-        });
-      }
-    }
-
-    // Unread messages
-    if (clientMessages.length > 0) {
-      alerts.push({
+  // Find clients with milestones
+  const clientsWithMilestones = clients.map(client => {
+    const clientLogs = progressLogs
+      .filter(l => l.client_id === client.id && l.weight)
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    if (clientLogs.length < 2) return null;
+    
+    const firstLog = clientLogs[0];
+    const latestLog = clientLogs[clientLogs.length - 1];
+    const weightLoss = firstLog.weight - latestLog.weight;
+    
+    if (weightLoss >= 5) {
+      return {
         client,
-        type: 'unread_message',
-        severity: 'high',
-        message: `${clientMessages.length} unread message${clientMessages.length > 1 ? 's' : ''}`,
-        icon: MessageCircle,
-        color: 'text-blue-600',
-        bgColor: 'bg-blue-50',
-      });
+        milestone: `${weightLoss.toFixed(1)}kg lost`,
+        type: 'weight_loss'
+      };
     }
+    return null;
+  }).filter(Boolean);
 
-    // Milestone: Weight loss
-    if (clientProgress.length >= 2 && client.initial_weight) {
-      const sortedProgress = clientProgress
-        .filter(p => p.weight)
-        .sort((a, b) => new Date(a.date) - new Date(b.date));
-      
-      const latestWeight = sortedProgress[sortedProgress.length - 1]?.weight;
-      if (latestWeight && client.initial_weight - latestWeight >= 5) {
-        alerts.push({
-          client,
-          type: 'milestone',
-          severity: 'low',
-          message: `Lost ${(client.initial_weight - latestWeight).toFixed(1)}kg! 🎉`,
-          icon: CheckCircle,
-          color: 'text-green-600',
-          bgColor: 'bg-green-50',
-        });
-      }
-    }
+  // Find inactive clients
+  const inactiveClients = clients.filter(client => {
+    const clientProgress = progressLogs.filter(l => l.client_id === client.id);
+    const clientFood = foodLogs.filter(l => l.client_id === client.id);
+    const lastActivity = [...clientProgress, ...clientFood]
+      .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    
+    if (!lastActivity) return true;
+    
+    const daysSince = differenceInDays(today, new Date(lastActivity.date));
+    return daysSince > 7;
   });
 
-  // Sort by severity
-  const sortedAlerts = alerts.sort((a, b) => {
-    const severityOrder = { high: 0, medium: 1, low: 2 };
-    return severityOrder[a.severity] - severityOrder[b.severity];
-  });
+  // Find urgent messages
+  const urgentMessages = messages
+    .filter(m => !m.read && m.sender_type === 'client')
+    .slice(0, 5);
+
+  const totalAlerts = clientsWithMilestones.length + inactiveClients.length + urgentMessages.length;
+
+  if (totalAlerts === 0) return null;
 
   return (
-    <Card className="border-none shadow-xl bg-white/80 backdrop-blur">
-      <CardHeader>
-        <CardTitle className="text-2xl flex items-center gap-2">
-          <AlertTriangle className="w-6 h-6 text-orange-600" />
-          Client Alerts & Milestones
+    <Card className="border-2 border-orange-500 bg-gradient-to-br from-orange-50 to-red-50">
+      <CardHeader className="p-4 md:p-6">
+        <CardTitle className="text-lg md:text-xl flex items-center gap-2">
+          <AlertTriangle className="w-5 h-5 md:w-6 md:h-6 text-orange-600" />
+          Client Alerts & Milestones ({totalAlerts})
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        {sortedAlerts.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <CheckCircle className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-            <p>All clients are doing great! No alerts.</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {sortedAlerts.slice(0, 8).map((alert, index) => (
-              <Link
-                key={index}
-                to={`${createPageUrl(alert.type === 'unread_message' ? 'Communication' : 'ClientManagement')}${alert.type !== 'unread_message' ? `?client=${alert.client.id}` : ''}`}
-                className={`flex items-center justify-between p-3 rounded-lg border transition-colors hover:shadow-md ${alert.bgColor}`}
-              >
-                <div className="flex items-center gap-3">
-                  <alert.icon className={`w-5 h-5 ${alert.color}`} />
-                  <div>
-                    <p className="font-semibold text-gray-900">{alert.client.full_name}</p>
-                    <p className={`text-sm ${alert.color}`}>{alert.message}</p>
-                  </div>
+      <CardContent className="p-4 md:p-6 pt-0">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4">
+          {/* Milestones */}
+          {clientsWithMilestones.length > 0 && (
+            <Card className="bg-white">
+              <CardHeader className="p-3 md:p-4">
+                <CardTitle className="text-sm md:text-base flex items-center gap-2">
+                  <Trophy className="w-4 h-4 md:w-5 md:h-5 text-yellow-600" />
+                  Milestones ({clientsWithMilestones.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-3 md:p-4 pt-0">
+                <div className="space-y-2">
+                  {clientsWithMilestones.slice(0, 3).map(({ client, milestone }) => (
+                    <div key={client.id} className="p-2 md:p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                      <p className="font-semibold text-xs md:text-sm truncate">🎉 {client.full_name}</p>
+                      <p className="text-xs text-gray-600">{milestone}</p>
+                    </div>
+                  ))}
+                  {clientsWithMilestones.length > 3 && (
+                    <p className="text-xs text-center text-gray-500 pt-2">
+                      +{clientsWithMilestones.length - 3} more
+                    </p>
+                  )}
                 </div>
-                <Badge className={`${
-                  alert.severity === 'high' ? 'bg-red-500' :
-                  alert.severity === 'medium' ? 'bg-orange-500' :
-                  'bg-green-500'
-                } text-white`}>
-                  {alert.type.replace('_', ' ')}
-                </Badge>
-              </Link>
-            ))}
-            {sortedAlerts.length > 8 && (
-              <p className="text-center text-sm text-gray-600 pt-2">
-                + {sortedAlerts.length - 8} more alerts
-              </p>
-            )}
-          </div>
-        )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Inactive Clients */}
+          {inactiveClients.length > 0 && (
+            <Card className="bg-white">
+              <CardHeader className="p-3 md:p-4">
+                <CardTitle className="text-sm md:text-base flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-red-600" />
+                  Inactive ({inactiveClients.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-3 md:p-4 pt-0">
+                <div className="space-y-2">
+                  {inactiveClients.slice(0, 3).map(client => (
+                    <div key={client.id} className="p-2 md:p-3 bg-red-50 rounded-lg border border-red-200">
+                      <p className="font-semibold text-xs md:text-sm truncate">{client.full_name}</p>
+                      <p className="text-xs text-gray-600">No activity 7+ days</p>
+                    </div>
+                  ))}
+                  {inactiveClients.length > 3 && (
+                    <Link to={createPageUrl("ClientManagement")}>
+                      <Button variant="outline" size="sm" className="w-full text-xs">
+                        View All <ArrowRight className="w-3 h-3 ml-1" />
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Urgent Messages */}
+          {urgentMessages.length > 0 && (
+            <Card className="bg-white">
+              <CardHeader className="p-3 md:p-4">
+                <CardTitle className="text-sm md:text-base flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                  Unread Messages ({urgentMessages.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-3 md:p-4 pt-0">
+                <div className="space-y-2">
+                  {urgentMessages.slice(0, 3).map(msg => {
+                    const client = clients.find(c => c.id === msg.client_id);
+                    return (
+                      <div key={msg.id} className="p-2 md:p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <p className="font-semibold text-xs md:text-sm truncate">{client?.full_name}</p>
+                        <p className="text-xs text-gray-600 truncate">{msg.message}</p>
+                      </div>
+                    );
+                  })}
+                  {urgentMessages.length > 3 && (
+                    <Link to={createPageUrl("Communication")}>
+                      <Button variant="outline" size="sm" className="w-full text-xs">
+                        View All <ArrowRight className="w-3 h-3 ml-1" />
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

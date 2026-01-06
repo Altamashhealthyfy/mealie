@@ -23,7 +23,6 @@ import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachSubscription from './pages/CoachSubscription';
 import CoachSubscriptions from './pages/CoachSubscriptions';
 import Communication from './pages/Communication';
-import DietitianDashboard from './pages/DietitianDashboard';
 import Documentation from './pages/Documentation';
 import FeatureControl from './pages/FeatureControl';
 import FoodLog from './pages/FoodLog';
@@ -38,7 +37,6 @@ import MPESSTracker from './pages/MPESSTracker';
 import MarketingHub from './pages/MarketingHub';
 import MealPlanner from './pages/MealPlanner';
 import MealPlansPro from './pages/MealPlansPro';
-import MyAssessment from './pages/MyAssessment';
 import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
 import NotificationSettings from './pages/NotificationSettings';
 import Notifications from './pages/Notifications';
@@ -70,6 +68,8 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
+import DietitianDashboard from './pages/DietitianDashboard';
+import MyAssessment from './pages/MyAssessment';
 import __Layout from './Layout.jsx';
 
 
@@ -99,7 +99,6 @@ export const PAGES = {
     "CoachSubscription": CoachSubscription,
     "CoachSubscriptions": CoachSubscriptions,
     "Communication": Communication,
-    "DietitianDashboard": DietitianDashboard,
     "Documentation": Documentation,
     "FeatureControl": FeatureControl,
     "FoodLog": FoodLog,
@@ -114,7 +113,6 @@ export const PAGES = {
     "MarketingHub": MarketingHub,
     "MealPlanner": MealPlanner,
     "MealPlansPro": MealPlansPro,
-    "MyAssessment": MyAssessment,
     "MyAssignedMealPlan": MyAssignedMealPlan,
     "NotificationSettings": NotificationSettings,
     "Notifications": Notifications,
@@ -146,6 +144,8 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
+    "DietitianDashboard": DietitianDashboard,
+    "MyAssessment": MyAssessment,
 }
 
 export const pagesConfig = {

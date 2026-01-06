@@ -92,10 +92,10 @@ export default function NotificationCenter({ user }) {
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Bell className="w-5 h-5" />
+      <CardHeader className="p-4 md:p-6">
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="text-base md:text-lg flex items-center gap-2">
+            <Bell className="w-4 h-4 md:w-5 md:h-5" />
             Notifications
             {unreadCount > 0 && (
               <Badge className="bg-red-500 text-white">{unreadCount}</Badge>
@@ -113,12 +113,12 @@ export default function NotificationCenter({ user }) {
           )}
         </div>
       </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[500px]">
+      <CardContent className="p-4 md:p-6">
+        <ScrollArea className="h-[400px] md:h-[500px]">
           {notifications.length === 0 ? (
-            <div className="text-center py-12">
-              <Bell className="w-16 h-16 mx-auto text-gray-300 mb-3" />
-              <p className="text-gray-600">No notifications yet</p>
+            <div className="text-center py-8 md:py-12">
+              <Bell className="w-12 h-12 md:w-16 md:h-16 mx-auto text-gray-300 mb-3" />
+              <p className="text-sm md:text-base text-gray-600">No notifications yet</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -129,19 +129,19 @@ export default function NotificationCenter({ user }) {
                 return (
                   <div
                     key={notif.id}
-                    className={`p-3 rounded-lg border transition-all ${
+                    className={`p-2 md:p-3 rounded-lg border transition-all ${
                       notif.read 
                         ? 'bg-white border-gray-200' 
                         : 'bg-blue-50 border-blue-300'
                     }`}
                   >
-                    <div className="flex items-start gap-3">
-                      <div className={`p-2 rounded-full ${colorClass}`}>
-                        <Icon className="w-4 h-4" />
+                    <div className="flex items-start gap-2 md:gap-3">
+                      <div className={`p-1.5 md:p-2 rounded-full ${colorClass} flex-shrink-0`}>
+                        <Icon className="w-3 h-3 md:w-4 md:h-4" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
-                          <h4 className="font-semibold text-sm">{notif.title}</h4>
+                          <h4 className="font-semibold text-xs md:text-sm">{notif.title}</h4>
                           <Button
                             variant="ghost"
                             size="sm"
