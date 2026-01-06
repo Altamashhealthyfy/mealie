@@ -30,6 +30,15 @@ export default function ClientAppointments() {
     initialData: [],
   });
 
+  const { data: coaches } = useQuery({
+    queryKey: ['coaches'],
+    queryFn: async () => {
+      const allUsers = await base44.entities.User.list();
+      return allUsers.filter(u => ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(u.user_type));
+    },
+    initialData: [],
+  });
+
   const { data: clientProfile } = useQuery({
     queryKey: ['myClientProfile', user?.email],
     queryFn: async () => {
