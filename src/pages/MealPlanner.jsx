@@ -284,79 +284,106 @@ export default function MealPlanner() {
 
   const cloneTemplate = (template) => {
     if (!selectedClient) {
-      alert("Please select a client first");
+      alert("⚠️ Please select a client first before customizing a template");
       return;
     }
 
-    // FIXED: Properly expand template meals to cover all days
-    const expandedMeals = [];
-    
-    // Get unique days in the template
-    const uniqueDays = [...new Set(template.meals.map(m => m.day))].sort((a, b) => a - b);
-    const templateHasDays = uniqueDays.length;
-    
-    // Expand to all days by cycling through available days
-    for (let targetDay = 1; targetDay <= template.duration; targetDay++) {
-      // Calculate which source day to copy from (cycle through available days)
-      const sourceDayIndex = (targetDay - 1) % templateHasDays;
-      const sourceDay = uniqueDays[sourceDayIndex];
-      
-      // Get all meals for this source day
-      const sourceDayMeals = template.meals.filter(m => m.day === sourceDay);
-      
-      // Copy them to the target day
-      sourceDayMeals.forEach(meal => {
-        expandedMeals.push({
-          ...meal,
-          day: targetDay
-        });
-      });
+    if (!template.meals || template.meals.length === 0) {
+      alert("❌ This template has no meals. Please choose a different template.");
+      return;
     }
 
-    setGeneratedPlan({
-      plan_name: `${template.name} - ${selectedClient.full_name}`,
-      meals: expandedMeals,
-      client_id: selectedClient.id,
-      client_name: selectedClient.full_name,
-      duration: template.duration,
-      meal_pattern: 'daily',
-      food_preference: template.food_preference,
-      regional_preference: template.regional_preference,
-      target_calories: template.target_calories,
-      from_template: true,
-      template_id: template.id
-    });
+    try {
+      // Properly expand template meals to cover all days
+      const expandedMeals = [];
+      
+      // Get unique days in the template
+      const uniqueDays = [...new Set(template.meals.map(m => m.day))].sort((a, b) => a - b);
+      const templateHasDays = uniqueDays.length;
+      
+      if (templateHasDays === 0) {
+        alert("❌ Template has no valid meal days. Please choose a different template.");
+        return;
+      }
+      
+      // Expand to all days by cycling through available days
+      for (let targetDay = 1; targetDay <= template.duration; targetDay++) {
+        // Calculate which source day to copy from (cycle through available days)
+        const sourceDayIndex = (targetDay - 1) % templateHasDays;
+        const sourceDay = uniqueDays[sourceDayIndex];
+        
+        // Get all meals for this source day
+        const sourceDayMeals = template.meals.filter(m => m.day === sourceDay);
+        
+        // Copy them to the target day
+        sourceDayMeals.forEach(meal => {
+          expandedMeals.push({
+            ...meal,
+            day: targetDay
+          });
+        });
+      }
 
-    base44.entities.MealPlanTemplate.update(template.id, {
-      times_used: (template.times_used || 0) + 1
-    }).then(() => {
-        queryClient.invalidateQueries(['mealPlanTemplates']);
-    }).catch(console.error);
+      setGeneratedPlan({
+        plan_name: `${template.name} - ${selectedClient.full_name}`,
+        meals: expandedMeals,
+        client_id: selectedClient.id,
+        client_name: selectedClient.full_name,
+        duration: template.duration,
+        meal_pattern: 'daily',
+        food_preference: template.food_preference,
+        regional_preference: template.regional_preference,
+        target_calories: template.target_calories,
+        from_template: true,
+        template_id: template.id
+      });
 
-    setActiveTab("generate");
+      base44.entities.MealPlanTemplate.update(template.id, {
+        times_used: (template.times_used || 0) + 1
+      }).then(() => {
+          queryClient.invalidateQueries(['mealPlanTemplates']);
+      }).catch(console.error);
+
+      setActiveTab("generate");
+    } catch (error) {
+      console.error("Error cloning template:", error);
+      alert("❌ Failed to customize template. Please try again.");
+    }
   };
 
   const assignTemplateDirectly = async (template) => {
     if (!selectedClient) {
-      alert("Please select a client first");
+      alert("⚠️ Please select a client first before assigning a template");
+      return;
+    }
+
+    if (!template.meals || template.meals.length === 0) {
+      alert("❌ This template has no meals. Please choose a different template.");
       return;
     }
 
     const confirmed = window.confirm(
-      `Assign "${template.name}" to ${selectedClient.full_name}?\n\n` +
-      `This will assign all ${template.duration} days of the meal plan.\n` +
+      `✅ Assign "${template.name}" to ${selectedClient.full_name}?\n\n` +
+      `📅 Duration: ${template.duration} days\n` +
+      `🍽️ Total Meals: ${template.meals.length}\n` +
+      `🔄 All ${template.duration} days will be assigned\n\n` +
       `You can view and edit it later from "My Plans" tab.`
     );
 
     if (!confirmed) return;
 
     try {
-      // FIXED: Properly expand template meals to cover all days
+      // Properly expand template meals to cover all days
       const expandedMeals = [];
       
       // Get unique days in the template
       const uniqueDays = [...new Set(template.meals.map(m => m.day))].sort((a, b) => a - b);
       const templateHasDays = uniqueDays.length;
+      
+      if (templateHasDays === 0) {
+        alert("❌ Template has no valid meal days. Please choose a different template.");
+        return;
+      }
       
       console.log(`Template has ${templateHasDays} unique days, duration is ${template.duration} days`);
       
@@ -378,7 +405,12 @@ export default function MealPlanner() {
         });
       }
 
-      console.log(`Expanded from ${template.meals.length} to ${expandedMeals.length} meals`);
+      console.log(`✅ Expanded from ${template.meals.length} to ${expandedMeals.length} meals`);
+
+      if (expandedMeals.length === 0) {
+        alert("❌ Failed to expand template meals. Please try again or choose a different template.");
+        return;
+      }
 
       await savePlanMutation.mutateAsync({
         client_id: selectedClient.id,
@@ -401,7 +433,7 @@ export default function MealPlanner() {
       setActiveTab("saved");
     } catch (error) {
       console.error("Failed to assign template:", error);
-      alert("Failed to assign template. Please try again.");
+      alert(`❌ Failed to assign template: ${error.message}\n\nPlease try again or contact support if the issue persists.`);
     }
   };
 
@@ -1092,16 +1124,29 @@ Return structured meal plan with:
               <div className="space-y-4">
                 <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
                   <CardHeader>
-                    <CardTitle className="text-lg">Select Client to Assign Template</CardTitle>
-                    <CardDescription>First, select a client to whom you'd like to assign or customize a template. Then pick a template below.</CardDescription>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="w-5 h-5 text-blue-600" />
+                      Select Client to Assign Template
+                    </CardTitle>
+                    <CardDescription>
+                      ⚠️ <strong>Important:</strong> First select a client, then choose a template below to assign or customize it.
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
+                    {!selectedClientId && (
+                      <Alert className="mb-4 bg-yellow-50 border-yellow-300">
+                        <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                        <AlertDescription className="text-yellow-900">
+                          <strong>No client selected!</strong> Please choose a client from the dropdown below.
+                        </AlertDescription>
+                      </Alert>
+                    )}
                     <Select
                       value={selectedClientId || ''}
                       onValueChange={setSelectedClientId}
                     >
                       <SelectTrigger className="h-12">
-                        <SelectValue placeholder="Choose a client..." />
+                        <SelectValue placeholder="🔍 Choose a client..." />
                       </SelectTrigger>
                       <SelectContent>
                         {clients.map((client) => {
@@ -1191,7 +1236,8 @@ Return structured meal plan with:
                           <Button
                             onClick={() => assignTemplateDirectly(template)}
                             disabled={!selectedClient}
-                            className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                            className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title={!selectedClient ? "Please select a client first" : "Assign template directly to client"}
                           >
                             <CheckCircle className="w-4 h-4 mr-2" />
                             Assign Now
@@ -1200,7 +1246,8 @@ Return structured meal plan with:
                             onClick={() => cloneTemplate(template)}
                             disabled={!selectedClient}
                             variant="outline"
-                            className="flex-1"
+                            className="flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title={!selectedClient ? "Please select a client first" : "Customize template before assigning"}
                           >
                             <Copy className="w-4 h-4 mr-2" />
                             Customize
