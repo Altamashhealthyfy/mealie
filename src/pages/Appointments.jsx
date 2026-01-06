@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -33,12 +32,22 @@ export default function Appointments() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [modeFilter, setModeFilter] = useState("all");
+  const [coachFilter, setCoachFilter] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [formData, setFormData] = useState({
     status: 'scheduled',
     duration: 60,
     type: 'initial_consultation',
     date: format(new Date(), 'yyyy-MM-dd'),
     time: '10:00',
+    appointment_mode: 'online',
+  });
+
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
   });
 
   const { data: clients } = useQuery({
@@ -54,6 +63,15 @@ export default function Appointments() {
       
       // Team members, student coaches - only see THEIR OWN clients
       return allClients.filter(client => client.created_by === user?.email);
+    },
+    initialData: [],
+  });
+
+  const { data: coaches } = useQuery({
+    queryKey: ['coaches'],
+    queryFn: async () => {
+      const allUsers = await base44.entities.User.list();
+      return allUsers.filter(u => ['super_admin', 'team_member', 'student_coach'].includes(u.user_type));
     },
     initialData: [],
   });
@@ -81,6 +99,7 @@ export default function Appointments() {
         type: 'initial_consultation',
         date: format(new Date(), 'yyyy-MM-dd'),
         time: '10:00',
+        appointment_mode: 'online',
       });
       alert('Appointment saved successfully!');
     },
@@ -108,6 +127,10 @@ export default function Appointments() {
 
   const filteredAppointments = appointments.filter(apt => {
     if (statusFilter !== "all" && apt.status !== statusFilter) return false;
+    if (modeFilter !== "all" && apt.appointment_mode !== modeFilter) return false;
+    if (coachFilter !== "all" && apt.assigned_to !== coachFilter) return false;
+    if (dateFrom && apt.date < dateFrom) return false;
+    if (dateTo && apt.date > dateTo) return false;
     return true;
   });
 
@@ -161,6 +184,7 @@ export default function Appointments() {
 
   const AppointmentCard = ({ appointment }) => {
     const client = clients.find(c => c.id === appointment.client_id);
+    const assignedCoach = coaches.find(c => c.email === appointment.assigned_to);
     
     return (
       <Card className="border-none shadow-lg hover:shadow-xl transition-all bg-white/80 backdrop-blur">
@@ -175,7 +199,7 @@ export default function Appointments() {
               <div>
                 <h3 className="font-bold text-gray-900">{client?.full_name || 'Unknown Client'}</h3>
                 <p className="text-sm text-gray-600">{appointment.title}</p>
-                <div className="flex items-center gap-2 mt-1">
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
                   <Badge variant="outline" className="capitalize text-xs">
                     {appointment.type?.replace('_', ' ')}
                   </Badge>
@@ -183,6 +207,14 @@ export default function Appointments() {
                     {getStatusIcon(appointment.status)}
                     <span className="ml-1">{appointment.status}</span>
                   </Badge>
+                  <Badge className={appointment.appointment_mode === 'online' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}>
+                    {appointment.appointment_mode === 'online' ? '💻 Online' : '🏢 Offline'}
+                  </Badge>
+                  {assignedCoach && (
+                    <Badge variant="outline" className="text-xs">
+                      👤 {assignedCoach.full_name}
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>
@@ -258,6 +290,8 @@ export default function Appointments() {
                     type: 'initial_consultation',
                     date: format(new Date(), 'yyyy-MM-dd'),
                     time: '10:00',
+                    appointment_mode: 'online',
+                    assigned_to: user?.email || '',
                   });
                 }}
               >
@@ -343,6 +377,43 @@ export default function Appointments() {
                         <SelectItem value="follow_up">Follow-up</SelectItem>
                         <SelectItem value="review">Review</SelectItem>
                         <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Appointment Mode *</Label>
+                    <Select
+                      value={formData.appointment_mode || 'online'}
+                      onValueChange={(value) => setFormData({...formData, appointment_mode: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="online">💻 Online</SelectItem>
+                        <SelectItem value="offline">🏢 Offline</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Assigned Coach</Label>
+                    <Select
+                      value={formData.assigned_to || ''}
+                      onValueChange={(value) => setFormData({...formData, assigned_to: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select coach" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={null}>No assignment</SelectItem>
+                        {coaches.map((coach) => (
+                          <SelectItem key={coach.email} value={coach.email}>
+                            {coach.full_name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -458,13 +529,13 @@ export default function Appointments() {
           </Card>
         </div>
 
-        {/* Filter */}
+        {/* Filters */}
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
           <CardContent className="p-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
               <Filter className="w-5 h-5 text-gray-400" />
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-48">
+                <SelectTrigger className="w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -475,6 +546,63 @@ export default function Appointments() {
                   <SelectItem value="rescheduled">Rescheduled</SelectItem>
                 </SelectContent>
               </Select>
+              
+              <Select value={modeFilter} onValueChange={setModeFilter}>
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Modes</SelectItem>
+                  <SelectItem value="online">💻 Online</SelectItem>
+                  <SelectItem value="offline">🏢 Offline</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={coachFilter} onValueChange={setCoachFilter}>
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Coaches</SelectItem>
+                  {coaches.map((coach) => (
+                    <SelectItem key={coach.email} value={coach.email}>
+                      {coach.full_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Input
+                type="date"
+                placeholder="From Date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="w-40"
+              />
+              <Input
+                type="date"
+                placeholder="To Date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="w-40"
+              />
+              
+              {(statusFilter !== "all" || modeFilter !== "all" || coachFilter !== "all" || dateFrom || dateTo) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setStatusFilter("all");
+                    setModeFilter("all");
+                    setCoachFilter("all");
+                    setDateFrom("");
+                    setDateTo("");
+                  }}
+                  className="text-red-600"
+                >
+                  Clear Filters
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>

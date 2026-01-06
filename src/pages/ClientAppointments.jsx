@@ -99,13 +99,16 @@ export default function ClientAppointments() {
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="font-bold text-gray-900 text-lg">{appointment.title}</h3>
-                <div className="flex items-center gap-2 mt-2">
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
                   <Badge variant="outline" className="capitalize text-xs">
                     {appointment.type?.replace('_', ' ')}
                   </Badge>
                   <Badge className={`${getStatusColor(appointment.status)} text-xs`}>
                     {getStatusIcon(appointment.status)}
                     <span className="ml-1">{appointment.status}</span>
+                  </Badge>
+                  <Badge className={appointment.appointment_mode === 'online' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}>
+                    {appointment.appointment_mode === 'online' ? '💻 Online' : '🏢 Offline'}
                   </Badge>
                 </div>
               </div>
