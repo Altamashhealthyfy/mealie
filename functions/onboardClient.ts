@@ -62,8 +62,7 @@ ${coachName}
 This is an automated welcome message. Please reply if you have any questions!
         `;
 
-        await base44.asServiceRole.integrations.Core.SendEmail({
-          from_name: coachName,
+        await base44.asServiceRole.functions.invoke('sendGoogleWorkspaceEmail', {
           to: client.email,
           subject: `Welcome to Your Health Journey! 🌟`,
           body: emailBody
@@ -213,8 +212,7 @@ Best regards,
 ${coachName}
         `;
 
-        await base44.asServiceRole.integrations.Core.SendEmail({
-          from_name: coachName,
+        await base44.asServiceRole.functions.invoke('sendGoogleWorkspaceEmail', {
           to: client.email,
           subject: `Action Required: Complete Your Health Assessment`,
           body: reminderBody
