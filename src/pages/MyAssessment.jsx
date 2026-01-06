@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, ArrowRight, ArrowLeft, Loader2, Paperclip, X } from "lucide-react";
+import { createPageUrl } from "@/utils";
 
 export default function MyAssessment() {
   const queryClient = useQueryClient();
@@ -41,7 +42,7 @@ export default function MyAssessment() {
     onSuccess: () => {
       queryClient.invalidateQueries(['assessment']);
       alert('Assessment saved successfully!');
-      window.location.href = '/progress-tracking';
+      window.location.href = createPageUrl('ProgressTracking');
     },
   });
 
