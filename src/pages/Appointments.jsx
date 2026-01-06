@@ -197,33 +197,24 @@ export default function Appointments() {
     return (
       <Card className="border-none shadow-lg hover:shadow-xl transition-all bg-white/80 backdrop-blur">
         <CardContent className="p-3 md:p-4">
-          <div className="flex items-start justify-between mb-2 md:mb-3 gap-2">
+          <div className="flex items-start justify-between mb-3 gap-2">
             <div className="flex items-start gap-2 md:gap-3 min-w-0 flex-1">
               <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
                 <span className="text-white font-medium text-sm md:text-base">
                   {client?.full_name?.charAt(0) || '?'}
                 </span>
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs text-gray-500 mb-1">Appointment with</p>
                 <h3 className="font-bold text-sm md:text-base text-gray-900 truncate">{client?.full_name || 'Unknown Client'}</h3>
                 <p className="text-xs md:text-sm text-gray-600 truncate">{appointment.title}</p>
-                <div className="flex items-center gap-1 md:gap-2 mt-1 flex-wrap">
-                  <Badge variant="outline" className="capitalize text-xs">
-                    {appointment.type?.replace('_', ' ')}
-                  </Badge>
-                  <Badge className={`${getStatusColor(appointment.status)} text-xs`}>
-                    {getStatusIcon(appointment.status)}
-                    <span className="ml-1">{appointment.status}</span>
-                  </Badge>
-                  <Badge className={appointment.appointment_mode === 'online' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}>
-                    {appointment.appointment_mode === 'online' ? '💻 Online' : '🏢 Offline'}
-                  </Badge>
-                  {assignedCoach && (
-                    <Badge variant="outline" className="text-xs">
-                      👤 {assignedCoach.full_name}
-                    </Badge>
-                  )}
-                </div>
+                {assignedCoach && (
+                  <div className="mt-2 p-2 bg-blue-50 rounded-md border border-blue-200">
+                    <p className="text-xs text-blue-900">
+                      <span className="font-semibold">Dietician:</span> {assignedCoach.full_name}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex gap-1 flex-shrink-0">
@@ -244,6 +235,19 @@ export default function Appointments() {
                 <Trash2 className="w-3 h-3 md:w-4 md:h-4 text-red-500" />
               </Button>
             </div>
+          </div>
+
+          <div className="flex items-center gap-1 md:gap-2 mb-3 flex-wrap">
+            <Badge variant="outline" className="capitalize text-xs">
+              {appointment.type?.replace('_', ' ')}
+            </Badge>
+            <Badge className={`${getStatusColor(appointment.status)} text-xs`}>
+              {getStatusIcon(appointment.status)}
+              <span className="ml-1">{appointment.status}</span>
+            </Badge>
+            <Badge className={appointment.appointment_mode === 'online' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}>
+              {appointment.appointment_mode === 'online' ? '💻 Online' : '🏢 Offline'}
+            </Badge>
           </div>
 
           <div className="grid grid-cols-2 gap-2 md:gap-3 text-xs md:text-sm">
