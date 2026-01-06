@@ -30,15 +30,6 @@ export default function ClientAppointments() {
     initialData: [],
   });
 
-  const { data: coaches } = useQuery({
-    queryKey: ['coaches'],
-    queryFn: async () => {
-      const allUsers = await base44.entities.User.list();
-      return allUsers.filter(u => ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(u.user_type));
-    },
-    initialData: [],
-  });
-
   const { data: clientProfile } = useQuery({
     queryKey: ['myClientProfile', user?.email],
     queryFn: async () => {
@@ -110,26 +101,37 @@ export default function ClientAppointments() {
   };
 
   const AppointmentCard = ({ appointment }) => {
+    const assignedCoach = coaches.find(c => c.email === appointment.assigned_to);
+    
     return (
       <Card className="border-none shadow-lg hover:shadow-xl transition-all bg-white/80 backdrop-blur">
         <CardContent className="p-4">
           <div className="space-y-3">
             <div className="flex items-start justify-between">
-              <div>
+              <div className="flex-1">
+                <p className="text-xs text-gray-500 mb-1">Appointment with</p>
                 <h3 className="font-bold text-gray-900 text-lg">{appointment.title}</h3>
-                <div className="flex items-center gap-2 mt-2 flex-wrap">
-                  <Badge variant="outline" className="capitalize text-xs">
-                    {appointment.type?.replace('_', ' ')}
-                  </Badge>
-                  <Badge className={`${getStatusColor(appointment.status)} text-xs`}>
-                    {getStatusIcon(appointment.status)}
-                    <span className="ml-1">{appointment.status}</span>
-                  </Badge>
-                  <Badge className={appointment.appointment_mode === 'online' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}>
-                    {appointment.appointment_mode === 'online' ? '💻 Online' : '🏢 Offline'}
-                  </Badge>
-                </div>
+                <p className="text-sm text-gray-600 capitalize mt-1">
+                  {appointment.type?.replace('_', ' ')}
+                </p>
+                {assignedCoach && (
+                  <div className="mt-3 p-2 bg-blue-50 rounded-md border border-blue-200">
+                    <p className="text-xs text-blue-900">
+                      <span className="font-semibold">Dietician:</span> {assignedCoach.full_name}
+                    </p>
+                  </div>
+                )}
               </div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge className={`${getStatusColor(appointment.status)} text-xs`}>
+                {getStatusIcon(appointment.status)}
+                <span className="ml-1">{appointment.status}</span>
+              </Badge>
+              <Badge className={appointment.appointment_mode === 'online' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}>
+                {appointment.appointment_mode === 'online' ? '💻 Online' : '🏢 Offline'}
+              </Badge>
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-sm">
