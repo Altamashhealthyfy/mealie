@@ -8,9 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ClipboardList, Plus, Eye, FileText, Download, Calendar, CheckCircle, Clock, AlertCircle, Loader2, GitCompare, Paperclip } from "lucide-react";
+import { ClipboardList, Plus, Eye, FileText, Download, Calendar, CheckCircle, Clock, AlertCircle, Loader2, GitCompare, Paperclip, Edit, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { createPageUrl } from "@/utils";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function ClientAssessments() {
   const queryClient = useQueryClient();
@@ -20,6 +22,8 @@ export default function ClientAssessments() {
   const [viewingAssessment, setViewingAssessment] = useState(null);
   const [comparingClient, setComparingClient] = useState(null);
   const [generatingReport, setGeneratingReport] = useState(null);
+  const [editingAssessment, setEditingAssessment] = useState(null);
+  const [editFormData, setEditFormData] = useState({});
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -99,6 +103,24 @@ export default function ClientAssessments() {
     },
   });
 
+  const updateAssessmentMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.ClientAssessment.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['assessments']);
+      setEditingAssessment(null);
+      setEditFormData({});
+      alert('Assessment updated successfully!');
+    },
+  });
+
+  const deleteAssessmentMutation = useMutation({
+    mutationFn: (id) => base44.entities.ClientAssessment.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['assessments']);
+      alert('Assessment deleted successfully!');
+    },
+  });
+
   const handleAssignAssessment = () => {
     if (!selectedClient) {
       alert('Please select a client');
@@ -118,6 +140,29 @@ export default function ClientAssessments() {
     setGeneratingReport(assessment.id);
     generateReportMutation.mutate(assessment.id);
   };
+
+  const handleEdit = (assessment) => {
+    setEditingAssessment(assessment);
+    setEditFormData({
+      status: assessment.status,
+      coach_notes: assessment.coach_notes || '',
+    });
+  };
+
+  const handleUpdateAssessment = () => {
+    updateAssessmentMutation.mutate({
+      id: editingAssessment.id,
+      data: editFormData,
+    });
+  };
+
+  const handleDelete = (assessment) => {
+    if (window.confirm(`Delete assessment for ${assessment.client_name}? This action cannot be undone.`)) {
+      deleteAssessmentMutation.mutate(assessment.id);
+    }
+  };
+
+  const canEditDelete = user?.user_type === 'super_admin' || user?.user_type === 'student_coach';
 
   const getStatusIcon = (status) => {
     switch(status) {
@@ -280,6 +325,8 @@ export default function ClientAssessments() {
               generatingReport={generatingReport}
               onCompare={setComparingClient}
               clients={clients}
+              onEdit={canEditDelete ? handleEdit : null}
+              onDelete={canEditDelete ? handleDelete : null}
             />
           </TabsContent>
 
@@ -290,6 +337,8 @@ export default function ClientAssessments() {
               onView={setViewingAssessment}
               onGenerateReport={handleGenerateReport}
               generatingReport={generatingReport}
+              onEdit={canEditDelete ? handleEdit : null}
+              onDelete={canEditDelete ? handleDelete : null}
             />
           </TabsContent>
 
@@ -300,6 +349,8 @@ export default function ClientAssessments() {
               onView={setViewingAssessment}
               onGenerateReport={handleGenerateReport}
               generatingReport={generatingReport}
+              onEdit={canEditDelete ? handleEdit : null}
+              onDelete={canEditDelete ? handleDelete : null}
             />
           </TabsContent>
 
@@ -310,6 +361,8 @@ export default function ClientAssessments() {
               onView={setViewingAssessment}
               onGenerateReport={handleGenerateReport}
               generatingReport={generatingReport}
+              onEdit={canEditDelete ? handleEdit : null}
+              onDelete={canEditDelete ? handleDelete : null}
             />
           </TabsContent>
         </Tabs>
@@ -338,12 +391,65 @@ export default function ClientAssessments() {
             </DialogContent>
           </Dialog>
         )}
+
+        {editingAssessment && (
+          <Dialog open={!!editingAssessment} onOpenChange={() => setEditingAssessment(null)}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Edit Assessment - {editingAssessment.client_name}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <Select 
+                    value={editFormData.status} 
+                    onValueChange={(value) => setEditFormData({ ...editFormData, status: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Coach Notes</Label>
+                  <Textarea
+                    value={editFormData.coach_notes}
+                    onChange={(e) => setEditFormData({ ...editFormData, coach_notes: e.target.value })}
+                    placeholder="Add notes about this assessment..."
+                    rows={5}
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setEditingAssessment(null)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleUpdateAssessment}
+                    disabled={updateAssessmentMutation.isPending}
+                    className="flex-1 bg-gradient-to-r from-orange-500 to-red-500"
+                  >
+                    {updateAssessmentMutation.isPending ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </div>
   );
 }
 
-function AssessmentList({ assessments, isDietitian, onView, onGenerateReport, generatingReport, onCompare }) {
+function AssessmentList({ assessments, isDietitian, onView, onGenerateReport, generatingReport, onCompare, onEdit, onDelete }) {
   if (assessments.length === 0) {
     return (
       <Card className="border-none shadow-lg">
@@ -377,7 +483,7 @@ function AssessmentList({ assessments, isDietitian, onView, onGenerateReport, ge
                   {isDietitian && <p>Assigned by: {assessment.assigned_by}</p>}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Button
                   variant="outline"
                   size="sm"
@@ -386,6 +492,17 @@ function AssessmentList({ assessments, isDietitian, onView, onGenerateReport, ge
                   <Eye className="w-4 h-4 mr-2" />
                   View
                 </Button>
+                {onEdit && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onEdit(assessment)}
+                    className="text-blue-600 hover:bg-blue-50"
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit
+                  </Button>
+                )}
                 {isDietitian && assessment.uploaded_files?.length > 0 && (
                   <Button variant="outline" size="sm">
                     <Paperclip className="w-4 h-4 mr-2" />
@@ -424,6 +541,17 @@ function AssessmentList({ assessments, isDietitian, onView, onGenerateReport, ge
                       </Button>
                     )}
                   </>
+                )}
+                {onDelete && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onDelete(assessment)}
+                    className="text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </Button>
                 )}
                 {!isDietitian && assessment.status === 'pending' && (
                   <Button
