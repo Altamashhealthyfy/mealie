@@ -216,6 +216,19 @@ export default function MealPlanner() {
     },
   });
 
+  // Listen for external view meal plan events
+  React.useEffect(() => {
+    const handleExternalView = (event) => {
+      if (event.detail?.plan) {
+        setViewingPlan(event.detail.plan);
+        setActiveTab("generate");
+      }
+    };
+
+    window.addEventListener('viewMealPlan', handleExternalView);
+    return () => window.removeEventListener('viewMealPlan', handleExternalView);
+  }, []);
+
   // REDIRECT CLIENTS AWAY - After all hooks are defined
   React.useEffect(() => {
     if (user && user.user_type === 'client') {
@@ -948,19 +961,6 @@ Return structured meal plan with:
     });
     setActiveTab("generate");
   };
-
-  // Listen for external view meal plan events
-  React.useEffect(() => {
-    const handleExternalView = (event) => {
-      if (event.detail?.plan) {
-        setViewingPlan(event.detail.plan);
-        setActiveTab("generate");
-      }
-    };
-
-    window.addEventListener('viewMealPlan', handleExternalView);
-    return () => window.removeEventListener('viewMealPlan', handleExternalView);
-  }, []);
 
   if (clients.length === 0) {
     return (
