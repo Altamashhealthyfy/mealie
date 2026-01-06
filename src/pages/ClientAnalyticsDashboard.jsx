@@ -18,6 +18,10 @@ import {
   Clock,
   CheckCircle,
   XCircle,
+  ClipboardList,
+  BarChart3,
+  Heart,
+  Utensils,
 } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { format, subDays, differenceInDays } from "date-fns";
@@ -73,6 +77,29 @@ export default function ClientAnalyticsDashboard() {
   const { data: messages } = useQuery({
     queryKey: ['messages'],
     queryFn: () => base44.entities.Message.list('-created_date', 200),
+    initialData: [],
+  });
+
+  const { data: assessments } = useQuery({
+    queryKey: ['assessments'],
+    queryFn: async () => {
+      const all = await base44.entities.ClientAssessment.list('-created_date');
+      if (user?.user_type === 'super_admin') return all;
+      return all.filter(a => a.assigned_by === user?.email);
+    },
+    enabled: !!user,
+    initialData: [],
+  });
+
+  const { data: progressGoals } = useQuery({
+    queryKey: ['progressGoals'],
+    queryFn: () => base44.entities.ProgressGoal.list('-created_date'),
+    initialData: [],
+  });
+
+  const { data: mpessLogs } = useQuery({
+    queryKey: ['mpessLogs'],
+    queryFn: () => base44.entities.MPESSTracker.list('-date', 500),
     initialData: [],
   });
 
@@ -200,6 +227,67 @@ export default function ClientAnalyticsDashboard() {
       count,
     }));
 
+    // Module Usage Stats
+    const completedAssessments = assessments.filter(a => a.status === 'completed').length;
+    const pendingAssessments = assessments.filter(a => a.status === 'pending').length;
+    const activeGoals = progressGoals.filter(g => g.status === 'active').length;
+    const completedGoals = progressGoals.filter(g => g.status === 'completed').length;
+    const recentMPESS = mpessLogs.filter(log => new Date(log.date) >= cutoffDate).length;
+    
+    // Assessment completion rate
+    const assessmentCompletionRate = assessments.length > 0 
+      ? ((completedAssessments / assessments.length) * 100).toFixed(0)
+      : 0;
+    
+    // Goals achievement rate
+    const goalAchievementRate = progressGoals.length > 0
+      ? ((completedGoals / progressGoals.length) * 100).toFixed(0)
+      : 0;
+
+    // Module usage over time (last 30 days)
+    const moduleUsageData = [];
+    for (let i = 29; i >= 0; i--) {
+      const date = subDays(new Date(), i);
+      const dateStr = format(date, 'MMM dd');
+      
+      const progressCount = progressLogs.filter(log => 
+        format(new Date(log.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+      ).length;
+      
+      const foodCount = foodLogs.filter(log => 
+        format(new Date(log.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+      ).length;
+      
+      const mpessCount = mpessLogs.filter(log => 
+        format(new Date(log.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+      ).length;
+
+      moduleUsageData.push({ date: dateStr, progress: progressCount, food: foodCount, mpess: mpessCount });
+    }
+
+    // Client wellness trends
+    const wellnessTrends = progressLogs
+      .filter(log => log.wellness_metrics && new Date(log.date) >= cutoffDate)
+      .reduce((acc, log) => {
+        if (log.wellness_metrics.energy_level) {
+          acc.totalEnergy += log.wellness_metrics.energy_level;
+          acc.energyCount++;
+        }
+        if (log.wellness_metrics.sleep_quality) {
+          acc.totalSleep += log.wellness_metrics.sleep_quality;
+          acc.sleepCount++;
+        }
+        if (log.wellness_metrics.stress_level) {
+          acc.totalStress += log.wellness_metrics.stress_level;
+          acc.stressCount++;
+        }
+        return acc;
+      }, { totalEnergy: 0, energyCount: 0, totalSleep: 0, sleepCount: 0, totalStress: 0, stressCount: 0 });
+
+    const avgEnergy = wellnessTrends.energyCount > 0 ? (wellnessTrends.totalEnergy / wellnessTrends.energyCount).toFixed(1) : 0;
+    const avgSleep = wellnessTrends.sleepCount > 0 ? (wellnessTrends.totalSleep / wellnessTrends.sleepCount).toFixed(1) : 0;
+    const avgStress = wellnessTrends.stressCount > 0 ? (wellnessTrends.totalStress / wellnessTrends.stressCount).toFixed(1) : 0;
+
     return {
       totalClients: clients.length,
       activeClients: activeClientIds.size,
@@ -216,8 +304,19 @@ export default function ClientAnalyticsDashboard() {
       recentMessages: recentMessages.length,
       totalProgressLogs: progressLogs.filter(log => new Date(log.date) >= cutoffDate).length,
       totalFoodLogs: foodLogs.filter(log => new Date(log.date) >= cutoffDate).length,
+      completedAssessments,
+      pendingAssessments,
+      assessmentCompletionRate,
+      activeGoals,
+      completedGoals,
+      goalAchievementRate,
+      recentMPESS,
+      moduleUsageData,
+      avgEnergy,
+      avgSleep,
+      avgStress,
     };
-  }, [clients, progressLogs, foodLogs, mealPlans, messages, selectedPeriod]);
+  }, [clients, progressLogs, foodLogs, mealPlans, messages, assessments, progressGoals, mpessLogs, selectedPeriod]);
 
   return (
     <div className="min-h-screen p-4 md:p-8">
@@ -318,14 +417,213 @@ export default function ClientAnalyticsDashboard() {
           </Card>
         </div>
 
+        {/* Module Usage Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <Card className="border-none shadow-lg">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <ClipboardList className="w-8 h-8 text-indigo-600" />
+                <div>
+                  <p className="text-xs text-gray-600">Assessments</p>
+                  <p className="text-2xl font-bold text-gray-900">{analytics.completedAssessments}</p>
+                  <p className="text-xs text-green-600">{analytics.assessmentCompletionRate}% completed</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-lg">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <Target className="w-8 h-8 text-purple-600" />
+                <div>
+                  <p className="text-xs text-gray-600">Goals</p>
+                  <p className="text-2xl font-bold text-gray-900">{analytics.completedGoals}</p>
+                  <p className="text-xs text-green-600">{analytics.goalAchievementRate}% achieved</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-lg">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <BarChart3 className="w-8 h-8 text-orange-600" />
+                <div>
+                  <p className="text-xs text-gray-600">Progress Logs</p>
+                  <p className="text-2xl font-bold text-gray-900">{analytics.totalProgressLogs}</p>
+                  <p className="text-xs text-gray-600">Last {selectedPeriod} days</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-lg">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <Utensils className="w-8 h-8 text-green-600" />
+                <div>
+                  <p className="text-xs text-gray-600">Food Logs</p>
+                  <p className="text-2xl font-bold text-gray-900">{analytics.totalFoodLogs}</p>
+                  <p className="text-xs text-gray-600">Last {selectedPeriod} days</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-lg">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <Heart className="w-8 h-8 text-pink-600" />
+                <div>
+                  <p className="text-xs text-gray-600">MPESS Logs</p>
+                  <p className="text-2xl font-bold text-gray-900">{analytics.recentMPESS}</p>
+                  <p className="text-xs text-gray-600">Last {selectedPeriod} days</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Tabs for different views */}
-        <Tabs defaultValue="progress" className="space-y-6">
-          <TabsList className="grid grid-cols-4 bg-white/80 backdrop-blur">
-            <TabsTrigger value="progress">Progress Tracking</TabsTrigger>
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid grid-cols-5 bg-white/80 backdrop-blur">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="progress">Progress</TabsTrigger>
             <TabsTrigger value="engagement">Engagement</TabsTrigger>
             <TabsTrigger value="attention">Needs Attention</TabsTrigger>
-            <TabsTrigger value="goals">Goals Overview</TabsTrigger>
+            <TabsTrigger value="modules">Module Usage</TabsTrigger>
           </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            {/* Module Usage Chart */}
+            <Card className="border-none shadow-lg">
+              <CardHeader>
+                <CardTitle>Daily Module Activity (Last 30 Days)</CardTitle>
+                <CardDescription>Track how clients are using different features</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={350}>
+                  <BarChart data={analytics.moduleUsageData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="progress" fill="#f97316" name="Progress Logs" stackId="a" />
+                    <Bar dataKey="food" fill="#10b981" name="Food Logs" stackId="a" />
+                    <Bar dataKey="mpess" fill="#ec4899" name="MPESS Logs" stackId="a" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Wellness Metrics Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="border-none shadow-lg bg-gradient-to-br from-yellow-50 to-orange-50">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Avg Energy</p>
+                      <p className="text-3xl font-bold text-orange-600">{analytics.avgEnergy}<span className="text-lg">/10</span></p>
+                      <p className="text-xs text-gray-500 mt-1">Across all clients</p>
+                    </div>
+                    <Activity className="w-12 h-12 text-orange-500" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Avg Sleep</p>
+                      <p className="text-3xl font-bold text-blue-600">{analytics.avgSleep}<span className="text-lg">/10</span></p>
+                      <p className="text-xs text-gray-500 mt-1">Sleep quality</p>
+                    </div>
+                    <Clock className="w-12 h-12 text-blue-500" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-none shadow-lg bg-gradient-to-br from-red-50 to-pink-50">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Avg Stress</p>
+                      <p className="text-3xl font-bold text-red-600">{analytics.avgStress}<span className="text-lg">/10</span></p>
+                      <p className="text-xs text-gray-500 mt-1">Stress level</p>
+                    </div>
+                    <AlertTriangle className="w-12 h-12 text-red-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Assessment & Goals Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="border-none shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ClipboardList className="w-5 h-5 text-indigo-600" />
+                    Assessment Progress
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
+                      <div>
+                        <p className="text-sm text-gray-600">Completed</p>
+                        <p className="text-2xl font-bold text-green-600">{analytics.completedAssessments}</p>
+                      </div>
+                      <Badge className="bg-green-600 text-white text-lg px-4 py-1">
+                        {analytics.assessmentCompletionRate}%
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-yellow-50 rounded-lg">
+                      <div>
+                        <p className="text-sm text-gray-600">Pending</p>
+                        <p className="text-2xl font-bold text-yellow-600">{analytics.pendingAssessments}</p>
+                      </div>
+                      <Link to={createPageUrl("ClientAssessments")}>
+                        <Button size="sm" variant="outline">View All</Button>
+                      </Link>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-none shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="w-5 h-5 text-purple-600" />
+                    Goals Progress
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-4 bg-purple-50 rounded-lg">
+                      <div>
+                        <p className="text-sm text-gray-600">Active Goals</p>
+                        <p className="text-2xl font-bold text-purple-600">{analytics.activeGoals}</p>
+                      </div>
+                      <Badge className="bg-purple-600 text-white">In Progress</Badge>
+                    </div>
+                    <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
+                      <div>
+                        <p className="text-sm text-gray-600">Achieved</p>
+                        <p className="text-2xl font-bold text-green-600">{analytics.completedGoals}</p>
+                      </div>
+                      <Badge className="bg-green-600 text-white text-lg px-4 py-1">
+                        {analytics.goalAchievementRate}%
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
 
           {/* Progress Tracking Tab */}
           <TabsContent value="progress" className="space-y-6">
@@ -720,7 +1018,112 @@ export default function ClientAnalyticsDashboard() {
             </Card>
           </TabsContent>
 
-          {/* Goals Overview Tab */}
+          {/* Module Usage Tab */}
+          <TabsContent value="modules" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Assessment Analytics */}
+              <Card className="border-none shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ClipboardList className="w-5 h-5 text-indigo-600" />
+                    Assessment Analytics
+                  </CardTitle>
+                  <CardDescription>Client assessment completion and insights</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-3 gap-3 text-center">
+                    <div className="p-3 bg-indigo-50 rounded-lg">
+                      <p className="text-xs text-gray-600">Total</p>
+                      <p className="text-2xl font-bold text-indigo-600">{assessments.length}</p>
+                    </div>
+                    <div className="p-3 bg-green-50 rounded-lg">
+                      <p className="text-xs text-gray-600">Completed</p>
+                      <p className="text-2xl font-bold text-green-600">{analytics.completedAssessments}</p>
+                    </div>
+                    <div className="p-3 bg-yellow-50 rounded-lg">
+                      <p className="text-xs text-gray-600">Pending</p>
+                      <p className="text-2xl font-bold text-yellow-600">{analytics.pendingAssessments}</p>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg text-white">
+                    <p className="text-sm mb-1">Completion Rate</p>
+                    <p className="text-3xl font-bold">{analytics.assessmentCompletionRate}%</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Goals Analytics */}
+              <Card className="border-none shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="w-5 h-5 text-purple-600" />
+                    Goals Analytics
+                  </CardTitle>
+                  <CardDescription>Client goal tracking and achievement</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-3 gap-3 text-center">
+                    <div className="p-3 bg-purple-50 rounded-lg">
+                      <p className="text-xs text-gray-600">Total</p>
+                      <p className="text-2xl font-bold text-purple-600">{progressGoals.length}</p>
+                    </div>
+                    <div className="p-3 bg-blue-50 rounded-lg">
+                      <p className="text-xs text-gray-600">Active</p>
+                      <p className="text-2xl font-bold text-blue-600">{analytics.activeGoals}</p>
+                    </div>
+                    <div className="p-3 bg-green-50 rounded-lg">
+                      <p className="text-xs text-gray-600">Achieved</p>
+                      <p className="text-2xl font-bold text-green-600">{analytics.completedGoals}</p>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-white">
+                    <p className="text-sm mb-1">Achievement Rate</p>
+                    <p className="text-3xl font-bold">{analytics.goalAchievementRate}%</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Activity Breakdown */}
+              <Card className="border-none shadow-lg col-span-2">
+                <CardHeader>
+                  <CardTitle>Module Activity Breakdown</CardTitle>
+                  <CardDescription>Distribution of client activity across modules</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: 'Progress Logs', value: analytics.totalProgressLogs, color: '#f97316' },
+                          { name: 'Food Logs', value: analytics.totalFoodLogs, color: '#10b981' },
+                          { name: 'MPESS Logs', value: analytics.recentMPESS, color: '#ec4899' },
+                          { name: 'Messages', value: analytics.recentMessages, color: '#3b82f6' },
+                        ]}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        label={(entry) => `${entry.name}: ${entry.value}`}
+                      >
+                        {[
+                          { name: 'Progress Logs', value: analytics.totalProgressLogs, color: '#f97316' },
+                          { name: 'Food Logs', value: analytics.totalFoodLogs, color: '#10b981' },
+                          { name: 'MPESS Logs', value: analytics.recentMPESS, color: '#ec4899' },
+                          { name: 'Messages', value: analytics.recentMessages, color: '#3b82f6' },
+                        ].map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Goals Overview Tab - Renamed from goals to avoid confusion */}
           <TabsContent value="goals" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="border-none shadow-lg">
