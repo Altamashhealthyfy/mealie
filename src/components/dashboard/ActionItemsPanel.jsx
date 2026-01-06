@@ -12,12 +12,12 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 export default function ActionItemsPanel({ 
-  clients, 
-  progressLogs, 
-  foodLogs, 
-  assessments,
-  goals,
-  appointments 
+  clients = [], 
+  progressLogs = [], 
+  foodLogs = [], 
+  assessments = [],
+  goals = [],
+  appointments = [] 
 }) {
   const today = new Date();
 
