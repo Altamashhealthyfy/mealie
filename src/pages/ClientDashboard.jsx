@@ -63,6 +63,82 @@ export default function ClientDashboard() {
     initialData: [],
   });
 
+  // Calculate statistics - AFTER all hooks, BEFORE early return
+  const sortedProgressLogs = React.useMemo(() => 
+    [...(progressLogs || [])].sort((a, b) => new Date(a.date) - new Date(b.date)),
+    [progressLogs]
+  );
+  
+  const latestProgress = React.useMemo(() => 
+    sortedProgressLogs[sortedProgressLogs.length - 1],
+    [sortedProgressLogs]
+  );
+  
+  const initialWeight = clientProfile?.initial_weight || sortedProgressLogs[0]?.weight;
+  const currentWeight = latestProgress?.weight || clientProfile?.weight;
+  const targetWeight = clientProfile?.target_weight;
+  const weightLost = initialWeight && currentWeight ? initialWeight - currentWeight : 0;
+  const weightToGo = currentWeight && targetWeight ? currentWeight - targetWeight : 0;
+  const progressPercentage = initialWeight && targetWeight && currentWeight 
+    ? Math.round(((initialWeight - currentWeight) / (initialWeight - targetWeight)) * 100)
+    : 0;
+
+  const last7Days = React.useMemo(() => 
+    (foodLogs || []).filter(log => {
+      const daysDiff = differenceInDays(new Date(), new Date(log.date));
+      return daysDiff <= 7;
+    }).length,
+    [foodLogs]
+  );
+  
+  const adherencePercentage = Math.round((last7Days / (7 * 6)) * 100);
+
+  const weightChartData = React.useMemo(() => 
+    sortedProgressLogs
+      .filter(log => log.weight)
+      .map(log => ({
+        date: format(new Date(log.date), 'MMM dd'),
+        weight: log.weight,
+        target: targetWeight
+      })),
+    [sortedProgressLogs, targetWeight]
+  );
+
+  const wellnessChartData = React.useMemo(() => 
+    sortedProgressLogs
+      .filter(log => log.wellness_metrics?.energy_level)
+      .slice(-14)
+      .map(log => ({
+        date: format(new Date(log.date), 'MMM dd'),
+        energy: log.wellness_metrics?.energy_level || 0,
+        sleep: log.wellness_metrics?.sleep_quality || 0,
+        stress: 10 - (log.wellness_metrics?.stress_level || 5)
+      })),
+    [sortedProgressLogs]
+  );
+
+  const mpessAdherence = React.useMemo(() => 
+    (mpessLogs || []).slice(-7).map(log => {
+      const total = [
+        log.mind_practices?.affirmations_completed,
+        log.physical_practices?.movement_done,
+        log.emotional_practices?.journaling_done,
+        log.social_practices?.bonding_activity_done,
+        log.spiritual_practices?.meditation_done
+      ].filter(Boolean).length;
+      return {
+        date: format(new Date(log.date), 'MMM dd'),
+        completed: total
+      };
+    }),
+    [mpessLogs]
+  );
+
+  const activeGoals = React.useMemo(() => 
+    (goals || []).filter(g => g.status === 'active'),
+    [goals]
+  );
+
   if (!user || !clientProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -74,64 +150,7 @@ export default function ClientDashboard() {
     );
   }
 
-  // Calculate statistics
-  const sortedProgressLogs = [...progressLogs].sort((a, b) => new Date(a.date) - new Date(b.date));
-  const latestProgress = sortedProgressLogs[sortedProgressLogs.length - 1];
-  const initialWeight = clientProfile.initial_weight || sortedProgressLogs[0]?.weight;
-  const currentWeight = latestProgress?.weight || clientProfile.weight;
-  const targetWeight = clientProfile.target_weight;
-  const weightLost = initialWeight && currentWeight ? initialWeight - currentWeight : 0;
-  const weightToGo = currentWeight && targetWeight ? currentWeight - targetWeight : 0;
-  const progressPercentage = initialWeight && targetWeight && currentWeight 
-    ? Math.round(((initialWeight - currentWeight) / (initialWeight - targetWeight)) * 100)
-    : 0;
 
-  // Calculate meal adherence (last 7 days)
-  const last7Days = foodLogs.filter(log => {
-    const daysDiff = differenceInDays(new Date(), new Date(log.date));
-    return daysDiff <= 7;
-  }).length;
-  const adherencePercentage = Math.round((last7Days / (7 * 6)) * 100); // 6 meals per day
-
-  // Weight trend chart data
-  const weightChartData = sortedProgressLogs
-    .filter(log => log.weight)
-    .map(log => ({
-      date: format(new Date(log.date), 'MMM dd'),
-      weight: log.weight,
-      target: targetWeight
-    }));
-
-  // Wellness trend data
-  const wellnessChartData = sortedProgressLogs
-    .filter(log => log.wellness_metrics?.energy_level)
-    .slice(-14)
-    .map(log => ({
-      date: format(new Date(log.date), 'MMM dd'),
-      energy: log.wellness_metrics?.energy_level || 0,
-      sleep: log.wellness_metrics?.sleep_quality || 0,
-      stress: 10 - (log.wellness_metrics?.stress_level || 5)
-    }));
-
-  // MPESS adherence data
-  const mpessAdherence = mpessLogs.slice(-7).map(log => {
-    const total = [
-      log.mind_practices?.affirmations_completed,
-      log.physical_practices?.movement_done,
-      log.emotional_practices?.journaling_done,
-      log.social_practices?.bonding_activity_done,
-      log.spiritual_practices?.meditation_done
-    ].filter(Boolean).length;
-    return {
-      date: format(new Date(log.date), 'MMM dd'),
-      completed: total
-    };
-  });
-
-  // Active goals progress
-  const activeGoals = goals.filter(g => g.status === 'active');
-
-  const COLORS = ['#f97316', '#10b981', '#3b82f6', '#8b5cf6', '#ef4444'];
 
   return (
     <div className="min-h-screen p-4 md:p-8 space-y-6">
