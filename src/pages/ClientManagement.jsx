@@ -41,6 +41,7 @@ import WhatsAppSender from "@/components/notifications/WhatsAppSender";
 import EmailSender from "@/components/notifications/EmailSender";
 import { EMAIL_TEMPLATES, fillTemplate } from "@/components/notifications/NotificationTemplates";
 import ImageUploader from "@/components/common/ImageUploader";
+import ClientProgressDashboard from "@/components/client/ClientProgressDashboard";
 
 export default function ClientManagement() {
   const queryClient = useQueryClient();
@@ -63,6 +64,8 @@ export default function ClientManagement() {
   const [showOnboardDialog, setShowOnboardDialog] = useState(false);
   const [clientToOnboard, setClientToOnboard] = useState(null);
   const [isOnboarding, setIsOnboarding] = useState(false);
+  const [showProgressDashboard, setShowProgressDashboard] = useState(false);
+  const [selectedClientForProgress, setSelectedClientForProgress] = useState(null);
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -979,8 +982,21 @@ support@mealiepro.com`;
                     )}
                   </div>
 
-                  {/* Action Buttons Row 1 - Communication */}
-                  <div className="grid grid-cols-3 gap-2">
+                  {/* Action Buttons Row 1 - Progress & Communication */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedClientForProgress(client);
+                        setShowProgressDashboard(true);
+                      }}
+                      className="col-span-2 text-purple-600 hover:bg-purple-50 h-9 md:h-auto text-xs md:text-sm font-semibold"
+                      title="View Progress Dashboard"
+                    >
+                      <TrendingUp className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                      Progress Dashboard
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
@@ -999,6 +1015,10 @@ support@mealiepro.com`;
                     >
                       <MessageCircle className="w-3 h-3 md:w-4 md:h-4" />
                     </Button>
+                  </div>
+
+                  {/* Action Buttons Row 2 - View & Edit */}
+                  <div className="grid grid-cols-2 gap-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -1006,33 +1026,22 @@ support@mealiepro.com`;
                       className="text-gray-600 hover:bg-gray-50 h-9 md:h-auto text-xs md:text-sm"
                       title="View Details"
                     >
-                      <Eye className="w-3 h-3 md:w-4 md:h-4" />
+                      <Eye className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                      View
                     </Button>
-                  </div>
-
-                  {/* Action Buttons Row 2 - Edit & Delete */}
-                  <div className="grid grid-cols-2 gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleEdit(client)}
-                      className="text-orange-600 hover:bg-orange-50 h-9 md:h-auto text-xs md:text-sm font-semibold"
+                      className="text-orange-600 hover:bg-orange-50 h-9 md:h-auto text-xs md:text-sm"
                       title="Edit Client"
                     >
                       <Edit className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                       Edit
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDeleteClient(client)}
-                      className="text-red-600 hover:bg-red-50 h-9 md:h-auto text-xs md:text-sm font-semibold"
-                      title="Delete Client"
-                    >
-                      <Trash2 className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                      Delete
-                    </Button>
                   </div>
+
+
 
                   {/* Assign to Health Coach - Only for super_admin */}
                   {user?.user_type === 'super_admin' && healthCoaches.length > 0 && (
@@ -1649,6 +1658,17 @@ support@mealiepro.com`;
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Progress Dashboard Modal */}
+        {showProgressDashboard && selectedClientForProgress && (
+          <ClientProgressDashboard
+            client={selectedClientForProgress}
+            onClose={() => {
+              setShowProgressDashboard(false);
+              setSelectedClientForProgress(null);
+            }}
+          />
+        )}
 
         {/* Help Card for User Invitation */}
         <Card className="border-2 border-orange-500 bg-gradient-to-br from-orange-50 to-red-50">
