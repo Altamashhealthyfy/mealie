@@ -513,12 +513,6 @@ export default function Layout({ children, currentPageName }) {
         show: permissions?.can_view_assessments ?? true,
       },
       {
-        title: "Recipes",
-        url: createPageUrl("Recipes"),
-        icon: ClipboardList,
-        show: permissions?.can_view_recipes ?? true,
-      },
-      {
         title: "Food Lookup",
         url: createPageUrl("FoodLookup"),
         icon: Search,
