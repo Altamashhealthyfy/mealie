@@ -50,6 +50,15 @@ export default function MealPlanner() {
         return allClients;
       }
       
+      // Student coaches see clients they created OR clients assigned to them
+      if (user?.user_type === 'student_coach') {
+        return allClients.filter(client => 
+          client.created_by === user?.email || 
+          client.assigned_coach === user?.email
+        );
+      }
+      
+      // Team members see only clients they created
       return allClients.filter(client => client.created_by === user?.email);
     },
     enabled: !!user && user?.user_type !== 'client',
