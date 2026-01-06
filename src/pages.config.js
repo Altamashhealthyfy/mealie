@@ -69,6 +69,7 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import ClientAppointments from './pages/ClientAppointments';
+import Notifications from './pages/Notifications';
 import __Layout from './Layout.jsx';
 
 
@@ -144,6 +145,7 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
     "ClientAppointments": ClientAppointments,
+    "Notifications": Notifications,
 }
 
 export const pagesConfig = {

@@ -51,6 +51,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 const dietitianNavigation = [
   {
@@ -748,8 +749,8 @@ export default function Layout({ children, currentPageName }) {
         </Sidebar>
 
         <main className="flex-1 flex flex-col">
-          <header className="bg-white/80 backdrop-blur-sm border-b border-orange-100 px-6 py-4 md:hidden">
-            <div className="flex items-center gap-4">
+          <header className="bg-white/80 backdrop-blur-sm border-b border-orange-100 px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-4 md:hidden">
               <SidebarTrigger className="hover:bg-orange-50 p-2 rounded-lg transition-colors duration-200" />
               <div className="flex items-center gap-2">
                 {brandingLogo ? (
@@ -761,6 +762,9 @@ export default function Layout({ children, currentPageName }) {
                   {brandingName}
                 </h1>
               </div>
+            </div>
+            <div className="ml-auto">
+              <NotificationBell userEmail={user?.email} />
             </div>
           </header>
 
