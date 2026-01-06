@@ -171,11 +171,11 @@ export default function FoodLog() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="min-h-screen p-3 sm:p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Food Log</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">Food Log</h1>
             <p className="text-sm md:text-base text-gray-600">Track your daily food intake</p>
           </div>
           <Dialog open={showAddDialog} onOpenChange={(open) => !open && handleDialogClose()}>
@@ -185,7 +185,7 @@ export default function FoodLog() {
                 Log Food
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingLog ? 'Edit Meal' : 'Log Your Meal'}</DialogTitle>
               </DialogHeader>
@@ -342,30 +342,30 @@ export default function FoodLog() {
           </Dialog>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
           {/* Calendar */}
           <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-            <CardHeader>
+            <CardHeader className="p-4 md:p-6">
               <CardTitle className="text-base md:text-lg">Select Date</CardTitle>
             </CardHeader>
-            <CardContent className="flex justify-center">
+            <CardContent className="flex justify-center p-2 sm:p-4 md:p-6">
               <Calendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
-                className="rounded-md border"
+                className="rounded-md border w-full"
               />
             </CardContent>
           </Card>
 
           {/* Food Logs */}
-          <div className="lg:col-span-3 space-y-6">
+          <div className="lg:col-span-3 space-y-4 sm:space-y-6">
             {/* Daily Summary */}
             <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
-              <CardHeader>
+              <CardHeader className="p-4 md:p-6">
                 <CardTitle className="text-base md:text-lg lg:text-xl">Today's Summary - {format(selectedDate, 'MMM d, yyyy')}</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 md:p-6">
                 <div className="space-y-3 md:space-y-4">
                   <div>
                     <div className="flex justify-between mb-2">
@@ -382,18 +382,18 @@ export default function FoodLog() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 md:gap-4">
-                    <div className="p-2 md:p-3 bg-white rounded-lg">
+                  <div className="grid grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+                    <div className="p-2 sm:p-2.5 md:p-3 bg-white rounded-lg">
                       <p className="text-xs text-gray-600">Protein</p>
-                      <p className="text-lg md:text-2xl font-bold text-red-600">{totalProtein}g</p>
+                      <p className="text-base sm:text-lg md:text-2xl font-bold text-red-600">{totalProtein}g</p>
                     </div>
-                    <div className="p-2 md:p-3 bg-white rounded-lg">
+                    <div className="p-2 sm:p-2.5 md:p-3 bg-white rounded-lg">
                       <p className="text-xs text-gray-600">Carbs</p>
-                      <p className="text-lg md:text-2xl font-bold text-yellow-600">{totalCarbs}g</p>
+                      <p className="text-base sm:text-lg md:text-2xl font-bold text-yellow-600">{totalCarbs}g</p>
                     </div>
-                    <div className="p-2 md:p-3 bg-white rounded-lg">
+                    <div className="p-2 sm:p-2.5 md:p-3 bg-white rounded-lg">
                       <p className="text-xs text-gray-600">Fats</p>
-                      <p className="text-lg md:text-2xl font-bold text-purple-600">{totalFats}g</p>
+                      <p className="text-base sm:text-lg md:text-2xl font-bold text-purple-600">{totalFats}g</p>
                     </div>
                   </div>
                 </div>
@@ -403,12 +403,12 @@ export default function FoodLog() {
             {/* Food Logs List */}
             {todayLogs.length === 0 ? (
               <Card className="border-none shadow-lg">
-                <CardContent className="p-8 md:p-12 text-center">
-                  <Utensils className="w-12 h-12 md:w-16 md:h-16 mx-auto text-gray-300 mb-4" />
-                  <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
+                <CardContent className="p-6 sm:p-8 md:p-12 text-center">
+                  <Utensils className="w-12 h-12 md:w-16 md:h-16 mx-auto text-gray-300 mb-3 md:mb-4" />
+                  <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-2">
                     No Food Logged Yet
                   </h3>
-                  <p className="text-sm md:text-base text-gray-600 mb-4">
+                  <p className="text-sm md:text-base text-gray-600 mb-3 md:mb-4">
                     Start tracking your meals for {format(selectedDate, 'MMMM d')}
                   </p>
                   <Button
@@ -423,20 +423,20 @@ export default function FoodLog() {
             ) : (
               todayLogs.map((log) => (
                 <Card key={log.id} className="border-none shadow-lg bg-white/80 backdrop-blur">
-                  <CardHeader>
+                  <CardHeader className="p-4 md:p-6">
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2 flex-wrap">
                           <Badge variant="outline" className="text-orange-600 border-orange-300 capitalize text-xs">
                             {log.meal_type.replace('_', ' ')}
                           </Badge>
                         </div>
-                        <CardTitle className="text-lg md:text-xl">{log.meal_name || 'Meal'}</CardTitle>
+                        <CardTitle className="text-base sm:text-lg md:text-xl break-words">{log.meal_name || 'Meal'}</CardTitle>
                       </div>
-                      <div className="flex items-center gap-2 self-end sm:self-start">
+                      <div className="flex items-center gap-2 self-end sm:self-start shrink-0">
                         {log.calories && (
                           <div className="text-right">
-                            <p className="text-xl md:text-2xl font-bold text-orange-600">{log.calories}</p>
+                            <p className="text-lg sm:text-xl md:text-2xl font-bold text-orange-600">{log.calories}</p>
                             <p className="text-xs text-gray-500">kcal</p>
                           </div>
                         )}
@@ -463,7 +463,7 @@ export default function FoodLog() {
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-3 md:space-y-4">
+                  <CardContent className="space-y-3 md:space-y-4 p-4 md:p-6">
                     {log.items && log.items.length > 0 && (
                       <div>
                         <h4 className="text-sm md:text-base font-semibold text-gray-900 mb-2">What I Ate</h4>
@@ -476,23 +476,23 @@ export default function FoodLog() {
                     )}
 
                     {(log.protein || log.carbs || log.fats) && (
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-3 gap-2 sm:gap-3">
                         {log.protein > 0 && (
-                          <div className="p-2 bg-red-50 rounded-lg">
+                          <div className="p-2 sm:p-2.5 md:p-3 bg-red-50 rounded-lg">
                             <p className="text-xs text-gray-600">Protein</p>
-                            <p className="text-base md:text-lg font-bold text-red-600">{log.protein}g</p>
+                            <p className="text-sm sm:text-base md:text-lg font-bold text-red-600">{log.protein}g</p>
                           </div>
                         )}
                         {log.carbs > 0 && (
-                          <div className="p-2 bg-yellow-50 rounded-lg">
+                          <div className="p-2 sm:p-2.5 md:p-3 bg-yellow-50 rounded-lg">
                             <p className="text-xs text-gray-600">Carbs</p>
-                            <p className="text-base md:text-lg font-bold text-yellow-600">{log.carbs}g</p>
+                            <p className="text-sm sm:text-base md:text-lg font-bold text-yellow-600">{log.carbs}g</p>
                           </div>
                         )}
                         {log.fats > 0 && (
-                          <div className="p-2 bg-purple-50 rounded-lg">
+                          <div className="p-2 sm:p-2.5 md:p-3 bg-purple-50 rounded-lg">
                             <p className="text-xs text-gray-600">Fats</p>
-                            <p className="text-base md:text-lg font-bold text-purple-600">{log.fats}g</p>
+                            <p className="text-sm sm:text-base md:text-lg font-bold text-purple-600">{log.fats}g</p>
                           </div>
                         )}
                       </div>
@@ -504,7 +504,7 @@ export default function FoodLog() {
                         <img
                           src={log.photo_url}
                           alt="Food"
-                          className="w-full max-h-48 md:max-h-64 object-cover rounded-lg cursor-pointer"
+                          className="w-full max-h-40 sm:max-h-48 md:max-h-64 object-cover rounded-lg cursor-pointer"
                           onClick={() => window.open(log.photo_url, '_blank')}
                         />
                       </div>
