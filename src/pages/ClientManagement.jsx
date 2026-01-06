@@ -1468,8 +1468,28 @@ support@mealiepro.com`;
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => {
-                                navigate(`${createPageUrl("MealPlanner")}?viewPlan=${plan.id}`);
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setViewingClientPlans(null);
+                                setTimeout(() => {
+                                  const planToView = mealPlans.find(p => p.id === plan.id);
+                                  const client = clients.find(c => c.id === plan.client_id);
+                                  if (planToView && client) {
+                                    navigate(createPageUrl("MealPlanner"));
+                                    setTimeout(() => {
+                                      window.dispatchEvent(new CustomEvent('viewMealPlan', { 
+                                        detail: { 
+                                          plan: {
+                                            ...planToView,
+                                            plan_name: planToView.name,
+                                            client_name: client.full_name
+                                          }
+                                        } 
+                                      }));
+                                    }, 100);
+                                  }
+                                }, 100);
                               }}
                             >
                               <Eye className="w-4 h-4 mr-2" />

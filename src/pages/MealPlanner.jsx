@@ -891,6 +891,19 @@ Return structured meal plan with:
     setActiveTab("generate");
   };
 
+  // Listen for external view meal plan events
+  React.useEffect(() => {
+    const handleExternalView = (event) => {
+      if (event.detail?.plan) {
+        setViewingPlan(event.detail.plan);
+        setActiveTab("generate");
+      }
+    };
+
+    window.addEventListener('viewMealPlan', handleExternalView);
+    return () => window.removeEventListener('viewMealPlan', handleExternalView);
+  }, []);
+
   if (clients.length === 0) {
     return (
       <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
