@@ -30,6 +30,8 @@ import { createPageUrl } from "@/utils";
 
 export default function ClientAnalyticsDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState("30"); // days
+  const [selectedMetric, setSelectedMetric] = useState("all");
+  const [selectedClient, setSelectedClient] = useState("all");
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -42,6 +44,12 @@ export default function ClientAnalyticsDashboard() {
       const allClients = await base44.entities.Client.list('-created_date');
       if (user?.user_type === 'super_admin') {
         return allClients;
+      }
+      if (user?.user_type === 'student_coach') {
+        return allClients.filter(client => 
+          client.created_by === user?.email || 
+          client.assigned_coach === user?.email
+        );
       }
       return allClients.filter(client => client.created_by === user?.email);
     },
@@ -107,21 +115,27 @@ export default function ClientAnalyticsDashboard() {
   const analytics = useMemo(() => {
     const cutoffDate = subDays(new Date(), parseInt(selectedPeriod));
     
+    // Filter data by selected client
+    const filteredClients = selectedClient === "all" ? clients : clients.filter(c => c.id === selectedClient);
+    const filteredProgressLogs = selectedClient === "all" ? progressLogs : progressLogs.filter(l => l.client_id === selectedClient);
+    const filteredFoodLogs = selectedClient === "all" ? foodLogs : foodLogs.filter(l => l.client_id === selectedClient);
+    const filteredGoals = selectedClient === "all" ? progressGoals : progressGoals.filter(g => g.client_id === selectedClient);
+    
     // Active clients (logged progress or food in last 7 days)
     const recentDate = subDays(new Date(), 7);
     const activeClientIds = new Set([
-      ...progressLogs.filter(log => new Date(log.date) >= recentDate).map(log => log.client_id),
-      ...foodLogs.filter(log => new Date(log.date) >= recentDate).map(log => log.client_id)
+      ...filteredProgressLogs.filter(log => new Date(log.date) >= recentDate).map(log => log.client_id),
+      ...filteredFoodLogs.filter(log => new Date(log.date) >= recentDate).map(log => log.client_id)
     ]);
 
     // Clients with plans
-    const clientsWithPlans = clients.filter(c => 
+    const clientsWithPlans = filteredClients.filter(c => 
       mealPlans.some(p => p.client_id === c.id && p.active)
     );
 
     // Weight loss progress
-    const clientProgress = clients.map(client => {
-      const clientLogs = progressLogs
+    const clientProgress = filteredClients.map(client => {
+      const clientLogs = filteredProgressLogs
         .filter(log => log.client_id === client.id && log.weight)
         .sort((a, b) => new Date(a.date) - new Date(b.date));
       
@@ -144,8 +158,8 @@ export default function ClientAnalyticsDashboard() {
     }).filter(Boolean);
 
     // Meal adherence
-    const clientAdherence = clients.map(client => {
-      const recentLogs = progressLogs.filter(log => 
+    const clientAdherence = filteredClients.map(client => {
+      const recentLogs = filteredProgressLogs.filter(log => 
         log.client_id === client.id && 
         new Date(log.date) >= cutoffDate &&
         log.meal_adherence !== null
@@ -163,9 +177,9 @@ export default function ClientAnalyticsDashboard() {
     }).filter(Boolean);
 
     // Clients needing attention
-    const needsAttention = clients.filter(client => {
-      const clientLogs = progressLogs.filter(log => log.client_id === client.id);
-      const clientFoodLogs = foodLogs.filter(log => log.client_id === client.id);
+    const needsAttention = filteredClients.filter(client => {
+      const clientLogs = filteredProgressLogs.filter(log => log.client_id === client.id);
+      const clientFoodLogs = filteredFoodLogs.filter(log => log.client_id === client.id);
       const lastProgress = clientLogs[0];
       const lastFood = clientFoodLogs[0];
       
@@ -184,7 +198,7 @@ export default function ClientAnalyticsDashboard() {
       const date = subDays(new Date(), i);
       const dateStr = format(date, 'MMM dd');
       
-      const logsOnDate = progressLogs.filter(log => 
+      const logsOnDate = filteredProgressLogs.filter(log => 
         format(new Date(log.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd') &&
         log.weight
       );
@@ -216,7 +230,7 @@ export default function ClientAnalyticsDashboard() {
     });
 
     // Goal progress
-    const goalDistribution = clients.reduce((acc, client) => {
+    const goalDistribution = filteredClients.reduce((acc, client) => {
       const goal = client.goal || 'unknown';
       acc[goal] = (acc[goal] || 0) + 1;
       return acc;
@@ -228,10 +242,10 @@ export default function ClientAnalyticsDashboard() {
     }));
 
     // Module Usage Stats
-    const completedAssessments = assessments.filter(a => a.status === 'completed').length;
-    const pendingAssessments = assessments.filter(a => a.status === 'pending').length;
-    const activeGoals = progressGoals.filter(g => g.status === 'active').length;
-    const completedGoals = progressGoals.filter(g => g.status === 'completed').length;
+    const completedAssessments = assessments.filter(a => a.status === 'completed' && (selectedClient === "all" || a.client_id === selectedClient)).length;
+    const pendingAssessments = assessments.filter(a => a.status === 'pending' && (selectedClient === "all" || a.client_id === selectedClient)).length;
+    const activeGoals = filteredGoals.filter(g => g.status === 'active').length;
+    const completedGoals = filteredGoals.filter(g => g.status === 'completed').length;
     const recentMPESS = mpessLogs.filter(log => new Date(log.date) >= cutoffDate).length;
     
     // Assessment completion rate
@@ -250,11 +264,11 @@ export default function ClientAnalyticsDashboard() {
       const date = subDays(new Date(), i);
       const dateStr = format(date, 'MMM dd');
       
-      const progressCount = progressLogs.filter(log => 
+      const progressCount = filteredProgressLogs.filter(log => 
         format(new Date(log.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
       ).length;
       
-      const foodCount = foodLogs.filter(log => 
+      const foodCount = filteredFoodLogs.filter(log => 
         format(new Date(log.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
       ).length;
       
@@ -266,7 +280,7 @@ export default function ClientAnalyticsDashboard() {
     }
 
     // Client wellness trends
-    const wellnessTrends = progressLogs
+    const wellnessTrends = filteredProgressLogs
       .filter(log => log.wellness_metrics && new Date(log.date) >= cutoffDate)
       .reduce((acc, log) => {
         if (log.wellness_metrics.energy_level) {
@@ -289,7 +303,7 @@ export default function ClientAnalyticsDashboard() {
     const avgStress = wellnessTrends.stressCount > 0 ? (wellnessTrends.totalStress / wellnessTrends.stressCount).toFixed(1) : 0;
 
     return {
-      totalClients: clients.length,
+      totalClients: filteredClients.length,
       activeClients: activeClientIds.size,
       clientsWithPlans: clientsWithPlans.length,
       avgAdherence: clientAdherence.length > 0 
@@ -302,8 +316,8 @@ export default function ClientAnalyticsDashboard() {
       adherenceRanges,
       goalData,
       recentMessages: recentMessages.length,
-      totalProgressLogs: progressLogs.filter(log => new Date(log.date) >= cutoffDate).length,
-      totalFoodLogs: foodLogs.filter(log => new Date(log.date) >= cutoffDate).length,
+      totalProgressLogs: filteredProgressLogs.filter(log => new Date(log.date) >= cutoffDate).length,
+      totalFoodLogs: filteredFoodLogs.filter(log => new Date(log.date) >= cutoffDate).length,
       completedAssessments,
       pendingAssessments,
       assessmentCompletionRate,
@@ -315,23 +329,25 @@ export default function ClientAnalyticsDashboard() {
       avgEnergy,
       avgSleep,
       avgStress,
+      filteredClients,
     };
-  }, [clients, progressLogs, foodLogs, mealPlans, messages, assessments, progressGoals, mpessLogs, selectedPeriod]);
+  }, [clients, progressLogs, foodLogs, mealPlans, messages, assessments, progressGoals, mpessLogs, selectedPeriod, selectedClient]);
 
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Client Analytics</h1>
-            <p className="text-gray-600">Track progress, engagement, and identify clients needing attention</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">Client Analytics</h1>
+            <p className="text-sm md:text-base text-gray-600">Track progress, engagement, and identify clients needing attention</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 w-full lg:w-auto">
             <Button
               variant={selectedPeriod === "7" ? "default" : "outline"}
               onClick={() => setSelectedPeriod("7")}
               size="sm"
+              className="flex-1 sm:flex-none"
             >
               7 Days
             </Button>
@@ -339,6 +355,7 @@ export default function ClientAnalyticsDashboard() {
               variant={selectedPeriod === "30" ? "default" : "outline"}
               onClick={() => setSelectedPeriod("30")}
               size="sm"
+              className="flex-1 sm:flex-none"
             >
               30 Days
             </Button>
@@ -346,14 +363,50 @@ export default function ClientAnalyticsDashboard() {
               variant={selectedPeriod === "90" ? "default" : "outline"}
               onClick={() => setSelectedPeriod("90")}
               size="sm"
+              className="flex-1 sm:flex-none"
             >
               90 Days
             </Button>
           </div>
         </div>
 
+        {/* Filters */}
+        <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+          <CardContent className="p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Filter by Client</Label>
+                <select
+                  value={selectedClient}
+                  onChange={(e) => setSelectedClient(e.target.value)}
+                  className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value="all">All Clients</option>
+                  {clients.map(client => (
+                    <option key={client.id} value={client.id}>{client.full_name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Focus Metric</Label>
+                <select
+                  value={selectedMetric}
+                  onChange={(e) => setSelectedMetric(e.target.value)}
+                  className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value="all">All Metrics</option>
+                  <option value="weight">Weight Only</option>
+                  <option value="wellness">Wellness Only</option>
+                  <option value="adherence">Adherence Only</option>
+                  <option value="goals">Goals Only</option>
+                </select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
@@ -418,7 +471,7 @@ export default function ClientAnalyticsDashboard() {
         </div>
 
         {/* Module Usage Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
           <Card className="border-none shadow-lg">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
@@ -487,12 +540,12 @@ export default function ClientAnalyticsDashboard() {
 
         {/* Tabs for different views */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid grid-cols-5 bg-white/80 backdrop-blur">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="progress">Progress</TabsTrigger>
-            <TabsTrigger value="engagement">Engagement</TabsTrigger>
-            <TabsTrigger value="attention">Needs Attention</TabsTrigger>
-            <TabsTrigger value="modules">Module Usage</TabsTrigger>
+          <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 bg-white/80 backdrop-blur w-full">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+            <TabsTrigger value="progress" className="text-xs sm:text-sm">Progress</TabsTrigger>
+            <TabsTrigger value="engagement" className="text-xs sm:text-sm">Engagement</TabsTrigger>
+            <TabsTrigger value="attention" className="text-xs sm:text-sm">Attention</TabsTrigger>
+            <TabsTrigger value="modules" className="text-xs sm:text-sm col-span-2 sm:col-span-1">Modules</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -503,7 +556,7 @@ export default function ClientAnalyticsDashboard() {
                 <CardTitle>Daily Module Activity (Last 30 Days)</CardTitle>
                 <CardDescription>Track how clients are using different features</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-3 sm:p-6">
                 <ResponsiveContainer width="100%" height={350}>
                   <BarChart data={analytics.moduleUsageData}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -520,7 +573,7 @@ export default function ClientAnalyticsDashboard() {
             </Card>
 
             {/* Wellness Metrics Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <Card className="border-none shadow-lg bg-gradient-to-br from-yellow-50 to-orange-50">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
@@ -630,11 +683,11 @@ export default function ClientAnalyticsDashboard() {
             {/* Consolidated Progress Dashboard */}
             <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
               <CardHeader>
-                <CardTitle className="text-2xl">📊 All Clients Progress Overview</CardTitle>
-                <CardDescription>Quick snapshot of everyone's progress</CardDescription>
+                <CardTitle className="text-xl sm:text-2xl">📊 {selectedClient === "all" ? "All Clients" : analytics.filteredClients[0]?.full_name} Progress Overview</CardTitle>
+                <CardDescription className="text-sm">Quick snapshot of progress</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <CardContent className="p-3 sm:p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                   <div className="p-4 bg-white rounded-lg shadow">
                     <div className="flex items-center gap-3 mb-2">
                       <TrendingDown className="w-8 h-8 text-green-600" />
@@ -701,7 +754,7 @@ export default function ClientAnalyticsDashboard() {
                 </div>
 
                 {/* At-risk and excelling clients */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+                <div className="grid grid-cols-1 gap-4 mt-6">
                   {/* Excelling Clients */}
                   <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg border-2 border-green-300">
                     <div className="flex items-center gap-2 mb-3">
@@ -756,7 +809,7 @@ export default function ClientAnalyticsDashboard() {
                   <CardTitle>Average Weight Trend (Last 30 Days)</CardTitle>
                   <CardDescription>Daily average weight across all clients</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 sm:p-6">
                   {analytics.weightTrendData.length > 0 ? (
                     <ResponsiveContainer width="100%" height={300}>
                       <LineChart data={analytics.weightTrendData}>
@@ -877,7 +930,7 @@ export default function ClientAnalyticsDashboard() {
                   <CardTitle>Meal Plan Adherence Distribution</CardTitle>
                   <CardDescription>How clients are following their plans</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 sm:p-6">
                   {analytics.adherenceRanges.some(r => r.count > 0) ? (
                     <ResponsiveContainer width="100%" height={300}>
                       <BarChart data={analytics.adherenceRanges}>
@@ -955,7 +1008,7 @@ export default function ClientAnalyticsDashboard() {
               </CardHeader>
               <CardContent>
                 {analytics.needsAttention.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {analytics.needsAttention.map((client) => {
                       const lastProgress = progressLogs.find(log => log.client_id === client.id);
                       const lastFood = foodLogs.find(log => log.client_id === client.id);
@@ -1089,7 +1142,7 @@ export default function ClientAnalyticsDashboard() {
                   <CardTitle>Module Activity Breakdown</CardTitle>
                   <CardDescription>Distribution of client activity across modules</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 sm:p-6">
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Pie
