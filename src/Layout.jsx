@@ -466,7 +466,7 @@ export default function Layout({ children, currentPageName }) {
     const baseNav = [
       {
         title: "My Dashboard",
-        url: createPageUrl("Home"),
+        url: createPageUrl("ClientDashboard"),
         icon: Home,
         show: true,
       },
