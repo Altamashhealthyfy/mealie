@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import ActionItemsPanel from "@/components/dashboard/ActionItemsPanel";
+import CoachGuidePanel from "@/components/common/CoachGuidePanel";
 
 export default function DietitianDashboard() {
   const navigate = useNavigate();
@@ -269,6 +270,9 @@ export default function DietitianDashboard() {
           </div>
           <Sparkles className="w-12 h-12 text-orange-500" />
         </div>
+
+        {/* Coach Guide Panel */}
+        <CoachGuidePanel />
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="dashboard-stats">
