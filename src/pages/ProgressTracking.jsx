@@ -242,19 +242,19 @@ export default function ProgressTracking() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between flex-wrap gap-4">
+    <div className="min-h-screen p-3 sm:p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Progress Tracking</h1>
-            <p className="text-gray-600">Track your transformation journey with detailed metrics</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">Progress Tracking</h1>
+            <p className="text-sm sm:text-base text-gray-600">Track your transformation journey with detailed metrics</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
             {canEditProgress && (
               <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
                 <DialogTrigger asChild>
                   <Button 
-                    className="bg-gradient-to-r from-orange-500 to-red-500"
+                    className="bg-gradient-to-r from-orange-500 to-red-500 flex-1 sm:flex-none"
                     onClick={() => {
                       setEditingLog(null);
                       setFormData({
@@ -266,10 +266,11 @@ export default function ProgressTracking() {
                     }}
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Log Progress
+                    <span className="hidden sm:inline">Log Progress</span>
+                    <span className="sm:hidden">Log</span>
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[95vw]">
+                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto w-[95vw] sm:w-full">
                   <DialogHeader>
                     <DialogTitle>{editingLog ? 'Edit Progress' : 'Log Your Progress'}</DialogTitle>
                   </DialogHeader>
@@ -438,12 +439,13 @@ export default function ProgressTracking() {
             
             <Dialog open={showGoalDialog} onOpenChange={setShowGoalDialog}>
               <DialogTrigger asChild>
-                <Button variant="outline" className="border-2 border-purple-500 text-purple-600 hover:bg-purple-50">
+                <Button variant="outline" className="border-2 border-purple-500 text-purple-600 hover:bg-purple-50 flex-1 sm:flex-none">
                   <Target className="w-4 h-4 mr-2" />
-                  Set Goal
+                  <span className="hidden sm:inline">Set Goal</span>
+                  <span className="sm:hidden">Goal</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-lg">
+              <DialogContent className="max-w-lg w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>{editingGoal ? 'Edit Goal' : 'Set New Goal'}</DialogTitle>
                 </DialogHeader>
@@ -545,57 +547,57 @@ export default function ProgressTracking() {
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Starting Weight</p>
-                  <p className="text-3xl font-bold text-blue-600">{initialWeight}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">Starting Weight</p>
+                  <p className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-600">{initialWeight}</p>
                   <p className="text-xs text-gray-500">kg</p>
                 </div>
-                <Scale className="w-12 h-12 text-blue-500" />
+                <Scale className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-blue-500" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-none shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Current Weight</p>
-                  <p className="text-3xl font-bold text-green-600">{currentWeight}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">Current Weight</p>
+                  <p className="text-xl sm:text-2xl md:text-3xl font-bold text-green-600">{currentWeight}</p>
                   <p className="text-xs text-gray-500">kg</p>
                 </div>
-                <TrendingDown className="w-12 h-12 text-green-500" />
+                <TrendingDown className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-green-500" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Target Weight</p>
-                  <p className="text-3xl font-bold text-purple-600">{targetWeight || '-'}</p>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">Target Weight</p>
+                  <p className="text-xl sm:text-2xl md:text-3xl font-bold text-purple-600">{targetWeight || '-'}</p>
                   <p className="text-xs text-gray-500">kg</p>
                 </div>
-                <Target className="w-12 h-12 text-purple-500" />
+                <Target className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-purple-500" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
-            <CardContent className="p-6">
+            <CardContent className="p-3 sm:p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Weight Change</p>
-                  <p className={`text-3xl font-bold ${weightChange < 0 ? 'text-green-600' : 'text-orange-600'}`}>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">Weight Change</p>
+                  <p className={`text-xl sm:text-2xl md:text-3xl font-bold ${weightChange < 0 ? 'text-green-600' : 'text-orange-600'}`}>
                     {weightChange > 0 ? '+' : ''}{weightChange.toFixed(1)}
                   </p>
                   <p className="text-xs text-gray-500">kg</p>
                 </div>
-                {weightChange < 0 ? <TrendingDown className="w-12 h-12 text-green-500" /> : <TrendingUp className="w-12 h-12 text-orange-500" />}
+                {weightChange < 0 ? <TrendingDown className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-green-500" /> : <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-orange-500" />}
               </div>
             </CardContent>
           </Card>
@@ -603,14 +605,14 @@ export default function ProgressTracking() {
 
         {/* Goals Section */}
         {(activeGoals.length > 0 || completedGoals.length > 0) && (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Target className="w-6 h-6 text-purple-600" />
+          <div className="space-y-3 sm:space-y-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <Target className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
               My Goals
             </h2>
             
             {activeGoals.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 {activeGoals.map(goal => (
                   <GoalCard key={goal.id} goal={goal} onEdit={handleEditGoal} onDelete={handleDeleteGoal} />
                 ))}
@@ -619,8 +621,8 @@ export default function ProgressTracking() {
 
             {completedGoals.length > 0 && (
               <div>
-                <h3 className="text-lg font-semibold text-gray-700 mb-3">Completed Goals 🎉</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-2 sm:mb-3">Completed Goals 🎉</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                   {completedGoals.map(goal => (
                     <GoalCard key={goal.id} goal={goal} onEdit={handleEditGoal} onDelete={handleDeleteGoal} />
                   ))}
@@ -631,19 +633,40 @@ export default function ProgressTracking() {
         )}
 
         {/* Charts Tabs */}
-        <Tabs defaultValue="weight" className="space-y-6">
-          <TabsList className="grid grid-cols-3 bg-white/80 backdrop-blur">
-            <TabsTrigger value="weight"><Scale className="w-4 h-4 mr-2" />Weight</TabsTrigger>
-            <TabsTrigger value="wellness"><Activity className="w-4 h-4 mr-2" />Wellness</TabsTrigger>
-            <TabsTrigger value="history"><Calendar className="w-4 h-4 mr-2" />History</TabsTrigger>
+        <Tabs defaultValue="weight" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid grid-cols-3 bg-white/80 backdrop-blur w-full h-auto">
+            <TabsTrigger value="weight" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
+              <Scale className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Weight</span>
+            </TabsTrigger>
+            <TabsTrigger value="wellness" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
+              <Activity className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Wellness</span>
+            </TabsTrigger>
+            <TabsTrigger value="history" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
+              <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">History</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="weight">
             {chartData.length > 0 ? (
               <Card className="border-none shadow-lg">
-                <CardHeader><CardTitle>Weight Progress</CardTitle></CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={400}>
+                <CardHeader className="p-4 md:p-6">
+                  <CardTitle className="text-base sm:text-lg md:text-xl">Weight Progress</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 md:p-6">
+                  <ResponsiveContainer width="100%" height={300} className="sm:hidden">
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" style={{ fontSize: '10px' }} />
+                      <YAxis domain={['dataMin - 2', 'dataMax + 2']} style={{ fontSize: '10px' }} />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="weight" stroke="#f97316" strokeWidth={2}
+                        dot={{ fill: '#f97316', r: 4 }} name="Weight (kg)" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                  <ResponsiveContainer width="100%" height={400} className="hidden sm:block">
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="date" />
@@ -657,9 +680,9 @@ export default function ProgressTracking() {
                 </CardContent>
               </Card>
             ) : (
-              <Card><CardContent className="p-12 text-center">
-                <Scale className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                <p className="text-gray-600">No weight data yet</p>
+              <Card><CardContent className="p-8 sm:p-12 text-center">
+                <Scale className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-gray-300 mb-3 sm:mb-4" />
+                <p className="text-sm sm:text-base text-gray-600">No weight data yet</p>
               </CardContent></Card>
             )}
           </TabsContent>
@@ -677,28 +700,30 @@ export default function ProgressTracking() {
 
           <TabsContent value="history">
             <Card className="border-none shadow-lg">
-              <CardHeader><CardTitle>Progress History</CardTitle></CardHeader>
-              <CardContent>
+              <CardHeader className="p-4 md:p-6">
+                <CardTitle className="text-base sm:text-lg md:text-xl">Progress History</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 md:p-6">
                 {progressLogs.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Scale className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                    <p className="text-gray-600">No progress logged yet</p>
+                  <div className="text-center py-8 sm:py-12">
+                    <Scale className="w-12 h-12 sm:w-16 sm:h-16 mx-auto text-gray-300 mb-3 sm:mb-4" />
+                    <p className="text-sm sm:text-base text-gray-600">No progress logged yet</p>
                     {canEditProgress && (
-                      <Button onClick={() => setShowAddDialog(true)} className="mt-4 bg-gradient-to-r from-orange-500 to-red-500">
+                      <Button onClick={() => setShowAddDialog(true)} className="mt-3 sm:mt-4 bg-gradient-to-r from-orange-500 to-red-500 w-full sm:w-auto">
                         <Plus className="w-4 h-4 mr-2" />Log Your First Progress
                       </Button>
                     )}
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {progressLogs.slice().reverse().map((log) => (
-                      <div key={log.id} className="p-4 border rounded-lg hover:bg-gray-50">
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <p className="font-semibold">{format(new Date(log.date), 'MMMM d, yyyy')}</p>
-                            <p className="text-sm text-gray-600">Weight: <span className="font-medium text-green-600">{log.weight} kg</span></p>
+                      <div key={log.id} className="p-3 sm:p-4 border rounded-lg hover:bg-gray-50">
+                        <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-3 mb-3">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-sm sm:text-base">{format(new Date(log.date), 'MMMM d, yyyy')}</p>
+                            <p className="text-xs sm:text-sm text-gray-600">Weight: <span className="font-medium text-green-600">{log.weight} kg</span></p>
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 shrink-0">
                             {log.wellness_metrics?.mood && (
                               <Badge variant="outline">{log.wellness_metrics.mood}</Badge>
                             )}
@@ -716,14 +741,14 @@ export default function ProgressTracking() {
                         </div>
 
                         {log.wellness_metrics && (
-                          <div className="flex gap-4 text-sm mb-2">
+                          <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm mb-2">
                             {log.wellness_metrics.energy_level && <span>⚡ Energy: {log.wellness_metrics.energy_level}/10</span>}
                             {log.wellness_metrics.sleep_quality && <span>😴 Sleep: {log.wellness_metrics.sleep_quality}/10</span>}
                             {log.wellness_metrics.stress_level && <span>😰 Stress: {log.wellness_metrics.stress_level}/10</span>}
                           </div>
                         )}
 
-                        {log.notes && <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded">{log.notes}</p>}
+                        {log.notes && <p className="text-xs sm:text-sm text-gray-700 bg-gray-50 p-2 sm:p-3 rounded break-words">{log.notes}</p>}
                       </div>
                     ))}
                   </div>
