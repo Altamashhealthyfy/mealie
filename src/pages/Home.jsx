@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, ChefHat, Search, Heart, TrendingUp, Apple, Sparkles, User, Loader2 } from "lucide-react";
+import { Calendar, ChefHat, Search, Heart, TrendingUp, Apple, Sparkles, User, Loader2, BookOpen, Scale, Target, MessageCircle } from "lucide-react";
 
 export default function Home() {
   const { data: user, isLoading: userLoading } = useQuery({
@@ -38,16 +38,71 @@ export default function Home() {
     staleTime: 300000,
   });
 
+  const { data: clientProfile } = useQuery({
+    queryKey: ['myClientProfile', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return null;
+      const clients = await base44.entities.Client.filter({ email: user.email });
+      if (clients.length > 0) return clients[0];
+      const allClients = await base44.entities.Client.list();
+      return allClients.find(c => c.email?.toLowerCase() === user.email?.toLowerCase()) || null;
+    },
+    enabled: !!user && user.user_type === 'client',
+  });
+
+  const { data: myGoals } = useQuery({
+    queryKey: ['myGoalsHome', clientProfile?.id],
+    queryFn: async () => {
+      const goals = await base44.entities.ProgressGoal.filter({ client_id: clientProfile?.id, status: 'active' });
+      return goals.slice(0, 3);
+    },
+    enabled: !!clientProfile,
+    initialData: [],
+  });
+
+  const { data: recentProgress } = useQuery({
+    queryKey: ['recentProgressHome', clientProfile?.id],
+    queryFn: async () => {
+      const logs = await base44.entities.ProgressLog.filter({ client_id: clientProfile?.id });
+      return logs.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 1);
+    },
+    enabled: !!clientProfile,
+    initialData: [],
+  });
+
+  const { data: featuredResources } = useQuery({
+    queryKey: ['featuredResources'],
+    queryFn: async () => {
+      const resources = await base44.entities.Resource.filter({ featured: true, published: true });
+      return resources.slice(0, 3);
+    },
+    initialData: [],
+  });
+
   const features = [
     {
-      title: "Food Lookup",
-      description: "Get detailed macro information for Indian foods",
-      icon: Search,
-      color: "from-green-500 to-emerald-500",
-      link: createPageUrl("FoodLookup"),
+      title: "My Progress",
+      description: "Track your weight, measurements, and wellness metrics",
+      icon: Scale,
+      color: "from-blue-500 to-cyan-500",
+      link: createPageUrl("ProgressTracking"),
     },
     {
-      title: "MPESS Tracker",
+      title: "Resource Library",
+      description: "Educational content tailored to your goals",
+      icon: BookOpen,
+      color: "from-purple-500 to-pink-500",
+      link: createPageUrl("ResourceLibrary"),
+    },
+    {
+      title: "Messages",
+      description: "Chat directly with your health coach",
+      icon: MessageCircle,
+      color: "from-green-500 to-emerald-500",
+      link: createPageUrl("ClientCommunication"),
+    },
+    {
+      title: "MPESS Wellness",
       description: "Track your holistic wellness journey",
       icon: Heart,
       color: "from-pink-500 to-rose-500",
@@ -107,19 +162,19 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Stats Cards */}
-        {userProfile && (
+        {/* Stats Cards - Enhanced for Clients */}
+        {clientProfile && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-white" />
+                    <Scale className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Daily Target</p>
-                    <p className="text-2xl font-bold text-gray-900">{userProfile.target_calories || 0}</p>
-                    <p className="text-xs text-gray-500">calories</p>
+                    <p className="text-sm text-gray-600">Current Weight</p>
+                    <p className="text-2xl font-bold text-gray-900">{recentProgress[0]?.weight || clientProfile.weight || 0}</p>
+                    <p className="text-xs text-gray-500">kg</p>
                   </div>
                 </div>
               </CardContent>
@@ -128,13 +183,13 @@ export default function Home() {
             <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-                    <Apple className="w-6 h-6 text-white" />
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                    <Target className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Protein</p>
-                    <p className="text-2xl font-bold text-gray-900">{userProfile.target_protein || 0}g</p>
-                    <p className="text-xs text-gray-500">daily</p>
+                    <p className="text-sm text-gray-600">Active Goals</p>
+                    <p className="text-2xl font-bold text-gray-900">{myGoals.length}</p>
+                    <p className="text-xs text-gray-500">in progress</p>
                   </div>
                 </div>
               </CardContent>
@@ -144,12 +199,12 @@ export default function Home() {
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                    <Calendar className="w-6 h-6 text-white" />
+                    <TrendingUp className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Active Plan</p>
-                    <p className="text-2xl font-bold text-gray-900">{activeMealPlan?.duration || 0}</p>
-                    <p className="text-xs text-gray-500">days</p>
+                    <p className="text-sm text-gray-600">Target Calories</p>
+                    <p className="text-2xl font-bold text-gray-900">{clientProfile.target_calories || 0}</p>
+                    <p className="text-xs text-gray-500">per day</p>
                   </div>
                 </div>
               </CardContent>
@@ -172,24 +227,111 @@ export default function Home() {
           </div>
         )}
 
-        {/* Features Grid */}
+        {/* Active Goals Preview */}
+        {clientProfile && myGoals.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <Target className="w-6 h-6 text-purple-600" />
+                Your Active Goals
+              </h2>
+              <Link to={createPageUrl("ProgressTracking")}>
+                <Button variant="outline">View All</Button>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {myGoals.map(goal => {
+                const progress = goal.start_value && goal.target_value 
+                  ? Math.min(100, Math.abs(((goal.current_value - goal.start_value) / (goal.target_value - goal.start_value)) * 100))
+                  : 0;
+
+                return (
+                  <Card key={goal.id} className="border-none shadow-lg">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <h3 className="font-semibold text-gray-900">{goal.title}</h3>
+                          <p className="text-sm text-gray-600">{goal.description}</p>
+                        </div>
+                        <Badge className={
+                          goal.priority === 'high' ? 'bg-red-500' :
+                          goal.priority === 'medium' ? 'bg-yellow-500' :
+                          'bg-blue-500'
+                        }>{goal.priority}</Badge>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-gray-600">Progress</span>
+                          <span className="font-semibold">{progress.toFixed(0)}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all"
+                            style={{ width: `${progress}%` }}
+                          />
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-600">
+                          <span>{goal.current_value} {goal.unit}</span>
+                          <span>Target: {goal.target_value} {goal.unit}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Featured Resources */}
+        {featuredResources.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <BookOpen className="w-6 h-6 text-orange-600" />
+                Featured Resources
+              </h2>
+              <Link to={createPageUrl("ResourceLibrary")}>
+                <Button variant="outline">Browse All</Button>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {featuredResources.map(resource => (
+                <Link key={resource.id} to={createPageUrl("ResourceLibrary")}>
+                  <Card className="border-none shadow-lg hover:shadow-xl transition-all">
+                    {resource.thumbnail_url && (
+                      <img src={resource.thumbnail_url} alt={resource.title} className="w-full h-40 object-cover rounded-t-lg" />
+                    )}
+                    <CardHeader>
+                      <Badge className="w-fit capitalize mb-2">{resource.resource_type}</Badge>
+                      <CardTitle className="text-lg">{resource.title}</CardTitle>
+                      <CardDescription className="line-clamp-2">{resource.description}</CardDescription>
+                    </CardHeader>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Quick Actions */}
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">Explore Features</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <h2 className="text-3xl font-bold text-gray-900 mb-6">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature) => (
               <Link key={feature.title} to={feature.link}>
                 <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white/80 backdrop-blur overflow-hidden group">
                   <div className={`h-2 bg-gradient-to-r ${feature.color}`}></div>
                   <CardHeader>
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col items-center text-center gap-3">
                       <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                         <feature.icon className="w-7 h-7 text-white" />
                       </div>
-                      <CardTitle className="text-2xl font-bold text-gray-900">{feature.title}</CardTitle>
+                      <CardTitle className="text-xl font-bold text-gray-900">{feature.title}</CardTitle>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                  <CardContent className="text-center">
+                    <p className="text-gray-600 leading-relaxed text-sm">{feature.description}</p>
                   </CardContent>
                 </Card>
               </Link>

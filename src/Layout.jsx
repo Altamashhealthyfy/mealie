@@ -72,6 +72,12 @@ const dietitianNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
+    title: "Resource Manager",
+    url: createPageUrl("ResourceManager"),
+    icon: BookOpen,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
     title: "My Subscription",
     url: createPageUrl("CoachSubscriptions"),
     icon: Crown,
@@ -491,6 +497,12 @@ export default function Layout({ children, currentPageName }) {
         url: createPageUrl("ProgressTracking"),
         icon: Scale,
         show: permissions?.can_view_progress ?? true,
+      },
+      {
+        title: "Resource Library",
+        url: createPageUrl("ResourceLibrary"),
+        icon: BookOpen,
+        show: permissions?.can_view_resources ?? true,
       },
       {
         title: "MPESS Wellness",
