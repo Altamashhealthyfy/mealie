@@ -30,6 +30,7 @@ import {
   Phone,
   TrendingUp,
   Send,
+  Rocket,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
@@ -59,6 +60,9 @@ export default function ClientManagement() {
   const [showAssignCoachDialog, setShowAssignCoachDialog] = useState(false);
   const [clientToAssignCoach, setClientToAssignCoach] = useState(null);
   const [selectedCoach, setSelectedCoach] = useState('');
+  const [showOnboardDialog, setShowOnboardDialog] = useState(false);
+  const [clientToOnboard, setClientToOnboard] = useState(null);
+  const [isOnboarding, setIsOnboarding] = useState(false);
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -513,6 +517,45 @@ support@mealiepro.com`;
       clientId: clientToAssignCoach.id,
       coachEmail: selectedCoach
     });
+  };
+
+  const handleOnboardClient = async (client) => {
+    setClientToOnboard(client);
+    setShowOnboardDialog(true);
+  };
+
+  const handleConfirmOnboard = async () => {
+    if (!clientToOnboard) return;
+
+    setIsOnboarding(true);
+    try {
+      const response = await base44.functions.invoke('onboardClient', {
+        clientId: clientToOnboard.id,
+        sendEmail: true
+      });
+
+      if (response.data.success) {
+        const successSteps = response.data.results.steps.filter(s => s.status === 'success').length;
+        const totalSteps = response.data.results.steps.length;
+        
+        alert(`✅ Client onboarding completed!\n\n${successSteps}/${totalSteps} steps successful:\n\n` + 
+          response.data.results.steps.map(s => `${s.status === 'success' ? '✅' : '❌'} ${s.step}: ${s.message || s.error}`).join('\n'));
+      } else {
+        alert(`⚠️ Onboarding completed with some issues:\n\n${response.data.message}`);
+      }
+
+      queryClient.invalidateQueries(['clients']);
+      queryClient.invalidateQueries(['assessments']);
+      queryClient.invalidateQueries(['progressGoals']);
+      
+      setShowOnboardDialog(false);
+      setClientToOnboard(null);
+    } catch (error) {
+      console.error('Onboarding error:', error);
+      alert(`❌ Onboarding failed: ${error.message}`);
+    } finally {
+      setIsOnboarding(false);
+    }
   };
 
   const filteredClients = clients.filter(client => {
@@ -1019,6 +1062,18 @@ support@mealiepro.com`;
                     </Button>
                   )}
 
+                  {/* Auto Onboard Button */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleOnboardClient(client)}
+                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-blue-600 hover:to-indigo-600 h-9 md:h-auto text-xs md:text-sm font-semibold"
+                    title="Automated Onboarding"
+                  >
+                    <Rocket className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                    Auto Onboard
+                  </Button>
+
                   {/* Show coach assignment */}
                   {client.assigned_coach && (
                     <div className="text-xs text-center text-green-600 bg-green-50 p-2 rounded">
@@ -1514,6 +1569,79 @@ support@mealiepro.com`;
                     <>
                       <UserPlus className="w-4 h-4 mr-2" />
                       {selectedTeamMember ? 'Assign' : 'Unassign'}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Auto Onboard Dialog */}
+        <Dialog open={showOnboardDialog} onOpenChange={setShowOnboardDialog}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="text-2xl flex items-center gap-2">
+                <Rocket className="w-6 h-6 text-blue-600" />
+                Automated Client Onboarding
+              </DialogTitle>
+              <DialogDescription>
+                {clientToOnboard && (
+                  <span>Automatically onboard <strong>{clientToOnboard.full_name}</strong></span>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <Alert className="bg-blue-50 border-blue-300">
+                <Rocket className="w-5 h-5 text-blue-600" />
+                <AlertTitle className="text-blue-900 font-bold">What happens during onboarding?</AlertTitle>
+                <AlertDescription className="text-blue-800 space-y-2">
+                  <p>This automated workflow will:</p>
+                  <ul className="list-disc list-inside space-y-1 ml-2">
+                    <li>✉️ Send welcome email with instructions</li>
+                    <li>📋 Create initial health assessment</li>
+                    <li>📊 Log baseline progress measurements</li>
+                    <li>🎯 Set up default goals based on profile</li>
+                    <li>🔔 Send assessment completion reminder</li>
+                  </ul>
+                </AlertDescription>
+              </Alert>
+
+              {clientToOnboard && !clientToOnboard.email && (
+                <Alert className="bg-red-50 border-red-300">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                  <AlertDescription className="text-red-800">
+                    <strong>Missing Email:</strong> This client doesn't have an email address. Please update their profile first.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowOnboardDialog(false);
+                    setClientToOnboard(null);
+                  }}
+                  className="flex-1"
+                  disabled={isOnboarding}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleConfirmOnboard}
+                  disabled={isOnboarding || !clientToOnboard?.email}
+                  className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500"
+                >
+                  {isOnboarding ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Onboarding...
+                    </>
+                  ) : (
+                    <>
+                      <Rocket className="w-4 h-4 mr-2" />
+                      Start Onboarding
                     </>
                   )}
                 </Button>
