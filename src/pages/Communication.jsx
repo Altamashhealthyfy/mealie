@@ -475,6 +475,11 @@ export default function Communication() {
                       <div>
                         <CardTitle className="text-xl">{selectedClient.full_name}</CardTitle>
                         <p className="text-sm text-gray-600">{selectedClient.email}</p>
+                        {selectedClient.assigned_coach && (
+                          <p className="text-sm text-green-600 font-medium mt-1">
+                            🎓 Coach: {coaches.find(c => c.email === selectedClient.assigned_coach)?.full_name || selectedClient.assigned_coach}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </CardHeader>
