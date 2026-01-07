@@ -33,6 +33,9 @@ import {
   Send,
   CheckSquare,
   Square,
+  Scale,
+  Activity,
+  Clock,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
@@ -46,6 +49,7 @@ import ImageUploader from "@/components/common/ImageUploader";
 import ClientProgressDashboard from "@/components/client/ClientProgressDashboard";
 import AdvancedFilters from "@/components/client/AdvancedFilters";
 import BulkActionsPanel from "@/components/client/BulkActionsPanel";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from 'recharts';
 
 export default function ClientManagement() {
   const queryClient = useQueryClient();
@@ -1299,7 +1303,20 @@ support@mealiepro.com`;
               </DialogDescription>
             </DialogHeader>
             {viewingClient && (
-              <div className="space-y-6 mt-4">
+              <Tabs defaultValue="info" className="mt-4">
+                <TabsList className="grid grid-cols-3 w-full">
+                  <TabsTrigger value="info">Info</TabsTrigger>
+                  <TabsTrigger value="weight">
+                    <Scale className="w-4 h-4 mr-2" />
+                    Weight
+                  </TabsTrigger>
+                  <TabsTrigger value="wellness">
+                    <Activity className="w-4 h-4 mr-2" />
+                    Wellness
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="info" className="space-y-6 mt-4">
                 <div className="grid grid-cols-2 gap-4">
                   <Card>
                     <CardHeader>
@@ -1438,7 +1455,261 @@ support@mealiepro.com`;
                 <Button variant="destructive" onClick={() => handleDeleteClient(viewingClient)} disabled={deleteClientMutation.isPending} className="w-full mt-4">
                   {deleteClientMutation.isPending ? 'Deleting...' : 'Delete Client'}
                 </Button>
-              </div>
+                </TabsContent>
+
+                <TabsContent value="weight" className="space-y-4 mt-4">
+                  {(() => {
+                    const clientWeightLogs = progressLogs
+                      .filter(log => log.client_id === viewingClient.id && log.weight)
+                      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                    if (clientWeightLogs.length === 0) {
+                      return (
+                        <Card className="border-2">
+                          <CardContent className="p-12 text-center">
+                            <Scale className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">No weight data yet</h3>
+                            <p className="text-gray-600">Weight tracking will appear here once the client logs their progress</p>
+                          </CardContent>
+                        </Card>
+                      );
+                    }
+
+                    const weightData = clientWeightLogs.map(log => ({
+                      date: format(new Date(log.date), 'MMM d'),
+                      weight: log.weight,
+                      fullDate: format(new Date(log.date), 'MMM d, yyyy')
+                    }));
+
+                    const startWeight = weightData[0].weight;
+                    const currentWeight = weightData[weightData.length - 1].weight;
+                    const weightChange = currentWeight - startWeight;
+                    const targetWeight = viewingClient.target_weight;
+
+                    return (
+                      <>
+                        <div className="grid grid-cols-3 gap-4">
+                          <Card>
+                            <CardHeader className="pb-3">
+                              <CardTitle className="text-sm text-gray-600">Start Weight</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <p className="text-3xl font-bold text-gray-900">{startWeight} kg</p>
+                            </CardContent>
+                          </Card>
+                          <Card>
+                            <CardHeader className="pb-3">
+                              <CardTitle className="text-sm text-gray-600">Current Weight</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <p className="text-3xl font-bold text-blue-600">{currentWeight} kg</p>
+                            </CardContent>
+                          </Card>
+                          <Card>
+                            <CardHeader className="pb-3">
+                              <CardTitle className="text-sm text-gray-600">Change</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <p className={`text-3xl font-bold ${weightChange < 0 ? 'text-green-600' : 'text-orange-600'}`}>
+                                {weightChange > 0 ? '+' : ''}{weightChange.toFixed(1)} kg
+                              </p>
+                            </CardContent>
+                          </Card>
+                        </div>
+
+                        {targetWeight && (
+                          <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-300">
+                            <CardContent className="p-4">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <p className="text-sm text-gray-600 mb-1">Target Weight</p>
+                                  <p className="text-2xl font-bold text-purple-900">{targetWeight} kg</p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-sm text-gray-600 mb-1">Remaining</p>
+                                  <p className="text-2xl font-bold text-purple-700">
+                                    {Math.abs(currentWeight - targetWeight).toFixed(1)} kg
+                                  </p>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        )}
+
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Weight Progress Chart</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <ResponsiveContainer width="100%" height={300}>
+                              <AreaChart data={weightData}>
+                                <defs>
+                                  <linearGradient id="colorWeight" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                                  </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="date" />
+                                <YAxis domain={['dataMin - 2', 'dataMax + 2']} />
+                                <Tooltip 
+                                  content={({ active, payload }) => {
+                                    if (active && payload && payload.length) {
+                                      return (
+                                        <div className="bg-white p-3 border-2 border-blue-500 rounded-lg shadow-lg">
+                                          <p className="font-semibold text-sm">{payload[0].payload.fullDate}</p>
+                                          <p className="text-blue-600 font-bold">{payload[0].value} kg</p>
+                                        </div>
+                                      );
+                                    }
+                                    return null;
+                                  }}
+                                />
+                                <Area 
+                                  type="monotone" 
+                                  dataKey="weight" 
+                                  stroke="#3b82f6" 
+                                  strokeWidth={3}
+                                  fill="url(#colorWeight)"
+                                />
+                              </AreaChart>
+                            </ResponsiveContainer>
+                          </CardContent>
+                        </Card>
+                      </>
+                    );
+                  })()}
+                </TabsContent>
+
+                <TabsContent value="wellness" className="space-y-4 mt-4">
+                  {(() => {
+                    const { data: mpessLogs } = useQuery({
+                      queryKey: ['mpessLogs', viewingClient?.id],
+                      queryFn: async () => {
+                        const logs = await base44.entities.MPESSTracker.filter({ created_by: viewingClient.email });
+                        return logs.sort((a, b) => new Date(a.date) - new Date(b.date));
+                      },
+                      enabled: !!viewingClient,
+                      initialData: [],
+                    });
+
+                    if (mpessLogs.length === 0) {
+                      return (
+                        <Card className="border-2">
+                          <CardContent className="p-12 text-center">
+                            <Activity className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                            <h3 className="text-xl font-semibold text-gray-900 mb-2">No wellness data yet</h3>
+                            <p className="text-gray-600">MPESS wellness tracking will appear here once the client starts tracking</p>
+                          </CardContent>
+                        </Card>
+                      );
+                    }
+
+                    const wellnessData = mpessLogs.map(log => ({
+                      date: format(new Date(log.date), 'MMM d'),
+                      fullDate: format(new Date(log.date), 'MMM d, yyyy'),
+                      mind: (log.mind_practices?.affirmations_completed ? 1 : 0) + 
+                            (log.mind_practices?.stress_relief_done ? 1 : 0) + 
+                            (log.mind_practices?.sleep_guidance_followed ? 1 : 0),
+                      physical: (log.physical_practices?.movement_done ? 1 : 0) + 
+                                (log.physical_practices?.posture_awareness ? 1 : 0) + 
+                                (log.physical_practices?.hydration_met ? 1 : 0),
+                      emotional: (log.emotional_practices?.journaling_done ? 1 : 0) + 
+                                 (log.emotional_practices?.emotion_release_done ? 1 : 0) + 
+                                 (log.emotional_practices?.breathwork_done ? 1 : 0),
+                      social: (log.social_practices?.bonding_activity_done ? 1 : 0) + 
+                              (log.social_practices?.connection_made ? 1 : 0),
+                      spiritual: (log.spiritual_practices?.breathwork_done ? 1 : 0) + 
+                                 (log.spiritual_practices?.meditation_done ? 1 : 0) + 
+                                 (log.spiritual_practices?.gratitude_journaling_done ? 1 : 0),
+                    }));
+
+                    const latestLog = mpessLogs[mpessLogs.length - 1];
+                    const avgScores = {
+                      mind: (wellnessData.reduce((sum, d) => sum + d.mind, 0) / wellnessData.length).toFixed(1),
+                      physical: (wellnessData.reduce((sum, d) => sum + d.physical, 0) / wellnessData.length).toFixed(1),
+                      emotional: (wellnessData.reduce((sum, d) => sum + d.emotional, 0) / wellnessData.length).toFixed(1),
+                      social: (wellnessData.reduce((sum, d) => sum + d.social, 0) / wellnessData.length).toFixed(1),
+                      spiritual: (wellnessData.reduce((sum, d) => sum + d.spiritual, 0) / wellnessData.length).toFixed(1),
+                    };
+
+                    return (
+                      <>
+                        <div className="grid grid-cols-5 gap-3">
+                          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-300">
+                            <CardContent className="p-4 text-center">
+                              <p className="text-xs text-purple-700 mb-1">Mind</p>
+                              <p className="text-2xl font-bold text-purple-900">{avgScores.mind}</p>
+                            </CardContent>
+                          </Card>
+                          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-300">
+                            <CardContent className="p-4 text-center">
+                              <p className="text-xs text-blue-700 mb-1">Physical</p>
+                              <p className="text-2xl font-bold text-blue-900">{avgScores.physical}</p>
+                            </CardContent>
+                          </Card>
+                          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-300">
+                            <CardContent className="p-4 text-center">
+                              <p className="text-xs text-green-700 mb-1">Emotional</p>
+                              <p className="text-2xl font-bold text-green-900">{avgScores.emotional}</p>
+                            </CardContent>
+                          </Card>
+                          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-300">
+                            <CardContent className="p-4 text-center">
+                              <p className="text-xs text-orange-700 mb-1">Social</p>
+                              <p className="text-2xl font-bold text-orange-900">{avgScores.social}</p>
+                            </CardContent>
+                          </Card>
+                          <Card className="bg-gradient-to-br from-pink-50 to-pink-100 border-pink-300">
+                            <CardContent className="p-4 text-center">
+                              <p className="text-xs text-pink-700 mb-1">Spiritual</p>
+                              <p className="text-2xl font-bold text-pink-900">{avgScores.spiritual}</p>
+                            </CardContent>
+                          </Card>
+                        </div>
+
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>MPESS Wellness Trends</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <ResponsiveContainer width="100%" height={350}>
+                              <LineChart data={wellnessData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="date" />
+                                <YAxis domain={[0, 3]} />
+                                <Tooltip 
+                                  content={({ active, payload }) => {
+                                    if (active && payload && payload.length) {
+                                      return (
+                                        <div className="bg-white p-3 border-2 rounded-lg shadow-lg">
+                                          <p className="font-semibold text-sm mb-2">{payload[0].payload.fullDate}</p>
+                                          {payload.map((entry, index) => (
+                                            <p key={index} style={{ color: entry.color }} className="text-sm font-medium">
+                                              {entry.name}: {entry.value}
+                                            </p>
+                                          ))}
+                                        </div>
+                                      );
+                                    }
+                                    return null;
+                                  }}
+                                />
+                                <Legend />
+                                <Line type="monotone" dataKey="mind" stroke="#9333ea" strokeWidth={2} name="Mind" />
+                                <Line type="monotone" dataKey="physical" stroke="#3b82f6" strokeWidth={2} name="Physical" />
+                                <Line type="monotone" dataKey="emotional" stroke="#10b981" strokeWidth={2} name="Emotional" />
+                                <Line type="monotone" dataKey="social" stroke="#f97316" strokeWidth={2} name="Social" />
+                                <Line type="monotone" dataKey="spiritual" stroke="#ec4899" strokeWidth={2} name="Spiritual" />
+                              </LineChart>
+                            </ResponsiveContainer>
+                          </CardContent>
+                        </Card>
+                      </>
+                    );
+                  })()}
+                </TabsContent>
+              </Tabs>
             )}
           </DialogContent>
         </Dialog>
