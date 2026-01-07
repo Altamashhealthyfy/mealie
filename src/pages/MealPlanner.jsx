@@ -294,34 +294,60 @@ export default function MealPlanner() {
     }
 
     try {
-      // Properly expand template meals to cover all days
-      const expandedMeals = [];
+      console.log('🔵 Cloning template:', template.name);
+      console.log('📊 Template duration:', template.duration, 'days');
+      console.log('🍽️ Template meals count:', template.meals.length);
       
-      // Get unique days in the template
+      // Get unique days in the template and sort them
       const uniqueDays = [...new Set(template.meals.map(m => m.day))].sort((a, b) => a - b);
-      const templateHasDays = uniqueDays.length;
+      console.log('📅 Template has meals for days:', uniqueDays);
       
-      if (templateHasDays === 0) {
+      if (uniqueDays.length === 0) {
         alert("❌ Template has no valid meal days. Please choose a different template.");
         return;
       }
-      
-      // Expand to all days by cycling through available days
+
+      // Group meals by day for better organization
+      const mealsByDay = {};
+      template.meals.forEach(meal => {
+        if (!mealsByDay[meal.day]) {
+          mealsByDay[meal.day] = [];
+        }
+        mealsByDay[meal.day].push(meal);
+      });
+
+      console.log('📋 Meals per template day:', Object.keys(mealsByDay).map(day => 
+        `Day ${day}: ${mealsByDay[day].length} meals`
+      ).join(', '));
+
+      // Expand meals to cover all days by repeating the pattern
+      const expandedMeals = [];
       for (let targetDay = 1; targetDay <= template.duration; targetDay++) {
-        // Calculate which source day to copy from (cycle through available days)
-        const sourceDayIndex = (targetDay - 1) % templateHasDays;
+        // Use modulo to cycle through available days
+        const sourceDayIndex = (targetDay - 1) % uniqueDays.length;
         const sourceDay = uniqueDays[sourceDayIndex];
         
-        // Get all meals for this source day
-        const sourceDayMeals = template.meals.filter(m => m.day === sourceDay);
-        
-        // Copy them to the target day
+        // Copy all meals from source day to target day
+        const sourceDayMeals = mealsByDay[sourceDay] || [];
         sourceDayMeals.forEach(meal => {
           expandedMeals.push({
             ...meal,
             day: targetDay
           });
         });
+        
+        console.log(`✅ Day ${targetDay}: Copied ${sourceDayMeals.length} meals from template day ${sourceDay}`);
+      }
+
+      console.log('✅ Total expanded meals:', expandedMeals.length);
+      console.log('📊 Meals per day:', expandedMeals.reduce((acc, meal) => {
+        acc[meal.day] = (acc[meal.day] || 0) + 1;
+        return acc;
+      }, {}));
+
+      if (expandedMeals.length === 0) {
+        alert("❌ Failed to expand template. No meals generated.");
+        return;
       }
 
       setGeneratedPlan({
@@ -346,7 +372,7 @@ export default function MealPlanner() {
 
       setActiveTab("generate");
     } catch (error) {
-      console.error("Error cloning template:", error);
+      console.error("❌ Error cloning template:", error);
       alert("❌ Failed to customize template. Please try again.");
     }
   };
@@ -365,7 +391,7 @@ export default function MealPlanner() {
     const confirmed = window.confirm(
       `✅ Assign "${template.name}" to ${selectedClient.full_name}?\n\n` +
       `📅 Duration: ${template.duration} days\n` +
-      `🍽️ Total Meals: ${template.meals.length}\n` +
+      `🍽️ Template Meals: ${template.meals.length}\n` +
       `🔄 All ${template.duration} days will be assigned\n\n` +
       `You can view and edit it later from "My Plans" tab.`
     );
@@ -373,43 +399,70 @@ export default function MealPlanner() {
     if (!confirmed) return;
 
     try {
-      // Properly expand template meals to cover all days
-      const expandedMeals = [];
+      console.log('🔵 Assigning template directly:', template.name);
+      console.log('📊 Template duration:', template.duration, 'days');
+      console.log('🍽️ Template meals count:', template.meals.length);
       
-      // Get unique days in the template
+      // Get unique days in the template and sort them
       const uniqueDays = [...new Set(template.meals.map(m => m.day))].sort((a, b) => a - b);
-      const templateHasDays = uniqueDays.length;
+      console.log('📅 Template has meals for days:', uniqueDays);
       
-      if (templateHasDays === 0) {
+      if (uniqueDays.length === 0) {
         alert("❌ Template has no valid meal days. Please choose a different template.");
         return;
       }
-      
-      console.log(`Template has ${templateHasDays} unique days, duration is ${template.duration} days`);
-      
-      // Expand to all days by cycling through available days
+
+      // Group meals by day for better organization
+      const mealsByDay = {};
+      template.meals.forEach(meal => {
+        if (!mealsByDay[meal.day]) {
+          mealsByDay[meal.day] = [];
+        }
+        mealsByDay[meal.day].push(meal);
+      });
+
+      console.log('📋 Meals per template day:', Object.keys(mealsByDay).map(day => 
+        `Day ${day}: ${mealsByDay[day].length} meals`
+      ).join(', '));
+
+      // Expand meals to cover all days by repeating the pattern
+      const expandedMeals = [];
       for (let targetDay = 1; targetDay <= template.duration; targetDay++) {
-        // Calculate which source day to copy from (cycle through available days)
-        const sourceDayIndex = (targetDay - 1) % templateHasDays;
+        // Use modulo to cycle through available days
+        const sourceDayIndex = (targetDay - 1) % uniqueDays.length;
         const sourceDay = uniqueDays[sourceDayIndex];
         
-        // Get all meals for this source day
-        const sourceDayMeals = template.meals.filter(m => m.day === sourceDay);
-        
-        // Copy them to the target day
+        // Copy all meals from source day to target day
+        const sourceDayMeals = mealsByDay[sourceDay] || [];
         sourceDayMeals.forEach(meal => {
           expandedMeals.push({
             ...meal,
             day: targetDay
           });
         });
+        
+        console.log(`✅ Day ${targetDay}: Copied ${sourceDayMeals.length} meals from template day ${sourceDay}`);
       }
 
-      console.log(`✅ Expanded from ${template.meals.length} to ${expandedMeals.length} meals`);
+      console.log('✅ Total expanded meals:', expandedMeals.length);
+      console.log('📊 Meals per assigned day:', expandedMeals.reduce((acc, meal) => {
+        acc[meal.day] = (acc[meal.day] || 0) + 1;
+        return acc;
+      }, {}));
 
       if (expandedMeals.length === 0) {
-        alert("❌ Failed to expand template meals. Please try again or choose a different template.");
+        alert("❌ Failed to expand template. No meals generated.");
         return;
+      }
+
+      // Verify we have meals for all days
+      const assignedDays = [...new Set(expandedMeals.map(m => m.day))];
+      if (assignedDays.length !== template.duration) {
+        console.error('⚠️ Warning: Not all days have meals!', {
+          expected: template.duration,
+          actual: assignedDays.length,
+          days: assignedDays
+        });
       }
 
       await savePlanMutation.mutateAsync({
@@ -430,9 +483,12 @@ export default function MealPlanner() {
       });
 
       queryClient.invalidateQueries(['mealPlanTemplates']);
+      
+      alert(`✅ Successfully assigned ${expandedMeals.length} meals across ${template.duration} days to ${selectedClient.full_name}!`);
+      
       setActiveTab("saved");
     } catch (error) {
-      console.error("Failed to assign template:", error);
+      console.error("❌ Failed to assign template:", error);
       alert(`❌ Failed to assign template: ${error.message}\n\nPlease try again or contact support if the issue persists.`);
     }
   };
