@@ -484,12 +484,12 @@ export default function Communication() {
                             </div>
                           </div>
                         );
-                        })
-                        )
-                        </div>
-                        </ScrollArea>
-                        </div>
-                        </div>
+                      })
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
+            </div>
 
             {/* Chat Area */}
             <div className={`${selectedClient ? 'flex' : 'hidden md:flex'} md:col-span-8 flex-col h-full md:h-auto`}>
