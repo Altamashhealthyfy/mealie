@@ -1221,17 +1221,20 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
     return user?.user_type === 'super_admin' || 
            user?.user_type === 'team_member' || 
            user?.user_type === 'student_coach' ||
+           user?.user_type === 'student_team_member' ||
            template.created_by === user?.email;
     };
 
     const canContributeTemplates = user?.user_type === 'super_admin' || 
                                   user?.user_type === 'team_member' || 
-                                  user?.user_type === 'student_coach';
+                                  user?.user_type === 'student_coach' ||
+                                  user?.user_type === 'student_team_member';
 
   const canDeleteTemplate = (template) => {
     return user?.user_type === 'super_admin' || 
            user?.user_type === 'team_member' || 
            user?.user_type === 'student_coach' ||
+           user?.user_type === 'student_team_member' ||
            template.created_by === user?.email;
     };
 
