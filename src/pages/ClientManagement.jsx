@@ -1150,20 +1150,21 @@ support@mealiepro.com`;
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => navigate(`${createPageUrl("Communication")}?client=${client.id}`)}
+                      className="text-orange-600 hover:bg-orange-50 h-9 md:h-auto text-xs md:text-sm font-semibold"
+                      title="Open Messages"
+                    >
+                      <MessageSquare className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                      Message
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleOpenEmail(client)}
                       className="text-blue-600 hover:bg-blue-50 h-9 md:h-auto text-xs md:text-sm"
                       title="Send Email"
                     >
                       <Mail className="w-3 h-3 md:w-4 md:h-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleOpenWhatsApp(client)}
-                      className="text-green-600 hover:bg-green-50 h-9 md:h-auto text-xs md:text-sm"
-                      title="Send WhatsApp"
-                    >
-                      <MessageCircle className="w-3 h-3 md:w-4 md:h-4" />
                     </Button>
                   </div>
 
