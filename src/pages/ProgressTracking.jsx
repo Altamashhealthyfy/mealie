@@ -386,8 +386,10 @@ export default function ProgressTracking() {
                           onChange={(e) => setFormData({...formData, measurements: {...formData.measurements, lower_abdomen: parseFloat(e.target.value)}})} />
                         <Input placeholder="Hips" type="number" step="0.1" value={formData.measurements?.hips || ''}
                           onChange={(e) => setFormData({...formData, measurements: {...formData.measurements, hips: parseFloat(e.target.value)}})} />
-                        <Input placeholder="Arms" type="number" step="0.1" value={formData.measurements?.arms || ''}
-                          onChange={(e) => setFormData({...formData, measurements: {...formData.measurements, arms: parseFloat(e.target.value)}})} />
+                        <Input placeholder="Left Arm" type="number" step="0.1" value={formData.measurements?.left_arm || ''}
+                          onChange={(e) => setFormData({...formData, measurements: {...formData.measurements, left_arm: parseFloat(e.target.value)}})} />
+                        <Input placeholder="Right Arm" type="number" step="0.1" value={formData.measurements?.right_arm || ''}
+                          onChange={(e) => setFormData({...formData, measurements: {...formData.measurements, right_arm: parseFloat(e.target.value)}})} />
                         <Input placeholder="Thighs" type="number" step="0.1" value={formData.measurements?.thighs || ''}
                           onChange={(e) => setFormData({...formData, measurements: {...formData.measurements, thighs: parseFloat(e.target.value)}})} />
                       </div>
