@@ -34,9 +34,6 @@ export default function TemplateLibrary() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [calorieFilter, setCalorieFilter] = useState("all");
-  const [customCalorieMin, setCustomCalorieMin] = useState("");
-  const [customCalorieMax, setCustomCalorieMax] = useState("");
-  const [diseaseFilter, setDiseaseFilter] = useState("all");
   const [foodPrefFilter, setFoodPrefFilter] = useState("all");
   const [regionFilter, setRegionFilter] = useState("all");
   const [uploaderFilter, setUploaderFilter] = useState("all");
@@ -294,22 +291,9 @@ export default function TemplateLibrary() {
     const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          template.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === "all" || template.category === categoryFilter;
-    
-    // Calorie filtering with custom range
-    let matchesCalories = true;
-    if (calorieFilter !== "all") {
-      matchesCalories = template.target_calories && 
-                        Math.abs(template.target_calories - parseInt(calorieFilter)) <= 100;
-    } else if (customCalorieMin || customCalorieMax) {
-      const min = customCalorieMin ? parseInt(customCalorieMin) : 0;
-      const max = customCalorieMax ? parseInt(customCalorieMax) : Infinity;
-      matchesCalories = template.target_calories && 
-                        template.target_calories >= min && 
-                        template.target_calories <= max;
-    }
-    
-    const matchesDisease = diseaseFilter === "all" || 
-                          template.subcategory === diseaseFilter;
+    const matchesCalories = calorieFilter === "all" || 
+                           (template.target_calories && 
+                            Math.abs(template.target_calories - parseInt(calorieFilter)) <= 100);
     const matchesFoodPref = foodPrefFilter === "all" || 
                            template.food_preference === foodPrefFilter || 
                            template.food_preference === "all";
@@ -318,7 +302,7 @@ export default function TemplateLibrary() {
                          template.regional_preference === "all";
     const matchesUploader = uploaderFilter === "all" || template.created_by === uploaderFilter;
     
-    return matchesSearch && matchesCategory && matchesCalories && matchesDisease && matchesFoodPref && matchesRegion && matchesUploader;
+    return matchesSearch && matchesCategory && matchesCalories && matchesFoodPref && matchesRegion && matchesUploader;
   });
 
   const handleDownload = (template) => {
@@ -464,15 +448,14 @@ export default function TemplateLibrary() {
                             <SelectContent>
                               <SelectItem value="veg">Vegetarian</SelectItem>
                               <SelectItem value="non_veg">Non-Veg</SelectItem>
-                              <SelectItem value="eggetarian">Eggetarian</SelectItem>
                               <SelectItem value="jain">Jain</SelectItem>
                               <SelectItem value="mixed">Mixed</SelectItem>
                               <SelectItem value="all">All</SelectItem>
                             </SelectContent>
-                            </Select>
-                            </div>
+                          </Select>
+                        </div>
 
-                            <div className="space-y-2">
+                        <div className="space-y-2">
                           <Label className="text-sm">Regional Preference</Label>
                           <Select
                             value={uploadFormData.regional_preference}
@@ -688,7 +671,7 @@ export default function TemplateLibrary() {
                 </Select>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                   <SelectTrigger>
                     <SelectValue placeholder="Category" />
@@ -703,28 +686,7 @@ export default function TemplateLibrary() {
                   </SelectContent>
                 </Select>
 
-                <Select value={diseaseFilter} onValueChange={setDiseaseFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Disease/Condition" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Conditions</SelectItem>
-                    <SelectItem value="diabetes">Diabetes</SelectItem>
-                    <SelectItem value="pcos">PCOS</SelectItem>
-                    <SelectItem value="thyroid">Thyroid</SelectItem>
-                    <SelectItem value="weight_loss">Weight Loss</SelectItem>
-                    <SelectItem value="weight_gain">Weight Gain</SelectItem>
-                    <SelectItem value="general">General</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={calorieFilter} onValueChange={(value) => {
-                  setCalorieFilter(value);
-                  if (value !== "all") {
-                    setCustomCalorieMin("");
-                    setCustomCalorieMax("");
-                  }
-                }}>
+                <Select value={calorieFilter} onValueChange={setCalorieFilter}>
                   <SelectTrigger>
                     <SelectValue placeholder="Calories" />
                   </SelectTrigger>
@@ -749,7 +711,6 @@ export default function TemplateLibrary() {
                     <SelectItem value="all">All Types</SelectItem>
                     <SelectItem value="veg">Vegetarian</SelectItem>
                     <SelectItem value="non_veg">Non-Veg</SelectItem>
-                    <SelectItem value="eggetarian">Eggetarian</SelectItem>
                     <SelectItem value="jain">Jain</SelectItem>
                   </SelectContent>
                 </Select>
@@ -791,43 +752,6 @@ export default function TemplateLibrary() {
                   </SelectContent>
                 </Select>
               </div>
-
-              {/* Custom Calorie Range Filter */}
-              {calorieFilter === "all" && (
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <Label className="text-sm font-semibold mb-3 block">Custom Calorie Range</Label>
-                  <div className="flex gap-3 items-center">
-                    <Input
-                      type="number"
-                      placeholder="Min (e.g. 1200)"
-                      value={customCalorieMin}
-                      onChange={(e) => setCustomCalorieMin(e.target.value)}
-                      className="flex-1"
-                    />
-                    <span className="text-gray-600">to</span>
-                    <Input
-                      type="number"
-                      placeholder="Max (e.g. 2000)"
-                      value={customCalorieMax}
-                      onChange={(e) => setCustomCalorieMax(e.target.value)}
-                      className="flex-1"
-                    />
-                    {(customCalorieMin || customCalorieMax) && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setCustomCalorieMin("");
-                          setCustomCalorieMax("");
-                        }}
-                        className="text-red-600"
-                      >
-                        Clear
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              )}
 
               {/* Active Filters Display */}
               {uploaderFilter !== "all" && (
@@ -1074,7 +998,6 @@ export default function TemplateLibrary() {
                         <SelectContent>
                           <SelectItem value="veg">Vegetarian</SelectItem>
                           <SelectItem value="non_veg">Non-Veg</SelectItem>
-                          <SelectItem value="eggetarian">Eggetarian</SelectItem>
                           <SelectItem value="jain">Jain</SelectItem>
                           <SelectItem value="mixed">Mixed</SelectItem>
                           <SelectItem value="all">All</SelectItem>

@@ -411,6 +411,11 @@ export default function Communication() {
                         <Loader2 className="w-8 h-8 mx-auto text-orange-500 animate-spin mb-3" />
                         <p className="text-gray-600">Loading messages...</p>
                       </div>
+                    ) : sortedClients.length === 0 ? (
+                      <div className="text-center py-12">
+                        <MessageSquare className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                        <p className="text-gray-600">No clients found</p>
+                      </div>
                     ) : (
                       sortedClients.map((client) => {
                         const lastMessage = getLastMessage(client.id);
