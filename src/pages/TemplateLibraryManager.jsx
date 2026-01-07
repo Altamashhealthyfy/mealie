@@ -60,6 +60,17 @@ export default function TemplateLibraryManager() {
     is_public: false
   });
   const [activeTab, setActiveTab] = useState("downloadable");
+  const [showAIGenerateDialog, setShowAIGenerateDialog] = useState(false);
+  const [generatingAI, setGeneratingAI] = useState(false);
+  const [aiGeneratedPlan, setAiGeneratedPlan] = useState(null);
+  const [aiFormData, setAiFormData] = useState({
+    name: "",
+    target_calories: "1800",
+    food_preference: "veg",
+    regional_preference: "all",
+    duration: "7",
+    description: ""
+  });
   
   const [formData, setFormData] = useState({
     name: "",
@@ -255,6 +266,26 @@ export default function TemplateLibraryManager() {
     },
   });
 
+  const generateAITemplateMutation = useMutation({
+    mutationFn: async (templateData) => {
+      return await base44.entities.MealPlanTemplate.create(templateData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['mealPlanTemplates']);
+      setShowAIGenerateDialog(false);
+      setAiGeneratedPlan(null);
+      setAiFormData({
+        name: "",
+        target_calories: "1800",
+        food_preference: "veg",
+        regional_preference: "all",
+        duration: "7",
+        description: ""
+      });
+      alert("✅ AI template created successfully!");
+    },
+  });
+
   const handleEdit = (template) => {
     setEditingTemplate(template);
     setSelectedFile(null);
@@ -330,6 +361,142 @@ export default function TemplateLibraryManager() {
         selectedMealPlan.food_preference,
         `${selectedMealPlan.target_calories}cal`,
         `${selectedMealPlan.duration}days`
+      ]
+    });
+  };
+
+  const handleAIGenerate = async () => {
+    if (!aiFormData.target_calories || !aiFormData.duration) {
+      alert("Please fill in all required fields");
+      return;
+    }
+
+    setGeneratingAI(true);
+    try {
+      const targetCalories = parseInt(aiFormData.target_calories);
+      const duration = parseInt(aiFormData.duration);
+
+      const prompt = `Generate a complete ${duration}-day Indian meal plan template with ALL meal types for EVERY day.
+
+Target Calories: ${targetCalories} kcal per day
+Food Preference: ${aiFormData.food_preference}
+Regional Preference: ${aiFormData.regional_preference}
+
+CRITICAL REQUIREMENTS:
+
+1. COMPLETE MEAL STRUCTURE - EVERY DAY MUST HAVE ALL 6 MEALS:
+   - Early Morning (6-7 AM)
+   - Breakfast (8-9 AM)
+   - Mid-Morning (11 AM)
+   - Lunch (1-2 PM)
+   - Evening Snack (4-5 PM)
+   - Dinner (7-8 PM)
+
+2. TOTAL MEALS REQUIRED: ${duration * 6} meals (${duration} days × 6 meals per day)
+
+3. EARLY MORNING - SAME FOR ALL ${duration} DAYS:
+   - Give the EXACT SAME early morning drink for ALL days
+   - DO NOT rotate or vary this meal
+   - Example: "1 glass warm water (250ml) with lemon juice"
+
+4. VARIETY ACROSS DAYS (except early morning):
+   - Create DIFFERENT meals for breakfast, lunch, dinner across days
+   - Do NOT repeat the same meal more than 2 times
+   - Rotate between different cuisines and preparations
+
+5. LUNCH - ONLY TRADITIONAL OPTIONS:
+   - MUST be either: Roti + Sabji OR Dal + Rice
+   - Example: "2 roti + aloo gobi + cucumber raita"
+   - Example: "Dal tadka + jeera rice + baingan bharta"
+
+6. PORTION SIZES - USE CORRECT UNITS:
+   - Flatbreads: "2 medium roti (60g total)" NOT katori
+   - Cooked foods: "1 small katori dal (150g cooked)"
+   - Drinks: "1 glass milk (200ml)"
+
+7. CALORIE DISTRIBUTION PER DAY (MUST TOTAL ${targetCalories} kcal):
+   - Early Morning: 0-50 kcal
+   - Breakfast: 30-35% (${Math.round(targetCalories * 0.32)} kcal)
+   - Mid-Morning: 8-10% (${Math.round(targetCalories * 0.09)} kcal)
+   - Lunch: 30-35% (${Math.round(targetCalories * 0.32)} kcal)
+   - Evening: 8-10% (${Math.round(targetCalories * 0.09)} kcal)
+   - Dinner: 20-25% (${Math.round(targetCalories * 0.22)} kcal)
+
+8. EACH MEAL MUST INCLUDE:
+   - day: day number (1 to ${duration})
+   - meal_type: "early_morning", "breakfast", "mid_morning", "lunch", "evening_snack", "dinner"
+   - meal_name: descriptive name
+   - items: array of food items
+   - portion_sizes: array matching items
+   - calories, protein, carbs, fats: nutritional values
+   - nutritional_tip: short health tip
+
+Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition data.`;
+
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            meals: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  day: { type: "number" },
+                  meal_type: { type: "string" },
+                  meal_name: { type: "string" },
+                  items: { type: "array", items: { type: "string" } },
+                  portion_sizes: { type: "array", items: { type: "string" } },
+                  calories: { type: "number" },
+                  protein: { type: "number" },
+                  carbs: { type: "number" },
+                  fats: { type: "number" },
+                  nutritional_tip: { type: "string" }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      setAiGeneratedPlan(response.meals);
+      alert(`✅ Generated ${response.meals.length} meals! Review and save as template.`);
+    } catch (error) {
+      console.error("AI generation error:", error);
+      alert("Failed to generate template. Please try again.");
+    } finally {
+      setGeneratingAI(false);
+    }
+  };
+
+  const handleSaveAITemplate = () => {
+    if (!aiFormData.name.trim()) {
+      alert("Please enter a template name");
+      return;
+    }
+
+    if (!aiGeneratedPlan || aiGeneratedPlan.length === 0) {
+      alert("No meals generated yet");
+      return;
+    }
+
+    generateAITemplateMutation.mutate({
+      name: aiFormData.name,
+      description: aiFormData.description || `AI-generated ${aiFormData.duration}-day meal plan template`,
+      category: "general",
+      duration: parseInt(aiFormData.duration),
+      target_calories: parseInt(aiFormData.target_calories),
+      food_preference: aiFormData.food_preference,
+      regional_preference: aiFormData.regional_preference,
+      meals: aiGeneratedPlan,
+      is_public: false,
+      times_used: 0,
+      tags: [
+        aiFormData.food_preference,
+        `${aiFormData.target_calories}cal`,
+        `${aiFormData.duration}days`,
+        "ai-generated"
       ]
     });
   };
@@ -506,7 +673,15 @@ Extract:
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <Button
+            onClick={() => setShowAIGenerateDialog(true)}
+            className="bg-gradient-to-r from-orange-500 to-red-500 h-14 text-base"
+          >
+            <Sparkles className="w-5 h-5 mr-2" />
+            AI Generate Template
+          </Button>
+
           <Button
             onClick={() => setShowBulkDialog(true)}
             className="bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-base"
@@ -1223,6 +1398,204 @@ Extract:
                   )}
                 </Button>
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* AI Generate Template Dialog */}
+        <Dialog open={showAIGenerateDialog} onOpenChange={setShowAIGenerateDialog}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl flex items-center gap-2">
+                <Sparkles className="w-6 h-6 text-orange-500" />
+                AI Generate Complete Meal Plan Template
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              <Alert className="bg-orange-50 border-orange-500">
+                <Sparkles className="w-5 h-5 text-orange-600" />
+                <AlertDescription>
+                  AI will generate a complete {aiFormData.duration}-day meal plan with ALL 6 meals per day ({parseInt(aiFormData.duration) * 6} total meals) - ready to use unlimited times FREE!
+                </AlertDescription>
+              </Alert>
+
+              {!aiGeneratedPlan ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Target Calories *</Label>
+                      <Input
+                        type="number"
+                        placeholder="1800"
+                        value={aiFormData.target_calories}
+                        onChange={(e) => setAiFormData({...aiFormData, target_calories: e.target.value})}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Duration (days) *</Label>
+                      <Select
+                        value={aiFormData.duration}
+                        onValueChange={(value) => setAiFormData({...aiFormData, duration: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="7">7 Days</SelectItem>
+                          <SelectItem value="10">10 Days</SelectItem>
+                          <SelectItem value="15">15 Days</SelectItem>
+                          <SelectItem value="21">21 Days</SelectItem>
+                          <SelectItem value="30">30 Days</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Food Preference *</Label>
+                      <Select
+                        value={aiFormData.food_preference}
+                        onValueChange={(value) => setAiFormData({...aiFormData, food_preference: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="veg">Vegetarian</SelectItem>
+                          <SelectItem value="non_veg">Non-Veg</SelectItem>
+                          <SelectItem value="eggetarian">Eggetarian</SelectItem>
+                          <SelectItem value="jain">Jain</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Regional Preference *</Label>
+                      <Select
+                        value={aiFormData.regional_preference}
+                        onValueChange={(value) => setAiFormData({...aiFormData, regional_preference: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="north">North Indian</SelectItem>
+                          <SelectItem value="south">South Indian</SelectItem>
+                          <SelectItem value="west">West Indian</SelectItem>
+                          <SelectItem value="east">East Indian</SelectItem>
+                          <SelectItem value="all">All Regions</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={handleAIGenerate}
+                    disabled={generatingAI}
+                    className="w-full h-14 bg-gradient-to-r from-orange-500 to-red-500"
+                  >
+                    {generatingAI ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Generating {parseInt(aiFormData.duration) * 6} meals...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-5 h-5 mr-2" />
+                        Generate Complete Meal Plan
+                      </>
+                    )}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <Alert className="bg-green-50 border-green-500">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <AlertDescription>
+                      ✅ Successfully generated {aiGeneratedPlan.length} meals! Review and save as template.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="p-4 bg-white border-2 rounded-lg max-h-64 overflow-y-auto">
+                    <h3 className="font-bold mb-3">Generated Meals Summary:</h3>
+                    {Array.from({ length: parseInt(aiFormData.duration) }, (_, i) => i + 1).map(day => {
+                      const dayMeals = aiGeneratedPlan.filter(m => m.day === day);
+                      return (
+                        <div key={day} className="mb-3 p-3 bg-gray-50 rounded">
+                          <p className="font-semibold text-sm">Day {day} ({dayMeals.length} meals):</p>
+                          <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+                            {dayMeals.map((meal, idx) => (
+                              <div key={idx} className="flex justify-between">
+                                <span className="capitalize text-gray-600">{meal.meal_type.replace('_', ' ')}:</span>
+                                <span className="font-medium">{meal.meal_name}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label>Template Name *</Label>
+                      <Input
+                        placeholder="e.g., Veg 1800 cal - 7 days Template"
+                        value={aiFormData.name}
+                        onChange={(e) => setAiFormData({...aiFormData, name: e.target.value})}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Description (optional)</Label>
+                      <Textarea
+                        placeholder="Description"
+                        value={aiFormData.description}
+                        onChange={(e) => setAiFormData({...aiFormData, description: e.target.value})}
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setAiGeneratedPlan(null);
+                        setAiFormData({
+                          name: "",
+                          target_calories: "1800",
+                          food_preference: "veg",
+                          regional_preference: "all",
+                          duration: "7",
+                          description: ""
+                        });
+                      }}
+                      className="flex-1"
+                    >
+                      Start Over
+                    </Button>
+                    <Button
+                      onClick={handleSaveAITemplate}
+                      disabled={generateAITemplateMutation.isPending}
+                      className="flex-1 bg-green-500 h-12"
+                    >
+                      {generateAITemplateMutation.isPending ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-5 h-5 mr-2" />
+                          Save as Template
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>
