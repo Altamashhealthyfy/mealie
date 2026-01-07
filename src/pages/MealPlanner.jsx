@@ -1471,15 +1471,33 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                   </CardContent>
                 </Card>
 
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => setShowAITemplateDialog(true)}
-                    className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-12"
-                  >
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    AI Generate Template
-                  </Button>
-                </div>
+                {coachPlan?.can_generate_ai_templates && (
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={() => setShowAITemplateDialog(true)}
+                      className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-12"
+                    >
+                      <Sparkles className="w-5 h-5 mr-2" />
+                      AI Generate Template
+                    </Button>
+                  </div>
+                )}
+
+                {!coachPlan?.can_generate_ai_templates && user?.user_type === 'student_coach' && (
+                  <Alert className="border-orange-500 bg-orange-50">
+                    <Crown className="w-5 h-5 text-orange-600" />
+                    <AlertDescription className="text-orange-900">
+                      <strong>Upgrade Required!</strong> AI Template Generation is not included in your plan. 
+                      <Button
+                        onClick={() => window.location.href = createPageUrl('CoachSubscriptions')}
+                        variant="link"
+                        className="p-0 h-auto ml-1 text-orange-700 underline"
+                      >
+                        Upgrade your plan
+                      </Button> to access this feature.
+                    </AlertDescription>
+                  </Alert>
+                )}
 
                 <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
                   <CardContent className="p-4">
