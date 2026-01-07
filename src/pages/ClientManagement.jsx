@@ -349,13 +349,23 @@ support@mealiepro.com`;
 
   const deleteMealPlanMutation = useMutation({
     mutationFn: (id) => base44.entities.MealPlan.delete(id),
-    onSuccess: () => {
+    onSuccess: (_, planId) => {
       queryClient.invalidateQueries(['mealPlans']);
+      
+      // Update the viewing dialog to remove the deleted plan
+      if (viewingClientPlans) {
+        const updatedPlans = viewingClientPlans.plans.filter(p => p.id !== planId);
+        setViewingClientPlans({
+          ...viewingClientPlans,
+          plans: updatedPlans
+        });
+      }
+      
       alert("✅ Meal plan deleted successfully!");
     },
     onError: (error) => {
       console.error("Error deleting meal plan:", error);
-      alert("Error deleting meal plan. Please try again.");
+      alert("❌ Error deleting meal plan. Please try again.");
     }
   });
 
