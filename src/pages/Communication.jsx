@@ -39,18 +39,6 @@ export default function Communication() {
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Auto-select client from URL parameter
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const clientId = urlParams.get('client');
-    if (clientId && clients.length > 0) {
-      const client = clients.find(c => c.id === clientId);
-      if (client) {
-        setSelectedClient(client);
-      }
-    }
-  }, [clients]);
-
   const formatToIST = (dateString) => {
     if (!dateString) return '';
     // Ensure proper UTC parsing by appending 'Z' if not present
@@ -312,6 +300,18 @@ export default function Communication() {
         new Date(a.created_date) - new Date(b.created_date)
       )
     : [];
+
+  // Auto-select client from URL parameter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const clientId = urlParams.get('client');
+    if (clientId && clients.length > 0) {
+      const client = clients.find(c => c.id === clientId);
+      if (client) {
+        setSelectedClient(client);
+      }
+    }
+  }, [clients]);
 
   useEffect(() => {
     if (selectedClient) {
