@@ -12,7 +12,7 @@ import {
   Send,
   Search,
   CheckCheck,
-  Clock,
+  Check,
   Loader2,
   ArrowDown,
   Paperclip,
@@ -566,16 +566,16 @@ export default function Communication() {
                                   {renderAttachment(message, isFromDietitian)}
 
                                   <div className={`flex items-center gap-2 mt-2 text-xs ${
-                                    isFromDietitian ? 'text-white/70' : 'text-gray-500'
+                                   isFromDietitian ? 'text-white/70' : 'text-gray-500'
                                   }`}>
-                                    <span>{formatToIST(message.created_date)}</span>
-                                    {isFromDietitian && (
-                                      message.read ? (
-                                        <CheckCheck className="w-3 h-3" />
-                                      ) : (
-                                        <Clock className="w-3 h-3" />
-                                      )
-                                    )}
+                                   <span>{formatToIST(message.created_date)}</span>
+                                   {isFromDietitian && (
+                                     message.read ? (
+                                       <CheckCheck className="w-4 h-4 text-blue-300" title="Seen" />
+                                     ) : (
+                                       <Check className="w-4 h-4" title="Sent" />
+                                     )
+                                   )}
                                   </div>
                                 </div>
                               </div>
