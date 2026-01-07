@@ -39,7 +39,8 @@ export default function MealPlanner() {
     food_preference: "veg",
     regional_preference: "all",
     duration: "7",
-    description: ""
+    description: "",
+    disease_focus: []
   });
   const [planConfig, setPlanConfig] = useState({
     duration: 10,
@@ -173,7 +174,8 @@ export default function MealPlanner() {
         food_preference: "veg",
         regional_preference: "all",
         duration: "7",
-        description: ""
+        description: "",
+        disease_focus: []
       });
       alert("✅ AI template created successfully! Use it unlimited times for FREE!");
     },
@@ -1097,6 +1099,7 @@ Return structured meal plan with:
 Target Calories: ${targetCalories} kcal per day
 Food Preference: ${aiTemplateForm.food_preference}
 Regional Preference: ${aiTemplateForm.regional_preference}
+${aiTemplateForm.disease_focus.length > 0 ? `Disease Focus: ${aiTemplateForm.disease_focus.join(', ')}` : ''}
 
 CRITICAL REQUIREMENTS:
 
@@ -2212,6 +2215,63 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                     </div>
                   </div>
 
+                  <div className="space-y-2">
+                    <Label>Disease Focus (Optional)</Label>
+                    <div className="p-4 bg-gray-50 border rounded-lg">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {[
+                          { value: "diabetes_type1", label: "Diabetes Type 1" },
+                          { value: "diabetes_type2", label: "Diabetes Type 2" },
+                          { value: "prediabetes", label: "Prediabetes" },
+                          { value: "hypertension", label: "Hypertension" },
+                          { value: "pcos", label: "PCOS" },
+                          { value: "thyroid_hypo", label: "Hypothyroid" },
+                          { value: "thyroid_hyper", label: "Hyperthyroid" },
+                          { value: "fatty_liver", label: "Fatty Liver" },
+                          { value: "high_cholesterol", label: "High Cholesterol" },
+                          { value: "ibs", label: "IBS" },
+                          { value: "gerd", label: "GERD" },
+                          { value: "kidney_disease", label: "Kidney Disease" },
+                          { value: "heart_disease", label: "Heart Disease" },
+                        ].map((disease) => (
+                          <label key={disease.value} className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={aiTemplateForm.disease_focus.includes(disease.value)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setAiTemplateForm({
+                                    ...aiTemplateForm,
+                                    disease_focus: [...aiTemplateForm.disease_focus, disease.value]
+                                  });
+                                } else {
+                                  setAiTemplateForm({
+                                    ...aiTemplateForm,
+                                    disease_focus: aiTemplateForm.disease_focus.filter(d => d !== disease.value)
+                                  });
+                                }
+                              }}
+                              className="w-4 h-4"
+                            />
+                            <span className="text-sm">{disease.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                      {aiTemplateForm.disease_focus.length > 0 && (
+                        <div className="mt-3 pt-3 border-t">
+                          <p className="text-sm font-medium text-gray-700">Selected: {aiTemplateForm.disease_focus.length} disease(s)</p>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {aiTemplateForm.disease_focus.map(disease => (
+                              <Badge key={disease} className="bg-red-100 text-red-700">
+                                {disease.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   <Button
                     onClick={handleGenerateAITemplate}
                     disabled={generatingAITemplate}
@@ -2291,7 +2351,8 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                           food_preference: "veg",
                           regional_preference: "all",
                           duration: "7",
-                          description: ""
+                          description: "",
+                          disease_focus: []
                         });
                       }}
                       className="flex-1"
