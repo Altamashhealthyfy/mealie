@@ -1553,31 +1553,6 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                             Customize
                           </Button>
                         </div>
-
-                        {canEditTemplate(template) && (
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEditTemplate(template)}
-                              className="flex-1"
-                            >
-                              <Edit className="w-3 h-3 mr-1" />
-                              Edit
-                            </Button>
-                            {canDeleteTemplate(template) && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDeleteTemplate(template)}
-                                className="flex-1 text-red-600 hover:bg-red-50"
-                              >
-                                <Trash2 className="w-3 h-3 mr-1" />
-                                Delete
-                              </Button>
-                            )}
-                          </div>
-                        )}
                       </CardContent>
                     </Card>
                     ))}
