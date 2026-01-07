@@ -40,7 +40,8 @@ export default function MealPlanner() {
     regional_preference: "all",
     duration: "7",
     description: "",
-    disease_focus: []
+    disease_focus: [],
+    goal: "weight_loss"
   });
   const [planConfig, setPlanConfig] = useState({
     duration: 10,
@@ -175,7 +176,8 @@ export default function MealPlanner() {
         regional_preference: "all",
         duration: "7",
         description: "",
-        disease_focus: []
+        disease_focus: [],
+        goal: "weight_loss"
       });
       alert("✅ AI template created successfully! Use it unlimited times for FREE!");
     },
@@ -1099,6 +1101,7 @@ Return structured meal plan with:
 Target Calories: ${targetCalories} kcal per day
 Food Preference: ${aiTemplateForm.food_preference}
 Regional Preference: ${aiTemplateForm.regional_preference}
+Goal: ${aiTemplateForm.goal.replace('_', ' ').toUpperCase()}
 ${aiTemplateForm.disease_focus.length > 0 ? `Disease Focus: ${aiTemplateForm.disease_focus.join(', ')}` : ''}
 
 CRITICAL REQUIREMENTS:
@@ -2178,6 +2181,26 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                     </div>
 
                     <div className="space-y-2">
+                      <Label>Goal Target *</Label>
+                      <Select
+                        value={aiTemplateForm.goal}
+                        onValueChange={(value) => setAiTemplateForm({...aiTemplateForm, goal: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="weight_loss">Weight Loss</SelectItem>
+                          <SelectItem value="weight_gain">Weight Gain</SelectItem>
+                          <SelectItem value="muscle_gain">Muscle Gain</SelectItem>
+                          <SelectItem value="maintenance">Maintenance</SelectItem>
+                          <SelectItem value="health_improvement">Health Improvement</SelectItem>
+                          <SelectItem value="disease_reversal">Disease Reversal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
                       <Label>Food Preference *</Label>
                       <Select
                         value={aiTemplateForm.food_preference}
@@ -2352,7 +2375,8 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                           regional_preference: "all",
                           duration: "7",
                           description: "",
-                          disease_focus: []
+                          disease_focus: [],
+                          goal: "weight_loss"
                         });
                       }}
                       className="flex-1"
