@@ -217,6 +217,14 @@ export default function MealPlanner() {
     },
   });
 
+  const deletePlanMutation = useMutation({
+    mutationFn: (id) => base44.entities.MealPlan.delete(id),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(['mealPlans']);
+      alert(`✅ Meal plan deleted successfully!`);
+    },
+  });
+
   const updateUsageMutation = useMutation({
     mutationFn: async ({ type }) => {
       if (!user?.email) throw new Error("User email is not available for usage tracking.");
@@ -1256,6 +1264,23 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
     setActiveTab("generate");
   };
 
+  const handleDeletePlan = (plan) => {
+    const client = clients.find(c => c.id === plan.client_id);
+    const confirmed = window.confirm(
+      `⚠️ Delete Diet Plan?\n\n` +
+      `Plan: ${plan.name}\n` +
+      `Client: ${client?.full_name || 'Unknown'}\n` +
+      `Duration: ${plan.duration} days\n\n` +
+      `This will remove the plan from the client's account.\n` +
+      `This action cannot be undone.\n\n` +
+      `Continue with deletion?`
+    );
+    
+    if (confirmed) {
+      deletePlanMutation.mutate(plan.id);
+    }
+  };
+
   if (clients.length === 0) {
     return (
       <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
@@ -1895,6 +1920,15 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                             >
                               <Edit className="w-4 h-4 mr-2" />
                               Edit Plan
+                            </Button>
+                            <Button 
+                              variant="outline"
+                              className="text-red-600 hover:bg-red-50"
+                              onClick={() => handleDeletePlan(plan)}
+                              disabled={deletePlanMutation.isPending}
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
                             </Button>
                           </div>
                         </CardContent>
