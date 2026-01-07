@@ -14,6 +14,7 @@ import ClientAssessments from './pages/ClientAssessments';
 import ClientCommunication from './pages/ClientCommunication';
 import ClientDashboard from './pages/ClientDashboard';
 import ClientFinanceManager from './pages/ClientFinanceManager';
+import ClientManagement from './pages/ClientManagement';
 import ClientPlanBuilder from './pages/ClientPlanBuilder';
 import ClientPlanManagement from './pages/ClientPlanManagement';
 import ClientPlans from './pages/ClientPlans';
@@ -70,7 +71,6 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import ClientManagement from './pages/ClientManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -91,6 +91,7 @@ export const PAGES = {
     "ClientCommunication": ClientCommunication,
     "ClientDashboard": ClientDashboard,
     "ClientFinanceManager": ClientFinanceManager,
+    "ClientManagement": ClientManagement,
     "ClientPlanBuilder": ClientPlanBuilder,
     "ClientPlanManagement": ClientPlanManagement,
     "ClientPlans": ClientPlans,
@@ -147,7 +148,6 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "ClientManagement": ClientManagement,
 }
 
 export const pagesConfig = {
