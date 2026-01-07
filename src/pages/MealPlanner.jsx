@@ -37,9 +37,6 @@ export default function MealPlanner() {
   const [aiGeneratedTemplate, setAiGeneratedTemplate] = useState(null);
   const [aiTemplateForm, setAiTemplateForm] = useState({
     name: "",
-    age: "",
-    height: "",
-    weight: "",
     target_calories: "1800",
     food_preference: "veg",
     regional_preference: "all",
@@ -2914,62 +2911,6 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
 
               {!aiGeneratedTemplate ? (
                 <div className="space-y-4">
-                  <Alert className="bg-blue-50 border-blue-300">
-                    <AlertDescription className="text-blue-900">
-                      <p className="font-semibold mb-2">📏 Portion Size Reference Guide:</p>
-                      <div className="grid grid-cols-3 gap-2 text-xs">
-                        <div>• Small bowl: <strong>150gm</strong></div>
-                        <div>• Medium bowl: <strong>200gm</strong></div>
-                        <div>• Large bowl: <strong>250gm</strong></div>
-                      </div>
-                    </AlertDescription>
-                  </Alert>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label>Age (years)</Label>
-                      <Input
-                        type="number"
-                        placeholder="25"
-                        value={aiTemplateForm.age}
-                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, age: e.target.value})}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Height (cm)</Label>
-                      <Input
-                        type="number"
-                        placeholder="165"
-                        value={aiTemplateForm.height}
-                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, height: e.target.value})}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Weight (kg)</Label>
-                      <Input
-                        type="number"
-                        placeholder="70"
-                        value={aiTemplateForm.weight}
-                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, weight: e.target.value})}
-                      />
-                    </div>
-                  </div>
-
-                  {aiTemplateForm.height && aiTemplateForm.weight && (
-                    <div className="p-3 bg-purple-50 border border-purple-300 rounded-lg">
-                      <p className="text-sm">
-                        <strong>BMI:</strong> {(aiTemplateForm.weight / Math.pow(aiTemplateForm.height / 100, 2)).toFixed(1)}
-                        <span className="ml-2 text-purple-700">
-                          {(aiTemplateForm.weight / Math.pow(aiTemplateForm.height / 100, 2)) < 18.5 ? '(Underweight)' :
-                           (aiTemplateForm.weight / Math.pow(aiTemplateForm.height / 100, 2)) < 25 ? '(Normal)' :
-                           (aiTemplateForm.weight / Math.pow(aiTemplateForm.height / 100, 2)) < 30 ? '(Overweight)' : '(Obese)'}
-                        </span>
-                      </p>
-                    </div>
-                  )}
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Target Calories *</Label>

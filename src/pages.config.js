@@ -23,7 +23,6 @@ import ClinicalIntake from './pages/ClinicalIntake';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachSubscription from './pages/CoachSubscription';
 import CoachSubscriptions from './pages/CoachSubscriptions';
-import Communication from './pages/Communication';
 import DietitianDashboard from './pages/DietitianDashboard';
 import Documentation from './pages/Documentation';
 import FeatureControl from './pages/FeatureControl';
@@ -62,7 +61,6 @@ import TeamAttendance from './pages/TeamAttendance';
 import TeamDashboard from './pages/TeamDashboard';
 import TeamManagement from './pages/TeamManagement';
 import TeamSetup from './pages/TeamSetup';
-import TemplateLibrary from './pages/TemplateLibrary';
 import TemplateLibraryManager from './pages/TemplateLibraryManager';
 import UsageDashboard from './pages/UsageDashboard';
 import UserPermissionManagement from './pages/UserPermissionManagement';
@@ -71,6 +69,8 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
+import TemplateLibrary from './pages/TemplateLibrary';
+import Communication from './pages/Communication';
 import __Layout from './Layout.jsx';
 
 
@@ -100,7 +100,6 @@ export const PAGES = {
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachSubscription": CoachSubscription,
     "CoachSubscriptions": CoachSubscriptions,
-    "Communication": Communication,
     "DietitianDashboard": DietitianDashboard,
     "Documentation": Documentation,
     "FeatureControl": FeatureControl,
@@ -139,7 +138,6 @@ export const PAGES = {
     "TeamDashboard": TeamDashboard,
     "TeamManagement": TeamManagement,
     "TeamSetup": TeamSetup,
-    "TemplateLibrary": TemplateLibrary,
     "TemplateLibraryManager": TemplateLibraryManager,
     "UsageDashboard": UsageDashboard,
     "UserPermissionManagement": UserPermissionManagement,
@@ -148,6 +146,8 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
+    "TemplateLibrary": TemplateLibrary,
+    "Communication": Communication,
 }
 
 export const pagesConfig = {
