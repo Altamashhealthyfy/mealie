@@ -93,9 +93,24 @@ export default function Communication() {
   const { data: clients } = useQuery({
     queryKey: ['clients', user?.email, user?.user_type],
     queryFn: async () => {
-      // All coaches and admins can see all clients in messages
-      if (['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(user?.user_type)) {
-        return await base44.entities.Client.list('-created_date', 100);
+      const allClients = await base44.entities.Client.list('-created_date', 100);
+
+      // Super admin sees ALL clients
+      if (user?.user_type === 'super_admin') {
+        return allClients;
+      }
+
+      // Student coaches see clients they created OR clients assigned to them
+      if (user?.user_type === 'student_coach') {
+        return allClients.filter(client => 
+          client.created_by === user?.email || 
+          client.assigned_coach === user?.email
+        );
+      }
+
+      // Team members, student team members - only see clients they created
+      if (['team_member', 'student_team_member'].includes(user?.user_type)) {
+        return allClients.filter(client => client.created_by === user?.email);
       }
       
       return [];
