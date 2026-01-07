@@ -12,7 +12,7 @@ import {
   Send,
   Search,
   CheckCheck,
-  Clock,
+  Check,
   Loader2,
   ArrowDown,
   Paperclip,
@@ -573,7 +573,7 @@ export default function Communication() {
                                       message.read ? (
                                         <CheckCheck className="w-3 h-3" />
                                       ) : (
-                                        <Clock className="w-3 h-3" />
+                                        <Check className="w-3 h-3" />
                                       )
                                     )}
                                   </div>

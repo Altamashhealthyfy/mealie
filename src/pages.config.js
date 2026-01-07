@@ -14,7 +14,6 @@ import ClientAssessments from './pages/ClientAssessments';
 import ClientCommunication from './pages/ClientCommunication';
 import ClientDashboard from './pages/ClientDashboard';
 import ClientFinanceManager from './pages/ClientFinanceManager';
-import ClientManagement from './pages/ClientManagement';
 import ClientPlanBuilder from './pages/ClientPlanBuilder';
 import ClientPlanManagement from './pages/ClientPlanManagement';
 import ClientPlans from './pages/ClientPlans';
@@ -36,7 +35,6 @@ import InstallmentTracker from './pages/InstallmentTracker';
 import LeadsPipeline from './pages/LeadsPipeline';
 import MPESSTracker from './pages/MPESSTracker';
 import MarketingHub from './pages/MarketingHub';
-import MealPlanner from './pages/MealPlanner';
 import MealPlansPro from './pages/MealPlansPro';
 import MyAssessment from './pages/MyAssessment';
 import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
@@ -50,7 +48,6 @@ import PlatformBrandingTracker from './pages/PlatformBrandingTracker';
 import PlatformReference from './pages/PlatformReference';
 import PricingPlans from './pages/PricingPlans';
 import Profile from './pages/Profile';
-import ProgressTracking from './pages/ProgressTracking';
 import ProjectManagement from './pages/ProjectManagement';
 import PurchaseAICredits from './pages/PurchaseAICredits';
 import Recipes from './pages/Recipes';
@@ -61,6 +58,7 @@ import TeamAttendance from './pages/TeamAttendance';
 import TeamDashboard from './pages/TeamDashboard';
 import TeamManagement from './pages/TeamManagement';
 import TeamSetup from './pages/TeamSetup';
+import TemplateLibrary from './pages/TemplateLibrary';
 import TemplateLibraryManager from './pages/TemplateLibraryManager';
 import UsageDashboard from './pages/UsageDashboard';
 import UserPermissionManagement from './pages/UserPermissionManagement';
@@ -69,7 +67,9 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import TemplateLibrary from './pages/TemplateLibrary';
+import ProgressTracking from './pages/ProgressTracking';
+import ClientManagement from './pages/ClientManagement';
+import MealPlanner from './pages/MealPlanner';
 import Communication from './pages/Communication';
 import __Layout from './Layout.jsx';
 
@@ -91,7 +91,6 @@ export const PAGES = {
     "ClientCommunication": ClientCommunication,
     "ClientDashboard": ClientDashboard,
     "ClientFinanceManager": ClientFinanceManager,
-    "ClientManagement": ClientManagement,
     "ClientPlanBuilder": ClientPlanBuilder,
     "ClientPlanManagement": ClientPlanManagement,
     "ClientPlans": ClientPlans,
@@ -113,7 +112,6 @@ export const PAGES = {
     "LeadsPipeline": LeadsPipeline,
     "MPESSTracker": MPESSTracker,
     "MarketingHub": MarketingHub,
-    "MealPlanner": MealPlanner,
     "MealPlansPro": MealPlansPro,
     "MyAssessment": MyAssessment,
     "MyAssignedMealPlan": MyAssignedMealPlan,
@@ -127,7 +125,6 @@ export const PAGES = {
     "PlatformReference": PlatformReference,
     "PricingPlans": PricingPlans,
     "Profile": Profile,
-    "ProgressTracking": ProgressTracking,
     "ProjectManagement": ProjectManagement,
     "PurchaseAICredits": PurchaseAICredits,
     "Recipes": Recipes,
@@ -138,6 +135,7 @@ export const PAGES = {
     "TeamDashboard": TeamDashboard,
     "TeamManagement": TeamManagement,
     "TeamSetup": TeamSetup,
+    "TemplateLibrary": TemplateLibrary,
     "TemplateLibraryManager": TemplateLibraryManager,
     "UsageDashboard": UsageDashboard,
     "UserPermissionManagement": UserPermissionManagement,
@@ -146,7 +144,9 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "TemplateLibrary": TemplateLibrary,
+    "ProgressTracking": ProgressTracking,
+    "ClientManagement": ClientManagement,
+    "MealPlanner": MealPlanner,
     "Communication": Communication,
 }
 
