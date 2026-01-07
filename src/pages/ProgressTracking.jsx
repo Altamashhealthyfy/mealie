@@ -700,8 +700,8 @@ export default function ProgressTracking() {
           </TabsContent>
 
           <TabsContent value="wellness">
-            {progressLogs.length > 0 ? (
-              <WellnessCharts progressLogs={progressLogs} />
+            {progressLogs.length > 0 || mpessLogs.length > 0 ? (
+              <WellnessCharts progressLogs={progressLogs} mpessLogs={mpessLogs} />
             ) : (
               <Card><CardContent className="p-12 text-center">
                 <Activity className="w-16 h-16 mx-auto text-gray-300 mb-4" />

@@ -14,6 +14,7 @@ import ClientAssessments from './pages/ClientAssessments';
 import ClientCommunication from './pages/ClientCommunication';
 import ClientDashboard from './pages/ClientDashboard';
 import ClientFinanceManager from './pages/ClientFinanceManager';
+import ClientManagement from './pages/ClientManagement';
 import ClientPlanBuilder from './pages/ClientPlanBuilder';
 import ClientPlanManagement from './pages/ClientPlanManagement';
 import ClientPlans from './pages/ClientPlans';
@@ -22,6 +23,7 @@ import ClinicalIntake from './pages/ClinicalIntake';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachSubscription from './pages/CoachSubscription';
 import CoachSubscriptions from './pages/CoachSubscriptions';
+import Communication from './pages/Communication';
 import DietitianDashboard from './pages/DietitianDashboard';
 import Documentation from './pages/Documentation';
 import FeatureControl from './pages/FeatureControl';
@@ -35,6 +37,7 @@ import InstallmentTracker from './pages/InstallmentTracker';
 import LeadsPipeline from './pages/LeadsPipeline';
 import MPESSTracker from './pages/MPESSTracker';
 import MarketingHub from './pages/MarketingHub';
+import MealPlanner from './pages/MealPlanner';
 import MealPlansPro from './pages/MealPlansPro';
 import MyAssessment from './pages/MyAssessment';
 import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
@@ -48,6 +51,7 @@ import PlatformBrandingTracker from './pages/PlatformBrandingTracker';
 import PlatformReference from './pages/PlatformReference';
 import PricingPlans from './pages/PricingPlans';
 import Profile from './pages/Profile';
+import ProgressTracking from './pages/ProgressTracking';
 import ProjectManagement from './pages/ProjectManagement';
 import PurchaseAICredits from './pages/PurchaseAICredits';
 import Recipes from './pages/Recipes';
@@ -67,10 +71,6 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import ProgressTracking from './pages/ProgressTracking';
-import ClientManagement from './pages/ClientManagement';
-import MealPlanner from './pages/MealPlanner';
-import Communication from './pages/Communication';
 import __Layout from './Layout.jsx';
 
 
@@ -91,6 +91,7 @@ export const PAGES = {
     "ClientCommunication": ClientCommunication,
     "ClientDashboard": ClientDashboard,
     "ClientFinanceManager": ClientFinanceManager,
+    "ClientManagement": ClientManagement,
     "ClientPlanBuilder": ClientPlanBuilder,
     "ClientPlanManagement": ClientPlanManagement,
     "ClientPlans": ClientPlans,
@@ -99,6 +100,7 @@ export const PAGES = {
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachSubscription": CoachSubscription,
     "CoachSubscriptions": CoachSubscriptions,
+    "Communication": Communication,
     "DietitianDashboard": DietitianDashboard,
     "Documentation": Documentation,
     "FeatureControl": FeatureControl,
@@ -112,6 +114,7 @@ export const PAGES = {
     "LeadsPipeline": LeadsPipeline,
     "MPESSTracker": MPESSTracker,
     "MarketingHub": MarketingHub,
+    "MealPlanner": MealPlanner,
     "MealPlansPro": MealPlansPro,
     "MyAssessment": MyAssessment,
     "MyAssignedMealPlan": MyAssignedMealPlan,
@@ -125,6 +128,7 @@ export const PAGES = {
     "PlatformReference": PlatformReference,
     "PricingPlans": PricingPlans,
     "Profile": Profile,
+    "ProgressTracking": ProgressTracking,
     "ProjectManagement": ProjectManagement,
     "PurchaseAICredits": PurchaseAICredits,
     "Recipes": Recipes,
@@ -144,10 +148,6 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "ProgressTracking": ProgressTracking,
-    "ClientManagement": ClientManagement,
-    "MealPlanner": MealPlanner,
-    "Communication": Communication,
 }
 
 export const pagesConfig = {

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { format } from "date-fns";
 
-export default function WellnessCharts({ progressLogs }) {
+export default function WellnessCharts({ progressLogs, mpessLogs = [] }) {
   const chartData = progressLogs
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .map(log => ({
@@ -16,6 +16,18 @@ export default function WellnessCharts({ progressLogs }) {
       water: log.wellness_metrics?.water_intake || null,
       exercise: log.wellness_metrics?.exercise_minutes || null,
       sleepHours: log.wellness_metrics?.sleep_hours || null,
+    }));
+
+  const mpessChartData = mpessLogs
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .map(log => ({
+      date: format(new Date(log.date), 'MMM d'),
+      mindScore: log.mind_practices ? Object.values(log.mind_practices).filter(v => v === true).length : 0,
+      physicalScore: log.physical_practices ? Object.values(log.physical_practices).filter(v => v === true).length : 0,
+      emotionalScore: log.emotional_practices ? Object.values(log.emotional_practices).filter(v => v === true).length : 0,
+      socialScore: log.social_practices ? Object.values(log.social_practices).filter(v => v === true).length : 0,
+      spiritualScore: log.spiritual_practices ? Object.values(log.spiritual_practices).filter(v => v === true).length : 0,
+      overallRating: log.overall_rating || null,
     }));
 
   const moodColors = { 1: '#ef4444', 2: '#f97316', 3: '#eab308', 4: '#84cc16', 5: '#22c55e' };
@@ -121,6 +133,59 @@ export default function WellnessCharts({ progressLogs }) {
           </ResponsiveContainer>
         </CardContent>
       </Card>
+
+      {/* MPESS Tracker */}
+      {mpessChartData.length > 0 && (
+        <>
+          <Card className="border-none shadow-lg lg:col-span-2">
+            <CardHeader>
+              <CardTitle>MPESS Wellness Practices</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={mpessChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="mindScore" fill="#8b5cf6" name="Mind" stackId="a" />
+                  <Bar dataKey="physicalScore" fill="#06b6d4" name="Physical" stackId="a" />
+                  <Bar dataKey="emotionalScore" fill="#f97316" name="Emotional" stackId="a" />
+                  <Bar dataKey="socialScore" fill="#22c55e" name="Social" stackId="a" />
+                  <Bar dataKey="spiritualScore" fill="#ec4899" name="Spiritual" stackId="a" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-lg lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Overall MPESS Rating</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={mpessChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis domain={[0, 5]} />
+                  <Tooltip />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="overallRating" 
+                    stroke="#a855f7" 
+                    strokeWidth={3}
+                    name="Overall Rating"
+                    connectNulls
+                    dot={{ fill: '#a855f7', r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   );
 }
