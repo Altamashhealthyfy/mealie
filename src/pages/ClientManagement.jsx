@@ -20,6 +20,7 @@ import {
   Calculator,
   Mail,
   MessageCircle,
+  MessageSquare,
   Calendar,
   ChefHat,
   CheckCircle2,
