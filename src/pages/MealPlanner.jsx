@@ -43,7 +43,12 @@ export default function MealPlanner() {
     duration: "7",
     description: "",
     disease_focus: [],
-    goal: "weight_loss"
+    goal: "weight_loss",
+    age: "",
+    height: "",
+    weight: "",
+    bmi: "",
+    weight_loss_target: ""
   });
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [templateToAssign, setTemplateToAssign] = useState(null);
@@ -193,7 +198,12 @@ export default function MealPlanner() {
         duration: "7",
         description: "",
         disease_focus: [],
-        goal: "weight_loss"
+        goal: "weight_loss",
+        age: "",
+        height: "",
+        weight: "",
+        bmi: "",
+        weight_loss_target: ""
       });
       alert("✅ AI template created successfully! Use it unlimited times for FREE!");
     },
@@ -2911,7 +2921,70 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
 
               {!aiGeneratedTemplate ? (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card className="bg-blue-50 border-blue-200">
+                    <CardContent className="p-4">
+                      <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                        📏 Portion Size Reference Guide
+                      </h4>
+                      <div className="grid grid-cols-3 gap-3 text-sm">
+                        <div className="bg-white p-2 rounded border border-blue-200">
+                          <p className="font-medium text-gray-900">Small Bowl</p>
+                          <p className="text-gray-600">150gm</p>
+                        </div>
+                        <div className="bg-white p-2 rounded border border-blue-200">
+                          <p className="font-medium text-gray-900">Medium Bowl</p>
+                          <p className="text-gray-600">200gm</p>
+                        </div>
+                        <div className="bg-white p-2 rounded border border-blue-200">
+                          <p className="font-medium text-gray-900">Large Bowl</p>
+                          <p className="text-gray-600">250gm</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label>Age</Label>
+                      <Input
+                        type="number"
+                        placeholder="30"
+                        value={aiTemplateForm.age}
+                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, age: e.target.value})}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Height (cm)</Label>
+                      <Input
+                        type="number"
+                        placeholder="170"
+                        value={aiTemplateForm.height}
+                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, height: e.target.value})}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Weight (kg)</Label>
+                      <Input
+                        type="number"
+                        placeholder="70"
+                        value={aiTemplateForm.weight}
+                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, weight: e.target.value})}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>BMI</Label>
+                      <Input
+                        type="number"
+                        step="0.1"
+                        placeholder="24.2"
+                        value={aiTemplateForm.bmi}
+                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, bmi: e.target.value})}
+                      />
+                    </div>
+
                     <div className="space-y-2">
                       <Label>Target Calories *</Label>
                       <Input
@@ -2922,6 +2995,18 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                       />
                     </div>
 
+                    <div className="space-y-2">
+                      <Label>Weight Loss Target (kg)</Label>
+                      <Input
+                        type="number"
+                        placeholder="5"
+                        value={aiTemplateForm.weight_loss_target}
+                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, weight_loss_target: e.target.value})}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Duration (days) *</Label>
                       <Select
@@ -3137,7 +3222,12 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                           duration: "7",
                           description: "",
                           disease_focus: [],
-                          goal: "weight_loss"
+                          goal: "weight_loss",
+                          age: "",
+                          height: "",
+                          weight: "",
+                          bmi: "",
+                          weight_loss_target: ""
                         });
                       }}
                       className="flex-1"
