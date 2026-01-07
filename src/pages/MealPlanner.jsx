@@ -1251,6 +1251,46 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
     });
   };
 
+  const handleImportTemplate = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const importedData = JSON.parse(text);
+
+      if (!importedData.meals || !Array.isArray(importedData.meals)) {
+        alert("Invalid template file: Missing meals array");
+        return;
+      }
+
+      if (!importedData.name || !importedData.duration || !importedData.target_calories) {
+        alert("Invalid template file: Missing required fields (name, duration, target_calories)");
+        return;
+      }
+
+      const templateData = {
+        name: importedData.name,
+        description: importedData.description || "Imported template",
+        category: importedData.category || "general",
+        duration: importedData.duration,
+        target_calories: importedData.target_calories,
+        food_preference: importedData.food_preference || "veg",
+        regional_preference: importedData.regional_preference || "all",
+        meals: importedData.meals,
+        is_public: false,
+        times_used: 0,
+        tags: importedData.tags || ["imported"]
+      };
+
+      saveTemplateMutation.mutate(templateData);
+      event.target.value = '';
+    } catch (error) {
+      console.error("Import error:", error);
+      alert("Failed to import template. Please ensure the file is valid JSON format.");
+    }
+  };
+
   const canEditTemplate = (template) => {
     return user?.user_type === 'super_admin' || 
            user?.user_type === 'team_member' || 
@@ -1516,6 +1556,21 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                       <Edit className="w-5 h-5 mr-2" />
                       Create Manual Template
                     </Button>
+                    <Button
+                      onClick={() => document.getElementById('import-template-file').click()}
+                      variant="outline"
+                      className="h-12 border-2 border-green-500 text-green-600 hover:bg-green-50"
+                    >
+                      <Download className="w-5 h-5 mr-2" />
+                      Import Template
+                    </Button>
+                    <input
+                      id="import-template-file"
+                      type="file"
+                      accept=".json"
+                      className="hidden"
+                      onChange={handleImportTemplate}
+                    />
                   </div>
                 )}
 
