@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Calendar, Loader2, Plus, Users, Eye, CheckCircle, Copy, AlertTriangle, Zap, Star, Download, Clock, Target, TrendingUp, Edit, Trash2, CreditCard, FileText, Table } from "lucide-react";
+import { Sparkles, Calendar, Loader2, Plus, Users, Eye, CheckCircle, Copy, AlertTriangle, Zap, Star, Download, Clock, Target, TrendingUp, Edit, Trash2, CreditCard, FileText, Table, Filter, X } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -51,6 +51,14 @@ export default function MealPlanner() {
   const [showManualTemplateDialog, setShowManualTemplateDialog] = useState(false);
   const [manualTemplateData, setManualTemplateData] = useState(null);
   const [showDownloadOptions, setShowDownloadOptions] = useState(false);
+  const [templateFilters, setTemplateFilters] = useState({
+    disease: "all",
+    goal: "all",
+    foodPreference: "all",
+    regionalPreference: "all",
+    calorieRange: "all",
+    duration: "all"
+  });
   const [planConfig, setPlanConfig] = useState({
     duration: 10,
     meal_pattern: 'daily',
@@ -1614,15 +1622,59 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
     };
 
     const filteredTemplates = templates.filter(template => {
-    if (!searchQuery.trim()) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      template.name.toLowerCase().includes(query) ||
-      template.description?.toLowerCase().includes(query) ||
-      template.category?.toLowerCase().includes(query) ||
-      template.food_preference?.toLowerCase().includes(query) ||
-      template.tags?.some(tag => tag.toLowerCase().includes(query))
-    );
+    // Text search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      const matchesSearch = (
+        template.name.toLowerCase().includes(query) ||
+        template.description?.toLowerCase().includes(query) ||
+        template.category?.toLowerCase().includes(query) ||
+        template.food_preference?.toLowerCase().includes(query) ||
+        template.tags?.some(tag => tag.toLowerCase().includes(query))
+      );
+      if (!matchesSearch) return false;
+    }
+
+    // Disease filter
+    if (templateFilters.disease !== "all") {
+      const templateDiseases = template.disease_focus || [];
+      if (!templateDiseases.includes(templateFilters.disease)) return false;
+    }
+
+    // Goal filter (based on category)
+    if (templateFilters.goal !== "all") {
+      if (template.category !== templateFilters.goal) return false;
+    }
+
+    // Food preference filter
+    if (templateFilters.foodPreference !== "all") {
+      if (template.food_preference !== templateFilters.foodPreference) return false;
+    }
+
+    // Regional preference filter
+    if (templateFilters.regionalPreference !== "all") {
+      if (template.regional_preference !== templateFilters.regionalPreference) return false;
+    }
+
+    // Calorie range filter
+    if (templateFilters.calorieRange !== "all") {
+      const calories = template.target_calories;
+      if (templateFilters.calorieRange === "low" && (calories < 1000 || calories > 1500)) return false;
+      if (templateFilters.calorieRange === "medium" && (calories < 1500 || calories > 2000)) return false;
+      if (templateFilters.calorieRange === "high" && (calories < 2000 || calories > 3000)) return false;
+    }
+
+    // Duration filter
+    if (templateFilters.duration !== "all") {
+      const duration = template.duration;
+      if (templateFilters.duration === "7" && duration !== 7) return false;
+      if (templateFilters.duration === "10" && duration !== 10) return false;
+      if (templateFilters.duration === "15" && duration !== 15) return false;
+      if (templateFilters.duration === "21" && duration !== 21) return false;
+      if (templateFilters.duration === "30" && duration !== 30) return false;
+    }
+
+    return true;
     });
 
     const handleGenerateNew = () => {
@@ -1952,13 +2004,174 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                 )}
 
                 <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-                  <CardContent className="p-4">
+                  <CardContent className="p-6 space-y-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <Filter className="w-5 h-5 text-gray-600" />
+                        <h3 className="font-semibold text-gray-900">Filter Templates</h3>
+                      </div>
+                      {(templateFilters.disease !== "all" || templateFilters.goal !== "all" || 
+                        templateFilters.foodPreference !== "all" || templateFilters.regionalPreference !== "all" || 
+                        templateFilters.calorieRange !== "all" || templateFilters.duration !== "all") && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setTemplateFilters({
+                            disease: "all",
+                            goal: "all",
+                            foodPreference: "all",
+                            regionalPreference: "all",
+                            calorieRange: "all",
+                            duration: "all"
+                          })}
+                          className="text-red-600 hover:bg-red-50"
+                        >
+                          <X className="w-4 h-4 mr-1" />
+                          Clear Filters
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Disease Focus</Label>
+                        <Select
+                          value={templateFilters.disease}
+                          onValueChange={(value) => setTemplateFilters({...templateFilters, disease: value})}
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Diseases</SelectItem>
+                            <SelectItem value="diabetes_type1">Diabetes Type 1</SelectItem>
+                            <SelectItem value="diabetes_type2">Diabetes Type 2</SelectItem>
+                            <SelectItem value="prediabetes">Prediabetes</SelectItem>
+                            <SelectItem value="hypertension">Hypertension</SelectItem>
+                            <SelectItem value="pcos">PCOS</SelectItem>
+                            <SelectItem value="thyroid_hypo">Hypothyroid</SelectItem>
+                            <SelectItem value="thyroid_hyper">Hyperthyroid</SelectItem>
+                            <SelectItem value="fatty_liver">Fatty Liver</SelectItem>
+                            <SelectItem value="high_cholesterol">High Cholesterol</SelectItem>
+                            <SelectItem value="ibs">IBS</SelectItem>
+                            <SelectItem value="gerd">GERD</SelectItem>
+                            <SelectItem value="kidney_disease">Kidney Disease</SelectItem>
+                            <SelectItem value="heart_disease">Heart Disease</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Goal Target</Label>
+                        <Select
+                          value={templateFilters.goal}
+                          onValueChange={(value) => setTemplateFilters({...templateFilters, goal: value})}
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Goals</SelectItem>
+                            <SelectItem value="weight_loss">Weight Loss</SelectItem>
+                            <SelectItem value="weight_gain">Weight Gain</SelectItem>
+                            <SelectItem value="muscle_gain">Muscle Gain</SelectItem>
+                            <SelectItem value="diabetes">Diabetes</SelectItem>
+                            <SelectItem value="pcos">PCOS</SelectItem>
+                            <SelectItem value="thyroid">Thyroid</SelectItem>
+                            <SelectItem value="general">General Health</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Food Preference</Label>
+                        <Select
+                          value={templateFilters.foodPreference}
+                          onValueChange={(value) => setTemplateFilters({...templateFilters, foodPreference: value})}
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Types</SelectItem>
+                            <SelectItem value="veg">Vegetarian</SelectItem>
+                            <SelectItem value="non_veg">Non-Veg</SelectItem>
+                            <SelectItem value="eggetarian">Eggetarian</SelectItem>
+                            <SelectItem value="jain">Jain</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Regional Preference</Label>
+                        <Select
+                          value={templateFilters.regionalPreference}
+                          onValueChange={(value) => setTemplateFilters({...templateFilters, regionalPreference: value})}
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Regions</SelectItem>
+                            <SelectItem value="north">North Indian</SelectItem>
+                            <SelectItem value="south">South Indian</SelectItem>
+                            <SelectItem value="west">West Indian</SelectItem>
+                            <SelectItem value="east">East Indian</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Calorie Range</Label>
+                        <Select
+                          value={templateFilters.calorieRange}
+                          onValueChange={(value) => setTemplateFilters({...templateFilters, calorieRange: value})}
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Ranges</SelectItem>
+                            <SelectItem value="low">Low (1000-1500 cal)</SelectItem>
+                            <SelectItem value="medium">Medium (1500-2000 cal)</SelectItem>
+                            <SelectItem value="high">High (2000-3000 cal)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Duration</Label>
+                        <Select
+                          value={templateFilters.duration}
+                          onValueChange={(value) => setTemplateFilters({...templateFilters, duration: value})}
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Durations</SelectItem>
+                            <SelectItem value="7">7 Days</SelectItem>
+                            <SelectItem value="10">10 Days</SelectItem>
+                            <SelectItem value="15">15 Days</SelectItem>
+                            <SelectItem value="21">21 Days</SelectItem>
+                            <SelectItem value="30">30 Days</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
                     <Input
-                      placeholder="🔍 Search templates by name, category, food type, tags..."
+                      placeholder="🔍 Search templates by name, category, tags..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="h-12 text-base"
                     />
+
+                    <div className="flex items-center justify-between pt-2 border-t">
+                      <p className="text-sm text-gray-600">
+                        Showing <span className="font-semibold text-gray-900">{filteredTemplates.length}</span> of {templates.length} templates
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
 
