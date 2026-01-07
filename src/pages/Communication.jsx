@@ -411,12 +411,12 @@ export default function Communication() {
                         <Loader2 className="w-8 h-8 mx-auto text-orange-500 animate-spin mb-3" />
                         <p className="text-gray-600">Loading messages...</p>
                       </div>
-                    ) : sortedClients.length === 0 ? (
+                    ) : sortedClients.length === 0 && searchQuery ? (
                       <div className="text-center py-12">
                         <MessageSquare className="w-12 h-12 mx-auto text-gray-300 mb-3" />
                         <p className="text-gray-600">No clients found</p>
                       </div>
-                    ) : (
+                    ) : sortedClients.length > 0 ? (
                       sortedClients.map((client) => {
                         const lastMessage = getLastMessage(client.id);
                         const unreadCount = getUnreadCount(client.id);
@@ -481,12 +481,12 @@ export default function Communication() {
                             </div>
                           </div>
                         );
-                      })
-                    )}
-                  </div>
-                </ScrollArea>
-              </div>
-            </div>
+                        })
+                        ) : null}
+                        </div>
+                        </ScrollArea>
+                        </div>
+                        </div>
 
             {/* Chat Area */}
             <div className={`${selectedClient ? 'flex' : 'hidden md:flex'} md:col-span-8 flex-col h-full md:h-auto`}>
