@@ -95,9 +95,9 @@ export default function MealPlanner() {
   const { data: templates } = useQuery({
     queryKey: ['mealPlanTemplates'],
     queryFn: async () => {
-      const myTemplates = await base44.entities.MealPlanTemplate.filter({ created_by: user?.email });
-      const publicTemplates = await base44.entities.MealPlanTemplate.filter({ is_public: true });
-      return [...myTemplates, ...publicTemplates];
+      // Fetch all templates - coaches can see all templates
+      const allTemplates = await base44.entities.MealPlanTemplate.list('-created_date');
+      return allTemplates;
     },
     enabled: !!user && user?.user_type !== 'client',
     initialData: [],
@@ -1471,7 +1471,7 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                   </CardContent>
                 </Card>
 
-                {coachPlan?.can_generate_ai_templates && (
+                {(user?.user_type === 'super_admin' || user?.user_type === 'team_member' || coachPlan?.can_generate_ai_templates) && (
                   <div className="flex gap-3">
                     <Button
                       onClick={() => setShowAITemplateDialog(true)}
@@ -1483,7 +1483,7 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                   </div>
                 )}
 
-                {!coachPlan?.can_generate_ai_templates && user?.user_type === 'student_coach' && (
+                {user?.user_type === 'student_coach' && !coachPlan?.can_generate_ai_templates && (
                   <Alert className="border-orange-500 bg-orange-50">
                     <Crown className="w-5 h-5 text-orange-600" />
                     <AlertDescription className="text-orange-900">
