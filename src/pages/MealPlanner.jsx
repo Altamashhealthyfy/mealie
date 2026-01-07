@@ -452,9 +452,9 @@ export default function MealPlanner() {
         `${hasIncompleteDays ? '⚠️ WARNING: Incomplete Template!\n\n' : '✅ '}Assign "${template.name}" to ${selectedClient.full_name}?\n\n` +
         `📅 Duration: ${template.duration} days\n` +
         `🍽️ Template Meals Breakdown:\n${mealSummary}\n\n` +
-        ${hasIncompleteDays ? `⚠️ Some days have less than 3 meal types!\n` +
+        (hasIncompleteDays ? `⚠️ Some days have less than 3 meal types!\n` +
         `A complete plan should have 5-6 meals per day:\n` +
-        `- Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner\n\n` : ''} +
+        `- Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner\n\n` : '') +
         `🔄 All ${template.duration} days will be assigned.\n` +
         `You can edit it later from "My Plans" tab.\n\n` +
         `Continue with assignment?`
