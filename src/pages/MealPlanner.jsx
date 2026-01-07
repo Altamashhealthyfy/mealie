@@ -43,6 +43,9 @@ export default function MealPlanner() {
     disease_focus: [],
     goal: "weight_loss"
   });
+  const [showAssignDialog, setShowAssignDialog] = useState(false);
+  const [templateToAssign, setTemplateToAssign] = useState(null);
+  const [assignmentStartDate, setAssignmentStartDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [planConfig, setPlanConfig] = useState({
     duration: 10,
     meal_pattern: 'daily',
@@ -440,7 +443,17 @@ export default function MealPlanner() {
     }
   };
 
-  const assignTemplateDirectly = async (template) => {
+  const openAssignDialog = (template) => {
+    if (!selectedClient) {
+      alert("⚠️ Please select a client first before assigning a template");
+      return;
+    }
+    setTemplateToAssign(template);
+    setAssignmentStartDate(format(new Date(), 'yyyy-MM-dd'));
+    setShowAssignDialog(true);
+  };
+
+  const assignTemplateDirectly = async (template, startDate) => {
     if (!selectedClient) {
       alert("⚠️ Please select a client first before assigning a template");
       return;
@@ -564,10 +577,22 @@ export default function MealPlanner() {
         times_used: (template.times_used || 0) + 1
       });
 
+      // Create notification for client
+      await base44.entities.Notification.create({
+        user_email: selectedClient.email,
+        type: 'meal_plan_assigned',
+        title: 'New Meal Plan Assigned',
+        message: `Your health coach has assigned you a new meal plan: "${template.name}". Duration: ${template.duration} days. Start date: ${format(new Date(startDate), 'MMM d, yyyy')}`,
+        link: createPageUrl('MyAssignedMealPlan'),
+        priority: 'high'
+      });
+
       queryClient.invalidateQueries(['mealPlanTemplates']);
-      
-      alert(`✅ Successfully assigned ${expandedMeals.length} meals across ${template.duration} days to ${selectedClient.full_name}!`);
-      
+
+      alert(`✅ Successfully assigned ${expandedMeals.length} meals across ${template.duration} days to ${selectedClient.full_name}!\n\n📅 Start Date: ${format(new Date(startDate), 'MMM d, yyyy')}\n📧 Notification sent to client`);
+
+      setShowAssignDialog(false);
+      setTemplateToAssign(null);
       setActiveTab("saved");
     } catch (error) {
       console.error("❌ Failed to assign template:", error);
@@ -1558,7 +1583,7 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
 
                         <div className="flex gap-2">
                           <Button
-                            onClick={() => assignTemplateDirectly(template)}
+                            onClick={() => openAssignDialog(template)}
                             disabled={!selectedClient}
                             className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed"
                             title={!selectedClient ? "Please select a client first" : "Assign template directly to client"}
@@ -2146,6 +2171,84 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                 </div>
               </DialogDescription>
             </DialogHeader>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-2xl flex items-center gap-2">
+                <Calendar className="w-6 h-6 text-blue-600" />
+                Assign Template to Client
+              </DialogTitle>
+              <DialogDescription>
+                Set a start date for the meal plan and notify the client
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {templateToAssign && selectedClient && (
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="space-y-2 text-sm">
+                    <p><strong>Template:</strong> {templateToAssign.name}</p>
+                    <p><strong>Client:</strong> {selectedClient.full_name}</p>
+                    <p><strong>Duration:</strong> {templateToAssign.duration} days</p>
+                    <p><strong>Calories:</strong> {templateToAssign.target_calories} kcal</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="start-date">Plan Start Date</Label>
+                <Input
+                  id="start-date"
+                  type="date"
+                  value={assignmentStartDate}
+                  onChange={(e) => setAssignmentStartDate(e.target.value)}
+                  min={format(new Date(), 'yyyy-MM-dd')}
+                  className="h-12"
+                />
+                <p className="text-xs text-gray-600">
+                  The client will start following this plan from the selected date
+                </p>
+              </div>
+
+              <Alert className="bg-green-50 border-green-300">
+                <AlertDescription className="text-green-900 text-sm">
+                  ✅ Client will receive a notification about their new meal plan
+                </AlertDescription>
+              </Alert>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowAssignDialog(false);
+                    setTemplateToAssign(null);
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => assignTemplateDirectly(templateToAssign, assignmentStartDate)}
+                  disabled={savePlanMutation.isPending}
+                  className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 h-12"
+                >
+                  {savePlanMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Assigning...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="w-5 h-5 mr-2" />
+                      Assign Plan
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
 
