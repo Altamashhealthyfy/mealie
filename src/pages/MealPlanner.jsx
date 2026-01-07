@@ -307,18 +307,40 @@ export default function MealPlanner() {
         return;
       }
 
-      // Group meals by day for better organization
+      // Group meals by day and meal type
       const mealsByDay = {};
+      const mealTypesByDay = {};
       template.meals.forEach(meal => {
         if (!mealsByDay[meal.day]) {
           mealsByDay[meal.day] = [];
+          mealTypesByDay[meal.day] = new Set();
         }
         mealsByDay[meal.day].push(meal);
+        mealTypesByDay[meal.day].add(meal.meal_type);
       });
 
+      // Validate template has multiple meal types per day
+      const firstDay = uniqueDays[0];
+      const mealTypesInFirstDay = mealTypesByDay[firstDay];
+      console.log('🍽️ Meal types in first day:', Array.from(mealTypesInFirstDay));
+      
+      if (mealTypesInFirstDay.size < 3) {
+        const confirmed = window.confirm(
+          `⚠️ WARNING: Incomplete Template!\n\n` +
+          `This template only has ${mealTypesInFirstDay.size} meal type(s) per day:\n` +
+          `${Array.from(mealTypesInFirstDay).join(', ')}\n\n` +
+          `A complete meal plan should have 5-6 meals:\n` +
+          `- Early Morning\n- Breakfast\n- Mid-Morning\n- Lunch\n- Evening Snack\n- Dinner\n\n` +
+          `Do you want to customize it anyway?\n` +
+          `(You can add missing meals manually after)`
+        );
+        
+        if (!confirmed) return;
+      }
+
       console.log('📋 Meals per template day:', Object.keys(mealsByDay).map(day => 
-        `Day ${day}: ${mealsByDay[day].length} meals`
-      ).join(', '));
+        `Day ${day}: ${mealsByDay[day].length} meals (${Array.from(mealTypesByDay[day]).join(', ')})`
+      ).join('\n'));
 
       // Expand meals to cover all days by repeating the pattern
       const expandedMeals = [];
@@ -336,7 +358,7 @@ export default function MealPlanner() {
           });
         });
         
-        console.log(`✅ Day ${targetDay}: Copied ${sourceDayMeals.length} meals from template day ${sourceDay}`);
+        console.log(`✅ Day ${targetDay}: Copied ${sourceDayMeals.length} meals from template day ${sourceDay} (${Array.from(mealTypesByDay[sourceDay]).join(', ')})`);
       }
 
       console.log('✅ Total expanded meals:', expandedMeals.length);
@@ -388,16 +410,6 @@ export default function MealPlanner() {
       return;
     }
 
-    const confirmed = window.confirm(
-      `✅ Assign "${template.name}" to ${selectedClient.full_name}?\n\n` +
-      `📅 Duration: ${template.duration} days\n` +
-      `🍽️ Template Meals: ${template.meals.length}\n` +
-      `🔄 All ${template.duration} days will be assigned\n\n` +
-      `You can view and edit it later from "My Plans" tab.`
-    );
-
-    if (!confirmed) return;
-
     try {
       console.log('🔵 Assigning template directly:', template.name);
       console.log('📊 Template duration:', template.duration, 'days');
@@ -412,18 +424,47 @@ export default function MealPlanner() {
         return;
       }
 
-      // Group meals by day for better organization
+      // Group meals by day and meal type
       const mealsByDay = {};
+      const mealTypesByDay = {};
       template.meals.forEach(meal => {
         if (!mealsByDay[meal.day]) {
           mealsByDay[meal.day] = [];
+          mealTypesByDay[meal.day] = new Set();
         }
         mealsByDay[meal.day].push(meal);
+        mealTypesByDay[meal.day].add(meal.meal_type);
       });
 
+      // Validate template has multiple meal types per day
+      const firstDay = uniqueDays[0];
+      const mealTypesInFirstDay = mealTypesByDay[firstDay];
+      console.log('🍽️ Meal types in first day:', Array.from(mealTypesInFirstDay));
+      
+      // Show detailed confirmation with meal type info
+      const mealSummary = uniqueDays.map(day => 
+        `Day ${day}: ${mealsByDay[day].length} meals (${Array.from(mealTypesByDay[day]).join(', ')})`
+      ).join('\n');
+      
+      const hasIncompleteDays = Array.from(Object.values(mealTypesByDay)).some(types => types.size < 3);
+      
+      const confirmed = window.confirm(
+        `${hasIncompleteDays ? '⚠️ WARNING: Incomplete Template!\n\n' : '✅ '}Assign "${template.name}" to ${selectedClient.full_name}?\n\n` +
+        `📅 Duration: ${template.duration} days\n` +
+        `🍽️ Template Meals Breakdown:\n${mealSummary}\n\n` +
+        ${hasIncompleteDays ? `⚠️ Some days have less than 3 meal types!\n` +
+        `A complete plan should have 5-6 meals per day:\n` +
+        `- Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner\n\n` : ''} +
+        `🔄 All ${template.duration} days will be assigned.\n` +
+        `You can edit it later from "My Plans" tab.\n\n` +
+        `Continue with assignment?`
+      );
+
+      if (!confirmed) return;
+
       console.log('📋 Meals per template day:', Object.keys(mealsByDay).map(day => 
-        `Day ${day}: ${mealsByDay[day].length} meals`
-      ).join(', '));
+        `Day ${day}: ${mealsByDay[day].length} meals (${Array.from(mealTypesByDay[day]).join(', ')})`
+      ).join('\n'));
 
       // Expand meals to cover all days by repeating the pattern
       const expandedMeals = [];
@@ -441,7 +482,7 @@ export default function MealPlanner() {
           });
         });
         
-        console.log(`✅ Day ${targetDay}: Copied ${sourceDayMeals.length} meals from template day ${sourceDay}`);
+        console.log(`✅ Day ${targetDay}: Copied ${sourceDayMeals.length} meals from template day ${sourceDay} (${Array.from(mealTypesByDay[sourceDay]).join(', ')})`);
       }
 
       console.log('✅ Total expanded meals:', expandedMeals.length);
