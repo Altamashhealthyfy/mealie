@@ -93,20 +93,24 @@ export default function Communication() {
   const { data: clients } = useQuery({
     queryKey: ['clients', user?.email, user?.user_type],
     queryFn: async () => {
-      if (user?.user_type === 'super_admin') {
+      if (user?.user_type === 'super_admin' || user?.user_type === 'team_member') {
         return await base44.entities.Client.list('-created_date', 100);
       }
       
-      // Fetch only clients created by or assigned to this coach
-      const [createdClients, assignedClients] = await Promise.all([
-        base44.entities.Client.filter({ created_by: user?.email }, '-created_date', 50),
-        base44.entities.Client.filter({ assigned_coach: user?.email }, '-created_date', 50)
-      ]);
+      if (user?.user_type === 'student_coach' || user?.user_type === 'student_team_member') {
+        // Fetch only clients created by or assigned to this coach
+        const [createdClients, assignedClients] = await Promise.all([
+          base44.entities.Client.filter({ created_by: user?.email }, '-created_date', 50),
+          base44.entities.Client.filter({ assigned_coach: user?.email }, '-created_date', 50)
+        ]);
+        
+        // Merge and deduplicate
+        const clientMap = new Map();
+        [...createdClients, ...assignedClients].forEach(c => clientMap.set(c.id, c));
+        return Array.from(clientMap.values());
+      }
       
-      // Merge and deduplicate
-      const clientMap = new Map();
-      [...createdClients, ...assignedClients].forEach(c => clientMap.set(c.id, c));
-      return Array.from(clientMap.values());
+      return [];
     },
     enabled: !!user,
     initialData: [],
