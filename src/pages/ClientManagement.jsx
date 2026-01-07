@@ -520,18 +520,7 @@ support@mealiepro.com`;
   };
 
   const handleDeleteMealPlan = (plan) => {
-    const confirmed = window.confirm(
-      `⚠️ Delete Diet Plan?\n\n` +
-      `Plan: ${plan.name}\n` +
-      `Duration: ${plan.duration} days\n\n` +
-      `This will remove the plan from the client's account.\n` +
-      `This action cannot be undone.\n\n` +
-      `Continue with deletion?`
-    );
-    
-    if (confirmed) {
-      deleteMealPlanMutation.mutate(plan.id);
-    }
+    deleteMealPlanMutation.mutate(plan.id);
   };
 
   const handleDeleteClient = (client) => {
