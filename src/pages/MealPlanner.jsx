@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Calendar, Loader2, Plus, Users, Eye, CheckCircle, Copy, AlertTriangle, Zap, Star, Download, Clock, Target, TrendingUp, Edit, Trash2, CreditCard } from "lucide-react";
+import { Sparkles, Calendar, Loader2, Plus, Users, Eye, CheckCircle, Copy, AlertTriangle, Zap, Star, Download, Clock, Target, TrendingUp, Edit, Trash2, CreditCard, FileText, Table } from "lucide-react";
+import * as XLSX from 'xlsx';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
@@ -49,6 +50,7 @@ export default function MealPlanner() {
   const [assignmentStartDate, setAssignmentStartDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [showManualTemplateDialog, setShowManualTemplateDialog] = useState(false);
   const [manualTemplateData, setManualTemplateData] = useState(null);
+  const [showDownloadOptions, setShowDownloadOptions] = useState(false);
   const [planConfig, setPlanConfig] = useState({
     duration: 10,
     meal_pattern: 'daily',
@@ -1251,8 +1253,8 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
     });
   };
 
-  const handleDownloadSampleTemplate = () => {
-    const sampleTemplate = {
+  const getSampleTemplateData = () => {
+    return {
       name: "Sample Meal Plan Template - 7 Days",
       description: "This is a sample template showing the required format for importing meal plans",
       category: "general",
@@ -1336,7 +1338,10 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
         }
       ]
     };
+  };
 
+  const handleDownloadSampleJSON = () => {
+    const sampleTemplate = getSampleTemplateData();
     const dataStr = JSON.stringify(sampleTemplate, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
@@ -1349,43 +1354,241 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadSampleExcel = () => {
+    const sampleTemplate = getSampleTemplateData();
+    
+    // Create metadata sheet
+    const metadataSheet = XLSX.utils.json_to_sheet([{
+      'Template Name': sampleTemplate.name,
+      'Description': sampleTemplate.description,
+      'Category': sampleTemplate.category,
+      'Duration (Days)': sampleTemplate.duration,
+      'Target Calories': sampleTemplate.target_calories,
+      'Food Preference': sampleTemplate.food_preference,
+      'Regional Preference': sampleTemplate.regional_preference,
+      'Tags': sampleTemplate.tags.join(', ')
+    }]);
+
+    // Create meals sheet
+    const mealsData = sampleTemplate.meals.map(meal => ({
+      'Day': meal.day,
+      'Meal Type': meal.meal_type,
+      'Meal Name': meal.meal_name,
+      'Items': meal.items.join(' | '),
+      'Portion Sizes': meal.portion_sizes.join(' | '),
+      'Calories': meal.calories,
+      'Protein (g)': meal.protein,
+      'Carbs (g)': meal.carbs,
+      'Fats (g)': meal.fats,
+      'Nutritional Tip': meal.nutritional_tip
+    }));
+    const mealsSheet = XLSX.utils.json_to_sheet(mealsData);
+
+    // Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, metadataSheet, 'Template Info');
+    XLSX.utils.book_append_sheet(workbook, mealsSheet, 'Meals');
+
+    // Download
+    XLSX.writeFile(workbook, 'sample-meal-plan-template.xlsx');
+  };
+
+  const handleDownloadSampleWord = () => {
+    const sampleTemplate = getSampleTemplateData();
+    
+    let content = `MEAL PLAN TEMPLATE - SAMPLE FORMAT\n`;
+    content += `=====================================\n\n`;
+    content += `Template Name: ${sampleTemplate.name}\n`;
+    content += `Description: ${sampleTemplate.description}\n`;
+    content += `Category: ${sampleTemplate.category}\n`;
+    content += `Duration: ${sampleTemplate.duration} days\n`;
+    content += `Target Calories: ${sampleTemplate.target_calories} kcal\n`;
+    content += `Food Preference: ${sampleTemplate.food_preference}\n`;
+    content += `Regional Preference: ${sampleTemplate.regional_preference}\n`;
+    content += `Tags: ${sampleTemplate.tags.join(', ')}\n\n`;
+    content += `=====================================\n\n`;
+    content += `MEALS:\n\n`;
+
+    sampleTemplate.meals.forEach((meal, index) => {
+      content += `Meal ${index + 1}:\n`;
+      content += `  Day: ${meal.day}\n`;
+      content += `  Meal Type: ${meal.meal_type}\n`;
+      content += `  Meal Name: ${meal.meal_name}\n`;
+      content += `  Items: ${meal.items.join(' | ')}\n`;
+      content += `  Portion Sizes: ${meal.portion_sizes.join(' | ')}\n`;
+      content += `  Calories: ${meal.calories}\n`;
+      content += `  Protein: ${meal.protein}g\n`;
+      content += `  Carbs: ${meal.carbs}g\n`;
+      content += `  Fats: ${meal.fats}g\n`;
+      content += `  Nutritional Tip: ${meal.nutritional_tip}\n\n`;
+    });
+
+    content += `\n=====================================\n`;
+    content += `HOW TO USE:\n`;
+    content += `1. Copy this format and modify with your meal plan data\n`;
+    content += `2. Save as .txt or .doc file\n`;
+    content += `3. Upload in the Import Template section\n`;
+    content += `4. System will automatically parse and create your template\n`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'sample-meal-plan-template.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const handleImportTemplate = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     try {
-      const text = await file.text();
-      const importedData = JSON.parse(text);
+      const fileName = file.name.toLowerCase();
+      let templateData;
 
-      if (!importedData.meals || !Array.isArray(importedData.meals)) {
-        alert("Invalid template file: Missing meals array");
+      if (fileName.endsWith('.json')) {
+        // Handle JSON import
+        const text = await file.text();
+        const importedData = JSON.parse(text);
+
+        if (!importedData.meals || !Array.isArray(importedData.meals)) {
+          alert("Invalid template file: Missing meals array");
+          return;
+        }
+
+        if (!importedData.name || !importedData.duration || !importedData.target_calories) {
+          alert("Invalid template file: Missing required fields (name, duration, target_calories)");
+          return;
+        }
+
+        templateData = {
+          name: importedData.name,
+          description: importedData.description || "Imported template",
+          category: importedData.category || "general",
+          duration: importedData.duration,
+          target_calories: importedData.target_calories,
+          food_preference: importedData.food_preference || "veg",
+          regional_preference: importedData.regional_preference || "all",
+          meals: importedData.meals,
+          is_public: false,
+          times_used: 0,
+          tags: importedData.tags || ["imported"]
+        };
+      } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+        // Handle Excel import
+        const arrayBuffer = await file.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+
+        // Read metadata
+        const metadataSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const metadata = XLSX.utils.sheet_to_json(metadataSheet)[0];
+
+        // Read meals
+        const mealsSheet = workbook.Sheets[workbook.SheetNames[1]];
+        const mealsData = XLSX.utils.sheet_to_json(mealsSheet);
+
+        const meals = mealsData.map(row => ({
+          day: parseInt(row['Day']),
+          meal_type: row['Meal Type'],
+          meal_name: row['Meal Name'],
+          items: row['Items'].split(' | '),
+          portion_sizes: row['Portion Sizes'].split(' | '),
+          calories: parseFloat(row['Calories']),
+          protein: parseFloat(row['Protein (g)']),
+          carbs: parseFloat(row['Carbs (g)']),
+          fats: parseFloat(row['Fats (g)']),
+          nutritional_tip: row['Nutritional Tip']
+        }));
+
+        templateData = {
+          name: metadata['Template Name'],
+          description: metadata['Description'] || "Imported from Excel",
+          category: metadata['Category'] || "general",
+          duration: parseInt(metadata['Duration (Days)']),
+          target_calories: parseInt(metadata['Target Calories']),
+          food_preference: metadata['Food Preference'] || "veg",
+          regional_preference: metadata['Regional Preference'] || "all",
+          meals: meals,
+          is_public: false,
+          times_used: 0,
+          tags: metadata['Tags'] ? metadata['Tags'].split(', ') : ["imported"]
+        };
+      } else if (fileName.endsWith('.txt') || fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
+        // Handle Word/Text import
+        const text = await file.text();
+        
+        // Parse text format
+        const lines = text.split('\n');
+        let metadata = {};
+        let meals = [];
+        let currentMeal = null;
+
+        lines.forEach(line => {
+          line = line.trim();
+          if (!line) return;
+
+          if (line.includes('Template Name:')) metadata.name = line.split('Template Name:')[1].trim();
+          else if (line.includes('Description:')) metadata.description = line.split('Description:')[1].trim();
+          else if (line.includes('Category:')) metadata.category = line.split('Category:')[1].trim();
+          else if (line.includes('Duration:')) metadata.duration = parseInt(line.match(/\d+/)[0]);
+          else if (line.includes('Target Calories:')) metadata.target_calories = parseInt(line.match(/\d+/)[0]);
+          else if (line.includes('Food Preference:')) metadata.food_preference = line.split('Food Preference:')[1].trim();
+          else if (line.includes('Regional Preference:')) metadata.regional_preference = line.split('Regional Preference:')[1].trim();
+          else if (line.includes('Tags:')) metadata.tags = line.split('Tags:')[1].trim().split(', ');
+          else if (line.startsWith('Meal ') && line.includes(':')) {
+            if (currentMeal) meals.push(currentMeal);
+            currentMeal = {};
+          }
+          else if (currentMeal) {
+            if (line.includes('Day:')) currentMeal.day = parseInt(line.split('Day:')[1].trim());
+            else if (line.includes('Meal Type:')) currentMeal.meal_type = line.split('Meal Type:')[1].trim();
+            else if (line.includes('Meal Name:')) currentMeal.meal_name = line.split('Meal Name:')[1].trim();
+            else if (line.includes('Items:')) currentMeal.items = line.split('Items:')[1].trim().split(' | ');
+            else if (line.includes('Portion Sizes:')) currentMeal.portion_sizes = line.split('Portion Sizes:')[1].trim().split(' | ');
+            else if (line.includes('Calories:')) currentMeal.calories = parseFloat(line.match(/[\d.]+/)[0]);
+            else if (line.includes('Protein:')) currentMeal.protein = parseFloat(line.match(/[\d.]+/)[0]);
+            else if (line.includes('Carbs:')) currentMeal.carbs = parseFloat(line.match(/[\d.]+/)[0]);
+            else if (line.includes('Fats:')) currentMeal.fats = parseFloat(line.match(/[\d.]+/)[0]);
+            else if (line.includes('Nutritional Tip:')) currentMeal.nutritional_tip = line.split('Nutritional Tip:')[1].trim();
+          }
+        });
+        
+        if (currentMeal) meals.push(currentMeal);
+
+        templateData = {
+          name: metadata.name || "Imported Template",
+          description: metadata.description || "Imported from Word/Text",
+          category: metadata.category || "general",
+          duration: metadata.duration || 7,
+          target_calories: metadata.target_calories || 1800,
+          food_preference: metadata.food_preference || "veg",
+          regional_preference: metadata.regional_preference || "all",
+          meals: meals,
+          is_public: false,
+          times_used: 0,
+          tags: metadata.tags || ["imported"]
+        };
+      } else {
+        alert("Unsupported file format. Please upload JSON, Excel (.xlsx, .xls), or Text/Word (.txt, .doc) files.");
+        event.target.value = '';
         return;
       }
 
-      if (!importedData.name || !importedData.duration || !importedData.target_calories) {
-        alert("Invalid template file: Missing required fields (name, duration, target_calories)");
+      if (!templateData.meals || templateData.meals.length === 0) {
+        alert("No meals found in the template file.");
         return;
       }
-
-      const templateData = {
-        name: importedData.name,
-        description: importedData.description || "Imported template",
-        category: importedData.category || "general",
-        duration: importedData.duration,
-        target_calories: importedData.target_calories,
-        food_preference: importedData.food_preference || "veg",
-        regional_preference: importedData.regional_preference || "all",
-        meals: importedData.meals,
-        is_public: false,
-        times_used: 0,
-        tags: importedData.tags || ["imported"]
-      };
 
       saveTemplateMutation.mutate(templateData);
       event.target.value = '';
+      alert(`✅ Successfully imported template with ${templateData.meals.length} meals!`);
     } catch (error) {
       console.error("Import error:", error);
-      alert("Failed to import template. Please ensure the file is valid JSON format.");
+      alert(`Failed to import template: ${error.message}\n\nPlease ensure the file format matches the sample template.`);
+      event.target.value = '';
     }
   };
 
@@ -1659,21 +1862,57 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                     
                     <Card className="border-2 border-dashed border-green-300 bg-green-50/50">
                       <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between gap-4">
                           <div className="flex-1">
                             <p className="font-semibold text-green-900 mb-1">Import Meal Plan Template</p>
-                            <p className="text-sm text-green-700">Upload a JSON file with your meal plan template</p>
+                            <p className="text-sm text-green-700">Upload JSON, Excel (.xlsx), or Word/Text (.txt, .doc) file</p>
                           </div>
                           <div className="flex gap-2">
-                            <Button
-                              onClick={handleDownloadSampleTemplate}
-                              variant="outline"
-                              size="sm"
-                              className="border-green-600 text-green-700 hover:bg-green-100"
-                            >
-                              <Download className="w-4 h-4 mr-2" />
-                              Download Sample
-                            </Button>
+                            <div className="relative">
+                              <Button
+                                onClick={() => setShowDownloadOptions(!showDownloadOptions)}
+                                variant="outline"
+                                size="sm"
+                                className="border-green-600 text-green-700 hover:bg-green-100"
+                              >
+                                <Download className="w-4 h-4 mr-2" />
+                                Download Sample
+                              </Button>
+                              {showDownloadOptions && (
+                                <div className="absolute top-full mt-1 right-0 bg-white border-2 border-green-500 rounded-lg shadow-lg z-10 w-48">
+                                  <button
+                                    onClick={() => {
+                                      handleDownloadSampleJSON();
+                                      setShowDownloadOptions(false);
+                                    }}
+                                    className="w-full px-4 py-2 text-left hover:bg-green-50 flex items-center gap-2 text-sm"
+                                  >
+                                    <FileText className="w-4 h-4 text-blue-600" />
+                                    <span>JSON Format</span>
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      handleDownloadSampleExcel();
+                                      setShowDownloadOptions(false);
+                                    }}
+                                    className="w-full px-4 py-2 text-left hover:bg-green-50 flex items-center gap-2 text-sm border-t"
+                                  >
+                                    <Table className="w-4 h-4 text-green-600" />
+                                    <span>Excel Format</span>
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      handleDownloadSampleWord();
+                                      setShowDownloadOptions(false);
+                                    }}
+                                    className="w-full px-4 py-2 text-left hover:bg-green-50 flex items-center gap-2 text-sm border-t rounded-b-lg"
+                                  >
+                                    <FileText className="w-4 h-4 text-orange-600" />
+                                    <span>Text/Word Format</span>
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                             <Button
                               onClick={() => document.getElementById('import-template-file').click()}
                               size="sm"
@@ -1689,7 +1928,7 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                     <input
                       id="import-template-file"
                       type="file"
-                      accept=".json"
+                      accept=".json,.xlsx,.xls,.txt,.doc,.docx"
                       className="hidden"
                       onChange={handleImportTemplate}
                     />
