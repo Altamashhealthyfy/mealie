@@ -241,7 +241,7 @@ export default function ManualTemplateBuilder({ onSave, isSaving }) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {Array.from({ length: templateConfig.duration }, (_, i) => i + 1).map(day => (
+                  {Array.from({ length: 30 }, (_, i) => i + 1).map(day => (
                     <SelectItem key={day} value={day.toString()}>Day {day}</SelectItem>
                   ))}
                 </SelectContent>
