@@ -18,6 +18,7 @@ import { createPageUrl } from "@/utils";
 import GeneratedMealPlan from "@/components/mealplanner/GeneratedMealPlan";
 import UsageLimitWarning from "@/components/mealplanner/UsageLimitWarning";
 import ManualMealPlanBuilder from "@/components/mealplanner/ManualMealPlanBuilder";
+import ManualTemplateBuilder from "@/components/mealplanner/ManualTemplateBuilder";
 
 export default function MealPlanner() {
   const queryClient = useQueryClient();
@@ -46,6 +47,8 @@ export default function MealPlanner() {
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [templateToAssign, setTemplateToAssign] = useState(null);
   const [assignmentStartDate, setAssignmentStartDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [showManualTemplateDialog, setShowManualTemplateDialog] = useState(false);
+  const [manualTemplateData, setManualTemplateData] = useState(null);
   const [planConfig, setPlanConfig] = useState({
     duration: 10,
     meal_pattern: 'daily',
@@ -1505,6 +1508,14 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                       <Sparkles className="w-5 h-5 mr-2" />
                       AI Generate Template
                     </Button>
+                    <Button
+                      onClick={() => setShowManualTemplateDialog(true)}
+                      variant="outline"
+                      className="h-12 border-2 border-indigo-500 text-indigo-600 hover:bg-indigo-50"
+                    >
+                      <Edit className="w-5 h-5 mr-2" />
+                      Create Manual Template
+                    </Button>
                   </div>
                 )}
 
@@ -2525,6 +2536,26 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                 </div>
               )}
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Manual Template Creation Dialog */}
+        <Dialog open={showManualTemplateDialog} onOpenChange={setShowManualTemplateDialog}>
+          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl flex items-center gap-2">
+                <Edit className="w-6 h-6 text-indigo-600" />
+                Create Manual Template
+              </DialogTitle>
+            </DialogHeader>
+
+            <ManualTemplateBuilder
+              onSave={(templateData) => {
+                saveTemplateMutation.mutate(templateData);
+                setShowManualTemplateDialog(false);
+              }}
+              isSaving={saveTemplateMutation.isPending}
+            />
           </DialogContent>
         </Dialog>
         </div>
