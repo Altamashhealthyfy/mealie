@@ -347,6 +347,18 @@ support@mealiepro.com`;
     }
   });
 
+  const deleteMealPlanMutation = useMutation({
+    mutationFn: (id) => base44.entities.MealPlan.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['mealPlans']);
+      alert("✅ Meal plan deleted successfully!");
+    },
+    onError: (error) => {
+      console.error("Error deleting meal plan:", error);
+      alert("Error deleting meal plan. Please try again.");
+    }
+  });
+
   const assignClientMutation = useMutation({
     mutationFn: ({ clientId, teamMemberEmail }) => 
       base44.entities.Client.update(clientId, { assigned_to: teamMemberEmail }),
@@ -495,6 +507,21 @@ support@mealiepro.com`;
   const handleViewPlans = (client) => {
     const clientPlans = mealPlans.filter(p => p.client_id === client.id);
     setViewingClientPlans({ client, plans: clientPlans });
+  };
+
+  const handleDeleteMealPlan = (plan) => {
+    const confirmed = window.confirm(
+      `⚠️ Delete Diet Plan?\n\n` +
+      `Plan: ${plan.name}\n` +
+      `Duration: ${plan.duration} days\n\n` +
+      `This will remove the plan from the client's account.\n` +
+      `This action cannot be undone.\n\n` +
+      `Continue with deletion?`
+    );
+    
+    if (confirmed) {
+      deleteMealPlanMutation.mutate(plan.id);
+    }
   };
 
   const handleDeleteClient = (client) => {
@@ -1465,36 +1492,47 @@ support@mealiepro.com`;
                                 Created: {format(new Date(plan.created_date), 'MMM d, yyyy')}
                               </p>
                             </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setViewingClientPlans(null);
-                                setTimeout(() => {
-                                  const planToView = mealPlans.find(p => p.id === plan.id);
-                                  const client = clients.find(c => c.id === plan.client_id);
-                                  if (planToView && client) {
-                                    navigate(createPageUrl("MealPlanner"));
-                                    setTimeout(() => {
-                                      window.dispatchEvent(new CustomEvent('viewMealPlan', { 
-                                        detail: { 
-                                          plan: {
-                                            ...planToView,
-                                            plan_name: planToView.name,
-                                            client_name: client.full_name
-                                          }
-                                        } 
-                                      }));
-                                    }, 100);
-                                  }
-                                }, 100);
-                              }}
-                            >
-                              <Eye className="w-4 h-4 mr-2" />
-                              View Details
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setViewingClientPlans(null);
+                                  setTimeout(() => {
+                                    const planToView = mealPlans.find(p => p.id === plan.id);
+                                    const client = clients.find(c => c.id === plan.client_id);
+                                    if (planToView && client) {
+                                      navigate(createPageUrl("MealPlanner"));
+                                      setTimeout(() => {
+                                        window.dispatchEvent(new CustomEvent('viewMealPlan', { 
+                                          detail: { 
+                                            plan: {
+                                              ...planToView,
+                                              plan_name: planToView.name,
+                                              client_name: client.full_name
+                                            }
+                                          } 
+                                        }));
+                                      }, 100);
+                                    }
+                                  }, 100);
+                                }}
+                              >
+                                <Eye className="w-4 h-4 mr-2" />
+                                View Details
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-red-600 hover:bg-red-50"
+                                onClick={() => handleDeleteMealPlan(plan)}
+                                disabled={deleteMealPlanMutation.isPending}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
