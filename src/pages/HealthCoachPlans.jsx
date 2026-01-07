@@ -39,6 +39,7 @@ export default function HealthCoachPlans() {
     can_access_team_attendance: false,
     can_white_label: false,
     can_send_whatsapp: false,
+    can_generate_ai_templates: false,
     ai_credits_included: 0,
     ai_credit_price: 10,
     ai_generation_limit: -1,
@@ -126,6 +127,7 @@ export default function HealthCoachPlans() {
       can_access_team_attendance: false,
       can_white_label: false,
       can_send_whatsapp: false,
+      can_generate_ai_templates: false,
       ai_credits_included: 0,
       ai_credit_price: 10,
       ai_generation_limit: -1,
@@ -161,6 +163,7 @@ export default function HealthCoachPlans() {
       can_access_team_attendance: plan.can_access_team_attendance || false,
       can_white_label: plan.can_white_label || false,
       can_send_whatsapp: plan.can_send_whatsapp || false,
+      can_generate_ai_templates: plan.can_generate_ai_templates || false,
       ai_credits_included: plan.ai_credits_included || 0,
       ai_credit_price: plan.ai_credit_price || 10,
       ai_generation_limit: plan.ai_generation_limit,
@@ -313,6 +316,9 @@ export default function HealthCoachPlans() {
                     </p>
                     <p className={plan.can_send_whatsapp ? 'text-green-700' : 'text-gray-400'}>
                       {plan.can_send_whatsapp ? '✓' : '✗'} WhatsApp 💬
+                    </p>
+                    <p className={plan.can_generate_ai_templates ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_generate_ai_templates ? '✓' : '✗'} AI Templates ✨
                     </p>
                   </div>
                 </div>
@@ -590,6 +596,16 @@ export default function HealthCoachPlans() {
                   <Switch
                     checked={formData.can_send_whatsapp}
                     onCheckedChange={(checked) => setFormData({ ...formData, can_send_whatsapp: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 bg-red-50 rounded border border-red-200">
+                  <div>
+                    <Label>Can Generate AI Templates ✨</Label>
+                    <p className="text-xs text-gray-600 mt-1">AI-powered meal plan template generation</p>
+                  </div>
+                  <Switch
+                    checked={formData.can_generate_ai_templates}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_generate_ai_templates: checked })}
                   />
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
