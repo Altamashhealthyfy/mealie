@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import PageTour from "@/components/common/PageTour";
+import TourButton from "@/components/common/TourButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -178,13 +180,14 @@ export default function FoodLog() {
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">Food Log</h1>
             <p className="text-sm md:text-base text-gray-600">Track your daily food intake</p>
           </div>
-          <Dialog open={showAddDialog} onOpenChange={(open) => !open && handleDialogClose()}>
-            <DialogTrigger asChild>
-              <Button className="bg-gradient-to-r from-orange-500 to-red-500 w-full sm:w-auto">
-                <Plus className="w-4 h-4 mr-2" />
-                Log Food
-              </Button>
-            </DialogTrigger>
+            <Dialog open={showAddDialog} onOpenChange={(open) => !open && handleDialogClose()}>
+              <DialogTrigger asChild>
+                <Button id="add-food-log" className="bg-gradient-to-r from-orange-500 to-red-500 w-full sm:w-auto">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Log Food
+                </Button>
+              </DialogTrigger>
+          </div>
             <DialogContent className="max-w-2xl w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingLog ? 'Edit Meal' : 'Log Your Meal'}</DialogTitle>
@@ -357,7 +360,7 @@ export default function FoodLog() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 sm:gap-6">
           {/* Calendar - Desktop only, more compact */}
-          <Card className="border-none shadow-lg bg-white/80 backdrop-blur hidden lg:block lg:self-start lg:sticky lg:top-4">
+          <Card id="food-log-calendar" className="border-none shadow-lg bg-white/80 backdrop-blur hidden lg:block lg:self-start lg:sticky lg:top-4">
             <CardHeader className="p-4">
               <CardTitle className="text-base">Select Date</CardTitle>
             </CardHeader>

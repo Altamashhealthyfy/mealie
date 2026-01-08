@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import PageTour from "@/components/common/PageTour";
+import TourButton from "@/components/common/TourButton";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -162,13 +164,17 @@ export default function MPESSTracker() {
 
   return (
     <div className="min-h-screen p-3 sm:p-4 md:p-8">
+      <PageTour pageName="MPESSTracker" />
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">MPESS Tracker</h1>
             <p className="text-sm sm:text-base text-gray-600">Track your holistic wellness journey</p>
           </div>
-          <Heart className="w-8 h-8 sm:w-10 sm:h-10 text-pink-500" />
+          <div className="flex gap-2">
+            <TourButton pageName="MPESSTracker" />
+            <Heart className="w-8 h-8 sm:w-10 sm:h-10 text-pink-500" />
+          </div>
         </div>
 
         {/* Mobile Date Selector */}

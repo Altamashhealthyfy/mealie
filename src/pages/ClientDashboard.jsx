@@ -155,17 +155,21 @@ export default function ClientDashboard() {
 
   return (
     <div className="min-h-screen p-4 md:p-8 space-y-6">
+      <PageTour pageName="ClientDashboard" />
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            Welcome back, {clientProfile.full_name?.split(' ')[0]}! 👋
-          </h1>
-          <p className="text-gray-600">Here's your health journey progress</p>
+        <div className="mb-6 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+              Welcome back, {clientProfile.full_name?.split(' ')[0]}! 👋
+            </h1>
+            <p className="text-gray-600">Here's your health journey progress</p>
+          </div>
+          <TourButton pageName="ClientDashboard" />
         </div>
 
         {/* Key Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div id="client-overview" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -263,7 +267,7 @@ export default function ClientDashboard() {
         )}
 
         {/* Weight Trend Chart */}
-        <Card className="border-none shadow-lg mb-6">
+        <Card id="progress-summary" className="border-none shadow-lg mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingDown className="w-5 h-5 text-orange-500" />
