@@ -92,6 +92,13 @@ export default function Communication() {
     initialData: [],
   });
 
+  const { data: allUsers } = useQuery({
+    queryKey: ['allUsers'],
+    queryFn: () => base44.entities.User.list(),
+    enabled: !!user && user?.user_type !== 'client',
+    initialData: [],
+  });
+
   const { data: clients } = useQuery({
     queryKey: ['clients', user?.email, user?.user_type],
     queryFn: async () => {
@@ -101,15 +108,24 @@ export default function Communication() {
       }
 
       const allClients = await base44.entities.Client.list('-created_date', 100);
+      
+      // Filter out clients who are registered as users with user_type='client'
+      const clientUserEmails = allUsers
+        .filter(u => u.user_type === 'client')
+        .map(u => u.email.toLowerCase());
+      
+      const nonUserClients = allClients.filter(client => 
+        !clientUserEmails.includes(client.email?.toLowerCase())
+      );
 
-      // Super admin sees ALL clients
+      // Super admin sees ALL non-user clients
       if (user?.user_type === 'super_admin') {
-        return allClients;
+        return nonUserClients;
       }
 
       // Student coaches see clients they created OR clients assigned to them
       if (user?.user_type === 'student_coach') {
-        return allClients.filter(client => 
+        return nonUserClients.filter(client => 
           client.created_by === user?.email || 
           client.assigned_coach === user?.email
         );
@@ -117,12 +133,12 @@ export default function Communication() {
 
       // Team members, student team members - only see clients they created
       if (['team_member', 'student_team_member'].includes(user?.user_type)) {
-        return allClients.filter(client => client.created_by === user?.email);
+        return nonUserClients.filter(client => client.created_by === user?.email);
       }
       
       return [];
     },
-    enabled: !!user && user?.user_type !== 'client',
+    enabled: !!user && user?.user_type !== 'client' && allUsers.length > 0,
     initialData: [],
     staleTime: 30000,
   });
