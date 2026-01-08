@@ -3004,26 +3004,17 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
 
                     <div className="space-y-2">
                       <Label>BMI (Auto-calculated)</Label>
-                      <div className="space-y-2">
-                        <Input
-                          type="number"
-                          step="0.1"
-                          placeholder="24.2"
-                          value={aiTemplateForm.bmi}
-                          onChange={(e) => setAiTemplateForm({...aiTemplateForm, bmi: e.target.value})}
-                        />
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="file"
-                            accept="image/*,.pdf"
-                            onChange={(e) => setAiTemplateForm({...aiTemplateForm, bmi_file: e.target.files[0]})}
-                            className="text-xs w-full"
-                          />
-                        </div>
-                        {aiTemplateForm.bmi_file && (
-                          <p className="text-xs text-green-600">✅ {aiTemplateForm.bmi_file.name}</p>
-                        )}
-                      </div>
+                      <Input
+                        type="text"
+                        value={
+                          aiTemplateForm.height && aiTemplateForm.weight
+                            ? (aiTemplateForm.weight / Math.pow(aiTemplateForm.height / 100, 2)).toFixed(1)
+                            : ''
+                        }
+                        disabled
+                        placeholder="Fill height and weight to calculate"
+                        className="bg-gray-50"
+                      />
                     </div>
 
                     <div className="space-y-2">
