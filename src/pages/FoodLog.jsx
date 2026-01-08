@@ -3,8 +3,6 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import PageTour from "@/components/common/PageTour";
 import TourButton from "@/components/common/TourButton";
-import PageTour from "@/components/common/PageTour";
-import TourButton from "@/components/common/TourButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -343,9 +341,8 @@ export default function FoodLog() {
                   </Button>
                 </div>
               </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+              </DialogContent>
+              </Dialog>
 
         {/* Mobile Date Selector */}
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur lg:hidden mb-4">
