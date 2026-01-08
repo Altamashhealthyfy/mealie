@@ -174,6 +174,7 @@ export default function FoodLog() {
 
   return (
     <div className="min-h-screen p-3 sm:p-4 md:p-8">
+      <PageTour pageName="FoodLog" />
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div>
@@ -190,10 +191,160 @@ export default function FoodLog() {
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto">
-...
-              </div>
-            </DialogContent>
-          </Dialog>
+                <DialogHeader>
+                  <DialogTitle>{editingLog ? 'Edit Meal' : 'Log Your Meal'}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 mt-4">
+                  <div className="space-y-2">
+                    <Label>Meal Type</Label>
+                    <Select
+                      value={formData.meal_type}
+                      onValueChange={(value) => setFormData({...formData, meal_type: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="breakfast">Breakfast</SelectItem>
+                        <SelectItem value="mid_morning">Mid-Morning Snack</SelectItem>
+                        <SelectItem value="lunch">Lunch</SelectItem>
+                        <SelectItem value="evening_snack">Evening Snack</SelectItem>
+                        <SelectItem value="dinner">Dinner</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Meal Name</Label>
+                    <Input
+                      value={formData.meal_name || ''}
+                      onChange={(e) => setFormData({...formData, meal_name: e.target.value})}
+                      placeholder="e.g., Poha with peanuts"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>What did you eat? (one per line)</Label>
+                    <Textarea
+                      value={formData.items?.join('\n') || ''}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        items: e.target.value.split('\n').filter(item => item.trim())
+                      })}
+                      placeholder="1 katori poha&#10;1 cup chai&#10;10 peanuts"
+                      rows={4}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Calories (optional)</Label>
+                      <Input
+                        type="number"
+                        value={formData.calories || ''}
+                        onChange={(e) => setFormData({...formData, calories: parseFloat(e.target.value)})}
+                        placeholder="250"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Protein (g)</Label>
+                      <Input
+                        type="number"
+                        value={formData.protein || ''}
+                        onChange={(e) => setFormData({...formData, protein: parseFloat(e.target.value)})}
+                        placeholder="10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Carbs (g)</Label>
+                      <Input
+                        type="number"
+                        value={formData.carbs || ''}
+                        onChange={(e) => setFormData({...formData, carbs: parseFloat(e.target.value)})}
+                        placeholder="40"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Fats (g)</Label>
+                      <Input
+                        type="number"
+                        value={formData.fats || ''}
+                        onChange={(e) => setFormData({...formData, fats: parseFloat(e.target.value)})}
+                        placeholder="5"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Notes (optional)</Label>
+                    <Textarea
+                      value={formData.notes || ''}
+                      onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                      placeholder="How did you feel? Any deviations from the plan?"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Upload Food Photo (optional)</Label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-orange-500 transition-colors">
+                      <div className="text-center">
+                        <Camera className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handlePhotoUpload}
+                          disabled={uploadingPhoto}
+                          className="hidden"
+                          id="food-photo-upload"
+                        />
+                        <label
+                          htmlFor="food-photo-upload"
+                          className={`cursor-pointer text-sm text-gray-600 hover:text-orange-600 ${uploadingPhoto ? 'opacity-50' : ''}`}
+                        >
+                          {uploadingPhoto ? 'Uploading...' : 'Click to upload photo'}
+                        </label>
+                        {formData.photo_url && (
+                          <div className="mt-3">
+                            <img
+                              src={formData.photo_url}
+                              alt="Food"
+                              className="max-h-40 mx-auto rounded-lg"
+                            />
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="mt-2"
+                              onClick={() => setFormData({ ...formData, photo_url: null })}
+                            >
+                              Remove Photo
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={handleDialogClose}
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={saveMutation.isPending || uploadingPhoto}
+                      className="flex-1 bg-gradient-to-r from-orange-500 to-red-500"
+                    >
+                      {saveMutation.isPending ? 'Saving...' : editingLog ? 'Update Food Log' : 'Save Food Log'}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
 
