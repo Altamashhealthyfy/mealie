@@ -10,9 +10,16 @@ import { Calendar, ChefHat, Search, Heart, TrendingUp, Apple, Sparkles, User, Lo
 import ClientGuidePanel from "@/components/common/ClientGuidePanel";
 
 export default function Home() {
-  const { data: user, isLoading: userLoading } = useQuery({
+  const { data: user, isLoading: userLoading, error: userError } = useQuery({
     queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
+    queryFn: async () => {
+      try {
+        return await base44.auth.me();
+      } catch (error) {
+        console.error("Auth error:", error);
+        return null;
+      }
+    },
     retry: false,
     staleTime: 300000,
   });
