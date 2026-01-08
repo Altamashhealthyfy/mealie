@@ -52,7 +52,8 @@ export default function MealPlanner() {
     bmi: "",
     bmi_file: null,
     weight_loss_target: "",
-    portion_size: "medium"
+    portion_size: "medium",
+    serving_size: "1"
   });
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [templateToAssign, setTemplateToAssign] = useState(null);
@@ -3036,6 +3037,16 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                         onChange={(e) => setAiTemplateForm({...aiTemplateForm, weight_loss_target: e.target.value})}
                       />
                     </div>
+
+                    <div className="space-y-2">
+                      <Label>Serving Size</Label>
+                      <Input
+                        type="number"
+                        placeholder="1"
+                        value={aiTemplateForm.serving_size}
+                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, serving_size: e.target.value})}
+                      />
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3261,7 +3272,8 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                           bmi: "",
                           bmi_file: null,
                           weight_loss_target: "",
-                          portion_size: "medium"
+                          portion_size: "medium",
+                          serving_size: "1"
                         });
                       }}
                       className="flex-1"

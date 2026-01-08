@@ -72,6 +72,7 @@ export default function TemplateLibraryManager() {
     target_calories: "1800",
     weight_loss_target: "",
     portion_size: "medium",
+    serving_size: "1",
     food_preference: "veg",
     regional_preference: "all",
     duration: "7",
@@ -290,6 +291,7 @@ export default function TemplateLibraryManager() {
         target_calories: "1800",
         weight_loss_target: "",
         portion_size: "medium",
+        serving_size: "1",
         food_preference: "veg",
         regional_preference: "all",
         duration: "7",
@@ -1544,6 +1546,16 @@ Extract:
                         placeholder="5"
                         value={aiFormData.weight_loss_target}
                         onChange={(e) => setAiFormData({...aiFormData, weight_loss_target: e.target.value})}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Serving Size</Label>
+                      <Input
+                        type="number"
+                        placeholder="1"
+                        value={aiFormData.serving_size}
+                        onChange={(e) => setAiFormData({...aiFormData, serving_size: e.target.value})}
                       />
                     </div>
 
