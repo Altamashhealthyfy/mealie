@@ -3117,7 +3117,9 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                         <Label>
                           {aiTemplateForm.goal === 'weight_loss' 
                             ? 'Weight Loss Target (kg) (Auto-calculated)' 
-                            : 'Weight Gain Target (kg) (Auto-calculated)'}
+                            : aiTemplateForm.goal === 'weight_gain' || aiTemplateForm.goal === 'muscle_gain'
+                            ? 'Weight Gain Target (kg) (Auto-calculated)'
+                            : 'Weight Target (kg) (Auto-calculated)'}
                         </Label>
                         <Input
                           type="text"
