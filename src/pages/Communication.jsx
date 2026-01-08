@@ -414,7 +414,10 @@ export default function Communication() {
                     ) : sortedClients.length === 0 ? (
                       <div className="text-center py-12">
                         <MessageSquare className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                        <p className="text-gray-600">{searchQuery ? 'No clients found' : 'No clients available'}</p>
+                        <p className="text-gray-600">{searchQuery ? 'No clients found' : 'No clients yet'}</p>
+                        {!searchQuery && (
+                          <p className="text-sm text-gray-500 mt-2">Add clients to start messaging</p>
+                        )}
                       </div>
                     ) : (
                       sortedClients.map((client) => {
