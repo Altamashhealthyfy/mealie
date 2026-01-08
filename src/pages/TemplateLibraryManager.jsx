@@ -65,10 +65,17 @@ export default function TemplateLibraryManager() {
   const [aiGeneratedPlan, setAiGeneratedPlan] = useState(null);
   const [aiFormData, setAiFormData] = useState({
     name: "",
+    age: "",
+    height: "",
+    weight: "",
+    bmi: "",
     target_calories: "1800",
+    weight_loss_target: "",
+    portion_size: "medium",
     food_preference: "veg",
     regional_preference: "all",
     duration: "7",
+    goal: "weight_loss",
     description: ""
   });
   
@@ -276,10 +283,17 @@ export default function TemplateLibraryManager() {
       setAiGeneratedPlan(null);
       setAiFormData({
         name: "",
+        age: "",
+        height: "",
+        weight: "",
+        bmi: "",
         target_calories: "1800",
+        weight_loss_target: "",
+        portion_size: "medium",
         food_preference: "veg",
         regional_preference: "all",
         duration: "7",
+        goal: "weight_loss",
         description: ""
       });
       alert("✅ AI template created successfully!");
@@ -1422,7 +1436,70 @@ Extract:
 
               {!aiGeneratedPlan ? (
                 <div className="space-y-4">
+                  {/* Portion Size Reference Guide */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-lg">📏</span>
+                      <h3 className="font-semibold text-blue-900">Portion Size Reference Guide</h3>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="bg-white p-3 rounded border">
+                        <p className="font-semibold text-sm text-gray-700">Small Bowl</p>
+                        <p className="text-xs text-gray-600">150gm</p>
+                      </div>
+                      <div className="bg-white p-3 rounded border">
+                        <p className="font-semibold text-sm text-gray-700">Medium Bowl</p>
+                        <p className="text-xs text-gray-600">200gm</p>
+                      </div>
+                      <div className="bg-white p-3 rounded border">
+                        <p className="font-semibold text-sm text-gray-700">Large Bowl</p>
+                        <p className="text-xs text-gray-600">250gm</p>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Age</Label>
+                      <Input
+                        type="number"
+                        placeholder="30"
+                        value={aiFormData.age}
+                        onChange={(e) => setAiFormData({...aiFormData, age: e.target.value})}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Height (cm)</Label>
+                      <Input
+                        type="number"
+                        placeholder="170"
+                        value={aiFormData.height}
+                        onChange={(e) => setAiFormData({...aiFormData, height: e.target.value})}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Weight (kg)</Label>
+                      <Input
+                        type="number"
+                        placeholder="70"
+                        value={aiFormData.weight}
+                        onChange={(e) => setAiFormData({...aiFormData, weight: e.target.value})}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>BMI</Label>
+                      <Input
+                        type="number"
+                        step="0.1"
+                        placeholder="24.2"
+                        value={aiFormData.bmi}
+                        onChange={(e) => setAiFormData({...aiFormData, bmi: e.target.value})}
+                      />
+                    </div>
+
                     <div className="space-y-2">
                       <Label>Target Calories *</Label>
                       <Input
@@ -1430,6 +1507,16 @@ Extract:
                         placeholder="1800"
                         value={aiFormData.target_calories}
                         onChange={(e) => setAiFormData({...aiFormData, target_calories: e.target.value})}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Weight Loss Target (kg)</Label>
+                      <Input
+                        type="number"
+                        placeholder="5"
+                        value={aiFormData.weight_loss_target}
+                        onChange={(e) => setAiFormData({...aiFormData, weight_loss_target: e.target.value})}
                       />
                     </div>
 
@@ -1448,6 +1535,24 @@ Extract:
                           <SelectItem value="15">15 Days</SelectItem>
                           <SelectItem value="21">21 Days</SelectItem>
                           <SelectItem value="30">30 Days</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Goal Target *</Label>
+                      <Select
+                        value={aiFormData.goal}
+                        onValueChange={(value) => setAiFormData({...aiFormData, goal: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="weight_loss">Weight Loss</SelectItem>
+                          <SelectItem value="weight_gain">Weight Gain</SelectItem>
+                          <SelectItem value="maintenance">Maintenance</SelectItem>
+                          <SelectItem value="muscle_gain">Muscle Gain</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -1487,6 +1592,32 @@ Extract:
                           <SelectItem value="all">All Regions</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>📏 Portion Size *</Label>
+                      <Select
+                        value={aiFormData.portion_size}
+                        onValueChange={(value) => setAiFormData({...aiFormData, portion_size: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="small">Small Bowl (150gm)</SelectItem>
+                          <SelectItem value="medium">Medium Bowl (200gm)</SelectItem>
+                          <SelectItem value="large">Large Bowl (250gm)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2 md:col-span-2">
+                      <Label>Disease Focus (Optional)</Label>
+                      <Input
+                        placeholder="e.g., Diabetes Type 2, Hypertension"
+                        value={aiFormData.description}
+                        onChange={(e) => setAiFormData({...aiFormData, description: e.target.value})}
+                      />
                     </div>
                   </div>
 
@@ -1565,10 +1696,17 @@ Extract:
                         setAiGeneratedPlan(null);
                         setAiFormData({
                           name: "",
+                          age: "",
+                          height: "",
+                          weight: "",
+                          bmi: "",
                           target_calories: "1800",
+                          weight_loss_target: "",
+                          portion_size: "medium",
                           food_preference: "veg",
                           regional_preference: "all",
                           duration: "7",
+                          goal: "weight_loss",
                           description: ""
                         });
                       }}

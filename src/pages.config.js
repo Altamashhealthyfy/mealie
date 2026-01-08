@@ -2,6 +2,7 @@ import AddTeamAppointment from './pages/AddTeamAppointment';
 import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
 import Appointments from './pages/Appointments';
 import AssessmentTemplates from './pages/AssessmentTemplates';
+import BroadcastNotification from './pages/BroadcastNotification';
 import BulkImport from './pages/BulkImport';
 import BusinessGPTs from './pages/BusinessGPTs';
 import BusinessHub from './pages/BusinessHub';
@@ -72,7 +73,6 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import BroadcastNotification from './pages/BroadcastNotification';
 import __Layout from './Layout.jsx';
 
 
@@ -81,6 +81,7 @@ export const PAGES = {
     "AdminSubscriptionManager": AdminSubscriptionManager,
     "Appointments": Appointments,
     "AssessmentTemplates": AssessmentTemplates,
+    "BroadcastNotification": BroadcastNotification,
     "BulkImport": BulkImport,
     "BusinessGPTs": BusinessGPTs,
     "BusinessHub": BusinessHub,
@@ -151,7 +152,6 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "BroadcastNotification": BroadcastNotification,
 }
 
 export const pagesConfig = {
