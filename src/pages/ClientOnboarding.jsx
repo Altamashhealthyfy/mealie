@@ -320,7 +320,7 @@ Provide a warm, personalized tip that's relevant to their situation.`,
         <Card className="shadow-2xl border-2 border-orange-200">
           <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
             <CardTitle className="text-2xl flex items-center gap-2">
-              <steps[currentStep - 1].icon className="w-6 h-6" />
+              {React.createElement(steps[currentStep - 1].icon, { className: "w-6 h-6" })}
               Step {currentStep}: {steps[currentStep - 1].title}
             </CardTitle>
           </CardHeader>
