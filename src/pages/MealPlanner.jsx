@@ -45,15 +45,14 @@ export default function MealPlanner() {
     duration: "7",
     description: "",
     disease_focus: [],
-    goal: "weight_loss",
+    goal: "",
     age: "",
     height: "",
     weight: "",
     bmi: "",
     bmi_file: null,
     weight_loss_target: "",
-    portion_size: "medium",
-    serving_size: "1"
+    portion_size: "medium"
   });
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [templateToAssign, setTemplateToAssign] = useState(null);
@@ -203,15 +202,14 @@ export default function MealPlanner() {
         duration: "7",
         description: "",
         disease_focus: [],
-        goal: "weight_loss",
+        goal: "",
         age: "",
         height: "",
         weight: "",
         bmi: "",
         bmi_file: null,
         weight_loss_target: "",
-        portion_size: "medium",
-        serving_size: "1"
+        portion_size: "medium"
       });
         alert("✅ AI template created successfully! Use it unlimited times for FREE!");
     },
@@ -3011,7 +3009,26 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                         type="number"
                         placeholder="170"
                         value={aiTemplateForm.height}
-                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, height: e.target.value})}
+                        onChange={(e) => {
+                          const newHeight = e.target.value;
+                          setAiTemplateForm({...aiTemplateForm, height: newHeight});
+                          
+                          // Auto-calculate goal based on BMI
+                          if (newHeight && aiTemplateForm.weight) {
+                            const bmi = aiTemplateForm.weight / Math.pow(newHeight / 100, 2);
+                            let autoGoal = aiTemplateForm.goal;
+                            if (bmi > 25) {
+                              autoGoal = 'weight_loss';
+                            } else if (bmi < 18.5) {
+                              autoGoal = 'weight_gain';
+                            } else {
+                              autoGoal = 'maintenance';
+                            }
+                            if (!aiTemplateForm.goal) {
+                              setAiTemplateForm(prev => ({...prev, height: newHeight, goal: autoGoal}));
+                            }
+                          }
+                        }}
                       />
                     </div>
 
@@ -3021,7 +3038,26 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                         type="number"
                         placeholder="70"
                         value={aiTemplateForm.weight}
-                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, weight: e.target.value})}
+                        onChange={(e) => {
+                          const newWeight = e.target.value;
+                          setAiTemplateForm({...aiTemplateForm, weight: newWeight});
+                          
+                          // Auto-calculate goal based on BMI
+                          if (aiTemplateForm.height && newWeight) {
+                            const bmi = newWeight / Math.pow(aiTemplateForm.height / 100, 2);
+                            let autoGoal = aiTemplateForm.goal;
+                            if (bmi > 25) {
+                              autoGoal = 'weight_loss';
+                            } else if (bmi < 18.5) {
+                              autoGoal = 'weight_gain';
+                            } else {
+                              autoGoal = 'maintenance';
+                            }
+                            if (!aiTemplateForm.goal) {
+                              setAiTemplateForm(prev => ({...prev, weight: newWeight, goal: autoGoal}));
+                            }
+                          }
+                        }}
                       />
                     </div>
 
@@ -3078,37 +3114,32 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                       </p>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label>Weight Loss Target (kg) (Auto-calculated)</Label>
-                      <Input
-                        type="text"
-                        value={(() => {
-                          if (!aiTemplateForm.weight || !aiTemplateForm.goal) return '';
-                          if (aiTemplateForm.goal !== 'weight_loss') return 'N/A (not weight loss goal)';
-                          
-                          const weight = parseFloat(aiTemplateForm.weight);
-                          // Recommend 7-8% of body weight as safe target
-                          const target = Math.round(weight * 0.075 * 10) / 10;
-                          return target;
-                        })()}
-                        disabled
-                        placeholder="Fill weight and select goal"
-                        className="bg-gray-50"
-                      />
-                      <p className="text-xs text-gray-600">
-                        Safe target: 7-8% of body weight
-                      </p>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Serving Size</Label>
-                      <Input
-                        type="number"
-                        placeholder="1"
-                        value={aiTemplateForm.serving_size}
-                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, serving_size: e.target.value})}
-                      />
-                    </div>
+                    {aiTemplateForm.goal && (aiTemplateForm.goal === 'weight_loss' || aiTemplateForm.goal === 'weight_gain' || aiTemplateForm.goal === 'muscle_gain') && (
+                      <div className="space-y-2">
+                        <Label>
+                          {aiTemplateForm.goal === 'weight_loss' 
+                            ? 'Weight Loss Target (kg) (Auto-calculated)' 
+                            : 'Weight Gain Target (kg) (Auto-calculated)'}
+                        </Label>
+                        <Input
+                          type="text"
+                          value={(() => {
+                            if (!aiTemplateForm.weight) return '';
+                            
+                            const weight = parseFloat(aiTemplateForm.weight);
+                            // Recommend 7-8% of body weight as safe target
+                            const target = Math.round(weight * 0.075 * 10) / 10;
+                            return target;
+                          })()}
+                          disabled
+                          placeholder="Fill weight"
+                          className="bg-gray-50"
+                        />
+                        <p className="text-xs text-gray-600">
+                          Safe target: 7-8% of body weight
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3132,13 +3163,13 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Goal Target *</Label>
+                      <Label>Goal Target * (Auto-selected)</Label>
                       <Select
                         value={aiTemplateForm.goal}
                         onValueChange={(value) => setAiTemplateForm({...aiTemplateForm, goal: value})}
                       >
                         <SelectTrigger>
-                          <SelectValue />
+                          <SelectValue placeholder="Will auto-select based on BMI" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="weight_loss">Weight Loss</SelectItem>
@@ -3149,6 +3180,16 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                           <SelectItem value="disease_reversal">Disease Reversal</SelectItem>
                         </SelectContent>
                       </Select>
+                      {aiTemplateForm.height && aiTemplateForm.weight && (
+                        <p className="text-xs text-gray-600">
+                          {(() => {
+                            const bmi = aiTemplateForm.weight / Math.pow(aiTemplateForm.height / 100, 2);
+                            if (bmi > 25) return '⚠️ BMI > 25: Weight Loss recommended';
+                            if (bmi < 18.5) return '⚠️ BMI < 18.5: Weight Gain recommended';
+                            return '✅ BMI Normal: Maintenance recommended';
+                          })()}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -3327,15 +3368,14 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                           duration: "7",
                           description: "",
                           disease_focus: [],
-                          goal: "weight_loss",
+                          goal: "",
                           age: "",
                           height: "",
                           weight: "",
                           bmi: "",
                           bmi_file: null,
                           weight_loss_target: "",
-                          portion_size: "medium",
-                          serving_size: "1"
+                          portion_size: "medium"
                         });
                       }}
                       className="flex-1"
