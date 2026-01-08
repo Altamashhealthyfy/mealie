@@ -3003,7 +3003,7 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                     </div>
 
                     <div className="space-y-2">
-                      <Label>BMI (Manual or Upload File)</Label>
+                      <Label>BMI (Auto-calculated)</Label>
                       <div className="space-y-2">
                         <Input
                           type="number"
