@@ -101,16 +101,35 @@ export default function Communication() {
         return [];
       }
 
-      const allClients = await base44.entities.Client.list('-created_date', 100);
+      // Fetch all clients and registered users
+      const [allClients, allUsers] = await Promise.all([
+        base44.entities.Client.list('-created_date', 100),
+        base44.entities.User.list()
+      ]);
 
-      // Super admin sees ALL clients
+      // Create a Set of registered client user emails for efficient filtering
+      const registeredClientEmails = new Set(
+        allUsers
+          .filter(u => u.user_type === 'client' && u.email)
+          .map(u => u.email.toLowerCase().trim())
+      );
+
+      // Filter out clients who are registered users with user_type='client'
+      // These clients should use the ClientCommunication page instead
+      const nonRegisteredClients = allClients.filter(client => {
+        if (!client.email) return true; // Keep clients without email for now
+        const emailLower = client.email.toLowerCase().trim();
+        return !registeredClientEmails.has(emailLower);
+      });
+
+      // Super admin sees all non-registered clients
       if (user?.user_type === 'super_admin') {
-        return allClients;
+        return nonRegisteredClients;
       }
 
       // Student coaches see clients they created OR clients assigned to them
       if (user?.user_type === 'student_coach') {
-        return allClients.filter(client => 
+        return nonRegisteredClients.filter(client => 
           client.created_by === user?.email || 
           client.assigned_coach === user?.email
         );
@@ -118,14 +137,16 @@ export default function Communication() {
 
       // Team members, student team members - only see clients they created
       if (['team_member', 'student_team_member'].includes(user?.user_type)) {
-        return allClients.filter(client => client.created_by === user?.email);
+        return nonRegisteredClients.filter(client => client.created_by === user?.email);
       }
       
       return [];
     },
     enabled: !!user && user?.user_type !== 'client',
     initialData: [],
-    staleTime: 30000,
+    staleTime: 0, // Don't cache - always fetch fresh to avoid stale data
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const { data: allMessages, isLoading: messagesLoading } = useQuery({
