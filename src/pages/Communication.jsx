@@ -101,40 +101,16 @@ export default function Communication() {
         return [];
       }
 
-      // Fetch all clients and users
-      const [allClients, allUsers] = await Promise.all([
-        base44.entities.Client.list('-created_date', 100),
-        base44.entities.User.list()
-      ]);
-      
-      // Create a Set of client user emails for efficient lookup
-      const clientUserEmails = new Set(
-        allUsers
-          .filter(u => u.user_type === 'client' && u.email)
-          .map(u => u.email.toLowerCase().trim())
-      );
-      
-      console.log('Total clients:', allClients.length);
-      console.log('Client user emails to filter:', Array.from(clientUserEmails));
-      
-      // Filter out clients who are registered as users with user_type='client'
-      const nonUserClients = allClients.filter(client => {
-        if (!client.email) return false; // Skip clients without email
-        const clientEmailLower = client.email.toLowerCase().trim();
-        const isClientUser = clientUserEmails.has(clientEmailLower);
-        return !isClientUser; // Only return non-client users
-      });
+      const allClients = await base44.entities.Client.list('-created_date', 100);
 
-      console.log('Filtered clients (non-users):', nonUserClients.length);
-
-      // Super admin sees ALL non-user clients
+      // Super admin sees ALL clients
       if (user?.user_type === 'super_admin') {
-        return nonUserClients;
+        return allClients;
       }
 
       // Student coaches see clients they created OR clients assigned to them
       if (user?.user_type === 'student_coach') {
-        return nonUserClients.filter(client => 
+        return allClients.filter(client => 
           client.created_by === user?.email || 
           client.assigned_coach === user?.email
         );
@@ -142,16 +118,14 @@ export default function Communication() {
 
       // Team members, student team members - only see clients they created
       if (['team_member', 'student_team_member'].includes(user?.user_type)) {
-        return nonUserClients.filter(client => client.created_by === user?.email);
+        return allClients.filter(client => client.created_by === user?.email);
       }
       
       return [];
     },
     enabled: !!user && user?.user_type !== 'client',
     initialData: [],
-    staleTime: 0, // Always fetch fresh data
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    staleTime: 30000,
   });
 
   const { data: allMessages, isLoading: messagesLoading } = useQuery({
