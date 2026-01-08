@@ -93,13 +93,6 @@ export default function Communication() {
     initialData: [],
   });
 
-  const { data: allUsers } = useQuery({
-    queryKey: ['allUsers'],
-    queryFn: () => base44.entities.User.list(),
-    enabled: !!user && user?.user_type !== 'client',
-    initialData: [],
-  });
-
   const { data: clients } = useQuery({
     queryKey: ['clients', user?.email, user?.user_type],
     queryFn: async () => {
@@ -109,11 +102,12 @@ export default function Communication() {
       }
 
       const allClients = await base44.entities.Client.list('-created_date', 100);
+      const allUsers = await base44.entities.User.list();
       
       // Filter out clients who are registered as users with user_type='client'
       const clientUserEmails = allUsers
         .filter(u => u.user_type === 'client')
-        .map(u => u.email.toLowerCase());
+        .map(u => u.email?.toLowerCase());
       
       const nonUserClients = allClients.filter(client => 
         !clientUserEmails.includes(client.email?.toLowerCase())
@@ -139,7 +133,7 @@ export default function Communication() {
       
       return [];
     },
-    enabled: !!user && user?.user_type !== 'client' && allUsers.length > 0,
+    enabled: !!user && user?.user_type !== 'client',
     initialData: [],
     staleTime: 30000,
   });
