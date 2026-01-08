@@ -101,19 +101,31 @@ export default function Communication() {
         return [];
       }
 
-      const allClients = await base44.entities.Client.list('-created_date', 100);
-      const allUsers = await base44.entities.User.list();
+      // Fetch all clients and users
+      const [allClients, allUsers] = await Promise.all([
+        base44.entities.Client.list('-created_date', 100),
+        base44.entities.User.list()
+      ]);
+      
+      // Create a Set of client user emails for efficient lookup
+      const clientUserEmails = new Set(
+        allUsers
+          .filter(u => u.user_type === 'client' && u.email)
+          .map(u => u.email.toLowerCase().trim())
+      );
+      
+      console.log('Total clients:', allClients.length);
+      console.log('Client user emails to filter:', Array.from(clientUserEmails));
       
       // Filter out clients who are registered as users with user_type='client'
-      const clientUserEmails = allUsers
-        .filter(u => u.user_type === 'client' && u.email)
-        .map(u => u.email.toLowerCase().trim());
-      
       const nonUserClients = allClients.filter(client => {
-        if (!client.email) return true; // Keep clients without email
+        if (!client.email) return false; // Skip clients without email
         const clientEmailLower = client.email.toLowerCase().trim();
-        return !clientUserEmails.includes(clientEmailLower);
+        const isClientUser = clientUserEmails.has(clientEmailLower);
+        return !isClientUser; // Only return non-client users
       });
+
+      console.log('Filtered clients (non-users):', nonUserClients.length);
 
       // Super admin sees ALL non-user clients
       if (user?.user_type === 'super_admin') {
@@ -137,7 +149,9 @@ export default function Communication() {
     },
     enabled: !!user && user?.user_type !== 'client',
     initialData: [],
-    staleTime: 30000,
+    staleTime: 0, // Always fetch fresh data
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const { data: allMessages, isLoading: messagesLoading } = useQuery({
