@@ -385,7 +385,7 @@ export default function Communication() {
     <div className="min-h-screen p-2 sm:p-4 md:p-8">
       <PageTour pageName="Communication" />
       <div className="max-w-7xl mx-auto">
-        <div className="mb-4 md:mb-6 flex items-start justify-between">
+        <div className="mb-4 md:mb-6 flex justify-between items-start">
           <div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 md:mb-2">Messages</h1>
             <p className="text-sm md:text-base text-gray-600">Communicate with your clients</p>
