@@ -1513,13 +1513,17 @@ Extract:
                     </div>
 
                     <div className="space-y-2">
-                      <Label>BMI</Label>
+                      <Label>BMI (Auto-calculated)</Label>
                       <Input
-                        type="number"
-                        step="0.1"
-                        placeholder="24.2"
-                        value={aiFormData.bmi}
-                        onChange={(e) => setAiFormData({...aiFormData, bmi: e.target.value})}
+                        type="text"
+                        value={
+                          aiFormData.height && aiFormData.weight
+                            ? (aiFormData.weight / Math.pow(aiFormData.height / 100, 2)).toFixed(1)
+                            : ''
+                        }
+                        disabled
+                        placeholder="Fill height and weight to calculate"
+                        className="bg-gray-50"
                       />
                     </div>
 
