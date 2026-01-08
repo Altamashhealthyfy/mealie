@@ -610,9 +610,9 @@ export default function Communication() {
                                     <span>{formatToIST(message.created_date)}</span>
                                     {isFromDietitian && (
                                       message.read ? (
-                                        <CheckCheck className="w-3 h-3 text-blue-400" />
+                                        <CheckCheck className="w-4 h-4 text-blue-300" />
                                       ) : (
-                                        <Check className="w-3 h-3" />
+                                        <Check className="w-4 h-4 text-white/70" />
                                       )
                                     )}
                                   </div>
