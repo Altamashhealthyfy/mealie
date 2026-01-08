@@ -50,7 +50,9 @@ export default function MealPlanner() {
     height: "",
     weight: "",
     bmi: "",
-    weight_loss_target: ""
+    bmi_file: null,
+    weight_loss_target: "",
+    portion_size: "medium"
   });
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [templateToAssign, setTemplateToAssign] = useState(null);
@@ -205,9 +207,11 @@ export default function MealPlanner() {
         height: "",
         weight: "",
         bmi: "",
-        weight_loss_target: ""
-      });
-      alert("✅ AI template created successfully! Use it unlimited times for FREE!");
+        bmi_file: null,
+        weight_loss_target: "",
+        portion_size: "medium"
+        });
+        alert("✅ AI template created successfully! Use it unlimited times for FREE!");
     },
   });
 
@@ -2945,6 +2949,23 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                     </CardContent>
                   </Card>
 
+                  <div className="space-y-2">
+                    <Label>📏 Portion Size Preference</Label>
+                    <Select
+                      value={aiTemplateForm.portion_size}
+                      onValueChange={(value) => setAiTemplateForm({...aiTemplateForm, portion_size: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="small">Small (150gm bowls)</SelectItem>
+                        <SelectItem value="medium">Medium (200gm bowls)</SelectItem>
+                        <SelectItem value="large">Large (250gm bowls)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label>Age</Label>
@@ -2977,14 +2998,27 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                     </div>
 
                     <div className="space-y-2">
-                      <Label>BMI</Label>
-                      <Input
-                        type="number"
-                        step="0.1"
-                        placeholder="24.2"
-                        value={aiTemplateForm.bmi}
-                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, bmi: e.target.value})}
-                      />
+                      <Label>BMI (Manual or Upload File)</Label>
+                      <div className="space-y-2">
+                        <Input
+                          type="number"
+                          step="0.1"
+                          placeholder="24.2"
+                          value={aiTemplateForm.bmi}
+                          onChange={(e) => setAiTemplateForm({...aiTemplateForm, bmi: e.target.value})}
+                        />
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="file"
+                            accept="image/*,.pdf"
+                            onChange={(e) => setAiTemplateForm({...aiTemplateForm, bmi_file: e.target.files[0]})}
+                            className="text-xs w-full"
+                          />
+                        </div>
+                        {aiTemplateForm.bmi_file && (
+                          <p className="text-xs text-green-600">✅ {aiTemplateForm.bmi_file.name}</p>
+                        )}
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -3229,7 +3263,9 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                           height: "",
                           weight: "",
                           bmi: "",
-                          weight_loss_target: ""
+                          bmi_file: null,
+                          weight_loss_target: "",
+                          portion_size: "medium"
                         });
                       }}
                       className="flex-1"
