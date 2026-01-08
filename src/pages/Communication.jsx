@@ -95,6 +95,11 @@ export default function Communication() {
   const { data: clients } = useQuery({
     queryKey: ['clients', user?.email, user?.user_type],
     queryFn: async () => {
+      // Don't load clients if user is a client themselves
+      if (user?.user_type === 'client') {
+        return [];
+      }
+
       const allClients = await base44.entities.Client.list('-created_date', 100);
 
       // Super admin sees ALL clients
@@ -117,7 +122,7 @@ export default function Communication() {
       
       return [];
     },
-    enabled: !!user,
+    enabled: !!user && user?.user_type !== 'client',
     initialData: [],
     staleTime: 30000,
   });
@@ -380,6 +385,30 @@ export default function Communication() {
     // Both have messages - sort by most recent
     return new Date(lastMsgB.created_date) - new Date(lastMsgA.created_date);
   });
+
+  // Redirect clients to their own communication page
+  if (user?.user_type === 'client') {
+    return (
+      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+        <Card className="max-w-md border-none shadow-xl">
+          <CardHeader>
+            <CardTitle>Access Restricted</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">
+              This page is for health coaches and team members only. Please use the "Messages" page from your client menu to communicate with your coach.
+            </p>
+            <Button 
+              onClick={() => window.location.href = '/ClientCommunication'}
+              className="w-full bg-gradient-to-r from-orange-500 to-red-500"
+            >
+              Go to My Messages
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen p-2 sm:p-4 md:p-8">
