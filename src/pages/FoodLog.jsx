@@ -174,12 +174,15 @@ export default function FoodLog() {
 
   return (
     <div className="min-h-screen p-3 sm:p-4 md:p-8">
+      <PageTour pageName="FoodLog" />
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">Food Log</h1>
             <p className="text-sm md:text-base text-gray-600">Track your daily food intake</p>
           </div>
+          <div className="flex gap-2">
+            <TourButton pageName="FoodLog" />
             <Dialog open={showAddDialog} onOpenChange={(open) => !open && handleDialogClose()}>
               <DialogTrigger asChild>
                 <Button id="add-food-log" className="bg-gradient-to-r from-orange-500 to-red-500 w-full sm:w-auto">
@@ -187,7 +190,6 @@ export default function FoodLog() {
                   Log Food
                 </Button>
               </DialogTrigger>
-          </div>
             <DialogContent className="max-w-2xl w-[95vw] sm:w-full max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingLog ? 'Edit Meal' : 'Log Your Meal'}</DialogTitle>
@@ -341,8 +343,10 @@ export default function FoodLog() {
                   </Button>
                 </div>
               </div>
-              </DialogContent>
-              </Dialog>
+            </DialogContent>
+          </Dialog>
+          </div>
+        </div>
 
         {/* Mobile Date Selector */}
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur lg:hidden mb-4">

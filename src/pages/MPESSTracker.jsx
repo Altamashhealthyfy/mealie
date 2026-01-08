@@ -3,8 +3,6 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import PageTour from "@/components/common/PageTour";
 import TourButton from "@/components/common/TourButton";
-import PageTour from "@/components/common/PageTour";
-import TourButton from "@/components/common/TourButton";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
