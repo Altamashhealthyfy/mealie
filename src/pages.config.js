@@ -15,6 +15,7 @@ import ClientCommunication from './pages/ClientCommunication';
 import ClientDashboard from './pages/ClientDashboard';
 import ClientFinanceManager from './pages/ClientFinanceManager';
 import ClientManagement from './pages/ClientManagement';
+import ClientOnboarding from './pages/ClientOnboarding';
 import ClientPlanBuilder from './pages/ClientPlanBuilder';
 import ClientPlanManagement from './pages/ClientPlanManagement';
 import ClientPlans from './pages/ClientPlans';
@@ -23,6 +24,7 @@ import ClinicalIntake from './pages/ClinicalIntake';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachSubscription from './pages/CoachSubscription';
 import CoachSubscriptions from './pages/CoachSubscriptions';
+import Communication from './pages/Communication';
 import DietitianDashboard from './pages/DietitianDashboard';
 import Documentation from './pages/Documentation';
 import FeatureControl from './pages/FeatureControl';
@@ -70,8 +72,7 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import Communication from './pages/Communication';
-import ClientOnboarding from './pages/ClientOnboarding';
+import BroadcastNotification from './pages/BroadcastNotification';
 import __Layout from './Layout.jsx';
 
 
@@ -93,6 +94,7 @@ export const PAGES = {
     "ClientDashboard": ClientDashboard,
     "ClientFinanceManager": ClientFinanceManager,
     "ClientManagement": ClientManagement,
+    "ClientOnboarding": ClientOnboarding,
     "ClientPlanBuilder": ClientPlanBuilder,
     "ClientPlanManagement": ClientPlanManagement,
     "ClientPlans": ClientPlans,
@@ -101,6 +103,7 @@ export const PAGES = {
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachSubscription": CoachSubscription,
     "CoachSubscriptions": CoachSubscriptions,
+    "Communication": Communication,
     "DietitianDashboard": DietitianDashboard,
     "Documentation": Documentation,
     "FeatureControl": FeatureControl,
@@ -148,8 +151,7 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "Communication": Communication,
-    "ClientOnboarding": ClientOnboarding,
+    "BroadcastNotification": BroadcastNotification,
 }
 
 export const pagesConfig = {

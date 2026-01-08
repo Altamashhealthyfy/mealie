@@ -237,6 +237,12 @@ const businessNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
+    title: "Broadcast Notification",
+    url: createPageUrl("BroadcastNotification"),
+    icon: MessageSquare,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
     title: "Template Manager",
     url: createPageUrl("TemplateLibraryManager"),
     icon: Upload,
