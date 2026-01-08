@@ -11,7 +11,7 @@ import {
   MessageSquare,
   Send,
   CheckCheck,
-  Clock,
+  Check,
   Loader2,
   ArrowDown,
   Paperclip,
@@ -371,9 +371,9 @@ export default function ClientCommunication() {
                               <span>{formatToIST(message.created_date)}</span>
                               {isFromClient && (
                                 message.read ? (
-                                  <CheckCheck className="w-3 h-3" />
+                                  <CheckCheck className="w-3 h-3 text-blue-400" />
                                 ) : (
-                                  <Clock className="w-3 h-3" />
+                                  <Check className="w-3 h-3" />
                                 )
                               )}
                             </div>

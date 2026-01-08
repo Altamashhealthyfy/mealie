@@ -15,6 +15,7 @@ import {
   Search,
   CheckCheck,
   Check,
+  Clock,
   Loader2,
   ArrowDown,
   Paperclip,
@@ -625,7 +626,7 @@ export default function Communication() {
                                     <span>{formatToIST(message.created_date)}</span>
                                     {isFromDietitian && (
                                       message.read ? (
-                                        <CheckCheck className="w-3 h-3" />
+                                        <CheckCheck className="w-3 h-3 text-blue-400" />
                                       ) : (
                                         <Check className="w-3 h-3" />
                                       )
