@@ -39,7 +39,7 @@ export default function MealPlanner() {
   const [aiGeneratedTemplate, setAiGeneratedTemplate] = useState(null);
   const [aiTemplateForm, setAiTemplateForm] = useState({
     name: "",
-    target_calories: "1800",
+    target_calories: "",
     food_preference: "veg",
     regional_preference: "all",
     duration: "7",
@@ -197,7 +197,7 @@ export default function MealPlanner() {
       setAiGeneratedTemplate(null);
       setAiTemplateForm({
         name: "",
-        target_calories: "1800",
+        target_calories: "",
         food_preference: "veg",
         regional_preference: "all",
         duration: "7",
@@ -210,8 +210,9 @@ export default function MealPlanner() {
         bmi: "",
         bmi_file: null,
         weight_loss_target: "",
-        portion_size: "medium"
-        });
+        portion_size: "medium",
+        serving_size: "1"
+      });
         alert("✅ AI template created successfully! Use it unlimited times for FREE!");
     },
   });
@@ -1141,14 +1142,35 @@ Return structured meal plan with:
   };
 
   const handleGenerateAITemplate = async () => {
-    if (!aiTemplateForm.target_calories || !aiTemplateForm.duration) {
-      alert("Please fill in all required fields");
+    // Calculate target calories if not set
+    let targetCalories = aiTemplateForm.target_calories;
+    if (!targetCalories && aiTemplateForm.age && aiTemplateForm.height && aiTemplateForm.weight) {
+      const age = parseFloat(aiTemplateForm.age);
+      const height = parseFloat(aiTemplateForm.height);
+      const weight = parseFloat(aiTemplateForm.weight);
+      
+      const bmrMale = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+      const bmrFemale = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+      const bmr = (bmrMale + bmrFemale) / 2;
+      const tdee = bmr * 1.375;
+      
+      if (aiTemplateForm.goal === 'weight_loss') {
+        targetCalories = Math.round(tdee - 500);
+      } else if (aiTemplateForm.goal === 'weight_gain' || aiTemplateForm.goal === 'muscle_gain') {
+        targetCalories = Math.round(tdee + 300);
+      } else {
+        targetCalories = Math.round(tdee);
+      }
+    }
+
+    if (!targetCalories || !aiTemplateForm.duration) {
+      alert("Please fill in age, height, weight, and duration to generate the template");
       return;
     }
 
     setGeneratingAITemplate(true);
     try {
-      const targetCalories = parseInt(aiTemplateForm.target_calories);
+      targetCalories = parseInt(targetCalories);
       const duration = parseInt(aiTemplateForm.duration);
 
       const prompt = `Generate a complete ${duration}-day Indian meal plan template with ALL meal types for EVERY day.
@@ -3019,23 +3041,63 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Target Calories *</Label>
+                      <Label>Target Calories * (Auto-calculated)</Label>
                       <Input
-                        type="number"
-                        placeholder="1800"
-                        value={aiTemplateForm.target_calories}
-                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, target_calories: e.target.value})}
+                        type="text"
+                        value={(() => {
+                          if (!aiTemplateForm.age || !aiTemplateForm.height || !aiTemplateForm.weight) return '';
+                          
+                          const age = parseFloat(aiTemplateForm.age);
+                          const height = parseFloat(aiTemplateForm.height);
+                          const weight = parseFloat(aiTemplateForm.weight);
+                          
+                          // Mifflin-St Jeor equation (using average for both genders)
+                          const bmrMale = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+                          const bmrFemale = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+                          const bmr = (bmrMale + bmrFemale) / 2;
+                          
+                          // TDEE for lightly active
+                          const tdee = bmr * 1.375;
+                          
+                          // Adjust based on goal
+                          let targetCalories = tdee;
+                          if (aiTemplateForm.goal === 'weight_loss') {
+                            targetCalories = tdee - 500; // 500 cal deficit for ~0.5kg/week loss
+                          } else if (aiTemplateForm.goal === 'weight_gain' || aiTemplateForm.goal === 'muscle_gain') {
+                            targetCalories = tdee + 300; // 300 cal surplus
+                          }
+                          
+                          return Math.round(targetCalories);
+                        })()}
+                        disabled
+                        placeholder="Fill age, height, weight, and select goal"
+                        className="bg-gray-50"
                       />
+                      <p className="text-xs text-gray-600">
+                        Based on Mifflin-St Jeor equation and {aiTemplateForm.goal === 'weight_loss' ? '500 cal deficit' : aiTemplateForm.goal === 'weight_gain' || aiTemplateForm.goal === 'muscle_gain' ? '300 cal surplus' : 'maintenance'}
+                      </p>
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Weight Loss Target (kg)</Label>
+                      <Label>Weight Loss Target (kg) (Auto-calculated)</Label>
                       <Input
-                        type="number"
-                        placeholder="5"
-                        value={aiTemplateForm.weight_loss_target}
-                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, weight_loss_target: e.target.value})}
+                        type="text"
+                        value={(() => {
+                          if (!aiTemplateForm.weight || !aiTemplateForm.goal) return '';
+                          if (aiTemplateForm.goal !== 'weight_loss') return 'N/A (not weight loss goal)';
+                          
+                          const weight = parseFloat(aiTemplateForm.weight);
+                          // Recommend 7-8% of body weight as safe target
+                          const target = Math.round(weight * 0.075 * 10) / 10;
+                          return target;
+                        })()}
+                        disabled
+                        placeholder="Fill weight and select goal"
+                        className="bg-gray-50"
                       />
+                      <p className="text-xs text-gray-600">
+                        Safe target: 7-8% of body weight
+                      </p>
                     </div>
 
                     <div className="space-y-2">
@@ -3259,7 +3321,7 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                         setAiGeneratedTemplate(null);
                         setAiTemplateForm({
                           name: "",
-                          target_calories: "1800",
+                          target_calories: "",
                           food_preference: "veg",
                           regional_preference: "all",
                           duration: "7",
