@@ -105,16 +105,14 @@ export default function Communication() {
       const allUsers = await base44.entities.User.list();
       
       // Filter out clients who are registered as users with user_type='client'
-      const clientUserEmails = new Set(
-        allUsers
-          .filter(u => u.user_type === 'client' && u.email)
-          .map(u => u.email.toLowerCase().trim())
-      );
+      const clientUserEmails = allUsers
+        .filter(u => u.user_type === 'client' && u.email)
+        .map(u => u.email.toLowerCase().trim());
       
       const nonUserClients = allClients.filter(client => {
-        if (!client.email) return true;
-        const clientEmail = client.email.toLowerCase().trim();
-        return !clientUserEmails.has(clientEmail);
+        if (!client.email) return true; // Keep clients without email
+        const clientEmailLower = client.email.toLowerCase().trim();
+        return !clientUserEmails.includes(clientEmailLower);
       });
 
       // Super admin sees ALL non-user clients
