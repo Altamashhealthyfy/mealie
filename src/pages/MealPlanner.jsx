@@ -3011,12 +3011,11 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                         value={aiTemplateForm.height}
                         onChange={(e) => {
                           const newHeight = e.target.value;
-                          setAiTemplateForm({...aiTemplateForm, height: newHeight});
                           
                           // Auto-calculate goal based on BMI
                           if (newHeight && aiTemplateForm.weight) {
                             const bmi = aiTemplateForm.weight / Math.pow(newHeight / 100, 2);
-                            let autoGoal = aiTemplateForm.goal;
+                            let autoGoal;
                             if (bmi > 25) {
                               autoGoal = 'weight_loss';
                             } else if (bmi < 18.5) {
@@ -3024,9 +3023,9 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                             } else {
                               autoGoal = 'maintenance';
                             }
-                            if (!aiTemplateForm.goal) {
-                              setAiTemplateForm(prev => ({...prev, height: newHeight, goal: autoGoal}));
-                            }
+                            setAiTemplateForm({...aiTemplateForm, height: newHeight, goal: autoGoal});
+                          } else {
+                            setAiTemplateForm({...aiTemplateForm, height: newHeight});
                           }
                         }}
                       />
@@ -3040,12 +3039,11 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                         value={aiTemplateForm.weight}
                         onChange={(e) => {
                           const newWeight = e.target.value;
-                          setAiTemplateForm({...aiTemplateForm, weight: newWeight});
                           
                           // Auto-calculate goal based on BMI
                           if (aiTemplateForm.height && newWeight) {
                             const bmi = newWeight / Math.pow(aiTemplateForm.height / 100, 2);
-                            let autoGoal = aiTemplateForm.goal;
+                            let autoGoal;
                             if (bmi > 25) {
                               autoGoal = 'weight_loss';
                             } else if (bmi < 18.5) {
@@ -3053,9 +3051,9 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                             } else {
                               autoGoal = 'maintenance';
                             }
-                            if (!aiTemplateForm.goal) {
-                              setAiTemplateForm(prev => ({...prev, weight: newWeight, goal: autoGoal}));
-                            }
+                            setAiTemplateForm({...aiTemplateForm, weight: newWeight, goal: autoGoal});
+                          } else {
+                            setAiTemplateForm({...aiTemplateForm, weight: newWeight});
                           }
                         }}
                       />
