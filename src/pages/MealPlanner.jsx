@@ -2927,43 +2927,48 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
 
               {!aiGeneratedTemplate ? (
                 <div className="space-y-4">
-                  <Card className="bg-blue-50 border-blue-200">
-                    <CardContent className="p-4">
-                      <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                        📏 Portion Size Reference Guide
-                      </h4>
-                      <div className="grid grid-cols-3 gap-3 text-sm">
-                        <div className="bg-white p-2 rounded border border-blue-200">
-                          <p className="font-medium text-gray-900">Small Bowl</p>
-                          <p className="text-gray-600">150gm</p>
-                        </div>
-                        <div className="bg-white p-2 rounded border border-blue-200">
-                          <p className="font-medium text-gray-900">Medium Bowl</p>
-                          <p className="text-gray-600">200gm</p>
-                        </div>
-                        <div className="bg-white p-2 rounded border border-blue-200">
-                          <p className="font-medium text-gray-900">Large Bowl</p>
-                          <p className="text-gray-600">250gm</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
                   <div className="space-y-2">
-                    <Label>📏 Portion Size Preference</Label>
-                    <Select
-                      value={aiTemplateForm.portion_size}
-                      onValueChange={(value) => setAiTemplateForm({...aiTemplateForm, portion_size: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="small">Small (150gm bowls)</SelectItem>
-                        <SelectItem value="medium">Medium (200gm bowls)</SelectItem>
-                        <SelectItem value="large">Large (250gm bowls)</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label className="font-semibold text-gray-900 flex items-center gap-2">
+                      📏 Portion Size Reference Guide
+                    </Label>
+                    <div className="grid grid-cols-3 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setAiTemplateForm({...aiTemplateForm, portion_size: 'small'})}
+                        className={`p-4 rounded-lg border-2 transition-all ${
+                          aiTemplateForm.portion_size === 'small'
+                            ? 'border-orange-500 bg-orange-50'
+                            : 'border-gray-200 bg-white hover:border-orange-300'
+                        }`}
+                      >
+                        <p className="font-semibold text-gray-900">Small Bowl</p>
+                        <p className="text-gray-600">150gm</p>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAiTemplateForm({...aiTemplateForm, portion_size: 'medium'})}
+                        className={`p-4 rounded-lg border-2 transition-all ${
+                          aiTemplateForm.portion_size === 'medium'
+                            ? 'border-orange-500 bg-orange-50'
+                            : 'border-gray-200 bg-white hover:border-orange-300'
+                        }`}
+                      >
+                        <p className="font-semibold text-gray-900">Medium Bowl</p>
+                        <p className="text-gray-600">200gm</p>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAiTemplateForm({...aiTemplateForm, portion_size: 'large'})}
+                        className={`p-4 rounded-lg border-2 transition-all ${
+                          aiTemplateForm.portion_size === 'large'
+                            ? 'border-orange-500 bg-orange-50'
+                            : 'border-gray-200 bg-white hover:border-orange-300'
+                        }`}
+                      >
+                        <p className="font-semibold text-gray-900">Large Bowl</p>
+                        <p className="text-gray-600">250gm</p>
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
