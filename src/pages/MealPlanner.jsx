@@ -3124,19 +3124,33 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                         <Input
                           type="text"
                           value={(() => {
-                            if (!aiTemplateForm.weight) return '';
+                            if (!aiTemplateForm.weight || !aiTemplateForm.height) return '';
                             
                             const weight = parseFloat(aiTemplateForm.weight);
-                            // Recommend 7-8% of body weight as safe target
-                            const target = Math.round(weight * 0.075 * 10) / 10;
-                            return target;
+                            const height = parseFloat(aiTemplateForm.height);
+                            const bmi = weight / Math.pow(height / 100, 2);
+                            
+                            let target = 0;
+                            if (aiTemplateForm.goal === 'weight_loss') {
+                              // For weight loss: calculate ideal weight based on BMI 22 (middle of healthy range)
+                              const idealWeight = 22 * Math.pow(height / 100, 2);
+                              target = Math.max(weight - idealWeight, weight * 0.05); // At least 5% or ideal weight difference
+                              target = Math.min(target, weight * 0.10); // Max 10% for safety
+                            } else {
+                              // For weight gain: 5-7% of body weight is safe
+                              target = weight * 0.06;
+                            }
+                            
+                            return Math.round(target * 10) / 10;
                           })()}
                           disabled
-                          placeholder="Fill weight"
+                          placeholder="Fill weight and height"
                           className="bg-gray-50"
                         />
                         <p className="text-xs text-gray-600">
-                          Safe target: 7-8% of body weight
+                          {aiTemplateForm.goal === 'weight_loss' 
+                            ? 'Safe target: 5-10% of body weight (based on BMI)' 
+                            : 'Safe target: 5-7% of body weight'}
                         </p>
                       </div>
                     )}
