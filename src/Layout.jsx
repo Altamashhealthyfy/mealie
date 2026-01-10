@@ -156,7 +156,7 @@ const dietitianNavigation = [
   },
   {
     title: "Resource Library",
-    url: createPageUrl("ResourceLibrary"),
+    url: createPageUrl("ResourceLibraryEnhanced"),
     icon: BookOpen,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
@@ -553,7 +553,7 @@ export default function Layout({ children, currentPageName }) {
       },
       {
         title: "Resources",
-        url: createPageUrl("ClientResourceLibrary"),
+        url: createPageUrl("ClientResourceTracker"),
         icon: BookOpen,
         show: permissions?.can_view_resources ?? true,
       },
