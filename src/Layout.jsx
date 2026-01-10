@@ -602,10 +602,17 @@ export default function Layout({ children, currentPageName }) {
     primary_from: '#f97316',
     primary_to: '#dc2626',
     sidebar_bg: '#ffffff',
+    health_coach_sidebar_bg: '#ffffff',
+    client_sidebar_bg: '#ffffff',
     accent_color: '#f97316',
     menu_text_color: '#22c55e',
     highlight_button_color: '#f97316'
   };
+
+  // Use panel-specific sidebar color
+  const sidebarBg = isDietitian 
+    ? (themeColors.health_coach_sidebar_bg || themeColors.sidebar_bg)
+    : (themeColors.client_sidebar_bg || themeColors.sidebar_bg);
 
   const handleLogout = async () => {
     if (window.confirm("Are you sure you want to logout?")) {
@@ -635,7 +642,7 @@ export default function Layout({ children, currentPageName }) {
         }
       `}</style>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
-        <Sidebar className="border-r border-orange-100 backdrop-blur-sm" style={{ backgroundColor: themeColors.sidebar_bg }}>
+        <Sidebar className="border-r border-orange-100 backdrop-blur-sm" style={{ backgroundColor: sidebarBg }}>
           <SidebarHeader className="border-b border-orange-100 p-6">
             <div className="flex items-center gap-3">
               {brandingLogo ? (
