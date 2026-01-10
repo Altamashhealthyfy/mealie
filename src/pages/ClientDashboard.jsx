@@ -203,7 +203,7 @@ export default function ClientDashboard() {
     },
   });
 
-  const handleDownloadPlan = () => {
+  const handleDownloadPlan = (includeCalories) => {
     if (!mealPlan) return;
 
     const doc = new jsPDF();
@@ -232,8 +232,10 @@ export default function ClientDashboard() {
     doc.setFont(undefined, 'normal');
     doc.text(`Duration: ${mealPlan.duration} days`, 20, yPos);
     yPos += 5;
-    doc.text(`Target Calories: ${mealPlan.target_calories} kcal/day`, 20, yPos);
-    yPos += 5;
+    if (includeCalories) {
+      doc.text(`Target Calories: ${mealPlan.target_calories} kcal/day`, 20, yPos);
+      yPos += 5;
+    }
     doc.text(`Meal Pattern: ${mealPlan.meal_pattern || 'daily'}`, 20, yPos);
     yPos += 5;
     doc.text(`Food Preference: ${mealPlan.food_preference}`, 20, yPos);
@@ -294,14 +296,16 @@ export default function ClientDashboard() {
         doc.text(meal.meal_name, 20, yPos);
         yPos += 6;
 
-        // Nutrition info box
-        doc.setFontSize(9);
-        doc.setFont(undefined, 'normal');
-        doc.setTextColor(100, 100, 100);
-        const nutritionText = `${meal.calories || 0} kcal  •  Protein: ${meal.protein || 0}g  •  Carbs: ${meal.carbs || 0}g  •  Fats: ${meal.fats || 0}g`;
-        doc.text(nutritionText, 20, yPos);
-        doc.setTextColor(0, 0, 0);
-        yPos += 6;
+        // Nutrition info box (only if includeCalories is true)
+        if (includeCalories) {
+          doc.setFontSize(9);
+          doc.setFont(undefined, 'normal');
+          doc.setTextColor(100, 100, 100);
+          const nutritionText = `${meal.calories || 0} kcal  •  Protein: ${meal.protein || 0}g  •  Carbs: ${meal.carbs || 0}g  •  Fats: ${meal.fats || 0}g`;
+          doc.text(nutritionText, 20, yPos);
+          doc.setTextColor(0, 0, 0);
+          yPos += 6;
+        }
 
         // Food items
         doc.setFontSize(9);
@@ -336,8 +340,8 @@ export default function ClientDashboard() {
             yPos += 2;
           }
 
-          // Sodium/Potassium info
-          if (meal.sodium || meal.potassium) {
+          // Sodium/Potassium info (only if includeCalories is true)
+          if (includeCalories && (meal.sodium || meal.potassium)) {
             doc.setFont(undefined, 'normal');
             doc.setFontSize(8);
             let mineralsText = '';
@@ -370,17 +374,21 @@ export default function ClientDashboard() {
         yPos += 4;
       });
 
-      // Day summary
-      const dayTotal = mealsByDay[day].reduce((sum, m) => sum + (m.calories || 0), 0);
-      const dayProtein = mealsByDay[day].reduce((sum, m) => sum + (m.protein || 0), 0);
-      const dayCarbs = mealsByDay[day].reduce((sum, m) => sum + (m.carbs || 0), 0);
-      const dayFats = mealsByDay[day].reduce((sum, m) => sum + (m.fats || 0), 0);
-      
-      doc.setFontSize(10);
-      doc.setFont(undefined, 'bold');
-      doc.text(`Day ${day} Total: ${dayTotal} kcal  •  P: ${dayProtein}g  C: ${dayCarbs}g  F: ${dayFats}g`, 20, yPos);
-      yPos += 10;
-      doc.setFont(undefined, 'normal');
+      // Day summary (only if includeCalories is true)
+      if (includeCalories) {
+        const dayTotal = mealsByDay[day].reduce((sum, m) => sum + (m.calories || 0), 0);
+        const dayProtein = mealsByDay[day].reduce((sum, m) => sum + (m.protein || 0), 0);
+        const dayCarbs = mealsByDay[day].reduce((sum, m) => sum + (m.carbs || 0), 0);
+        const dayFats = mealsByDay[day].reduce((sum, m) => sum + (m.fats || 0), 0);
+        
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'bold');
+        doc.text(`Day ${day} Total: ${dayTotal} kcal  •  P: ${dayProtein}g  C: ${dayCarbs}g  F: ${dayFats}g`, 20, yPos);
+        yPos += 10;
+        doc.setFont(undefined, 'normal');
+      } else {
+        yPos += 2;
+      }
       
       // Separator line
       doc.setDrawColor(200, 200, 200);
@@ -440,7 +448,12 @@ export default function ClientDashboard() {
     doc.setTextColor(150, 150, 150);
     doc.text(`Generated on ${format(new Date(), 'MMMM dd, yyyy')}`, 105, yPos, { align: 'center' });
 
-    doc.save(`${mealPlan.name.replace(/\s+/g, '-')}-${clientProfile.full_name.replace(/\s+/g, '-')}.pdf`);
+    const fileName = includeCalories 
+      ? `${mealPlan.name.replace(/\s+/g, '-')}-with-calories.pdf`
+      : `${mealPlan.name.replace(/\s+/g, '-')}-without-calories.pdf`;
+    doc.save(fileName);
+    
+    setShowDownloadOptionsDialog(false);
   };
 
   // Early return AFTER all hooks are defined
