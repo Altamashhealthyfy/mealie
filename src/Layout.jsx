@@ -526,6 +526,12 @@ export default function Layout({ children, currentPageName }) {
         show: permissions?.can_view_appointments ?? true,
       },
       {
+        title: "Recipe Library",
+        url: createPageUrl("ClientRecipes"),
+        icon: ChefHat,
+        show: permissions?.can_view_recipes ?? true,
+      },
+      {
         title: "Food Lookup",
         url: createPageUrl("FoodLookup"),
         icon: Search,
