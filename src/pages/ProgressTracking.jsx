@@ -506,17 +506,10 @@ export default function ProgressTracking() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <Label>Unit</Label>
-                      <Input value={goalData.unit || ''} onChange={(e) => setGoalData({...goalData, unit: e.target.value})}
-                        placeholder="kg, cm, days" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Target Date</Label>
-                      <Input type="date" value={goalData.target_date || ''}
-                        onChange={(e) => setGoalData({...goalData, target_date: e.target.value})} />
-                    </div>
+                  <div className="space-y-2">
+                    <Label>Target Date</Label>
+                    <Input type="date" value={goalData.target_date || ''}
+                      onChange={(e) => setGoalData({...goalData, target_date: e.target.value})} />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
