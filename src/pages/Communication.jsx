@@ -27,11 +27,10 @@ import {
   Download
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 export default function Communication() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
   const [selectedClient, setSelectedClient] = useState(null);
   const [messageText, setMessageText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
