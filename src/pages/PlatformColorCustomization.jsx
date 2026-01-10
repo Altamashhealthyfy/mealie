@@ -12,30 +12,19 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 export default function PlatformColorCustomization() {
   const queryClient = useQueryClient();
   const [activePanel, setActivePanel] = useState("platform");
-  const [platformColors, setPlatformColors] = useState({
+
+  const defaultColors = {
     primary_from: "#f97316",
     primary_to: "#dc2626",
     sidebar_bg: "#ffffff",
-    accent_color: "#f97316",
-    menu_text_color: "#22c55e",
-    highlight_button_color: "#f97316"
-  });
-  const [healthCoachColors, setHealthCoachColors] = useState({
-    primary_from: "#f97316",
-    primary_to: "#dc2626",
     health_coach_sidebar_bg: "#ffffff",
-    accent_color: "#f97316",
-    menu_text_color: "#22c55e",
-    highlight_button_color: "#f97316"
-  });
-  const [clientColors, setClientColors] = useState({
-    primary_from: "#f97316",
-    primary_to: "#dc2626",
     client_sidebar_bg: "#ffffff",
     accent_color: "#f97316",
     menu_text_color: "#22c55e",
-    highlight_button_color: "#f97316"
-  });
+    highlight_button_color: "#f97316",
+  };
+
+  const [themeColors, setThemeColors] = useState(defaultColors);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -45,7 +34,8 @@ export default function PlatformColorCustomization() {
   const { data: coachProfile, isLoading } = useQuery({
     queryKey: ['coachProfile', user?.email],
     queryFn: async () => {
-      const profiles = await base44.entities.CoachProfile.filter({ created_by: user?.email });
+      if (!user?.email) return null;
+      const profiles = await base44.entities.CoachProfile.filter({ created_by: user.email });
       return profiles[0] || null;
     },
     enabled: !!user,
@@ -53,31 +43,7 @@ export default function PlatformColorCustomization() {
 
   useEffect(() => {
     if (coachProfile?.theme_colors) {
-      const tc = coachProfile.theme_colors;
-      setPlatformColors({
-        primary_from: tc.primary_from || "#f97316",
-        primary_to: tc.primary_to || "#dc2626",
-        sidebar_bg: tc.sidebar_bg || "#ffffff",
-        accent_color: tc.accent_color || "#f97316",
-        menu_text_color: tc.menu_text_color || "#22c55e",
-        highlight_button_color: tc.highlight_button_color || "#f97316"
-      });
-      setHealthCoachColors({
-        primary_from: tc.primary_from || "#f97316",
-        primary_to: tc.primary_to || "#dc2626",
-        health_coach_sidebar_bg: tc.health_coach_sidebar_bg || "#ffffff",
-        accent_color: tc.accent_color || "#f97316",
-        menu_text_color: tc.menu_text_color || "#22c55e",
-        highlight_button_color: tc.highlight_button_color || "#f97316"
-      });
-      setClientColors({
-        primary_from: tc.primary_from || "#f97316",
-        primary_to: tc.primary_to || "#dc2626",
-        client_sidebar_bg: tc.client_sidebar_bg || "#ffffff",
-        accent_color: tc.accent_color || "#f97316",
-        menu_text_color: tc.menu_text_color || "#22c55e",
-        highlight_button_color: tc.highlight_button_color || "#f97316"
-      });
+      setThemeColors(prev => ({ ...defaultColors, ...prev, ...coachProfile.theme_colors }));
     }
   }, [coachProfile]);
 
@@ -94,68 +60,233 @@ export default function PlatformColorCustomization() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['coachProfile']);
-      alert("✅ Colors saved! Refresh the page to see changes.");
+      queryClient.invalidateQueries({ queryKey: ['coachProfile'] });
+      alert("✅ Colors saved! You may need to refresh the page to see all changes.");
     },
+    onError: (err) => {
+      console.error("Failed to save colors:", err);
+      alert("❌ Failed to save colors. Please try again.");
+    }
   });
 
   const handleSave = () => {
-    const mergedColors = {
-      ...platformColors,
-      ...healthCoachColors,
-      ...clientColors
-    };
-    updateColorsMutation.mutate(mergedColors);
+    updateColorsMutation.mutate(themeColors);
   };
 
   const handleReset = () => {
-    if (activePanel === "platform") {
-      setPlatformColors({
-        primary_from: "#f97316",
-        primary_to: "#dc2626",
-        sidebar_bg: "#ffffff",
-        accent_color: "#f97316",
-        menu_text_color: "#22c55e",
-        highlight_button_color: "#f97316"
-      });
-    } else if (activePanel === "health_coach") {
-      setHealthCoachColors({
-        primary_from: "#f97316",
-        primary_to: "#dc2626",
-        health_coach_sidebar_bg: "#ffffff",
-        accent_color: "#f97316",
-        menu_text_color: "#22c55e",
-        highlight_button_color: "#f97316"
-      });
-    } else {
-      setClientColors({
-        primary_from: "#f97316",
-        primary_to: "#dc2626",
-        client_sidebar_bg: "#ffffff",
-        accent_color: "#f97316",
-        menu_text_color: "#22c55e",
-        highlight_button_color: "#f97316"
-      });
-    }
+    setThemeColors(defaultColors);
   };
 
-  const colors = activePanel === "health_coach" ? healthCoachColors : activePanel === "client" ? clientColors : platformColors;
-  const setColors = activePanel === "health_coach" ? setHealthCoachColors : activePanel === "client" ? setClientColors : setPlatformColors;
+  const ColorEditor = ({ sidebarBgKey, sidebarBgLabel }) => (
+    <Card className="border-none shadow-lg">
+      <CardHeader>
+        <CardTitle>{sidebarBgLabel} Colors</CardTitle>
+        <CardDescription>Choose your brand colors</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div>
+          <Label className="text-sm font-medium mb-2 block">Primary Gradient Start</Label>
+          <div className="flex gap-3 items-center">
+            <Input
+              type="color"
+              value={themeColors.primary_from}
+              onChange={(e) => setThemeColors({ ...themeColors, primary_from: e.target.value })}
+              className="w-20 h-12 cursor-pointer"
+            />
+            <Input
+              type="text"
+              value={themeColors.primary_from}
+              onChange={(e) => setThemeColors({ ...themeColors, primary_from: e.target.value })}
+              className="flex-1"
+              placeholder="#f97316"
+            />
+          </div>
+        </div>
 
-  if (user?.user_type !== 'super_admin') {
-    return (
-      <div className="min-h-screen p-8 flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle>Access Denied</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600">This page is only accessible to Platform Owners.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+        <div>
+          <Label className="text-sm font-medium mb-2 block">Primary Gradient End</Label>
+          <div className="flex gap-3 items-center">
+            <Input
+              type="color"
+              value={themeColors.primary_to}
+              onChange={(e) => setThemeColors({ ...themeColors, primary_to: e.target.value })}
+              className="w-20 h-12 cursor-pointer"
+            />
+            <Input
+              type="text"
+              value={themeColors.primary_to}
+              onChange={(e) => setThemeColors({ ...themeColors, primary_to: e.target.value })}
+              className="flex-1"
+              placeholder="#dc2626"
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label className="text-sm font-medium mb-2 block">{sidebarBgLabel} Sidebar Background</Label>
+          <div className="flex gap-3 items-center">
+            <Input
+              type="color"
+              value={themeColors[sidebarBgKey]}
+              onChange={(e) => setThemeColors({ ...themeColors, [sidebarBgKey]: e.target.value })}
+              className="w-20 h-12 cursor-pointer"
+            />
+            <Input
+              type="text"
+              value={themeColors[sidebarBgKey]}
+              onChange={(e) => setThemeColors({ ...themeColors, [sidebarBgKey]: e.target.value })}
+              className="flex-1"
+              placeholder="#ffffff"
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label className="text-sm font-medium mb-2 block">Accent Color</Label>
+          <div className="flex gap-3 items-center">
+            <Input
+              type="color"
+              value={themeColors.accent_color}
+              onChange={(e) => setThemeColors({ ...themeColors, accent_color: e.target.value })}
+              className="w-20 h-12 cursor-pointer"
+            />
+            <Input
+              type="text"
+              value={themeColors.accent_color}
+              onChange={(e) => setThemeColors({ ...themeColors, accent_color: e.target.value })}
+              className="flex-1"
+              placeholder="#f97316"
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label className="text-sm font-medium mb-2 block">Menu Text Color</Label>
+          <div className="flex gap-3 items-center">
+            <Input
+              type="color"
+              value={themeColors.menu_text_color}
+              onChange={(e) => setThemeColors({ ...themeColors, menu_text_color: e.target.value })}
+              className="w-20 h-12 cursor-pointer"
+            />
+            <Input
+              type="text"
+              value={themeColors.menu_text_color}
+              onChange={(e) => setThemeColors({ ...themeColors, menu_text_color: e.target.value })}
+              className="flex-1"
+              placeholder="#22c55e"
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label className="text-sm font-medium mb-2 block">Highlight Button Color</Label>
+          <div className="flex gap-3 items-center">
+            <Input
+              type="color"
+              value={themeColors.highlight_button_color}
+              onChange={(e) => setThemeColors({ ...themeColors, highlight_button_color: e.target.value })}
+              className="w-20 h-12 cursor-pointer"
+            />
+            <Input
+              type="text"
+              value={themeColors.highlight_button_color}
+              onChange={(e) => setThemeColors({ ...themeColors, highlight_button_color: e.target.value })}
+              className="flex-1"
+              placeholder="#f97316"
+            />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const Preview = ({ sidebarBgKey }) => (
+    <Card className="border-none shadow-lg">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Eye className="w-5 h-5" />
+          Live Preview
+        </CardTitle>
+        <CardDescription>See how your colors will look</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <Label className="text-sm font-medium mb-2 block">Primary Gradient</Label>
+          <div
+            className="h-20 rounded-lg shadow-md"
+            style={{
+              background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`
+            }}
+          />
+        </div>
+        <div>
+          <Label className="text-sm font-medium mb-2 block">Button Styles</Label>
+          <div className="space-y-2">
+            <button
+              className="w-full py-3 px-4 rounded-lg text-white font-semibold shadow-md"
+              style={{
+                background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`
+              }}
+            >
+              Primary Button
+            </button>
+            <button
+              className="w-full py-3 px-4 rounded-lg font-semibold border-2 shadow-sm"
+              style={{
+                borderColor: themeColors.accent_color,
+                color: themeColors.accent_color,
+                backgroundColor: themeColors[sidebarBgKey]
+              }}
+            >
+              Outline Button
+            </button>
+          </div>
+        </div>
+        <div>
+          <Label className="text-sm font-medium mb-2 block">Sidebar Preview</Label>
+          <div
+            className="h-32 rounded-lg shadow-md p-4"
+            style={{ backgroundColor: themeColors[sidebarBgKey] }}
+          >
+            <div className="space-y-2">
+              <div
+                className="h-10 rounded-lg flex items-center px-3 text-white font-medium"
+                style={{
+                  background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`
+                }}
+              >
+                Active Menu Item
+              </div>
+              <div className="h-10 rounded-lg flex items-center px-3 text-sm font-medium" style={{ color: themeColors.menu_text_color }}>
+                Inactive Menu Item
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <Label className="text-sm font-medium mb-2 block">Accent Elements</Label>
+          <div className="flex gap-2 flex-wrap">
+            <span
+              className="px-3 py-1 rounded-full text-white text-sm font-medium"
+              style={{ backgroundColor: themeColors.accent_color }}
+            >
+              Badge
+            </span>
+            <span
+              className="px-3 py-1 rounded-full text-sm font-medium"
+              style={{
+                backgroundColor: themeColors.accent_color + '20',
+                color: themeColors.accent_color
+              }}
+            >
+              Light Badge
+            </span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="min-h-screen p-4 md:p-8">
@@ -174,7 +305,6 @@ export default function PlatformColorCustomization() {
           </AlertDescription>
         </Alert>
 
-        {/* Panel Selection Tabs */}
         <Tabs value={activePanel} onValueChange={setActivePanel} className="w-full">
           <TabsList className="grid w-full max-w-2xl grid-cols-3 mb-6">
             <TabsTrigger value="platform" className="flex items-center gap-2">
@@ -191,801 +321,47 @@ export default function PlatformColorCustomization() {
             </TabsTrigger>
           </TabsList>
 
-          {/* Platform Panel Colors */}
           <TabsContent value="platform">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Color Settings */}
-          <Card className="border-none shadow-lg">
-            <CardHeader>
-              <CardTitle>Color Settings</CardTitle>
-              <CardDescription>Choose your brand colors</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Primary Gradient Start</Label>
-                <div className="flex gap-3 items-center">
-                  <Input
-                    type="color"
-                    value={colors.primary_from}
-                    onChange={(e) => setColors({ ...colors, primary_from: e.target.value })}
-                    className="w-20 h-12 cursor-pointer"
-                  />
-                  <Input
-                    type="text"
-                    value={colors.primary_from}
-                    onChange={(e) => setColors({ ...colors, primary_from: e.target.value })}
-                    className="flex-1"
-                    placeholder="#f97316"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Primary Gradient End</Label>
-                <div className="flex gap-3 items-center">
-                  <Input
-                    type="color"
-                    value={colors.primary_to}
-                    onChange={(e) => setColors({ ...colors, primary_to: e.target.value })}
-                    className="w-20 h-12 cursor-pointer"
-                  />
-                  <Input
-                    type="text"
-                    value={colors.primary_to}
-                    onChange={(e) => setColors({ ...colors, primary_to: e.target.value })}
-                    className="flex-1"
-                    placeholder="#dc2626"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Sidebar Background</Label>
-                <div className="flex gap-3 items-center">
-                  <Input
-                    type="color"
-                    value={colors.sidebar_bg}
-                    onChange={(e) => setColors({ ...colors, sidebar_bg: e.target.value })}
-                    className="w-20 h-12 cursor-pointer"
-                  />
-                  <Input
-                    type="text"
-                    value={colors.sidebar_bg}
-                    onChange={(e) => setColors({ ...colors, sidebar_bg: e.target.value })}
-                    className="flex-1"
-                    placeholder="#ffffff"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Accent Color</Label>
-                <div className="flex gap-3 items-center">
-                  <Input
-                    type="color"
-                    value={colors.accent_color}
-                    onChange={(e) => setColors({ ...colors, accent_color: e.target.value })}
-                    className="w-20 h-12 cursor-pointer"
-                  />
-                  <Input
-                    type="text"
-                    value={colors.accent_color}
-                    onChange={(e) => setColors({ ...colors, accent_color: e.target.value })}
-                    className="flex-1"
-                    placeholder="#f97316"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Menu Text Color</Label>
-                <div className="flex gap-3 items-center">
-                  <Input
-                    type="color"
-                    value={colors.menu_text_color}
-                    onChange={(e) => setColors({ ...colors, menu_text_color: e.target.value })}
-                    className="w-20 h-12 cursor-pointer"
-                  />
-                  <Input
-                    type="text"
-                    value={colors.menu_text_color}
-                    onChange={(e) => setColors({ ...colors, menu_text_color: e.target.value })}
-                    className="flex-1"
-                    placeholder="#22c55e"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Highlight Button Color</Label>
-                <div className="flex gap-3 items-center">
-                  <Input
-                    type="color"
-                    value={colors.highlight_button_color}
-                    onChange={(e) => setColors({ ...colors, highlight_button_color: e.target.value })}
-                    className="w-20 h-12 cursor-pointer"
-                  />
-                  <Input
-                    type="text"
-                    value={colors.highlight_button_color}
-                    onChange={(e) => setColors({ ...colors, highlight_button_color: e.target.value })}
-                    className="flex-1"
-                    placeholder="#f97316"
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <Button
-                  onClick={handleReset}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Reset to Default
-                </Button>
-                <Button
-                  onClick={handleSave}
-                  disabled={updateColorsMutation.isPending}
-                  className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  {updateColorsMutation.isPending ? 'Saving...' : 'Save Colors'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Preview */}
-          <Card className="border-none shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="w-5 h-5" />
-                Live Preview
-              </CardTitle>
-              <CardDescription>See how your colors will look</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Gradient Preview */}
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Primary Gradient</Label>
-                <div 
-                  className="h-20 rounded-lg shadow-md"
-                  style={{ 
-                    background: `linear-gradient(to right, ${colors.primary_from}, ${colors.primary_to})` 
-                  }}
-                />
-              </div>
-
-              {/* Button Preview */}
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Button Styles</Label>
-                <div className="space-y-2">
-                  <button
-                    className="w-full py-3 px-4 rounded-lg text-white font-semibold shadow-md"
-                    style={{ 
-                      background: `linear-gradient(to right, ${colors.primary_from}, ${colors.primary_to})` 
-                    }}
-                  >
-                    Primary Button
-                  </button>
-                  <button
-                    className="w-full py-3 px-4 rounded-lg font-semibold border-2 shadow-sm"
-                    style={{ 
-                      borderColor: colors.accent_color,
-                      color: colors.accent_color,
-                      backgroundColor: colors.sidebar_bg
-                    }}
-                  >
-                    Outline Button
-                  </button>
-                </div>
-              </div>
-
-              {/* Sidebar Preview */}
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Sidebar Preview</Label>
-                <div 
-                  className="h-28 rounded-lg shadow-md p-3"
-                  style={{ backgroundColor: colors.sidebar_bg }}
-                >
-                  <div className="space-y-1">
-                    <div 
-                      className="h-8 rounded flex items-center px-2 text-white text-sm font-medium"
-                      style={{ 
-                        background: `linear-gradient(to right, ${colors.primary_from}, ${colors.primary_to})` 
-                      }}
-                    >
-                      Active Menu Item
-                    </div>
-                    <div className="h-8 rounded flex items-center px-2 text-sm font-medium" style={{ color: colors.menu_text_color }}>
-                      Inactive Menu Item
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Badge Preview */}
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Accent Elements</Label>
-                <div className="flex gap-2 flex-wrap">
-                  <span 
-                    className="px-3 py-1 rounded-full text-white text-sm font-medium"
-                    style={{ backgroundColor: colors.accent_color }}
-                  >
-                    Badge
-                  </span>
-                  <span 
-                    className="px-3 py-1 rounded-full text-sm font-medium"
-                    style={{ 
-                      backgroundColor: colors.accent_color + '20',
-                      color: colors.accent_color
-                    }}
-                  >
-                    Light Badge
-                  </span>
-                </div>
-              </div>
-
-              {/* Menu Text Preview */}
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Menu Text Color</Label>
-                <div className="space-y-1 p-3 rounded-lg border" style={{ backgroundColor: colors.sidebar_bg }}>
-                  <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">📊 Dashboard</div>
-                  <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">👥 Clients</div>
-                  <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">💬 Messages</div>
-                  <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">📅 Appointments</div>
-                </div>
-              </div>
-
-              {/* Highlight Button Preview */}
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Highlight Button Color</Label>
-                <div className="space-y-2">
-                  <button 
-                    className="w-full px-4 py-2 rounded-full text-white font-semibold text-sm"
-                    style={{ backgroundColor: colors.highlight_button_color }}
-                  >
-                    Color Customization
-                  </button>
-                  <button 
-                    className="w-full px-4 py-2 rounded-full text-white font-semibold text-sm"
-                    style={{ backgroundColor: colors.highlight_button_color }}
-                  >
-                    Active Button
-                  </button>
-                </div>
-              </div>
-            </CardContent>
-            </Card>
+              <ColorEditor sidebarBgKey="sidebar_bg" sidebarBgLabel="Platform" />
+              <Preview sidebarBgKey="sidebar_bg" />
             </div>
-            </TabsContent>
+          </TabsContent>
 
-            {/* Health Coach Panel Colors */}
-            <TabsContent value="health_coach">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="border-none shadow-lg">
-                  <CardHeader>
-                    <CardTitle>Health Coach Panel Colors</CardTitle>
-                    <CardDescription>Customize colors for health coach interface</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Primary Gradient Start</Label>
-                      <div className="flex gap-3 items-center">
-                        <Input
-                          type="color"
-                          value={colors.primary_from}
-                          onChange={(e) => setColors({ ...colors, primary_from: e.target.value })}
-                          className="w-20 h-12 cursor-pointer"
-                        />
-                        <Input
-                          type="text"
-                          value={colors.primary_from}
-                          onChange={(e) => setColors({ ...colors, primary_from: e.target.value })}
-                          className="flex-1"
-                          placeholder="#f97316"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Primary Gradient End</Label>
-                      <div className="flex gap-3 items-center">
-                        <Input
-                          type="color"
-                          value={colors.primary_to}
-                          onChange={(e) => setColors({ ...colors, primary_to: e.target.value })}
-                          className="w-20 h-12 cursor-pointer"
-                        />
-                        <Input
-                          type="text"
-                          value={colors.primary_to}
-                          onChange={(e) => setColors({ ...colors, primary_to: e.target.value })}
-                          className="flex-1"
-                          placeholder="#dc2626"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Health Coach Sidebar Background</Label>
-                      <div className="flex gap-3 items-center">
-                        <Input
-                          type="color"
-                          value={colors.health_coach_sidebar_bg}
-                          onChange={(e) => setColors({ ...colors, health_coach_sidebar_bg: e.target.value })}
-                          className="w-20 h-12 cursor-pointer"
-                        />
-                        <Input
-                          type="text"
-                          value={colors.health_coach_sidebar_bg}
-                          onChange={(e) => setColors({ ...colors, health_coach_sidebar_bg: e.target.value })}
-                          className="flex-1"
-                          placeholder="#ffffff"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Accent Color</Label>
-                      <div className="flex gap-3 items-center">
-                        <Input
-                          type="color"
-                          value={colors.accent_color}
-                          onChange={(e) => setColors({ ...colors, accent_color: e.target.value })}
-                          className="w-20 h-12 cursor-pointer"
-                        />
-                        <Input
-                          type="text"
-                          value={colors.accent_color}
-                          onChange={(e) => setColors({ ...colors, accent_color: e.target.value })}
-                          className="flex-1"
-                          placeholder="#f97316"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Menu Text Color</Label>
-                      <div className="flex gap-3 items-center">
-                        <Input
-                          type="color"
-                          value={colors.menu_text_color}
-                          onChange={(e) => setColors({ ...colors, menu_text_color: e.target.value })}
-                          className="w-20 h-12 cursor-pointer"
-                        />
-                        <Input
-                          type="text"
-                          value={colors.menu_text_color}
-                          onChange={(e) => setColors({ ...colors, menu_text_color: e.target.value })}
-                          className="flex-1"
-                          placeholder="#22c55e"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Highlight Button Color</Label>
-                      <div className="flex gap-3 items-center">
-                        <Input
-                          type="color"
-                          value={colors.highlight_button_color}
-                          onChange={(e) => setColors({ ...colors, highlight_button_color: e.target.value })}
-                          className="w-20 h-12 cursor-pointer"
-                        />
-                        <Input
-                          type="text"
-                          value={colors.highlight_button_color}
-                          onChange={(e) => setColors({ ...colors, highlight_button_color: e.target.value })}
-                          className="flex-1"
-                          placeholder="#f97316"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex gap-3 pt-4">
-                      <Button
-                        onClick={handleReset}
-                        variant="outline"
-                        className="flex-1"
-                      >
-                        <RefreshCw className="w-4 h-4 mr-2" />
-                        Reset to Default
-                      </Button>
-                      <Button
-                        onClick={handleSave}
-                        disabled={updateColorsMutation.isPending}
-                        className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
-                      >
-                        <Save className="w-4 h-4 mr-2" />
-                        {updateColorsMutation.isPending ? 'Saving...' : 'Save Colors'}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-none shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Eye className="w-5 h-5" />
-                      Live Preview
-                    </CardTitle>
-                    <CardDescription>See how your colors will look</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Primary Gradient</Label>
-                      <div 
-                        className="h-20 rounded-lg shadow-md"
-                        style={{ 
-                          background: `linear-gradient(to right, ${colors.primary_from}, ${colors.primary_to})` 
-                        }}
-                      />
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Button Styles</Label>
-                      <div className="space-y-2">
-                        <button
-                          className="w-full py-3 px-4 rounded-lg text-white font-semibold shadow-md"
-                          style={{ 
-                            background: `linear-gradient(to right, ${colors.primary_from}, ${colors.primary_to})` 
-                          }}
-                        >
-                          Primary Button
-                        </button>
-                        <button
-                          className="w-full py-3 px-4 rounded-lg font-semibold border-2 shadow-sm"
-                          style={{ 
-                            borderColor: colors.accent_color,
-                            color: colors.accent_color,
-                            backgroundColor: colors.health_coach_sidebar_bg
-                          }}
-                        >
-                          Outline Button
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Health Coach Sidebar Style</Label>
-                      <div 
-                        className="h-32 rounded-lg shadow-md p-4"
-                        style={{ backgroundColor: colors.health_coach_sidebar_bg }}
-                      >
-                        <div className="space-y-2">
-                          <div 
-                            className="h-10 rounded-lg flex items-center px-3 text-white font-medium"
-                            style={{ 
-                              background: `linear-gradient(to right, ${colors.primary_from}, ${colors.primary_to})` 
-                            }}
-                          >
-                            Active Menu Item
-                          </div>
-                          <div className="h-10 rounded-lg flex items-center px-3 text-sm font-medium" style={{ color: colors.menu_text_color }}>
-                            Inactive Menu Item
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Accent Elements</Label>
-                      <div className="flex gap-2 flex-wrap">
-                        <span 
-                          className="px-3 py-1 rounded-full text-white text-sm font-medium"
-                          style={{ backgroundColor: colors.accent_color }}
-                        >
-                          Badge
-                        </span>
-                        <span 
-                          className="px-3 py-1 rounded-full text-sm font-medium"
-                          style={{ 
-                            backgroundColor: colors.accent_color + '20',
-                            color: colors.accent_color
-                          }}
-                        >
-                          Light Badge
-                        </span>
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Menu Text Color</Label>
-                      <div className="space-y-1 p-3 rounded-lg border" style={{ backgroundColor: colors.health_coach_sidebar_bg }}>
-                        <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">📊 Dashboard</div>
-                        <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">👥 Clients</div>
-                        <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">💬 Messages</div>
-                        <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">📅 Appointments</div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Highlight Button Color</Label>
-                      <div className="space-y-2">
-                        <button 
-                          className="w-full px-4 py-2 rounded-full text-white font-semibold text-sm"
-                          style={{ backgroundColor: colors.highlight_button_color }}
-                        >
-                          Active Button
-                        </button>
-                        <button 
-                          className="w-full px-4 py-2 rounded-full text-white font-semibold text-sm"
-                          style={{ backgroundColor: colors.highlight_button_color }}
-                        >
-                          Highlight Button
-                        </button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Client Panel Colors */}
-            <TabsContent value="client">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="border-none shadow-lg">
-                  <CardHeader>
-                    <CardTitle>Client Panel Colors</CardTitle>
-                    <CardDescription>Customize colors for client interface</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Primary Gradient Start</Label>
-                      <div className="flex gap-3 items-center">
-                        <Input
-                          type="color"
-                          value={colors.primary_from}
-                          onChange={(e) => setColors({ ...colors, primary_from: e.target.value })}
-                          className="w-20 h-12 cursor-pointer"
-                        />
-                        <Input
-                          type="text"
-                          value={colors.primary_from}
-                          onChange={(e) => setColors({ ...colors, primary_from: e.target.value })}
-                          className="flex-1"
-                          placeholder="#f97316"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Primary Gradient End</Label>
-                      <div className="flex gap-3 items-center">
-                        <Input
-                          type="color"
-                          value={colors.primary_to}
-                          onChange={(e) => setColors({ ...colors, primary_to: e.target.value })}
-                          className="w-20 h-12 cursor-pointer"
-                        />
-                        <Input
-                          type="text"
-                          value={colors.primary_to}
-                          onChange={(e) => setColors({ ...colors, primary_to: e.target.value })}
-                          className="flex-1"
-                          placeholder="#dc2626"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Client Sidebar Background</Label>
-                      <div className="flex gap-3 items-center">
-                        <Input
-                          type="color"
-                          value={colors.client_sidebar_bg}
-                          onChange={(e) => setColors({ ...colors, client_sidebar_bg: e.target.value })}
-                          className="w-20 h-12 cursor-pointer"
-                        />
-                        <Input
-                          type="text"
-                          value={colors.client_sidebar_bg}
-                          onChange={(e) => setColors({ ...colors, client_sidebar_bg: e.target.value })}
-                          className="flex-1"
-                          placeholder="#ffffff"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Accent Color</Label>
-                      <div className="flex gap-3 items-center">
-                        <Input
-                          type="color"
-                          value={colors.accent_color}
-                          onChange={(e) => setColors({ ...colors, accent_color: e.target.value })}
-                          className="w-20 h-12 cursor-pointer"
-                        />
-                        <Input
-                          type="text"
-                          value={colors.accent_color}
-                          onChange={(e) => setColors({ ...colors, accent_color: e.target.value })}
-                          className="flex-1"
-                          placeholder="#f97316"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Menu Text Color</Label>
-                      <div className="flex gap-3 items-center">
-                        <Input
-                          type="color"
-                          value={colors.menu_text_color}
-                          onChange={(e) => setColors({ ...colors, menu_text_color: e.target.value })}
-                          className="w-20 h-12 cursor-pointer"
-                        />
-                        <Input
-                          type="text"
-                          value={colors.menu_text_color}
-                          onChange={(e) => setColors({ ...colors, menu_text_color: e.target.value })}
-                          className="flex-1"
-                          placeholder="#22c55e"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Highlight Button Color</Label>
-                      <div className="flex gap-3 items-center">
-                        <Input
-                          type="color"
-                          value={colors.highlight_button_color}
-                          onChange={(e) => setColors({ ...colors, highlight_button_color: e.target.value })}
-                          className="w-20 h-12 cursor-pointer"
-                        />
-                        <Input
-                          type="text"
-                          value={colors.highlight_button_color}
-                          onChange={(e) => setColors({ ...colors, highlight_button_color: e.target.value })}
-                          className="flex-1"
-                          placeholder="#f97316"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex gap-3 pt-4">
-                      <Button
-                        onClick={handleReset}
-                        variant="outline"
-                        className="flex-1"
-                      >
-                        <RefreshCw className="w-4 h-4 mr-2" />
-                        Reset to Default
-                      </Button>
-                      <Button
-                        onClick={handleSave}
-                        disabled={updateColorsMutation.isPending}
-                        className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
-                      >
-                        <Save className="w-4 h-4 mr-2" />
-                        {updateColorsMutation.isPending ? 'Saving...' : 'Save Colors'}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-none shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Eye className="w-5 h-5" />
-                      Live Preview
-                    </CardTitle>
-                    <CardDescription>See how your colors will look</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Primary Gradient</Label>
-                      <div 
-                        className="h-20 rounded-lg shadow-md"
-                        style={{ 
-                          background: `linear-gradient(to right, ${colors.primary_from}, ${colors.primary_to})` 
-                        }}
-                      />
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Button Styles</Label>
-                      <div className="space-y-2">
-                        <button
-                          className="w-full py-3 px-4 rounded-lg text-white font-semibold shadow-md"
-                          style={{ 
-                            background: `linear-gradient(to right, ${colors.primary_from}, ${colors.primary_to})` 
-                          }}
-                        >
-                          Primary Button
-                        </button>
-                        <button
-                          className="w-full py-3 px-4 rounded-lg font-semibold border-2 shadow-sm"
-                          style={{ 
-                            borderColor: colors.accent_color,
-                            color: colors.accent_color,
-                            backgroundColor: colors.client_sidebar_bg
-                          }}
-                        >
-                          Outline Button
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Client Sidebar Style</Label>
-                      <div 
-                        className="h-32 rounded-lg shadow-md p-4"
-                        style={{ backgroundColor: colors.client_sidebar_bg }}
-                      >
-                        <div className="space-y-2">
-                          <div 
-                            className="h-10 rounded-lg flex items-center px-3 text-white font-medium"
-                            style={{ 
-                              background: `linear-gradient(to right, ${colors.primary_from}, ${colors.primary_to})` 
-                            }}
-                          >
-                            Active Menu Item
-                          </div>
-                          <div className="h-10 rounded-lg flex items-center px-3 text-sm font-medium" style={{ color: colors.menu_text_color }}>
-                            Inactive Menu Item
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Accent Elements</Label>
-                      <div className="flex gap-2 flex-wrap">
-                        <span 
-                          className="px-3 py-1 rounded-full text-white text-sm font-medium"
-                          style={{ backgroundColor: colors.accent_color }}
-                        >
-                          Badge
-                        </span>
-                        <span 
-                          className="px-3 py-1 rounded-full text-sm font-medium"
-                          style={{ 
-                            backgroundColor: colors.accent_color + '20',
-                            color: colors.accent_color
-                          }}
-                        >
-                          Light Badge
-                        </span>
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Menu Text Color</Label>
-                      <div className="space-y-1 p-3 rounded-lg border" style={{ backgroundColor: colors.client_sidebar_bg }}>
-                        <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">📊 Dashboard</div>
-                        <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">👥 Clients</div>
-                        <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">💬 Messages</div>
-                        <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">📅 Appointments</div>
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label className="text-sm font-medium mb-2 block">Highlight Button Color</Label>
-                      <div className="space-y-2">
-                        <button 
-                          className="w-full px-4 py-2 rounded-full text-white font-semibold text-sm"
-                          style={{ backgroundColor: colors.highlight_button_color }}
-                        >
-                          Active Button
-                        </button>
-                        <button 
-                          className="w-full px-4 py-2 rounded-full text-white font-semibold text-sm"
-                          style={{ backgroundColor: colors.highlight_button_color }}
-                        >
-                          Highlight Button
-                        </button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-            </Tabs>
+          <TabsContent value="health_coach">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ColorEditor sidebarBgKey="health_coach_sidebar_bg" sidebarBgLabel="Health Coach" />
+              <Preview sidebarBgKey="health_coach_sidebar_bg" />
             </div>
+          </TabsContent>
+
+          <TabsContent value="client">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ColorEditor sidebarBgKey="client_sidebar_bg" sidebarBgLabel="Client" />
+              <Preview sidebarBgKey="client_sidebar_bg" />
             </div>
-            );
-            }
+          </TabsContent>
+        </Tabs>
+        
+        <div className="flex gap-3 pt-4 border-t mt-6">
+          <Button
+            onClick={handleReset}
+            variant="outline"
+            className="flex-1"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Reset All to Default
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={updateColorsMutation.isPending}
+            className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+          >
+            <Save className="w-4 h-4 mr-2" />
+            {updateColorsMutation.isPending ? 'Saving...' : 'Save All Colors'}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
