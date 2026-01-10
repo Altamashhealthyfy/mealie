@@ -29,6 +29,13 @@ import {
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import GroupMessaging from "@/components/communication/GroupMessaging";
+import ScheduleMessageDialog from "@/components/communication/ScheduleMessageDialog";
+import FileVersionHistory from "@/components/communication/FileVersionHistory";
+import ReadReceiptIndicator from "@/components/communication/ReadReceiptIndicator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function Communication() {
   const queryClient = useQueryClient();
@@ -595,8 +602,8 @@ export default function Communication() {
               </div>
             </div>
 
-            {/* Chat Area */}
-            <div className={`${selectedClient ? 'flex' : 'hidden md:flex'} md:col-span-8 flex-col h-full md:h-auto`}>
+                {/* Chat Area */}
+                <div className={`${selectedClient ? 'flex' : 'hidden md:flex'} md:col-span-8 flex-col h-full md:h-auto`}>
               {selectedClient ? (
                 <>
                   {/* Chat Header */}
@@ -684,6 +691,11 @@ export default function Communication() {
                                       )
                                     )}
                                   </div>
+                                  <ReadReceiptIndicator
+                                    isImportant={message.is_important}
+                                    readBy={message.read_by}
+                                    createdDate={message.created_date}
+                                  />
                                 </div>
                               </div>
                             );
@@ -747,6 +759,20 @@ export default function Communication() {
                       >
                         <Paperclip className="w-4 h-4 md:w-5 md:h-5 text-orange-600" />
                       </Button>
+                      <div className="flex items-center gap-2 bg-white p-2 rounded border border-orange-200">
+                        <Checkbox
+                          checked={isImportant}
+                          onCheckedChange={setIsImportant}
+                          className="h-4 w-4"
+                        />
+                        <Star className="w-3 h-3 text-yellow-500" />
+                      </div>
+                      <ScheduleMessageDialog onSchedule={handleScheduledMessage}>
+                        <Button variant="outline" size="sm" className="h-[50px] md:h-[60px] flex-shrink-0">
+                          <Clock className="w-4 h-4 mr-2" />
+                          <span className="hidden sm:inline">Schedule</span>
+                        </Button>
+                      </ScheduleMessageDialog>
                       <div className="flex-1">
                         <Textarea
                           ref={textareaRef}
@@ -808,8 +834,14 @@ export default function Communication() {
                   </div>
                 </div>
               )}
+              </div>
             </div>
-          </div>
+            </TabsContent>
+
+            <TabsContent value="groups" className="h-full mt-0 p-6 overflow-y-auto">
+              <GroupMessaging userEmail={user?.email} />
+            </TabsContent>
+          </Tabs>
         </Card>
       </div>
     </div>
