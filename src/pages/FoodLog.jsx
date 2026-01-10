@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import PageTour from "@/components/common/PageTour";
 import TourButton from "@/components/common/TourButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -174,7 +173,6 @@ export default function FoodLog() {
 
   return (
     <div className="min-h-screen p-3 sm:p-4 md:p-8">
-      <PageTour pageName="FoodLog" />
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div>

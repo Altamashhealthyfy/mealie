@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import PageTour from "@/components/common/PageTour";
 import TourButton from "@/components/common/TourButton";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -164,7 +163,6 @@ export default function MPESSTracker() {
 
   return (
     <div className="min-h-screen p-3 sm:p-4 md:p-8">
-      <PageTour pageName="MPESSTracker" />
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex-1">
