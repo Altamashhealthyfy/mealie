@@ -53,6 +53,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import NotificationBell from "@/components/notifications/NotificationBell";
+import TourButton from "@/components/common/TourButton";
 
 const dietitianNavigation = [
   {
@@ -667,10 +668,10 @@ export default function Layout({ children, currentPageName }) {
           </SidebarHeader>
 
           <SidebarContent className="p-2">
-            <SidebarGroup>
-              <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
-                {isDietitian ? 'Dietitian Tools' : 'My Health Journey'}
-              </SidebarGroupLabel>
+            <SidebarGroup id="dietitian-tools-nav">
+                              <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
+                                {isDietitian ? 'Dietitian Tools' : 'My Health Journey'}
+                              </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {navigationItems.map((item) => (
@@ -702,10 +703,10 @@ export default function Layout({ children, currentPageName }) {
             </SidebarGroup>
 
             {isDietitian && filteredPaymentNav.length > 0 && (
-              <SidebarGroup>
-                <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
-                  Payment & Plans
-                </SidebarGroupLabel>
+                                <SidebarGroup id="payment-plans-nav">
+                                  <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
+                                    Payment & Plans
+                                  </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {filteredPaymentNav.map((item) => (
@@ -735,10 +736,10 @@ export default function Layout({ children, currentPageName }) {
             )}
 
             {isDietitian && filteredBusinessNav.length > 0 && (
-              <SidebarGroup>
-                <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
-                  Business Tools
-                </SidebarGroupLabel>
+                                <SidebarGroup id="business-tools-nav">
+                                  <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
+                                    Business Tools
+                                  </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {filteredBusinessNav.map((item) => (
@@ -827,9 +828,12 @@ export default function Layout({ children, currentPageName }) {
                 </h1>
               </div>
             </div>
-            <div className="ml-auto">
-              <NotificationBell userEmail={user?.email} />
-            </div>
+            <div className="ml-auto flex items-center gap-4">
+                                <div id="notification-bell-container">
+                                  <NotificationBell userEmail={user?.email} />
+                                </div>
+                                <TourButton />
+                              </div>
           </header>
 
           <div className="flex-1 overflow-auto">

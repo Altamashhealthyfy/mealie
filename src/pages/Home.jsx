@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, ChefHat, Search, Heart, TrendingUp, Apple, Sparkles, User, Loader2, BookOpen, Scale, Target, MessageCircle } from "lucide-react";
 import ClientGuidePanel from "@/components/common/ClientGuidePanel";
-import TourButton from "@/components/common/TourButton";
+ 
 
 export default function Home() {
   const { data: user, isLoading: userLoading, error: userError } = useQuery({
@@ -118,9 +118,7 @@ export default function Home() {
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Tour Guide Button */}
-        <div className="flex justify-end mb-2">
-          <TourButton pageName="Home" />
-        </div>
+         
 
         {/* Hero Section */}
         <div className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-3xl p-8 md:p-12 shadow-2xl">

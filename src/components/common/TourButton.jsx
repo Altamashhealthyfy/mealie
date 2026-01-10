@@ -1,22 +1,15 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { HelpCircle } from 'lucide-react';
-import { resetTour } from './PageTour';
+import { startPlatformTour } from './PlatformGuide';
 
-export default function TourButton({ pageName, variant = "outline", size = "sm" }) {
-  const handleClick = () => {
-    resetTour(pageName);
-  };
-
+const TourButton = ({ variant = 'outline', size = 'sm' }) => {
   return (
-    <Button
-      onClick={handleClick}
-      variant={variant}
-      size={size}
-      className="gap-2"
-    >
-      <HelpCircle className="w-4 h-4" />
+    <Button onClick={startPlatformTour} variant={variant} size={size} id="start-tour-button">
+      <HelpCircle className="w-4 h-4 mr-2" />
       Start Tour
     </Button>
   );
-}
+};
+
+export default TourButton;

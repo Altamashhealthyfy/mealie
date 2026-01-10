@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import DashboardTour, { TourSkipPrompt } from "@/components/common/DashboardTour";
+ 
 import ClientOverviewWidget from "@/components/dashboard/ClientOverviewWidget";
 import NotificationCenter from "@/components/dashboard/NotificationCenter";
 import {
@@ -34,7 +34,7 @@ import CoachGuidePanel from "@/components/common/CoachGuidePanel";
 
 export default function DietitianDashboard() {
   const navigate = useNavigate();
-  const [startTour, setStartTour] = useState(false);
+   
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -160,50 +160,7 @@ export default function DietitianDashboard() {
     navigate(`${createPageUrl("MealPlanner")}?client=${clientId}`);
   };
 
-  const tourSteps = [
-    {
-      element: '#dashboard-stats',
-      popover: {
-        title: '📊 Dashboard Overview',
-        description: 'Here you can see all your key metrics at a glance - total clients, new additions, meal plans, and more. Click any card to dive deeper into that area.',
-      }
-    },
-    {
-      element: '#client-growth',
-      popover: {
-        title: '📈 Client Growth',
-        description: 'Track how your practice is growing over time. Monitor total clients, active clients, and new sign-ups this month.',
-      }
-    },
-    {
-      element: '#mpess-wellness',
-      popover: {
-        title: '💖 MPESS Wellness Tracking',
-        description: 'See how engaged your clients are with holistic wellness practices. MPESS covers Mind, Physical, Emotional, Social, and Spiritual wellness.',
-      }
-    },
-    {
-      element: '#recent-clients',
-      popover: {
-        title: '👥 Recent Clients',
-        description: 'Quick access to your newest clients. You can view their plans or create new meal plans directly from here.',
-      }
-    },
-    {
-      element: '#upcoming-appointments',
-      popover: {
-        title: '📅 Upcoming Appointments',
-        description: 'Never miss an appointment! See all your scheduled consultations at a glance.',
-      }
-    },
-    {
-      element: '#quick-actions',
-      popover: {
-        title: '⚡ Quick Actions',
-        description: 'Jump straight into common tasks like adding a new client, creating meal plans, scheduling appointments, or messaging clients.',
-      }
-    }
-  ];
+   
 
   const stats = [
     {
@@ -258,16 +215,7 @@ export default function DietitianDashboard() {
 
   return (
     <div className="min-h-screen p-3 sm:p-4 md:p-8">
-      <TourSkipPrompt 
-        tourKey="dietitian_dashboard" 
-        onStart={() => setStartTour(true)}
-      />
-      {startTour && (
-        <DashboardTour 
-          tourKey="dietitian_dashboard"
-          steps={tourSteps}
-        />
-      )}
+       
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 md:space-y-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
