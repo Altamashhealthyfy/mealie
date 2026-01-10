@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import PageTour from "@/components/common/PageTour";
-import TourButton from "@/components/common/TourButton";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -415,14 +414,14 @@ export default function Communication() {
 
   return (
     <div className="min-h-screen p-2 sm:p-4 md:p-8">
-      <PageTour pageName="Communication" />
+      
       <div className="max-w-7xl mx-auto">
         <div className="mb-4 md:mb-6 flex justify-between items-start">
           <div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 md:mb-2">Messages</h1>
             <p className="text-sm md:text-base text-gray-600">Communicate with your clients</p>
           </div>
-          <TourButton pageName="Communication" />
+          
         </div>
 
         <Card className="border-none shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 160px)' }}>
