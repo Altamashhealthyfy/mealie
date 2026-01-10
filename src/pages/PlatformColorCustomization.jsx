@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -29,17 +29,18 @@ export default function PlatformColorCustomization() {
       return profiles[0] || null;
     },
     enabled: !!user,
-    onSuccess: (data) => {
-      if (data?.theme_colors) {
-        setColors({
-          primary_from: data.theme_colors.primary_from || "#f97316",
-          primary_to: data.theme_colors.primary_to || "#dc2626",
-          sidebar_bg: data.theme_colors.sidebar_bg || "#ffffff",
-          accent_color: data.theme_colors.accent_color || "#f97316"
-        });
-      }
-    }
   });
+
+  useEffect(() => {
+    if (coachProfile?.theme_colors) {
+      setColors({
+        primary_from: coachProfile.theme_colors.primary_from || "#f97316",
+        primary_to: coachProfile.theme_colors.primary_to || "#dc2626",
+        sidebar_bg: coachProfile.theme_colors.sidebar_bg || "#ffffff",
+        accent_color: coachProfile.theme_colors.accent_color || "#f97316"
+      });
+    }
+  }, [coachProfile]);
 
   const updateColorsMutation = useMutation({
     mutationFn: async (colorData) => {
