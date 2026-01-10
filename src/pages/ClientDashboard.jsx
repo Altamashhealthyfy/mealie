@@ -151,6 +151,41 @@ export default function ClientDashboard() {
     [goals]
   );
 
+  // Today's wellness metrics
+  const todayWellness = React.useMemo(() => {
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const todayLog = sortedProgressLogs.find(log => log.date === today);
+    return todayLog?.wellness_metrics || null;
+  }, [sortedProgressLogs]);
+
+  const avgWellness = React.useMemo(() => {
+    const recentLogs = sortedProgressLogs.slice(-7).filter(log => log.wellness_metrics);
+    if (recentLogs.length === 0) return null;
+    
+    const avg = {
+      energy: 0,
+      sleep: 0,
+      mood: 0,
+      stress: 0
+    };
+    
+    recentLogs.forEach(log => {
+      avg.energy += log.wellness_metrics?.energy_level || 0;
+      avg.sleep += log.wellness_metrics?.sleep_quality || 0;
+      avg.stress += log.wellness_metrics?.stress_level || 0;
+      // Convert mood to numeric
+      const moodMap = { very_poor: 1, poor: 2, neutral: 3, good: 4, excellent: 5 };
+      avg.mood += moodMap[log.wellness_metrics?.mood] || 3;
+    });
+    
+    return {
+      energy: (avg.energy / recentLogs.length).toFixed(1),
+      sleep: (avg.sleep / recentLogs.length).toFixed(1),
+      mood: (avg.mood / recentLogs.length).toFixed(1),
+      stress: (avg.stress / recentLogs.length).toFixed(1)
+    };
+  }, [sortedProgressLogs]);
+
   const submitFeedbackMutation = useMutation({
     mutationFn: async (feedbackText) => {
       return await base44.entities.Message.create({
@@ -248,7 +283,7 @@ export default function ClientDashboard() {
         </div>
 
         {/* Key Stats */}
-        <div id="client-overview" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div id="client-overview" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
           <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -299,38 +334,204 @@ export default function ClientDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
+          <Card className="border-none shadow-lg bg-gradient-to-br from-yellow-50 to-amber-50">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Meal Adherence</p>
-                  <p className="text-3xl font-bold text-gray-900">{adherencePercentage}%</p>
-                  <p className="text-xs text-gray-500">Last 7 days</p>
+              <div className="flex flex-col">
+                <p className="text-sm text-gray-600 mb-2">Energy Level</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-3xl font-bold text-gray-900">
+                    {todayWellness?.energy_level || avgWellness?.energy || '--'}
+                  </p>
+                  <span className="text-xs text-gray-500">/10</span>
                 </div>
-                <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
-                  <Flame className="w-6 h-6 text-white" />
-                </div>
-              </div>
-              <div className="mt-3">
-                <Badge className={adherencePercentage >= 70 ? 'bg-green-500' : 'bg-yellow-500'}>
-                  {adherencePercentage >= 70 ? '✅ Great!' : '⚠️ Keep going!'}
-                </Badge>
+                {avgWellness && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    7-day avg: {avgWellness.energy}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
+          <Card className="border-none shadow-lg bg-gradient-to-br from-indigo-50 to-purple-50">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Active Goals</p>
-                  <p className="text-3xl font-bold text-gray-900">{activeGoals.length}</p>
-                  <p className="text-xs text-gray-500">In progress</p>
+              <div className="flex flex-col">
+                <p className="text-sm text-gray-600 mb-2">Sleep Quality</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-3xl font-bold text-gray-900">
+                    {todayWellness?.sleep_quality || avgWellness?.sleep || '--'}
+                  </p>
+                  <span className="text-xs text-gray-500">/10</span>
                 </div>
-                <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
-                  <Award className="w-6 h-6 text-white" />
-                </div>
+                {avgWellness && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    7-day avg: {avgWellness.sleep}
+                  </p>
+                )}
               </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-lg bg-gradient-to-br from-pink-50 to-rose-50">
+            <CardContent className="p-6">
+              <div className="flex flex-col">
+                <p className="text-sm text-gray-600 mb-2">Mood Today</p>
+                <p className="text-2xl font-bold text-gray-900 capitalize">
+                  {todayWellness?.mood ? (
+                    todayWellness.mood === 'excellent' ? '😄 Excellent' :
+                    todayWellness.mood === 'good' ? '😊 Good' :
+                    todayWellness.mood === 'neutral' ? '😐 Neutral' :
+                    todayWellness.mood === 'poor' ? '😔 Poor' :
+                    '😞 Very Poor'
+                  ) : '--'}
+                </p>
+                {avgWellness && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    7-day avg: {avgWellness.mood}/5
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
+            <CardContent className="p-6">
+              <div className="flex flex-col">
+                <p className="text-sm text-gray-600 mb-2">Stress Level</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-3xl font-bold text-gray-900">
+                    {todayWellness?.stress_level || avgWellness?.stress || '--'}
+                  </p>
+                  <span className="text-xs text-gray-500">/10</span>
+                </div>
+                {avgWellness && (
+                  <p className="text-xs text-gray-500 mt-2">
+                    7-day avg: {avgWellness.stress}
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Wellness Metrics Grid - New Enhanced Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+          <Card className="border-none shadow-lg bg-gradient-to-br from-yellow-50 to-orange-50">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Activity className="w-5 h-5 text-yellow-600" />
+                Energy Levels
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {wellnessChartData.length > 0 ? (
+                <>
+                  <div className="text-center mb-4">
+                    <p className="text-5xl font-bold text-yellow-600">
+                      {todayWellness?.energy_level || avgWellness?.energy || '--'}
+                    </p>
+                    <p className="text-sm text-gray-600">out of 10</p>
+                    {todayWellness?.energy_level && avgWellness && (
+                      <Badge className={
+                        parseFloat(todayWellness.energy_level) > parseFloat(avgWellness.energy) 
+                          ? 'bg-green-500 mt-2' 
+                          : 'bg-gray-500 mt-2'
+                      }>
+                        {parseFloat(todayWellness.energy_level) > parseFloat(avgWellness.energy) ? '↑ Above avg' : '↓ Below avg'}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div 
+                      className="bg-gradient-to-r from-yellow-400 to-orange-500 h-3 rounded-full transition-all" 
+                      style={{ width: `${((todayWellness?.energy_level || avgWellness?.energy || 0) / 10) * 100}%` }}
+                    />
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-6 text-gray-500">
+                  <p className="text-sm">No data yet</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-lg bg-gradient-to-br from-indigo-50 to-purple-50">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Activity className="w-5 h-5 text-indigo-600" />
+                Sleep Quality
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {wellnessChartData.length > 0 ? (
+                <>
+                  <div className="text-center mb-4">
+                    <p className="text-5xl font-bold text-indigo-600">
+                      {todayWellness?.sleep_quality || avgWellness?.sleep || '--'}
+                    </p>
+                    <p className="text-sm text-gray-600">out of 10</p>
+                    {todayWellness?.sleep_hours && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {todayWellness.sleep_hours} hours
+                      </p>
+                    )}
+                    {todayWellness?.sleep_quality && avgWellness && (
+                      <Badge className={
+                        parseFloat(todayWellness.sleep_quality) > parseFloat(avgWellness.sleep) 
+                          ? 'bg-green-500 mt-2' 
+                          : 'bg-gray-500 mt-2'
+                      }>
+                        {parseFloat(todayWellness.sleep_quality) > parseFloat(avgWellness.sleep) ? '↑ Above avg' : '↓ Below avg'}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div 
+                      className="bg-gradient-to-r from-indigo-400 to-purple-500 h-3 rounded-full transition-all" 
+                      style={{ width: `${((todayWellness?.sleep_quality || avgWellness?.sleep || 0) / 10) * 100}%` }}
+                    />
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-6 text-gray-500">
+                  <p className="text-sm">No data yet</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-lg bg-gradient-to-br from-pink-50 to-rose-50">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Heart className="w-5 h-5 text-pink-600" />
+                Mood & Wellbeing
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {wellnessChartData.length > 0 ? (
+                <div className="text-center">
+                  <p className="text-5xl mb-2">
+                    {todayWellness?.mood === 'excellent' ? '😄' :
+                     todayWellness?.mood === 'good' ? '😊' :
+                     todayWellness?.mood === 'neutral' ? '😐' :
+                     todayWellness?.mood === 'poor' ? '😔' :
+                     todayWellness?.mood === 'very_poor' ? '😞' : '😐'}
+                  </p>
+                  <p className="text-lg font-bold text-gray-900 capitalize">
+                    {todayWellness?.mood || 'Not logged'}
+                  </p>
+                  {avgWellness && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      7-day mood avg: {avgWellness.mood}/5
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-6 text-gray-500">
+                  <p className="text-sm">No data yet</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -550,70 +751,71 @@ export default function ClientDashboard() {
           </CardContent>
         </Card>
 
-        {/* Wellness & MPESS Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Wellness Metrics */}
-          <Card className="border-none shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="w-5 h-5 text-red-500" />
-                Wellness Trends
-              </CardTitle>
-              <CardDescription>Energy, sleep quality, and stress levels</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {wellnessChartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={250}>
-                  <AreaChart data={wellnessChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis domain={[0, 10]} />
-                    <Tooltip />
-                    <Legend />
-                    <Area type="monotone" dataKey="energy" stackId="1" stroke="#f59e0b" fill="#fbbf24" name="Energy" />
-                    <Area type="monotone" dataKey="sleep" stackId="1" stroke="#3b82f6" fill="#60a5fa" name="Sleep" />
-                    <Area type="monotone" dataKey="stress" stackId="1" stroke="#10b981" fill="#34d399" name="Calm" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="text-center py-12 text-gray-500">
-                  <Activity className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>No wellness data yet. Log your daily wellness metrics!</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+        {/* Wellness Trends - Full Width Enhanced */}
+        <Card className="border-none shadow-lg mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <Heart className="w-6 h-6 text-red-500" />
+              Wellness Trends - Last 14 Days
+            </CardTitle>
+            <CardDescription>Track your energy, sleep quality, and stress levels over time</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {wellnessChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={350}>
+                <LineChart data={wellnessChartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="date" stroke="#6b7280" />
+                  <YAxis domain={[0, 10]} stroke="#6b7280" />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#fff', border: '2px solid #e5e7eb', borderRadius: '8px' }}
+                  />
+                  <Legend />
+                  <Line type="monotone" dataKey="energy" stroke="#f59e0b" strokeWidth={3} name="Energy Level" dot={{ fill: '#f59e0b', r: 5 }} />
+                  <Line type="monotone" dataKey="sleep" stroke="#6366f1" strokeWidth={3} name="Sleep Quality" dot={{ fill: '#6366f1', r: 5 }} />
+                  <Line type="monotone" dataKey="stress" stroke="#10b981" strokeWidth={3} name="Calm (Low Stress)" dot={{ fill: '#10b981', r: 5 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                <Activity className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>No wellness data yet. Start logging your daily metrics in Progress Tracking!</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-          {/* MPESS Adherence */}
-          <Card className="border-none shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-500" />
-                MPESS Wellness (Last 7 Days)
-              </CardTitle>
-              <CardDescription>Mind, Physical, Emotional, Social, Spiritual practices</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {mpessAdherence.length > 0 ? (
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={mpessAdherence}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis domain={[0, 5]} />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="completed" fill="#8b5cf6" name="Practices Completed" />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="text-center py-12 text-gray-500">
-                  <Heart className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                  <p>Start tracking your MPESS wellness practices!</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+        {/* MPESS Adherence */}
+        <Card className="border-none shadow-lg mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-2xl">
+              <CheckCircle className="w-6 h-6 text-green-500" />
+              MPESS Wellness Practices (Last 7 Days)
+            </CardTitle>
+            <CardDescription>Mind, Physical, Emotional, Social, Spiritual daily practices</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {mpessAdherence.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={mpessAdherence}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="date" stroke="#6b7280" />
+                  <YAxis domain={[0, 5]} stroke="#6b7280" />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#fff', border: '2px solid #e5e7eb', borderRadius: '8px' }}
+                  />
+                  <Legend />
+                  <Bar dataKey="completed" fill="#8b5cf6" name="Practices Completed" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="text-center py-12 text-gray-500">
+                <Heart className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>Start tracking your MPESS wellness practices!</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Active Goals */}
         {activeGoals.length > 0 && (
