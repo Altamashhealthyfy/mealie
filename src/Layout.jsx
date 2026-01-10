@@ -603,7 +603,8 @@ export default function Layout({ children, currentPageName }) {
     primary_to: '#dc2626',
     sidebar_bg: '#ffffff',
     accent_color: '#f97316',
-    menu_text_color: '#22c55e'
+    menu_text_color: '#22c55e',
+    highlight_button_color: '#f97316'
   };
 
   const handleLogout = async () => {
@@ -732,8 +733,12 @@ export default function Layout({ children, currentPageName }) {
                         <SidebarMenuButton
                           asChild
                           className={`hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 rounded-xl mb-1 ${
-                            location.pathname === item.url ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 hover:text-white shadow-md' : ''
+                            location.pathname === item.url ? 'text-white hover:text-white shadow-md' : ''
                           }`}
+                          style={location.pathname === item.url ? {
+                            background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
+                            color: '#ffffff'
+                          } : {}}
                         >
                           <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
                             <item.icon className="w-5 h-5" />
