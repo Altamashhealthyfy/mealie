@@ -46,39 +46,51 @@ export default function GroupMessaging({ userEmail }) {
   const createGroupMutation = useMutation({
     mutationFn: (data) => base44.entities.ClientGroup.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries(['clientGroups']);
+      queryClient.invalidateQueries({ queryKey: ['clientGroups', userEmail] });
       setGroupName('');
       setShowNewGroup(false);
       toast.success('Group created!');
     },
+    onError: (error) => {
+      console.error('Failed to create group:', error);
+      toast.error('Failed to create group');
+    }
   });
 
   const addMembersMutation = useMutation({
-    mutationFn: async (data) => {
-      const updatedGroup = {
-        ...selectedGroup,
-        client_ids: [...(selectedGroup.client_ids || []), ...selectedMemberIds],
-        member_count: (selectedGroup.member_count || 0) + selectedMemberIds.length,
-      };
-      await base44.entities.ClientGroup.update(selectedGroup.id, updatedGroup);
-      return updatedGroup;
+    mutationFn: async () => {
+      if (!selectedGroup || selectedMemberIds.length === 0) throw new Error('Invalid data');
+      const newClientIds = [...(selectedGroup.client_ids || []), ...selectedMemberIds];
+      await base44.entities.ClientGroup.update(selectedGroup.id, {
+        client_ids: newClientIds,
+        member_count: newClientIds.length,
+      });
+      return { ...selectedGroup, client_ids: newClientIds, member_count: newClientIds.length };
     },
     onSuccess: (updatedGroup) => {
-      queryClient.invalidateQueries(['clientGroups']);
+      queryClient.invalidateQueries({ queryKey: ['clientGroups', userEmail] });
       setSelectedGroup(updatedGroup);
       setShowAddMembers(false);
       setSelectedMemberIds([]);
       toast.success('Members added!');
     },
+    onError: (error) => {
+      console.error('Failed to add members:', error);
+      toast.error('Failed to add members');
+    }
   });
 
   const sendGroupMessageMutation = useMutation({
     mutationFn: (data) => base44.entities.Message.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries(['groupMessages']);
+      queryClient.invalidateQueries({ queryKey: ['groupMessages', selectedGroup?.id] });
       setMessageText('');
       toast.success('Message sent!');
     },
+    onError: (error) => {
+      console.error('Failed to send message:', error);
+      toast.error('Failed to send message');
+    }
   });
 
   const handleCreateGroup = () => {
@@ -93,7 +105,7 @@ export default function GroupMessaging({ userEmail }) {
 
   const handleAddMembers = () => {
     if (selectedMemberIds.length > 0) {
-      addMembersMutation.mutate({});
+      addMembersMutation.mutate();
     }
   };
 
