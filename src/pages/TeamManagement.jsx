@@ -97,15 +97,16 @@ export default function TeamManagement() {
 
   const addUserMutation = useMutation({
     mutationFn: async (data) => {
-      // Note: Base44 doesn't support creating users with passwords via API
-      // This would need to be implemented as a backend function
-      return await base44.functions.invoke('createUserWithPassword', data);
+      // Use Base44's invite system instead of creating users with passwords
+      const role = data.user_type === 'client' ? 'user' : 'admin';
+      await base44.users.inviteUser(data.email, role);
+      return { success: true };
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['allUsers']);
       setShowAddDialog(false);
       setFormData({ full_name: "", email: "", password: "", user_type: "team_member" });
-      alert('✅ User added successfully!');
+      alert('✅ Invitation sent! User will receive an email to set their password.');
     },
     onError: (error) => {
       alert('❌ Error: ' + error.message);
@@ -177,8 +178,8 @@ export default function TeamManagement() {
   });
 
   const handleAddUser = () => {
-    if (!formData.full_name || !formData.email || !formData.password) {
-      alert('Please fill in all fields');
+    if (!formData.email) {
+      alert('Please enter an email address');
       return;
     }
     
@@ -1068,37 +1069,41 @@ export default function TeamManagement() {
         <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New User</DialogTitle>
+              <DialogTitle className="flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-blue-600" />
+                {isSuperAdmin ? 'Create New Health Coach' : 'Invite Team Member'}
+              </DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
+              <Alert className="bg-blue-50 border-blue-300">
+                <Info className="w-4 h-4 text-blue-600" />
+                <AlertDescription className="text-blue-900">
+                  <strong>How it works:</strong> Enter the email address below. The user will receive an invitation link to create their account and set their password.
+                </AlertDescription>
+              </Alert>
+
               <div className="space-y-2">
-                <Label>Full Name *</Label>
+                <Label>Full Name (Optional)</Label>
                 <Input
                   value={formData.full_name}
                   onChange={(e) => setFormData({...formData, full_name: e.target.value})}
-                  placeholder="John Doe"
+                  placeholder="Dr Dt Sheenu Sanjeev"
                 />
+                <p className="text-xs text-gray-500">For your reference only - they can update this later</p>
               </div>
+
               <div className="space-y-2">
-                <Label>Email *</Label>
+                <Label>Email Address *</Label>
                 <Input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  placeholder="user@example.com"
+                  placeholder="sheenumathur10@gmail.com"
                 />
               </div>
+
               <div className="space-y-2">
-                <Label>Password *</Label>
-                <Input
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  placeholder="Enter secure password"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>User Type</Label>
+                <Label>Role</Label>
                 <Select value={formData.user_type} onValueChange={(value) => setFormData({...formData, user_type: value})}>
                   <SelectTrigger>
                     <SelectValue />
@@ -1106,9 +1111,9 @@ export default function TeamManagement() {
                   <SelectContent>
                     {isSuperAdmin && (
                       <>
-                        <SelectItem value="super_admin">Super Admin</SelectItem>
+                        <SelectItem value="student_coach">Health Coach</SelectItem>
                         <SelectItem value="team_member">Team Member</SelectItem>
-                        <SelectItem value="student_coach">Student Coach</SelectItem>
+                        <SelectItem value="super_admin">Super Admin</SelectItem>
                       </>
                     )}
                     {!isSuperAdmin && (
@@ -1117,19 +1122,40 @@ export default function TeamManagement() {
                   </SelectContent>
                 </Select>
               </div>
-              <Alert className="bg-orange-50 border-orange-500">
-                <AlertTriangle className="w-4 h-4 text-orange-600" />
-                <AlertDescription className="text-orange-900">
-                  <strong>Note:</strong> This requires a backend function to be implemented. Currently Base44 only supports user invitations via dashboard.
+
+              <Alert className="bg-green-50 border-green-300">
+                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                <AlertDescription className="text-green-900">
+                  The {isSuperAdmin ? 'health coach' : 'team member'} will be created with '{formData.user_type === 'student_coach' ? 'student_coach' : formData.user_type === 'super_admin' ? 'super_admin' : formData.user_type === 'team_member' ? 'team_member' : 'student_team_member'}' role. You can assign a plan to them after creation.
                 </AlertDescription>
               </Alert>
-              <Button
-                onClick={handleAddUser}
-                disabled={addUserMutation.isPending}
-                className="w-full bg-blue-600 hover:bg-blue-700"
-              >
-                {addUserMutation.isPending ? 'Adding...' : 'Add User'}
-              </Button>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAddDialog(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleAddUser}
+                  disabled={addUserMutation.isPending}
+                  className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                >
+                  {addUserMutation.isPending ? (
+                    <>
+                      <Mail className="w-4 h-4 mr-2 animate-pulse" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="w-4 h-4 mr-2" />
+                      Send Invitation
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
