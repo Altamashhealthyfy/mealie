@@ -209,26 +209,52 @@ export default function ClientDashboard() {
     const doc = new jsPDF();
     let yPos = 20;
 
-    // Header
-    doc.setFontSize(18);
+    // Header with branding
+    doc.setFontSize(20);
     doc.setFont(undefined, 'bold');
-    doc.text(`MEAL PLAN FOR ${clientProfile.full_name.toUpperCase()}`, 105, yPos, { align: 'center' });
+    doc.setTextColor(249, 115, 22); // Orange color
+    doc.text(`${mealPlan.name.toUpperCase()}`, 105, yPos, { align: 'center' });
+    
+    yPos += 10;
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Meal Plan for ${clientProfile.full_name}`, 105, yPos, { align: 'center' });
     
     yPos += 15;
+    
+    // Plan Overview Section
+    doc.setFontSize(11);
+    doc.setFont(undefined, 'bold');
+    doc.text('Plan Overview', 20, yPos);
+    yPos += 8;
+    
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
-    doc.text(`Plan Name: ${mealPlan.name}`, 20, yPos);
-    yPos += 6;
     doc.text(`Duration: ${mealPlan.duration} days`, 20, yPos);
-    yPos += 6;
+    yPos += 5;
     doc.text(`Target Calories: ${mealPlan.target_calories} kcal/day`, 20, yPos);
-    yPos += 6;
+    yPos += 5;
+    doc.text(`Meal Pattern: ${mealPlan.meal_pattern || 'daily'}`, 20, yPos);
+    yPos += 5;
     doc.text(`Food Preference: ${mealPlan.food_preference}`, 20, yPos);
-    yPos += 6;
-    doc.text(`Regional Preference: ${mealPlan.regional_preference}`, 20, yPos);
-    yPos += 6;
+    yPos += 5;
+    doc.text(`Regional Cuisine: ${mealPlan.regional_preference}`, 20, yPos);
+    yPos += 5;
     doc.text(`Created: ${format(new Date(mealPlan.created_date), 'MMM dd, yyyy')}`, 20, yPos);
+    
+    // Plan tier info
+    if (mealPlan.plan_tier === 'advanced') {
+      yPos += 5;
+      doc.setTextColor(147, 51, 234); // Purple
+      doc.text(`Plan Type: Advanced (Disease Reversal)`, 20, yPos);
+      doc.setTextColor(0, 0, 0);
+    }
+    
     yPos += 12;
+    doc.setDrawColor(249, 115, 22);
+    doc.setLineWidth(0.5);
+    doc.line(20, yPos, 190, yPos);
+    yPos += 10;
 
     // Meals by day
     const mealsByDay = {};
@@ -238,71 +264,183 @@ export default function ClientDashboard() {
     });
 
     Object.keys(mealsByDay).sort((a, b) => parseInt(a) - parseInt(b)).forEach(day => {
-      if (yPos > 250) {
+      if (yPos > 240) {
         doc.addPage();
         yPos = 20;
       }
 
-      // Day header
-      doc.setFontSize(14);
+      // Day header with background
+      doc.setFillColor(254, 243, 199); // Light orange
+      doc.rect(15, yPos - 5, 180, 10, 'F');
+      doc.setFontSize(13);
       doc.setFont(undefined, 'bold');
-      doc.text(`DAY ${day}`, 20, yPos);
-      yPos += 8;
+      doc.setTextColor(234, 88, 12); // Dark orange
+      doc.text(`DAY ${day}`, 20, yPos + 2);
+      doc.setTextColor(0, 0, 0);
+      yPos += 12;
 
       mealsByDay[day].forEach(meal => {
-        if (yPos > 260) {
+        if (yPos > 255) {
           doc.addPage();
           yPos = 20;
         }
 
-        // Meal header
+        // Meal type and name
         doc.setFontSize(11);
         doc.setFont(undefined, 'bold');
-        doc.text(`${meal.meal_type.toUpperCase().replace(/_/g, ' ')} - ${meal.meal_name}`, 20, yPos);
+        doc.text(`${meal.meal_type.toUpperCase().replace(/_/g, ' ')}`, 20, yPos);
+        yPos += 5;
+        doc.setFontSize(10);
+        doc.text(meal.meal_name, 20, yPos);
         yPos += 6;
 
-        // Nutrition info
+        // Nutrition info box
         doc.setFontSize(9);
         doc.setFont(undefined, 'normal');
-        doc.text(`Calories: ${meal.calories} | Protein: ${meal.protein}g | Carbs: ${meal.carbs}g | Fats: ${meal.fats}g`, 20, yPos);
+        doc.setTextColor(100, 100, 100);
+        const nutritionText = `${meal.calories || 0} kcal  •  Protein: ${meal.protein || 0}g  •  Carbs: ${meal.carbs || 0}g  •  Fats: ${meal.fats || 0}g`;
+        doc.text(nutritionText, 20, yPos);
+        doc.setTextColor(0, 0, 0);
         yPos += 6;
 
         // Food items
+        doc.setFontSize(9);
         meal.items.forEach((item, idx) => {
           if (yPos > 275) {
             doc.addPage();
             yPos = 20;
           }
-          doc.text(`  • ${item} - ${meal.portion_sizes[idx]}`, 25, yPos);
-          yPos += 5;
+          const itemText = `• ${item} - ${meal.portion_sizes[idx]}`;
+          doc.text(itemText, 25, yPos);
+          yPos += 4;
         });
 
-        // Tip
+        yPos += 2;
+
+        // Advanced plan features
+        if (mealPlan.plan_tier === 'advanced') {
+          // Disease rationale
+          if (meal.disease_rationale) {
+            if (yPos > 265) {
+              doc.addPage();
+              yPos = 20;
+            }
+            doc.setFont(undefined, 'italic');
+            doc.setTextColor(147, 51, 234); // Purple
+            const rationaleLines = doc.splitTextToSize(`Disease Benefit: ${meal.disease_rationale}`, 160);
+            rationaleLines.forEach(line => {
+              doc.text(line, 25, yPos);
+              yPos += 4;
+            });
+            doc.setTextColor(0, 0, 0);
+            yPos += 2;
+          }
+
+          // Sodium/Potassium info
+          if (meal.sodium || meal.potassium) {
+            doc.setFont(undefined, 'normal');
+            doc.setFontSize(8);
+            let mineralsText = '';
+            if (meal.sodium) mineralsText += `Sodium: ${meal.sodium}mg`;
+            if (meal.potassium) mineralsText += (mineralsText ? '  •  ' : '') + `Potassium: ${meal.potassium}mg`;
+            doc.text(mineralsText, 25, yPos);
+            yPos += 4;
+          }
+        }
+
+        // Nutritional tip
         if (meal.nutritional_tip) {
-          if (yPos > 270) {
+          if (yPos > 268) {
             doc.addPage();
             yPos = 20;
           }
+          doc.setFontSize(9);
           doc.setFont(undefined, 'italic');
-          const tipLines = doc.splitTextToSize(`Tip: ${meal.nutritional_tip}`, 160);
+          doc.setTextColor(22, 163, 74); // Green
+          const tipLines = doc.splitTextToSize(`💡 Tip: ${meal.nutritional_tip}`, 160);
           tipLines.forEach(line => {
             doc.text(line, 25, yPos);
-            yPos += 5;
+            yPos += 4;
           });
+          doc.setTextColor(0, 0, 0);
           doc.setFont(undefined, 'normal');
+          yPos += 2;
         }
-        yPos += 3;
+
+        yPos += 4;
       });
 
-      // Day total
+      // Day summary
       const dayTotal = mealsByDay[day].reduce((sum, m) => sum + (m.calories || 0), 0);
+      const dayProtein = mealsByDay[day].reduce((sum, m) => sum + (m.protein || 0), 0);
+      const dayCarbs = mealsByDay[day].reduce((sum, m) => sum + (m.carbs || 0), 0);
+      const dayFats = mealsByDay[day].reduce((sum, m) => sum + (m.fats || 0), 0);
+      
+      doc.setFontSize(10);
       doc.setFont(undefined, 'bold');
-      doc.text(`Total for Day ${day}: ${dayTotal} kcal`, 20, yPos);
+      doc.text(`Day ${day} Total: ${dayTotal} kcal  •  P: ${dayProtein}g  C: ${dayCarbs}g  F: ${dayFats}g`, 20, yPos);
       yPos += 10;
       doc.setFont(undefined, 'normal');
+      
+      // Separator line
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.3);
+      doc.line(20, yPos, 190, yPos);
+      yPos += 8;
     });
 
-    doc.save(`meal-plan-${clientProfile.full_name.replace(/\s+/g, '-')}.pdf`);
+    // MPESS Integration (if available)
+    if (mealPlan.mpess_integration && Object.keys(mealPlan.mpess_integration).length > 0) {
+      if (yPos > 200) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'bold');
+      doc.setTextColor(147, 51, 234); // Purple
+      doc.text('MPESS Wellness Practices', 20, yPos);
+      doc.setTextColor(0, 0, 0);
+      yPos += 8;
+
+      doc.setFontSize(9);
+      doc.setFont(undefined, 'normal');
+      
+      const mpessCategories = {
+        mind_practices: 'Mind',
+        physical_practices: 'Physical',
+        emotional_practices: 'Emotional',
+        social_practices: 'Social',
+        spiritual_practices: 'Spiritual'
+      };
+
+      Object.entries(mpessCategories).forEach(([key, label]) => {
+        if (mealPlan.mpess_integration[key] && mealPlan.mpess_integration[key].length > 0) {
+          doc.setFont(undefined, 'bold');
+          doc.text(`${label}:`, 20, yPos);
+          yPos += 4;
+          doc.setFont(undefined, 'normal');
+          mealPlan.mpess_integration[key].forEach(practice => {
+            doc.text(`• ${practice}`, 25, yPos);
+            yPos += 4;
+          });
+          yPos += 2;
+        }
+      });
+    }
+
+    // Footer
+    if (yPos > 270) {
+      doc.addPage();
+      yPos = 20;
+    } else {
+      yPos = 280;
+    }
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Generated on ${format(new Date(), 'MMMM dd, yyyy')}`, 105, yPos, { align: 'center' });
+
+    doc.save(`${mealPlan.name.replace(/\s+/g, '-')}-${clientProfile.full_name.replace(/\s+/g, '-')}.pdf`);
   };
 
   // Early return AFTER all hooks are defined
