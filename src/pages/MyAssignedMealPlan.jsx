@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -7,11 +6,17 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, ChefHat, Utensils, Lightbulb, CheckCircle2 } from "lucide-react";
+import { Calendar, ChefHat, Utensils, Lightbulb, CheckCircle2, History, CalendarDays } from "lucide-react";
 import { format } from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 
 export default function MyAssignedMealPlan() {
   const [completedMeals, setCompletedMeals] = useState({});
+  const [viewMode, setViewMode] = useState("current"); // "current" or "history"
+  const [selectedPlanId, setSelectedPlanId] = useState(null);
+  const [dateFilter, setDateFilter] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -54,10 +59,38 @@ export default function MyAssignedMealPlan() {
     enabled: !!clientProfile,
   });
 
+  const { data: allMealPlans } = useQuery({
+    queryKey: ['allClientMealPlans', clientProfile?.id],
+    queryFn: async () => {
+      // Get all meal plans for this client (active and inactive)
+      const plans = await base44.entities.MealPlan.filter({ 
+        client_id: clientProfile?.id
+      });
+      return plans.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    },
+    enabled: !!clientProfile,
+  });
+
+  // Filter plans by date if date filter is set
+  const filteredPlans = React.useMemo(() => {
+    if (!allMealPlans) return [];
+    if (!dateFilter) return allMealPlans;
+    
+    return allMealPlans.filter(plan => {
+      const planDate = new Date(plan.created_date);
+      const filterDate = new Date(dateFilter);
+      return planDate.toDateString() === filterDate.toDateString();
+    });
+  }, [allMealPlans, dateFilter]);
+
+  const displayedPlan = viewMode === "current" 
+    ? assignedPlan 
+    : (selectedPlanId ? allMealPlans?.find(p => p.id === selectedPlanId) : filteredPlans?.[0]);
+
   const mealTypes = ["Early Morning", "Breakfast", "Mid-Morning", "Lunch", "Evening Snack", "Dinner"];
 
   const groupedMeals = {};
-  assignedPlan?.meals?.forEach(meal => {
+  displayedPlan?.meals?.forEach(meal => {
     if (!groupedMeals[meal.day]) {
       groupedMeals[meal.day] = [];
     }
@@ -89,13 +122,23 @@ export default function MyAssignedMealPlan() {
     );
   }
 
-  if (!assignedPlan) {
+  if (!assignedPlan && viewMode === "current") {
     return (
       <div className="min-h-screen p-4 md:p-8">
         <div className="max-w-5xl mx-auto">
-          <div className="mb-6">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">My Meal Plan</h1>
-            <p className="text-gray-600">Your personalized nutrition plan</p>
+          <div className="mb-6 flex justify-between items-center">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">My Meal Plan</h1>
+              <p className="text-gray-600">Your personalized nutrition plan</p>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setViewMode("history")}
+              className="border-orange-500 text-orange-600"
+            >
+              <History className="w-4 h-4 mr-2" />
+              View Previous Plans
+            </Button>
           </div>
 
           <Card className="border-none shadow-xl">
@@ -120,34 +163,168 @@ export default function MyAssignedMealPlan() {
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">My Meal Plan</h1>
             <p className="text-gray-600">Follow your personalized nutrition plan</p>
           </div>
-          <Calendar className="w-10 h-10 text-orange-500" />
+          <div className="flex gap-2">
+            <Button
+              variant={viewMode === "current" ? "default" : "outline"}
+              onClick={() => {
+                setViewMode("current");
+                setSelectedPlanId(null);
+                setDateFilter(null);
+              }}
+              className={viewMode === "current" ? "bg-orange-500" : "border-orange-500 text-orange-600"}
+            >
+              <Calendar className="w-4 h-4 mr-2" />
+              Current Plan
+            </Button>
+            <Button
+              variant={viewMode === "history" ? "default" : "outline"}
+              onClick={() => setViewMode("history")}
+              className={viewMode === "history" ? "bg-orange-500" : "border-orange-500 text-orange-600"}
+            >
+              <History className="w-4 h-4 mr-2" />
+              Previous Plans
+            </Button>
+          </div>
         </div>
 
-        {/* Plan Overview */}
-        <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="text-3xl mb-2">{assignedPlan.name}</CardTitle>
-                <div className="flex flex-wrap gap-2">
-                  <Badge className="bg-orange-500 text-white">{assignedPlan.duration} Days</Badge>
-                  <Badge className="bg-blue-500 text-white capitalize">{assignedPlan.food_preference}</Badge>
-                  <Badge className="bg-green-500 text-white capitalize">{assignedPlan.regional_preference}</Badge>
-                  <Badge className="bg-purple-500 text-white">{assignedPlan.target_calories} kcal/day</Badge>
-                </div>
+        {/* Previous Plans Section */}
+        {viewMode === "history" && (
+          <Card className="border-none shadow-lg">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <History className="w-5 h-5" />
+                  Previous Meal Plans
+                </CardTitle>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="border-orange-500 text-orange-600">
+                      <CalendarDays className="w-4 h-4 mr-2" />
+                      {dateFilter ? format(dateFilter, 'MMM dd, yyyy') : 'Filter by Date'}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <CalendarComponent
+                      mode="single"
+                      selected={dateFilter}
+                      onSelect={(date) => {
+                        setDateFilter(date);
+                        setSelectedPlanId(null);
+                      }}
+                    />
+                    <div className="p-2 border-t">
+                      <Button
+                        variant="ghost"
+                        className="w-full"
+                        onClick={() => setDateFilter(null)}
+                      >
+                        Clear Filter
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
-              <Utensils className="w-12 h-12 text-orange-500" />
-            </div>
-          </CardHeader>
-        </Card>
+            </CardHeader>
+            <CardContent>
+              {(dateFilter ? filteredPlans : allMealPlans)?.length > 0 ? (
+                <div className="space-y-3">
+                  {(dateFilter ? filteredPlans : allMealPlans).map(plan => (
+                    <div
+                      key={plan.id}
+                      onClick={() => {
+                        setSelectedPlanId(plan.id);
+                        setDateFilter(null);
+                      }}
+                      className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                        selectedPlanId === plan.id
+                          ? 'border-orange-500 bg-orange-50'
+                          : 'border-gray-200 hover:border-orange-300'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 mb-1">{plan.name}</h3>
+                          <div className="flex flex-wrap gap-2 mb-2">
+                            <Badge className="bg-orange-500 text-white">{plan.duration} Days</Badge>
+                            <Badge className="bg-blue-500 text-white capitalize">{plan.food_preference}</Badge>
+                            <Badge className="bg-purple-500 text-white">{plan.target_calories} kcal/day</Badge>
+                            {plan.active && <Badge className="bg-green-500 text-white">Active</Badge>}
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            Created: {format(new Date(plan.created_date), 'MMM dd, yyyy')}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <History className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>No previous meal plans found{dateFilter ? ' for this date' : ''}.</p>
+                  {dateFilter && (
+                    <Button
+                      variant="link"
+                      onClick={() => setDateFilter(null)}
+                      className="text-orange-600 mt-2"
+                    >
+                      Clear date filter
+                    </Button>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {!displayedPlan && viewMode === "history" && (
+          <Card className="border-none shadow-xl">
+            <CardContent className="p-12 text-center">
+              <History className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                Select a Plan to View
+              </h3>
+              <p className="text-gray-600">
+                Choose a meal plan from the list above to view its details.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Plan Overview */}
+        {displayedPlan && (
+          <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div>
+                  <CardTitle className="text-3xl mb-2">{displayedPlan.name}</CardTitle>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge className="bg-orange-500 text-white">{displayedPlan.duration} Days</Badge>
+                    <Badge className="bg-blue-500 text-white capitalize">{displayedPlan.food_preference}</Badge>
+                    <Badge className="bg-green-500 text-white capitalize">{displayedPlan.regional_preference}</Badge>
+                    <Badge className="bg-purple-500 text-white">{displayedPlan.target_calories} kcal/day</Badge>
+                    {displayedPlan.active && <Badge className="bg-green-500 text-white">Active</Badge>}
+                    {viewMode === "history" && (
+                      <Badge variant="outline">
+                        Created: {format(new Date(displayedPlan.created_date), 'MMM dd, yyyy')}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                <Utensils className="w-12 h-12 text-orange-500" />
+              </div>
+            </CardHeader>
+          </Card>
+        )}
 
         {/* Daily Meal Plans */}
-        <Tabs defaultValue="day-1" className="space-y-4">
+        {displayedPlan && (
+          <Tabs defaultValue="day-1" className="space-y-4">
           <div className="bg-white/80 backdrop-blur rounded-xl p-2 shadow-lg overflow-x-auto">
             <TabsList className="flex flex-nowrap">
               {Object.keys(groupedMeals).sort((a, b) => a - b).map(day => (
@@ -256,7 +433,8 @@ export default function MyAssignedMealPlan() {
                 })}
             </TabsContent>
           ))}
-        </Tabs>
+          </Tabs>
+        )}
       </div>
     </div>
   );
