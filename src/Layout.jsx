@@ -832,7 +832,7 @@ export default function Layout({ children, currentPageName }) {
                                 <div id="notification-bell-container">
                                   <NotificationBell userEmail={user?.email} />
                                 </div>
-                                <TourButton />
+                                <TourButton pageName={currentPageName} />
                               </div>
           </header>
 

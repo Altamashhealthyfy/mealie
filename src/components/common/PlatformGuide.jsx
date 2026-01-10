@@ -54,11 +54,122 @@ const platformSteps = [
   }
 ];
 
-export const startPlatformTour = () => {
+const pageSpecificTours = {
+  DietitianDashboard: [
+    {
+      element: '#dashboard-stats',
+      popover: {
+        title: '📊 Dashboard Overview',
+        description: 'See all your key metrics at a glance - total clients, new clients, meal plans, and more.'
+      }
+    },
+    {
+      element: '#client-growth',
+      popover: {
+        title: '📈 Client Growth',
+        description: 'Track your practice growth over time with active clients and new sign-ups.'
+      }
+    },
+    {
+      element: '#quick-actions',
+      popover: {
+        title: '⚡ Quick Actions',
+        description: 'Jump straight into common tasks like adding clients or creating meal plans.'
+      }
+    }
+  ],
+  ClientManagement: [
+    {
+      element: '#client-table',
+      popover: {
+        title: '👥 Client List',
+        description: 'Manage all your clients here. View their progress, assign meal plans, and communicate.'
+      }
+    },
+    {
+      element: '#add-client-btn',
+      popover: {
+        title: '➕ Add New Client',
+        description: 'Click here to add a new client to your practice.'
+      }
+    }
+  ],
+  ClientAnalyticsDashboard: [
+    {
+      element: '#analytics-filters',
+      popover: {
+        title: '🔍 Analytics Filters',
+        description: 'Filter clients by metrics to see detailed performance insights.'
+      }
+    },
+    {
+      element: '#analytics-charts',
+      popover: {
+        title: '📊 Charts & Data',
+        description: 'View comprehensive analytics including adherence, weight trends, and wellness scores.'
+      }
+    }
+  ],
+  MealPlanner: [
+    {
+      element: '#meal-plan-builder',
+      popover: {
+        title: '🍽️ Meal Plan Builder',
+        description: 'Create personalized meal plans for your clients with AI assistance.'
+      }
+    },
+    {
+      element: '#client-selector',
+      popover: {
+        title: '👤 Select Client',
+        description: 'Choose which client this meal plan is for.'
+      }
+    }
+  ],
+  Appointments: [
+    {
+      element: '#appointments-calendar',
+      popover: {
+        title: '📅 Appointment Calendar',
+        description: 'View and manage all client appointments here.'
+      }
+    },
+    {
+      element: '#create-appointment-btn',
+      popover: {
+        title: '➕ Schedule New',
+        description: 'Click here to schedule a new appointment with a client.'
+      }
+    }
+  ],
+  Communication: [
+    {
+      element: '#client-list',
+      popover: {
+        title: '👥 Client List',
+        description: 'Select a client to view and send messages.'
+      }
+    },
+    {
+      element: '#message-area',
+      popover: {
+        title: '💬 Message Area',
+        description: 'Chat with your clients here. You can send text and attach files.'
+      }
+    }
+  ]
+};
+
+export const startPageTour = (pageName = 'Default') => {
+  const steps = pageSpecificTours[pageName] || platformSteps;
   const driverObj = driver({
       showProgress: true,
       popoverClass: 'dashboard-tour-popover',
-      steps: platformSteps
+      steps: steps
   });
   driverObj.drive();
+};
+
+export const startPlatformTour = () => {
+  startPageTour('Default');
 };

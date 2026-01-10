@@ -1,11 +1,11 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { HelpCircle } from 'lucide-react';
-import { startPlatformTour } from './PlatformGuide';
+import { startPageTour } from './PlatformGuide';
 
-const TourButton = ({ variant = 'outline', size = 'sm' }) => {
+const TourButton = ({ variant = 'outline', size = 'sm', pageName = 'Default' }) => {
   return (
-    <Button onClick={startPlatformTour} variant={variant} size={size} id="start-tour-button">
+    <Button onClick={() => startPageTour(pageName)} variant={variant} size={size} id="start-tour-button">
       <HelpCircle className="w-4 h-4 mr-2" />
       Start Tour
     </Button>
