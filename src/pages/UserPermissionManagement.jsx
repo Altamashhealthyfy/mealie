@@ -31,6 +31,7 @@ export default function UserPermissionManagement() {
   const [newCoachEmail, setNewCoachEmail] = useState("");
   const [newCoachName, setNewCoachName] = useState("");
   const [newCoachPassword, setNewCoachPassword] = useState("");
+  const [createMethod, setCreateMethod] = useState("invite"); // "invite" or "password"
   const [changePasswordDialog, setChangePasswordDialog] = useState(false);
   const [selectedCoachForPassword, setSelectedCoachForPassword] = useState(null);
   const [newPasswordForCoach, setNewPasswordForCoach] = useState("");
@@ -170,21 +171,51 @@ export default function UserPermissionManagement() {
   });
 
   const createCoachMutation = useMutation({
-    mutationFn: async ({ email }) => {
-      // Use Base44's invitation system instead of password-based creation
-      await base44.users.inviteUser(email, 'admin');
-      return { success: true, email };
+    mutationFn: async ({ email, name, password, method }) => {
+      if (method === "password") {
+        // Create user with password using backend function
+        const response = await base44.functions.invoke('createUserWithPassword', {
+          email,
+          full_name: name,
+          password,
+          user_type: 'student_coach'
+        });
+        return response.data;
+      } else {
+        // Send invitation email
+        await base44.users.inviteUser(email, 'admin');
+        
+        // Wait a moment and update user type
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        const users = await base44.asServiceRole.entities.User.list();
+        const newUser = users.find(u => u.email === email);
+        
+        if (newUser) {
+          await base44.asServiceRole.entities.User.update(newUser.id, {
+            full_name: name || email,
+            user_type: 'student_coach'
+          });
+        }
+        
+        return { success: true, email };
+      }
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries(['allUsers']);
       setCreateCoachDialog(false);
       setNewCoachEmail("");
       setNewCoachName("");
       setNewCoachPassword("");
-      alert('✅ Invitation sent! The coach will receive an email to set their password and complete registration.');
+      setCreateMethod("invite");
+      
+      if (variables.method === "password") {
+        alert('✅ Health coach created successfully! They can now login with their credentials.');
+      } else {
+        alert('✅ Invitation sent! The coach will receive an email to set their password and complete registration.');
+      }
     },
     onError: (error) => {
-      alert('❌ Failed to send invitation: ' + error.message);
+      alert('❌ Failed to create coach: ' + (error.response?.data?.error || error.message));
     }
   });
 
@@ -291,8 +322,19 @@ export default function UserPermissionManagement() {
       alert('Please enter an email address');
       return;
     }
+    
+    if (createMethod === "password") {
+      if (!newCoachPassword || newCoachPassword.length < 6) {
+        alert('Password must be at least 6 characters');
+        return;
+      }
+    }
+    
     createCoachMutation.mutate({
-      email: newCoachEmail
+      email: newCoachEmail,
+      name: newCoachName,
+      password: newCoachPassword,
+      method: createMethod
     });
   };
 
@@ -878,7 +920,7 @@ export default function UserPermissionManagement() {
 
         {/* Create Health Coach Dialog */}
         <Dialog open={createCoachDialog} onOpenChange={setCreateCoachDialog}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <UserPlus className="w-5 h-5 text-orange-600" />
@@ -886,20 +928,61 @@ export default function UserPermissionManagement() {
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-4">
-              <Alert className="bg-blue-50 border-blue-500">
-                <AlertDescription className="text-sm">
-                  <strong>How it works:</strong> Enter the email address below. The health coach will receive an invitation to create their account and set their own password.
-                </AlertDescription>
-              </Alert>
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">Creation Method</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => setCreateMethod("invite")}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      createMethod === "invite"
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-2xl mb-1">📧</div>
+                      <div className="font-semibold text-sm">Send Invitation</div>
+                      <div className="text-xs text-gray-600 mt-1">They set password</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setCreateMethod("password")}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      createMethod === "password"
+                        ? "border-orange-500 bg-orange-50"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-2xl mb-1">🔑</div>
+                      <div className="font-semibold text-sm">Set Password</div>
+                      <div className="text-xs text-gray-600 mt-1">Create directly</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {createMethod === "invite" ? (
+                <Alert className="bg-blue-50 border-blue-500">
+                  <AlertDescription className="text-sm">
+                    The coach will receive an email invitation to create their account and set their own password.
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <Alert className="bg-orange-50 border-orange-500">
+                  <AlertDescription className="text-sm">
+                    You'll set the password now. Share it securely with the health coach.
+                  </AlertDescription>
+                </Alert>
+              )}
 
               <div className="space-y-2">
-                <Label>Full Name (Optional)</Label>
+                <Label>Full Name {createMethod === "password" ? "*" : "(Optional)"}</Label>
                 <Input
                   placeholder="Dr Dt Sheenu Sanjeev"
                   value={newCoachName}
                   onChange={(e) => setNewCoachName(e.target.value)}
                 />
-                <p className="text-xs text-gray-500">For your reference - they'll update this during setup</p>
               </div>
 
               <div className="space-y-2">
@@ -911,6 +994,19 @@ export default function UserPermissionManagement() {
                   onChange={(e) => setNewCoachEmail(e.target.value)}
                 />
               </div>
+
+              {createMethod === "password" && (
+                <div className="space-y-2">
+                  <Label>Password *</Label>
+                  <Input
+                    type="password"
+                    placeholder="Minimum 6 characters"
+                    value={newCoachPassword}
+                    onChange={(e) => setNewCoachPassword(e.target.value)}
+                  />
+                  <p className="text-xs text-gray-500">Minimum 6 characters required</p>
+                </div>
+              )}
 
               <Alert className="bg-green-50 border-green-300">
                 <CheckCircle className="w-4 h-4 text-green-600" />
@@ -929,7 +1025,7 @@ export default function UserPermissionManagement() {
                   className="flex-1 bg-gradient-to-r from-orange-500 to-red-500"
                 >
                   <UserPlus className="w-4 h-4 mr-2" />
-                  {createCoachMutation.isPending ? 'Sending...' : 'Create Coach'}
+                  {createCoachMutation.isPending ? 'Creating...' : (createMethod === "invite" ? "Send Invitation" : "Create Coach")}
                 </Button>
               </div>
             </div>
