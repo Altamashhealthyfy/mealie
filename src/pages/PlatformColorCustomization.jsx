@@ -303,6 +303,15 @@ export default function PlatformColorCustomization() {
                 </div>
               </div>
               <div>
+                <Label className="text-sm font-medium mb-2 block">Menu Text Color</Label>
+                <div className="space-y-1 p-3 rounded-lg border" style={{ backgroundColor: themeColors.sidebar_bg }}>
+                  <div style={{ color: themeColors.menu_text_color }} className="text-sm font-medium">📊 Dashboard</div>
+                  <div style={{ color: themeColors.menu_text_color }} className="text-sm font-medium">👥 Clients</div>
+                  <div style={{ color: themeColors.menu_text_color }} className="text-sm font-medium">💬 Messages</div>
+                  <div style={{ color: themeColors.menu_text_color }} className="text-sm font-medium">📅 Appointments</div>
+                </div>
+              </div>
+              <div>
                 <Label className="text-sm font-medium mb-2 block">Accent Elements</Label>
                 <div className="flex gap-2 flex-wrap">
                   <span
