@@ -1,7 +1,6 @@
 import React from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import PageTour from "@/components/common/PageTour";
 import TourButton from "@/components/common/TourButton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -471,7 +470,6 @@ export default function ClientDashboard() {
 
   return (
     <div className="min-h-screen p-4 md:p-8 space-y-6">
-      <PageTour pageName="ClientDashboard" />
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 flex justify-between items-start">
