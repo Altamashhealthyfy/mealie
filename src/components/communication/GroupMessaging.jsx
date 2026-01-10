@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Users, Plus, MessageCircle, X, Send, Loader2, Search, ArrowLeft } from 'lucide-react';
+import { Users, Plus, MessageCircle, X, Send, Loader2, Search, ArrowLeft, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -321,20 +321,35 @@ export default function GroupMessaging({ userEmail }) {
           groups.map((group) => (
             <Card
               key={group.id}
-              className="cursor-pointer hover:shadow-lg transition"
-              onClick={() => setSelectedGroup(group)}
+              className="hover:shadow-lg transition"
             >
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-3">
-                  <div>
+                  <div className="flex-1 cursor-pointer" onClick={() => setSelectedGroup(group)}>
                     <h4 className="font-semibold text-gray-900">{group.name}</h4>
                     <Badge variant="outline" className="mt-2">
                       {group.member_count || 0} members
                     </Badge>
                   </div>
-                  <MessageCircle className="w-5 h-5 text-blue-500" />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm(`Delete group "${group.name}"?`)) {
+                        deleteGroupMutation.mutate(group.id);
+                      }
+                    }}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded transition flex-shrink-0"
+                    disabled={deleteGroupMutation.isPending}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
-                <Button variant="ghost" size="sm" className="w-full justify-start text-blue-500">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full justify-start text-blue-500"
+                  onClick={() => setSelectedGroup(group)}
+                >
                   View Group →
                 </Button>
               </CardContent>
