@@ -645,19 +645,19 @@ export default function Layout({ children, currentPageName }) {
       <div className="min-h-screen flex w-full bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
         <Sidebar className="border-r border-orange-100 backdrop-blur-sm" style={{ backgroundColor: sidebarBg }}>
           <SidebarHeader className="border-b border-orange-100 p-6">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               {brandingLogo ? (
-                <img src={brandingLogo} alt={brandingName} className="w-10 h-10 rounded-xl object-cover shadow-lg" />
+                <img src={brandingLogo} alt={brandingName} className="w-10 h-10 rounded-xl object-cover shadow-lg flex-shrink-0" />
               ) : (
                 <div 
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0"
                   style={{ background: `linear-gradient(to bottom right, ${themeColors.primary_from}, ${themeColors.primary_to})` }}
                 >
                   <ChefHat className="w-6 h-6 text-white" />
                 </div>
               )}
-              <div>
-                <h2 className="font-bold text-xl text-gray-900">
+              <div className="min-w-0">
+                <h2 className="font-bold text-lg text-gray-900 break-words">
                   {brandingName}
                 </h2>
                 <p className="text-xs font-medium" style={{ color: themeColors.accent_color }}>
