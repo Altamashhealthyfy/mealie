@@ -730,14 +730,14 @@ export default function TemplateLibrary() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Calories</SelectItem>
-                    <SelectItem value="1200">1200 kcal</SelectItem>
-                    <SelectItem value="1400">1400 kcal</SelectItem>
-                    <SelectItem value="1500">1500 kcal</SelectItem>
-                    <SelectItem value="1600">1600 kcal</SelectItem>
-                    <SelectItem value="1800">1800 kcal</SelectItem>
-                    <SelectItem value="2000">2000 kcal</SelectItem>
-                    <SelectItem value="2200">2200 kcal</SelectItem>
-                    <SelectItem value="2500">2500 kcal</SelectItem>
+                    <SelectItem value="1200">1200 Kcal</SelectItem>
+                    <SelectItem value="1400">1400 Kcal</SelectItem>
+                    <SelectItem value="1500">1500 Kcal</SelectItem>
+                    <SelectItem value="1600">1600 Kcal</SelectItem>
+                    <SelectItem value="1800">1800 Kcal</SelectItem>
+                    <SelectItem value="2000">2000 Kcal</SelectItem>
+                    <SelectItem value="2200">2200 Kcal</SelectItem>
+                    <SelectItem value="2500">2500 Kcal</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -917,7 +917,7 @@ export default function TemplateLibrary() {
                     </Badge>
                     {template.target_calories && (
                       <Badge className="bg-orange-100 text-orange-700">
-                        {template.target_calories} kcal
+                        {template.target_calories} Kcal
                       </Badge>
                     )}
                     {template.food_preference && template.food_preference !== 'all' && (
@@ -1188,7 +1188,7 @@ export default function TemplateLibrary() {
                       <div>
                         <p className="text-sm text-gray-600">Target Calories</p>
                         <Badge className="mt-1 bg-orange-100 text-orange-700">
-                          {viewingTemplate.target_calories} kcal
+                          {viewingTemplate.target_calories} Kcal
                         </Badge>
                       </div>
                     )}
