@@ -33,6 +33,7 @@ export default function TemplateLibrary() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [diseaseFilter, setDiseaseFilter] = useState("all");
   const [calorieFilter, setCalorieFilter] = useState("all");
   const [customCalorieSearch, setCustomCalorieSearch] = useState("");
   const [foodPrefFilter, setFoodPrefFilter] = useState("all");
@@ -314,9 +315,10 @@ export default function TemplateLibrary() {
     const matchesRegion = regionFilter === "all" || 
                          template.regional_preference === regionFilter || 
                          template.regional_preference === "all";
+    const matchesDisease = diseaseFilter === "all" || template.subcategory === diseaseFilter;
     const matchesUploader = uploaderFilter === "all" || template.created_by === uploaderFilter;
     
-    return matchesSearch && matchesCategory && matchesCalories && matchesFoodPref && matchesRegion && matchesUploader;
+    return matchesSearch && matchesCategory && matchesCalories && matchesFoodPref && matchesRegion && matchesDisease && matchesUploader;
   });
 
   const handleDownload = (template) => {
@@ -462,6 +464,7 @@ export default function TemplateLibrary() {
                             <SelectContent>
                               <SelectItem value="veg">Vegetarian</SelectItem>
                               <SelectItem value="non_veg">Non-Veg</SelectItem>
+                              <SelectItem value="eggetarian">Eggetarian</SelectItem>
                               <SelectItem value="jain">Jain</SelectItem>
                               <SelectItem value="mixed">Mixed</SelectItem>
                               <SelectItem value="all">All</SelectItem>
@@ -685,7 +688,7 @@ export default function TemplateLibrary() {
                 </Select>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                   <SelectTrigger>
                     <SelectValue placeholder="Category" />
@@ -697,6 +700,21 @@ export default function TemplateLibrary() {
                     <SelectItem value="business_strategy">Business</SelectItem>
                     <SelectItem value="marketing_material">Marketing</SelectItem>
                     <SelectItem value="client_tracker">Client Tools</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={diseaseFilter} onValueChange={setDiseaseFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Disease/Condition" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Conditions</SelectItem>
+                    <SelectItem value="weight_loss">Weight Loss</SelectItem>
+                    <SelectItem value="weight_gain">Weight Gain</SelectItem>
+                    <SelectItem value="diabetes">Diabetes</SelectItem>
+                    <SelectItem value="pcos">PCOS</SelectItem>
+                    <SelectItem value="thyroid">Thyroid</SelectItem>
+                    <SelectItem value="general">General Health</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -731,6 +749,7 @@ export default function TemplateLibrary() {
                     <SelectItem value="all">All Types</SelectItem>
                     <SelectItem value="veg">Vegetarian</SelectItem>
                     <SelectItem value="non_veg">Non-Veg</SelectItem>
+                    <SelectItem value="eggetarian">Eggetarian</SelectItem>
                     <SelectItem value="jain">Jain</SelectItem>
                   </SelectContent>
                 </Select>
@@ -1038,6 +1057,7 @@ export default function TemplateLibrary() {
                         <SelectContent>
                           <SelectItem value="veg">Vegetarian</SelectItem>
                           <SelectItem value="non_veg">Non-Veg</SelectItem>
+                          <SelectItem value="eggetarian">Eggetarian</SelectItem>
                           <SelectItem value="jain">Jain</SelectItem>
                           <SelectItem value="mixed">Mixed</SelectItem>
                           <SelectItem value="all">All</SelectItem>
