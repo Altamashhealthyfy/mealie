@@ -33,7 +33,8 @@ import {
   Crown,
   Receipt,
   Settings,
-  Globe
+  Globe,
+  Palette
 } from "lucide-react";
 import {
   Sidebar,
@@ -198,6 +199,12 @@ const businessNavigation = [
     title: "Platform Branding",
     url: createPageUrl("PlatformBrandingTracker"),
     icon: Globe,
+    roles: ['super_admin'],
+  },
+  {
+    title: "Color Customization",
+    url: createPageUrl("PlatformColorCustomization"),
+    icon: Palette,
     roles: ['super_admin'],
   },
   {
@@ -590,6 +597,14 @@ export default function Layout({ children, currentPageName }) {
   const brandingTagline = customBranding?.tagline || activeBranding?.tagline || (isDietitian ? 'Dietitian Platform' : 'Client Portal');
   const brandingLogo = customBranding?.logo_url || activeBranding?.logo_url;
 
+  // Get theme colors from branding
+  const themeColors = customBranding?.theme_colors || activeBranding?.theme_colors || {
+    primary_from: '#f97316',
+    primary_to: '#dc2626',
+    sidebar_bg: '#ffffff',
+    accent_color: '#f97316'
+  };
+
   const handleLogout = async () => {
     if (window.confirm("Are you sure you want to logout?")) {
       try {
@@ -611,16 +626,23 @@ export default function Layout({ children, currentPageName }) {
           --accent: 120 25% 50%;
           --background: 30 20% 98%;
           --card: 0 0% 100%;
+          --theme-primary-from: ${themeColors.primary_from};
+          --theme-primary-to: ${themeColors.primary_to};
+          --theme-sidebar-bg: ${themeColors.sidebar_bg};
+          --theme-accent: ${themeColors.accent_color};
         }
       `}</style>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
-        <Sidebar className="border-r border-orange-100 bg-white/80 backdrop-blur-sm">
+        <Sidebar className="border-r border-orange-100 backdrop-blur-sm" style={{ backgroundColor: themeColors.sidebar_bg }}>
           <SidebarHeader className="border-b border-orange-100 p-6">
             <div className="flex items-center gap-3">
               {brandingLogo ? (
                 <img src={brandingLogo} alt={brandingName} className="w-10 h-10 rounded-xl object-cover shadow-lg" />
               ) : (
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg">
+                <div 
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
+                  style={{ background: `linear-gradient(to bottom right, ${themeColors.primary_from}, ${themeColors.primary_to})` }}
+                >
                   <ChefHat className="w-6 h-6 text-white" />
                 </div>
               )}
@@ -628,7 +650,7 @@ export default function Layout({ children, currentPageName }) {
                 <h2 className="font-bold text-xl text-gray-900">
                   {brandingName}
                 </h2>
-                <p className="text-xs text-orange-600 font-medium">
+                <p className="text-xs font-medium" style={{ color: themeColors.accent_color }}>
                   {brandingTagline}
                 </p>
               </div>
@@ -646,9 +668,15 @@ export default function Layout({ children, currentPageName }) {
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton
                         asChild
-                        className={`hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 rounded-xl mb-1 ${
-                          location.pathname === item.url ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 hover:text-white shadow-md' : ''
+                        className={`hover:bg-orange-50 transition-all duration-200 rounded-xl mb-1 ${
+                          location.pathname === item.url ? 'text-white hover:text-white shadow-md' : ''
                         }`}
+                        style={location.pathname === item.url ? {
+                          background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
+                          color: '#ffffff'
+                        } : {
+                          color: themeColors.accent_color
+                        }}
                       >
                         <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
                           <item.icon className="w-5 h-5" />
@@ -732,7 +760,10 @@ export default function Layout({ children, currentPageName }) {
                     className="w-10 h-10 rounded-full object-cover border-2 border-orange-500 shadow-md"
                   />
                 ) : (
-                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center shadow-md">
+                  <div 
+                    className="w-10 h-10 rounded-full flex items-center justify-center shadow-md"
+                    style={{ background: `linear-gradient(to bottom right, ${themeColors.primary_from}, ${themeColors.primary_to})` }}
+                  >
                     <span className="text-white font-bold text-sm">
                       {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
                     </span>
