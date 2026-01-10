@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import Razorpay from 'npm:razorpay@2.9.2';
 
 Deno.serve(async (req) => {
@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
         });
 
         const order = await razorpay.orders.create({
-            amount: amount * 100,
+            amount: amount,
             currency: currency || 'INR',
             receipt: payment_type === 'ai_credits' ? `ai_credits_${Date.now()}` : `coach_sub_${subscriptionId || Date.now()}`,
             notes: {
