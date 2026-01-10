@@ -15,7 +15,8 @@ export default function PlatformColorCustomization() {
     primary_to: "#dc2626",
     sidebar_bg: "#ffffff",
     accent_color: "#f97316",
-    menu_text_color: "#22c55e"
+    menu_text_color: "#22c55e",
+    highlight_button_color: "#f97316"
   });
 
   const { data: user } = useQuery({
@@ -39,7 +40,8 @@ export default function PlatformColorCustomization() {
         primary_to: coachProfile.theme_colors.primary_to || "#dc2626",
         sidebar_bg: coachProfile.theme_colors.sidebar_bg || "#ffffff",
         accent_color: coachProfile.theme_colors.accent_color || "#f97316",
-        menu_text_color: coachProfile.theme_colors.menu_text_color || "#22c55e"
+        menu_text_color: coachProfile.theme_colors.menu_text_color || "#22c55e",
+        highlight_button_color: coachProfile.theme_colors.highlight_button_color || "#f97316"
       });
     }
   }, [coachProfile]);
@@ -72,7 +74,8 @@ export default function PlatformColorCustomization() {
       primary_to: "#dc2626",
       sidebar_bg: "#ffffff",
       accent_color: "#f97316",
-      menu_text_color: "#22c55e"
+      menu_text_color: "#22c55e",
+      highlight_button_color: "#f97316"
     });
   };
 
@@ -211,6 +214,25 @@ export default function PlatformColorCustomization() {
                 </div>
               </div>
 
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Highlight Button Color</Label>
+                <div className="flex gap-3 items-center">
+                  <Input
+                    type="color"
+                    value={colors.highlight_button_color}
+                    onChange={(e) => setColors({ ...colors, highlight_button_color: e.target.value })}
+                    className="w-20 h-12 cursor-pointer"
+                  />
+                  <Input
+                    type="text"
+                    value={colors.highlight_button_color}
+                    onChange={(e) => setColors({ ...colors, highlight_button_color: e.target.value })}
+                    className="flex-1"
+                    placeholder="#f97316"
+                  />
+                </div>
+              </div>
+
               <div className="flex gap-3 pt-4">
                 <Button
                   onClick={handleReset}
@@ -326,11 +348,30 @@ export default function PlatformColorCustomization() {
               {/* Menu Text Preview */}
               <div>
                 <Label className="text-sm font-medium mb-2 block">Menu Text Color</Label>
-                <div className="space-y-1" style={{ backgroundColor: colors.sidebar_bg }} className="p-3 rounded-lg border">
+                <div className="space-y-1 p-3 rounded-lg border" style={{ backgroundColor: colors.sidebar_bg }}>
                   <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">📊 Dashboard</div>
                   <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">👥 Clients</div>
                   <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">💬 Messages</div>
                   <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">📅 Appointments</div>
+                </div>
+              </div>
+
+              {/* Highlight Button Preview */}
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Highlight Button Color</Label>
+                <div className="space-y-2">
+                  <button 
+                    className="w-full px-4 py-2 rounded-full text-white font-semibold text-sm"
+                    style={{ backgroundColor: colors.highlight_button_color }}
+                  >
+                    Color Customization
+                  </button>
+                  <button 
+                    className="w-full px-4 py-2 rounded-full text-white font-semibold text-sm"
+                    style={{ backgroundColor: colors.highlight_button_color }}
+                  >
+                    Active Button
+                  </button>
                 </div>
               </div>
             </CardContent>
