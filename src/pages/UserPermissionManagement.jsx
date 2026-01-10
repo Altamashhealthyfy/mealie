@@ -170,13 +170,10 @@ export default function UserPermissionManagement() {
   });
 
   const createCoachMutation = useMutation({
-    mutationFn: async ({ email, name, password }) => {
-      return await base44.functions.invoke('createUserWithPassword', {
-        email,
-        full_name: name,
-        password,
-        user_type: 'student_coach'
-      });
+    mutationFn: async ({ email }) => {
+      // Use Base44's invitation system instead of password-based creation
+      await base44.users.inviteUser(email, 'admin');
+      return { success: true, email };
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['allUsers']);
@@ -184,10 +181,10 @@ export default function UserPermissionManagement() {
       setNewCoachEmail("");
       setNewCoachName("");
       setNewCoachPassword("");
-      alert('✅ Health Coach created successfully!');
+      alert('✅ Invitation sent! The coach will receive an email to set their password and complete registration.');
     },
     onError: (error) => {
-      alert('❌ Failed to create coach: ' + (error.response?.data?.error || error.message));
+      alert('❌ Failed to send invitation: ' + error.message);
     }
   });
 
@@ -290,18 +287,12 @@ export default function UserPermissionManagement() {
   };
 
   const handleCreateCoach = () => {
-    if (!newCoachEmail || !newCoachName || !newCoachPassword) {
-      alert('Please fill all fields');
-      return;
-    }
-    if (newCoachPassword.length < 6) {
-      alert('Password must be at least 6 characters');
+    if (!newCoachEmail) {
+      alert('Please enter an email address');
       return;
     }
     createCoachMutation.mutate({
-      email: newCoachEmail,
-      name: newCoachName,
-      password: newCoachPassword
+      email: newCoachEmail
     });
   };
 
@@ -895,37 +886,35 @@ export default function UserPermissionManagement() {
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-4">
+              <Alert className="bg-blue-50 border-blue-500">
+                <AlertDescription className="text-sm">
+                  <strong>How it works:</strong> Enter the email address below. The health coach will receive an invitation to create their account and set their own password.
+                </AlertDescription>
+              </Alert>
+
               <div className="space-y-2">
-                <Label>Full Name *</Label>
+                <Label>Full Name (Optional)</Label>
                 <Input
-                  placeholder="Enter full name"
+                  placeholder="Dr Dt Sheenu Sanjeev"
                   value={newCoachName}
                   onChange={(e) => setNewCoachName(e.target.value)}
                 />
+                <p className="text-xs text-gray-500">For your reference - they'll update this during setup</p>
               </div>
 
               <div className="space-y-2">
                 <Label>Email Address *</Label>
                 <Input
                   type="email"
-                  placeholder="coach@example.com"
+                  placeholder="sheenumathur10@gmail.com"
                   value={newCoachEmail}
                   onChange={(e) => setNewCoachEmail(e.target.value)}
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label>Password *</Label>
-                <Input
-                  type="password"
-                  placeholder="Minimum 6 characters"
-                  value={newCoachPassword}
-                  onChange={(e) => setNewCoachPassword(e.target.value)}
-                />
-              </div>
-
-              <Alert className="bg-blue-50 border-blue-500">
-                <AlertDescription className="text-sm">
+              <Alert className="bg-green-50 border-green-300">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                <AlertDescription className="text-sm text-green-900">
                   The health coach will be created with 'student_coach' role. You can assign a plan to them after creation.
                 </AlertDescription>
               </Alert>
@@ -940,7 +929,7 @@ export default function UserPermissionManagement() {
                   className="flex-1 bg-gradient-to-r from-orange-500 to-red-500"
                 >
                   <UserPlus className="w-4 h-4 mr-2" />
-                  {createCoachMutation.isPending ? 'Creating...' : 'Create Coach'}
+                  {createCoachMutation.isPending ? 'Sending...' : 'Create Coach'}
                 </Button>
               </div>
             </div>
