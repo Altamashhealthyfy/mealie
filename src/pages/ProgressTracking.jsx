@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import GoalCard from "../components/progress/GoalCard";
 import WellnessCharts from "../components/progress/WellnessCharts";
+import AdvancedAnalyticsDashboard from "../components/progress/AdvancedAnalyticsDashboard";
 
 export default function ProgressTracking() {
   const queryClient = useQueryClient();
@@ -236,6 +237,18 @@ export default function ProgressTracking() {
     date: format(new Date(log.date), 'MMM d'),
     weight: log.weight,
   }));
+
+  const { data: mealPlan } = useQuery({
+    queryKey: ['activeMealPlan', clientProfile?.id],
+    queryFn: async () => {
+      const plans = await base44.entities.MealPlan.filter({ 
+        client_id: clientProfile?.id,
+        active: true 
+      });
+      return plans[0] || null;
+    },
+    enabled: !!clientProfile?.id,
+  });
 
   const activeGoals = goals.filter(g => g.status === 'active');
   const completedGoals = goals.filter(g => g.status === 'completed');
@@ -636,6 +649,12 @@ export default function ProgressTracking() {
             )}
           </div>
         )}
+
+        {/* Advanced Analytics */}
+        <div>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Advanced Analytics</h2>
+          <AdvancedAnalyticsDashboard progressLogs={progressLogs} mealPlan={mealPlan} />
+        </div>
 
         {/* Charts Tabs */}
         <Tabs defaultValue="weight" className="space-y-4 sm:space-y-6">
