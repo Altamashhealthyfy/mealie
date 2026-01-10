@@ -21,6 +21,7 @@ export default function ClientDashboard() {
   const [feedback, setFeedback] = React.useState("");
   const [showFeedbackDialog, setShowFeedbackDialog] = React.useState(false);
   const [showPlanDialog, setShowPlanDialog] = React.useState(false);
+  const [showDownloadOptionsDialog, setShowDownloadOptionsDialog] = React.useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -843,7 +844,7 @@ export default function ClientDashboard() {
                 </Dialog>
 
                 <Button 
-                  onClick={handleDownloadPlan}
+                  onClick={() => setShowDownloadOptionsDialog(true)}
                   variant="outline"
                   className="flex-1 border-green-500 text-green-700 hover:bg-green-50"
                 >
@@ -1066,6 +1067,43 @@ export default function ClientDashboard() {
             </CardContent>
           </Card>
         )}
+
+        {/* Download Options Dialog */}
+        <Dialog open={showDownloadOptionsDialog} onOpenChange={setShowDownloadOptionsDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">Download Meal Plan</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 pt-4">
+              <p className="text-sm text-gray-600">Choose your download format:</p>
+              
+              <Button
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white"
+                onClick={() => handleDownloadPlan(true)}
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                With Calories & Nutrition Info
+              </Button>
+              
+              <Button
+                variant="outline"
+                className="w-full border-2 border-orange-500 text-orange-600 hover:bg-orange-50"
+                onClick={() => handleDownloadPlan(false)}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Without Calories (Food Items Only)
+              </Button>
+              
+              <Button
+                variant="ghost"
+                className="w-full"
+                onClick={() => setShowDownloadOptionsDialog(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Recent Activity Summary */}
         <Card className="border-none shadow-lg">
