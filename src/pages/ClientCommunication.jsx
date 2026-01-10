@@ -366,7 +366,7 @@ export default function ClientCommunication() {
                 style={{ height: 'calc(100vh - 380px)' }}
                 onScrollCapture={handleScroll}
               >
-                <div className="p-6 space-y-4">
+                <div className="p-2 sm:p-4 md:p-6 space-y-3 sm:space-y-4">
                   {messages.length === 0 ? (
                     <div className="text-center py-12">
                       <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
@@ -392,14 +392,14 @@ export default function ClientCommunication() {
                           className={`flex ${isFromClient ? 'justify-end' : 'justify-start'}`}
                         >
                           <div
-                            className={`max-w-[70%] rounded-2xl p-4 shadow-md ${
+                            className={`max-w-[95%] sm:max-w-[80%] md:max-w-[70%] rounded-2xl p-3 sm:p-4 shadow-md ${
                               isFromClient
                                 ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
                                 : 'bg-white text-gray-900 border border-gray-200'
                             }`}
                           >
                             {message.message && (
-                              <p className="text-sm leading-relaxed whitespace-pre-wrap mb-2">{message.message}</p>
+                              <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap mb-2">{message.message}</p>
                             )}
                             
                             {renderAttachment(message, isFromClient)}
