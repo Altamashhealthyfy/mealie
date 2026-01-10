@@ -850,6 +850,7 @@ Enjoy your cooking! 🍽️✨
                       <SelectItem value="all">All Types</SelectItem>
                       <SelectItem value="veg">Vegetarian</SelectItem>
                       <SelectItem value="non_veg">Non-Veg</SelectItem>
+                      <SelectItem value="eggetarian">Eggetarian</SelectItem>
                       <SelectItem value="jain">Jain</SelectItem>
                     </SelectContent>
                   </Select>
@@ -1175,6 +1176,7 @@ Enjoy your cooking! 🍽️✨
                       <SelectContent>
                         <SelectItem value="veg">Vegetarian</SelectItem>
                         <SelectItem value="non_veg">Non-Veg</SelectItem>
+                        <SelectItem value="eggetarian">Eggetarian</SelectItem>
                         <SelectItem value="jain">Jain</SelectItem>
                       </SelectContent>
                     </Select>
