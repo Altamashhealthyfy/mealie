@@ -704,16 +704,22 @@ export default function Layout({ children, currentPageName }) {
                     {filteredPaymentNav.map((item) => (
                       <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton
-                          asChild
-                          className={`hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 rounded-xl mb-1 ${
-                            location.pathname === item.url ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 hover:text-white shadow-md' : ''
-                          }`}
-                        >
-                          <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
-                            <item.icon className="w-5 h-5" />
-                            <span className="font-medium">{item.title}</span>
-                          </Link>
-                        </SidebarMenuButton>
+                           asChild
+                           className={`hover:bg-orange-50 transition-all duration-200 rounded-xl mb-1 ${
+                             location.pathname === item.url ? 'text-white hover:text-white shadow-md' : ''
+                           }`}
+                           style={location.pathname === item.url ? {
+                             background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
+                             color: '#ffffff'
+                           } : {
+                             color: themeColors.menu_text_color
+                           }}
+                         >
+                           <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
+                             <item.icon className="w-5 h-5" />
+                             <span className="font-medium">{item.title}</span>
+                           </Link>
+                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))}
                   </SidebarMenu>
@@ -731,23 +737,25 @@ export default function Layout({ children, currentPageName }) {
                     {filteredBusinessNav.map((item) => (
                       <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton
-                          asChild
-                          className={`hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 rounded-xl mb-1 ${
-                            location.pathname === item.url ? 'text-white hover:text-white shadow-md' : ''
-                          }`}
-                          style={location.pathname === item.url ? {
-                            background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
-                            color: '#ffffff'
-                          } : {}}
-                        >
-                          <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
-                            <item.icon className="w-5 h-5" />
-                            <span className="font-medium">{item.title}</span>
-                            {item.badge && (
-                              <Badge className="ml-auto bg-green-600 text-white">{item.badge}</Badge>
-                            )}
-                          </Link>
-                        </SidebarMenuButton>
+                           asChild
+                           className={`hover:bg-orange-50 transition-all duration-200 rounded-xl mb-1 ${
+                             location.pathname === item.url ? 'text-white hover:text-white shadow-md' : ''
+                           }`}
+                           style={location.pathname === item.url ? {
+                             background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
+                             color: '#ffffff'
+                           } : {
+                             color: themeColors.menu_text_color
+                           }}
+                         >
+                           <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
+                             <item.icon className="w-5 h-5" />
+                             <span className="font-medium">{item.title}</span>
+                             {item.badge && (
+                               <Badge className="ml-auto bg-green-600 text-white">{item.badge}</Badge>
+                             )}
+                           </Link>
+                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))}
                   </SidebarMenu>
