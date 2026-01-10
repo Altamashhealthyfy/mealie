@@ -5,11 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Palette, RefreshCw, Save, Eye } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function PlatformColorCustomization() {
   const queryClient = useQueryClient();
+  const [activePanel, setActivePanel] = useState("platform");
   const [colors, setColors] = useState({
     primary_from: "#f97316",
     primary_to: "#dc2626",
@@ -113,11 +115,30 @@ export default function PlatformColorCustomization() {
 
         <Alert className="bg-blue-50 border-blue-300">
           <AlertDescription className="text-blue-900">
-            <strong>Note:</strong> Changes will apply after page refresh. These colors affect the entire platform including sidebar, buttons, and accents.
+            <strong>Note:</strong> Changes will apply after page refresh. Select a panel type and customize its colors independently.
           </AlertDescription>
         </Alert>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Panel Selection Tabs */}
+        <Tabs value={activePanel} onValueChange={setActivePanel} className="w-full">
+          <TabsList className="grid w-full max-w-2xl grid-cols-3 mb-6">
+            <TabsTrigger value="platform" className="flex items-center gap-2">
+              <Palette className="w-4 h-4" />
+              Platform Default
+            </TabsTrigger>
+            <TabsTrigger value="health_coach" className="flex items-center gap-2">
+              <Palette className="w-4 h-4" />
+              Health Coach Panel
+            </TabsTrigger>
+            <TabsTrigger value="client" className="flex items-center gap-2">
+              <Palette className="w-4 h-4" />
+              Client Panel
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Platform Panel Colors */}
+          <TabsContent value="platform">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Color Settings */}
           <Card className="border-none shadow-lg">
             <CardHeader>
@@ -164,7 +185,7 @@ export default function PlatformColorCustomization() {
               </div>
 
               <div>
-                <Label className="text-sm font-medium mb-2 block">Sidebar Background (Default)</Label>
+                <Label className="text-sm font-medium mb-2 block">Sidebar Background</Label>
                 <div className="flex gap-3 items-center">
                   <Input
                     type="color"
@@ -176,44 +197,6 @@ export default function PlatformColorCustomization() {
                     type="text"
                     value={colors.sidebar_bg}
                     onChange={(e) => setColors({ ...colors, sidebar_bg: e.target.value })}
-                    className="flex-1"
-                    placeholder="#ffffff"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Health Coach Panel Sidebar</Label>
-                <div className="flex gap-3 items-center">
-                  <Input
-                    type="color"
-                    value={colors.health_coach_sidebar_bg}
-                    onChange={(e) => setColors({ ...colors, health_coach_sidebar_bg: e.target.value })}
-                    className="w-20 h-12 cursor-pointer"
-                  />
-                  <Input
-                    type="text"
-                    value={colors.health_coach_sidebar_bg}
-                    onChange={(e) => setColors({ ...colors, health_coach_sidebar_bg: e.target.value })}
-                    className="flex-1"
-                    placeholder="#ffffff"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Client Panel Sidebar</Label>
-                <div className="flex gap-3 items-center">
-                  <Input
-                    type="color"
-                    value={colors.client_sidebar_bg}
-                    onChange={(e) => setColors({ ...colors, client_sidebar_bg: e.target.value })}
-                    className="w-20 h-12 cursor-pointer"
-                  />
-                  <Input
-                    type="text"
-                    value={colors.client_sidebar_bg}
-                    onChange={(e) => setColors({ ...colors, client_sidebar_bg: e.target.value })}
                     className="flex-1"
                     placeholder="#ffffff"
                   />
@@ -344,35 +327,12 @@ export default function PlatformColorCustomization() {
                 </div>
               </div>
 
-              {/* Health Coach Sidebar Preview */}
+              {/* Sidebar Preview */}
               <div>
-                <Label className="text-sm font-medium mb-2 block">Health Coach Panel Preview</Label>
+                <Label className="text-sm font-medium mb-2 block">Sidebar Preview</Label>
                 <div 
                   className="h-28 rounded-lg shadow-md p-3"
-                  style={{ backgroundColor: colors.health_coach_sidebar_bg }}
-                >
-                  <div className="space-y-1">
-                    <div 
-                      className="h-8 rounded flex items-center px-2 text-white text-sm font-medium"
-                      style={{ 
-                        background: `linear-gradient(to right, ${colors.primary_from}, ${colors.primary_to})` 
-                      }}
-                    >
-                      Active Menu Item
-                    </div>
-                    <div className="h-8 rounded flex items-center px-2 text-sm font-medium" style={{ color: colors.menu_text_color }}>
-                      Inactive Menu Item
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Client Sidebar Preview */}
-              <div>
-                <Label className="text-sm font-medium mb-2 block">Client Panel Preview</Label>
-                <div 
-                  className="h-28 rounded-lg shadow-md p-3"
-                  style={{ backgroundColor: colors.client_sidebar_bg }}
+                  style={{ backgroundColor: colors.sidebar_bg }}
                 >
                   <div className="space-y-1">
                     <div 
@@ -442,9 +402,179 @@ export default function PlatformColorCustomization() {
                 </div>
               </div>
             </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
-}
+            </Card>
+            </div>
+            </TabsContent>
+
+            {/* Health Coach Panel Colors */}
+            <TabsContent value="health_coach">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+             <Card className="border-none shadow-lg">
+               <CardHeader>
+                 <CardTitle>Health Coach Panel Colors</CardTitle>
+                 <CardDescription>Customize colors for health coach interface</CardDescription>
+               </CardHeader>
+               <CardContent className="space-y-6">
+                 <div>
+                   <Label className="text-sm font-medium mb-2 block">Sidebar Background</Label>
+                   <div className="flex gap-3 items-center">
+                     <Input
+                       type="color"
+                       value={colors.health_coach_sidebar_bg}
+                       onChange={(e) => setColors({ ...colors, health_coach_sidebar_bg: e.target.value })}
+                       className="w-20 h-12 cursor-pointer"
+                     />
+                     <Input
+                       type="text"
+                       value={colors.health_coach_sidebar_bg}
+                       onChange={(e) => setColors({ ...colors, health_coach_sidebar_bg: e.target.value })}
+                       className="flex-1"
+                       placeholder="#ffffff"
+                     />
+                   </div>
+                 </div>
+
+                 <div className="flex gap-3 pt-4">
+                   <Button
+                     onClick={handleReset}
+                     variant="outline"
+                     className="flex-1"
+                   >
+                     <RefreshCw className="w-4 h-4 mr-2" />
+                     Reset
+                   </Button>
+                   <Button
+                     onClick={handleSave}
+                     disabled={updateColorsMutation.isPending}
+                     className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                   >
+                     <Save className="w-4 h-4 mr-2" />
+                     {updateColorsMutation.isPending ? 'Saving...' : 'Save'}
+                   </Button>
+                 </div>
+               </CardContent>
+             </Card>
+
+             <Card className="border-none shadow-lg">
+               <CardHeader>
+                 <CardTitle className="flex items-center gap-2">
+                   <Eye className="w-5 h-5" />
+                   Preview
+                 </CardTitle>
+                 <CardDescription>How it will look</CardDescription>
+               </CardHeader>
+               <CardContent className="space-y-4">
+                 <div>
+                   <Label className="text-sm font-medium mb-2 block">Health Coach Sidebar</Label>
+                   <div 
+                     className="h-32 rounded-lg shadow-md p-3"
+                     style={{ backgroundColor: colors.health_coach_sidebar_bg }}
+                   >
+                     <div className="space-y-2">
+                       <div 
+                         className="h-10 rounded flex items-center px-3 text-white text-sm font-medium"
+                         style={{ 
+                           background: `linear-gradient(to right, ${colors.primary_from}, ${colors.primary_to})` 
+                         }}
+                       >
+                         Active Menu
+                       </div>
+                       <div className="h-10 rounded flex items-center px-3 text-sm font-medium" style={{ color: colors.menu_text_color }}>
+                         Inactive Menu
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               </CardContent>
+             </Card>
+            </div>
+            </TabsContent>
+
+            {/* Client Panel Colors */}
+            <TabsContent value="client">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+             <Card className="border-none shadow-lg">
+               <CardHeader>
+                 <CardTitle>Client Panel Colors</CardTitle>
+                 <CardDescription>Customize colors for client interface</CardDescription>
+               </CardHeader>
+               <CardContent className="space-y-6">
+                 <div>
+                   <Label className="text-sm font-medium mb-2 block">Sidebar Background</Label>
+                   <div className="flex gap-3 items-center">
+                     <Input
+                       type="color"
+                       value={colors.client_sidebar_bg}
+                       onChange={(e) => setColors({ ...colors, client_sidebar_bg: e.target.value })}
+                       className="w-20 h-12 cursor-pointer"
+                     />
+                     <Input
+                       type="text"
+                       value={colors.client_sidebar_bg}
+                       onChange={(e) => setColors({ ...colors, client_sidebar_bg: e.target.value })}
+                       className="flex-1"
+                       placeholder="#ffffff"
+                     />
+                   </div>
+                 </div>
+
+                 <div className="flex gap-3 pt-4">
+                   <Button
+                     onClick={handleReset}
+                     variant="outline"
+                     className="flex-1"
+                   >
+                     <RefreshCw className="w-4 h-4 mr-2" />
+                     Reset
+                   </Button>
+                   <Button
+                     onClick={handleSave}
+                     disabled={updateColorsMutation.isPending}
+                     className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                   >
+                     <Save className="w-4 h-4 mr-2" />
+                     {updateColorsMutation.isPending ? 'Saving...' : 'Save'}
+                   </Button>
+                 </div>
+               </CardContent>
+             </Card>
+
+             <Card className="border-none shadow-lg">
+               <CardHeader>
+                 <CardTitle className="flex items-center gap-2">
+                   <Eye className="w-5 h-5" />
+                   Preview
+                 </CardTitle>
+                 <CardDescription>How it will look</CardDescription>
+               </CardHeader>
+               <CardContent className="space-y-4">
+                 <div>
+                   <Label className="text-sm font-medium mb-2 block">Client Sidebar</Label>
+                   <div 
+                     className="h-32 rounded-lg shadow-md p-3"
+                     style={{ backgroundColor: colors.client_sidebar_bg }}
+                   >
+                     <div className="space-y-2">
+                       <div 
+                         className="h-10 rounded flex items-center px-3 text-white text-sm font-medium"
+                         style={{ 
+                           background: `linear-gradient(to right, ${colors.primary_from}, ${colors.primary_to})` 
+                         }}
+                       >
+                         Active Menu
+                       </div>
+                       <div className="h-10 rounded flex items-center px-3 text-sm font-medium" style={{ color: colors.menu_text_color }}>
+                         Inactive Menu
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               </CardContent>
+             </Card>
+            </div>
+            </TabsContent>
+            </Tabs>
+            </div>
+            </div>
+            );
+            }
