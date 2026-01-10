@@ -58,8 +58,9 @@ export default function PlatformColorCustomization() {
       }
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['coachProfile', user?.email] });
       queryClient.invalidateQueries({ queryKey: ['coachProfile'] });
-      alert("✅ Colors saved! You may need to refresh the page to see all changes.");
+      alert("✅ Colors saved! Changes applied immediately.");
     },
     onError: (err) => {
       console.error("Failed to save colors:", err);
