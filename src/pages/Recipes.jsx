@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import PageTour from "@/components/common/PageTour";
+
 import TourButton from "@/components/common/TourButton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -875,7 +875,7 @@ Enjoy your cooking! 🍽️✨
                       <SelectItem value="all">All Times</SelectItem>
                       <SelectItem value="quick">⚡ Quick (≤30 min)</SelectItem>
                       <SelectItem value="medium">⏱️ Medium (30-60 min)</SelectItem>
-                      <SelectItem value="long">🕐 Long (>60 min)</SelectItem>
+                      <SelectItem value="long">🕐 Long (&gt;60 min)</SelectItem>
                     </SelectContent>
                   </Select>
                   <Select value={dietaryFilter} onValueChange={setDietaryFilter}>
