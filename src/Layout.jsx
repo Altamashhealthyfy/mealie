@@ -602,7 +602,8 @@ export default function Layout({ children, currentPageName }) {
     primary_from: '#f97316',
     primary_to: '#dc2626',
     sidebar_bg: '#ffffff',
-    accent_color: '#f97316'
+    accent_color: '#f97316',
+    menu_text_color: '#22c55e'
   };
 
   const handleLogout = async () => {
@@ -675,7 +676,7 @@ export default function Layout({ children, currentPageName }) {
                           background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
                           color: '#ffffff'
                         } : {
-                          color: themeColors.accent_color
+                          color: themeColors.menu_text_color
                         }}
                       >
                         <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
