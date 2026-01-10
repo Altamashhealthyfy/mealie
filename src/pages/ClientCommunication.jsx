@@ -347,14 +347,14 @@ export default function ClientCommunication() {
                 <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
                   <MessageSquare className="w-6 h-6 text-white" />
                 </div>
-                <div>
-                  <CardTitle className="text-xl">
+                <div className="min-w-0">
+                  <CardTitle className="text-base sm:text-lg md:text-xl break-words">
                     {clientProfile?.assigned_coach ? 
                       clientProfile.assigned_coach.split('@')[0].charAt(0).toUpperCase() + 
                       clientProfile.assigned_coach.split('@')[0].slice(1) : 
                       'Your Health Coach'}
                   </CardTitle>
-                  <p className="text-sm text-gray-600">Always here to help you 💚</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Always here to help you 💚</p>
                 </div>
               </div>
             </CardHeader>
