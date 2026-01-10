@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   MessageSquare,
   Send,
@@ -19,7 +20,8 @@ import {
   Image as ImageIcon,
   Video,
   File,
-  Download
+  Download,
+  Users
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -29,6 +31,7 @@ export default function ClientCommunication() {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [attachedFile, setAttachedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [activeTab, setActiveTab] = useState("direct");
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -92,6 +95,30 @@ export default function ClientCommunication() {
       );
     },
     enabled: !!clientProfile?.id,
+    initialData: [],
+    refetchInterval: 5000,
+  });
+
+  const { data: clientGroups = [] } = useQuery({
+    queryKey: ['myClientGroups', clientProfile?.id],
+    queryFn: async () => {
+      if (!clientProfile?.id) return [];
+      const allGroups = await base44.entities.ClientGroup.list();
+      return allGroups.filter(g => g.client_ids?.includes(clientProfile.id));
+    },
+    enabled: !!clientProfile?.id,
+    initialData: [],
+    refetchInterval: 5000,
+  });
+
+  const { data: groupMessages = [] } = useQuery({
+    queryKey: ['myGroupMessages', clientGroups.map(g => g.id).join(',')],
+    queryFn: async () => {
+      if (clientGroups.length === 0) return [];
+      const msgs = await base44.entities.Message.list('-created_date', 500);
+      return msgs.filter(m => clientGroups.some(g => m.group_id === g.id));
+    },
+    enabled: clientGroups.length > 0,
     initialData: [],
     refetchInterval: 5000,
   });
@@ -300,7 +327,20 @@ export default function ClientCommunication() {
         </div>
 
         <Card className="border-none shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 200px)' }}>
-          <div className="flex flex-col h-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+            <TabsList className="rounded-none border-b w-full grid grid-cols-2">
+              <TabsTrigger value="direct" className="flex gap-2">
+                <MessageSquare className="w-4 h-4" />
+                Direct
+              </TabsTrigger>
+              <TabsTrigger value="groups" className="flex gap-2">
+                <Users className="w-4 h-4" />
+                Groups {clientGroups.length > 0 && `(${clientGroups.length})`}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="direct" className="flex-1 mt-0">
+            <div className="flex flex-col h-full">
             {/* Chat Header */}
             <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50 flex-shrink-0">
               <div className="flex items-center gap-3">
@@ -483,7 +523,51 @@ export default function ClientCommunication() {
                 <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono ml-1">Enter</kbd> to send
               </p>
             </div>
-          </div>
+            </div>
+            </TabsContent>
+
+            <TabsContent value="groups" className="flex-1 mt-0 overflow-y-auto">
+              {clientGroups.length === 0 ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <Users className="w-20 h-20 mx-auto text-gray-300 mb-4" />
+                    <h3 className="text-2xl font-semibold text-gray-900 mb-2">No group messages</h3>
+                    <p className="text-gray-600">Your coach hasn't added you to any groups yet</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-6 space-y-6">
+                  {clientGroups.map(group => {
+                    const groupMsgs = groupMessages.filter(m => m.group_id === group.id).sort((a, b) =>
+                      new Date(a.created_date) - new Date(b.created_date)
+                    );
+                    return (
+                      <Card key={group.id} className="border-l-4 border-l-blue-500">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <Users className="w-5 h-5 text-blue-500" />
+                            {group.name}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3 max-h-96 overflow-y-auto">
+                          {groupMsgs.length === 0 ? (
+                            <p className="text-sm text-gray-500">No messages yet</p>
+                          ) : (
+                            groupMsgs.map(msg => (
+                              <div key={msg.id} className="bg-gray-50 p-3 rounded-lg">
+                                <p className="text-sm text-gray-900">{msg.message}</p>
+                                <p className="text-xs text-gray-500 mt-1">{formatToIST(msg.created_date)}</p>
+                              </div>
+                            ))
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </Card>
       </div>
     </div>
