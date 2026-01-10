@@ -582,7 +582,16 @@ export default function ClientRecipes() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredRecipes.map((recipe) => (
-                <Card key={recipe.id} className="border-none shadow-lg hover:shadow-xl transition-all">
+                <Card key={recipe.id} className="border-none shadow-lg hover:shadow-xl transition-all overflow-hidden">
+                  {recipe.image_url && (
+                    <div className="w-full h-48 overflow-hidden">
+                      <img 
+                        src={recipe.image_url} 
+                        alt={recipe.name}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  )}
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <CardTitle className="text-xl line-clamp-2">{recipe.name}</CardTitle>
@@ -664,7 +673,16 @@ export default function ClientRecipes() {
                     if (!matchedRecipe) return null;
 
                     return (
-                      <Card key={idx} className="border-none shadow-lg hover:shadow-xl transition-all">
+                      <Card key={idx} className="border-none shadow-lg hover:shadow-xl transition-all overflow-hidden">
+                        {matchedRecipe.image_url && (
+                          <div className="w-full h-48 overflow-hidden">
+                            <img 
+                              src={matchedRecipe.image_url} 
+                              alt={matchedRecipe.name}
+                              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                            />
+                          </div>
+                        )}
                         <CardHeader>
                           <div className="flex items-start justify-between">
                             <CardTitle className="text-xl line-clamp-2">{matchedRecipe.name}</CardTitle>
@@ -707,7 +725,16 @@ export default function ClientRecipes() {
             {favoriteRecipes.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {favoriteRecipes.map((recipe) => (
-                  <Card key={recipe.id} className="border-none shadow-lg hover:shadow-xl transition-all">
+                  <Card key={recipe.id} className="border-none shadow-lg hover:shadow-xl transition-all overflow-hidden">
+                    {recipe.image_url && (
+                      <div className="w-full h-48 overflow-hidden">
+                        <img 
+                          src={recipe.image_url} 
+                          alt={recipe.name}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    )}
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <CardTitle className="text-xl line-clamp-2">{recipe.name}</CardTitle>
@@ -748,7 +775,16 @@ export default function ClientRecipes() {
             {myRecipes.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {myRecipes.map((recipe) => (
-                  <Card key={recipe.id} className="border-none shadow-lg hover:shadow-xl transition-all border-2 border-blue-200">
+                  <Card key={recipe.id} className="border-none shadow-lg hover:shadow-xl transition-all border-2 border-blue-200 overflow-hidden">
+                    {recipe.image_url && (
+                      <div className="w-full h-48 overflow-hidden">
+                        <img 
+                          src={recipe.image_url} 
+                          alt={recipe.name}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                    )}
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div>
@@ -804,6 +840,16 @@ export default function ClientRecipes() {
 
             {viewingRecipe && (
               <div className="space-y-6">
+                {viewingRecipe.image_url && (
+                  <div className="w-full h-64 md:h-96 overflow-hidden rounded-lg">
+                    <img 
+                      src={viewingRecipe.image_url} 
+                      alt={viewingRecipe.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                
                 <p className="text-gray-700">{viewingRecipe.description}</p>
 
                 <div className="flex flex-wrap gap-3">
