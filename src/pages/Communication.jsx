@@ -23,7 +23,9 @@ import {
   Image as ImageIcon,
   Video,
   File,
-  Download
+  Download,
+  Users,
+  Star
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
@@ -36,6 +38,9 @@ export default function Communication() {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [attachedFile, setAttachedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [messageMode, setMessageMode] = useState('one-to-one'); // 'one-to-one' or 'group'
+  const [isImportant, setIsImportant] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState(null);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -146,6 +151,7 @@ export default function Communication() {
       queryClient.invalidateQueries(['allMessages']);
       setMessageText("");
       setAttachedFile(null);
+      setIsImportant(false);
       setTimeout(() => scrollToBottom("smooth"), 100);
       setTimeout(() => textareaRef.current?.focus(), 150);
     },
@@ -159,6 +165,51 @@ export default function Communication() {
       });
     }
   });
+
+  const handleScheduledMessage = async (scheduledDateTime) => {
+    if (!selectedClient && !selectedGroup) {
+      toast({
+        title: "Select recipient",
+        description: "Choose a client or group first.",
+        variant: "destructive",
+        duration: 2000,
+      });
+      return;
+    }
+
+    const messageData = {
+      message: messageText.trim() || '(File attachment)',
+      is_scheduled: true,
+      scheduled_time: scheduledDateTime.toISOString(),
+      is_important: isImportant,
+      sender_type: 'dietitian',
+    };
+
+    if (selectedClient) messageData.client_id = selectedClient.id;
+    if (selectedGroup) messageData.group_id = selectedGroup.id;
+
+    if (attachedFile) {
+      setUploading(true);
+      try {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file: attachedFile });
+        messageData.attachment_url = file_url;
+        messageData.attachment_name = attachedFile.name;
+        messageData.attachment_type = attachedFile.type;
+        messageData.attachment_size = attachedFile.size;
+      } catch (error) {
+        setUploading(false);
+        return;
+      }
+      setUploading(false);
+    }
+
+    sendMessageMutation.mutate(messageData);
+    toast({
+      title: "Message scheduled",
+      description: `Message scheduled for ${scheduledDateTime.toLocaleString()}`,
+      duration: 3000,
+    });
+  };
 
   const markAsReadMutation = useMutation({
     mutationFn: (id) => base44.entities.Message.update(id, { read: true }),
@@ -267,10 +318,10 @@ export default function Communication() {
   };
 
   const handleSendMessage = async () => {
-    if (!selectedClient) {
+    if (!selectedClient && !selectedGroup) {
       toast({
-        title: "No client selected",
-        description: "Please select a client first.",
+        title: "No recipient selected",
+        description: "Please select a client or group first.",
         variant: "destructive",
         duration: 2000,
       });
@@ -288,11 +339,14 @@ export default function Communication() {
     }
 
     let messageData = {
-      client_id: selectedClient.id,
       sender_type: 'dietitian',
       message: messageText.trim() || '(File attachment)',
       read: false,
+      is_important: isImportant,
     };
+
+    if (selectedClient) messageData.client_id = selectedClient.id;
+    if (selectedGroup) messageData.group_id = selectedGroup.id;
 
     if (attachedFile) {
       setUploading(true);
@@ -425,9 +479,22 @@ export default function Communication() {
         </div>
 
         <Card className="border-none shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 160px)' }}>
-          <div className="flex flex-col md:grid md:grid-cols-12 h-full">
-            {/* Client List Sidebar */}
-            <div className={`${selectedClient ? 'hidden md:flex' : 'flex'} md:col-span-4 border-r border-gray-200 flex-col h-full md:h-auto`}>
+          <Tabs defaultValue="direct" className="h-full">
+            <TabsList className="rounded-none border-b w-full grid grid-cols-2">
+              <TabsTrigger value="direct" className="flex gap-2">
+                <MessageSquare className="w-4 h-4" />
+                Direct Messages
+              </TabsTrigger>
+              <TabsTrigger value="groups" className="flex gap-2">
+                <Users className="w-4 h-4" />
+                Groups
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="direct" className="h-full mt-0">
+              <div className="flex flex-col md:grid md:grid-cols-12 h-full">
+                {/* Client List Sidebar */}
+                <div className={`${selectedClient ? 'hidden md:flex' : 'flex'} md:col-span-4 border-r border-gray-200 flex-col h-full md:h-auto`}>
               <CardHeader className="border-b border-gray-200 flex-shrink-0" id="message-clients-list">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
