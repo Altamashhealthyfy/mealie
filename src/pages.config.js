@@ -77,6 +77,8 @@ import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import ResourceLibrary from './pages/ResourceLibrary';
 import ClientResourceLibrary from './pages/ClientResourceLibrary';
+import ResourceLibraryEnhanced from './pages/ResourceLibraryEnhanced';
+import ClientResourceTracker from './pages/ClientResourceTracker';
 import __Layout from './Layout.jsx';
 
 
@@ -160,6 +162,8 @@ export const PAGES = {
     "WhiteLabelSubscription": WhiteLabelSubscription,
     "ResourceLibrary": ResourceLibrary,
     "ClientResourceLibrary": ClientResourceLibrary,
+    "ResourceLibraryEnhanced": ResourceLibraryEnhanced,
+    "ClientResourceTracker": ClientResourceTracker,
 }
 
 export const pagesConfig = {
