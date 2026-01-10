@@ -93,6 +93,19 @@ export default function GroupMessaging({ userEmail }) {
     }
   });
 
+  const deleteGroupMutation = useMutation({
+    mutationFn: (groupId) => base44.entities.ClientGroup.delete(groupId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clientGroups', userEmail] });
+      setSelectedGroup(null);
+      toast.success('Group deleted!');
+    },
+    onError: (error) => {
+      console.error('Failed to delete group:', error);
+      toast.error('Failed to delete group');
+    }
+  });
+
   const handleCreateGroup = () => {
     if (groupName.trim()) {
       createGroupMutation.mutate({
