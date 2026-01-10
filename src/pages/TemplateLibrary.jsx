@@ -34,6 +34,7 @@ export default function TemplateLibrary() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [calorieFilter, setCalorieFilter] = useState("all");
+  const [customCalorieSearch, setCustomCalorieSearch] = useState("");
   const [foodPrefFilter, setFoodPrefFilter] = useState("all");
   const [regionFilter, setRegionFilter] = useState("all");
   const [diseaseFilter, setDiseaseFilter] = useState("all");
@@ -292,9 +293,22 @@ export default function TemplateLibrary() {
     const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          template.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === "all" || template.category === categoryFilter;
-    const matchesCalories = calorieFilter === "all" || 
-                           (template.target_calories && 
-                            Math.abs(template.target_calories - parseInt(calorieFilter)) <= 100);
+    
+    // Calorie filtering: preset dropdown OR custom search
+    const matchesCalories = (() => {
+      if (customCalorieSearch) {
+        // Custom calorie search with ±100 range
+        const customCalories = parseInt(customCalorieSearch);
+        return template.target_calories && 
+               Math.abs(template.target_calories - customCalories) <= 100;
+      } else if (calorieFilter !== "all") {
+        // Preset dropdown filter
+        return template.target_calories && 
+               Math.abs(template.target_calories - parseInt(calorieFilter)) <= 100;
+      }
+      return true; // No filter applied
+    })();
+    
     const matchesFoodPref = foodPrefFilter === "all" || 
                            template.food_preference === foodPrefFilter || 
                            template.food_preference === "all";
@@ -703,7 +717,13 @@ export default function TemplateLibrary() {
                   </SelectContent>
                 </Select>
 
-                <Select value={calorieFilter} onValueChange={setCalorieFilter}>
+                <Select 
+                  value={calorieFilter} 
+                  onValueChange={(value) => {
+                    setCalorieFilter(value);
+                    if (value !== "all") setCustomCalorieSearch(""); // Clear custom when preset selected
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Calories" />
                   </SelectTrigger>
@@ -768,6 +788,26 @@ export default function TemplateLibrary() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Custom Calorie Search Input */}
+              <div className="flex items-center gap-3">
+                <Label className="text-sm text-gray-700 whitespace-nowrap">Or search custom calories:</Label>
+                <Input
+                  type="number"
+                  placeholder="e.g., 1750"
+                  value={customCalorieSearch}
+                  onChange={(e) => {
+                    setCustomCalorieSearch(e.target.value);
+                    if (e.target.value) setCalorieFilter("all"); // Clear preset when custom entered
+                  }}
+                  className="max-w-xs"
+                />
+                {customCalorieSearch && (
+                  <Badge className="bg-orange-100 text-orange-700">
+                    Searching: {customCalorieSearch} kcal (±100)
+                  </Badge>
+                )}
               </div>
 
               {/* Active Filters Display */}
