@@ -1278,12 +1278,38 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
       return;
     }
 
+    // Calculate target calories if not set
+    let targetCalories = aiTemplateForm.target_calories;
+    if (!targetCalories && aiTemplateForm.age && aiTemplateForm.height && aiTemplateForm.weight) {
+      const age = parseFloat(aiTemplateForm.age);
+      const height = parseFloat(aiTemplateForm.height);
+      const weight = parseFloat(aiTemplateForm.weight);
+      
+      const bmrMale = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+      const bmrFemale = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+      const bmr = (bmrMale + bmrFemale) / 2;
+      const tdee = bmr * 1.375;
+      
+      if (aiTemplateForm.goal === 'weight_loss') {
+        targetCalories = Math.round(tdee - 500);
+      } else if (aiTemplateForm.goal === 'weight_gain' || aiTemplateForm.goal === 'muscle_gain') {
+        targetCalories = Math.round(tdee + 300);
+      } else {
+        targetCalories = Math.round(tdee);
+      }
+    }
+
+    if (!targetCalories) {
+      alert("Unable to determine target calories. Please fill in age, height, and weight.");
+      return;
+    }
+
     saveAITemplateMutation.mutate({
       name: aiTemplateForm.name,
       description: aiTemplateForm.description || `AI-generated ${aiTemplateForm.duration}-day meal plan template`,
-      category: "general",
+      category: aiTemplateForm.goal || "general",
       duration: parseInt(aiTemplateForm.duration),
-      target_calories: parseInt(aiTemplateForm.target_calories),
+      target_calories: parseInt(targetCalories),
       food_preference: aiTemplateForm.food_preference,
       regional_preference: aiTemplateForm.regional_preference,
       meals: aiGeneratedTemplate,
@@ -1291,10 +1317,12 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
       times_used: 0,
       tags: [
         aiTemplateForm.food_preference,
-        `${aiTemplateForm.target_calories}cal`,
+        `${targetCalories}cal`,
         `${aiTemplateForm.duration}days`,
-        "ai-generated"
-      ]
+        "ai-generated",
+        ...(aiTemplateForm.disease_focus || [])
+      ],
+      disease_focus: aiTemplateForm.disease_focus || []
     });
   };
 
