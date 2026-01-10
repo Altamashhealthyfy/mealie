@@ -14,6 +14,8 @@ export default function PlatformColorCustomization() {
     primary_from: "#f97316",
     primary_to: "#dc2626",
     sidebar_bg: "#ffffff",
+    health_coach_sidebar_bg: "#ffffff",
+    client_sidebar_bg: "#ffffff",
     accent_color: "#f97316",
     menu_text_color: "#22c55e",
     highlight_button_color: "#f97316"
@@ -39,6 +41,8 @@ export default function PlatformColorCustomization() {
         primary_from: coachProfile.theme_colors.primary_from || "#f97316",
         primary_to: coachProfile.theme_colors.primary_to || "#dc2626",
         sidebar_bg: coachProfile.theme_colors.sidebar_bg || "#ffffff",
+        health_coach_sidebar_bg: coachProfile.theme_colors.health_coach_sidebar_bg || "#ffffff",
+        client_sidebar_bg: coachProfile.theme_colors.client_sidebar_bg || "#ffffff",
         accent_color: coachProfile.theme_colors.accent_color || "#f97316",
         menu_text_color: coachProfile.theme_colors.menu_text_color || "#22c55e",
         highlight_button_color: coachProfile.theme_colors.highlight_button_color || "#f97316"
@@ -73,6 +77,8 @@ export default function PlatformColorCustomization() {
       primary_from: "#f97316",
       primary_to: "#dc2626",
       sidebar_bg: "#ffffff",
+      health_coach_sidebar_bg: "#ffffff",
+      client_sidebar_bg: "#ffffff",
       accent_color: "#f97316",
       menu_text_color: "#22c55e",
       highlight_button_color: "#f97316"
@@ -158,7 +164,7 @@ export default function PlatformColorCustomization() {
               </div>
 
               <div>
-                <Label className="text-sm font-medium mb-2 block">Sidebar Background</Label>
+                <Label className="text-sm font-medium mb-2 block">Sidebar Background (Default)</Label>
                 <div className="flex gap-3 items-center">
                   <Input
                     type="color"
@@ -170,6 +176,44 @@ export default function PlatformColorCustomization() {
                     type="text"
                     value={colors.sidebar_bg}
                     onChange={(e) => setColors({ ...colors, sidebar_bg: e.target.value })}
+                    className="flex-1"
+                    placeholder="#ffffff"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Health Coach Panel Sidebar</Label>
+                <div className="flex gap-3 items-center">
+                  <Input
+                    type="color"
+                    value={colors.health_coach_sidebar_bg}
+                    onChange={(e) => setColors({ ...colors, health_coach_sidebar_bg: e.target.value })}
+                    className="w-20 h-12 cursor-pointer"
+                  />
+                  <Input
+                    type="text"
+                    value={colors.health_coach_sidebar_bg}
+                    onChange={(e) => setColors({ ...colors, health_coach_sidebar_bg: e.target.value })}
+                    className="flex-1"
+                    placeholder="#ffffff"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Client Panel Sidebar</Label>
+                <div className="flex gap-3 items-center">
+                  <Input
+                    type="color"
+                    value={colors.client_sidebar_bg}
+                    onChange={(e) => setColors({ ...colors, client_sidebar_bg: e.target.value })}
+                    className="w-20 h-12 cursor-pointer"
+                  />
+                  <Input
+                    type="text"
+                    value={colors.client_sidebar_bg}
+                    onChange={(e) => setColors({ ...colors, client_sidebar_bg: e.target.value })}
                     className="flex-1"
                     placeholder="#ffffff"
                   />
@@ -300,23 +344,46 @@ export default function PlatformColorCustomization() {
                 </div>
               </div>
 
-              {/* Sidebar Preview */}
+              {/* Health Coach Sidebar Preview */}
               <div>
-                <Label className="text-sm font-medium mb-2 block">Sidebar Style</Label>
+                <Label className="text-sm font-medium mb-2 block">Health Coach Panel Preview</Label>
                 <div 
-                  className="h-32 rounded-lg shadow-md p-4"
-                  style={{ backgroundColor: colors.sidebar_bg }}
+                  className="h-28 rounded-lg shadow-md p-3"
+                  style={{ backgroundColor: colors.health_coach_sidebar_bg }}
                 >
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <div 
-                      className="h-10 rounded-lg flex items-center px-3 text-white font-medium"
+                      className="h-8 rounded flex items-center px-2 text-white text-sm font-medium"
                       style={{ 
                         background: `linear-gradient(to right, ${colors.primary_from}, ${colors.primary_to})` 
                       }}
                     >
                       Active Menu Item
                     </div>
-                    <div className="h-10 rounded-lg flex items-center px-3 bg-gray-100 text-gray-700">
+                    <div className="h-8 rounded flex items-center px-2 text-sm font-medium" style={{ color: colors.menu_text_color }}>
+                      Inactive Menu Item
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Client Sidebar Preview */}
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Client Panel Preview</Label>
+                <div 
+                  className="h-28 rounded-lg shadow-md p-3"
+                  style={{ backgroundColor: colors.client_sidebar_bg }}
+                >
+                  <div className="space-y-1">
+                    <div 
+                      className="h-8 rounded flex items-center px-2 text-white text-sm font-medium"
+                      style={{ 
+                        background: `linear-gradient(to right, ${colors.primary_from}, ${colors.primary_to})` 
+                      }}
+                    >
+                      Active Menu Item
+                    </div>
+                    <div className="h-8 rounded flex items-center px-2 text-sm font-medium" style={{ color: colors.menu_text_color }}>
                       Inactive Menu Item
                     </div>
                   </div>
