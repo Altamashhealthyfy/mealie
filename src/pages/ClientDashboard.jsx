@@ -14,6 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { createPageUrl } from "@/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { jsPDF } from "jspdf";
 
 export default function ClientDashboard() {
   const queryClient = useQueryClient();
@@ -205,16 +206,31 @@ export default function ClientDashboard() {
   const handleDownloadPlan = () => {
     if (!mealPlan) return;
 
-    let content = `MEAL PLAN FOR ${clientProfile.full_name.toUpperCase()}\n`;
-    content += `${'='.repeat(60)}\n\n`;
-    content += `Plan Name: ${mealPlan.name}\n`;
-    content += `Duration: ${mealPlan.duration} days\n`;
-    content += `Target Calories: ${mealPlan.target_calories} kcal per day\n`;
-    content += `Food Preference: ${mealPlan.food_preference}\n`;
-    content += `Regional Preference: ${mealPlan.regional_preference}\n`;
-    content += `Created: ${format(new Date(mealPlan.created_date), 'MMM dd, yyyy')}\n\n`;
-    content += `${'='.repeat(60)}\n\n`;
+    const doc = new jsPDF();
+    let yPos = 20;
 
+    // Header
+    doc.setFontSize(18);
+    doc.setFont(undefined, 'bold');
+    doc.text(`MEAL PLAN FOR ${clientProfile.full_name.toUpperCase()}`, 105, yPos, { align: 'center' });
+    
+    yPos += 15;
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text(`Plan Name: ${mealPlan.name}`, 20, yPos);
+    yPos += 6;
+    doc.text(`Duration: ${mealPlan.duration} days`, 20, yPos);
+    yPos += 6;
+    doc.text(`Target Calories: ${mealPlan.target_calories} kcal/day`, 20, yPos);
+    yPos += 6;
+    doc.text(`Food Preference: ${mealPlan.food_preference}`, 20, yPos);
+    yPos += 6;
+    doc.text(`Regional Preference: ${mealPlan.regional_preference}`, 20, yPos);
+    yPos += 6;
+    doc.text(`Created: ${format(new Date(mealPlan.created_date), 'MMM dd, yyyy')}`, 20, yPos);
+    yPos += 12;
+
+    // Meals by day
     const mealsByDay = {};
     mealPlan.meals.forEach(meal => {
       if (!mealsByDay[meal.day]) mealsByDay[meal.day] = [];
@@ -222,37 +238,71 @@ export default function ClientDashboard() {
     });
 
     Object.keys(mealsByDay).sort((a, b) => parseInt(a) - parseInt(b)).forEach(day => {
-      content += `DAY ${day}\n`;
-      content += `${'-'.repeat(60)}\n\n`;
-      
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      // Day header
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text(`DAY ${day}`, 20, yPos);
+      yPos += 8;
+
       mealsByDay[day].forEach(meal => {
-        content += `${meal.meal_type.toUpperCase().replace(/_/g, ' ')} - ${meal.meal_name}\n`;
-        content += `Calories: ${meal.calories} | Protein: ${meal.protein}g | Carbs: ${meal.carbs}g | Fats: ${meal.fats}g\n\n`;
-        
-        meal.items.forEach((item, idx) => {
-          content += `  • ${item} - ${meal.portion_sizes[idx]}\n`;
-        });
-        
-        if (meal.nutritional_tip) {
-          content += `\n  💡 Tip: ${meal.nutritional_tip}\n`;
+        if (yPos > 260) {
+          doc.addPage();
+          yPos = 20;
         }
-        content += `\n`;
+
+        // Meal header
+        doc.setFontSize(11);
+        doc.setFont(undefined, 'bold');
+        doc.text(`${meal.meal_type.toUpperCase().replace(/_/g, ' ')} - ${meal.meal_name}`, 20, yPos);
+        yPos += 6;
+
+        // Nutrition info
+        doc.setFontSize(9);
+        doc.setFont(undefined, 'normal');
+        doc.text(`Calories: ${meal.calories} | Protein: ${meal.protein}g | Carbs: ${meal.carbs}g | Fats: ${meal.fats}g`, 20, yPos);
+        yPos += 6;
+
+        // Food items
+        meal.items.forEach((item, idx) => {
+          if (yPos > 275) {
+            doc.addPage();
+            yPos = 20;
+          }
+          doc.text(`  • ${item} - ${meal.portion_sizes[idx]}`, 25, yPos);
+          yPos += 5;
+        });
+
+        // Tip
+        if (meal.nutritional_tip) {
+          if (yPos > 270) {
+            doc.addPage();
+            yPos = 20;
+          }
+          doc.setFont(undefined, 'italic');
+          const tipLines = doc.splitTextToSize(`Tip: ${meal.nutritional_tip}`, 160);
+          tipLines.forEach(line => {
+            doc.text(line, 25, yPos);
+            yPos += 5;
+          });
+          doc.setFont(undefined, 'normal');
+        }
+        yPos += 3;
       });
-      
+
+      // Day total
       const dayTotal = mealsByDay[day].reduce((sum, m) => sum + (m.calories || 0), 0);
-      content += `Total for Day ${day}: ${dayTotal} kcal\n`;
-      content += `\n${'='.repeat(60)}\n\n`;
+      doc.setFont(undefined, 'bold');
+      doc.text(`Total for Day ${day}: ${dayTotal} kcal`, 20, yPos);
+      yPos += 10;
+      doc.setFont(undefined, 'normal');
     });
 
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `meal-plan-${clientProfile.full_name.replace(/\s+/g, '-')}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    doc.save(`meal-plan-${clientProfile.full_name.replace(/\s+/g, '-')}.pdf`);
   };
 
   // Early return AFTER all hooks are defined
