@@ -57,6 +57,12 @@ export default function MealPlansPro() {
       if (user?.user_type === 'super_admin') {
         return allClients;
       }
+      if (user?.user_type === 'student_coach') {
+        return allClients.filter(client => 
+          client.created_by === user?.email || 
+          client.assigned_coach === user?.email
+        );
+      }
       return allClients.filter(client => client.created_by === user?.email);
     },
     enabled: !!user,
