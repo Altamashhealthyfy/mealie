@@ -75,6 +75,8 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
+import ResourceLibrary from './pages/ResourceLibrary';
+import ClientResourceLibrary from './pages/ClientResourceLibrary';
 import __Layout from './Layout.jsx';
 
 
@@ -156,6 +158,8 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
+    "ResourceLibrary": ResourceLibrary,
+    "ClientResourceLibrary": ClientResourceLibrary,
 }
 
 export const pagesConfig = {
