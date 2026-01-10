@@ -154,7 +154,13 @@ const dietitianNavigation = [
     icon: Search,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
-];
+  {
+    title: "Resource Library",
+    url: createPageUrl("ResourceLibrary"),
+    icon: BookOpen,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  ];
 
 const paymentNavigation = [
   {
@@ -546,14 +552,20 @@ export default function Layout({ children, currentPageName }) {
         show: permissions?.can_use_food_lookup_ai ?? true,
       },
       {
+        title: "Resources",
+        url: createPageUrl("ClientResourceLibrary"),
+        icon: BookOpen,
+        show: permissions?.can_view_resources ?? true,
+      },
+      {
         title: "My Profile",
         url: createPageUrl("Profile"),
         icon: User,
         show: permissions?.can_view_profile ?? true,
       },
-    ];
+      ];
 
-    return baseNav.filter(item => item.show);
+      return baseNav.filter(item => item.show);
   };
 
   const navigationItems = isDietitian ? filteredDietitianNav : getClientNavigation();
