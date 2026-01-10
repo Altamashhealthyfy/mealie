@@ -12,11 +12,25 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 export default function PlatformColorCustomization() {
   const queryClient = useQueryClient();
   const [activePanel, setActivePanel] = useState("platform");
-  const [colors, setColors] = useState({
+  const [platformColors, setPlatformColors] = useState({
     primary_from: "#f97316",
     primary_to: "#dc2626",
     sidebar_bg: "#ffffff",
+    accent_color: "#f97316",
+    menu_text_color: "#22c55e",
+    highlight_button_color: "#f97316"
+  });
+  const [healthCoachColors, setHealthCoachColors] = useState({
+    primary_from: "#f97316",
+    primary_to: "#dc2626",
     health_coach_sidebar_bg: "#ffffff",
+    accent_color: "#f97316",
+    menu_text_color: "#22c55e",
+    highlight_button_color: "#f97316"
+  });
+  const [clientColors, setClientColors] = useState({
+    primary_from: "#f97316",
+    primary_to: "#dc2626",
     client_sidebar_bg: "#ffffff",
     accent_color: "#f97316",
     menu_text_color: "#22c55e",
@@ -39,15 +53,30 @@ export default function PlatformColorCustomization() {
 
   useEffect(() => {
     if (coachProfile?.theme_colors) {
-      setColors({
-        primary_from: coachProfile.theme_colors.primary_from || "#f97316",
-        primary_to: coachProfile.theme_colors.primary_to || "#dc2626",
-        sidebar_bg: coachProfile.theme_colors.sidebar_bg || "#ffffff",
-        health_coach_sidebar_bg: coachProfile.theme_colors.health_coach_sidebar_bg || "#ffffff",
-        client_sidebar_bg: coachProfile.theme_colors.client_sidebar_bg || "#ffffff",
-        accent_color: coachProfile.theme_colors.accent_color || "#f97316",
-        menu_text_color: coachProfile.theme_colors.menu_text_color || "#22c55e",
-        highlight_button_color: coachProfile.theme_colors.highlight_button_color || "#f97316"
+      const tc = coachProfile.theme_colors;
+      setPlatformColors({
+        primary_from: tc.primary_from || "#f97316",
+        primary_to: tc.primary_to || "#dc2626",
+        sidebar_bg: tc.sidebar_bg || "#ffffff",
+        accent_color: tc.accent_color || "#f97316",
+        menu_text_color: tc.menu_text_color || "#22c55e",
+        highlight_button_color: tc.highlight_button_color || "#f97316"
+      });
+      setHealthCoachColors({
+        primary_from: tc.primary_from || "#f97316",
+        primary_to: tc.primary_to || "#dc2626",
+        health_coach_sidebar_bg: tc.health_coach_sidebar_bg || "#ffffff",
+        accent_color: tc.accent_color || "#f97316",
+        menu_text_color: tc.menu_text_color || "#22c55e",
+        highlight_button_color: tc.highlight_button_color || "#f97316"
+      });
+      setClientColors({
+        primary_from: tc.primary_from || "#f97316",
+        primary_to: tc.primary_to || "#dc2626",
+        client_sidebar_bg: tc.client_sidebar_bg || "#ffffff",
+        accent_color: tc.accent_color || "#f97316",
+        menu_text_color: tc.menu_text_color || "#22c55e",
+        highlight_button_color: tc.highlight_button_color || "#f97316"
       });
     }
   }, [coachProfile]);
@@ -71,21 +100,47 @@ export default function PlatformColorCustomization() {
   });
 
   const handleSave = () => {
-    updateColorsMutation.mutate(colors);
+    const mergedColors = {
+      ...platformColors,
+      ...healthCoachColors,
+      ...clientColors
+    };
+    updateColorsMutation.mutate(mergedColors);
   };
 
   const handleReset = () => {
-    setColors({
-      primary_from: "#f97316",
-      primary_to: "#dc2626",
-      sidebar_bg: "#ffffff",
-      health_coach_sidebar_bg: "#ffffff",
-      client_sidebar_bg: "#ffffff",
-      accent_color: "#f97316",
-      menu_text_color: "#22c55e",
-      highlight_button_color: "#f97316"
-    });
+    if (activePanel === "platform") {
+      setPlatformColors({
+        primary_from: "#f97316",
+        primary_to: "#dc2626",
+        sidebar_bg: "#ffffff",
+        accent_color: "#f97316",
+        menu_text_color: "#22c55e",
+        highlight_button_color: "#f97316"
+      });
+    } else if (activePanel === "health_coach") {
+      setHealthCoachColors({
+        primary_from: "#f97316",
+        primary_to: "#dc2626",
+        health_coach_sidebar_bg: "#ffffff",
+        accent_color: "#f97316",
+        menu_text_color: "#22c55e",
+        highlight_button_color: "#f97316"
+      });
+    } else {
+      setClientColors({
+        primary_from: "#f97316",
+        primary_to: "#dc2626",
+        client_sidebar_bg: "#ffffff",
+        accent_color: "#f97316",
+        menu_text_color: "#22c55e",
+        highlight_button_color: "#f97316"
+      });
+    }
   };
+
+  const colors = activePanel === "health_coach" ? healthCoachColors : activePanel === "client" ? clientColors : platformColors;
+  const setColors = activePanel === "health_coach" ? setHealthCoachColors : activePanel === "client" ? setClientColors : setPlatformColors;
 
   if (user?.user_type !== 'super_admin') {
     return (
