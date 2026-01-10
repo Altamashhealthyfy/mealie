@@ -18,7 +18,7 @@ export default function PlatformColorCustomization() {
     health_coach_sidebar_bg: "#ffffff",
     client_sidebar_bg: "#ffffff",
     accent_color: "#f97316",
-    menu_text_color: "#22c55e",
+    menu_text_color: "#424242",
     highlight_button_color: "#f97316",
   };
 
