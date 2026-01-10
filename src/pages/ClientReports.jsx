@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import TourButton from "@/components/common/TourButton";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -198,7 +199,10 @@ export default function ClientReports() {
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Client Reports</h1>
             <p className="text-gray-600">Generate comprehensive progress reports with PDF export</p>
           </div>
-          <FileText className="w-12 h-12 text-orange-500" />
+          <div className="flex items-center gap-4">
+            <FileText className="w-12 h-12 text-orange-500" />
+            <TourButton pageName="ClientReports" />
+          </div>
         </div>
 
         {/* Report Configuration */}

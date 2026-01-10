@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import TourButton from "@/components/common/TourButton";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -338,11 +339,12 @@ export default function ClientAnalyticsDashboard() {
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">Client Analytics</h1>
             <p className="text-sm md:text-base text-gray-600">Track progress, engagement, and identify clients needing attention</p>
           </div>
+          <TourButton pageName="ClientAnalyticsDashboard" />
           <div className="flex flex-wrap gap-2 w-full lg:w-auto">
             <Button
               variant={selectedPeriod === "7" ? "default" : "outline"}

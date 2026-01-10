@@ -46,8 +46,10 @@ import ImageUploader from "@/components/common/ImageUploader";
 import ClientProgressDashboard from "@/components/client/ClientProgressDashboard";
 import AdvancedFilters from "@/components/client/AdvancedFilters";
 import BulkActionsPanel from "@/components/client/BulkActionsPanel";
+import TourButton from "@/components/common/TourButton";
 
 export default function ClientManagement() {
+  // Tour button import already added at top
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -676,11 +678,12 @@ support@mealiepro.com`;
     <div className="min-h-screen p-2 sm:p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
         {/* Header - Responsive */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">Client Management</h1>
             <p className="text-sm md:text-base text-gray-600">Manage your clients and their health journeys</p>
           </div>
+          <TourButton pageName="ClientManagement" />
           <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
             <DialogTrigger asChild>
               <Button
