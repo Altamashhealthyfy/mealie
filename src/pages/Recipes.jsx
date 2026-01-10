@@ -20,9 +20,12 @@ import ImageUploader from "@/components/common/ImageUploader";
 
 export default function Recipes() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [ingredientSearch, setIngredientSearch] = useState("");
   const [mealTypeFilter, setMealTypeFilter] = useState("all");
   const [foodPrefFilter, setFoodPrefFilter] = useState("all");
   const [regionFilter, setRegionFilter] = useState("all");
+  const [cookTimeFilter, setCookTimeFilter] = useState("all");
+  const [dietaryFilter, setDietaryFilter] = useState("all");
   const [uploaderFilter, setUploaderFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("-created_date");
   const [selectedRecipe, setSelectedRecipe] = useState(null);
@@ -194,15 +197,62 @@ export default function Recipes() {
     return Object.values(stats).sort((a, b) => b.count - a.count);
   }, [recipes]);
 
+  // Fuzzy search function
+  const fuzzyMatch = (text, query) => {
+    if (!query) return true;
+    text = text.toLowerCase();
+    query = query.toLowerCase();
+    
+    // Exact match
+    if (text.includes(query)) return true;
+    
+    // Character-by-character similarity
+    let textIndex = 0;
+    let queryIndex = 0;
+    let matchCount = 0;
+    
+    while (textIndex < text.length && queryIndex < query.length) {
+      if (text[textIndex] === query[queryIndex]) {
+        matchCount++;
+        queryIndex++;
+      }
+      textIndex++;
+    }
+    
+    // Allow 80% character match
+    return matchCount / query.length >= 0.8;
+  };
+
   const filteredRecipes = recipes.filter(recipe => {
-    const matchesSearch = recipe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    // Fuzzy name search
+    const matchesSearch = fuzzyMatch(recipe.name, searchQuery) ||
                          recipe.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Ingredient search
+    const matchesIngredient = !ingredientSearch || 
+                             recipe.ingredients?.some(ing => 
+                               ing.item.toLowerCase().includes(ingredientSearch.toLowerCase())
+                             );
+    
     const matchesMealType = mealTypeFilter === "all" || recipe.meal_type === mealTypeFilter;
     const matchesFoodPref = foodPrefFilter === "all" || recipe.food_preference === foodPrefFilter;
     const matchesRegion = regionFilter === "all" || recipe.regional_cuisine === regionFilter;
+    
+    // Cooking time filter
+    const totalTime = (recipe.prep_time || 0) + (recipe.cook_time || 0);
+    const matchesCookTime = cookTimeFilter === "all" ||
+                           (cookTimeFilter === "quick" && totalTime <= 30) ||
+                           (cookTimeFilter === "medium" && totalTime > 30 && totalTime <= 60) ||
+                           (cookTimeFilter === "long" && totalTime > 60);
+    
+    // Dietary restrictions filter
+    const matchesDietary = dietaryFilter === "all" ||
+                          recipe.tags?.some(tag => tag.toLowerCase().includes(dietaryFilter.toLowerCase()));
+    
     const matchesUploader = uploaderFilter === "all" || recipe.created_by === uploaderFilter;
     
-    return matchesSearch && matchesMealType && matchesFoodPref && matchesRegion && matchesUploader;
+    return matchesSearch && matchesIngredient && matchesMealType && matchesFoodPref && 
+           matchesRegion && matchesCookTime && matchesDietary && matchesUploader;
   });
 
   const generateCustomRecipe = async () => {
@@ -742,15 +792,26 @@ Enjoy your cooking! 🍽️✨
 
           <TabsContent value="library" className="space-y-6">
             <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <CardContent className="p-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                   <div className="md:col-span-2">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <Input
-                        placeholder="Search recipes..."
+                        placeholder="Search recipes (fuzzy search)..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div className="md:col-span-2">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <Input
+                        placeholder="Search by ingredient..."
+                        value={ingredientSearch}
+                        onChange={(e) => setIngredientSearch(e.target.value)}
                         className="pl-10"
                       />
                     </div>
@@ -767,6 +828,20 @@ Enjoy your cooking! 🍽️✨
                       <SelectItem value="snack">Snack</SelectItem>
                     </SelectContent>
                   </Select>
+                  <Select value={sortOrder} onValueChange={setSortOrder}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="-created_date">🆕 Newest First</SelectItem>
+                      <SelectItem value="created_date">🗓️ Oldest First</SelectItem>
+                      <SelectItem value="name">🔤 Name (A-Z)</SelectItem>
+                      <SelectItem value="-name">🔤 Name (Z-A)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <Select value={foodPrefFilter} onValueChange={setFoodPrefFilter}>
                     <SelectTrigger>
                       <SelectValue placeholder="Food Preference" />
@@ -791,15 +866,29 @@ Enjoy your cooking! 🍽️✨
                       <SelectItem value="fusion">Fusion</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Select value={sortOrder} onValueChange={setSortOrder}>
+                  <Select value={cookTimeFilter} onValueChange={setCookTimeFilter}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Sort by" />
+                      <SelectValue placeholder="Cooking Time" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="-created_date">🆕 Newest First</SelectItem>
-                      <SelectItem value="created_date">🗓️ Oldest First</SelectItem>
-                      <SelectItem value="name">🔤 Name (A-Z)</SelectItem>
-                      <SelectItem value="-name">🔤 Name (Z-A)</SelectItem>
+                      <SelectItem value="all">All Times</SelectItem>
+                      <SelectItem value="quick">⚡ Quick (≤30 min)</SelectItem>
+                      <SelectItem value="medium">⏱️ Medium (30-60 min)</SelectItem>
+                      <SelectItem value="long">🕐 Long (>60 min)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={dietaryFilter} onValueChange={setDietaryFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Dietary" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Diets</SelectItem>
+                      <SelectItem value="vegan">🌱 Vegan</SelectItem>
+                      <SelectItem value="gluten-free">🌾 Gluten-Free</SelectItem>
+                      <SelectItem value="high-protein">💪 High Protein</SelectItem>
+                      <SelectItem value="low-carb">🥗 Low Carb</SelectItem>
+                      <SelectItem value="keto">🥑 Keto</SelectItem>
+                      <SelectItem value="dairy-free">🥛 Dairy-Free</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
