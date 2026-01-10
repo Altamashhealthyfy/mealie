@@ -5,12 +5,22 @@ import PageTour from "@/components/common/PageTour";
 import TourButton from "@/components/common/TourButton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { TrendingDown, TrendingUp, Calendar, CheckCircle, Target, Activity, Heart, Scale, Flame, Award, AlertCircle } from "lucide-react";
+import { TrendingDown, TrendingUp, Calendar, CheckCircle, Target, Activity, Heart, Scale, Flame, Award, AlertCircle, Download, FileText, ChefHat, MessageSquare, Send, Eye } from "lucide-react";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { createPageUrl } from "@/utils";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export default function ClientDashboard() {
+  const queryClient = useQueryClient();
+  const [feedback, setFeedback] = React.useState("");
+  const [showFeedbackDialog, setShowFeedbackDialog] = React.useState(false);
+  const [showPlanDialog, setShowPlanDialog] = React.useState(false);
+
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
@@ -141,6 +151,75 @@ export default function ClientDashboard() {
     [goals]
   );
 
+  const submitFeedbackMutation = useMutation({
+    mutationFn: async (feedbackText) => {
+      return await base44.entities.Message.create({
+        client_id: clientProfile.id,
+        sender_type: 'client',
+        message: `📝 Meal Plan Feedback:\n\n${feedbackText}`,
+        read: false
+      });
+    },
+    onSuccess: () => {
+      setFeedback("");
+      setShowFeedbackDialog(false);
+      alert("✅ Feedback submitted! Your dietitian will review it soon.");
+    },
+  });
+
+  const handleDownloadPlan = () => {
+    if (!mealPlan) return;
+
+    let content = `MEAL PLAN FOR ${clientProfile.full_name.toUpperCase()}\n`;
+    content += `${'='.repeat(60)}\n\n`;
+    content += `Plan Name: ${mealPlan.name}\n`;
+    content += `Duration: ${mealPlan.duration} days\n`;
+    content += `Target Calories: ${mealPlan.target_calories} kcal per day\n`;
+    content += `Food Preference: ${mealPlan.food_preference}\n`;
+    content += `Regional Preference: ${mealPlan.regional_preference}\n`;
+    content += `Created: ${format(new Date(mealPlan.created_date), 'MMM dd, yyyy')}\n\n`;
+    content += `${'='.repeat(60)}\n\n`;
+
+    const mealsByDay = {};
+    mealPlan.meals.forEach(meal => {
+      if (!mealsByDay[meal.day]) mealsByDay[meal.day] = [];
+      mealsByDay[meal.day].push(meal);
+    });
+
+    Object.keys(mealsByDay).sort((a, b) => parseInt(a) - parseInt(b)).forEach(day => {
+      content += `DAY ${day}\n`;
+      content += `${'-'.repeat(60)}\n\n`;
+      
+      mealsByDay[day].forEach(meal => {
+        content += `${meal.meal_type.toUpperCase().replace(/_/g, ' ')} - ${meal.meal_name}\n`;
+        content += `Calories: ${meal.calories} | Protein: ${meal.protein}g | Carbs: ${meal.carbs}g | Fats: ${meal.fats}g\n\n`;
+        
+        meal.items.forEach((item, idx) => {
+          content += `  • ${item} - ${meal.portion_sizes[idx]}\n`;
+        });
+        
+        if (meal.nutritional_tip) {
+          content += `\n  💡 Tip: ${meal.nutritional_tip}\n`;
+        }
+        content += `\n`;
+      });
+      
+      const dayTotal = mealsByDay[day].reduce((sum, m) => sum + (m.calories || 0), 0);
+      content += `Total for Day ${day}: ${dayTotal} kcal\n`;
+      content += `\n${'='.repeat(60)}\n\n`;
+    });
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `meal-plan-${clientProfile.full_name.replace(/\s+/g, '-')}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   // Early return AFTER all hooks are defined
   if (!user || !clientProfile) {
     return (
@@ -256,8 +335,182 @@ export default function ClientDashboard() {
           </Card>
         </div>
 
-        {/* Alert for no meal plan */}
-        {!mealPlan && (
+        {/* Current Meal Plan Summary */}
+        {mealPlan ? (
+          <Card id="meal-plan-summary" className="border-none shadow-lg mb-6 bg-gradient-to-br from-green-50 to-emerald-50">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-2xl">
+                    <ChefHat className="w-6 h-6 text-green-600" />
+                    Your Active Meal Plan
+                  </CardTitle>
+                  <CardDescription className="text-gray-700 mt-1">{mealPlan.name}</CardDescription>
+                </div>
+                <Badge className="bg-green-500 text-white">Active</Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-3 bg-white rounded-lg">
+                  <p className="text-xs text-gray-600 mb-1">Duration</p>
+                  <p className="text-xl font-bold text-gray-900">{mealPlan.duration} days</p>
+                </div>
+                <div className="p-3 bg-white rounded-lg">
+                  <p className="text-xs text-gray-600 mb-1">Target Calories</p>
+                  <p className="text-xl font-bold text-gray-900">{mealPlan.target_calories} kcal</p>
+                </div>
+                <div className="p-3 bg-white rounded-lg">
+                  <p className="text-xs text-gray-600 mb-1">Food Type</p>
+                  <p className="text-lg font-bold text-gray-900 capitalize">{mealPlan.food_preference}</p>
+                </div>
+                <div className="p-3 bg-white rounded-lg">
+                  <p className="text-xs text-gray-600 mb-1">Cuisine</p>
+                  <p className="text-lg font-bold text-gray-900 capitalize">{mealPlan.regional_preference}</p>
+                </div>
+              </div>
+
+              <div className="p-4 bg-white border-2 border-green-200 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-semibold text-gray-900">Plan Details</p>
+                  <Badge className="bg-blue-100 text-blue-700">
+                    {mealPlan.meals?.length || 0} meals
+                  </Badge>
+                </div>
+                <div className="grid grid-cols-3 gap-3 text-sm">
+                  {['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner'].map(mealType => {
+                    const mealsOfType = mealPlan.meals?.filter(m => m.meal_type === mealType).length || 0;
+                    return (
+                      <div key={mealType} className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-gray-700 capitalize">{mealType.replace('_', ' ')}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Dialog open={showPlanDialog} onOpenChange={setShowPlanDialog}>
+                  <DialogTrigger asChild>
+                    <Button className="flex-1 bg-blue-500 hover:bg-blue-600">
+                      <Eye className="w-4 h-4 mr-2" />
+                      View Full Plan
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle className="text-2xl">{mealPlan.name}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      {Array.from({ length: mealPlan.duration }, (_, i) => i + 1).map(day => {
+                        const dayMeals = mealPlan.meals?.filter(m => m.day === day) || [];
+                        const dayTotal = dayMeals.reduce((sum, m) => sum + (m.calories || 0), 0);
+                        
+                        return (
+                          <div key={day} className="p-4 bg-gray-50 rounded-lg">
+                            <div className="flex items-center justify-between mb-3">
+                              <h3 className="text-xl font-bold text-gray-900">Day {day}</h3>
+                              <Badge className="bg-orange-500">{dayTotal} kcal</Badge>
+                            </div>
+                            <div className="space-y-3">
+                              {dayMeals.map((meal, idx) => (
+                                <div key={idx} className="p-3 bg-white rounded-lg border">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <p className="font-semibold text-gray-900 capitalize">
+                                      {meal.meal_type.replace(/_/g, ' ')} - {meal.meal_name}
+                                    </p>
+                                    <Badge variant="outline">{meal.calories} kcal</Badge>
+                                  </div>
+                                  <div className="text-sm text-gray-700 space-y-1">
+                                    {meal.items?.map((item, i) => (
+                                      <p key={i}>• {item} - {meal.portion_sizes?.[i]}</p>
+                                    ))}
+                                  </div>
+                                  {meal.nutritional_tip && (
+                                    <p className="text-xs text-gray-600 mt-2 italic">💡 {meal.nutritional_tip}</p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <Button 
+                  onClick={handleDownloadPlan}
+                  variant="outline"
+                  className="flex-1 border-green-500 text-green-700 hover:bg-green-50"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download Plan
+                </Button>
+
+                <Dialog open={showFeedbackDialog} onOpenChange={setShowFeedbackDialog}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="flex-1 border-purple-500 text-purple-700 hover:bg-purple-50">
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Give Feedback
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                      <DialogTitle className="text-2xl flex items-center gap-2">
+                        <MessageSquare className="w-6 h-6 text-purple-600" />
+                        Meal Plan Feedback
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <Alert className="bg-blue-50 border-blue-300">
+                        <AlertDescription className="text-blue-900">
+                          Share your thoughts about your meal plan - what's working, what's challenging, or suggestions for improvement.
+                        </AlertDescription>
+                      </Alert>
+                      
+                      <Textarea
+                        placeholder="Example: I'm enjoying the breakfast options but would like more variety in dinners. The portions are perfect for me..."
+                        value={feedback}
+                        onChange={(e) => setFeedback(e.target.value)}
+                        rows={6}
+                        className="resize-none"
+                      />
+
+                      <div className="flex gap-3">
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setShowFeedbackDialog(false);
+                            setFeedback("");
+                          }}
+                          className="flex-1"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={() => submitFeedbackMutation.mutate(feedback)}
+                          disabled={!feedback.trim() || submitFeedbackMutation.isPending}
+                          className="flex-1 bg-purple-500 hover:bg-purple-600"
+                        >
+                          {submitFeedbackMutation.isPending ? (
+                            <>Sending...</>
+                          ) : (
+                            <>
+                              <Send className="w-4 h-4 mr-2" />
+                              Submit Feedback
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
           <Alert className="mb-6 bg-yellow-50 border-yellow-500">
             <AlertCircle className="w-5 h-5 text-yellow-600" />
             <AlertDescription className="text-yellow-900">
