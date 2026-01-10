@@ -14,7 +14,8 @@ export default function PlatformColorCustomization() {
     primary_from: "#f97316",
     primary_to: "#dc2626",
     sidebar_bg: "#ffffff",
-    accent_color: "#f97316"
+    accent_color: "#f97316",
+    menu_text_color: "#22c55e"
   });
 
   const { data: user } = useQuery({
@@ -37,7 +38,8 @@ export default function PlatformColorCustomization() {
         primary_from: coachProfile.theme_colors.primary_from || "#f97316",
         primary_to: coachProfile.theme_colors.primary_to || "#dc2626",
         sidebar_bg: coachProfile.theme_colors.sidebar_bg || "#ffffff",
-        accent_color: coachProfile.theme_colors.accent_color || "#f97316"
+        accent_color: coachProfile.theme_colors.accent_color || "#f97316",
+        menu_text_color: coachProfile.theme_colors.menu_text_color || "#22c55e"
       });
     }
   }, [coachProfile]);
@@ -69,7 +71,8 @@ export default function PlatformColorCustomization() {
       primary_from: "#f97316",
       primary_to: "#dc2626",
       sidebar_bg: "#ffffff",
-      accent_color: "#f97316"
+      accent_color: "#f97316",
+      menu_text_color: "#22c55e"
     });
   };
 
@@ -189,6 +192,25 @@ export default function PlatformColorCustomization() {
                 </div>
               </div>
 
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Menu Text Color</Label>
+                <div className="flex gap-3 items-center">
+                  <Input
+                    type="color"
+                    value={colors.menu_text_color}
+                    onChange={(e) => setColors({ ...colors, menu_text_color: e.target.value })}
+                    className="w-20 h-12 cursor-pointer"
+                  />
+                  <Input
+                    type="text"
+                    value={colors.menu_text_color}
+                    onChange={(e) => setColors({ ...colors, menu_text_color: e.target.value })}
+                    className="flex-1"
+                    placeholder="#22c55e"
+                  />
+                </div>
+              </div>
+
               <div className="flex gap-3 pt-4">
                 <Button
                   onClick={handleReset}
@@ -298,6 +320,17 @@ export default function PlatformColorCustomization() {
                   >
                     Light Badge
                   </span>
+                </div>
+              </div>
+
+              {/* Menu Text Preview */}
+              <div>
+                <Label className="text-sm font-medium mb-2 block">Menu Text Color</Label>
+                <div className="space-y-1" style={{ backgroundColor: colors.sidebar_bg }} className="p-3 rounded-lg border">
+                  <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">📊 Dashboard</div>
+                  <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">👥 Clients</div>
+                  <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">💬 Messages</div>
+                  <div style={{ color: colors.menu_text_color }} className="text-sm font-medium">📅 Appointments</div>
                 </div>
               </div>
             </CardContent>
