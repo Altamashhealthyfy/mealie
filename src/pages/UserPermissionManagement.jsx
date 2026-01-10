@@ -172,33 +172,14 @@ export default function UserPermissionManagement() {
 
   const createCoachMutation = useMutation({
     mutationFn: async ({ email, name, password, method }) => {
-      if (method === "password") {
-        // Create user with password using backend function
-        const response = await base44.functions.invoke('createUserWithPassword', {
-          email,
-          full_name: name,
-          password,
-          user_type: 'student_coach'
-        });
-        return response.data;
-      } else {
-        // Send invitation email
-        await base44.users.inviteUser(email, 'admin');
-        
-        // Wait a moment and update user type
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        const users = await base44.asServiceRole.entities.User.list();
-        const newUser = users.find(u => u.email === email);
-        
-        if (newUser) {
-          await base44.asServiceRole.entities.User.update(newUser.id, {
-            full_name: name || email,
-            user_type: 'student_coach'
-          });
-        }
-        
-        return { success: true, email };
-      }
+      // Both methods use the backend function now
+      const response = await base44.functions.invoke('createUserWithPassword', {
+        email,
+        full_name: name || email,
+        password: password || null,
+        user_type: 'student_coach'
+      });
+      return response.data;
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries(['allUsers']);

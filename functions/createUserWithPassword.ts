@@ -15,33 +15,32 @@ Deno.serve(async (req) => {
 
     const { email, full_name, password, user_type } = await req.json();
 
-    if (!email || !password) {
+    if (!email) {
       return Response.json(
-        { error: 'Email and password are required' },
+        { error: 'Email is required' },
         { status: 400 }
       );
     }
 
-    if (password.length < 6) {
+    if (password && password.length < 6) {
       return Response.json(
         { error: 'Password must be at least 6 characters' },
         { status: 400 }
       );
     }
 
-    // First, invite the user as admin
-    await base44.users.inviteUser(email, 'admin');
+    // Invite user as "user" role first (works for new users)
+    await base44.users.inviteUser(email, 'user');
     
-    // The user is now invited and will be in the system
-    // We need to wait a moment for the invitation to process
+    // Wait for invitation to process
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Now find the user and update their details
+    // Find the newly invited user and update their details
     const users = await base44.asServiceRole.entities.User.list();
     const newUser = users.find(u => u.email === email);
     
     if (newUser) {
-      // Update user details
+      // Update user details with proper role
       await base44.asServiceRole.entities.User.update(newUser.id, {
         full_name: full_name || email,
         user_type: user_type || 'student_coach'
@@ -50,7 +49,7 @@ Deno.serve(async (req) => {
 
     return Response.json({
       success: true,
-      message: 'User created successfully. Invitation email sent.',
+      message: 'Health coach created successfully. Invitation email sent.',
       email: email
     });
 
