@@ -6,9 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
 import { Label } from "@/components/ui/label";
-import { Calendar, Loader2 } from "lucide-react";
+import { Calendar, Loader2, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
@@ -16,8 +15,10 @@ export default function AddTeamAppointment() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
+  const [clientSearchQuery, setClientSearchQuery] = useState('');
   
   const [formData, setFormData] = useState({
+    client_id: '',
     client_name: '',
     phone: '',
     title: '',
@@ -33,6 +34,12 @@ export default function AddTeamAppointment() {
     queryFn: () => base44.auth.me(),
   });
 
+  const { data: clients } = useQuery({
+    queryKey: ['clients'],
+    queryFn: async () => base44.entities.Client.list('-created_date'),
+    initialData: [],
+  });
+
   const { data: teamMembers } = useQuery({
     queryKey: ['teamMembers'],
     queryFn: async () => {
@@ -42,12 +49,32 @@ export default function AddTeamAppointment() {
     initialData: [],
   });
 
+  const filteredClients = clients.filter(client => {
+    if (!clientSearchQuery) return true;
+    const query = clientSearchQuery.toLowerCase();
+    return (
+      client.full_name?.toLowerCase().includes(query) ||
+      client.email?.toLowerCase().includes(query) ||
+      client.phone?.toLowerCase().includes(query)
+    );
+  });
+
   const createAppointmentMutation = useMutation({
     mutationFn: async (data) => base44.entities.Appointment.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries(['teamAppointments']);
     },
   });
+
+  const handleSelectClient = (client) => {
+    setFormData({
+      ...formData,
+      client_id: client.id,
+      client_name: client.full_name,
+      phone: client.phone || ''
+    });
+    setClientSearchQuery('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -107,12 +134,35 @@ export default function AddTeamAppointment() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label>Client Name *</Label>
-                  <Input
-                    value={formData.client_name}
-                    onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
-                    placeholder="Enter client name"
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      value={formData.client_name || clientSearchQuery}
+                      onChange={(e) => {
+                        setClientSearchQuery(e.target.value);
+                        setFormData({ ...formData, client_name: e.target.value, client_id: '', phone: '' });
+                      }}
+                      placeholder="🔍 Search or type client name..."
+                      required
+                    />
+                    {clientSearchQuery && filteredClients.length > 0 && !formData.client_id && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border-2 border-blue-500 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                        {filteredClients.slice(0, 10).map(client => (
+                          <button
+                            key={client.id}
+                            type="button"
+                            onClick={() => handleSelectClient(client)}
+                            className="w-full px-4 py-3 text-left hover:bg-blue-50 border-b last:border-b-0 flex items-center gap-3"
+                          >
+                            <div className="flex-1">
+                              <p className="font-semibold text-gray-900">{client.full_name}</p>
+                              <p className="text-xs text-gray-600">{client.email}</p>
+                              {client.phone && <p className="text-xs text-gray-500">📞 {client.phone}</p>}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div>
