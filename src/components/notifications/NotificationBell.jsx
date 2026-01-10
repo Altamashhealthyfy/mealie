@@ -111,36 +111,62 @@ export default function NotificationBell({ userEmail }) {
             <div className="divide-y">
               {recentNotifications.map((notification) => (
                 <div
-                  key={notification.id}
-                  className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
-                    !notification.read ? 'bg-blue-50' : ''
-                  } ${getPriorityColor(notification.priority)}`}
-                  onClick={() => {
-                    if (!notification.read) {
-                      markAsReadMutation.mutate(notification.id);
-                    }
-                  }}
-                >
-                  <Link to={notification.link || createPageUrl("Notifications")} className="block">
-                    <div className="flex items-start gap-3">
-                      <span className="text-2xl">{getNotificationIcon(notification.type)}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-900 text-sm mb-1">
-                          {notification.title}
-                        </p>
-                        <p className="text-xs text-gray-600 line-clamp-2">
-                          {notification.message}
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">
-                          {format(new Date(notification.created_date), 'MMM d, h:mm a')}
-                        </p>
-                      </div>
-                      {!notification.read && (
-                        <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1" />
-                      )}
-                    </div>
-                  </Link>
-                </div>
+                   key={notification.id}
+                   className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
+                     !notification.read ? 'bg-blue-50' : ''
+                   } ${getPriorityColor(notification.priority)}`}
+                   onClick={() => {
+                     if (!notification.read) {
+                       markAsReadMutation.mutate(notification.id);
+                     }
+                     // Handle external URLs
+                     if (notification.link && (notification.link.startsWith('http://') || notification.link.startsWith('https://'))) {
+                       window.open(notification.link, '_blank');
+                     }
+                   }}
+                 >
+                   {notification.link && (notification.link.startsWith('http://') || notification.link.startsWith('https://')) ? (
+                     <a href={notification.link} target="_blank" rel="noopener noreferrer" className="block">
+                       <div className="flex items-start gap-3">
+                         <span className="text-2xl">{getNotificationIcon(notification.type)}</span>
+                         <div className="flex-1 min-w-0">
+                           <p className="font-semibold text-gray-900 text-sm mb-1">
+                             {notification.title}
+                           </p>
+                           <p className="text-xs text-gray-600 line-clamp-2">
+                             {notification.message}
+                           </p>
+                           <p className="text-xs text-gray-400 mt-1">
+                             {format(new Date(notification.created_date), 'MMM d, h:mm a')}
+                           </p>
+                         </div>
+                         {!notification.read && (
+                           <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1" />
+                         )}
+                       </div>
+                     </a>
+                   ) : (
+                     <Link to={notification.link || createPageUrl("Notifications")} className="block">
+                       <div className="flex items-start gap-3">
+                         <span className="text-2xl">{getNotificationIcon(notification.type)}</span>
+                         <div className="flex-1 min-w-0">
+                           <p className="font-semibold text-gray-900 text-sm mb-1">
+                             {notification.title}
+                           </p>
+                           <p className="text-xs text-gray-600 line-clamp-2">
+                             {notification.message}
+                           </p>
+                           <p className="text-xs text-gray-400 mt-1">
+                             {format(new Date(notification.created_date), 'MMM d, h:mm a')}
+                           </p>
+                         </div>
+                         {!notification.read && (
+                           <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1" />
+                         )}
+                       </div>
+                     </Link>
+                   )}
+                 </div>
               ))}
             </div>
           )}
