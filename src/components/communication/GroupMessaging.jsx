@@ -267,7 +267,7 @@ export default function GroupMessaging({ userEmail }) {
           <Button
             onClick={handleSendGroupMessage}
             disabled={!messageText.trim() || sendGroupMessageMutation.isPending}
-            className="w-full bg-blue-500 hover:bg-blue-600"
+            className="w-full bg-blue-500 hover:bg-blue-600 h-11"
           >
             {sendGroupMessageMutation.isPending ? (
               <>
