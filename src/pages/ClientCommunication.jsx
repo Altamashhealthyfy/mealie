@@ -32,7 +32,7 @@ export default function ClientCommunication() {
   const [attachedFile, setAttachedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [activeTab, setActiveTab] = useState("direct");
-  const [groupMessages, setGroupMessages] = useState({});
+  const [groupMessageInputs, setGroupMessageInputs] = useState({});
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -544,7 +544,7 @@ export default function ClientCommunication() {
                     );
 
                     const handleSendGroupMessage = async () => {
-                      const message = groupMessages[group.id] || "";
+                      const message = groupMessageInputs[group.id] || "";
                       if (!message.trim()) return;
 
                       const msgData = {
@@ -555,7 +555,7 @@ export default function ClientCommunication() {
                       };
 
                       await sendMessageMutation.mutateAsync(msgData);
-                      setGroupMessages({ ...groupMessages, [group.id]: "" });
+                      setGroupMessageInputs({ ...groupMessageInputs, [group.id]: "" });
                       queryClient.invalidateQueries(['myGroupMessages']);
                     };
 
@@ -603,8 +603,8 @@ export default function ClientCommunication() {
                           <div className="flex gap-2 border-t pt-3">
                             <Textarea
                               placeholder="Type your message to the group..."
-                              value={groupMessages[group.id] || ""}
-                              onChange={(e) => setGroupMessages({ ...groupMessages, [group.id]: e.target.value })}
+                              value={groupMessageInputs[group.id] || ""}
+                              onChange={(e) => setGroupMessageInputs({ ...groupMessageInputs, [group.id]: e.target.value })}
                               onKeyPress={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                   e.preventDefault();
@@ -616,7 +616,7 @@ export default function ClientCommunication() {
                             />
                             <Button
                               onClick={handleSendGroupMessage}
-                              disabled={!(groupMessages[group.id] || "").trim() || sendMessageMutation.isPending}
+                              disabled={!(groupMessageInputs[group.id] || "").trim() || sendMessageMutation.isPending}
                               className="bg-blue-500 hover:bg-blue-600 px-4"
                             >
                               {sendMessageMutation.isPending ? (
