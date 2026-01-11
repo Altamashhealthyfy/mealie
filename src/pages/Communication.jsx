@@ -838,7 +838,7 @@ export default function Communication() {
               </div>
             </TabsContent>
 
-            <TabsContent value="groups" className="h-full mt-0 p-6 overflow-y-auto">
+            <TabsContent value="groups" className="flex-1 mt-0 p-6 overflow-y-auto data-[state=active]:flex data-[state=active]:flex-col">
               <GroupMessaging userEmail={user?.email} />
             </TabsContent>
           </Tabs>
