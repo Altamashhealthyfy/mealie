@@ -329,7 +329,7 @@ export default function ClientCommunication() {
 
         <Card className="border-none shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 200px)' }}>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-            <TabsList className="rounded-none border-b w-full grid grid-cols-2">
+            <TabsList className="rounded-none border-b w-full grid grid-cols-2 flex-shrink-0 mb-4">
               <TabsTrigger value="direct" className="flex gap-2">
                 <MessageSquare className="w-4 h-4" />
                 Direct
@@ -340,7 +340,7 @@ export default function ClientCommunication() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="direct" className="flex-1 mt-0">
+            <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden">
             <div className="flex flex-col h-full">
             {/* Chat Header */}
             <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50 flex-shrink-0">
