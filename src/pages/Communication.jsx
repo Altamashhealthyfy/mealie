@@ -487,7 +487,7 @@ export default function Communication() {
 
         <Card className="border-none shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 160px)' }}>
           <Tabs defaultValue="direct" className="h-full flex flex-col">
-            <TabsList className="rounded-none border-b w-full grid grid-cols-2 flex-shrink-0">
+            <TabsList className="rounded-none border-b w-full grid grid-cols-2 flex-shrink-0 mb-4">
               <TabsTrigger value="direct" className="flex gap-2">
                 <MessageSquare className="w-4 h-4" />
                 Direct Messages
