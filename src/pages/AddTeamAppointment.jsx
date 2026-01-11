@@ -40,7 +40,7 @@ export default function AddTeamAppointment() {
     initialData: [],
   });
 
-  const { data: teamMembers } = useQuery({
+  const { data: teamMembers = [] } = useQuery({
     queryKey: ['teamMembers'],
     queryFn: async () => {
       const users = await base44.entities.User.list();
@@ -49,7 +49,7 @@ export default function AddTeamAppointment() {
     initialData: [],
   });
 
-  const filteredClients = clients.filter(client => {
+  const filteredClients = (clients || []).filter(client => {
     if (!clientSearchQuery) return true;
     const query = clientSearchQuery.toLowerCase();
     return (
@@ -98,7 +98,7 @@ export default function AddTeamAppointment() {
       await base44.entities.AppointmentAuditLog.create({
         appointment_id: appointment.id,
         action: 'created',
-        performed_by: user.email,
+        performed_by: user?.email,
         new_values: formData,
         source: 'manual'
       });
