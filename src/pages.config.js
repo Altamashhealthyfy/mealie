@@ -22,6 +22,8 @@ import ClientPlanManagement from './pages/ClientPlanManagement';
 import ClientPlans from './pages/ClientPlans';
 import ClientRecipes from './pages/ClientRecipes';
 import ClientReports from './pages/ClientReports';
+import ClientResourceLibrary from './pages/ClientResourceLibrary';
+import ClientResourceTracker from './pages/ClientResourceTracker';
 import ClinicalIntake from './pages/ClinicalIntake';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachSubscription from './pages/CoachSubscription';
@@ -59,6 +61,8 @@ import ProgressTracking from './pages/ProgressTracking';
 import ProjectManagement from './pages/ProjectManagement';
 import PurchaseAICredits from './pages/PurchaseAICredits';
 import Recipes from './pages/Recipes';
+import ResourceLibrary from './pages/ResourceLibrary';
+import ResourceLibraryEnhanced from './pages/ResourceLibraryEnhanced';
 import SecuritySettings from './pages/SecuritySettings';
 import TaskBoard from './pages/TaskBoard';
 import TeamAppointmentsCalendar from './pages/TeamAppointmentsCalendar';
@@ -75,10 +79,6 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import ResourceLibrary from './pages/ResourceLibrary';
-import ClientResourceLibrary from './pages/ClientResourceLibrary';
-import ResourceLibraryEnhanced from './pages/ResourceLibraryEnhanced';
-import ClientResourceTracker from './pages/ClientResourceTracker';
 import __Layout from './Layout.jsx';
 
 
@@ -107,6 +107,8 @@ export const PAGES = {
     "ClientPlans": ClientPlans,
     "ClientRecipes": ClientRecipes,
     "ClientReports": ClientReports,
+    "ClientResourceLibrary": ClientResourceLibrary,
+    "ClientResourceTracker": ClientResourceTracker,
     "ClinicalIntake": ClinicalIntake,
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachSubscription": CoachSubscription,
@@ -144,6 +146,8 @@ export const PAGES = {
     "ProjectManagement": ProjectManagement,
     "PurchaseAICredits": PurchaseAICredits,
     "Recipes": Recipes,
+    "ResourceLibrary": ResourceLibrary,
+    "ResourceLibraryEnhanced": ResourceLibraryEnhanced,
     "SecuritySettings": SecuritySettings,
     "TaskBoard": TaskBoard,
     "TeamAppointmentsCalendar": TeamAppointmentsCalendar,
@@ -160,10 +164,6 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "ResourceLibrary": ResourceLibrary,
-    "ClientResourceLibrary": ClientResourceLibrary,
-    "ResourceLibraryEnhanced": ResourceLibraryEnhanced,
-    "ClientResourceTracker": ClientResourceTracker,
 }
 
 export const pagesConfig = {

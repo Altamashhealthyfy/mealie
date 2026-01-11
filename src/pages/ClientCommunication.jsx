@@ -536,30 +536,95 @@ export default function ClientCommunication() {
                   </div>
                 </div>
               ) : (
-                <div className="p-6 space-y-6">
+                <div className="p-4 md:p-6 space-y-6">
                   {clientGroups.map(group => {
                     const groupMsgs = groupMessages.filter(m => m.group_id === group.id).sort((a, b) =>
                       new Date(a.created_date) - new Date(b.created_date)
                     );
+                    const [groupMessage, setGroupMessage] = React.useState("");
+
+                    const handleSendGroupMessage = async () => {
+                      if (!groupMessage.trim()) return;
+
+                      const msgData = {
+                        group_id: group.id,
+                        sender_type: 'client',
+                        message: groupMessage.trim(),
+                        read: false,
+                      };
+
+                      await sendMessageMutation.mutateAsync(msgData);
+                      setGroupMessage("");
+                      queryClient.invalidateQueries(['myGroupMessages']);
+                    };
+
                     return (
                       <Card key={group.id} className="border-l-4 border-l-blue-500">
-                        <CardHeader className="pb-3">
-                          <CardTitle className="text-lg flex items-center gap-2">
+                        <CardHeader className="pb-3 bg-blue-50">
+                          <CardTitle className="text-base md:text-lg flex items-center gap-2">
                             <Users className="w-5 h-5 text-blue-500" />
                             {group.name}
                           </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3 max-h-96 overflow-y-auto">
-                          {groupMsgs.length === 0 ? (
-                            <p className="text-sm text-gray-500">No messages yet</p>
-                          ) : (
-                            groupMsgs.map(msg => (
-                              <div key={msg.id} className="bg-gray-50 p-3 rounded-lg">
-                                <p className="text-sm text-gray-900">{msg.message}</p>
-                                <p className="text-xs text-gray-500 mt-1">{formatToIST(msg.created_date)}</p>
-                              </div>
-                            ))
+                          {group.description && (
+                            <p className="text-xs md:text-sm text-gray-600 mt-1">{group.description}</p>
                           )}
+                        </CardHeader>
+                        <CardContent className="p-3 md:p-4">
+                          <div className="space-y-3 max-h-64 overflow-y-auto mb-4 p-2">
+                            {groupMsgs.length === 0 ? (
+                              <p className="text-sm text-gray-500 text-center py-4">No messages yet</p>
+                            ) : (
+                              groupMsgs.map(msg => {
+                                const isFromClient = msg.sender_type === 'client';
+                                return (
+                                  <div
+                                    key={msg.id}
+                                    className={`flex ${isFromClient ? 'justify-end' : 'justify-start'}`}
+                                  >
+                                    <div
+                                      className={`max-w-[85%] rounded-2xl p-2 md:p-3 ${
+                                        isFromClient
+                                          ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+                                          : 'bg-gray-100 text-gray-900'
+                                      }`}
+                                    >
+                                      <p className="text-xs md:text-sm">{msg.message}</p>
+                                      <p className={`text-xs mt-1 ${isFromClient ? 'text-white/70' : 'text-gray-500'}`}>
+                                        {formatToIST(msg.created_date)}
+                                      </p>
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
+
+                          <div className="flex gap-2 border-t pt-3">
+                            <Textarea
+                              placeholder="Type your message to the group..."
+                              value={groupMessage}
+                              onChange={(e) => setGroupMessage(e.target.value)}
+                              onKeyPress={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                  e.preventDefault();
+                                  handleSendGroupMessage();
+                                }
+                              }}
+                              className="resize-none min-h-[50px] text-sm"
+                              rows={2}
+                            />
+                            <Button
+                              onClick={handleSendGroupMessage}
+                              disabled={!groupMessage.trim() || sendMessageMutation.isPending}
+                              className="bg-blue-500 hover:bg-blue-600 px-4"
+                            >
+                              {sendMessageMutation.isPending ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Send className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </div>
                         </CardContent>
                       </Card>
                     );
