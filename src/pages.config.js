@@ -81,6 +81,7 @@ import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import DailyProgressLogger from './pages/DailyProgressLogger';
 import ClientProgressAnalytics from './pages/ClientProgressAnalytics';
+import RecipeManagement from './pages/RecipeManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -168,6 +169,7 @@ export const PAGES = {
     "WhiteLabelSubscription": WhiteLabelSubscription,
     "DailyProgressLogger": DailyProgressLogger,
     "ClientProgressAnalytics": ClientProgressAnalytics,
+    "RecipeManagement": RecipeManagement,
 }
 
 export const pagesConfig = {
