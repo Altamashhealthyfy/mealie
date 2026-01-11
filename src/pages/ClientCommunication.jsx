@@ -24,6 +24,8 @@ import {
   Users
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import TypingIndicator from "@/components/communication/TypingIndicator";
+import { useTypingIndicator } from "@/components/communication/useTypingIndicator";
 
 export default function ClientCommunication() {
   const queryClient = useQueryClient();
@@ -39,6 +41,14 @@ export default function ClientCommunication() {
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
   const groupFileInputRefs = useRef({});
+
+  const { handleTyping, stopTyping } = useTypingIndicator(
+    clientProfile?.id,
+    null,
+    user?.email,
+    user?.full_name || clientProfile?.full_name,
+    'client'
+  );
 
   const formatToIST = (dateString) => {
     if (!dateString) return '';
@@ -156,7 +166,25 @@ export default function ClientCommunication() {
   });
 
   const markAsReadMutation = useMutation({
-    mutationFn: (id) => base44.entities.Message.update(id, { read: true }),
+    mutationFn: async (message) => {
+      const updates = { read: true };
+      
+      // Add read receipt for important messages
+      if (message.is_important) {
+        const readBy = message.read_by || [];
+        const alreadyRead = readBy.find(r => r.user_id === user?.email);
+        
+        if (!alreadyRead) {
+          readBy.push({
+            user_id: user?.email,
+            read_at: new Date().toISOString()
+          });
+          updates.read_by = readBy;
+        }
+      }
+      
+      await base44.entities.Message.update(message.id, updates);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['myMessages']);
     },
@@ -167,7 +195,7 @@ export default function ClientCommunication() {
       m => !m.read && m.sender_type === 'dietitian'
     );
     unreadMessages.forEach(msg => {
-      markAsReadMutation.mutate(msg.id);
+      markAsReadMutation.mutate(msg);
     });
   }, [messages.length]);
 
@@ -463,8 +491,13 @@ export default function ClientCommunication() {
                     })
                   )}
                   <div ref={messagesEndRef} />
-                </div>
-              </ScrollArea>
+                  </div>
+                  <TypingIndicator 
+                  clientId={clientProfile?.id} 
+                  groupId={null}
+                  currentUserEmail={user?.email}
+                  />
+                  </ScrollArea>
 
               {showScrollButton && (
                 <Button
@@ -527,13 +560,18 @@ export default function ClientCommunication() {
                       clientProfile.assigned_coach.split('@')[0] : 
                       'your coach'}...`}
                     value={messageText}
-                    onChange={(e) => setMessageText(e.target.value)}
+                    onChange={(e) => {
+                      setMessageText(e.target.value);
+                      handleTyping();
+                    }}
                     onKeyPress={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
+                        stopTyping();
                         handleSendMessage();
                       }
                     }}
+                    onBlur={stopTyping}
                     className="resize-none min-h-[60px] text-sm border-2 border-orange-300 focus:border-orange-500"
                     rows={2}
                     disabled={uploading}

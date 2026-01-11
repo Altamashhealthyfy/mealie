@@ -34,6 +34,8 @@ import GroupMessaging from "@/components/communication/GroupMessaging";
 import ScheduleMessageDialog from "@/components/communication/ScheduleMessageDialog";
 import FileVersionHistory from "@/components/communication/FileVersionHistory";
 import ReadReceiptIndicator from "@/components/communication/ReadReceiptIndicator";
+import TypingIndicator from "@/components/communication/TypingIndicator";
+import { useTypingIndicator } from "@/components/communication/useTypingIndicator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -51,6 +53,14 @@ export default function Communication() {
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  const { handleTyping, stopTyping } = useTypingIndicator(
+    selectedClient?.id,
+    null,
+    user?.email,
+    user?.full_name,
+    'dietitian'
+  );
 
   const formatToIST = (dateString) => {
     if (!dateString) return '';
@@ -219,7 +229,25 @@ export default function Communication() {
   };
 
   const markAsReadMutation = useMutation({
-    mutationFn: (id) => base44.entities.Message.update(id, { read: true }),
+    mutationFn: async (message) => {
+      const updates = { read: true };
+      
+      // Add read receipt for important messages
+      if (message.is_important) {
+        const readBy = message.read_by || [];
+        const alreadyRead = readBy.find(r => r.user_id === user?.email);
+        
+        if (!alreadyRead) {
+          readBy.push({
+            user_id: user?.email,
+            read_at: new Date().toISOString()
+          });
+          updates.read_by = readBy;
+        }
+      }
+      
+      await base44.entities.Message.update(message.id, updates);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['allMessages']);
     },
@@ -435,7 +463,7 @@ export default function Communication() {
         m => !m.read && m.sender_type === 'client'
       );
       unreadMessages.forEach(msg => {
-        markAsReadMutation.mutate(msg.id);
+        markAsReadMutation.mutate(msg);
       });
     }
   }, [selectedClient?.id, clientMessages.length]);
@@ -733,8 +761,13 @@ export default function Communication() {
                           })
                         )}
                         <div ref={messagesEndRef} />
-                      </div>
-                    </ScrollArea>
+                        </div>
+                        <TypingIndicator 
+                        clientId={selectedClient?.id} 
+                        groupId={null}
+                        currentUserEmail={user?.email}
+                        />
+                        </ScrollArea>
 
                     {showScrollButton && (
                       <Button
@@ -809,13 +842,18 @@ export default function Communication() {
                           ref={textareaRef}
                           placeholder="Type your message..."
                           value={messageText}
-                          onChange={(e) => setMessageText(e.target.value)}
+                          onChange={(e) => {
+                            setMessageText(e.target.value);
+                            handleTyping();
+                          }}
                           onKeyPress={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                               e.preventDefault();
+                              stopTyping();
                               handleSendMessage();
                             }
                           }}
+                          onBlur={stopTyping}
                           className="resize-none min-h-[50px] md:min-h-[60px] text-sm border-2 border-orange-300 focus:border-orange-500"
                           rows={2}
                           disabled={uploading}
