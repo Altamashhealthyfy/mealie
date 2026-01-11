@@ -498,8 +498,8 @@ export default function Communication() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden">
-              <div className="flex flex-col md:grid md:grid-cols-12 h-full">
+            <TabsContent value="direct" className="flex-1 mt-0 data-[state=active]:flex data-[state=active]:flex-col">
+              <div className="flex flex-col md:grid md:grid-cols-12 flex-1">
                 {/* Client List Sidebar */}
                 <div className={`${selectedClient ? 'hidden md:flex' : 'flex'} md:col-span-4 border-r border-gray-200 flex-col h-full md:h-auto`}>
               <CardHeader className="border-b border-gray-200 flex-shrink-0" id="message-clients-list">
