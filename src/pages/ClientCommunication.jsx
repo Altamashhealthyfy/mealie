@@ -331,9 +331,7 @@ export default function ClientCommunication() {
         <div className="mb-6">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Messages</h1>
           <p className="text-gray-600">
-            Chat with {clientProfile?.assigned_coach ? 
-              clientProfile.assigned_coach.split('@')[0] : 
-              'your health coach'}
+            Chat with {coachUser?.full_name || clientProfile?.assigned_coach?.split('@')[0] || 'your health coach'}
           </p>
         </div>
 
