@@ -350,10 +350,8 @@ export default function ClientCommunication() {
                 </div>
                 <div className="min-w-0">
                   <CardTitle className="text-base sm:text-lg md:text-xl break-words">
-                    {clientProfile?.assigned_coach ? 
-                      clientProfile.assigned_coach.split('@')[0].charAt(0).toUpperCase() + 
-                      clientProfile.assigned_coach.split('@')[0].slice(1) : 
-                      'Your Health Coach'}
+                    {coachUser?.full_name || clientProfile?.assigned_coach?.split('@')[0].charAt(0).toUpperCase() + 
+                      clientProfile?.assigned_coach?.split('@')[0].slice(1) || 'Your Health Coach'}
                   </CardTitle>
                   <p className="text-xs sm:text-sm text-gray-600">Always here to help you 💚</p>
                 </div>
