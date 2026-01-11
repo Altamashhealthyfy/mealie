@@ -32,6 +32,7 @@ export default function ClientCommunication() {
   const [attachedFile, setAttachedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [activeTab, setActiveTab] = useState("direct");
+  const [groupMessages, setGroupMessages] = useState({});
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -541,20 +542,20 @@ export default function ClientCommunication() {
                     const groupMsgs = groupMessages.filter(m => m.group_id === group.id).sort((a, b) =>
                       new Date(a.created_date) - new Date(b.created_date)
                     );
-                    const [groupMessage, setGroupMessage] = React.useState("");
 
                     const handleSendGroupMessage = async () => {
-                      if (!groupMessage.trim()) return;
+                      const message = groupMessages[group.id] || "";
+                      if (!message.trim()) return;
 
                       const msgData = {
                         group_id: group.id,
                         sender_type: 'client',
-                        message: groupMessage.trim(),
+                        message: message.trim(),
                         read: false,
                       };
 
                       await sendMessageMutation.mutateAsync(msgData);
-                      setGroupMessage("");
+                      setGroupMessages({ ...groupMessages, [group.id]: "" });
                       queryClient.invalidateQueries(['myGroupMessages']);
                     };
 
@@ -602,8 +603,8 @@ export default function ClientCommunication() {
                           <div className="flex gap-2 border-t pt-3">
                             <Textarea
                               placeholder="Type your message to the group..."
-                              value={groupMessage}
-                              onChange={(e) => setGroupMessage(e.target.value)}
+                              value={groupMessages[group.id] || ""}
+                              onChange={(e) => setGroupMessages({ ...groupMessages, [group.id]: e.target.value })}
                               onKeyPress={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                   e.preventDefault();
@@ -615,7 +616,7 @@ export default function ClientCommunication() {
                             />
                             <Button
                               onClick={handleSendGroupMessage}
-                              disabled={!groupMessage.trim() || sendMessageMutation.isPending}
+                              disabled={!(groupMessages[group.id] || "").trim() || sendMessageMutation.isPending}
                               className="bg-blue-500 hover:bg-blue-600 px-4"
                             >
                               {sendMessageMutation.isPending ? (
