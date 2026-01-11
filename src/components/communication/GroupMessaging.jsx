@@ -1,26 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Users, Plus, MessageCircle, X, Send, Loader2, Search, ArrowLeft, Trash2 } from 'lucide-react';
+import { Users, Plus, MessageCircle, X, Send, Loader2, Search, ArrowLeft, Trash2, Pin, PinOff, Paperclip, FileText, Image as ImageIcon, Video, File, Download, Settings, MessageSquare, Smile, MoreVertical } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from 'sonner';
 
 export default function GroupMessaging({ userEmail }) {
   const queryClient = useQueryClient();
   const [showNewGroup, setShowNewGroup] = useState(false);
   const [showAddMembers, setShowAddMembers] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [groupName, setGroupName] = useState('');
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [messageText, setMessageText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMemberIds, setSelectedMemberIds] = useState([]);
+  const [attachedFile, setAttachedFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [showThreads, setShowThreads] = useState({});
+  const [groupSettings, setGroupSettings] = useState({
+    only_admins_can_pin: true,
+    only_admins_can_send: false,
+    allow_file_sharing: true,
+    allow_threads: true
+  });
+  const fileInputRef = useRef(null);
+
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
 
   const { data: groups = [] } = useQuery({
     queryKey: ['clientGroups', userEmail],
@@ -38,9 +58,13 @@ export default function GroupMessaging({ userEmail }) {
 
   const { data: groupMessages = [] } = useQuery({
     queryKey: ['groupMessages', selectedGroup?.id],
-    queryFn: () => base44.entities.Message.filter({ group_id: selectedGroup?.id }),
+    queryFn: async () => {
+      const msgs = await base44.entities.Message.filter({ group_id: selectedGroup?.id });
+      return msgs.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+    },
     enabled: !!selectedGroup?.id,
     initialData: [],
+    refetchInterval: 5000,
   });
 
   const createGroupMutation = useMutation({
@@ -51,10 +75,7 @@ export default function GroupMessaging({ userEmail }) {
       setShowNewGroup(false);
       toast.success('Group created!');
     },
-    onError: (error) => {
-      console.error('Failed to create group:', error);
-      toast.error('Failed to create group');
-    }
+    onError: () => toast.error('Failed to create group')
   });
 
   const addMembersMutation = useMutation({
@@ -74,10 +95,7 @@ export default function GroupMessaging({ userEmail }) {
       setSelectedMemberIds([]);
       toast.success('Members added!');
     },
-    onError: (error) => {
-      console.error('Failed to add members:', error);
-      toast.error('Failed to add members');
-    }
+    onError: () => toast.error('Failed to add members')
   });
 
   const sendGroupMessageMutation = useMutation({
@@ -85,12 +103,18 @@ export default function GroupMessaging({ userEmail }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['groupMessages', selectedGroup?.id] });
       setMessageText('');
+      setAttachedFile(null);
+      setReplyingTo(null);
       toast.success('Message sent!');
     },
-    onError: (error) => {
-      console.error('Failed to send message:', error);
-      toast.error('Failed to send message');
-    }
+    onError: () => toast.error('Failed to send message')
+  });
+
+  const updateMessageMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Message.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['groupMessages', selectedGroup?.id] });
+    },
   });
 
   const deleteGroupMutation = useMutation({
@@ -100,10 +124,17 @@ export default function GroupMessaging({ userEmail }) {
       setSelectedGroup(null);
       toast.success('Group deleted!');
     },
-    onError: (error) => {
-      console.error('Failed to delete group:', error);
-      toast.error('Failed to delete group');
-    }
+    onError: () => toast.error('Failed to delete group')
+  });
+
+  const updateGroupSettingsMutation = useMutation({
+    mutationFn: (settings) => base44.entities.ClientGroup.update(selectedGroup.id, { settings }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clientGroups', userEmail] });
+      toast.success('Settings updated!');
+      setShowSettings(false);
+    },
+    onError: () => toast.error('Failed to update settings')
   });
 
   const handleCreateGroup = () => {
@@ -111,25 +142,127 @@ export default function GroupMessaging({ userEmail }) {
       createGroupMutation.mutate({
         name: groupName,
         client_ids: [],
+        admin_ids: [userEmail],
         member_count: 0,
+        settings: groupSettings,
       });
     }
   };
 
-  const handleAddMembers = () => {
-    if (selectedMemberIds.length > 0) {
-      addMembersMutation.mutate();
+  const handleFileSelect = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 1073741824) {
+      toast.error('File size must be less than 1 GB');
+      return;
+    }
+
+    setAttachedFile(file);
+  };
+
+  const removeAttachment = () => {
+    setAttachedFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const getFileIcon = (type) => {
+    if (type?.startsWith('image/')) return <ImageIcon className="w-4 h-4" />;
+    if (type?.startsWith('video/')) return <Video className="w-4 h-4" />;
+    if (type?.includes('pdf')) return <FileText className="w-4 h-4" />;
+    return <File className="w-4 h-4" />;
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
+    return (bytes / 1073741824).toFixed(1) + ' GB';
+  };
+
+  const handleSendGroupMessage = async () => {
+    if (!messageText.trim() && !attachedFile) return;
+
+    let messageData = {
+      group_id: selectedGroup.id,
+      message: messageText.trim() || '(File attachment)',
+      sender_type: 'dietitian',
+      sender_id: user?.id,
+      sender_name: user?.full_name,
+      read: false,
+    };
+
+    if (replyingTo) {
+      messageData.parent_message_id = replyingTo.id;
+    }
+
+    if (attachedFile) {
+      setUploading(true);
+      try {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file: attachedFile });
+        messageData.attachment_url = file_url;
+        messageData.attachment_name = attachedFile.name;
+        messageData.attachment_type = attachedFile.type;
+        messageData.attachment_size = attachedFile.size;
+      } catch (error) {
+        toast.error('File upload failed');
+        setUploading(false);
+        return;
+      }
+      setUploading(false);
+    }
+
+    // Handle mentions
+    const mentionPattern = /@(\w+)/g;
+    const mentions = [...messageText.matchAll(mentionPattern)].map(m => m[1]);
+    if (mentions.length > 0) {
+      messageData.mentions = mentions;
+    }
+
+    await sendGroupMessageMutation.mutateAsync(messageData);
+
+    // Update thread count
+    if (replyingTo) {
+      updateMessageMutation.mutate({
+        id: replyingTo.id,
+        data: { thread_count: (replyingTo.thread_count || 0) + 1 }
+      });
     }
   };
 
-  const handleSendGroupMessage = () => {
-    if (!messageText.trim() || !selectedGroup) return;
+  const handlePinMessage = (message) => {
+    const isAdmin = selectedGroup.admin_ids?.includes(userEmail);
+    const canPin = !selectedGroup.settings?.only_admins_can_pin || isAdmin;
 
-    sendGroupMessageMutation.mutate({
-      group_id: selectedGroup.id,
-      message: messageText.trim(),
-      sender_type: 'dietitian',
-      read: false,
+    if (!canPin) {
+      toast.error('Only admins can pin messages');
+      return;
+    }
+
+    updateMessageMutation.mutate({
+      id: message.id,
+      data: {
+        is_pinned: !message.is_pinned,
+        pinned_by: !message.is_pinned ? userEmail : null,
+        pinned_at: !message.is_pinned ? new Date().toISOString() : null
+      }
+    });
+  };
+
+  const handleReaction = (message, emoji) => {
+    const reactions = message.reactions || [];
+    const existingReaction = reactions.find(r => r.user_id === user?.id && r.emoji === emoji);
+
+    let newReactions;
+    if (existingReaction) {
+      newReactions = reactions.filter(r => !(r.user_id === user?.id && r.emoji === emoji));
+    } else {
+      newReactions = [...reactions, { emoji, user_id: user?.id, user_name: user?.full_name }];
+    }
+
+    updateMessageMutation.mutate({
+      id: message.id,
+      data: { reactions: newReactions }
     });
   };
 
@@ -139,8 +272,169 @@ export default function GroupMessaging({ userEmail }) {
     return !alreadyAdded && matchesSearch;
   });
 
+  const pinnedMessages = groupMessages.filter(m => m.is_pinned && !m.parent_message_id);
+  const mainMessages = groupMessages.filter(m => !m.parent_message_id);
+  const getThreadReplies = (messageId) => groupMessages.filter(m => m.parent_message_id === messageId);
+
+  const renderAttachment = (message) => {
+    if (!message.attachment_url) return null;
+
+    const isImage = message.attachment_type?.startsWith('image/');
+    const isVideo = message.attachment_type?.startsWith('video/');
+
+    if (isImage) {
+      return (
+        <a href={message.attachment_url} target="_blank" rel="noopener noreferrer">
+          <img
+            src={message.attachment_url}
+            alt={message.attachment_name}
+            className="max-w-full rounded-lg cursor-pointer hover:opacity-90 max-h-48 mt-2"
+          />
+        </a>
+      );
+    }
+
+    if (isVideo) {
+      return (
+        <video controls className="max-w-full rounded-lg max-h-48 mt-2">
+          <source src={message.attachment_url} type={message.attachment_type} />
+        </video>
+      );
+    }
+
+    return (
+      <a
+        href={message.attachment_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 p-2 rounded-lg bg-gray-100 hover:bg-gray-200 mt-2"
+      >
+        {getFileIcon(message.attachment_type)}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium truncate">{message.attachment_name}</p>
+          {message.attachment_size && (
+            <p className="text-xs text-gray-500">{formatFileSize(message.attachment_size)}</p>
+          )}
+        </div>
+        <Download className="w-4 h-4" />
+      </a>
+    );
+  };
+
+  const renderMessage = (msg, isThread = false) => {
+    const threadReplies = getThreadReplies(msg.id);
+    const showThread = showThreads[msg.id];
+    const reactionGroups = {};
+    (msg.reactions || []).forEach(r => {
+      if (!reactionGroups[r.emoji]) reactionGroups[r.emoji] = [];
+      reactionGroups[r.emoji].push(r);
+    });
+
+    return (
+      <div key={msg.id} className={`${isThread ? 'ml-8 border-l-2 border-gray-200 pl-4' : ''}`}>
+        <div className="bg-white p-3 rounded-lg border hover:shadow-sm transition group">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-semibold text-sm">{msg.sender_name || 'User'}</span>
+                <span className="text-xs text-gray-500">
+                  {new Date(msg.created_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+                {msg.is_pinned && (
+                  <Badge variant="secondary" className="text-xs">
+                    <Pin className="w-3 h-3 mr-1" />
+                    Pinned
+                  </Badge>
+                )}
+              </div>
+              {replyingTo?.id === msg.id && (
+                <Badge variant="outline" className="text-xs mb-2">Replying to this message</Badge>
+              )}
+              <p className="text-sm text-gray-900 whitespace-pre-wrap">{msg.message}</p>
+              {renderAttachment(msg)}
+              
+              {/* Reactions */}
+              {Object.keys(reactionGroups).length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {Object.entries(reactionGroups).map(([emoji, users]) => (
+                    <button
+                      key={emoji}
+                      onClick={() => handleReaction(msg, emoji)}
+                      className="px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-xs flex items-center gap-1"
+                    >
+                      {emoji} {users.length}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Message Actions */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100">
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setReplyingTo(msg)}>
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Reply
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handlePinMessage(msg)}>
+                  {msg.is_pinned ? <PinOff className="w-4 h-4 mr-2" /> : <Pin className="w-4 h-4 mr-2" />}
+                  {msg.is_pinned ? 'Unpin' : 'Pin'}
+                </DropdownMenuItem>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <Smile className="w-4 h-4 mr-2" />
+                      React
+                    </DropdownMenuItem>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-2">
+                    <div className="flex gap-2">
+                      {['👍', '❤️', '😊', '🎉', '🔥', '👏'].map(emoji => (
+                        <button
+                          key={emoji}
+                          onClick={() => handleReaction(msg, emoji)}
+                          className="text-2xl hover:scale-125 transition"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Thread indicator */}
+          {!isThread && threadReplies.length > 0 && (
+            <button
+              onClick={() => setShowThreads({ ...showThreads, [msg.id]: !showThread })}
+              className="text-xs text-blue-500 hover:text-blue-600 mt-2 flex items-center gap-1"
+            >
+              <MessageSquare className="w-3 h-3" />
+              {threadReplies.length} {threadReplies.length === 1 ? 'reply' : 'replies'}
+            </button>
+          )}
+        </div>
+
+        {/* Thread replies */}
+        {!isThread && showThread && threadReplies.length > 0 && (
+          <div className="mt-2 space-y-2">
+            {threadReplies.map(reply => renderMessage(reply, true))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   if (selectedGroup) {
     const groupMembers = clients.filter(c => selectedGroup.client_ids?.includes(c.id));
+    const isAdmin = selectedGroup.admin_ids?.includes(userEmail);
     
     return (
       <div className="space-y-4 h-full flex flex-col">
@@ -154,63 +448,115 @@ export default function GroupMessaging({ userEmail }) {
             Back to Groups
           </button>
           <h3 className="text-lg font-semibold">{selectedGroup.name}</h3>
-          <Dialog open={showAddMembers} onOpenChange={setShowAddMembers}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Members
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add Members to {selectedGroup.name}</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <Input
-                    placeholder="Search clients..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <ScrollArea className="h-64 border rounded-lg p-4">
-                  <div className="space-y-2">
-                    {filteredClients.length === 0 ? (
-                      <p className="text-sm text-gray-500">No clients to add</p>
-                    ) : (
-                      filteredClients.map((client) => (
-                        <label key={client.id} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer">
-                          <Checkbox
-                            checked={selectedMemberIds.includes(client.id)}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setSelectedMemberIds([...selectedMemberIds, client.id]);
-                              } else {
-                                setSelectedMemberIds(selectedMemberIds.filter(id => id !== client.id));
-                              }
-                            }}
-                          />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">{client.full_name}</p>
-                            <p className="text-xs text-gray-500">{client.email}</p>
-                          </div>
-                        </label>
-                      ))
-                    )}
+          <div className="flex gap-2">
+            {isAdmin && (
+              <Dialog open={showSettings} onOpenChange={setShowSettings}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Group Settings</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm">Only admins can pin messages</label>
+                      <Switch
+                        checked={groupSettings.only_admins_can_pin}
+                        onCheckedChange={(v) => setGroupSettings({ ...groupSettings, only_admins_can_pin: v })}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm">Only admins can send messages</label>
+                      <Switch
+                        checked={groupSettings.only_admins_can_send}
+                        onCheckedChange={(v) => setGroupSettings({ ...groupSettings, only_admins_can_send: v })}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm">Allow file sharing</label>
+                      <Switch
+                        checked={groupSettings.allow_file_sharing}
+                        onCheckedChange={(v) => setGroupSettings({ ...groupSettings, allow_file_sharing: v })}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm">Allow threaded replies</label>
+                      <Switch
+                        checked={groupSettings.allow_threads}
+                        onCheckedChange={(v) => setGroupSettings({ ...groupSettings, allow_threads: v })}
+                      />
+                    </div>
+                    <Button
+                      onClick={() => updateGroupSettingsMutation.mutate(groupSettings)}
+                      className="w-full"
+                    >
+                      Save Settings
+                    </Button>
                   </div>
-                </ScrollArea>
-                <Button
-                  onClick={handleAddMembers}
-                  disabled={selectedMemberIds.length === 0}
-                  className="w-full"
-                >
-                  Add {selectedMemberIds.length > 0 ? `${selectedMemberIds.length} Member(s)` : 'Members'}
+                </DialogContent>
+              </Dialog>
+            )}
+            <Dialog open={showAddMembers} onOpenChange={setShowAddMembers}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Members
                 </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Members to {selectedGroup.name}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      placeholder="Search clients..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  <ScrollArea className="h-64 border rounded-lg p-4">
+                    <div className="space-y-2">
+                      {filteredClients.length === 0 ? (
+                        <p className="text-sm text-gray-500">No clients to add</p>
+                      ) : (
+                        filteredClients.map((client) => (
+                          <label key={client.id} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                            <Checkbox
+                              checked={selectedMemberIds.includes(client.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedMemberIds([...selectedMemberIds, client.id]);
+                                } else {
+                                  setSelectedMemberIds(selectedMemberIds.filter(id => id !== client.id));
+                                }
+                              }}
+                            />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">{client.full_name}</p>
+                              <p className="text-xs text-gray-500">{client.email}</p>
+                            </div>
+                          </label>
+                        ))
+                      )}
+                    </div>
+                  </ScrollArea>
+                  <Button
+                    onClick={() => addMembersMutation.mutate()}
+                    disabled={selectedMemberIds.length === 0}
+                    className="w-full"
+                  >
+                    Add {selectedMemberIds.length > 0 ? `${selectedMemberIds.length} Member(s)` : 'Members'}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {/* Members List */}
@@ -224,6 +570,7 @@ export default function GroupMessaging({ userEmail }) {
                 groupMembers.map((member) => (
                   <Badge key={member.id} variant="secondary">
                     {member.full_name}
+                    {selectedGroup.admin_ids?.includes(member.created_by) && ' (Admin)'}
                   </Badge>
                 ))
               )}
@@ -231,24 +578,36 @@ export default function GroupMessaging({ userEmail }) {
           </CardContent>
         </Card>
 
+        {/* Pinned Messages */}
+        {pinnedMessages.length > 0 && (
+          <Card className="bg-yellow-50 border-yellow-200">
+            <CardContent className="p-3">
+              <p className="text-sm font-semibold mb-2 flex items-center gap-2">
+                <Pin className="w-4 h-4" />
+                Pinned Messages
+              </p>
+              <div className="space-y-2">
+                {pinnedMessages.map(msg => (
+                  <div key={msg.id} className="text-sm bg-white p-2 rounded">
+                    <span className="font-medium">{msg.sender_name}:</span> {msg.message}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Messages Area */}
         <Card className="flex-1 flex flex-col overflow-hidden">
-          <ScrollArea className="flex-1">
-            <div className="p-4 space-y-4">
-              {groupMessages.length === 0 ? (
+          <ScrollArea className="flex-1 p-4">
+            <div className="space-y-3">
+              {mainMessages.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
                   <p>No messages yet</p>
                 </div>
               ) : (
-                groupMessages.map((msg) => (
-                  <div key={msg.id} className="bg-gray-50 p-3 rounded-lg">
-                    <p className="text-sm font-medium text-gray-900">{msg.message}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {msg.sender_type === 'dietitian' ? '📧 You' : '👤 Client'}
-                    </p>
-                  </div>
-                ))
+                mainMessages.map(msg => renderMessage(msg))
               )}
             </div>
           </ScrollArea>
@@ -256,31 +615,67 @@ export default function GroupMessaging({ userEmail }) {
 
         {/* Send Message */}
         <div className="space-y-2">
+          {replyingTo && (
+            <div className="bg-blue-50 p-2 rounded flex items-center justify-between">
+              <p className="text-sm">
+                Replying to <span className="font-medium">{replyingTo.sender_name}</span>
+              </p>
+              <Button variant="ghost" size="sm" onClick={() => setReplyingTo(null)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+
+          {attachedFile && (
+            <div className="bg-blue-50 p-2 rounded flex items-center gap-2">
+              {getFileIcon(attachedFile.type)}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{attachedFile.name}</p>
+                <p className="text-xs text-gray-600">{formatFileSize(attachedFile.size)}</p>
+              </div>
+              <Button variant="ghost" size="sm" onClick={removeAttachment}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+
           <div className="flex gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              onChange={handleFileSelect}
+              className="hidden"
+              accept="*/*"
+            />
+            {selectedGroup.settings?.allow_file_sharing !== false && (
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                <Paperclip className="w-4 h-4" />
+              </Button>
+            )}
             <Textarea
-              placeholder="Type group message..."
+              placeholder="Type message (use @ to mention)..."
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
-              className="min-h-[80px]"
+              className="min-h-[60px]"
+              disabled={selectedGroup.settings?.only_admins_can_send && !isAdmin}
             />
+            <Button
+              onClick={handleSendGroupMessage}
+              disabled={(!messageText.trim() && !attachedFile) || uploading}
+              className="bg-blue-500 hover:bg-blue-600 px-6"
+            >
+              {uploading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+            </Button>
           </div>
-          <Button
-            onClick={handleSendGroupMessage}
-            disabled={!messageText.trim() || sendGroupMessageMutation.isPending}
-            className="w-full bg-blue-500 hover:bg-blue-600 h-11"
-          >
-            {sendGroupMessageMutation.isPending ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              <>
-                <Send className="w-4 h-4 mr-2" />
-                Send to {groupMembers.length} Member(s)
-              </>
-            )}
-          </Button>
         </div>
       </div>
     );
@@ -306,7 +701,7 @@ export default function GroupMessaging({ userEmail }) {
             </DialogHeader>
             <div className="space-y-4">
               <Input
-                placeholder="Group name (e.g., PCOS Support, Weight Loss Journey)"
+                placeholder="Group name"
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
                 autoFocus
@@ -328,14 +723,10 @@ export default function GroupMessaging({ userEmail }) {
           <Card className="col-span-2 p-8 text-center">
             <Users className="w-12 h-12 mx-auto mb-3 text-gray-300" />
             <p className="text-gray-500">No groups created yet</p>
-            <p className="text-sm text-gray-400 mt-1">Create your first group to start messaging clients in bulk</p>
           </Card>
         ) : (
           groups.map((group) => (
-            <Card
-              key={group.id}
-              className="hover:shadow-lg transition"
-            >
+            <Card key={group.id} className="hover:shadow-lg transition">
               <CardContent className="p-4">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1 cursor-pointer" onClick={() => setSelectedGroup(group)}>
@@ -351,8 +742,7 @@ export default function GroupMessaging({ userEmail }) {
                         deleteGroupMutation.mutate(group.id);
                       }
                     }}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded transition flex-shrink-0"
-                    disabled={deleteGroupMutation.isPending}
+                    className="text-red-500 hover:text-red-700 p-2 rounded"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -360,10 +750,10 @@ export default function GroupMessaging({ userEmail }) {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="w-full justify-start text-blue-500"
+                  className="w-full text-blue-500"
                   onClick={() => setSelectedGroup(group)}
                 >
-                  View Group →
+                  Open Group →
                 </Button>
               </CardContent>
             </Card>
