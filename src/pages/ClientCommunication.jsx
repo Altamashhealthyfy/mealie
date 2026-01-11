@@ -33,9 +33,12 @@ export default function ClientCommunication() {
   const [uploading, setUploading] = useState(false);
   const [activeTab, setActiveTab] = useState("direct");
   const [groupMessageInputs, setGroupMessageInputs] = useState({});
+  const [groupAttachedFiles, setGroupAttachedFiles] = useState({});
+  const [groupUploading, setGroupUploading] = useState({});
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
+  const groupFileInputRefs = useRef({});
 
   const formatToIST = (dateString) => {
     if (!dateString) return '';
@@ -580,19 +583,60 @@ export default function ClientCommunication() {
                       new Date(a.created_date) - new Date(b.created_date)
                     );
 
+                    const handleGroupFileSelect = async (e) => {
+                      const file = e.target.files[0];
+                      if (!file) return;
+
+                      if (file.size > 1073741824) {
+                        alert("⚠️ File size must be less than 1 GB");
+                        return;
+                      }
+
+                      setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: file });
+                    };
+
+                    const removeGroupAttachment = () => {
+                      setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: null });
+                      if (groupFileInputRefs.current[group.id]) {
+                        groupFileInputRefs.current[group.id].value = '';
+                      }
+                    };
+
                     const handleSendGroupMessage = async () => {
                       const message = groupMessageInputs[group.id] || "";
-                      if (!message.trim()) return;
+                      const attachedFile = groupAttachedFiles[group.id];
 
-                      const msgData = {
+                      if (!message.trim() && !attachedFile) return;
+
+                      let msgData = {
                         group_id: group.id,
                         sender_type: 'client',
-                        message: message.trim(),
+                        sender_id: user?.id,
+                        sender_name: user?.full_name || clientProfile?.full_name,
+                        message: message.trim() || '(File attachment)',
                         read: false,
                       };
 
+                      if (attachedFile) {
+                        setGroupUploading({ ...groupUploading, [group.id]: true });
+                        try {
+                          const { file_url } = await base44.integrations.Core.UploadFile({ file: attachedFile });
+                          msgData.attachment_url = file_url;
+                          msgData.attachment_name = attachedFile.name;
+                          msgData.attachment_type = attachedFile.type;
+                          msgData.attachment_size = attachedFile.size;
+                        } catch (error) {
+                          console.error("File upload failed:", error);
+                          alert("❌ File upload failed. Please try again.");
+                          setGroupUploading({ ...groupUploading, [group.id]: false });
+                          return;
+                        }
+                        setGroupUploading({ ...groupUploading, [group.id]: false });
+                      }
+
                       await sendMessageMutation.mutateAsync(msgData);
                       setGroupMessageInputs({ ...groupMessageInputs, [group.id]: "" });
+                      setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: null });
                       queryClient.invalidateQueries(['myGroupMessages']);
                     };
 
@@ -626,7 +670,10 @@ export default function ClientCommunication() {
                                           : 'bg-gray-100 text-gray-900'
                                       }`}
                                     >
-                                      <p className="text-xs md:text-sm">{msg.message}</p>
+                                      {msg.message && (
+                                        <p className="text-xs md:text-sm mb-2">{msg.message}</p>
+                                      )}
+                                      {renderAttachment(msg, isFromClient)}
                                       <p className={`text-xs mt-1 ${isFromClient ? 'text-white/70' : 'text-gray-500'}`}>
                                         {formatToIST(msg.created_date)}
                                       </p>
@@ -637,31 +684,74 @@ export default function ClientCommunication() {
                             )}
                           </div>
 
-                          <div className="flex gap-2 border-t pt-3">
-                            <Textarea
-                              placeholder="Type your message to the group..."
-                              value={groupMessageInputs[group.id] || ""}
-                              onChange={(e) => setGroupMessageInputs({ ...groupMessageInputs, [group.id]: e.target.value })}
-                              onKeyPress={(e) => {
-                                if (e.key === 'Enter' && !e.shiftKey) {
-                                  e.preventDefault();
-                                  handleSendGroupMessage();
-                                }
-                              }}
-                              className="resize-none min-h-[50px] text-sm"
-                              rows={2}
-                            />
-                            <Button
-                              onClick={handleSendGroupMessage}
-                              disabled={!(groupMessageInputs[group.id] || "").trim() || sendMessageMutation.isPending}
-                              className="bg-blue-500 hover:bg-blue-600 px-4"
-                            >
-                              {sendMessageMutation.isPending ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <Send className="w-4 h-4" />
-                              )}
-                            </Button>
+                          <div className="space-y-2">
+                            {groupAttachedFiles[group.id] && (
+                              <div className="mb-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
+                                <div className="flex items-center gap-2">
+                                  {getFileIcon(groupAttachedFiles[group.id].type)}
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-gray-900 truncate">
+                                      {groupAttachedFiles[group.id].name}
+                                    </p>
+                                    <p className="text-xs text-gray-600">
+                                      {formatFileSize(groupAttachedFiles[group.id].size)}
+                                    </p>
+                                  </div>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={removeGroupAttachment}
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="flex gap-2 border-t pt-3">
+                              <input
+                                ref={(el) => groupFileInputRefs.current[group.id] = el}
+                                type="file"
+                                onChange={handleGroupFileSelect}
+                                className="hidden"
+                                accept="*/*"
+                              />
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => groupFileInputRefs.current[group.id]?.click()}
+                                disabled={groupUploading[group.id] || sendMessageMutation.isPending}
+                                className="flex-shrink-0"
+                              >
+                                <Paperclip className="w-4 h-4" />
+                              </Button>
+                              <Textarea
+                                placeholder="Type your message to the group..."
+                                value={groupMessageInputs[group.id] || ""}
+                                onChange={(e) => setGroupMessageInputs({ ...groupMessageInputs, [group.id]: e.target.value })}
+                                onKeyPress={(e) => {
+                                  if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSendGroupMessage();
+                                  }
+                                }}
+                                className="resize-none min-h-[50px] text-sm flex-1"
+                                rows={2}
+                                disabled={groupUploading[group.id]}
+                              />
+                              <Button
+                                onClick={handleSendGroupMessage}
+                                disabled={!(groupMessageInputs[group.id] || "").trim() && !groupAttachedFiles[group.id] || sendMessageMutation.isPending || groupUploading[group.id]}
+                                className="bg-blue-500 hover:bg-blue-600 px-4 flex-shrink-0"
+                              >
+                                {(sendMessageMutation.isPending || groupUploading[group.id]) ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <Send className="w-4 h-4" />
+                                )}
+                              </Button>
+                            </div>
                           </div>
                         </CardContent>
                       </Card>

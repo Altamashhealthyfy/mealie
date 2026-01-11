@@ -20,6 +20,7 @@ import ClientOnboarding from './pages/ClientOnboarding';
 import ClientPlanBuilder from './pages/ClientPlanBuilder';
 import ClientPlanManagement from './pages/ClientPlanManagement';
 import ClientPlans from './pages/ClientPlans';
+import ClientProgressAnalytics from './pages/ClientProgressAnalytics';
 import ClientRecipes from './pages/ClientRecipes';
 import ClientReports from './pages/ClientReports';
 import ClientResourceLibrary from './pages/ClientResourceLibrary';
@@ -29,6 +30,7 @@ import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachSubscription from './pages/CoachSubscription';
 import CoachSubscriptions from './pages/CoachSubscriptions';
 import Communication from './pages/Communication';
+import DailyProgressLogger from './pages/DailyProgressLogger';
 import DietitianDashboard from './pages/DietitianDashboard';
 import Documentation from './pages/Documentation';
 import FeatureControl from './pages/FeatureControl';
@@ -60,6 +62,7 @@ import Profile from './pages/Profile';
 import ProgressTracking from './pages/ProgressTracking';
 import ProjectManagement from './pages/ProjectManagement';
 import PurchaseAICredits from './pages/PurchaseAICredits';
+import RecipeManagement from './pages/RecipeManagement';
 import Recipes from './pages/Recipes';
 import ResourceLibrary from './pages/ResourceLibrary';
 import ResourceLibraryEnhanced from './pages/ResourceLibraryEnhanced';
@@ -79,9 +82,6 @@ import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import DailyProgressLogger from './pages/DailyProgressLogger';
-import ClientProgressAnalytics from './pages/ClientProgressAnalytics';
-import RecipeManagement from './pages/RecipeManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -108,6 +108,7 @@ export const PAGES = {
     "ClientPlanBuilder": ClientPlanBuilder,
     "ClientPlanManagement": ClientPlanManagement,
     "ClientPlans": ClientPlans,
+    "ClientProgressAnalytics": ClientProgressAnalytics,
     "ClientRecipes": ClientRecipes,
     "ClientReports": ClientReports,
     "ClientResourceLibrary": ClientResourceLibrary,
@@ -117,6 +118,7 @@ export const PAGES = {
     "CoachSubscription": CoachSubscription,
     "CoachSubscriptions": CoachSubscriptions,
     "Communication": Communication,
+    "DailyProgressLogger": DailyProgressLogger,
     "DietitianDashboard": DietitianDashboard,
     "Documentation": Documentation,
     "FeatureControl": FeatureControl,
@@ -148,6 +150,7 @@ export const PAGES = {
     "ProgressTracking": ProgressTracking,
     "ProjectManagement": ProjectManagement,
     "PurchaseAICredits": PurchaseAICredits,
+    "RecipeManagement": RecipeManagement,
     "Recipes": Recipes,
     "ResourceLibrary": ResourceLibrary,
     "ResourceLibraryEnhanced": ResourceLibraryEnhanced,
@@ -167,9 +170,6 @@ export const PAGES = {
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "DailyProgressLogger": DailyProgressLogger,
-    "ClientProgressAnalytics": ClientProgressAnalytics,
-    "RecipeManagement": RecipeManagement,
 }
 
 export const pagesConfig = {
