@@ -37,6 +37,18 @@ export default function GroupMessaging({ userEmail }) {
   });
   const fileInputRef = useRef(null);
 
+  const formatToIST = (dateString) => {
+    if (!dateString) return '';
+    const utcString = dateString.includes('Z') ? dateString : dateString + 'Z';
+    const date = new Date(utcString);
+    return new Intl.DateTimeFormat('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    }).format(date);
+  };
+
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
@@ -370,7 +382,7 @@ export default function GroupMessaging({ userEmail }) {
               <div className="flex items-center gap-2 mb-1">
                 <span className="font-semibold text-sm">{msg.sender_name || 'User'}</span>
                 <span className="text-xs text-gray-500">
-                  {new Date(msg.created_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {formatToIST(msg.created_date)}
                 </span>
                 {msg.is_pinned && (
                   <Badge variant="secondary" className="text-xs">
