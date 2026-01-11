@@ -29,7 +29,7 @@ export default function AddTeamAppointment() {
     assigned_to: ''
   });
 
-  const { data: user } = useQuery({
+  const { data: user = null } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
