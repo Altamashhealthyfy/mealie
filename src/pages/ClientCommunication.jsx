@@ -652,7 +652,7 @@ export default function ClientCommunication() {
                           )}
                         </CardHeader>
                         <CardContent className="p-3 md:p-4">
-                          <div className="space-y-3 max-h-64 overflow-y-auto mb-4 p-2">
+                          <div className="space-y-3 max-h-96 overflow-y-auto mb-4 p-2">
                             {groupMsgs.length === 0 ? (
                               <p className="text-sm text-gray-500 text-center py-4">No messages yet</p>
                             ) : (
