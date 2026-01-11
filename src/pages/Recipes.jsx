@@ -34,6 +34,15 @@ export default function Recipes() {
   const [showManualUpload, setShowManualUpload] = useState(false);
   const [activeTab, setActiveTab] = useState("library");
   const [editingRecipe, setEditingRecipe] = useState(null);
+  const [showMacroAdjuster, setShowMacroAdjuster] = useState(false);
+  const [showVariations, setShowVariations] = useState(false);
+  const [adjustingRecipe, setAdjustingRecipe] = useState(null);
+  const [variationRecipe, setVariationRecipe] = useState(null);
+  const [adjustingMacros, setAdjustingMacros] = useState(false);
+  const [generatingVariations, setGeneratingVariations] = useState(false);
+  const [targetMacros, setTargetMacros] = useState({ calories: '', protein: '', carbs: '', fats: '' });
+  const [variationRequest, setVariationRequest] = useState('');
+  const [generatedVariations, setGeneratedVariations] = useState([]);
 
   const [manualRecipeForm, setManualRecipeForm] = useState({
     name: "",
@@ -692,6 +701,173 @@ Enjoy your cooking! 🍽️✨
   const canUploadRecipe = isSuperAdmin || (user?.user_type === 'student_coach' && coachPlan?.can_create_recipes);
   const canGenerateAIRecipe = isSuperAdmin || (user?.user_type === 'student_coach' && coachPlan?.can_create_recipes);
 
+  const adjustRecipeMacros = async () => {
+    if (!adjustingRecipe || !targetMacros.calories) {
+      alert("Please specify target macros");
+      return;
+    }
+
+    setAdjustingMacros(true);
+
+    try {
+      const prompt = `Adjust this recipe to meet the target nutritional goals while maintaining taste and authenticity:
+
+Original Recipe:
+- Name: ${adjustingRecipe.name}
+- Current Calories: ${adjustingRecipe.calories} kcal
+- Current Protein: ${adjustingRecipe.protein}g
+- Current Carbs: ${adjustingRecipe.carbs}g
+- Current Fats: ${adjustingRecipe.fats}g
+- Ingredients: ${adjustingRecipe.ingredients?.map(ing => `${ing.item} (${ing.quantity})`).join(', ')}
+
+Target Goals:
+- Calories: ${targetMacros.calories} kcal
+- Protein: ${targetMacros.protein || 'maintain proportion'}g
+- Carbs: ${targetMacros.carbs || 'maintain proportion'}g
+- Fats: ${targetMacros.fats || 'maintain proportion'}g
+
+Provide adjusted ingredient quantities and any ingredient substitutions needed to meet these goals. Maintain the recipe's essence and taste profile.`;
+
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            description: { type: "string" },
+            meal_type: { type: "string" },
+            food_preference: { type: "string" },
+            regional_cuisine: { type: "string" },
+            ingredients: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  item: { type: "string" },
+                  quantity: { type: "string" }
+                }
+              }
+            },
+            instructions: { type: "array", items: { type: "string" } },
+            prep_time: { type: "number" },
+            cook_time: { type: "number" },
+            servings: { type: "number" },
+            calories: { type: "number" },
+            protein: { type: "number" },
+            carbs: { type: "number" },
+            fats: { type: "number" },
+            tags: { type: "array", items: { type: "string" } },
+            adjustments_made: { type: "string" }
+          }
+        }
+      });
+
+      const adjustedRecipe = {
+        ...response,
+        image_url: adjustingRecipe.image_url
+      };
+
+      createRecipeMutation.mutate(adjustedRecipe);
+      setShowMacroAdjuster(false);
+      setTargetMacros({ calories: '', protein: '', carbs: '', fats: '' });
+      alert("✅ Recipe adjusted and saved!");
+    } catch (error) {
+      console.error("Error adjusting recipe:", error);
+      alert("Error adjusting recipe. Please try again.");
+    }
+
+    setAdjustingMacros(false);
+  };
+
+  const generateRecipeVariations = async () => {
+    if (!variationRecipe || !variationRequest.trim()) {
+      alert("Please specify what variations you want");
+      return;
+    }
+
+    setGeneratingVariations(true);
+
+    try {
+      const prompt = `Generate recipe variations based on this request:
+
+Original Recipe:
+- Name: ${variationRecipe.name}
+- Meal Type: ${variationRecipe.meal_type}
+- Food Preference: ${variationRecipe.food_preference}
+- Ingredients: ${variationRecipe.ingredients?.map(ing => `${ing.item} (${ing.quantity})`).join(', ')}
+- Instructions: ${variationRecipe.instructions?.join(' → ')}
+
+Variation Request: ${variationRequest}
+
+Provide 3 creative variations that ${variationRequest}. Each should maintain similar nutritional profile and cooking technique.`;
+
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            variations: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  description: { type: "string" },
+                  key_changes: { type: "array", items: { type: "string" } },
+                  ingredients: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        item: { type: "string" },
+                        quantity: { type: "string" }
+                      }
+                    }
+                  },
+                  instructions: { type: "array", items: { type: "string" } },
+                  calories: { type: "number" },
+                  protein: { type: "number" },
+                  carbs: { type: "number" },
+                  fats: { type: "number" }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      setGeneratedVariations(response.variations || []);
+    } catch (error) {
+      console.error("Error generating variations:", error);
+      alert("Error generating variations. Please try again.");
+    }
+
+    setGeneratingVariations(false);
+  };
+
+  const saveVariationAsRecipe = (variation) => {
+    const recipeData = {
+      name: variation.name,
+      description: variation.description,
+      meal_type: variationRecipe.meal_type,
+      food_preference: variationRecipe.food_preference,
+      regional_cuisine: variationRecipe.regional_cuisine,
+      ingredients: variation.ingredients,
+      instructions: variation.instructions,
+      prep_time: variationRecipe.prep_time,
+      cook_time: variationRecipe.cook_time,
+      servings: variationRecipe.servings,
+      calories: variation.calories,
+      protein: variation.protein,
+      carbs: variation.carbs,
+      fats: variation.fats,
+      tags: [...(variationRecipe.tags || []), 'ai-variation'],
+      image_url: variationRecipe.image_url
+    };
+
+    createRecipeMutation.mutate(recipeData);
+  };
+
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -1060,6 +1236,34 @@ Enjoy your cooking! 🍽️✨
                           <Eye className="w-4 h-4 mr-2" />
                           View Recipe Details
                         </Button>
+                        {canGenerateAIRecipe && (
+                          <div className="grid grid-cols-2 gap-2">
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setAdjustingRecipe(recipe);
+                                setShowMacroAdjuster(true);
+                              }}
+                              variant="outline"
+                              className="border-2 border-purple-500 text-purple-700 hover:bg-purple-50"
+                            >
+                              <TrendingUp className="w-4 h-4 mr-1" />
+                              Adjust
+                            </Button>
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setVariationRecipe(recipe);
+                                setShowVariations(true);
+                              }}
+                              variant="outline"
+                              className="border-2 border-pink-500 text-pink-700 hover:bg-pink-50"
+                            >
+                              <Sparkles className="w-4 h-4 mr-1" />
+                              Vary
+                            </Button>
+                          </div>
+                        )}
                         <Button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -1094,13 +1298,20 @@ Enjoy your cooking! 🍽️✨
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label>What recipe would you like to create?</Label>
-                    <Input
+                    <Textarea
                       value={customRecipeRequest}
                       onChange={(e) => setCustomRecipeRequest(e.target.value)}
-                      placeholder="E.g., High protein vegetarian breakfast under 300 calories"
+                      placeholder="E.g., High protein vegetarian breakfast under 300 calories with ingredients: oats, eggs, milk. Should be gluten-free and take less than 20 minutes."
                       disabled={generatingRecipe}
+                      rows={4}
                     />
                   </div>
+
+                  <Alert className="bg-blue-50 border-blue-200">
+                    <AlertDescription className="text-sm">
+                      <strong>💡 Pro Tips:</strong> Specify ingredients, dietary restrictions (vegan, gluten-free, etc.), calorie/macro targets, cooking time, regional preferences, and difficulty level for best results.
+                    </AlertDescription>
+                  </Alert>
                   <Button
                     onClick={generateCustomRecipe}
                     disabled={generatingRecipe || !customRecipeRequest.trim()}
@@ -1123,6 +1334,210 @@ Enjoy your cooking! 🍽️✨
             </TabsContent>
           )}
         </Tabs>
+
+        {/* AI MACRO ADJUSTER DIALOG */}
+        {canGenerateAIRecipe && (
+          <Dialog open={showMacroAdjuster} onOpenChange={setShowMacroAdjuster}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <TrendingUp className="w-6 h-6 text-purple-500" />
+                  AI Recipe Macro Adjuster
+                </DialogTitle>
+                <CardDescription>
+                  Adjust "{adjustingRecipe?.name}" to meet your target nutritional goals
+                </CardDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4 mt-4">
+                <Alert className="bg-blue-50 border-blue-200">
+                  <AlertDescription className="text-sm">
+                    <strong>Current Macros:</strong> {adjustingRecipe?.calories} kcal • 
+                    {adjustingRecipe?.protein}g protein • {adjustingRecipe?.carbs}g carbs • 
+                    {adjustingRecipe?.fats}g fats
+                  </AlertDescription>
+                </Alert>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Target Calories (required)</Label>
+                    <Input
+                      type="number"
+                      value={targetMacros.calories}
+                      onChange={(e) => setTargetMacros({...targetMacros, calories: e.target.value})}
+                      placeholder="e.g., 400"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Target Protein (g, optional)</Label>
+                    <Input
+                      type="number"
+                      value={targetMacros.protein}
+                      onChange={(e) => setTargetMacros({...targetMacros, protein: e.target.value})}
+                      placeholder="e.g., 30"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Target Carbs (g, optional)</Label>
+                    <Input
+                      type="number"
+                      value={targetMacros.carbs}
+                      onChange={(e) => setTargetMacros({...targetMacros, carbs: e.target.value})}
+                      placeholder="e.g., 45"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Target Fats (g, optional)</Label>
+                    <Input
+                      type="number"
+                      value={targetMacros.fats}
+                      onChange={(e) => setTargetMacros({...targetMacros, fats: e.target.value})}
+                      placeholder="e.g., 15"
+                    />
+                  </div>
+                </div>
+
+                <Alert className="bg-amber-50 border-amber-200">
+                  <AlertDescription className="text-xs text-amber-800">
+                    AI will adjust ingredient quantities and suggest substitutions to meet your target macros while maintaining the recipe's essence.
+                  </AlertDescription>
+                </Alert>
+
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowMacroAdjuster(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={adjustRecipeMacros}
+                    disabled={adjustingMacros || !targetMacros.calories}
+                    className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  >
+                    {adjustingMacros ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Adjusting Recipe...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Adjust & Save as New Recipe
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {/* AI RECIPE VARIATIONS DIALOG */}
+        {canGenerateAIRecipe && (
+          <Dialog open={showVariations} onOpenChange={(open) => {
+            setShowVariations(open);
+            if (!open) {
+              setGeneratedVariations([]);
+              setVariationRequest('');
+            }
+          }}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Sparkles className="w-6 h-6 text-pink-500" />
+                  AI Recipe Variations & Substitutions
+                </DialogTitle>
+                <CardDescription>
+                  Generate creative variations of "{variationRecipe?.name}"
+                </CardDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label>What variations would you like?</Label>
+                  <Textarea
+                    value={variationRequest}
+                    onChange={(e) => setVariationRequest(e.target.value)}
+                    placeholder="e.g., make it vegan, use gluten-free ingredients, reduce cooking time, make it spicier, swap paneer for tofu"
+                    rows={3}
+                    disabled={generatingVariations}
+                  />
+                </div>
+
+                <Button
+                  onClick={generateRecipeVariations}
+                  disabled={generatingVariations || !variationRequest.trim()}
+                  className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                >
+                  {generatingVariations ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Generating Variations...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Generate Variations
+                    </>
+                  )}
+                </Button>
+
+                {generatedVariations.length > 0 && (
+                  <div className="space-y-4 mt-6">
+                    <h3 className="font-semibold text-lg">Generated Variations:</h3>
+                    {generatedVariations.map((variation, index) => (
+                      <Card key={index} className="border-2 border-pink-200">
+                        <CardHeader>
+                          <CardTitle className="text-lg">{variation.name}</CardTitle>
+                          <CardDescription>{variation.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div>
+                            <p className="font-semibold text-sm mb-2">Key Changes:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {variation.key_changes?.map((change, i) => (
+                                <Badge key={i} variant="secondary">{change}</Badge>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-4 gap-2 text-sm">
+                            <div className="p-2 bg-red-50 rounded">
+                              <p className="text-xs text-gray-600">Calories</p>
+                              <p className="font-bold">{variation.calories}</p>
+                            </div>
+                            <div className="p-2 bg-blue-50 rounded">
+                              <p className="text-xs text-gray-600">Protein</p>
+                              <p className="font-bold">{variation.protein}g</p>
+                            </div>
+                            <div className="p-2 bg-yellow-50 rounded">
+                              <p className="text-xs text-gray-600">Carbs</p>
+                              <p className="font-bold">{variation.carbs}g</p>
+                            </div>
+                            <div className="p-2 bg-purple-50 rounded">
+                              <p className="text-xs text-gray-600">Fats</p>
+                              <p className="font-bold">{variation.fats}g</p>
+                            </div>
+                          </div>
+
+                          <Button
+                            onClick={() => saveVariationAsRecipe(variation)}
+                            className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Save as New Recipe
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
 
         {/* MANUAL UPLOAD DIALOG - ADMIN ONLY */}
         {canUploadRecipe && (
