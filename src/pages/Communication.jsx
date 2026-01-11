@@ -501,7 +501,7 @@ export default function Communication() {
             <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden">
               <div className="flex flex-col md:grid md:grid-cols-12 h-full">
                 {/* Client List Sidebar */}
-                <div className={`${selectedClient ? 'hidden md:flex' : 'flex'} md:col-span-4 border-r border-gray-200 flex-col h-full md:h-auto`}>
+                <div className="flex md:col-span-4 border-r border-gray-200 flex-col h-full md:h-auto overflow-hidden">
               <CardHeader className="border-b border-gray-200 flex-shrink-0" id="message-clients-list">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -603,7 +603,7 @@ export default function Communication() {
             </div>
 
                 {/* Chat Area */}
-                <div className={`${selectedClient ? 'flex' : 'hidden md:flex'} md:col-span-8 flex-col h-full md:h-auto`}>
+                <div className="flex md:col-span-8 flex-col h-full md:h-auto overflow-hidden">
               {selectedClient ? (
                 <>
                   {/* Chat Header */}
