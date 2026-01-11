@@ -124,6 +124,16 @@ export default function ClientCommunication() {
     refetchInterval: 5000,
   });
 
+  const { data: coachUser } = useQuery({
+    queryKey: ['coachUser', clientProfile?.assigned_coach],
+    queryFn: async () => {
+      if (!clientProfile?.assigned_coach) return null;
+      const users = await base44.entities.User.filter({ email: clientProfile.assigned_coach });
+      return users[0] || null;
+    },
+    enabled: !!clientProfile?.assigned_coach,
+  });
+
   const sendMessageMutation = useMutation({
     mutationFn: async (data) => {
       const result = await base44.entities.Message.create(data);
