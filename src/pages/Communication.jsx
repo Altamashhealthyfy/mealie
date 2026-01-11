@@ -486,8 +486,8 @@ export default function Communication() {
         </div>
 
         <Card className="border-none shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 160px)' }}>
-          <Tabs defaultValue="direct" className="h-full flex flex-col">
-            <TabsList className="rounded-none border-b w-full grid grid-cols-2 flex-shrink-0">
+          <Tabs defaultValue="direct" className="h-full">
+            <TabsList className="rounded-none border-b w-full grid grid-cols-2">
               <TabsTrigger value="direct" className="flex gap-2">
                 <MessageSquare className="w-4 h-4" />
                 Direct Messages
@@ -498,8 +498,8 @@ export default function Communication() {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="direct" className="flex-1 mt-0 data-[state=active]:flex data-[state=active]:flex-col">
-              <div className="flex flex-col md:grid md:grid-cols-12 flex-1">
+            <TabsContent value="direct" className="h-full mt-0">
+              <div className="flex flex-col md:grid md:grid-cols-12 h-full">
                 {/* Client List Sidebar */}
                 <div className={`${selectedClient ? 'hidden md:flex' : 'flex'} md:col-span-4 border-r border-gray-200 flex-col h-full md:h-auto`}>
               <CardHeader className="border-b border-gray-200 flex-shrink-0" id="message-clients-list">
@@ -838,7 +838,7 @@ export default function Communication() {
               </div>
             </TabsContent>
 
-            <TabsContent value="groups" className="flex-1 mt-0 p-6 overflow-y-auto data-[state=active]:flex data-[state=active]:flex-col">
+            <TabsContent value="groups" className="h-full mt-0 p-6 overflow-y-auto">
               <GroupMessaging userEmail={user?.email} />
             </TabsContent>
           </Tabs>
