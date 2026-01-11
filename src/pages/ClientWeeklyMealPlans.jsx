@@ -18,6 +18,8 @@ export default function ClientWeeklyMealPlans() {
   const [comment, setComment] = useState('');
   const [completed, setCompleted] = useState(false);
 
+  const queryClient = useQueryClient();
+  
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me()
