@@ -276,6 +276,24 @@ export default function GroupMessaging({ userEmail }) {
   const mainMessages = groupMessages.filter(m => !m.parent_message_id);
   const getThreadReplies = (messageId) => groupMessages.filter(m => m.parent_message_id === messageId);
 
+  const handleDownload = async (url, filename) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename || 'download';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Download failed:', error);
+      toast.error('Failed to download file');
+    }
+  };
+
   const renderAttachment = (message) => {
     if (!message.attachment_url) return null;
 
@@ -284,30 +302,44 @@ export default function GroupMessaging({ userEmail }) {
 
     if (isImage) {
       return (
-        <a href={message.attachment_url} target="_blank" rel="noopener noreferrer">
-          <img
-            src={message.attachment_url}
-            alt={message.attachment_name}
-            className="max-w-full rounded-lg cursor-pointer hover:opacity-90 max-h-48 mt-2"
-          />
-        </a>
+        <div className="relative group mt-2">
+          <a href={message.attachment_url} target="_blank" rel="noopener noreferrer">
+            <img
+              src={message.attachment_url}
+              alt={message.attachment_name}
+              className="max-w-full rounded-lg cursor-pointer hover:opacity-90 max-h-48"
+            />
+          </a>
+          <button
+            onClick={() => handleDownload(message.attachment_url, message.attachment_name)}
+            className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition"
+          >
+            <Download className="w-4 h-4" />
+          </button>
+        </div>
       );
     }
 
     if (isVideo) {
       return (
-        <video controls className="max-w-full rounded-lg max-h-48 mt-2">
-          <source src={message.attachment_url} type={message.attachment_type} />
-        </video>
+        <div className="relative group mt-2">
+          <video controls className="max-w-full rounded-lg max-h-48">
+            <source src={message.attachment_url} type={message.attachment_type} />
+          </video>
+          <button
+            onClick={() => handleDownload(message.attachment_url, message.attachment_name)}
+            className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition"
+          >
+            <Download className="w-4 h-4" />
+          </button>
+        </div>
       );
     }
 
     return (
-      <a
-        href={message.attachment_url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-2 p-2 rounded-lg bg-gray-100 hover:bg-gray-200 mt-2"
+      <button
+        onClick={() => handleDownload(message.attachment_url, message.attachment_name)}
+        className="flex items-center gap-2 p-2 rounded-lg bg-gray-100 hover:bg-gray-200 mt-2 w-full text-left"
       >
         {getFileIcon(message.attachment_type)}
         <div className="flex-1 min-w-0">
@@ -317,7 +349,7 @@ export default function GroupMessaging({ userEmail }) {
           )}
         </div>
         <Download className="w-4 h-4" />
-      </a>
+      </button>
     );
   };
 

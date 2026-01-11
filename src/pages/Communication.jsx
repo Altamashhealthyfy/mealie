@@ -264,6 +264,24 @@ export default function Communication() {
     return (bytes / 1073741824).toFixed(1) + ' GB';
   };
 
+  const handleDownload = async (url, filename) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename || 'download';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Download failed:', error);
+      toast.error('Failed to download file');
+    }
+  };
+
   const renderAttachment = (message, isFromDietitian) => {
     if (!message.attachment_url) return null;
 
@@ -272,37 +290,50 @@ export default function Communication() {
 
     if (isImage) {
       return (
-        <a href={message.attachment_url} target="_blank" rel="noopener noreferrer">
-          <img
-            src={message.attachment_url}
-            alt={message.attachment_name}
-            className="max-w-full rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-            style={{ maxHeight: '300px' }}
-          />
-        </a>
+        <div className="relative group">
+          <a href={message.attachment_url} target="_blank" rel="noopener noreferrer">
+            <img
+              src={message.attachment_url}
+              alt={message.attachment_name}
+              className="max-w-full rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+              style={{ maxHeight: '300px' }}
+            />
+          </a>
+          <button
+            onClick={() => handleDownload(message.attachment_url, message.attachment_name)}
+            className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition"
+          >
+            <Download className="w-4 h-4" />
+          </button>
+        </div>
       );
     }
 
     if (isVideo) {
       return (
-        <video
-          controls
-          className="max-w-full rounded-lg"
-          style={{ maxHeight: '300px' }}
-        >
-          <source src={message.attachment_url} type={message.attachment_type} />
-          Your browser does not support the video tag.
-        </video>
+        <div className="relative group">
+          <video
+            controls
+            className="max-w-full rounded-lg"
+            style={{ maxHeight: '300px' }}
+          >
+            <source src={message.attachment_url} type={message.attachment_type} />
+            Your browser does not support the video tag.
+          </video>
+          <button
+            onClick={() => handleDownload(message.attachment_url, message.attachment_name)}
+            className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition"
+          >
+            <Download className="w-4 h-4" />
+          </button>
+        </div>
       );
     }
 
     return (
-      <a
-        href={message.attachment_url}
-        target="_blank"
-        rel="noopener noreferrer"
-        download={message.attachment_name}
-        className={`flex items-center gap-2 p-3 rounded-lg border transition-colors ${
+      <button
+        onClick={() => handleDownload(message.attachment_url, message.attachment_name)}
+        className={`flex items-center gap-2 p-3 rounded-lg border transition-colors w-full text-left ${
           isFromDietitian
             ? 'bg-white/10 border-white/20 hover:bg-white/20'
             : 'bg-white border-gray-200 hover:bg-gray-50'
@@ -320,7 +351,7 @@ export default function Communication() {
           )}
         </div>
         <Download className="w-4 h-4 flex-shrink-0" />
-      </a>
+      </button>
     );
   };
 
