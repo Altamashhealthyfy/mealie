@@ -54,6 +54,11 @@ export default function Communication() {
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { handleTyping, stopTyping } = useTypingIndicator(
     selectedClient?.id,
     null,
@@ -98,11 +103,6 @@ export default function Communication() {
     const isNearBottom = element.scrollHeight - element.scrollTop - element.clientHeight < 100;
     setShowScrollButton(!isNearBottom);
   };
-
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-  });
 
   const { data: coaches } = useQuery({
     queryKey: ['coaches'],
