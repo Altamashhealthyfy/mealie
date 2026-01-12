@@ -41,6 +41,8 @@ import {
   Users,
   Star,
   Send,
+  Grid,
+  List,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -64,6 +66,7 @@ export default function ResourceLibraryEnhanced() {
   const [selectedResource, setSelectedResource] = useState(null);
   const [uploadedFile, setUploadedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [viewMode, setViewMode] = useState("grid"); // "grid" or "list"
 
   const [categoryForm, setCategoryForm] = useState({
     name: "",
@@ -357,6 +360,22 @@ export default function ResourceLibraryEnhanced() {
                   )}
                 </SelectContent>
               </Select>
+              <div className="flex gap-2">
+                <Button
+                  variant={viewMode === "grid" ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => setViewMode("grid")}
+                >
+                  <Grid className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "default" : "outline"}
+                  size="icon"
+                  onClick={() => setViewMode("list")}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+              </div>
               <Dialog open={showNewResource} onOpenChange={setShowNewResource}>
                 <DialogTrigger asChild>
                   <Button className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">
@@ -614,8 +633,8 @@ export default function ResourceLibraryEnhanced() {
               </Dialog>
             </div>
 
-            {/* Resources Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Resources Grid/List */}
+            <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
               {filteredResources.length === 0 ? (
                 <Card className="col-span-full p-12 text-center border-dashed">
                   <BookOpen className="w-16 h-16 mx-auto text-gray-300 mb-4" />
@@ -626,7 +645,7 @@ export default function ResourceLibraryEnhanced() {
               ) : (
                 filteredResources.map((resource) => {
                   const Icon = categoryIcons[resource.category];
-                  return (
+                  return viewMode === "grid" ? (
                     <Card
                       key={resource.id}
                       className="flex flex-col overflow-hidden hover:shadow-lg transition"
@@ -828,6 +847,94 @@ export default function ResourceLibraryEnhanced() {
                           </Button>
                         </div>
                       </div>
+                    </Card>
+                  ) : (
+                    <Card key={resource.id} className="hover:shadow-lg transition">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-4">
+                          <div className="flex-shrink-0">
+                            {resource.thumbnail_url ? (
+                              <img
+                                src={resource.thumbnail_url}
+                                alt={resource.title}
+                                className="w-20 h-20 object-cover rounded-lg"
+                              />
+                            ) : (
+                              <div className="w-20 h-20 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <Icon className="w-8 h-8 text-orange-500" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <h3 className="font-semibold text-base line-clamp-1">{resource.title}</h3>
+                              {!resource.is_published && (
+                                <Badge variant="outline" className="text-xs flex-shrink-0">Draft</Badge>
+                              )}
+                            </div>
+                            {resource.description && (
+                              <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                                {resource.description}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <span className="flex items-center gap-1">
+                                <Eye className="w-3 h-3" /> {resource.view_count || 0}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Users className="w-3 h-3" /> {resource.assignment_count || 0}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Heart className="w-3 h-3" /> {resource.completion_count || 0}
+                              </span>
+                              {resource.average_rating && (
+                                <span className="flex items-center gap-1">
+                                  <Star className="w-3 h-3" /> {resource.average_rating.toFixed(1)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2 flex-shrink-0">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedResource(resource);
+                                setShowAssignDialog(true);
+                              }}
+                            >
+                              <Send className="w-4 h-4 mr-2" />
+                              Assign
+                            </Button>
+                            <div className="flex gap-2">
+                              {!resource.is_published && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-green-600 border-green-300"
+                                  onClick={() => publishResourceMutation.mutate(resource.id)}
+                                  disabled={publishResourceMutation.isPending}
+                                >
+                                  Publish
+                                </Button>
+                              )}
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-red-600 border-red-300"
+                                onClick={() => {
+                                  if (confirm("Delete this resource?")) {
+                                    deleteResourceMutation.mutate(resource.id);
+                                  }
+                                }}
+                                disabled={deleteResourceMutation.isPending}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
                     </Card>
                   );
                 })
