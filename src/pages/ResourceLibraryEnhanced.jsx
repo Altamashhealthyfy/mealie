@@ -1304,8 +1304,9 @@ export default function ResourceLibraryEnhanced() {
                   )}
 
                   {viewingResource.file_type?.includes('pdf') && (
-                    <iframe
-                      src={viewingResource.content_url}
+                    <embed
+                      src={`${viewingResource.content_url}#toolbar=1&navpanes=0&scrollbar=1`}
+                      type="application/pdf"
                       className="w-full"
                       style={{ height: '600px' }}
                       title={viewingResource.title}
