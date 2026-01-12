@@ -1304,13 +1304,26 @@ export default function ResourceLibraryEnhanced() {
                   )}
 
                   {viewingResource.file_type?.includes('pdf') && (
-                    <embed
-                      src={`${viewingResource.content_url}#toolbar=1&navpanes=0&scrollbar=1`}
-                      type="application/pdf"
-                      className="w-full"
-                      style={{ height: '600px' }}
-                      title={viewingResource.title}
-                    />
+                    <div className="w-full" style={{ height: '600px' }}>
+                      <object
+                        data={`${viewingResource.content_url}#toolbar=1&navpanes=0&scrollbar=1`}
+                        type="application/pdf"
+                        className="w-full h-full"
+                      >
+                        <iframe
+                          src={`https://docs.google.com/viewer?url=${encodeURIComponent(viewingResource.content_url)}&embedded=true`}
+                          className="w-full h-full"
+                          title={viewingResource.title}
+                        >
+                          <p className="p-4 text-center">
+                            PDF preview not available. 
+                            <a href={viewingResource.content_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline ml-2">
+                              Click here to view
+                            </a>
+                          </p>
+                        </iframe>
+                      </object>
+                    </div>
                   )}
 
                   {!viewingResource.file_type?.startsWith('image/') && 
