@@ -43,6 +43,7 @@ import {
   Send,
   Grid,
   List,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -67,6 +68,7 @@ export default function ResourceLibraryEnhanced() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [viewMode, setViewMode] = useState("grid"); // "grid" or "list"
+  const [viewingResource, setViewingResource] = useState(null);
 
   const [categoryForm, setCategoryForm] = useState({
     name: "",
@@ -702,7 +704,7 @@ export default function ResourceLibraryEnhanced() {
                           variant="outline"
                           size="sm"
                           className="w-full"
-                          onClick={() => window.open(resource.content_url, '_blank')}
+                          onClick={() => setViewingResource(resource)}
                         >
                           <Eye className="w-4 h-4 mr-2" />
                           View Resource
@@ -907,7 +909,7 @@ export default function ResourceLibraryEnhanced() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => window.open(resource.content_url, '_blank')}
+                              onClick={() => setViewingResource(resource)}
                             >
                               <Eye className="w-4 h-4 mr-2" />
                               View
@@ -1194,6 +1196,142 @@ export default function ResourceLibraryEnhanced() {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* View Resource Dialog */}
+        <Dialog open={!!viewingResource} onOpenChange={() => setViewingResource(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                {viewingResource && categoryIcons[viewingResource.category] && 
+                  React.createElement(categoryIcons[viewingResource.category], { className: "w-6 h-6 text-orange-500" })
+                }
+                {viewingResource?.title}
+              </DialogTitle>
+            </DialogHeader>
+            
+            {viewingResource && (
+              <div className="space-y-4">
+                {viewingResource.thumbnail_url && (
+                  <img
+                    src={viewingResource.thumbnail_url}
+                    alt={viewingResource.title}
+                    className="w-full h-64 object-cover rounded-lg"
+                  />
+                )}
+
+                <div className="flex flex-wrap gap-2">
+                  <Badge className="bg-orange-100 text-orange-700 capitalize">
+                    {viewingResource.category}
+                  </Badge>
+                  {viewingResource.subcategory && (
+                    <Badge variant="outline">{viewingResource.subcategory}</Badge>
+                  )}
+                  {viewingResource.difficulty_level && (
+                    <Badge className="bg-blue-100 text-blue-700 capitalize">
+                      {viewingResource.difficulty_level}
+                    </Badge>
+                  )}
+                  {viewingResource.duration_minutes && (
+                    <Badge className="bg-purple-100 text-purple-700">
+                      {viewingResource.duration_minutes} min
+                    </Badge>
+                  )}
+                </div>
+
+                {viewingResource.description && (
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-700">{viewingResource.description}</p>
+                  </div>
+                )}
+
+                {viewingResource.tags?.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">Tags:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {viewingResource.tags.map((tag, idx) => (
+                        <Badge key={idx} variant="outline" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="text-center">
+                    <Eye className="w-5 h-5 mx-auto text-blue-600 mb-1" />
+                    <p className="text-lg font-bold">{viewingResource.view_count || 0}</p>
+                    <p className="text-xs text-gray-600">Views</p>
+                  </div>
+                  <div className="text-center">
+                    <Users className="w-5 h-5 mx-auto text-purple-600 mb-1" />
+                    <p className="text-lg font-bold">{viewingResource.assignment_count || 0}</p>
+                    <p className="text-xs text-gray-600">Assigned</p>
+                  </div>
+                  <div className="text-center">
+                    <Heart className="w-5 h-5 mx-auto text-green-600 mb-1" />
+                    <p className="text-lg font-bold">{viewingResource.completion_count || 0}</p>
+                    <p className="text-xs text-gray-600">Completed</p>
+                  </div>
+                  <div className="text-center">
+                    <Star className="w-5 h-5 mx-auto text-yellow-600 mb-1" />
+                    <p className="text-lg font-bold">
+                      {viewingResource.average_rating ? viewingResource.average_rating.toFixed(1) : 'N/A'}
+                    </p>
+                    <p className="text-xs text-gray-600">Rating</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => window.open(viewingResource.content_url, '_blank')}
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500"
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Open in New Tab
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const link = document.createElement('a');
+                      link.href = viewingResource.content_url;
+                      link.download = viewingResource.title || 'resource';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }}
+                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
+
+                {/* Embedded preview for supported file types */}
+                {viewingResource.file_type?.startsWith('image/') && (
+                  <div className="border rounded-lg overflow-hidden">
+                    <img src={viewingResource.content_url} alt={viewingResource.title} className="w-full" />
+                  </div>
+                )}
+
+                {viewingResource.file_type?.startsWith('video/') && (
+                  <div className="border rounded-lg overflow-hidden">
+                    <video controls className="w-full" src={viewingResource.content_url} />
+                  </div>
+                )}
+
+                {viewingResource.file_type?.includes('pdf') && (
+                  <div className="border rounded-lg overflow-hidden" style={{ height: '600px' }}>
+                    <iframe
+                      src={viewingResource.content_url}
+                      className="w-full h-full"
+                      title={viewingResource.title}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
