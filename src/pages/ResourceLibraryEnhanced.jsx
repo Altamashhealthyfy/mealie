@@ -1282,6 +1282,47 @@ export default function ResourceLibraryEnhanced() {
                   </div>
                 </div>
 
+                {/* Embedded preview for all file types */}
+                <div className="border rounded-lg overflow-hidden bg-gray-50">
+                  {viewingResource.file_type?.startsWith('image/') && (
+                    <img src={viewingResource.content_url} alt={viewingResource.title} className="w-full max-h-[500px] object-contain" />
+                  )}
+
+                  {viewingResource.file_type?.startsWith('video/') && (
+                    <video controls className="w-full max-h-[500px]" src={viewingResource.content_url}>
+                      Your browser does not support the video tag.
+                    </video>
+                  )}
+
+                  {viewingResource.file_type?.startsWith('audio/') && (
+                    <div className="p-8 flex items-center justify-center">
+                      <audio controls className="w-full">
+                        <source src={viewingResource.content_url} type={viewingResource.file_type} />
+                        Your browser does not support the audio tag.
+                      </audio>
+                    </div>
+                  )}
+
+                  {viewingResource.file_type?.includes('pdf') && (
+                    <iframe
+                      src={viewingResource.content_url}
+                      className="w-full"
+                      style={{ height: '600px' }}
+                      title={viewingResource.title}
+                    />
+                  )}
+
+                  {!viewingResource.file_type?.startsWith('image/') && 
+                   !viewingResource.file_type?.startsWith('video/') && 
+                   !viewingResource.file_type?.startsWith('audio/') && 
+                   !viewingResource.file_type?.includes('pdf') && (
+                    <div className="p-8 text-center">
+                      <FileText className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                      <p className="text-gray-600 mb-4">Preview not available for this file type</p>
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex gap-3">
                   <Button
                     onClick={() => window.open(viewingResource.content_url, '_blank')}
@@ -1291,13 +1332,21 @@ export default function ResourceLibraryEnhanced() {
                     Open in New Tab
                   </Button>
                   <Button
-                    onClick={() => {
-                      const link = document.createElement('a');
-                      link.href = viewingResource.content_url;
-                      link.download = viewingResource.title || 'resource';
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
+                    onClick={async () => {
+                      try {
+                        const response = await fetch(viewingResource.content_url);
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = viewingResource.title || 'resource';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        window.URL.revokeObjectURL(url);
+                      } catch (error) {
+                        console.error('Download failed:', error);
+                      }
                     }}
                     className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500"
                   >
@@ -1305,29 +1354,6 @@ export default function ResourceLibraryEnhanced() {
                     Download
                   </Button>
                 </div>
-
-                {/* Embedded preview for supported file types */}
-                {viewingResource.file_type?.startsWith('image/') && (
-                  <div className="border rounded-lg overflow-hidden">
-                    <img src={viewingResource.content_url} alt={viewingResource.title} className="w-full" />
-                  </div>
-                )}
-
-                {viewingResource.file_type?.startsWith('video/') && (
-                  <div className="border rounded-lg overflow-hidden">
-                    <video controls className="w-full" src={viewingResource.content_url} />
-                  </div>
-                )}
-
-                {viewingResource.file_type?.includes('pdf') && (
-                  <div className="border rounded-lg overflow-hidden" style={{ height: '600px' }}>
-                    <iframe
-                      src={viewingResource.content_url}
-                      className="w-full h-full"
-                      title={viewingResource.title}
-                    />
-                  </div>
-                )}
               </div>
             )}
           </DialogContent>
