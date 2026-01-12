@@ -698,6 +698,15 @@ export default function ResourceLibraryEnhanced() {
                         </div>
                       </CardContent>
                       <div className="border-t p-3 space-y-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => window.open(resource.content_url, '_blank')}
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Resource
+                        </Button>
                         <Dialog
                           open={
                             showAssignDialog && selectedResource?.id === resource.id
@@ -895,6 +904,14 @@ export default function ResourceLibraryEnhanced() {
                             </div>
                           </div>
                           <div className="flex flex-col gap-2 flex-shrink-0">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => window.open(resource.content_url, '_blank')}
+                            >
+                              <Eye className="w-4 h-4 mr-2" />
+                              View
+                            </Button>
                             <Button
                               variant="outline"
                               size="sm"
