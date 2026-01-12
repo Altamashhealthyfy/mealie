@@ -28,7 +28,9 @@ import {
   ChefHat,
   Plus,
   Lock,
-  Crown
+  Crown,
+  Grid,
+  List
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useCoachPlanPermissions } from "@/components/permissions/useCoachPlanPermissions";
@@ -60,6 +62,7 @@ export default function TemplateLibraryManager() {
     is_public: false
   });
   const [activeTab, setActiveTab] = useState("downloadable");
+  const [viewMode, setViewMode] = useState("grid"); // "grid" or "list"
   const [showAIGenerateDialog, setShowAIGenerateDialog] = useState(false);
   const [generatingAI, setGeneratingAI] = useState(false);
   const [aiGeneratedPlan, setAiGeneratedPlan] = useState(null);
@@ -933,7 +936,25 @@ Extract:
 
             <Card className="border-none shadow-xl">
               <CardHeader>
-                <CardTitle className="text-xl md:text-2xl">Downloadable Templates ({templates.length})</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-xl md:text-2xl">Downloadable Templates ({templates.length})</CardTitle>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={viewMode === "grid" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setViewMode("grid")}
+                    >
+                      <Grid className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant={viewMode === "list" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setViewMode("list")}
+                    >
+                      <List className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 {templates.length === 0 ? (
@@ -942,71 +963,137 @@ Extract:
                     <p className="text-gray-600">No templates yet</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" : "space-y-3"}>
                     {templates.map((template) => (
-                      <Card key={template.id} className="border-2">
-                        <CardHeader className="pb-3">
-                          <div className="flex justify-between gap-2">
-                            <CardTitle className="text-base truncate">{template.name}</CardTitle>
-                            <Badge className="bg-blue-100 text-blue-700 uppercase text-xs">
-                              {template.file_type}
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                          <p className="text-xs text-gray-600 line-clamp-2">{template.description}</p>
-                          
-                          <div className="flex flex-wrap gap-1">
-                            <Badge variant="outline" className="text-xs capitalize">
-                              {template.category?.replace('_', ' ')}
-                            </Badge>
-                            {template.target_calories && (
-                              <Badge className="bg-orange-100 text-orange-700 text-xs">
-                                {template.target_calories} kcal
+                      viewMode === "grid" ? (
+                        <Card key={template.id} className="border-2">
+                          <CardHeader className="pb-3">
+                            <div className="flex justify-between gap-2">
+                              <CardTitle className="text-base truncate">{template.name}</CardTitle>
+                              <Badge className="bg-blue-100 text-blue-700 uppercase text-xs">
+                                {template.file_type}
                               </Badge>
-                            )}
-                          </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="space-y-3">
+                            <p className="text-xs text-gray-600 line-clamp-2">{template.description}</p>
+                            
+                            <div className="flex flex-wrap gap-1">
+                              <Badge variant="outline" className="text-xs capitalize">
+                                {template.category?.replace('_', ' ')}
+                              </Badge>
+                              {template.target_calories && (
+                                <Badge className="bg-orange-100 text-orange-700 text-xs">
+                                  {template.target_calories} kcal
+                                </Badge>
+                              )}
+                            </div>
 
-                          <div className="text-xs text-gray-500">
-                            <p>📥 {template.download_count} downloads</p>
-                            <p>📦 {template.file_size}</p>
-                            <p>🔢 v{template.version || '1.0'}</p>
-                          </div>
+                            <div className="text-xs text-gray-500">
+                              <p>📥 {template.download_count} downloads</p>
+                              <p>📦 {template.file_size}</p>
+                              <p>🔢 v{template.version || '1.0'}</p>
+                            </div>
 
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1 text-xs"
-                              onClick={() => setViewingTemplate(template)}
-                            >
-                              <Eye className="w-3 h-3" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1 text-xs"
-                              onClick={() => handleEdit(template)}
-                            >
-                              <Edit className="w-3 h-3" />
-                            </Button>
-                            {canDeleteTemplate(template) && (
+                            <div className="flex gap-2">
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="text-red-600 text-xs"
-                                onClick={() => {
-                                  if (confirm(`Delete "${template.name}"?`)) {
-                                    deleteMutation.mutate(template.id);
-                                  }
-                                }}
+                                className="flex-1 text-xs"
+                                onClick={() => setViewingTemplate(template)}
                               >
-                                <Trash2 className="w-3 h-3" />
+                                <Eye className="w-3 h-3" />
                               </Button>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1 text-xs"
+                                onClick={() => handleEdit(template)}
+                              >
+                                <Edit className="w-3 h-3" />
+                              </Button>
+                              {canDeleteTemplate(template) && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-red-600 text-xs"
+                                  onClick={() => {
+                                    if (confirm(`Delete "${template.name}"?`)) {
+                                      deleteMutation.mutate(template.id);
+                                    }
+                                  }}
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ) : (
+                        <Card key={template.id} className="border-2">
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-4">
+                              <div className="flex-shrink-0">
+                                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                  <FileText className="w-6 h-6 text-blue-600" />
+                                </div>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h3 className="font-semibold text-base truncate">{template.name}</h3>
+                                  <Badge className="bg-blue-100 text-blue-700 uppercase text-xs">
+                                    {template.file_type}
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-gray-600 line-clamp-1 mb-2">{template.description}</p>
+                                <div className="flex flex-wrap gap-2">
+                                  <Badge variant="outline" className="text-xs capitalize">
+                                    {template.category?.replace('_', ' ')}
+                                  </Badge>
+                                  {template.target_calories && (
+                                    <Badge className="bg-orange-100 text-orange-700 text-xs">
+                                      {template.target_calories} kcal
+                                    </Badge>
+                                  )}
+                                  <span className="text-xs text-gray-500">📥 {template.download_count}</span>
+                                  <span className="text-xs text-gray-500">📦 {template.file_size}</span>
+                                  <span className="text-xs text-gray-500">🔢 v{template.version || '1.0'}</span>
+                                </div>
+                              </div>
+                              <div className="flex gap-2 flex-shrink-0">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setViewingTemplate(template)}
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleEdit(template)}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                {canDeleteTemplate(template) && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-red-600"
+                                    onClick={() => {
+                                      if (confirm(`Delete "${template.name}"?`)) {
+                                        deleteMutation.mutate(template.id);
+                                      }
+                                    }}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )
                     ))}
                   </div>
                 )}

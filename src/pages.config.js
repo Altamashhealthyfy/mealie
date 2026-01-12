@@ -13,6 +13,7 @@ import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
 import ClientAppointments from './pages/ClientAppointments';
 import ClientAssessments from './pages/ClientAssessments';
 import ClientCommunication from './pages/ClientCommunication';
+import ClientCommunicationHub from './pages/ClientCommunicationHub';
 import ClientDashboard from './pages/ClientDashboard';
 import ClientFinanceManager from './pages/ClientFinanceManager';
 import ClientManagement from './pages/ClientManagement';
@@ -25,6 +26,7 @@ import ClientRecipes from './pages/ClientRecipes';
 import ClientReports from './pages/ClientReports';
 import ClientResourceLibrary from './pages/ClientResourceLibrary';
 import ClientResourceTracker from './pages/ClientResourceTracker';
+import ClientWeeklyMealPlans from './pages/ClientWeeklyMealPlans';
 import ClinicalIntake from './pages/ClinicalIntake';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachSubscription from './pages/CoachSubscription';
@@ -81,10 +83,8 @@ import VerticalManagement from './pages/VerticalManagement';
 import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
-import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
-import ClientWeeklyMealPlans from './pages/ClientWeeklyMealPlans';
-import ClientCommunicationHub from './pages/ClientCommunicationHub';
+import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import __Layout from './Layout.jsx';
 
 
@@ -104,6 +104,7 @@ export const PAGES = {
     "ClientAppointments": ClientAppointments,
     "ClientAssessments": ClientAssessments,
     "ClientCommunication": ClientCommunication,
+    "ClientCommunicationHub": ClientCommunicationHub,
     "ClientDashboard": ClientDashboard,
     "ClientFinanceManager": ClientFinanceManager,
     "ClientManagement": ClientManagement,
@@ -116,6 +117,7 @@ export const PAGES = {
     "ClientReports": ClientReports,
     "ClientResourceLibrary": ClientResourceLibrary,
     "ClientResourceTracker": ClientResourceTracker,
+    "ClientWeeklyMealPlans": ClientWeeklyMealPlans,
     "ClinicalIntake": ClinicalIntake,
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachSubscription": CoachSubscription,
@@ -172,10 +174,8 @@ export const PAGES = {
     "VoiceCalendarAssistant": VoiceCalendarAssistant,
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
-    "WhiteLabelSubscription": WhiteLabelSubscription,
     "WeeklyMealPlans": WeeklyMealPlans,
-    "ClientWeeklyMealPlans": ClientWeeklyMealPlans,
-    "ClientCommunicationHub": ClientCommunicationHub,
+    "WhiteLabelSubscription": WhiteLabelSubscription,
 }
 
 export const pagesConfig = {
