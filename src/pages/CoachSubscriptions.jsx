@@ -98,14 +98,6 @@ export default function CoachSubscriptions() {
     setIsProcessingPayment(true);
 
     try {
-      // Cancel any existing active subscriptions (including manually granted ones)
-      if (mySubscription && mySubscription.status === 'active') {
-        await updateSubscriptionMutation.mutateAsync({
-          id: mySubscription.id,
-          data: { status: 'cancelled' }
-        });
-      }
-
       const originalAmount = billingCycle === 'yearly' ? plan.yearly_price : plan.monthly_price;
       const amount = appliedCoupon ? appliedCoupon.finalAmount : originalAmount;
       const startDate = new Date().toISOString().split('T')[0];
@@ -165,6 +157,14 @@ export default function CoachSubscriptions() {
             });
 
             if (verification.success) {
+              // Cancel old subscription only after new payment succeeds
+              if (mySubscription && mySubscription.status === 'active') {
+                await updateSubscriptionMutation.mutateAsync({
+                  id: mySubscription.id,
+                  data: { status: 'cancelled' }
+                });
+              }
+
               // Update coupon usage if applied
               if (appliedCoupon) {
                 const usedBy = appliedCoupon.coupon.used_by || [];

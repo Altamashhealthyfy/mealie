@@ -101,13 +101,6 @@ export default function PurchaseClientPlan() {
     setIsProcessingPayment(true);
 
     try {
-      if (mySubscription && mySubscription.status === 'active') {
-        await updateSubscriptionMutation.mutateAsync({
-          id: mySubscription.id,
-          data: { status: 'cancelled' }
-        });
-      }
-
       const originalAmount = plan.price;
       const amount = appliedCoupon ? appliedCoupon.finalAmount : originalAmount;
       const startDate = new Date().toISOString().split('T')[0];
@@ -166,6 +159,14 @@ export default function PurchaseClientPlan() {
             });
 
             if (verification.success) {
+              // Cancel old subscription only after new payment succeeds
+              if (mySubscription && mySubscription.status === 'active') {
+                await updateSubscriptionMutation.mutateAsync({
+                  id: mySubscription.id,
+                  data: { status: 'cancelled' }
+                });
+              }
+
               if (appliedCoupon) {
                 const usedBy = appliedCoupon.coupon.used_by || [];
                 usedBy.push({
