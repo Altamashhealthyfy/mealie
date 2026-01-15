@@ -214,20 +214,23 @@ export default function HealthCoachPlans() {
 
   const handleDragEnd = async (result) => {
     if (!result.destination) return;
+    if (result.source.index === result.destination.index) return;
 
     const items = Array.from(plans);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
     // Update sort_order for all affected plans
-    const updates = items.map((plan, index) => 
-      updatePlanMutation.mutateAsync({ 
-        id: plan.id, 
-        data: { ...plan, sort_order: index } 
-      })
-    );
-
-    await Promise.all(updates);
+    try {
+      const updates = items.map((plan, index) => 
+        base44.entities.HealthCoachPlan.update(plan.id, { sort_order: index })
+      );
+      await Promise.all(updates);
+      queryClient.invalidateQueries(['healthCoachPlans']);
+    } catch (error) {
+      console.error('Failed to reorder plans:', error);
+      alert('Failed to reorder plans. Please try again.');
+    }
   };
 
   if (user?.user_type !== 'super_admin') {
