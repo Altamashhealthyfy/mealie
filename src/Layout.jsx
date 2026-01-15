@@ -34,7 +34,8 @@ import {
   Receipt,
   Settings,
   Globe,
-  Palette
+  Palette,
+  Loader2
 } from "lucide-react";
 import {
   Sidebar,
@@ -310,10 +311,18 @@ export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const [customBranding, setCustomBranding] = React.useState(null);
 
-  const { data: user } = useQuery({
+  const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
+    queryFn: async () => {
+      try {
+        return await base44.auth.me();
+      } catch (error) {
+        console.error('Auth error:', error);
+        return null;
+      }
+    },
     retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 
   // Detect custom domain and fetch branding
@@ -341,19 +350,31 @@ export default function Layout({ children, currentPageName }) {
   const { data: coachProfile } = useQuery({
     queryKey: ['coachProfile', user?.email],
     queryFn: async () => {
-      const profiles = await base44.entities.CoachProfile.filter({ created_by: user?.email });
-      return profiles[0] || null;
+      try {
+        const profiles = await base44.entities.CoachProfile.filter({ created_by: user?.email });
+        return profiles[0] || null;
+      } catch (error) {
+        console.error('Coach profile error:', error);
+        return null;
+      }
     },
     enabled: !!user && user?.user_type === 'student_coach',
+    staleTime: 5 * 60 * 1000,
   });
 
   const { data: clientProfile } = useQuery({
     queryKey: ['clientProfile', user?.email],
     queryFn: async () => {
-      const clients = await base44.entities.Client.filter({ email: user?.email });
-      return clients[0] || null;
+      try {
+        const clients = await base44.entities.Client.filter({ email: user?.email });
+        return clients[0] || null;
+      } catch (error) {
+        console.error('Client profile error:', error);
+        return null;
+      }
     },
     enabled: !!user && user?.user_type === 'client',
+    staleTime: 5 * 60 * 1000,
   });
 
   // Fetch coach branding for clients
@@ -637,6 +658,17 @@ export default function Layout({ children, currentPageName }) {
       }
     }
   };
+
+  if (userLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 mx-auto text-orange-500 mb-4 animate-spin" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider>
