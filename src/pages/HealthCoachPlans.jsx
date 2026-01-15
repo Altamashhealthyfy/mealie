@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertCircle, Plus, Edit, Trash2, Crown, Check, X } from "lucide-react";
+import { AlertCircle, Plus, Edit, Trash2, Crown, Check, X, Link2, Copy } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import CouponInput from "@/components/payments/CouponInput";
 
@@ -204,6 +204,13 @@ export default function HealthCoachPlans() {
     setFormData({ ...formData, features: formData.features.filter((_, i) => i !== index) });
   };
 
+  const copyPurchaseLink = (planId) => {
+    const baseUrl = window.location.origin;
+    const purchaseUrl = `${baseUrl}/#/purchase-coach-plan?planId=${planId}`;
+    navigator.clipboard.writeText(purchaseUrl);
+    alert('✅ Purchase link copied to clipboard!');
+  };
+
   if (user?.user_type !== 'super_admin') {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
@@ -324,15 +331,21 @@ export default function HealthCoachPlans() {
                   </div>
                 </div>
 
-                <div className="flex gap-2 pt-4">
-                  <Button onClick={() => handleEdit(plan)} variant="outline" className="flex-1">
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit
+                <div className="space-y-2 pt-4">
+                  <Button onClick={() => copyPurchaseLink(plan.id)} variant="outline" className="w-full bg-green-50 hover:bg-green-100 text-green-700 border-green-300">
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy Purchase Link
                   </Button>
-                  <Button onClick={() => handleDelete(plan.id)} variant="destructive" className="flex-1">
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button onClick={() => handleEdit(plan)} variant="outline" className="flex-1">
+                      <Edit className="w-4 h-4 mr-2" />
+                      Edit
+                    </Button>
+                    <Button onClick={() => handleDelete(plan.id)} variant="destructive" className="flex-1">
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
