@@ -258,10 +258,12 @@ export default function ClientPlanBuilder() {
                 )}
 
                 <div className="space-y-2 pt-4">
-                  <Button onClick={() => copyPurchaseLink(plan.id)} variant="outline" className="w-full bg-green-50 hover:bg-green-100 text-green-700 border-green-300">
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy Purchase Link
-                  </Button>
+                  {(user?.user_type === 'super_admin' || subscriptionPlan?.can_add_payment_gateway) && (
+                    <Button onClick={() => copyPurchaseLink(plan.id)} variant="outline" className="w-full bg-green-50 hover:bg-green-100 text-green-700 border-green-300">
+                      <Copy className="w-4 h-4 mr-2" />
+                      Copy Purchase Link
+                    </Button>
+                  )}
                   <div className="flex gap-2">
                     <Button onClick={() => handleEdit(plan)} variant="outline" className="flex-1">
                       <Edit className="w-4 h-4 mr-2" />
