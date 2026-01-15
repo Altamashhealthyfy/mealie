@@ -35,7 +35,8 @@ import {
   Settings,
   Globe,
   Palette,
-  Loader2
+  Loader2,
+  Tag
 } from "lucide-react";
 import {
   Sidebar,
@@ -201,6 +202,12 @@ const businessNavigation = [
     title: "Health Coach Plans",
     url: createPageUrl("HealthCoachPlans"),
     icon: Crown,
+    roles: ['super_admin'],
+  },
+  {
+    title: "Coupon Management",
+    url: createPageUrl("CouponManagement"),
+    icon: Tag,
     roles: ['super_admin'],
   },
   {
