@@ -190,8 +190,7 @@ export default function ClientPlanBuilder() {
   const copyPurchaseLink = (planId) => {
     const baseUrl = window.location.origin;
     const purchaseUrl = `${baseUrl}/#/purchase-client-plan?planId=${planId}`;
-    navigator.clipboard.writeText(purchaseUrl);
-    alert('✅ Purchase link copied to clipboard!');
+    window.open(purchaseUrl, '_blank');
   };
 
   const canCreatePlans = user?.user_type === 'super_admin' || 
@@ -273,7 +272,7 @@ export default function ClientPlanBuilder() {
                   {(user?.user_type === 'super_admin' || subscriptionPlan?.can_add_payment_gateway) && (
                     <Button onClick={() => copyPurchaseLink(plan.id)} variant="outline" className="w-full bg-green-50 hover:bg-green-100 text-green-700 border-green-300">
                       <Copy className="w-4 h-4 mr-2" />
-                      Copy Purchase Link
+                      Open Purchase Link
                     </Button>
                   )}
                   <div className="flex gap-2">

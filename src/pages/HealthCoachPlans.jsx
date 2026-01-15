@@ -219,8 +219,7 @@ export default function HealthCoachPlans() {
   const copyPurchaseLink = (planId) => {
     const baseUrl = window.location.origin;
     const purchaseUrl = `${baseUrl}/#/purchase-coach-plan?planId=${planId}`;
-    navigator.clipboard.writeText(purchaseUrl);
-    alert('✅ Purchase link copied to clipboard!');
+    window.open(purchaseUrl, '_blank');
   };
 
   const handleDragEnd = async (result) => {
@@ -385,7 +384,7 @@ export default function HealthCoachPlans() {
                 <div className="space-y-2 pt-4">
                   <Button onClick={() => copyPurchaseLink(plan.id)} variant="outline" className="w-full bg-green-50 hover:bg-green-100 text-green-700 border-green-300">
                     <Copy className="w-4 h-4 mr-2" />
-                    Copy Purchase Link
+                    Open Purchase Link
                   </Button>
                   <div className="flex gap-2">
                     <Button onClick={() => handleEdit(plan)} variant="outline" className="flex-1">
