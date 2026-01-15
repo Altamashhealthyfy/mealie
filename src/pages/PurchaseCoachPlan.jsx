@@ -91,6 +91,11 @@ export default function PurchaseCoachPlan() {
       return;
     }
 
+    if (!window.Razorpay) {
+      alert('Payment system is loading. Please wait a moment and try again.');
+      return;
+    }
+
     setIsProcessingPayment(true);
 
     try {
@@ -213,7 +218,8 @@ export default function PurchaseCoachPlan() {
       rzp.open();
     } catch (error) {
       console.error('Payment initiation error:', error);
-      alert('Failed to initiate payment. Please try again.');
+      const errorMessage = error?.response?.data?.error || error?.message || 'Unknown error occurred';
+      alert(`Failed to initiate payment: ${errorMessage}. Please contact support if this persists.`);
       setIsProcessingPayment(false);
     }
   };
