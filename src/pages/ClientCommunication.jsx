@@ -73,29 +73,36 @@ export default function ClientCommunication() {
     setShowScrollButton(!isNearBottom);
   };
 
-  const { data: user } = useQuery({
+  const { data: user, isLoading: userLoading, error: userError } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+    retry: 1,
   });
 
-  const { data: clientProfile } = useQuery({
+  const { data: clientProfile, isLoading: profileLoading, error: profileError } = useQuery({
     queryKey: ['myClientProfile', user?.email],
     queryFn: async () => {
       if (!user?.email) return null;
       
-      const clients = await base44.entities.Client.filter({ email: user.email });
-      if (clients.length > 0) {
-        return clients[0];
+      try {
+        const clients = await base44.entities.Client.filter({ email: user.email });
+        if (clients.length > 0) {
+          return clients[0];
+        }
+        
+        const allClients = await base44.entities.Client.list();
+        const matchingClient = allClients.find(c => 
+          c.email?.toLowerCase() === user.email?.toLowerCase()
+        );
+        
+        return matchingClient || null;
+      } catch (error) {
+        console.error('Error fetching client profile:', error);
+        return null;
       }
-      
-      const allClients = await base44.entities.Client.list();
-      const matchingClient = allClients.find(c => 
-        c.email?.toLowerCase() === user.email?.toLowerCase()
-      );
-      
-      return matchingClient || null;
     },
     enabled: !!user,
+    retry: 2,
   });
 
   const { data: messages } = useQuery({
@@ -366,6 +373,42 @@ export default function ClientCommunication() {
 
     sendMessageMutation.mutate(messageData);
   };
+
+  if (userLoading || profileLoading) {
+    return (
+      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+        <Card className="max-w-md border-none shadow-xl">
+          <CardContent className="p-12 text-center">
+            <Loader2 className="w-12 h-12 mx-auto text-orange-500 mb-4 animate-spin" />
+            <p className="text-gray-600">Loading messages...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (userError || profileError) {
+    return (
+      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+        <Card className="max-w-md border-none shadow-xl">
+          <CardHeader>
+            <CardTitle className="text-red-600">Error Loading Messages</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">
+              {userError ? 'Failed to load user data. Please try logging in again.' : 'Failed to load your profile data.'}
+            </p>
+            <Button 
+              onClick={() => window.location.reload()} 
+              className="w-full bg-orange-500 hover:bg-orange-600"
+            >
+              Reload Page
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!clientProfile) {
     return (
