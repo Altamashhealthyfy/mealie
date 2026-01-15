@@ -47,8 +47,9 @@ export default function CoachSubscriptions() {
   const { data: paymentGateway } = useQuery({
     queryKey: ['coachPaymentGateway'],
     queryFn: async () => {
-      const gateways = await base44.entities.CoachPaymentGateway.filter({ setup_completed: true });
-      return gateways[0] || null;
+      const gateways = await base44.entities.CoachPaymentGateway.list();
+      const completedGateway = gateways.find(g => g.setup_completed === true);
+      return completedGateway || gateways[0] || null;
     },
   });
 
