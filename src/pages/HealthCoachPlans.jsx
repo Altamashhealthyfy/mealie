@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertCircle, Plus, Edit, Trash2, Crown, Check, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import CouponInput from "@/components/payments/CouponInput";
 
 export default function HealthCoachPlans() {
   const queryClient = useQueryClient();

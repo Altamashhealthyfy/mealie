@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Edit, Trash2, Check, X, Users, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import CouponInput from "@/components/payments/CouponInput";
 
 export default function ClientPlanBuilder() {
   const queryClient = useQueryClient();

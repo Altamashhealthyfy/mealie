@@ -9,10 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Sparkles, CreditCard, CheckCircle, AlertTriangle, TrendingUp, History } from "lucide-react";
 import { format } from "date-fns";
+import CouponInput from "@/components/payments/CouponInput";
 
 export default function PurchaseAICredits() {
   const queryClient = useQueryClient();
   const [creditsAmount, setCreditsAmount] = useState(10);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
 
   // Load Razorpay script
   React.useEffect(() => {
@@ -66,7 +68,7 @@ export default function PurchaseAICredits() {
 
   const purchaseCreditsMutation = useMutation({
     mutationFn: async (amount) => {
-      const totalCost = amount * (coachPlan?.ai_credit_price || 10);
+      const cost = appliedCoupon ? appliedCoupon.finalAmount : amount * (coachPlan?.ai_credit_price || 10);
       
       try {
         // Ensure Razorpay SDK is loaded
@@ -77,9 +79,9 @@ export default function PurchaseAICredits() {
         // Create Razorpay order
         const orderResponse = await base44.functions.invoke('createCoachPayment', {
           coach_email: user.email,
-          amount: totalCost,
+          amount: cost,
           currency: 'INR',
-          description: `Purchase ${amount} AI Credits`,
+          description: `Purchase ${amount} AI Credits${appliedCoupon ? ` (Coupon: ${appliedCoupon.coupon.code})` : ''}`,
           payment_type: 'ai_credits'
         });
 
@@ -115,16 +117,30 @@ export default function PurchaseAICredits() {
                   ai_credits_purchased: (coachSubscription.ai_credits_purchased || 0) + amount
                 });
 
+                // Update coupon usage if applied
+                if (appliedCoupon) {
+                  const usedBy = appliedCoupon.coupon.used_by || [];
+                  usedBy.push({
+                    user_email: user.email,
+                    used_at: new Date().toISOString(),
+                    amount: cost
+                  });
+                  await base44.entities.Coupon.update(appliedCoupon.coupon.id, {
+                    usage_count: (appliedCoupon.coupon.usage_count || 0) + 1,
+                    used_by: usedBy
+                  });
+                }
+
                 // Record transaction
                 await base44.entities.AICreditsTransaction.create({
                   coach_email: user.email,
                   subscription_id: coachSubscription.id,
                   transaction_type: 'purchase',
                   credits_amount: amount,
-                  cost: totalCost,
+                  cost: cost,
                   payment_id: response.razorpay_payment_id,
                   payment_status: 'completed',
-                  description: `Purchased ${amount} AI credits`
+                  description: `Purchased ${amount} AI credits${appliedCoupon ? ` with ${appliedCoupon.coupon.code}` : ''}`
                 });
 
                 resolve(response);
@@ -162,6 +178,7 @@ export default function PurchaseAICredits() {
       await queryClient.refetchQueries(['aiCreditTransactions']);
       alert('✅ AI Credits purchased successfully! Your balance has been updated.');
       setCreditsAmount(10);
+      setAppliedCoupon(null);
     },
     onError: (error) => {
       console.error('Payment error:', error);
@@ -185,7 +202,8 @@ export default function PurchaseAICredits() {
     return Math.max(0, creditsIncluded + creditsPurchased - creditsUsed);
   }, [coachSubscription, coachPlan]);
 
-  const totalCost = creditsAmount * (coachPlan?.ai_credit_price || 10);
+  const originalCost = creditsAmount * (coachPlan?.ai_credit_price || 10);
+  const totalCost = appliedCoupon ? appliedCoupon.finalAmount : originalCost;
 
   if (user?.user_type !== 'student_coach') {
     return (
@@ -301,13 +319,26 @@ export default function PurchaseAICredits() {
                 />
               </div>
 
+              <CouponInput
+                applicableTo="ai_credits"
+                originalAmount={originalCost}
+                onCouponApplied={setAppliedCoupon}
+                userEmail={user?.email}
+              />
+
               <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border-2 border-purple-200">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-lg font-semibold text-gray-700">Total Amount</span>
                   <span className="text-4xl font-bold text-purple-600">₹{totalCost}</span>
                 </div>
-                <div className="text-sm text-gray-600">
-                  {creditsAmount} credits × ₹{coachPlan?.ai_credit_price || 10} = ₹{totalCost}
+                <div className="text-sm text-gray-600 space-y-1">
+                  <p>{creditsAmount} credits × ₹{coachPlan?.ai_credit_price || 10} = ₹{originalCost}</p>
+                  {appliedCoupon && (
+                    <>
+                      <p className="text-green-600 font-semibold">Discount: -₹{appliedCoupon.discountAmount.toFixed(2)}</p>
+                      <p className="text-purple-700 font-bold">Final: ₹{totalCost}</p>
+                    </>
+                  )}
                 </div>
               </div>
 
