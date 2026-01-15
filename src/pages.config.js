@@ -32,6 +32,7 @@ import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachSubscription from './pages/CoachSubscription';
 import CoachSubscriptions from './pages/CoachSubscriptions';
 import Communication from './pages/Communication';
+import CouponManagement from './pages/CouponManagement';
 import DailyProgressLogger from './pages/DailyProgressLogger';
 import DietitianDashboard from './pages/DietitianDashboard';
 import Documentation from './pages/Documentation';
@@ -85,7 +86,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import CouponManagement from './pages/CouponManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -124,6 +124,7 @@ export const PAGES = {
     "CoachSubscription": CoachSubscription,
     "CoachSubscriptions": CoachSubscriptions,
     "Communication": Communication,
+    "CouponManagement": CouponManagement,
     "DailyProgressLogger": DailyProgressLogger,
     "DietitianDashboard": DietitianDashboard,
     "Documentation": Documentation,
@@ -177,7 +178,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "CouponManagement": CouponManagement,
 }
 
 export const pagesConfig = {

@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Check, Crown, Lock, Loader2, CreditCard, CheckCircle } from "lucide-react";
+import CouponInput from "@/components/payments/CouponInput";
 
 export default function CoachSubscriptions() {
   const queryClient = useQueryClient();
@@ -15,6 +16,7 @@ export default function CoachSubscriptions() {
   const [billingCycle, setBillingCycle] = useState('monthly');
   const [paymentMethod, setPaymentMethod] = useState('razorpay');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -98,7 +100,8 @@ export default function CoachSubscriptions() {
         });
       }
 
-      const amount = billingCycle === 'yearly' ? plan.yearly_price : plan.monthly_price;
+      const originalAmount = billingCycle === 'yearly' ? plan.yearly_price : plan.monthly_price;
+      const amount = appliedCoupon ? appliedCoupon.finalAmount : originalAmount;
       const startDate = new Date().toISOString().split('T')[0];
       const endDate = new Date();
       endDate.setMonth(endDate.getMonth() + (billingCycle === 'yearly' ? 12 : 1));
@@ -156,6 +159,20 @@ export default function CoachSubscriptions() {
             });
 
             if (verification.success) {
+              // Update coupon usage if applied
+              if (appliedCoupon) {
+                const usedBy = appliedCoupon.coupon.used_by || [];
+                usedBy.push({
+                  user_email: user.email,
+                  used_at: new Date().toISOString(),
+                  amount: amount
+                });
+                await base44.entities.Coupon.update(appliedCoupon.coupon.id, {
+                  usage_count: (appliedCoupon.coupon.usage_count || 0) + 1,
+                  used_by: usedBy
+                });
+              }
+
               await updateSubscriptionMutation.mutateAsync({
                 id: newSubscription.id,
                 data: {
@@ -173,6 +190,7 @@ export default function CoachSubscriptions() {
 
               setSelectedPlan(null);
               setIsProcessingPayment(false);
+              setAppliedCoupon(null);
               alert('✅ Payment successful! Your plan is now active.');
             } else {
               alert('❌ Payment verification failed. Please contact support.');
@@ -323,6 +341,13 @@ export default function CoachSubscriptions() {
                   </SelectContent>
                 </Select>
               </div>
+
+              <CouponInput
+                applicableTo="coach_plans"
+                originalAmount={billingCycle === 'yearly' ? selectedPlan?.yearly_price : selectedPlan?.monthly_price}
+                onCouponApplied={setAppliedCoupon}
+                userEmail={user?.email}
+              />
               <div className="space-y-2">
                 <label className="font-semibold">Payment Method</label>
                 <Select value={paymentMethod} onValueChange={setPaymentMethod}>

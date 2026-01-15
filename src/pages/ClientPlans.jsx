@@ -10,12 +10,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createPageUrl } from "@/utils";
 import { useUserPermissions } from "@/components/permissions/useUserPermissions";
+import CouponInput from "@/components/payments/CouponInput";
 
 export default function ClientPlans() {
   const queryClient = useQueryClient();
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [billingCycle, setBillingCycle] = useState('monthly');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -198,7 +200,8 @@ export default function ClientPlans() {
     setIsProcessingPayment(true);
 
     try {
-      const amount = billingCycle === 'yearly' ? plan.yearly : plan.monthly;
+      const originalAmount = billingCycle === 'yearly' ? plan.yearly : plan.monthly;
+      const amount = appliedCoupon ? appliedCoupon.finalAmount : originalAmount;
       const startDate = new Date().toISOString().split('T')[0];
       const endDate = new Date();
       endDate.setMonth(endDate.getMonth() + (billingCycle === 'yearly' ? 12 : 1));
@@ -258,6 +261,20 @@ export default function ClientPlans() {
             });
 
             if (verification.success) {
+              // Update coupon usage if applied
+              if (appliedCoupon) {
+                const usedBy = appliedCoupon.coupon.used_by || [];
+                usedBy.push({
+                  user_email: user.email,
+                  used_at: new Date().toISOString(),
+                  amount: amount
+                });
+                await base44.entities.Coupon.update(appliedCoupon.coupon.id, {
+                  usage_count: (appliedCoupon.coupon.usage_count || 0) + 1,
+                  used_by: usedBy
+                });
+              }
+
               // Update subscription to active
               await updateSubscriptionMutation.mutateAsync({
                 id: newSubscription.id,
@@ -269,6 +286,7 @@ export default function ClientPlans() {
               });
               
               setSelectedPlan(null);
+              setAppliedCoupon(null);
               alert('✅ Payment successful! Your plan is now active.');
             } else {
               alert('❌ Payment verification failed. Please contact support.');
@@ -454,6 +472,13 @@ export default function ClientPlans() {
                   </SelectContent>
                 </Select>
               </div>
+
+              <CouponInput
+                applicableTo="client_plans"
+                originalAmount={billingCycle === 'yearly' ? selectedPlan?.yearly : selectedPlan?.monthly}
+                onCouponApplied={setAppliedCoupon}
+                userEmail={user?.email}
+              />
               <Alert>
                 <CreditCard className="w-4 h-4" />
                 <AlertDescription>
