@@ -87,6 +87,7 @@ import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import PurchaseCoachPlan from './pages/PurchaseCoachPlan';
+import PurchaseClientPlan from './pages/PurchaseClientPlan';
 import __Layout from './Layout.jsx';
 
 
@@ -180,6 +181,7 @@ export const PAGES = {
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
     "PurchaseCoachPlan": PurchaseCoachPlan,
+    "PurchaseClientPlan": PurchaseClientPlan,
 }
 
 export const pagesConfig = {
