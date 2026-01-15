@@ -42,13 +42,16 @@ export default function ClientCommunication() {
   const fileInputRef = useRef(null);
   const groupFileInputRefs = useRef({});
 
-  const { handleTyping, stopTyping } = useTypingIndicator(
+  const typingIndicator = useTypingIndicator(
     clientProfile?.id,
     null,
     user?.email,
     user?.full_name || clientProfile?.full_name,
     'client'
   );
+  
+  const handleTyping = typingIndicator?.handleTyping || (() => {});
+  const stopTyping = typingIndicator?.stopTyping || (() => {});
 
   const formatToIST = (dateString) => {
     if (!dateString) return '';
@@ -75,8 +78,15 @@ export default function ClientCommunication() {
 
   const { data: user, isLoading: userLoading, error: userError } = useQuery({
     queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-    retry: 1,
+    queryFn: async () => {
+      try {
+        return await base44.auth.me();
+      } catch (error) {
+        console.error('User fetch error:', error);
+        throw error;
+      }
+    },
+    retry: false,
   });
 
   const { data: clientProfile, isLoading: profileLoading, error: profileError } = useQuery({
@@ -387,16 +397,16 @@ export default function ClientCommunication() {
     );
   }
 
-  if (userError || profileError) {
+  if (profileError) {
     return (
       <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-md border-none shadow-xl">
           <CardHeader>
-            <CardTitle className="text-red-600">Error Loading Messages</CardTitle>
+            <CardTitle className="text-red-600">Error Loading Profile</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-gray-600 mb-4">
-              {userError ? 'Failed to load user data. Please try logging in again.' : 'Failed to load your profile data.'}
+              Failed to load your profile data. Please try again.
             </p>
             <Button 
               onClick={() => window.location.reload()} 
