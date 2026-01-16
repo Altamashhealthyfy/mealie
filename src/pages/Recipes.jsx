@@ -379,7 +379,7 @@ Provide:
 - Meal type (breakfast/lunch/dinner/snack)
 - Food preference (veg/non_veg/jain)
 - Regional cuisine
-- Detailed ingredients with quantities
+- Detailed ingredients with separate quantity (as number) and unit (grams/kg/ml/liters/cups/tbsp/tsp/pieces/to_taste)
 - Step-by-step instructions
 - Prep and cook time
 - Number of servings
@@ -404,7 +404,8 @@ Provide:
                   type: "object",
                   properties: {
                     item: { type: "string" },
-                    quantity: { type: "string" }
+                    quantity: { type: "number" },
+                    unit: { type: "string" }
                   }
                 }
               },
