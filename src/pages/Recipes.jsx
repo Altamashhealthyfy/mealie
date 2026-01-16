@@ -145,7 +145,8 @@ export default function Recipes() {
     },
     onError: (error) => {
       console.error("Error saving recipe:", error);
-      alert("Error saving the recipe. Please try again.");
+      const errorMessage = error?.response?.data?.message || error?.message || "Unknown error";
+      alert(`Error saving the recipe: ${errorMessage}\n\nPlease check the console for details and try again.`);
     }
   });
 
