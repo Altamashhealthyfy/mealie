@@ -386,46 +386,58 @@ Provide:
 - Nutrition information per serving (calories, protein, carbs, fats)
 - Relevant tags (e.g., high-protein, low-carb, quick, traditional)`;
 
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            name: { type: "string" },
-            description: { type: "string" },
-            meal_type: { type: "string" },
-            food_preference: { type: "string" },
-            regional_cuisine: { type: "string" },
-            ingredients: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  item: { type: "string" },
-                  quantity: { type: "string" }
+      let response;
+      try {
+        response = await base44.integrations.Core.InvokeLLM({
+          prompt,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              description: { type: "string" },
+              meal_type: { type: "string" },
+              food_preference: { type: "string" },
+              regional_cuisine: { type: "string" },
+              ingredients: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    item: { type: "string" },
+                    quantity: { type: "string" }
+                  }
                 }
-              }
-            },
-            instructions: { type: "array", items: { type: "string" } },
-            prep_time: { type: "number" },
-            cook_time: { type: "number" },
-            servings: { type: "number" },
-            calories: { type: "number" },
-            protein: { type: "number" },
-            carbs: { type: "number" },
-            fats: { type: "number" },
-            tags: { type: "array", items: { type: "string" } }
+              },
+              instructions: { type: "array", items: { type: "string" } },
+              prep_time: { type: "number" },
+              cook_time: { type: "number" },
+              servings: { type: "number" },
+              calories: { type: "number" },
+              protein: { type: "number" },
+              carbs: { type: "number" },
+              fats: { type: "number" },
+              tags: { type: "array", items: { type: "string" } }
+            }
           }
-        }
-      });
+        });
+      } catch (llmError) {
+        console.error("LLM generation error:", llmError);
+        throw new Error(`Failed to generate recipe details: ${llmError.message || 'Unknown error'}`);
+      }
 
-      const imagePrompt = `Professional food photography of ${response.name}, ${response.description}. 
+      let imageResult;
+      try {
+        const imagePrompt = `Professional food photography of ${response.name}, ${response.description}. 
 Beautiful plating, appetizing presentation, restaurant quality, natural lighting, 
 ${response.regional_cuisine} Indian cuisine style, vibrant colors, high resolution food photo`;
 
-      const imageResult = await base44.integrations.Core.GenerateImage({
-        prompt: imagePrompt
-      });
+        imageResult = await base44.integrations.Core.GenerateImage({
+          prompt: imagePrompt
+        });
+      } catch (imageError) {
+        console.error("Image generation error:", imageError);
+        imageResult = { url: null };
+      }
 
       const recipeData = {
         name: response.name,
@@ -472,7 +484,8 @@ ${response.regional_cuisine} Indian cuisine style, vibrant colors, high resoluti
       
     } catch (error) {
       console.error("Error generating recipe:", error);
-      alert("Error generating recipe. Please try again.");
+      const errorMsg = error.message || "Unknown error occurred";
+      alert(`Error generating recipe: ${errorMsg}\n\nPlease check your internet connection and try again.`);
     }
 
     setGeneratingRecipe(false);
