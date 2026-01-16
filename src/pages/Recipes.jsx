@@ -427,12 +427,26 @@ ${response.regional_cuisine} Indian cuisine style, vibrant colors, high resoluti
         prompt: imagePrompt
       });
 
-      const recipeWithImage = {
-        ...response,
-        image_url: imageResult.url
+      const recipeData = {
+        name: response.name,
+        description: response.description || null,
+        meal_type: response.meal_type,
+        food_preference: response.food_preference,
+        regional_cuisine: response.regional_cuisine,
+        ingredients: response.ingredients || null,
+        instructions: response.instructions || null,
+        prep_time: response.prep_time || null,
+        cook_time: response.cook_time || null,
+        servings: response.servings || null,
+        calories: response.calories || null,
+        protein: response.protein || null,
+        carbs: response.carbs || null,
+        fats: response.fats || null,
+        tags: response.tags || null,
+        image_url: imageResult.url || null
       };
 
-      createRecipeMutation.mutate(recipeWithImage);
+      createRecipeMutation.mutate(recipeData);
 
       // Deduct AI credit for student_coach
       if (user?.user_type === 'student_coach' && coachSubscription) {
