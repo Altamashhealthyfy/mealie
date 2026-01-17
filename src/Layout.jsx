@@ -317,6 +317,7 @@ const businessNavigation = [
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const [customBranding, setCustomBranding] = React.useState(null);
+  const [brandingLoaded, setBrandingLoaded] = React.useState(false);
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['currentUser'],
@@ -346,7 +347,11 @@ export default function Layout({ children, currentPageName }) {
           }
         } catch (error) {
           console.error('Failed to fetch custom branding:', error);
+        } finally {
+          setBrandingLoaded(true);
         }
+      } else {
+        setBrandingLoaded(true);
       }
     };
     
@@ -694,7 +699,7 @@ export default function Layout({ children, currentPageName }) {
     }
   };
 
-  if (userLoading) {
+  if (userLoading || !brandingLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
         <div className="text-center">
