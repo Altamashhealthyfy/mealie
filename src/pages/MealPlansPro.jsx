@@ -137,6 +137,8 @@ export default function MealPlansPro() {
   }, [selectedClientId, selectedClient, clinicalIntakes, latestIntake, hasCompletedIntake]);
 
   const generateProPlan = async () => {
+    alert('🔥 FUNCTION CALLED - Starting generation...');
+    
     try {
       console.log('🚀 === Generate Pro Plan Started ===');
       console.log('Step 1: Checking selected client...');
