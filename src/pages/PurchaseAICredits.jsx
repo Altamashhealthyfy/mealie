@@ -71,6 +71,41 @@ export default function PurchaseAICredits() {
       const cost = appliedCoupon ? appliedCoupon.finalAmount : amount * (coachPlan?.ai_credit_price || 10);
       
       try {
+        // Handle free credits (100% discount)
+        if (cost === 0) {
+          // Update subscription with purchased credits
+          await base44.entities.HealthCoachSubscription.update(coachSubscription.id, {
+            ai_credits_purchased: (coachSubscription.ai_credits_purchased || 0) + amount
+          });
+
+          // Update coupon usage if applied
+          if (appliedCoupon) {
+            const usedBy = appliedCoupon.coupon.used_by || [];
+            usedBy.push({
+              user_email: user.email,
+              used_at: new Date().toISOString(),
+              amount: cost
+            });
+            await base44.entities.Coupon.update(appliedCoupon.coupon.id, {
+              usage_count: (appliedCoupon.coupon.usage_count || 0) + 1,
+              used_by: usedBy
+            });
+          }
+
+          // Record transaction
+          await base44.entities.AICreditsTransaction.create({
+            coach_email: user.email,
+            subscription_id: coachSubscription.id,
+            transaction_type: 'purchase',
+            credits_amount: amount,
+            cost: 0,
+            payment_status: 'completed',
+            description: `Purchased ${amount} AI credits${appliedCoupon ? ` with ${appliedCoupon.coupon.code} (Free)` : ''}`
+          });
+
+          return { success: true, free: true };
+        }
+
         // Ensure Razorpay SDK is loaded
         if (!window.Razorpay) {
           throw new Error('Payment gateway not loaded. Please refresh the page and try again.');
