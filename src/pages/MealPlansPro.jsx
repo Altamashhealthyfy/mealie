@@ -681,13 +681,13 @@ export default function MealPlansPro() {
                   )}
 
                   <Button
-                    onClick={() => {
-                      console.log('🔴 BUTTON CLICK EVENT FIRED');
-                      console.log('Button state:', { generating, selectedClientId, selectedClient, hasCompletedIntake });
-                      generateProPlan();
-                    }}
+                    onClick={generateProPlan}
                     disabled={generating || !selectedClient || !hasCompletedIntake}
-                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`w-full h-14 text-lg font-semibold ${
+                      (!selectedClient || !hasCompletedIntake) 
+                        ? 'bg-gray-300 cursor-not-allowed' 
+                        : 'bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90'
+                    }`}
                   >
                     {generating ? (
                       <>
@@ -702,11 +702,22 @@ export default function MealPlansPro() {
                     )}
                   </Button>
 
-                  {(!selectedClient || !hasCompletedIntake) && (
-                    <p className="text-sm text-red-600 text-center mt-2">
-                      {!selectedClient && '⚠️ Select a client first'}
-                      {selectedClient && !hasCompletedIntake && '⚠️ Complete clinical intake first'}
-                    </p>
+                  {!selectedClient && (
+                    <Alert className="bg-red-50 border-red-500 mt-4">
+                      <AlertTriangle className="w-4 h-4 text-red-600" />
+                      <AlertDescription>
+                        ⚠️ <strong>Please select a client first</strong> to generate the meal plan
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  {selectedClient && !hasCompletedIntake && (
+                    <Alert className="bg-orange-50 border-orange-500 mt-4">
+                      <AlertTriangle className="w-4 h-4 text-orange-600" />
+                      <AlertDescription>
+                        ⚠️ <strong>Clinical intake not completed.</strong> Please fill out the clinical intake form first.
+                      </AlertDescription>
+                    </Alert>
                   )}
                   
                   {selectedClient && !hasCompletedIntake && (
