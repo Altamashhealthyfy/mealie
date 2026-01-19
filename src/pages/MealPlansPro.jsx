@@ -699,7 +699,7 @@ export default function MealPlansPro() {
                         Submit & Generate Pro Plan
                       </>
                     )}
-                  </Button>
+                  </button>
 
                   {(!selectedClient || !hasCompletedIntake) && (
                     <p className="text-sm text-red-600 text-center mt-2">
