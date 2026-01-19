@@ -137,41 +137,34 @@ export default function MealPlansPro() {
   }, [selectedClientId, selectedClient, clinicalIntakes, latestIntake, hasCompletedIntake]);
 
   const generateProPlan = async () => {
-    alert('🔥 FUNCTION CALLED - Starting generation...');
-    
     try {
-      console.log('🚀 === Generate Pro Plan Started ===');
-      console.log('Step 1: Checking selected client...');
-      console.log('Selected Client:', selectedClient);
-      console.log('Latest Intake:', latestIntake);
-      console.log('Has Completed Intake:', hasCompletedIntake);
+      console.log('🚀 GENERATE PRO PLAN CALLED');
+      console.log('selectedClientId:', selectedClientId);
+      console.log('selectedClient:', selectedClient);
+      console.log('clinicalIntakes:', clinicalIntakes);
 
-      if (!selectedClient) {
-        console.error('❌ No client selected');
+      if (!selectedClientId || !selectedClient) {
         alert('❌ Please select a client first');
         return;
       }
-      
-      if (!latestIntake) {
-        console.error('❌ No clinical intake found');
-        alert('❌ Clinical intake not found. Please complete the clinical intake form first.');
+
+      if (!clinicalIntakes || clinicalIntakes.length === 0) {
+        alert('❌ No clinical intake found. Please complete the clinical intake form first.');
         return;
       }
 
-      if (!hasCompletedIntake) {
-        console.error('❌ Clinical intake not completed');
+      const intake = clinicalIntakes[0];
+      console.log('intake:', intake);
+      console.log('intake.completed:', intake.completed);
+
+      if (!intake.completed) {
         alert('❌ Clinical intake is not completed yet. Please complete the form first.');
         return;
       }
 
-      console.log('✅ All validations passed');
       setGenerating(true);
-      alert('⏳ Generating Pro Plan... This may take 30-60 seconds. Please wait...');
-
-      console.log('Step 2: Building prompt...');
-      const prompt = constructDiamondPrompt(selectedClient, latestIntake);
-      console.log('✅ Prompt created, length:', prompt.length);
-      console.log('Step 3: Calling AI API...');
+      
+      const prompt = constructDiamondPrompt(selectedClient, intake);
       
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
