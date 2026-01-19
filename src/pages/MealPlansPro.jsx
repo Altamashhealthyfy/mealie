@@ -763,8 +763,8 @@ export default function MealPlansPro() {
                       </p>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ) : (
               /* Show Generated Plan */
               <div className="space-y-6">
