@@ -697,35 +697,37 @@ export default function MealPlansPro() {
                     </Button>
                   )}
 
-                  <div className="space-y-2">
-                    <Button
-                      onClick={() => {
-                        console.log('🔵🔵🔵 BUTTON CLICKED 🔵🔵🔵');
-                        generateProPlan();
-                      }}
-                      disabled={generating}
-                      className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                      type="button"
-                    >
-                      {generating ? (
-                        <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Generating Diamond Plan...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="w-5 h-5 mr-2" />
-                          Submit & Generate Pro Plan
-                        </>
-                      )}
-                    </Button>
-                    {(!selectedClient || !hasCompletedIntake) && (
-                      <p className="text-sm text-red-600 text-center">
-                        {!selectedClient && '⚠️ Select a client first'}
-                        {selectedClient && !hasCompletedIntake && '⚠️ Complete clinical intake first'}
-                      </p>
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('🔵🔵🔵 BUTTON CLICKED 🔵🔵🔵');
+                      alert('Button was clicked!');
+                      generateProPlan();
+                    }}
+                    disabled={generating || !selectedClient || !hasCompletedIntake}
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    type="button"
+                  >
+                    {generating ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Generating Diamond Plan...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-5 h-5 mr-2" />
+                        Submit & Generate Pro Plan
+                      </>
                     )}
-                  </div>
+                  </Button>
+
+                  {(!selectedClient || !hasCompletedIntake) && (
+                    <p className="text-sm text-red-600 text-center mt-2">
+                      {!selectedClient && '⚠️ Select a client first'}
+                      {selectedClient && !hasCompletedIntake && '⚠️ Complete clinical intake first'}
+                    </p>
+                  )}
                   
                   {selectedClient && !hasCompletedIntake && (
                     <Alert className="bg-yellow-50 border-yellow-500 mt-4">
