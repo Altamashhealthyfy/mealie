@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { subscriptionId, amount, currency, coachName, coachEmail, planName, description, payment_type } = await req.json();
+        const { subscriptionId, amount, currency, coachName, coachEmail, planName, description, payment_type, creditsAmount } = await req.json();
 
         // Use platform Razorpay keys from environment
         const razorpayKeyId = Deno.env.get('RAZORPAY_KEY_ID');
@@ -34,7 +34,8 @@ Deno.serve(async (req) => {
                 coach_email: coachEmail || user.email,
                 plan_name: planName || null,
                 description: description || null,
-                payment_type: payment_type || 'subscription'
+                payment_type: payment_type || 'subscription',
+                credits_amount: creditsAmount || null
             }
         });
 
