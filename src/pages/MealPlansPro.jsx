@@ -125,6 +125,17 @@ export default function MealPlansPro() {
   const latestIntake = clinicalIntakes?.[0];
   const hasCompletedIntake = latestIntake?.completed;
 
+  // Debug logs
+  React.useEffect(() => {
+    console.log('=== DEBUG INFO ===');
+    console.log('selectedClientId:', selectedClientId);
+    console.log('selectedClient:', selectedClient);
+    console.log('clinicalIntakes:', clinicalIntakes);
+    console.log('latestIntake:', latestIntake);
+    console.log('hasCompletedIntake:', hasCompletedIntake);
+    console.log('==================');
+  }, [selectedClientId, selectedClient, clinicalIntakes, latestIntake, hasCompletedIntake]);
+
   const generateProPlan = async () => {
     console.log('=== Generate Pro Plan Started ===');
     console.log('Selected Client:', selectedClient);
@@ -670,30 +681,32 @@ export default function MealPlansPro() {
                     </Button>
                   )}
 
-                  {selectedClient && hasCompletedIntake && (
-                    <Button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        console.log('Button clicked!');
-                        generateProPlan();
-                      }}
-                      disabled={generating}
-                      className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg"
-                      type="button"
-                    >
-                      {generating ? (
-                        <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Generating Diamond Plan...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="w-5 h-5 mr-2" />
-                          Submit & Generate Pro Plan
-                        </>
-                      )}
-                    </Button>
-                  )}
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('🔵 Button clicked!');
+                      console.log('selectedClient:', selectedClient);
+                      console.log('hasCompletedIntake:', hasCompletedIntake);
+                      console.log('generating:', generating);
+                      generateProPlan();
+                    }}
+                    disabled={!selectedClient || !hasCompletedIntake || generating}
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    type="button"
+                  >
+                    {generating ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Generating Diamond Plan...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="w-5 h-5 mr-2" />
+                        Submit & Generate Pro Plan
+                      </>
+                    )}
+                  </Button>
                   
                   {selectedClient && !hasCompletedIntake && (
                     <Alert className="bg-yellow-50 border-yellow-500 mt-4">
