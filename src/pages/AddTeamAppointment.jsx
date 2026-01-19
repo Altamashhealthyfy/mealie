@@ -165,7 +165,7 @@ export default function AddTeamAppointment() {
                   </div>
                 </div>
 
-                <div>
+                <div id="phone-field">
                   <Label>Phone *</Label>
                   <Input
                     value={formData.phone}
@@ -176,7 +176,7 @@ export default function AddTeamAppointment() {
                 </div>
               </div>
 
-              <div>
+              <div id="title-field">
                 <Label>Title / Purpose</Label>
                 <Input
                   value={formData.title}
@@ -185,7 +185,7 @@ export default function AddTeamAppointment() {
                 />
               </div>
 
-              <div>
+              <div id="notes-field">
                 <Label>Notes / Details</Label>
                 <Textarea
                   value={formData.notes}

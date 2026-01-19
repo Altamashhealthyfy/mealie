@@ -1441,39 +1441,63 @@ export const tourConfigs = {
     steps: [
       {
         popover: {
-          title: '📅 Schedule New Appointment',
-          description: 'This page lets you create appointments for your team. Fill in client details, schedule time, and assign to team members.',
+          title: '📅 Welcome to Appointment Scheduler',
+          description: 'This page helps you schedule appointments for your team. Follow this guide to learn about each field and button on this page.',
         }
       },
       {
         element: '#client-name-field',
         popover: {
-          title: '👤 Search Client',
-          description: 'Start typing client name to search existing clients, or type manually to add a new one. Selecting from the list auto-fills phone number.',
+          title: '👤 Client Name Field (Required)',
+          description: 'This field lets you search and select existing clients. Start typing a name and matching clients will appear below. Click a client from the list to auto-fill their details. You can also type a new name manually.',
           side: 'bottom'
+        }
+      },
+      {
+        element: '#phone-field',
+        popover: {
+          title: '📞 Phone Number (Required)',
+          description: 'Enter the client\'s phone number here. If you selected a client from the search, this field will be auto-filled. This is required for appointment reminders and communication.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '#title-field',
+        popover: {
+          title: '📝 Appointment Title (Optional)',
+          description: 'Give your appointment a descriptive title. Examples: "Initial Consultation", "Follow-up Session", "Nutrition Assessment". This helps you quickly identify the appointment purpose.',
+          side: 'top'
+        }
+      },
+      {
+        element: '#notes-field',
+        popover: {
+          title: '📋 Notes Section (Optional)',
+          description: 'Add any additional details or notes about this appointment. You can mention topics to discuss, client concerns, or preparation instructions.',
+          side: 'top'
         }
       },
       {
         element: '#appointment-timing',
         popover: {
-          title: '⏰ Schedule Date & Time',
-          description: 'Select the appointment date, start time, and duration (default is 30 minutes). Duration can be adjusted in 15-minute intervals.',
+          title: '⏰ Date & Time Selection (Required)',
+          description: 'Set when the appointment will happen. Choose the DATE using the calendar, select START TIME (e.g., 10:00 AM), and set DURATION in minutes (default 30 mins, can be 15, 45, 60, etc.).',
           side: 'top'
         }
       },
       {
         element: '#team-member-assignment',
         popover: {
-          title: '👥 Assign Team Member',
-          description: 'Assign this appointment to a specific team member who will handle the consultation. Leave unassigned if needed.',
+          title: '👥 Assign to Team Member (Optional)',
+          description: 'Select which team member will conduct this appointment. Click the dropdown to see all available team members. You can leave this unassigned and assign it later from the calendar.',
           side: 'top'
         }
       },
       {
-        element: '#create-appointment-btn',
+        element: '#form-actions',
         popover: {
-          title: '✅ Create Appointment',
-          description: 'Click here to save the appointment. It will appear in the team calendar and the assigned member will be notified.',
+          title: '🎯 Action Buttons',
+          description: 'CANCEL button returns to the calendar without saving. CREATE APPOINTMENT button saves the appointment and takes you back to the team calendar where you can view and manage all appointments.',
           side: 'top'
         }
       }
