@@ -64,14 +64,39 @@ export default function ClinicalIntake() {
   const [allergiesText, setAllergiesText] = useState('');
   const [noGoText, setNoGoText] = useState('');
 
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const { data: clients } = useQuery({
+    queryKey: ['clients'],
+    queryFn: async () => {
+      const allClients = await base44.entities.Client.list('-created_date');
+      if (user?.user_type === 'super_admin') {
+        return allClients;
+      }
+      if (user?.user_type === 'student_coach') {
+        return allClients.filter(client => 
+          client.created_by === user?.email || 
+          client.assigned_coach === user?.email
+        );
+      }
+      return allClients.filter(client => client.created_by === user?.email);
+    },
+    enabled: !!user,
+    initialData: [],
+  });
+
   const { data: client } = useQuery({
-    queryKey: ['client', clientId],
-    queryFn: () => base44.entities.Client.filter({ id: clientId }).then(res => res[0]),
+    queryKey: ['client', formData.client_id],
+    queryFn: () => base44.entities.Client.filter({ id: formData.client_id }).then(res => res[0]),
+    enabled: !!formData.client_id,
   });
 
   // Pre-fill from client data
   useEffect(() => {
-    if (client) {
+    if (client && formData.client_id) {
       setFormData(prev => ({
         ...prev,
         basic_info: {
@@ -87,7 +112,7 @@ export default function ClinicalIntake() {
         goal: client.goal || ''
       }));
     }
-  }, [client]);
+  }, [client, formData.client_id]);
 
   // Auto-calculate BMI
   useEffect(() => {
@@ -106,7 +131,7 @@ export default function ClinicalIntake() {
     onSuccess: () => {
       queryClient.invalidateQueries(['clinicalIntake']);
       alert('✅ Clinical intake saved successfully!');
-      window.location.href = `/#/MealPlansPro?client=${clientId}`;
+      window.location.href = `/#/MealPlansPro?client=${formData.client_id}`;
     },
   });
 
@@ -136,6 +161,10 @@ export default function ClinicalIntake() {
   const handleSubmit = (e) => {
     e.preventDefault();
     
+    if (!formData.client_id) {
+      alert('Please select a client');
+      return;
+    }
     if (!formData.health_conditions.length) {
       alert('Please select at least one health condition');
       return;
@@ -165,14 +194,6 @@ export default function ClinicalIntake() {
     saveMutation.mutate(finalData);
   };
 
-  if (!client) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Loading client...</p>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-purple-50 to-indigo-50">
       <div className="max-w-5xl mx-auto space-y-6">
@@ -180,12 +201,45 @@ export default function ClinicalIntake() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">🩺 Clinical Intake Form</h1>
-            <p className="text-gray-600">Disease-specific meal planning for {client.full_name}</p>
+            <p className="text-gray-600">Disease-specific meal planning{client ? ` for ${client.full_name}` : ''}</p>
           </div>
           <Badge className="bg-purple-600 text-white text-lg px-4 py-2">
             💎 Mealie Pro
           </Badge>
         </div>
+
+        {/* Client Selection */}
+        <Card className="border-none shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
+            <CardTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              Select Client *
+            </CardTitle>
+            <CardDescription className="text-white/90">Choose the client for this clinical intake</CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <Select
+              value={formData.client_id || ''}
+              onValueChange={(value) => setFormData({...formData, client_id: value})}
+            >
+              <SelectTrigger className="h-12">
+                <SelectValue placeholder="Choose a client..." />
+              </SelectTrigger>
+              <SelectContent>
+                {clients.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{c.full_name}</span>
+                      <Badge variant="outline" className="text-xs capitalize">
+                        {c.food_preference}
+                      </Badge>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
 
         <Alert className="bg-indigo-50 border-indigo-500">
           <Sparkles className="w-4 h-4 text-indigo-600" />
