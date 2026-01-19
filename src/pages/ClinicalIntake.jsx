@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -15,9 +15,11 @@ import { Stethoscope, Plus, X, CheckCircle, AlertTriangle, Heart, Brain, Users, 
 import { format } from "date-fns";
 
 export default function ClinicalIntake() {
-  const { clientId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  
+  const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+  const clientId = urlParams.get('clientId');
 
   const [formData, setFormData] = useState({
     client_id: clientId,
@@ -104,7 +106,7 @@ export default function ClinicalIntake() {
     onSuccess: () => {
       queryClient.invalidateQueries(['clinicalIntake']);
       alert('✅ Clinical intake saved successfully!');
-      navigate(`/meal-plans-pro?client=${clientId}`);
+      window.location.href = `/#/MealPlansPro?client=${clientId}`;
     },
   });
 
@@ -681,7 +683,7 @@ export default function ClinicalIntake() {
               type="button"
               variant="outline"
               className="flex-1"
-              onClick={() => navigate(`/clients`)}
+              onClick={() => window.location.href = '/#/ClientManagement'}
             >
               Cancel
             </Button>

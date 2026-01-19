@@ -18,19 +18,15 @@ import ClientDashboard from './pages/ClientDashboard';
 import ClientFinanceManager from './pages/ClientFinanceManager';
 import ClientManagement from './pages/ClientManagement';
 import ClientOnboarding from './pages/ClientOnboarding';
-import ClientPlanBuilder from './pages/ClientPlanBuilder';
 import ClientPlanManagement from './pages/ClientPlanManagement';
 import ClientPlans from './pages/ClientPlans';
 import ClientProgressAnalytics from './pages/ClientProgressAnalytics';
-import ClientRecipes from './pages/ClientRecipes';
 import ClientReports from './pages/ClientReports';
 import ClientResourceLibrary from './pages/ClientResourceLibrary';
 import ClientResourceTracker from './pages/ClientResourceTracker';
 import ClientWeeklyMealPlans from './pages/ClientWeeklyMealPlans';
-import ClinicalIntake from './pages/ClinicalIntake';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachSubscription from './pages/CoachSubscription';
-import CoachSubscriptions from './pages/CoachSubscriptions';
 import Communication from './pages/Communication';
 import CouponManagement from './pages/CouponManagement';
 import DailyProgressLogger from './pages/DailyProgressLogger';
@@ -40,7 +36,6 @@ import FeatureControl from './pages/FeatureControl';
 import FoodLog from './pages/FoodLog';
 import FoodLookup from './pages/FoodLookup';
 import GoogleCalendarSettings from './pages/GoogleCalendarSettings';
-import HealthCoachPlans from './pages/HealthCoachPlans';
 import Home from './pages/Home';
 import IncomeExpense from './pages/IncomeExpense';
 import InstallmentTracker from './pages/InstallmentTracker';
@@ -48,7 +43,6 @@ import LeadsPipeline from './pages/LeadsPipeline';
 import MPESSTracker from './pages/MPESSTracker';
 import MarketingHub from './pages/MarketingHub';
 import MealPlanner from './pages/MealPlanner';
-import MealPlansPro from './pages/MealPlansPro';
 import MyAssessment from './pages/MyAssessment';
 import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
 import NotificationSettings from './pages/NotificationSettings';
@@ -66,7 +60,6 @@ import ProgressTracking from './pages/ProgressTracking';
 import ProjectManagement from './pages/ProjectManagement';
 import PurchaseAICredits from './pages/PurchaseAICredits';
 import RecipeManagement from './pages/RecipeManagement';
-import Recipes from './pages/Recipes';
 import ResourceLibrary from './pages/ResourceLibrary';
 import ResourceLibraryEnhanced from './pages/ResourceLibraryEnhanced';
 import SecuritySettings from './pages/SecuritySettings';
@@ -86,8 +79,15 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import PurchaseCoachPlan from './pages/PurchaseCoachPlan';
+import Recipes from './pages/Recipes';
+import ClientRecipes from './pages/ClientRecipes';
+import HealthCoachPlans from './pages/HealthCoachPlans';
 import PurchaseClientPlan from './pages/PurchaseClientPlan';
+import CoachSubscriptions from './pages/CoachSubscriptions';
+import ClinicalIntake from './pages/ClinicalIntake';
+import MealPlansPro from './pages/MealPlansPro';
+import ClientPlanBuilder from './pages/ClientPlanBuilder';
+import PurchaseCoachPlan from './pages/PurchaseCoachPlan';
 import __Layout from './Layout.jsx';
 
 
@@ -112,19 +112,15 @@ export const PAGES = {
     "ClientFinanceManager": ClientFinanceManager,
     "ClientManagement": ClientManagement,
     "ClientOnboarding": ClientOnboarding,
-    "ClientPlanBuilder": ClientPlanBuilder,
     "ClientPlanManagement": ClientPlanManagement,
     "ClientPlans": ClientPlans,
     "ClientProgressAnalytics": ClientProgressAnalytics,
-    "ClientRecipes": ClientRecipes,
     "ClientReports": ClientReports,
     "ClientResourceLibrary": ClientResourceLibrary,
     "ClientResourceTracker": ClientResourceTracker,
     "ClientWeeklyMealPlans": ClientWeeklyMealPlans,
-    "ClinicalIntake": ClinicalIntake,
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachSubscription": CoachSubscription,
-    "CoachSubscriptions": CoachSubscriptions,
     "Communication": Communication,
     "CouponManagement": CouponManagement,
     "DailyProgressLogger": DailyProgressLogger,
@@ -134,7 +130,6 @@ export const PAGES = {
     "FoodLog": FoodLog,
     "FoodLookup": FoodLookup,
     "GoogleCalendarSettings": GoogleCalendarSettings,
-    "HealthCoachPlans": HealthCoachPlans,
     "Home": Home,
     "IncomeExpense": IncomeExpense,
     "InstallmentTracker": InstallmentTracker,
@@ -142,7 +137,6 @@ export const PAGES = {
     "MPESSTracker": MPESSTracker,
     "MarketingHub": MarketingHub,
     "MealPlanner": MealPlanner,
-    "MealPlansPro": MealPlansPro,
     "MyAssessment": MyAssessment,
     "MyAssignedMealPlan": MyAssignedMealPlan,
     "NotificationSettings": NotificationSettings,
@@ -160,7 +154,6 @@ export const PAGES = {
     "ProjectManagement": ProjectManagement,
     "PurchaseAICredits": PurchaseAICredits,
     "RecipeManagement": RecipeManagement,
-    "Recipes": Recipes,
     "ResourceLibrary": ResourceLibrary,
     "ResourceLibraryEnhanced": ResourceLibraryEnhanced,
     "SecuritySettings": SecuritySettings,
@@ -180,8 +173,15 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "PurchaseCoachPlan": PurchaseCoachPlan,
+    "Recipes": Recipes,
+    "ClientRecipes": ClientRecipes,
+    "HealthCoachPlans": HealthCoachPlans,
     "PurchaseClientPlan": PurchaseClientPlan,
+    "CoachSubscriptions": CoachSubscriptions,
+    "ClinicalIntake": ClinicalIntake,
+    "MealPlansPro": MealPlansPro,
+    "ClientPlanBuilder": ClientPlanBuilder,
+    "PurchaseCoachPlan": PurchaseCoachPlan,
 }
 
 export const pagesConfig = {
