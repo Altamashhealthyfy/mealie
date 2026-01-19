@@ -65,8 +65,6 @@ import Profile from './pages/Profile';
 import ProgressTracking from './pages/ProgressTracking';
 import ProjectManagement from './pages/ProjectManagement';
 import PurchaseAICredits from './pages/PurchaseAICredits';
-import PurchaseClientPlan from './pages/PurchaseClientPlan';
-import PurchaseCoachPlan from './pages/PurchaseCoachPlan';
 import RecipeManagement from './pages/RecipeManagement';
 import Recipes from './pages/Recipes';
 import ResourceLibrary from './pages/ResourceLibrary';
@@ -88,6 +86,8 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
+import PurchaseCoachPlan from './pages/PurchaseCoachPlan';
+import PurchaseClientPlan from './pages/PurchaseClientPlan';
 import __Layout from './Layout.jsx';
 
 
@@ -159,8 +159,6 @@ export const PAGES = {
     "ProgressTracking": ProgressTracking,
     "ProjectManagement": ProjectManagement,
     "PurchaseAICredits": PurchaseAICredits,
-    "PurchaseClientPlan": PurchaseClientPlan,
-    "PurchaseCoachPlan": PurchaseCoachPlan,
     "RecipeManagement": RecipeManagement,
     "Recipes": Recipes,
     "ResourceLibrary": ResourceLibrary,
@@ -182,6 +180,8 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
+    "PurchaseCoachPlan": PurchaseCoachPlan,
+    "PurchaseClientPlan": PurchaseClientPlan,
 }
 
 export const pagesConfig = {

@@ -222,9 +222,264 @@ export default function ClientRecipes() {
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Recipe Library</h1>
-          <p className="text-gray-600">Explore recipes from your meal plan and discover new ones</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Recipe Library</h1>
+            <p className="text-gray-600">Explore recipes from your meal plan and discover new ones</p>
+          </div>
+          <Dialog open={showAddRecipeDialog} onOpenChange={setShowAddRecipeDialog}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-to-r from-orange-500 to-red-500 h-12">
+                <Plus className="w-5 h-5 mr-2" />
+                Add My Recipe
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-2xl flex items-center gap-2">
+                  <Plus className="w-6 h-6 text-orange-500" />
+                  Create Custom Recipe
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Recipe Name *</Label>
+                    <Input
+                      placeholder="e.g., Paneer Tikka Masala"
+                      value={newRecipe.name}
+                      onChange={(e) => setNewRecipe({...newRecipe, name: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Description</Label>
+                    <Textarea
+                      placeholder="Brief description of the recipe"
+                      value={newRecipe.description}
+                      onChange={(e) => setNewRecipe({...newRecipe, description: e.target.value})}
+                      rows={2}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Meal Type</Label>
+                    <Select value={newRecipe.meal_type} onValueChange={(value) => setNewRecipe({...newRecipe, meal_type: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="breakfast">Breakfast</SelectItem>
+                        <SelectItem value="lunch">Lunch</SelectItem>
+                        <SelectItem value="dinner">Dinner</SelectItem>
+                        <SelectItem value="snack">Snack</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Food Type</Label>
+                    <Select value={newRecipe.food_preference} onValueChange={(value) => setNewRecipe({...newRecipe, food_preference: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="veg">Vegetarian</SelectItem>
+                        <SelectItem value="non_veg">Non-Veg</SelectItem>
+                        <SelectItem value="jain">Jain</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Cuisine</Label>
+                    <Select value={newRecipe.regional_cuisine} onValueChange={(value) => setNewRecipe({...newRecipe, regional_cuisine: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="north">North Indian</SelectItem>
+                        <SelectItem value="south">South Indian</SelectItem>
+                        <SelectItem value="west">West Indian</SelectItem>
+                        <SelectItem value="east">East Indian</SelectItem>
+                        <SelectItem value="fusion">Fusion</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Servings</Label>
+                    <Input
+                      type="number"
+                      placeholder="2"
+                      value={newRecipe.servings}
+                      onChange={(e) => setNewRecipe({...newRecipe, servings: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Ingredients *</Label>
+                  {newRecipe.ingredients.map((ing, idx) => (
+                    <div key={idx} className="flex gap-2">
+                      <Input
+                        placeholder="e.g., Paneer"
+                        value={ing.item}
+                        onChange={(e) => {
+                          const updated = [...newRecipe.ingredients];
+                          updated[idx].item = e.target.value;
+                          setNewRecipe({...newRecipe, ingredients: updated});
+                        }}
+                        className="flex-1"
+                      />
+                      <Input
+                        placeholder="e.g., 200g"
+                        value={ing.quantity}
+                        onChange={(e) => {
+                          const updated = [...newRecipe.ingredients];
+                          updated[idx].quantity = e.target.value;
+                          setNewRecipe({...newRecipe, ingredients: updated});
+                        }}
+                        className="w-32"
+                      />
+                      {newRecipe.ingredients.length > 1 && (
+                        <Button variant="ghost" size="icon" onClick={() => handleRemoveIngredient(idx)}>
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  <Button variant="outline" size="sm" onClick={handleAddIngredient}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Ingredient
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Instructions</Label>
+                  {newRecipe.instructions.map((inst, idx) => (
+                    <div key={idx} className="flex gap-2">
+                      <span className="text-sm font-semibold text-gray-600 mt-2">{idx + 1}.</span>
+                      <Textarea
+                        placeholder="Step instruction"
+                        value={inst}
+                        onChange={(e) => {
+                          const updated = [...newRecipe.instructions];
+                          updated[idx] = e.target.value;
+                          setNewRecipe({...newRecipe, instructions: updated});
+                        }}
+                        rows={2}
+                        className="flex-1"
+                      />
+                      {newRecipe.instructions.length > 1 && (
+                        <Button variant="ghost" size="icon" onClick={() => handleRemoveInstruction(idx)}>
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  <Button variant="outline" size="sm" onClick={handleAddInstruction}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Step
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label>Prep Time (min)</Label>
+                    <Input
+                      type="number"
+                      placeholder="15"
+                      value={newRecipe.prep_time}
+                      onChange={(e) => setNewRecipe({...newRecipe, prep_time: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Cook Time (min)</Label>
+                    <Input
+                      type="number"
+                      placeholder="30"
+                      value={newRecipe.cook_time}
+                      onChange={(e) => setNewRecipe({...newRecipe, cook_time: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Calories</Label>
+                    <Input
+                      type="number"
+                      placeholder="350"
+                      value={newRecipe.calories}
+                      onChange={(e) => setNewRecipe({...newRecipe, calories: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Protein (g)</Label>
+                    <Input
+                      type="number"
+                      placeholder="15"
+                      value={newRecipe.protein}
+                      onChange={(e) => setNewRecipe({...newRecipe, protein: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Carbs (g)</Label>
+                    <Input
+                      type="number"
+                      placeholder="45"
+                      value={newRecipe.carbs}
+                      onChange={(e) => setNewRecipe({...newRecipe, carbs: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Fats (g)</Label>
+                    <Input
+                      type="number"
+                      placeholder="12"
+                      value={newRecipe.fats}
+                      onChange={(e) => setNewRecipe({...newRecipe, fats: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Tags (comma-separated)</Label>
+                  <Input
+                    placeholder="e.g., high-protein, low-carb, quick"
+                    value={newRecipe.tags}
+                    onChange={(e) => setNewRecipe({...newRecipe, tags: e.target.value})}
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowAddRecipeDialog(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSubmitRecipe}
+                    disabled={createRecipeMutation.isPending}
+                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500"
+                  >
+                    {createRecipeMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Create Recipe
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Stats Cards */}

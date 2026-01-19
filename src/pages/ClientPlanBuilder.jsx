@@ -9,10 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Edit, Trash2, Check, X, Users, Lock, Copy, GripVertical } from "lucide-react";
+import { Plus, Edit, Trash2, Check, X, Users, Lock, Copy } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import CouponInput from "@/components/payments/CouponInput";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 export default function ClientPlanBuilder() {
   const queryClient = useQueryClient();
@@ -176,21 +175,11 @@ export default function ClientPlanBuilder() {
     setFormData({ ...formData, features: formData.features.filter((_, i) => i !== index) });
   };
 
-  const handleFeatureDragEnd = (result) => {
-    if (!result.destination) return;
-    if (result.source.index === result.destination.index) return;
-
-    const items = Array.from(formData.features);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setFormData({ ...formData, features: items });
-  };
-
   const copyPurchaseLink = (planId) => {
     const baseUrl = window.location.origin;
     const purchaseUrl = `${baseUrl}/#/purchase-client-plan?planId=${planId}`;
-    window.open(purchaseUrl, '_blank');
+    navigator.clipboard.writeText(purchaseUrl);
+    alert('✅ Purchase link copied to clipboard!');
   };
 
   const canCreatePlans = user?.user_type === 'super_admin' || 
@@ -269,12 +258,10 @@ export default function ClientPlanBuilder() {
                 )}
 
                 <div className="space-y-2 pt-4">
-                  {(user?.user_type === 'super_admin' || subscriptionPlan?.can_add_payment_gateway) && (
-                    <Button onClick={() => copyPurchaseLink(plan.id)} variant="outline" className="w-full bg-green-50 hover:bg-green-100 text-green-700 border-green-300">
-                      <Copy className="w-4 h-4 mr-2" />
-                      Open Purchase Link
-                    </Button>
-                  )}
+                  <Button onClick={() => copyPurchaseLink(plan.id)} variant="outline" className="w-full bg-green-50 hover:bg-green-100 text-green-700 border-green-300">
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy Purchase Link
+                  </Button>
                   <div className="flex gap-2">
                     <Button onClick={() => handleEdit(plan)} variant="outline" className="flex-1">
                       <Edit className="w-4 h-4 mr-2" />
@@ -381,38 +368,16 @@ export default function ClientPlanBuilder() {
                   />
                   <Button onClick={addFeature} type="button">Add</Button>
                 </div>
-                <DragDropContext onDragEnd={handleFeatureDragEnd}>
-                  <Droppable droppableId="features">
-                    {(provided) => (
-                      <div 
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        className="space-y-2 mt-2"
-                      >
-                        {formData.features.map((feature, idx) => (
-                          <Draggable key={`feature-${idx}`} draggableId={`feature-${idx}`} index={idx}>
-                            {(provided, snapshot) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                className={`flex items-center gap-2 p-2 bg-gray-50 rounded ${snapshot.isDragging ? 'shadow-lg ring-2 ring-blue-400' : ''}`}
-                              >
-                                <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
-                                  <GripVertical className="w-4 h-4 text-gray-400" />
-                                </div>
-                                <span className="text-sm flex-1">{feature}</span>
-                                <Button onClick={() => removeFeature(idx)} variant="ghost" size="sm">
-                                  <X className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </DragDropContext>
+                <div className="space-y-2 mt-2">
+                  {formData.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <span className="text-sm">{feature}</span>
+                      <Button onClick={() => removeFeature(idx)} variant="ghost" size="sm">
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {user?.user_type === 'super_admin' && (

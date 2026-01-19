@@ -9,10 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertCircle, Plus, Edit, Trash2, Crown, Check, X, Link2, Copy, GripVertical } from "lucide-react";
+import { AlertCircle, Plus, Edit, Trash2, Crown, Check, X, Link2, Copy } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import CouponInput from "@/components/payments/CouponInput";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 export default function HealthCoachPlans() {
   const queryClient = useQueryClient();
@@ -205,42 +204,11 @@ export default function HealthCoachPlans() {
     setFormData({ ...formData, features: formData.features.filter((_, i) => i !== index) });
   };
 
-  const handleFeatureDragEnd = (result) => {
-    if (!result.destination) return;
-    if (result.source.index === result.destination.index) return;
-
-    const items = Array.from(formData.features);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setFormData({ ...formData, features: items });
-  };
-
   const copyPurchaseLink = (planId) => {
     const baseUrl = window.location.origin;
     const purchaseUrl = `${baseUrl}/#/purchase-coach-plan?planId=${planId}`;
-    window.open(purchaseUrl, '_blank');
-  };
-
-  const handleDragEnd = async (result) => {
-    if (!result.destination) return;
-    if (result.source.index === result.destination.index) return;
-
-    const items = Array.from(plans);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    // Update sort_order for all affected plans
-    try {
-      const updates = items.map((plan, index) => 
-        base44.entities.HealthCoachPlan.update(plan.id, { sort_order: index })
-      );
-      await Promise.all(updates);
-      queryClient.invalidateQueries(['healthCoachPlans']);
-    } catch (error) {
-      console.error('Failed to reorder plans:', error);
-      alert('Failed to reorder plans. Please try again.');
-    }
+    navigator.clipboard.writeText(purchaseUrl);
+    alert('✅ Purchase link copied to clipboard!');
   };
 
   if (user?.user_type !== 'super_admin') {
@@ -270,40 +238,22 @@ export default function HealthCoachPlans() {
           </Button>
         </div>
 
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="plans">
-            {(provided) => (
-              <div 
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-                className="grid grid-cols-1 md:grid-cols-3 gap-6"
-              >
-                {plans.map((plan, index) => (
-                  <Draggable key={plan.id} draggableId={plan.id} index={index}>
-                    {(provided, snapshot) => (
-                      <Card
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        className={`border-none shadow-xl ${snapshot.isDragging ? 'shadow-2xl ring-2 ring-purple-500' : ''}`}
-                      >
-                        <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
-                                <GripVertical className="w-5 h-5" />
-                              </div>
-                              <CardTitle className="text-2xl">{plan.plan_name}</CardTitle>
-                            </div>
-                            <div className="flex gap-2">
-                              <Badge className="bg-white text-purple-600">
-                                {getSubscriptionCount(plan.id)} Coaches
-                              </Badge>
-                              <Badge className={plan.status === 'active' ? 'bg-green-600' : 'bg-gray-600'}>
-                                {plan.status}
-                              </Badge>
-                            </div>
-                          </div>
-                        </CardHeader>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {plans.map((plan) => (
+            <Card key={plan.id} className="border-none shadow-xl">
+              <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-2xl">{plan.plan_name}</CardTitle>
+                  <div className="flex gap-2">
+                    <Badge className="bg-white text-purple-600">
+                      {getSubscriptionCount(plan.id)} Coaches
+                    </Badge>
+                    <Badge className={plan.status === 'active' ? 'bg-green-600' : 'bg-gray-600'}>
+                      {plan.status}
+                    </Badge>
+                  </div>
+                </div>
+              </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div>
                   <p className="text-3xl font-bold text-gray-900">₹{plan.monthly_price}</p>
@@ -384,7 +334,7 @@ export default function HealthCoachPlans() {
                 <div className="space-y-2 pt-4">
                   <Button onClick={() => copyPurchaseLink(plan.id)} variant="outline" className="w-full bg-green-50 hover:bg-green-100 text-green-700 border-green-300">
                     <Copy className="w-4 h-4 mr-2" />
-                    Open Purchase Link
+                    Copy Purchase Link
                   </Button>
                   <div className="flex gap-2">
                     <Button onClick={() => handleEdit(plan)} variant="outline" className="flex-1">
@@ -398,15 +348,9 @@ export default function HealthCoachPlans() {
                   </div>
                 </div>
               </CardContent>
-                      </Card>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
+            </Card>
+          ))}
+        </div>
 
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -473,38 +417,16 @@ export default function HealthCoachPlans() {
                   />
                   <Button onClick={addFeature} type="button">Add</Button>
                 </div>
-                <DragDropContext onDragEnd={handleFeatureDragEnd}>
-                  <Droppable droppableId="features">
-                    {(provided) => (
-                      <div 
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        className="space-y-2 mt-2"
-                      >
-                        {formData.features.map((feature, idx) => (
-                          <Draggable key={`feature-${idx}`} draggableId={`feature-${idx}`} index={idx}>
-                            {(provided, snapshot) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                className={`flex items-center gap-2 p-2 bg-gray-50 rounded ${snapshot.isDragging ? 'shadow-lg ring-2 ring-purple-400' : ''}`}
-                              >
-                                <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
-                                  <GripVertical className="w-4 h-4 text-gray-400" />
-                                </div>
-                                <span className="text-sm flex-1">{feature}</span>
-                                <Button onClick={() => removeFeature(idx)} variant="ghost" size="sm">
-                                  <X className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </DragDropContext>
+                <div className="space-y-2 mt-2">
+                  {formData.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                      <span className="text-sm">{feature}</span>
+                      <Button onClick={() => removeFeature(idx)} variant="ghost" size="sm">
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

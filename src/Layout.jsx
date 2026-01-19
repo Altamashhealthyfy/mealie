@@ -433,37 +433,9 @@ export default function Layout({ children, currentPageName }) {
     !item.roles || item.roles.includes(userType)
   );
   
-  // Filter payment navigation based on user role AND coach plan permissions
-  const getFilteredPaymentNav = () => {
-    // First filter by role
-    let filtered = paymentNavigation.filter(item =>
-      !item.roles || item.roles.includes(userType)
-    );
-
-    // For student_coach, also filter by plan permissions
-    if (userType === 'student_coach' && coachPlan) {
-      filtered = filtered.filter(item => {
-        // Map navigation items to plan permissions
-        const permissionMap = {
-          'Payment Gateway': coachPlan.can_add_payment_gateway,
-          'Create Client Plans': coachPlan.can_create_client_plans,
-          'Pro Plans 💎': coachPlan.can_access_pro_plans,
-          'Assign Plans': coachPlan.can_create_client_plans, // Same as create
-          'Payment History': coachPlan.can_add_payment_gateway, // Need gateway to have payments
-        };
-
-        // If there's a permission mapping, check it; otherwise allow
-        if (permissionMap.hasOwnProperty(item.title)) {
-          return permissionMap[item.title] === true;
-        }
-        return true;
-      });
-    }
-
-    return filtered;
-  };
-
-  const filteredPaymentNav = getFilteredPaymentNav();
+  const filteredPaymentNav = paymentNavigation.filter(item =>
+    !item.roles || item.roles.includes(userType)
+  );
   
   const { data: coachSubscription } = useQuery({
     queryKey: ['coachSubscription', user?.email],
