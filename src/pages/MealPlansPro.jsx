@@ -672,9 +672,14 @@ export default function MealPlansPro() {
 
                   {selectedClient && hasCompletedIntake && (
                     <Button
-                      onClick={generateProPlan}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        console.log('Button clicked!');
+                        generateProPlan();
+                      }}
                       disabled={generating}
                       className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg"
+                      type="button"
                     >
                       {generating ? (
                         <>
