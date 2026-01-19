@@ -55,7 +55,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import NotificationBell from "@/components/notifications/NotificationBell";
-import TourButton from "@/components/common/TourButton";
 
 const dietitianNavigation = [
   {
@@ -883,7 +882,6 @@ export default function Layout({ children, currentPageName }) {
                                 <div id="notification-bell-container">
                                   <NotificationBell userEmail={user?.email} />
                                 </div>
-                                <TourButton pageName={currentPageName} />
                               </div>
           </header>
 
