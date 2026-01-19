@@ -199,12 +199,6 @@ const paymentNavigation = [
 
 const businessNavigation = [
   {
-    title: "Landing Page Builder",
-    url: createPageUrl("LandingPageBuilder"),
-    icon: Globe,
-    roles: ['super_admin', 'team_member', 'student_coach'],
-  },
-  {
     title: "Health Coach Plans",
     url: createPageUrl("HealthCoachPlans"),
     icon: Crown,
