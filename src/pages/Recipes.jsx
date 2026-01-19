@@ -145,8 +145,7 @@ export default function Recipes() {
     },
     onError: (error) => {
       console.error("Error saving recipe:", error);
-      const errorMessage = error?.response?.data?.message || error?.message || "Unknown error";
-      alert(`Error saving the recipe: ${errorMessage}\n\nPlease check the console for details and try again.`);
+      alert("Error saving the recipe. Please try again.");
     }
   });
 
@@ -379,87 +378,60 @@ Provide:
 - Meal type (breakfast/lunch/dinner/snack)
 - Food preference (veg/non_veg/jain)
 - Regional cuisine
-- Detailed ingredients with separate quantity (as number) and unit (grams/kg/ml/liters/cups/tbsp/tsp/pieces/to_taste)
+- Detailed ingredients with quantities
 - Step-by-step instructions
 - Prep and cook time
 - Number of servings
 - Nutrition information per serving (calories, protein, carbs, fats)
 - Relevant tags (e.g., high-protein, low-carb, quick, traditional)`;
 
-      let response;
-      try {
-        response = await base44.integrations.Core.InvokeLLM({
-          prompt,
-          response_json_schema: {
-            type: "object",
-            properties: {
-              name: { type: "string" },
-              description: { type: "string" },
-              meal_type: { type: "string" },
-              food_preference: { type: "string" },
-              regional_cuisine: { type: "string" },
-              ingredients: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    item: { type: "string" },
-                    quantity: { type: "number" },
-                    unit: { type: "string" }
-                  }
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            description: { type: "string" },
+            meal_type: { type: "string" },
+            food_preference: { type: "string" },
+            regional_cuisine: { type: "string" },
+            ingredients: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  item: { type: "string" },
+                  quantity: { type: "string" }
                 }
-              },
-              instructions: { type: "array", items: { type: "string" } },
-              prep_time: { type: "number" },
-              cook_time: { type: "number" },
-              servings: { type: "number" },
-              calories: { type: "number" },
-              protein: { type: "number" },
-              carbs: { type: "number" },
-              fats: { type: "number" },
-              tags: { type: "array", items: { type: "string" } }
-            }
+              }
+            },
+            instructions: { type: "array", items: { type: "string" } },
+            prep_time: { type: "number" },
+            cook_time: { type: "number" },
+            servings: { type: "number" },
+            calories: { type: "number" },
+            protein: { type: "number" },
+            carbs: { type: "number" },
+            fats: { type: "number" },
+            tags: { type: "array", items: { type: "string" } }
           }
-        });
-      } catch (llmError) {
-        console.error("LLM generation error:", llmError);
-        throw new Error(`Failed to generate recipe details: ${llmError.message || 'Unknown error'}`);
-      }
+        }
+      });
 
-      let imageResult;
-      try {
-        const imagePrompt = `Professional food photography of ${response.name}, ${response.description}. 
+      const imagePrompt = `Professional food photography of ${response.name}, ${response.description}. 
 Beautiful plating, appetizing presentation, restaurant quality, natural lighting, 
 ${response.regional_cuisine} Indian cuisine style, vibrant colors, high resolution food photo`;
 
-        imageResult = await base44.integrations.Core.GenerateImage({
-          prompt: imagePrompt
-        });
-      } catch (imageError) {
-        console.error("Image generation error:", imageError);
-        imageResult = { url: null };
-      }
+      const imageResult = await base44.integrations.Core.GenerateImage({
+        prompt: imagePrompt
+      });
 
-      const recipeData = {
-        name: response.name,
-        description: response.description || null,
-        meal_type: response.meal_type,
-        food_preference: response.food_preference,
-        regional_cuisine: response.regional_cuisine,
-        ingredients: response.ingredients || null,
-        instructions: response.instructions || null,
-        prep_time: response.prep_time || null,
-        cook_time: response.cook_time || null,
-        servings: response.servings || null,
-        calories: response.calories || null,
-        protein: response.protein || null,
-        carbs: response.carbs || null,
-        fats: response.fats || null,
-        tags: response.tags || null,
-        image_url: imageResult.url || null
+      const recipeWithImage = {
+        ...response,
+        image_url: imageResult.url
       };
 
-      createRecipeMutation.mutate(recipeData);
+      createRecipeMutation.mutate(recipeWithImage);
 
       // Deduct AI credit for student_coach
       if (user?.user_type === 'student_coach' && coachSubscription) {
@@ -485,8 +457,7 @@ ${response.regional_cuisine} Indian cuisine style, vibrant colors, high resoluti
       
     } catch (error) {
       console.error("Error generating recipe:", error);
-      const errorMsg = error.message || "Unknown error occurred";
-      alert(`Error generating recipe: ${errorMsg}\n\nPlease check your internet connection and try again.`);
+      alert("Error generating recipe. Please try again.");
     }
 
     setGeneratingRecipe(false);

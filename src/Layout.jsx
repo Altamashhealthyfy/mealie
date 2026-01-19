@@ -332,21 +332,21 @@ export default function Layout({ children, currentPageName }) {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Detect custom domain and fetch branding (non-blocking)
+  // Detect custom domain and fetch branding
   React.useEffect(() => {
     const detectCustomDomain = async () => {
-      try {
-        const hostname = window.location.hostname;
-        const isCustomDomain = !hostname.includes('base44.app') && !hostname.includes('localhost');
-        
-        if (isCustomDomain) {
+      const hostname = window.location.hostname;
+      const isCustomDomain = !hostname.includes('base44.app') && !hostname.includes('localhost');
+      
+      if (isCustomDomain) {
+        try {
           const response = await base44.functions.invoke('getCoachByDomain', { domain: hostname });
           if (response.data?.branding) {
             setCustomBranding(response.data.branding);
           }
+        } catch (error) {
+          console.error('Failed to fetch custom branding:', error);
         }
-      } catch (error) {
-        console.error('Failed to fetch custom branding:', error);
       }
     };
     
@@ -748,9 +748,9 @@ export default function Layout({ children, currentPageName }) {
 
           <SidebarContent className="p-2">
             <SidebarGroup id="dietitian-tools-nav">
-                          <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
-                            {isDietitian ? 'Dietitian Tools' : 'My Health Journey'}
-                          </SidebarGroupLabel>
+                              <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
+                                {isDietitian ? 'Dietitian Tools' : 'My Health Journey'}
+                              </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {navigationItems.map((item) => (
@@ -782,10 +782,10 @@ export default function Layout({ children, currentPageName }) {
             </SidebarGroup>
 
             {isDietitian && filteredPaymentNav.length > 0 && (
-                          <SidebarGroup id="payment-plans-nav">
-                            <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
-                              Payment & Plans
-                            </SidebarGroupLabel>
+                                <SidebarGroup id="payment-plans-nav">
+                                  <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
+                                    Payment & Plans
+                                  </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {filteredPaymentNav.map((item) => (
@@ -815,10 +815,10 @@ export default function Layout({ children, currentPageName }) {
             )}
 
             {isDietitian && filteredBusinessNav.length > 0 && (
-                          <SidebarGroup id="business-tools-nav">
-                            <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
-                              Business Tools
-                            </SidebarGroupLabel>
+                                <SidebarGroup id="business-tools-nav">
+                                  <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
+                                    Business Tools
+                                  </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {filteredBusinessNav.map((item) => (
@@ -908,11 +908,11 @@ export default function Layout({ children, currentPageName }) {
               </div>
             </div>
             <div className="ml-auto flex items-center gap-4">
-                          <div id="notification-bell-container">
-                            <NotificationBell userEmail={user?.email} />
-                          </div>
-                          <TourButton pageName={currentPageName} />
-                        </div>
+                                <div id="notification-bell-container">
+                                  <NotificationBell userEmail={user?.email} />
+                                </div>
+                                <TourButton pageName={currentPageName} />
+                              </div>
           </header>
 
           <div className="flex-1 overflow-auto">
