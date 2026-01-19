@@ -99,26 +99,7 @@ export default function CoachSubscriptions() {
     setIsProcessingPayment(true);
 
     try {
-      // Cancel ALL existing subscriptions (active, pending, etc.) before creating new one
-      if (mySubscription) {
-        await updateSubscriptionMutation.mutateAsync({
-          id: mySubscription.id,
-          data: { status: 'cancelled' }
-        });
-      }
-      
-      // Also cancel any other non-cancelled subscriptions for this user
-      const allSubs = await base44.entities.HealthCoachSubscription.filter({
-        coach_email: user.email,
-        status: { '$ne': 'cancelled' }
-      });
-      
-      for (const sub of allSubs) {
-        if (sub.id !== mySubscription?.id) {
-          await base44.entities.HealthCoachSubscription.update(sub.id, { status: 'cancelled' });
-        }
-      }
-
+      // Don't cancel existing subscription yet - only after successful payment
       const originalAmount = billingCycle === 'yearly' ? plan.yearly_price : plan.monthly_price;
       const amount = appliedCoupon ? appliedCoupon.finalAmount : originalAmount;
       const startDate = new Date().toISOString().split('T')[0];
