@@ -639,7 +639,7 @@ export default function MealPlansPro() {
                   {/* Action Buttons */}
                   {selectedClient && !hasCompletedIntake && (
                     <Button
-                      onClick={() => window.location.href = createPageUrl(`ClinicalIntake/${selectedClient.id}`)}
+                      onClick={() => window.location.href = `/#/ClinicalIntake?clientId=${selectedClient.id}`}
                       className="w-full bg-gradient-to-r from-orange-500 to-red-500 h-12"
                     >
                       <FileText className="w-5 h-5 mr-2" />
