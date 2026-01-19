@@ -219,9 +219,14 @@ export default function CoachSubscriptions() {
           }
         },
         modal: {
-          ondismiss: function () {
+          ondismiss: async function () {
+            // Cancel the pending subscription if payment was cancelled
+            await base44.entities.HealthCoachSubscription.update(newSubscription.id, {
+              status: 'cancelled'
+            });
+            await queryClient.invalidateQueries(['myCoachSubscription']);
             setIsProcessingPayment(false);
-            alert('Payment cancelled. Your subscription remains pending.');
+            alert('Payment cancelled. Your existing plan remains active.');
           }
         }
       };
