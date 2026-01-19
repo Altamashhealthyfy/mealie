@@ -682,10 +682,11 @@ export default function MealPlansPro() {
 
                   <Button
                     onClick={() => {
-                      alert('Button clicked!');
+                      console.log('🔴 BUTTON CLICK EVENT FIRED');
+                      console.log('Button state:', { generating, selectedClientId, selectedClient, hasCompletedIntake });
                       generateProPlan();
                     }}
-                    disabled={generating}
+                    disabled={generating || !selectedClient || !hasCompletedIntake}
                     className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {generating ? (
