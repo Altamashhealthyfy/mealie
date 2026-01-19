@@ -39,9 +39,10 @@ export default function CoachSubscriptions() {
         coach_email: user?.email,
         status: { '$ne': 'cancelled' }
       });
-      return subs[0] || null;
+      return subs.sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0] || null;
     },
     enabled: !!user && user.user_type === 'student_coach',
+    refetchInterval: 3000, // Poll every 3 seconds to catch status updates
   });
 
   const { data: paymentGateway } = useQuery({
@@ -136,10 +137,15 @@ export default function CoachSubscriptions() {
         planName: plan.plan_name
       });
 
-      const paymentOrder = response.data || response;
+      if (!response || !response.data) {
+        throw new Error('Failed to create payment order - no response');
+      }
 
-      if (!paymentOrder || !paymentOrder.order_id) {
-        throw new Error('Failed to create payment order');
+      const paymentOrder = response.data;
+
+      if (!paymentOrder.order_id || !paymentOrder.razorpay_key_id) {
+        console.error('Invalid payment order:', paymentOrder);
+        throw new Error('Failed to create payment order - invalid response');
       }
 
       const options = {
@@ -182,18 +188,8 @@ export default function CoachSubscriptions() {
                 });
               }
 
-              await updateSubscriptionMutation.mutateAsync({
-                id: newSubscription.id,
-                data: {
-                  status: 'active',
-                  razorpay_payment_id: rzpResponse.razorpay_payment_id,
-                  razorpay_order_id: rzpResponse.razorpay_order_id,
-                  manually_granted: false,
-                  granted_by: null
-                }
-              });
-
-              // Force immediate refetch to update UI
+              // Backend already updated subscription to active
+              // Just refetch to update UI
               await queryClient.invalidateQueries(['myCoachSubscription']);
               await queryClient.refetchQueries(['myCoachSubscription']);
 
