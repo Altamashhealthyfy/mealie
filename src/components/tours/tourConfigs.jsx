@@ -1437,28 +1437,44 @@ export const tourConfigs = {
   },
 
   AddTeamAppointment: {
-    title: "Team Appointment Tour",
+    title: "Create Team Appointment Guide",
     steps: [
       {
         popover: {
-          title: '👥 Team Scheduling',
-          description: 'Schedule appointments and assign them to team members.',
+          title: '📅 Schedule New Appointment',
+          description: 'This page lets you create appointments for your team. Fill in client details, schedule time, and assign to team members.',
         }
       },
       {
-        element: '.team-member-select',
+        element: '#client-name-field',
         popover: {
-          title: '👤 Assign to Team',
-          description: 'Choose which team member will handle this appointment.',
+          title: '👤 Search Client',
+          description: 'Start typing client name to search existing clients, or type manually to add a new one. Selecting from the list auto-fills phone number.',
           side: 'bottom'
         }
       },
       {
-        element: '.appointment-details',
+        element: '#appointment-timing',
         popover: {
-          title: '📝 Appointment Details',
-          description: 'Set date, time, duration, and meeting link for the session.',
-          side: 'left'
+          title: '⏰ Schedule Date & Time',
+          description: 'Select the appointment date, start time, and duration (default is 30 minutes). Duration can be adjusted in 15-minute intervals.',
+          side: 'top'
+        }
+      },
+      {
+        element: '#team-member-assignment',
+        popover: {
+          title: '👥 Assign Team Member',
+          description: 'Assign this appointment to a specific team member who will handle the consultation. Leave unassigned if needed.',
+          side: 'top'
+        }
+      },
+      {
+        element: '#create-appointment-btn',
+        popover: {
+          title: '✅ Create Appointment',
+          description: 'Click here to save the appointment. It will appear in the team calendar and the assigned member will be notified.',
+          side: 'top'
         }
       }
     ]

@@ -132,7 +132,7 @@ export default function AddTeamAppointment() {
           <CardContent className="p-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+                <div id="client-name-field">
                   <Label>Client Name *</Label>
                   <div className="relative">
                     <Input
@@ -195,7 +195,7 @@ export default function AddTeamAppointment() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6" id="appointment-timing">
                 <div>
                   <Label>Date *</Label>
                   <Input
@@ -229,7 +229,7 @@ export default function AddTeamAppointment() {
                 </div>
               </div>
 
-              <div>
+              <div id="team-member-assignment">
                 <Label>Assign To (Team Member)</Label>
                 <Select value={formData.assigned_to} onValueChange={(value) => setFormData({ ...formData, assigned_to: value })}>
                   <SelectTrigger>
@@ -246,7 +246,7 @@ export default function AddTeamAppointment() {
                 </Select>
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex gap-4" id="form-actions">
                 <Button
                   type="button"
                   variant="outline"
@@ -259,6 +259,7 @@ export default function AddTeamAppointment() {
                   type="submit"
                   disabled={isSaving}
                   className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500"
+                  id="create-appointment-btn"
                 >
                   {isSaving ? (
                     <>
