@@ -267,7 +267,7 @@ export default function ClientRecipes() {
         </div>
 
         <Tabs defaultValue="all" className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4">
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-3">
             <TabsTrigger value="all">
               All Recipes ({recipes.length})
             </TabsTrigger>
@@ -277,9 +277,6 @@ export default function ClientRecipes() {
             <TabsTrigger value="favorites">
               <Heart className="w-4 h-4 mr-2" />
               Favorites ({favorites.length})
-            </TabsTrigger>
-            <TabsTrigger value="mine">
-              My Recipes ({myRecipes.length})
             </TabsTrigger>
           </TabsList>
 
@@ -516,50 +513,6 @@ export default function ClientRecipes() {
             )}
           </TabsContent>
 
-          <TabsContent value="mine" className="space-y-4">
-            {myRecipes.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {myRecipes.map((recipe) => (
-                  <Card key={recipe.id} className="border-none shadow-lg hover:shadow-xl transition-all border-2 border-blue-200 overflow-hidden">
-                    {recipe.image_url && (
-                      <div className="w-full h-48 overflow-hidden">
-                        <img 
-                          src={recipe.image_url} 
-                          alt={recipe.name}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    )}
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <Badge className="bg-blue-500 text-white mb-2">My Recipe</Badge>
-                          <CardTitle className="text-xl line-clamp-2">{recipe.name}</CardTitle>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <Button
-                        onClick={() => setViewingRecipe(recipe)}
-                        className="w-full bg-gradient-to-r from-blue-500 to-cyan-500"
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Recipe
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <Card className="border-none shadow-lg">
-                <CardContent className="p-12 text-center">
-                  <BookOpen className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No custom recipes yet</h3>
-                  <p className="text-gray-600">Your coach can create custom recipes for you!</p>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
         </Tabs>
 
         {/* Recipe Detail Dialog */}
