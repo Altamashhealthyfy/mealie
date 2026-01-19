@@ -85,8 +85,9 @@ export default function CoachSubscriptions() {
       return;
     }
 
-    if (!paymentGateway) {
-      alert('Payment gateway not configured. Please contact support.');
+    // Check if Razorpay script is loaded
+    if (!window.Razorpay) {
+      alert('Payment system is loading. Please wait a moment and try again.');
       return;
     }
 
@@ -127,7 +128,7 @@ export default function CoachSubscriptions() {
 
       const newSubscription = await createSubscriptionMutation.mutateAsync(subscriptionData);
 
-      const { data: paymentOrder } = await base44.functions.invoke('createCoachPayment', {
+      const response = await base44.functions.invoke('createCoachPayment', {
         subscriptionId: newSubscription.id,
         amount: amount * 100,
         currency: 'INR',
@@ -135,6 +136,12 @@ export default function CoachSubscriptions() {
         coachEmail: user.email,
         planName: plan.plan_name
       });
+
+      const paymentOrder = response.data || response;
+
+      if (!paymentOrder || !paymentOrder.order_id) {
+        throw new Error('Failed to create payment order');
+      }
 
       const options = {
         key: paymentOrder.razorpay_key_id,
@@ -150,14 +157,16 @@ export default function CoachSubscriptions() {
         theme: {
           color: '#9333EA'
         },
-        handler: async function (response) {
+        handler: async function (rzpResponse) {
           try {
-            const { data: verification } = await base44.functions.invoke('verifyCoachPayment', {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
+            const verifyResponse = await base44.functions.invoke('verifyCoachPayment', {
+              razorpay_order_id: rzpResponse.razorpay_order_id,
+              razorpay_payment_id: rzpResponse.razorpay_payment_id,
+              razorpay_signature: rzpResponse.razorpay_signature,
               subscriptionId: newSubscription.id
             });
+
+            const verification = verifyResponse.data || verifyResponse;
 
             if (verification.success) {
               // Update coupon usage if applied
@@ -178,8 +187,8 @@ export default function CoachSubscriptions() {
                 id: newSubscription.id,
                 data: {
                   status: 'active',
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: rzpResponse.razorpay_payment_id,
+                  razorpay_order_id: rzpResponse.razorpay_order_id,
                   manually_granted: false,
                   granted_by: null
                 }
@@ -197,11 +206,11 @@ export default function CoachSubscriptions() {
               alert('❌ Payment verification failed. Please contact support.');
               setIsProcessingPayment(false);
             }
-            } catch (error) {
+          } catch (error) {
             console.error('Payment verification error:', error);
             alert('❌ Payment verification failed. Please contact support.');
             setIsProcessingPayment(false);
-            }
+          }
         },
         modal: {
           ondismiss: function () {
