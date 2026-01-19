@@ -671,11 +671,20 @@ export default function MealPlansPro() {
                         </>
                       ) : (
                         <>
-                          <Sparkles className="w-5 h-5 mr-2" />
-                          Generate Pro Plan (10 Days)
+                          <CheckCircle className="w-5 h-5 mr-2" />
+                          Submit & Generate Pro Plan
                         </>
                       )}
                     </Button>
+                  )}
+                  
+                  {selectedClient && !hasCompletedIntake && (
+                    <Alert className="bg-yellow-50 border-yellow-500 mt-4">
+                      <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                      <AlertDescription>
+                        Complete the clinical intake form to generate AI meal plans
+                      </AlertDescription>
+                    </Alert>
                   )}
 
                   {/* Info about Pro features */}
