@@ -613,14 +613,14 @@ export default function MealPlansPro() {
           {/* AI GENERATE TAB */}
           <TabsContent value="generate" className="space-y-6">
             {!generatedPlan ? (
-              <Card className="border-none shadow-lg">
-                <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
-                  <CardTitle className="text-2xl">Generate Diamond Clinical Meal Plan</CardTitle>
-                  <CardDescription className="text-white/90">
+              <div className="border-none shadow-lg">
+                <div className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white p-6 rounded-t-lg">
+                  <h2 className="text-2xl font-bold">Generate Diamond Clinical Meal Plan</h2>
+                  <p className="text-white/90 mt-1">
                     Based on detailed clinical intake with disease-specific guidelines
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-6 space-y-6">
+                  </p>
+                </div>
+                <div className="p-6 space-y-6 bg-white rounded-b-lg">
                   {/* Client Selection */}
                   <div className="space-y-2">
                     <label className="text-base font-semibold flex items-center gap-2">
