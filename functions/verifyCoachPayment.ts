@@ -33,6 +33,13 @@ Deno.serve(async (req) => {
         const sub = subscription[0];
 
         if (sub) {
+            // Update subscription to active
+            await base44.asServiceRole.entities.HealthCoachSubscription.update(subscriptionId, {
+                status: 'active',
+                razorpay_payment_id: razorpay_payment_id,
+                razorpay_order_id: razorpay_order_id
+            });
+
             // Log payment
             await base44.asServiceRole.entities.Payment.create({
                 coach_email: sub.coach_email,
