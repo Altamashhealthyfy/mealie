@@ -680,15 +680,13 @@ export default function MealPlansPro() {
                     </Button>
                   )}
 
-                  <Button
-                    onClick={async () => {
-                      console.log('🔥 BUTTON CLICKED');
-                      console.log('Data check:', { selectedClientId, selectedClient, clinicalIntakes, hasCompletedIntake });
-                      await generateProPlan();
+                  <button
+                    onClick={() => {
+                      alert('Button clicked!');
+                      generateProPlan();
                     }}
                     disabled={generating}
-                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                    type="button"
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-semibold text-white shadow-lg hover:opacity-90 transition-all"
                   >
                     {generating ? (
                       <>
