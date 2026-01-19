@@ -126,8 +126,18 @@ export default function MealPlansPro() {
   const hasCompletedIntake = latestIntake?.completed;
 
   const generateProPlan = async () => {
-    if (!selectedClient || !latestIntake) {
-      alert('Please ensure client has completed clinical intake');
+    if (!selectedClient) {
+      alert('❌ Please select a client first');
+      return;
+    }
+    
+    if (!latestIntake) {
+      alert('❌ Clinical intake not found. Please complete the clinical intake form first.');
+      return;
+    }
+
+    if (!hasCompletedIntake) {
+      alert('❌ Clinical intake is not completed yet. Please complete the form first.');
       return;
     }
 
