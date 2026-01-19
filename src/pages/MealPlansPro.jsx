@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -14,6 +14,7 @@ import ManualMealPlanBuilder from "@/components/mealplanner/ManualMealPlanBuilde
 
 export default function MealPlansPro() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const preSelectedClientId = searchParams.get('client');
   
@@ -639,7 +640,7 @@ export default function MealPlansPro() {
                   {/* Action Buttons */}
                   {selectedClient && !hasCompletedIntake && (
                     <Button
-                      onClick={() => window.location.href = `/#/ClinicalIntake?clientId=${selectedClient.id}`}
+                      onClick={() => navigate(`/ClinicalIntake?clientId=${selectedClient.id}`)}
                       className="w-full bg-gradient-to-r from-orange-500 to-red-500 h-12"
                     >
                       <FileText className="w-5 h-5 mr-2" />
