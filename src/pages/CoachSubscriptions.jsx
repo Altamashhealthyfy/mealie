@@ -172,6 +172,19 @@ export default function CoachSubscriptions() {
             const verification = verifyResponse.data || verifyResponse;
 
             if (verification.success) {
+              // Cancel old active subscription now that payment succeeded
+              const oldSubs = await base44.entities.HealthCoachSubscription.filter({
+                coach_email: user.email,
+                status: 'active'
+              });
+              for (const oldSub of oldSubs) {
+                if (oldSub.id !== newSubscription.id) {
+                  await base44.entities.HealthCoachSubscription.update(oldSub.id, { 
+                    status: 'cancelled' 
+                  });
+                }
+              }
+
               // Update coupon usage if applied
               if (appliedCoupon) {
                 const usedBy = appliedCoupon.coupon.used_by || [];
