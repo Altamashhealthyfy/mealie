@@ -117,7 +117,8 @@ export default function PurchaseAICredits() {
           amount: cost,
           currency: 'INR',
           description: `Purchase ${amount} AI Credits${appliedCoupon ? ` (Coupon: ${appliedCoupon.coupon.code})` : ''}`,
-          payment_type: 'ai_credits'
+          payment_type: 'ai_credits',
+          creditsAmount: amount
         });
 
         console.log('Order Response:', orderResponse);
