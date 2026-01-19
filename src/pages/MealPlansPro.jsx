@@ -681,11 +681,10 @@ export default function MealPlansPro() {
                   )}
 
                   <Button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      console.log('🔵🔵🔵 BUTTON CLICKED 🔵🔵🔵');
-                      generateProPlan();
+                    onClick={async () => {
+                      console.log('🔥 BUTTON CLICKED');
+                      console.log('Data check:', { selectedClientId, selectedClient, clinicalIntakes, hasCompletedIntake });
+                      await generateProPlan();
                     }}
                     disabled={generating}
                     className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
