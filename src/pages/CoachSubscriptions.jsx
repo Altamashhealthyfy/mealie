@@ -271,9 +271,10 @@ export default function CoachSubscriptions() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {plans.map(plan => {
-            const isActivePlan = mySubscription?.plan_id === plan.id && mySubscription?.status === 'active';
+            const isActivePlan = mySubscription?.plan_id === plan.id && (mySubscription?.status === 'active' || mySubscription?.status === 'pending');
+            const hasActiveSubscription = mySubscription?.status === 'active';
             const isManuallyGranted = mySubscription?.manually_granted === true;
-            const shouldDisable = isActivePlan && isManuallyGranted;
+            const shouldDisable = isActivePlan && isManuallyGranted && hasActiveSubscription;
 
             return (
             <Card key={plan.id} className={`border-none shadow-xl relative ${isActivePlan ? 'ring-4 ring-green-500' : ''} ${shouldDisable ? 'opacity-60 bg-gray-100' : ''}`}>
