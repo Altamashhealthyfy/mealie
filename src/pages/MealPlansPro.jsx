@@ -137,32 +137,39 @@ export default function MealPlansPro() {
   }, [selectedClientId, selectedClient, clinicalIntakes, latestIntake, hasCompletedIntake]);
 
   const generateProPlan = async () => {
-    console.log('=== Generate Pro Plan Started ===');
-    console.log('Selected Client:', selectedClient);
-    console.log('Latest Intake:', latestIntake);
-    console.log('Has Completed Intake:', hasCompletedIntake);
-
-    if (!selectedClient) {
-      alert('❌ Please select a client first');
-      return;
-    }
-    
-    if (!latestIntake) {
-      alert('❌ Clinical intake not found. Please complete the clinical intake form first.');
-      return;
-    }
-
-    if (!hasCompletedIntake) {
-      alert('❌ Clinical intake is not completed yet. Please complete the form first.');
-      return;
-    }
-
-    setGenerating(true);
-
     try {
-      console.log('Building prompt...');
+      console.log('🚀 === Generate Pro Plan Started ===');
+      console.log('Step 1: Checking selected client...');
+      console.log('Selected Client:', selectedClient);
+      console.log('Latest Intake:', latestIntake);
+      console.log('Has Completed Intake:', hasCompletedIntake);
+
+      if (!selectedClient) {
+        console.error('❌ No client selected');
+        alert('❌ Please select a client first');
+        return;
+      }
+      
+      if (!latestIntake) {
+        console.error('❌ No clinical intake found');
+        alert('❌ Clinical intake not found. Please complete the clinical intake form first.');
+        return;
+      }
+
+      if (!hasCompletedIntake) {
+        console.error('❌ Clinical intake not completed');
+        alert('❌ Clinical intake is not completed yet. Please complete the form first.');
+        return;
+      }
+
+      console.log('✅ All validations passed');
+      setGenerating(true);
+      alert('⏳ Generating Pro Plan... This may take 30-60 seconds. Please wait...');
+
+      console.log('Step 2: Building prompt...');
       const prompt = constructDiamondPrompt(selectedClient, latestIntake);
-      console.log('Prompt created, calling AI...');
+      console.log('✅ Prompt created, length:', prompt.length);
+      console.log('Step 3: Calling AI API...');
       
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
@@ -241,7 +248,8 @@ export default function MealPlansPro() {
         }
       });
 
-      console.log('AI Response received:', response);
+      console.log('✅ AI Response received:', response);
+      console.log('Step 4: Setting generated plan...');
 
       setGeneratedPlan({
         ...response,
@@ -249,13 +257,19 @@ export default function MealPlansPro() {
         client_name: selectedClient.full_name
       });
 
-      console.log('✅ Plan generated successfully');
-      alert('✅ Pro meal plan generated successfully! Review it below.');
+      console.log('✅✅✅ Plan generated successfully!');
+      alert('✅ Pro meal plan generated successfully! Scroll down to review the plan.');
 
     } catch (error) {
-      console.error('❌ Error generating meal plan:', error);
-      alert(`❌ Error: ${error.message || 'Failed to generate meal plan. Please try again.'}`);
+      console.error('❌❌❌ Error generating meal plan:', error);
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        full: error
+      });
+      alert(`❌ Error: ${error.message || 'Failed to generate meal plan. Please check console and try again.'}`);
     } finally {
+      console.log('Step 5: Cleaning up...');
       setGenerating(false);
     }
   };
