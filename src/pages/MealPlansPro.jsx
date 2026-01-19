@@ -243,28 +243,18 @@ export default function MealPlansPro() {
         }
       });
 
-      console.log('✅ AI Response received:', response);
-      console.log('Step 4: Setting generated plan...');
-
       setGeneratedPlan({
         ...response,
         client_id: selectedClient.id,
         client_name: selectedClient.full_name
       });
 
-      console.log('✅✅✅ Plan generated successfully!');
       alert('✅ Pro meal plan generated successfully! Scroll down to review the plan.');
+      setGenerating(false);
 
     } catch (error) {
-      console.error('❌❌❌ Error generating meal plan:', error);
-      console.error('Error details:', {
-        message: error.message,
-        stack: error.stack,
-        full: error
-      });
-      alert(`❌ Error: ${error.message || 'Failed to generate meal plan. Please check console and try again.'}`);
-    } finally {
-      console.log('Step 5: Cleaning up...');
+      console.error('❌ Error:', error);
+      alert(`❌ Error: ${error.message || 'Failed to generate meal plan'}`);
       setGenerating(false);
     }
   };
