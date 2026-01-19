@@ -276,7 +276,14 @@ export default function CoachSubscriptions() {
             const shouldDisable = isActivePlan && isManuallyGranted;
 
             return (
-            <Card key={plan.id} className={`border-none shadow-xl ${shouldDisable ? 'opacity-60 bg-gray-100' : ''}`}>
+            <Card key={plan.id} className={`border-none shadow-xl relative ${isActivePlan ? 'ring-4 ring-green-500' : ''} ${shouldDisable ? 'opacity-60 bg-gray-100' : ''}`}>
+              {isActivePlan && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                  <Badge className="bg-green-500 text-white px-4 py-1 text-sm font-bold shadow-lg">
+                    ✓ ACTIVE PLAN
+                  </Badge>
+                </div>
+              )}
               <CardHeader className={`bg-gradient-to-r from-purple-500 to-indigo-600 text-white ${shouldDisable ? 'opacity-70' : ''}`}>
                 <div className="flex items-center justify-between mb-2">
                   <Crown className="w-8 h-8" />
