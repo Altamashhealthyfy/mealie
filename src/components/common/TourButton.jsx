@@ -29,6 +29,9 @@ export default function TourButton({ pageName, variant = 'outline', size = 'sm' 
       showButtons: ['next', 'previous', 'close'],
       steps: tourConfig.steps,
       popoverClass: 'dashboard-tour-popover',
+      animate: true,
+      smoothScroll: true,
+      allowClose: true,
       onDestroyStarted: () => {
         if (!hasSeenTour) {
           markTourAsSeen();
@@ -39,14 +42,19 @@ export default function TourButton({ pageName, variant = 'outline', size = 'sm' 
         markTourAsSeen();
         driverObj.destroy();
       },
+      onHighlightStarted: (element) => {
+        // Scroll element into view
+        if (element?.element) {
+          element.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      },
     });
 
     driverObj.drive();
   };
 
-  if (!tourConfigs[pageName]) {
-    return null;
-  }
+  // Always show tour button
+  const hasTour = tourConfigs[pageName] || defaultTour;
 
   return (
     <Button

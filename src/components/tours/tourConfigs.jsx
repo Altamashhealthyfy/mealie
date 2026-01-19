@@ -2163,8 +2163,16 @@ export const defaultTour = {
   steps: [
     {
       popover: {
-        title: '👋 Welcome!',
-        description: 'This is a brief tour of this page. Click Next to learn more about the features available here.',
+        title: '👋 Welcome to this page!',
+        description: 'This page helps you manage your tasks and activities. Look for buttons and forms to interact with features. Click around to explore!',
+      }
+    },
+    {
+      element: '#dietitian-tools-nav',
+      popover: {
+        title: '🧭 Navigation Menu',
+        description: 'Use the sidebar to navigate between different sections of the platform.',
+        side: 'right',
       }
     }
   ]
