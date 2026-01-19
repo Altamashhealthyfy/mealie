@@ -702,10 +702,9 @@ export default function MealPlansPro() {
                       e.preventDefault();
                       e.stopPropagation();
                       console.log('🔵🔵🔵 BUTTON CLICKED 🔵🔵🔵');
-                      alert('Button was clicked!');
                       generateProPlan();
                     }}
-                    disabled={generating || !selectedClient || !hasCompletedIntake}
+                    disabled={generating}
                     className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     type="button"
                   >
