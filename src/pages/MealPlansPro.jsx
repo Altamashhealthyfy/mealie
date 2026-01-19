@@ -680,13 +680,13 @@ export default function MealPlansPro() {
                     </Button>
                   )}
 
-                  <button
+                  <Button
                     onClick={() => {
                       alert('Button clicked!');
                       generateProPlan();
                     }}
                     disabled={generating}
-                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-semibold text-white shadow-lg hover:opacity-90 transition-all"
+                    className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {generating ? (
                       <>
@@ -699,7 +699,7 @@ export default function MealPlansPro() {
                         Submit & Generate Pro Plan
                       </>
                     )}
-                  </button>
+                  </Button>
 
                   {(!selectedClient || !hasCompletedIntake) && (
                     <p className="text-sm text-red-600 text-center mt-2">
