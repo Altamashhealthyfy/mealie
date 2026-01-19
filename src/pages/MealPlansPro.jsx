@@ -126,6 +126,11 @@ export default function MealPlansPro() {
   const hasCompletedIntake = latestIntake?.completed;
 
   const generateProPlan = async () => {
+    console.log('=== Generate Pro Plan Started ===');
+    console.log('Selected Client:', selectedClient);
+    console.log('Latest Intake:', latestIntake);
+    console.log('Has Completed Intake:', hasCompletedIntake);
+
     if (!selectedClient) {
       alert('❌ Please select a client first');
       return;
@@ -144,7 +149,9 @@ export default function MealPlansPro() {
     setGenerating(true);
 
     try {
+      console.log('Building prompt...');
       const prompt = constructDiamondPrompt(selectedClient, latestIntake);
+      console.log('Prompt created, calling AI...');
       
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
@@ -223,15 +230,20 @@ export default function MealPlansPro() {
         }
       });
 
+      console.log('AI Response received:', response);
+
       setGeneratedPlan({
         ...response,
         client_id: selectedClient.id,
         client_name: selectedClient.full_name
       });
 
+      console.log('✅ Plan generated successfully');
+      alert('✅ Pro meal plan generated successfully! Review it below.');
+
     } catch (error) {
-      console.error(error);
-      alert('Error generating meal plan. Please try again.');
+      console.error('❌ Error generating meal plan:', error);
+      alert(`❌ Error: ${error.message || 'Failed to generate meal plan. Please try again.'}`);
     } finally {
       setGenerating(false);
     }
