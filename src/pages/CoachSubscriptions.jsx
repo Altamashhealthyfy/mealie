@@ -39,7 +39,12 @@ export default function CoachSubscriptions() {
         coach_email: user?.email,
         status: { '$ne': 'cancelled' }
       });
-      return subs.sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0] || null;
+      // Sort: active first, then by created_date descending
+      return subs.sort((a, b) => {
+        if (a.status === 'active' && b.status !== 'active') return -1;
+        if (b.status === 'active' && a.status !== 'active') return 1;
+        return new Date(b.created_date) - new Date(a.created_date);
+      })[0] || null;
     },
     enabled: !!user && user.user_type === 'student_coach',
     refetchInterval: 3000, // Poll every 3 seconds to catch status updates
