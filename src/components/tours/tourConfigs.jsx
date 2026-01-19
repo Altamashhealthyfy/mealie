@@ -1,4 +1,3 @@
-
 // Tour configurations for each page
 export const tourConfigs = {
   DietitianDashboard: {
@@ -1459,6 +1458,698 @@ export const tourConfigs = {
         popover: {
           title: '📝 Appointment Details',
           description: 'Set date, time, duration, and meeting link for the session.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  Home: {
+    title: "Welcome Tour",
+    steps: [
+      {
+        popover: {
+          title: '👋 Welcome to Mealie',
+          description: 'Your all-in-one platform for nutrition coaching and client management.',
+        }
+      },
+      {
+        element: '.get-started-btn',
+        popover: {
+          title: '🚀 Get Started',
+          description: 'Begin your journey by setting up your profile and exploring features.',
+          side: 'bottom'
+        }
+      }
+    ]
+  },
+
+  TeamAppointmentsCalendar: {
+    title: "Team Calendar Tour",
+    steps: [
+      {
+        popover: {
+          title: '📅 Team Calendar',
+          description: 'View all team appointments in one unified calendar view.',
+        }
+      },
+      {
+        element: '.calendar-grid',
+        popover: {
+          title: '🗓️ Calendar View',
+          description: 'See appointments color-coded by team member for easy tracking.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.filter-team-btn',
+        popover: {
+          title: '🔍 Filter by Team',
+          description: 'Filter appointments by specific team members or view all together.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  ClientWeeklyMealPlans: {
+    title: "Weekly Meal Plans Tour",
+    steps: [
+      {
+        popover: {
+          title: '📅 Weekly Planning',
+          description: 'View your complete meal plan organized by week and day.',
+        }
+      },
+      {
+        element: '.week-selector',
+        popover: {
+          title: '📆 Select Week',
+          description: 'Navigate between different weeks to see past and upcoming meal plans.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.daily-meals',
+        popover: {
+          title: '🍽️ Daily Meals',
+          description: 'View all meals for each day with nutritional information.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  ClientCommunicationHub: {
+    title: "Communication Hub Tour",
+    steps: [
+      {
+        popover: {
+          title: '💬 Communication Hub',
+          description: 'Manage all client communications, messages, and notifications in one place.',
+        }
+      },
+      {
+        element: '.message-threads',
+        popover: {
+          title: '📨 Message Threads',
+          description: 'View all active conversations with clients and team members.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.quick-reply-btn',
+        popover: {
+          title: '⚡ Quick Reply',
+          description: 'Use quick reply templates to respond faster.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  WeeklyMealPlans: {
+    title: "Weekly Meal Planner Tour",
+    steps: [
+      {
+        popover: {
+          title: '📅 Weekly Planner',
+          description: 'Create and manage weekly meal plans for your clients.',
+        }
+      },
+      {
+        element: '.create-weekly-plan',
+        popover: {
+          title: '➕ Create Plan',
+          description: 'Build weekly meal plans with drag-and-drop or AI assistance.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.copy-week-btn',
+        popover: {
+          title: '📋 Copy Week',
+          description: 'Copy previous weeks to save time creating similar plans.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  ClientProgressAnalytics: {
+    title: "Progress Analytics Tour",
+    steps: [
+      {
+        popover: {
+          title: '📊 Client Analytics',
+          description: 'Analyze client progress with detailed charts and metrics.',
+        }
+      },
+      {
+        element: '.progress-charts',
+        popover: {
+          title: '📈 Trend Analysis',
+          description: 'View weight, body composition, and adherence trends over time.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.export-report-btn',
+        popover: {
+          title: '📥 Export Report',
+          description: 'Generate detailed progress reports to share with clients.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  DailyProgressLogger: {
+    title: "Daily Logger Tour",
+    steps: [
+      {
+        popover: {
+          title: '📝 Daily Progress',
+          description: 'Log your daily progress including weight, meals, and wellness activities.',
+        }
+      },
+      {
+        element: '.quick-log-btn',
+        popover: {
+          title: '⚡ Quick Log',
+          description: 'Quickly record your daily metrics with one tap.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.log-history',
+        popover: {
+          title: '📚 History',
+          description: 'Review your past entries and track trends.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  RecipeManagement: {
+    title: "Recipe Management Tour",
+    steps: [
+      {
+        popover: {
+          title: '🍳 Recipe System',
+          description: 'Manage your complete recipe database with nutritional analysis.',
+        }
+      },
+      {
+        element: '.bulk-import-btn',
+        popover: {
+          title: '📥 Bulk Import',
+          description: 'Import multiple recipes at once from CSV or Excel files.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.nutrition-calculator',
+        popover: {
+          title: '🧮 Nutrition Calculator',
+          description: 'Auto-calculate nutrition facts for your recipes.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  ClientResourceLibrary: {
+    title: "Resource Access Tour",
+    steps: [
+      {
+        popover: {
+          title: '📚 Learning Center',
+          description: 'Access resources and materials shared by your coach.',
+        }
+      },
+      {
+        element: '.resource-grid',
+        popover: {
+          title: '🗂️ Browse Resources',
+          description: 'Find articles, videos, and guides organized by category.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.bookmark-btn',
+        popover: {
+          title: '🔖 Bookmark',
+          description: 'Save helpful resources for quick access later.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  Notifications: {
+    title: "Notifications Tour",
+    steps: [
+      {
+        popover: {
+          title: '🔔 Notification Center',
+          description: 'View all your notifications and stay updated on important activities.',
+        }
+      },
+      {
+        element: '.notification-list',
+        popover: {
+          title: '📋 All Notifications',
+          description: 'See messages, reminders, and system updates in chronological order.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.mark-read-btn',
+        popover: {
+          title: '✅ Mark as Read',
+          description: 'Mark notifications as read to keep your inbox organized.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  ClientOnboarding: {
+    title: "Client Onboarding Tour",
+    steps: [
+      {
+        popover: {
+          title: '👋 Welcome Onboarding',
+          description: 'Complete your health profile to get personalized nutrition guidance.',
+        }
+      },
+      {
+        element: '.profile-form',
+        popover: {
+          title: '📝 Health Profile',
+          description: 'Fill in your health goals, dietary preferences, and medical history.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.complete-btn',
+        popover: {
+          title: '✅ Complete Setup',
+          description: 'Submit your profile to start your personalized health journey.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  MyAssessment: {
+    title: "My Assessment Tour",
+    steps: [
+      {
+        popover: {
+          title: '📋 Health Assessment',
+          description: 'Complete health assessments assigned by your dietitian.',
+        }
+      },
+      {
+        element: '.assessment-form',
+        popover: {
+          title: '✍️ Fill Form',
+          description: 'Answer questions honestly to help your dietitian provide better guidance.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.submit-btn',
+        popover: {
+          title: '📤 Submit',
+          description: 'Submit your assessment for review by your dietitian.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  BusinessHub: {
+    title: "Business Hub Tour",
+    steps: [
+      {
+        popover: {
+          title: '💼 Business Hub',
+          description: 'Manage all aspects of your nutrition coaching business from one central hub.',
+        }
+      },
+      {
+        element: '.business-metrics',
+        popover: {
+          title: '📊 Key Metrics',
+          description: 'Track revenue, client growth, and business performance.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.quick-actions',
+        popover: {
+          title: '⚡ Quick Actions',
+          description: 'Access frequently used business tools and features.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  LeadsPipeline: {
+    title: "Leads Pipeline Tour",
+    steps: [
+      {
+        popover: {
+          title: '🎯 Sales Pipeline',
+          description: 'Manage leads and track them through your sales funnel.',
+        }
+      },
+      {
+        element: '.pipeline-stages',
+        popover: {
+          title: '📊 Pipeline Stages',
+          description: 'Drag leads between stages: inquiry, consultation, proposal, closed.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.add-lead-btn',
+        popover: {
+          title: '➕ Add Lead',
+          description: 'Add new leads manually or import from forms and webinars.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  WebinarManagement: {
+    title: "Webinar Management Tour",
+    steps: [
+      {
+        popover: {
+          title: '🎥 Webinar Manager',
+          description: 'Create, schedule, and manage webinars to attract new clients.',
+        }
+      },
+      {
+        element: '.create-webinar-btn',
+        popover: {
+          title: '➕ Create Webinar',
+          description: 'Set up new webinars with registration pages and email sequences.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.webinar-stats',
+        popover: {
+          title: '📊 Webinar Stats',
+          description: 'Track registrations, attendance, and conversion rates.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  TaskBoard: {
+    title: "Task Board Tour",
+    steps: [
+      {
+        popover: {
+          title: '✅ Task Management',
+          description: 'Organize tasks and to-dos with a Kanban-style board.',
+        }
+      },
+      {
+        element: '.task-columns',
+        popover: {
+          title: '📋 Task Columns',
+          description: 'Drag tasks between To Do, In Progress, and Done columns.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.create-task-btn',
+        popover: {
+          title: '➕ Create Task',
+          description: 'Add new tasks with due dates, priorities, and assignments.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  ProjectManagement: {
+    title: "Project Management Tour",
+    steps: [
+      {
+        popover: {
+          title: '📂 Project Manager',
+          description: 'Manage client projects, program launches, and team initiatives.',
+        }
+      },
+      {
+        element: '.project-list',
+        popover: {
+          title: '📋 Active Projects',
+          description: 'View all active projects with progress tracking and deadlines.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.create-project-btn',
+        popover: {
+          title: '➕ New Project',
+          description: 'Start new projects with milestones, tasks, and team assignments.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  CallCenter: {
+    title: "Call Center Tour",
+    steps: [
+      {
+        popover: {
+          title: '📞 Call Center',
+          description: 'Log and manage client calls with notes and follow-ups.',
+        }
+      },
+      {
+        element: '.call-log-btn',
+        popover: {
+          title: '📝 Log Call',
+          description: 'Record call details, outcomes, and next steps.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.call-history',
+        popover: {
+          title: '📚 Call History',
+          description: 'Review past calls and track communication patterns.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  InstallmentTracker: {
+    title: "Installment Tracker Tour",
+    steps: [
+      {
+        popover: {
+          title: '💰 Payment Plans',
+          description: 'Track installment payment plans for client subscriptions.',
+        }
+      },
+      {
+        element: '.installment-list',
+        popover: {
+          title: '📋 Active Plans',
+          description: 'View all clients on payment plans with upcoming due dates.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.send-reminder-btn',
+        popover: {
+          title: '📨 Payment Reminders',
+          description: 'Send automatic reminders for upcoming installments.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  IncomeExpense: {
+    title: "Income & Expense Tour",
+    steps: [
+      {
+        popover: {
+          title: '💵 Financial Tracking',
+          description: 'Track business income and expenses for accurate bookkeeping.',
+        }
+      },
+      {
+        element: '.add-transaction-btn',
+        popover: {
+          title: '➕ Add Transaction',
+          description: 'Record income from clients or business expenses.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.financial-summary',
+        popover: {
+          title: '📊 Summary',
+          description: 'View profit/loss summaries and category breakdowns.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  SecuritySettings: {
+    title: "Security Settings Tour",
+    steps: [
+      {
+        popover: {
+          title: '🔐 Security Center',
+          description: 'Manage security settings and access controls for your platform.',
+        }
+      },
+      {
+        element: '.password-settings',
+        popover: {
+          title: '🔑 Password',
+          description: 'Update your password and enable two-factor authentication.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.session-management',
+        popover: {
+          title: '📱 Active Sessions',
+          description: 'View and manage active login sessions across devices.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  NotificationSettings: {
+    title: "Notification Settings Tour",
+    steps: [
+      {
+        popover: {
+          title: '🔔 Notification Preferences',
+          description: 'Customize which notifications you receive and how.',
+        }
+      },
+      {
+        element: '.notification-types',
+        popover: {
+          title: '📋 Notification Types',
+          description: 'Enable or disable specific notification categories.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.delivery-methods',
+        popover: {
+          title: '📨 Delivery Methods',
+          description: 'Choose to receive notifications via email, in-app, or WhatsApp.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  GoogleCalendarSettings: {
+    title: "Calendar Integration Tour",
+    steps: [
+      {
+        popover: {
+          title: '📅 Google Calendar Sync',
+          description: 'Connect your Google Calendar to sync appointments automatically.',
+        }
+      },
+      {
+        element: '.connect-google-btn',
+        popover: {
+          title: '🔗 Connect Account',
+          description: 'Authorize Google Calendar access for two-way sync.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.sync-settings',
+        popover: {
+          title: '⚙️ Sync Settings',
+          description: 'Configure which calendar to sync and sync frequency.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  TeamDashboard: {
+    title: "Team Dashboard Tour",
+    steps: [
+      {
+        popover: {
+          title: '👥 Team Overview',
+          description: 'Monitor team performance, workload, and client assignments.',
+        }
+      },
+      {
+        element: '.team-metrics',
+        popover: {
+          title: '📊 Team Metrics',
+          description: 'View team productivity, client satisfaction, and revenue contribution.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.workload-chart',
+        popover: {
+          title: '📈 Workload Distribution',
+          description: 'Ensure balanced client assignments across team members.',
+          side: 'left'
+        }
+      }
+    ]
+  },
+
+  PricingPlans: {
+    title: "Pricing Plans Tour",
+    steps: [
+      {
+        popover: {
+          title: '💰 Plan Pricing',
+          description: 'Configure pricing for your subscription packages.',
+        }
+      },
+      {
+        element: '.plan-editor',
+        popover: {
+          title: '✏️ Edit Pricing',
+          description: 'Set prices, billing cycles, and payment options for each plan.',
+          side: 'bottom'
+        }
+      },
+      {
+        element: '.discount-settings',
+        popover: {
+          title: '🎟️ Discounts',
+          description: 'Create early bird pricing or promotional discounts.',
           side: 'left'
         }
       }
