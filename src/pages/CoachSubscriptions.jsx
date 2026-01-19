@@ -54,16 +54,15 @@ export default function CoachSubscriptions() {
   });
 
   useEffect(() => {
-    if (paymentGateway?.gateway_type === 'razorpay') {
+    // Always load Razorpay script for coach subscriptions
+    const existingScript = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+    if (!existingScript) {
       const script = document.createElement('script');
       script.src = 'https://checkout.razorpay.com/v1/checkout.js';
       script.async = true;
       document.body.appendChild(script);
-      return () => {
-        document.body.removeChild(script);
-      };
     }
-  }, [paymentGateway]);
+  }, []);
 
   const createSubscriptionMutation = useMutation({
     mutationFn: async (data) => base44.entities.HealthCoachSubscription.create(data),
