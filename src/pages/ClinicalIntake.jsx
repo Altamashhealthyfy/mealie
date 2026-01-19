@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -17,9 +17,8 @@ import { format } from "date-fns";
 export default function ClinicalIntake() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  
-  const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
-  const clientId = urlParams.get('clientId');
+  const [searchParams] = useSearchParams();
+  const clientId = searchParams.get('clientId');
 
   const [formData, setFormData] = useState({
     client_id: clientId,
