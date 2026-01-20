@@ -241,13 +241,13 @@ export default function PurchaseAICredits() {
   const originalCost = creditsAmount * (coachPlan?.ai_credit_price || 10);
   const totalCost = appliedCoupon ? appliedCoupon.finalAmount : originalCost;
 
-  if (user?.user_type !== 'student_coach') {
+  if (user?.user_type !== 'student_coach' && user?.user_type !== 'super_admin') {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
         <Alert className="max-w-md">
           <AlertTriangle className="w-5 h-5" />
           <AlertDescription>
-            This page is only for Health Coaches. Super Admins have unlimited AI access.
+            This page is only for Health Coaches and Admins.
           </AlertDescription>
         </Alert>
       </div>

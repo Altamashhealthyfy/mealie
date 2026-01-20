@@ -36,6 +36,21 @@ export default function UsageDashboard() {
     initialData: [],
   });
 
+  const { data: aiTransactions } = useQuery({
+    queryKey: ['aiTransactions', selectedMonth],
+    queryFn: async () => {
+      const startOfMonth = new Date(selectedMonth + '-01');
+      const endOfMonth = new Date(startOfMonth.getFullYear(), startOfMonth.getMonth() + 1, 0);
+      
+      const txns = await base44.entities.AICreditsTransaction.list('-created_date');
+      return txns.filter(txn => {
+        const txnDate = new Date(txn.created_date);
+        return txnDate >= startOfMonth && txnDate <= endOfMonth;
+      });
+    },
+    initialData: [],
+  });
+
   const { data: users } = useQuery({
     queryKey: ['allUsers'],
     queryFn: async () => {
@@ -64,10 +79,15 @@ export default function UsageDashboard() {
     return mealPlanCost + recipeCost + foodLookupCost + gptCost + emailCost;
   };
 
+  // Count AI meal plans from transactions
+  const aiMealPlansFromTransactions = aiTransactions.filter(
+    txn => txn.transaction_type === 'usage' && txn.feature_used === 'ai_meal_plan_pro'
+  ).length;
+
   const totalMonthlySpend = allUsage.reduce((sum, usage) => sum + calculateTotalCost(usage), 0);
   
   const breakdown = {
-    mealPlans: allUsage.reduce((sum, u) => sum + (u.ai_meal_plans_generated || 0), 0),
+    mealPlans: allUsage.reduce((sum, u) => sum + (u.ai_meal_plans_generated || 0), 0) + aiMealPlansFromTransactions,
     recipes: allUsage.reduce((sum, u) => sum + (u.ai_recipes_generated || 0), 0),
     foodLookups: allUsage.reduce((sum, u) => sum + (u.food_lookups || 0), 0),
     businessGPT: allUsage.reduce((sum, u) => sum + (u.business_gpt_queries || 0), 0),
