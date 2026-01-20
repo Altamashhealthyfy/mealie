@@ -162,6 +162,17 @@ export default function MealPlansPro() {
         return;
       }
 
+      // Check AI credits availability
+      const totalCredits = (coachSubscription?.ai_credits_included || 0) + (coachSubscription?.ai_credits_purchased || 0);
+      const usedCredits = coachSubscription?.ai_credits_used_this_month || 0;
+      const availableCredits = totalCredits - usedCredits;
+
+      if (user?.user_type === 'student_coach' && availableCredits < 1) {
+        alert('❌ Insufficient AI credits. Please purchase more credits to generate meal plans.');
+        navigate(createPageUrl('PurchaseAICredits'));
+        return;
+      }
+
       setGenerating(true);
       
       const prompt = constructDiamondPrompt(selectedClient, intake);
@@ -248,6 +259,33 @@ export default function MealPlansPro() {
         client_id: selectedClient.id,
         client_name: selectedClient.full_name
       });
+
+      // Track AI credit usage for student coaches
+      if (user?.user_type === 'student_coach' && coachSubscription) {
+        try {
+          // Create transaction record
+          await base44.entities.AICreditsTransaction.create({
+            coach_email: user.email,
+            subscription_id: coachSubscription.id,
+            transaction_type: 'usage',
+            credits_amount: 1,
+            feature_used: 'ai_meal_plan_pro',
+            description: `AI Pro Meal Plan generated for ${selectedClient.full_name}`,
+            status: 'completed'
+          });
+
+          // Update subscription credits used
+          await base44.entities.HealthCoachSubscription.update(coachSubscription.id, {
+            ai_credits_used_this_month: (coachSubscription.ai_credits_used_this_month || 0) + 1
+          });
+
+          // Invalidate queries to refresh credit balance
+          queryClient.invalidateQueries(['coachSubscription']);
+        } catch (trackingError) {
+          console.error('Failed to track AI usage:', trackingError);
+          // Don't block the user, just log the error
+        }
+      }
 
       alert('✅ Pro meal plan generated successfully! Scroll down to review the plan.');
       setGenerating(false);
