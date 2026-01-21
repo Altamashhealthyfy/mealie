@@ -59,7 +59,6 @@ import PaymentSetup from './pages/PaymentSetup';
 import PaymentTracking from './pages/PaymentTracking';
 import PlatformBrandingTracker from './pages/PlatformBrandingTracker';
 import PlatformColorCustomization from './pages/PlatformColorCustomization';
-import PlatformReference from './pages/PlatformReference';
 import PricingPlans from './pages/PricingPlans';
 import Profile from './pages/Profile';
 import ProgressTracking from './pages/ProgressTracking';
@@ -81,7 +80,6 @@ import TemplateLibrary from './pages/TemplateLibrary';
 import TemplateLibraryManager from './pages/TemplateLibraryManager';
 import UsageDashboard from './pages/UsageDashboard';
 import UserPermissionManagement from './pages/UserPermissionManagement';
-import VerticalManagement from './pages/VerticalManagement';
 import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
@@ -152,7 +150,6 @@ export const PAGES = {
     "PaymentTracking": PaymentTracking,
     "PlatformBrandingTracker": PlatformBrandingTracker,
     "PlatformColorCustomization": PlatformColorCustomization,
-    "PlatformReference": PlatformReference,
     "PricingPlans": PricingPlans,
     "Profile": Profile,
     "ProgressTracking": ProgressTracking,
@@ -174,7 +171,6 @@ export const PAGES = {
     "TemplateLibraryManager": TemplateLibraryManager,
     "UsageDashboard": UsageDashboard,
     "UserPermissionManagement": UserPermissionManagement,
-    "VerticalManagement": VerticalManagement,
     "VoiceCalendarAssistant": VoiceCalendarAssistant,
     "WebinarManagement": WebinarManagement,
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
