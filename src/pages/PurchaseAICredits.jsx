@@ -254,7 +254,7 @@ export default function PurchaseAICredits() {
     );
   }
 
-  if (!coachSubscription) {
+  if (!coachSubscription && user?.user_type !== 'super_admin') {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
         <Alert className="max-w-md">
