@@ -293,12 +293,7 @@ const businessNavigation = [
     icon: Utensils,
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
-  {
-    title: "Team Attendance",
-    url: createPageUrl("TeamAttendance"),
-    icon: Calendar,
-    roles: ['super_admin', 'team_member', 'student_coach'],
-  },
+
   {
     title: "Feature Control",
     url: createPageUrl("FeatureControl"),
