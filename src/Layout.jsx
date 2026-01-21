@@ -275,12 +275,7 @@ const businessNavigation = [
     icon: DollarSign,
     roles: ['super_admin'],
   },
-  {
-    title: "Verticals Dashboard",
-    url: createPageUrl("VerticalManagement"),
-    icon: Target,
-    roles: ['super_admin', 'team_member', 'student_coach'],
-  },
+
   {
     title: "Team Management",
     url: createPageUrl("TeamManagement"),
@@ -300,12 +295,7 @@ const businessNavigation = [
     icon: Shield,
     roles: ['super_admin'],
   },
-  {
-    title: "Reference Docs",
-    url: createPageUrl("PlatformReference"),
-    icon: BookOpen,
-    roles: ['super_admin'],
-  },
+
 ];
 
 export default function Layout({ children, currentPageName }) {
