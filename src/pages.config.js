@@ -74,7 +74,6 @@ import ResourceLibraryEnhanced from './pages/ResourceLibraryEnhanced';
 import SecuritySettings from './pages/SecuritySettings';
 import TaskBoard from './pages/TaskBoard';
 import TeamAppointmentsCalendar from './pages/TeamAppointmentsCalendar';
-import TeamAttendance from './pages/TeamAttendance';
 import TeamDashboard from './pages/TeamDashboard';
 import TeamManagement from './pages/TeamManagement';
 import TeamSetup from './pages/TeamSetup';
@@ -168,7 +167,6 @@ export const PAGES = {
     "SecuritySettings": SecuritySettings,
     "TaskBoard": TaskBoard,
     "TeamAppointmentsCalendar": TeamAppointmentsCalendar,
-    "TeamAttendance": TeamAttendance,
     "TeamDashboard": TeamDashboard,
     "TeamManagement": TeamManagement,
     "TeamSetup": TeamSetup,
