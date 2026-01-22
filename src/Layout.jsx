@@ -269,12 +269,6 @@ const businessNavigation = [
     icon: Upload,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
-  {
-    title: "Usage & Billing",
-    url: createPageUrl("UsageDashboard"),
-    icon: DollarSign,
-    roles: ['super_admin'],
-  },
 
   {
     title: "Team Management",
