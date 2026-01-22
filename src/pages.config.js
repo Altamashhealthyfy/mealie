@@ -78,7 +78,6 @@ import TeamManagement from './pages/TeamManagement';
 import TeamSetup from './pages/TeamSetup';
 import TemplateLibrary from './pages/TemplateLibrary';
 import TemplateLibraryManager from './pages/TemplateLibraryManager';
-import UsageDashboard from './pages/UsageDashboard';
 import UserPermissionManagement from './pages/UserPermissionManagement';
 import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
 import WebinarManagement from './pages/WebinarManagement';
@@ -169,7 +168,6 @@ export const PAGES = {
     "TeamSetup": TeamSetup,
     "TemplateLibrary": TemplateLibrary,
     "TemplateLibraryManager": TemplateLibraryManager,
-    "UsageDashboard": UsageDashboard,
     "UserPermissionManagement": UserPermissionManagement,
     "VoiceCalendarAssistant": VoiceCalendarAssistant,
     "WebinarManagement": WebinarManagement,
