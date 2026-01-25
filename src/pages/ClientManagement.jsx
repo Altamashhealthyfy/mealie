@@ -33,6 +33,9 @@ import {
   Send,
   CheckSquare,
   Square,
+  KeyRound,
+  EyeOff,
+  Copy,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
@@ -76,6 +79,10 @@ export default function ClientManagement() {
   const [selectedCoach, setSelectedCoach] = useState('');
   const [showProgressDashboard, setShowProgressDashboard] = useState(false);
   const [selectedClientForProgress, setSelectedClientForProgress] = useState(null);
+  const [showCreatePasswordDialog, setShowCreatePasswordDialog] = useState(false);
+  const [clientForPassword, setClientForPassword] = useState(null);
+  const [newClientPassword, setNewClientPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -401,6 +408,27 @@ support@mealiepro.com`;
     onError: (error) => {
       console.error("Error assigning client to coach:", error);
       alert("Error assigning client to coach. Please try again.");
+    }
+  });
+
+  const createClientPasswordMutation = useMutation({
+    mutationFn: async ({ email, password, fullName }) => {
+      return await base44.functions.invoke('createUserWithPassword', {
+        email,
+        password,
+        fullName,
+        userType: 'client'
+      });
+    },
+    onSuccess: () => {
+      alert("✅ Client account created successfully! They can now login with their email and the password you set.");
+      setShowCreatePasswordDialog(false);
+      setClientForPassword(null);
+      setNewClientPassword("");
+    },
+    onError: (error) => {
+      console.error("Error creating client account:", error);
+      alert(`❌ Error: ${error?.response?.data?.error || error.message || 'Failed to create client account'}`);
     }
   });
 
@@ -1438,6 +1466,21 @@ support@mealiepro.com`;
                     {viewingClient.assigned_to ? 'Reassign to Team Member' : 'Assign to Team Member'}
                   </Button>
                 )}
+
+                {/* Create Password Button */}
+                <Button 
+                  variant="outline"
+                  className="w-full mt-2 text-green-600 hover:bg-green-50"
+                  onClick={() => {
+                    setClientForPassword(viewingClient);
+                    setNewClientPassword("");
+                    setShowCreatePasswordDialog(true);
+                  }}
+                >
+                  <KeyRound className="w-4 h-4 mr-2" />
+                  Create Login Password
+                </Button>
+
                 <Button variant="destructive" onClick={() => handleDeleteClient(viewingClient)} disabled={deleteClientMutation.isPending} className="w-full mt-4">
                   {deleteClientMutation.isPending ? 'Deleting...' : 'Delete Client'}
                 </Button>
@@ -1774,6 +1817,135 @@ support@mealiepro.com`;
             }}
           />
         )}
+
+        {/* Create Client Password Dialog */}
+        <Dialog open={showCreatePasswordDialog} onOpenChange={setShowCreatePasswordDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-2xl flex items-center gap-2">
+                <KeyRound className="w-6 h-6 text-green-600" />
+                Create Client Login
+              </DialogTitle>
+              <DialogDescription>
+                {clientForPassword && (
+                  <span>Create login credentials for <strong>{clientForPassword.full_name}</strong></span>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            {clientForPassword && (
+              <div className="space-y-4 mt-4">
+                <Alert className="bg-blue-50 border-blue-300">
+                  <Mail className="w-4 h-4 text-blue-600" />
+                  <AlertDescription className="text-sm text-blue-900">
+                    <strong>Email:</strong> {clientForPassword.email}
+                  </AlertDescription>
+                </Alert>
+
+                <div className="space-y-2">
+                  <Label>Set Password for Client</Label>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      value={newClientPassword}
+                      onChange={(e) => setNewClientPassword(e.target.value)}
+                      placeholder="Enter password (min 8 characters)"
+                      className="pr-20"
+                    />
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="h-7 w-7 p-0"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          navigator.clipboard.writeText(newClientPassword);
+                          alert("Password copied!");
+                        }}
+                        className="h-7 w-7 p-0"
+                        disabled={!newClientPassword}
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-500">Password must be at least 8 characters</p>
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
+                    let password = '';
+                    for (let i = 0; i < 12; i++) {
+                      password += chars.charAt(Math.floor(Math.random() * chars.length));
+                    }
+                    setNewClientPassword(password);
+                  }}
+                  className="w-full"
+                >
+                  🔐 Generate Strong Password
+                </Button>
+
+                <Alert className="bg-yellow-50 border-yellow-300">
+                  <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                  <AlertDescription className="text-sm text-yellow-900">
+                    <strong>Important:</strong> Share this password securely with your client. They will use this email and password to login.
+                  </AlertDescription>
+                </Alert>
+
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowCreatePasswordDialog(false);
+                      setClientForPassword(null);
+                      setNewClientPassword("");
+                    }}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      if (newClientPassword.length < 8) {
+                        alert("Password must be at least 8 characters");
+                        return;
+                      }
+                      createClientPasswordMutation.mutate({
+                        email: clientForPassword.email,
+                        password: newClientPassword,
+                        fullName: clientForPassword.full_name
+                      });
+                    }}
+                    disabled={createClientPasswordMutation.isPending || newClientPassword.length < 8}
+                    className="flex-1 bg-green-600 hover:bg-green-700"
+                  >
+                    {createClientPasswordMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <KeyRound className="w-4 h-4 mr-2" />
+                        Create Account
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
 
         {/* Help Card for User Invitation */}
         <Card className="border-2 border-orange-500 bg-gradient-to-br from-orange-50 to-red-50">
