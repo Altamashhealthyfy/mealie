@@ -22,6 +22,8 @@ export default function MealPlansPro() {
   const [activeTab, setActiveTab] = useState("generate");
   const [generating, setGenerating] = useState(false);
   const [generatedPlan, setGeneratedPlan] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editedMeals, setEditedMeals] = useState([]);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -300,6 +302,8 @@ export default function MealPlansPro() {
   const handleSavePlan = () => {
     if (!generatedPlan) return;
 
+    const mealsToSave = editMode ? editedMeals : generatedPlan.meal_plan;
+
     savePlanMutation.mutate({
       client_id: generatedPlan.client_id,
       name: `Diamond Clinical Plan - ${generatedPlan.client_name}`,
@@ -307,8 +311,8 @@ export default function MealPlansPro() {
       duration: 10,
       meal_pattern: '3-3-4',
       target_calories: generatedPlan.calculations.target_calories,
-      disease_focus: latestIntake?.health_conditions || [], // Use latestIntake for disease_focus or default to empty array
-      meals: generatedPlan.meal_plan,
+      disease_focus: latestIntake?.health_conditions || [],
+      meals: mealsToSave,
       food_preference: latestIntake?.diet_type?.toLowerCase() || 'general', // Use latestIntake for diet_type or default
       active: true,
       mpess_integration: {
@@ -876,7 +880,7 @@ export default function MealPlansPro() {
 
                       {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(day => (
                         <TabsContent key={day} value={day.toString()} className="space-y-4">
-                          {generatedPlan.meal_plan
+                          {(editMode ? editedMeals : generatedPlan.meal_plan)
                             .filter(meal => meal.day === day)
                             .map((meal, index) => (
                               <Card key={index} className="bg-gradient-to-br from-gray-50 to-white">
@@ -885,15 +889,55 @@ export default function MealPlansPro() {
                                     <CardTitle className="text-lg capitalize">{meal.meal_type.replace('_', ' ')}</CardTitle>
                                     <Badge>{meal.calories} kcal</Badge>
                                   </div>
-                                  <p className="text-xl font-bold text-gray-900">{meal.meal_name}</p>
+                                  {editMode ? (
+                                    <Input
+                                      value={meal.meal_name}
+                                      onChange={(e) => {
+                                        const updated = [...editedMeals];
+                                        const mealIndex = updated.findIndex(m => m.day === day && m.meal_type === meal.meal_type);
+                                        updated[mealIndex].meal_name = e.target.value;
+                                        setEditedMeals(updated);
+                                      }}
+                                      className="text-xl font-bold"
+                                    />
+                                  ) : (
+                                    <p className="text-xl font-bold text-gray-900">{meal.meal_name}</p>
+                                  )}
                                 </CardHeader>
                                 <CardContent className="space-y-3">
                                   <div>
                                     <p className="font-semibold text-gray-700 mb-2">Food Items:</p>
                                     {meal.items.map((item, i) => (
-                                      <div key={i} className="flex justify-between text-sm">
-                                        <span>{item}</span>
-                                        <span className="text-gray-600">{meal.portion_sizes[i]}</span>
+                                      <div key={i} className="flex justify-between text-sm gap-2">
+                                        {editMode ? (
+                                          <>
+                                            <Input
+                                              value={item}
+                                              onChange={(e) => {
+                                                const updated = [...editedMeals];
+                                                const mealIndex = updated.findIndex(m => m.day === day && m.meal_type === meal.meal_type);
+                                                updated[mealIndex].items[i] = e.target.value;
+                                                setEditedMeals(updated);
+                                              }}
+                                              className="text-sm h-8"
+                                            />
+                                            <Input
+                                              value={meal.portion_sizes[i]}
+                                              onChange={(e) => {
+                                                const updated = [...editedMeals];
+                                                const mealIndex = updated.findIndex(m => m.day === day && m.meal_type === meal.meal_type);
+                                                updated[mealIndex].portion_sizes[i] = e.target.value;
+                                                setEditedMeals(updated);
+                                              }}
+                                              className="text-sm h-8 w-32"
+                                            />
+                                          </>
+                                        ) : (
+                                          <>
+                                            <span>{item}</span>
+                                            <span className="text-gray-600">{meal.portion_sizes[i]}</span>
+                                          </>
+                                        )}
                                       </div>
                                     ))}
                                   </div>
@@ -1010,24 +1054,41 @@ export default function MealPlansPro() {
                 </Card>
 
                 {/* Action Buttons */}
-                <div className="flex gap-4">
+                <div className="flex flex-wrap gap-4">
                   <Button
                     variant="outline"
                     className="flex-1"
-                    onClick={() => setGeneratedPlan(null)}
+                    onClick={() => {
+                      setGeneratedPlan(null);
+                      setEditMode(false);
+                      setEditedMeals([]);
+                    }}
                   >
                     Generate New Plan
                   </Button>
-                  {!generatedPlan.from_template && ( // Only show "Save as Template" if not generated from a template
+                  {!generatedPlan.from_template && (
                     <Button
                       variant="outline"
                       className="flex-1"
                       onClick={() => handleSaveAsProTemplate(generatedPlan)}
                     >
                       <Star className="w-4 h-4 mr-2" />
-                      Save as Pro Template
+                      Save as Template
                     </Button>
                   )}
+                  <Button
+                    variant={editMode ? "default" : "outline"}
+                    className={`flex-1 ${editMode ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
+                    onClick={() => {
+                      if (!editMode) {
+                        setEditedMeals([...generatedPlan.meal_plan]);
+                      }
+                      setEditMode(!editMode);
+                    }}
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    {editMode ? 'Done Editing' : 'Edit Plan'}
+                  </Button>
                   <Button
                     className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg"
                     onClick={handleSavePlan}
