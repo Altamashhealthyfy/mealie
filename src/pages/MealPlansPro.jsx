@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sparkles, Loader2, Users, AlertTriangle, CheckCircle, FileText, Heart, Brain, Activity, Star, Edit, Copy } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import ManualMealPlanBuilder from "@/components/mealplanner/ManualMealPlanBuilder";
+import { Input } from "@/components/ui/input";
 
 export default function MealPlansPro() {
   const [searchParams] = useSearchParams();
@@ -262,6 +263,9 @@ export default function MealPlansPro() {
         client_name: selectedClient.full_name
       });
 
+      setEditMode(false);
+      setEditedMeals(response.meal_plan);
+
       // Track AI credit usage for student coaches
       if (user?.user_type === 'student_coach' && coachSubscription) {
         try {
@@ -355,12 +359,11 @@ export default function MealPlansPro() {
       return;
     }
 
-    setGeneratedPlan({
+    const clonedPlan = {
       plan_name: `${template.name} - ${selectedClient.full_name}`,
       meal_plan: template.meals,
       client_id: selectedClient.id,
       client_name: selectedClient.full_name,
-      // Default calculations/audit for cloned templates as AI doesn't generate these for templates
       calculations: {
         target_calories: template.target_calories || 0,
         bmr: 0,
@@ -369,20 +372,24 @@ export default function MealPlansPro() {
       },
       decision_rules: ['Template-based plan'],
       conflict_resolution: 'From template',
-      mpess_integration: { mind: [], physical: [], emotional: [], social: [], spiritual: [] }, // MPESS might be empty in templates
+      mpess_integration: { mind: [], physical: [], emotional: [], social: [], spiritual: [] },
       audit_snapshot: {
         avg_calories_per_day: template.target_calories || 0,
         calorie_range: 'Template-based',
-        macro_percentages: { carbs: 0, protein: 0, fats: 0 }, // Placeholder values
+        macro_percentages: { carbs: 0, protein: 0, fats: 0 },
         sodium_compliance: 'Check required',
         potassium_compliance: 'Check required',
         medication_conflicts: false,
         variety_check: true,
         mpess_integrated: false
       },
-      from_template: true, // Flag to indicate it's from a template
+      from_template: true,
       template_id: template.id
-    });
+    };
+
+    setGeneratedPlan(clonedPlan);
+    setEditedMeals(template.meals);
+    setEditMode(false);
 
     base44.entities.MealPlanTemplate.update(template.id, {
       times_used: (template.times_used || 0) + 1
