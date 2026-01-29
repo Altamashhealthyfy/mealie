@@ -55,6 +55,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import NotificationBell from "@/components/notifications/NotificationBell";
+import PWAInstallPrompt from "@/components/common/PWAInstallPrompt";
 
 const dietitianNavigation = [
   {
