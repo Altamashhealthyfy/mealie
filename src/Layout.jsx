@@ -869,6 +869,7 @@ export default function Layout({ children, currentPageName }) {
             {children}
           </div>
         </main>
+        <PWAInstallPrompt />
       </div>
     </SidebarProvider>
   );
