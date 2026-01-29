@@ -177,9 +177,9 @@ export default function ClientPlanBuilder() {
 
   const copyPurchaseLink = (planId) => {
     const baseUrl = window.location.origin;
-    const purchaseUrl = `${baseUrl}/#/purchase-client-plan?planId=${planId}`;
+    const purchaseUrl = `${baseUrl}/#/public-plan-purchase?planId=${planId}`;
     navigator.clipboard.writeText(purchaseUrl);
-    alert('✅ Purchase link copied to clipboard!');
+    alert('✅ Public purchase link copied! Anyone can view and purchase this plan.');
   };
 
   const canCreatePlans = user?.user_type === 'super_admin' || 
