@@ -471,7 +471,8 @@ export default function ClientDashboard() {
 
   return (
     <div className="min-h-screen p-4 md:p-8 space-y-6">
-      <div className="max-w-7xl mx-auto">
+      <ClientTutorial autoStart={true} />
+      <div className="max-w-7xl mx-auto" id="dashboard-welcome">
         {/* Header */}
         <div className="mb-6 flex justify-between items-start">
           <div>
@@ -739,7 +740,7 @@ export default function ClientDashboard() {
 
         {/* Current Meal Plan Summary */}
         {mealPlan ? (
-          <Card id="meal-plan-summary" className="border-none shadow-lg mb-6 bg-gradient-to-br from-green-50 to-emerald-50">
+          <Card id="meal-plan-section" className="border-none shadow-lg mb-6 bg-gradient-to-br from-green-50 to-emerald-50">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div>
@@ -922,7 +923,7 @@ export default function ClientDashboard() {
         )}
 
         {/* Weight Trend Chart */}
-        <Card id="progress-summary" className="border-none shadow-lg mb-6">
+        <Card id="progress-section" className="border-none shadow-lg mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingDown className="w-5 h-5 text-orange-500" />
@@ -1114,7 +1115,7 @@ export default function ClientDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+              <div id="messages-section" className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
                     <Scale className="w-5 h-5 text-white" />
@@ -1131,7 +1132,7 @@ export default function ClientDashboard() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+              <div id="food-log-section" className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
                     <Flame className="w-5 h-5 text-white" />
@@ -1148,7 +1149,7 @@ export default function ClientDashboard() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+              <div id="resources-section" className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
                     <Heart className="w-5 h-5 text-white" />
