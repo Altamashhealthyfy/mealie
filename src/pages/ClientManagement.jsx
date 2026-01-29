@@ -36,7 +36,10 @@ import {
   KeyRound,
   EyeOff,
   Copy,
+  Sparkles,
+  X,
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
@@ -77,7 +80,7 @@ export default function ClientManagement() {
   const [selectedTeamMember, setSelectedTeamMember] = useState('');
   const [showAssignCoachDialog, setShowAssignCoachDialog] = useState(false);
   const [clientToAssignCoach, setClientToAssignCoach] = useState(null);
-  const [selectedCoach, setSelectedCoach] = useState('');
+  const [selectedCoaches, setSelectedCoaches] = useState([]);
   const [showProgressDashboard, setShowProgressDashboard] = useState(false);
   const [selectedClientForProgress, setSelectedClientForProgress] = useState(null);
   const [showCreatePasswordDialog, setShowCreatePasswordDialog] = useState(false);
@@ -399,14 +402,14 @@ support@mealiepro.com`;
   });
 
   const assignCoachMutation = useMutation({
-    mutationFn: ({ clientId, coachEmail }) => 
-      base44.entities.Client.update(clientId, { assigned_coach: coachEmail }),
+    mutationFn: ({ clientId, coachEmails }) => 
+      base44.entities.Client.update(clientId, { assigned_coach: coachEmails }),
     onSuccess: () => {
       queryClient.invalidateQueries(['clients']);
       setShowAssignCoachDialog(false);
       setClientToAssignCoach(null);
-      setSelectedCoach('');
-      alert("✅ Client assigned to health coach successfully!");
+      setSelectedCoaches([]);
+      alert("✅ Client assigned to health coach(es) successfully!");
     },
     onError: (error) => {
       console.error("Error assigning client to coach:", error);
@@ -580,7 +583,7 @@ support@mealiepro.com`;
 
   const handleAssignCoach = (client) => {
     setClientToAssignCoach(client);
-    setSelectedCoach(client.assigned_coach || '');
+    setSelectedCoaches(client.assigned_coach || []);
     setShowAssignCoachDialog(true);
   };
 
@@ -592,7 +595,7 @@ support@mealiepro.com`;
     
     assignCoachMutation.mutate({
       clientId: clientToAssignCoach.id,
-      coachEmail: selectedCoach || null
+      coachEmails: selectedCoaches.length > 0 ? selectedCoaches : []
     });
   };
 
@@ -1257,10 +1260,12 @@ support@mealiepro.com`;
                     </Button>
                   )}
 
-                  {/* Show coach assignment */}
-                  {client.assigned_coach && (
+                  {/* Show coach assignments */}
+                  {client.assigned_coach && client.assigned_coach.length > 0 && (
                     <div className="text-xs text-center text-green-600 bg-green-50 p-2 rounded">
-                      🎓 Coach: {healthCoaches.find(c => c.email === client.assigned_coach)?.full_name || client.assigned_coach}
+                      🎓 Coaches: {client.assigned_coach.map(email => 
+                        healthCoaches.find(c => c.email === email)?.full_name || email
+                      ).join(', ')}
                     </div>
                   )}
 
@@ -1655,36 +1660,63 @@ support@mealiepro.com`;
               ) : (
                 <>
                   <div className="space-y-2">
-                    <Label htmlFor="coach-select">Select Health Coach</Label>
-                    <Select
-                      value={selectedCoach}
-                      onValueChange={setSelectedCoach}
-                    >
-                      <SelectTrigger id="coach-select" className="h-12">
-                        <SelectValue placeholder="Choose health coach..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={null}>
-                          <span className="text-gray-500">Unassign (No health coach)</span>
-                        </SelectItem>
-                        {healthCoaches.map((coach) => (
-                          <SelectItem key={coach.email} value={coach.email}>
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">{coach.full_name}</span>
-                              <Badge variant="outline" className="text-xs">
-                                {coach.email}
-                              </Badge>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Label>Select Health Coach</Label>
+                    <p className="text-sm text-gray-500">Select one or multiple coaches</p>
+                    
+                    {/* Selected Coaches Display */}
+                    {selectedCoaches.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                        {selectedCoaches.map(email => {
+                          const coach = healthCoaches.find(c => c.email === email);
+                          return (
+                            <Badge key={email} className="bg-green-600 text-white pl-3 pr-2 py-1 flex items-center gap-2">
+                              {coach?.full_name || email}
+                              <button
+                                type="button"
+                                onClick={() => setSelectedCoaches(selectedCoaches.filter(e => e !== email))}
+                                className="hover:bg-green-700 rounded-full p-0.5"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Coaches List with Checkboxes */}
+                    <div className="border rounded-lg p-3 max-h-80 overflow-y-auto space-y-2">
+                      {healthCoaches.map(coach => (
+                        <div key={coach.id} className="flex items-center space-x-3 p-3 hover:bg-green-50 rounded-lg transition-colors">
+                          <Checkbox
+                            id={`coach-${coach.id}`}
+                            checked={selectedCoaches.includes(coach.email)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedCoaches([...selectedCoaches, coach.email]);
+                              } else {
+                                setSelectedCoaches(selectedCoaches.filter(e => e !== coach.email));
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor={`coach-${coach.id}`}
+                            className="flex-1 cursor-pointer"
+                          >
+                            <p className="font-medium text-gray-900">{coach.full_name}</p>
+                            <p className="text-xs text-gray-500">{coach.email}</p>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
-                  {clientToAssignCoach?.assigned_coach && (
+                  {clientToAssignCoach?.assigned_coach && clientToAssignCoach.assigned_coach.length > 0 && (
                     <Alert className="bg-blue-50 border-blue-300">
                       <AlertDescription className="text-sm text-blue-900">
-                        Currently assigned to: <strong>{healthCoaches.find(c => c.email === clientToAssignCoach.assigned_coach)?.full_name || clientToAssignCoach.assigned_coach}</strong>
+                        Currently assigned to: <strong>{clientToAssignCoach.assigned_coach.map(email =>
+                          healthCoaches.find(c => c.email === email)?.full_name || email
+                        ).join(', ')}</strong>
                       </AlertDescription>
                     </Alert>
                   )}
@@ -1697,7 +1729,7 @@ support@mealiepro.com`;
                   onClick={() => {
                     setShowAssignCoachDialog(false);
                     setClientToAssignCoach(null);
-                    setSelectedCoach('');
+                    setSelectedCoaches([]);
                   }}
                   className="flex-1"
                 >
@@ -1711,12 +1743,12 @@ support@mealiepro.com`;
                   {assignCoachMutation.isPending ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      {selectedCoach ? 'Assigning...' : 'Unassigning...'}
+                      {selectedCoaches.length > 0 ? 'Assigning...' : 'Unassigning...'}
                     </>
                   ) : (
                     <>
                       <UserPlus className="w-4 h-4 mr-2" />
-                      {selectedCoach ? 'Assign to Coach' : 'Unassign Coach'}
+                      {selectedCoaches.length > 0 ? 'Assign Coach(es)' : 'Unassign Coach'}
                     </>
                   )}
                 </Button>
