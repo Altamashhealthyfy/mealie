@@ -583,7 +583,13 @@ support@mealiepro.com`;
 
   const handleAssignCoach = (client) => {
     setClientToAssignCoach(client);
-    setSelectedCoaches(client.assigned_coach || []);
+    // Handle both array and string formats for backwards compatibility
+    const coaches = Array.isArray(client.assigned_coach) 
+      ? client.assigned_coach 
+      : client.assigned_coach 
+        ? [client.assigned_coach] 
+        : [];
+    setSelectedCoaches(coaches);
     setShowAssignCoachDialog(true);
   };
 
@@ -1261,11 +1267,15 @@ support@mealiepro.com`;
                   )}
 
                   {/* Show coach assignments */}
-                  {client.assigned_coach && client.assigned_coach.length > 0 && (
+                  {client.assigned_coach && (Array.isArray(client.assigned_coach) ? client.assigned_coach.length > 0 : true) && (
                     <div className="text-xs text-center text-green-600 bg-green-50 p-2 rounded">
-                      🎓 Coaches: {client.assigned_coach.map(email => 
-                        healthCoaches.find(c => c.email === email)?.full_name || email
-                      ).join(', ')}
+                      🎓 Coaches: {
+                        Array.isArray(client.assigned_coach) 
+                          ? client.assigned_coach.map(email => 
+                              healthCoaches.find(c => c.email === email)?.full_name || email
+                            ).join(', ')
+                          : (healthCoaches.find(c => c.email === client.assigned_coach)?.full_name || client.assigned_coach)
+                      }
                     </div>
                   )}
 
@@ -1711,12 +1721,16 @@ support@mealiepro.com`;
                     </div>
                   </div>
 
-                  {clientToAssignCoach?.assigned_coach && clientToAssignCoach.assigned_coach.length > 0 && (
+                  {clientToAssignCoach?.assigned_coach && (Array.isArray(clientToAssignCoach.assigned_coach) ? clientToAssignCoach.assigned_coach.length > 0 : true) && (
                     <Alert className="bg-blue-50 border-blue-300">
                       <AlertDescription className="text-sm text-blue-900">
-                        Currently assigned to: <strong>{clientToAssignCoach.assigned_coach.map(email =>
-                          healthCoaches.find(c => c.email === email)?.full_name || email
-                        ).join(', ')}</strong>
+                        Currently assigned to: <strong>{
+                          Array.isArray(clientToAssignCoach.assigned_coach)
+                            ? clientToAssignCoach.assigned_coach.map(email =>
+                                healthCoaches.find(c => c.email === email)?.full_name || email
+                              ).join(', ')
+                            : (healthCoaches.find(c => c.email === clientToAssignCoach.assigned_coach)?.full_name || clientToAssignCoach.assigned_coach)
+                        }</strong>
                       </AlertDescription>
                     </Alert>
                   )}
