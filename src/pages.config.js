@@ -67,6 +67,7 @@ import ClientDashboard from './pages/ClientDashboard';
 import ClientFinanceManager from './pages/ClientFinanceManager';
 import ClientManagement from './pages/ClientManagement';
 import ClientOnboarding from './pages/ClientOnboarding';
+import ClientOnboardingWizard from './pages/ClientOnboardingWizard';
 import ClientPlanBuilder from './pages/ClientPlanBuilder';
 import ClientPlanManagement from './pages/ClientPlanManagement';
 import ClientPlans from './pages/ClientPlans';
@@ -133,7 +134,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import ClientOnboardingWizard from './pages/ClientOnboardingWizard';
 import __Layout from './Layout.jsx';
 
 
@@ -158,6 +158,7 @@ export const PAGES = {
     "ClientFinanceManager": ClientFinanceManager,
     "ClientManagement": ClientManagement,
     "ClientOnboarding": ClientOnboarding,
+    "ClientOnboardingWizard": ClientOnboardingWizard,
     "ClientPlanBuilder": ClientPlanBuilder,
     "ClientPlanManagement": ClientPlanManagement,
     "ClientPlans": ClientPlans,
@@ -224,7 +225,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "ClientOnboardingWizard": ClientOnboardingWizard,
 }
 
 export const pagesConfig = {

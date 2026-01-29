@@ -1454,7 +1454,7 @@ support@mealiepro.com`;
                     className="bg-purple-500 hover:bg-purple-600 text-white"
                     onClick={() => {
                       setViewingClient(null);
-                      navigate(createPageUrl(`ClinicalIntake/${viewingClient.id}`));
+                      navigate(`${createPageUrl("ClinicalIntake")}?clientId=${viewingClient.id}`);
                     }}
                   >
                     <Stethoscope className="w-4 h-4 mr-2" /> Pro Plan
@@ -1630,7 +1630,7 @@ support@mealiepro.com`;
                         className="bg-gradient-to-r from-purple-500 to-indigo-500"
                         onClick={() => {
                           setViewingClientPlans(null);
-                          navigate(createPageUrl(`ClinicalIntake/${viewingClientPlans.client.id}`));
+                          navigate(`${createPageUrl("ClinicalIntake")}?clientId=${viewingClientPlans.client.id}`);
                         }}
                       >
                         <Stethoscope className="w-4 h-4 mr-2" />
