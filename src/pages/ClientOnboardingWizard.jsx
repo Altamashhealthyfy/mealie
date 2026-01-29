@@ -152,7 +152,7 @@ export default function ClientOnboardingWizard() {
         <Card className="border-none shadow-xl">
           <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
             <CardTitle className="flex items-center gap-2">
-              {steps[currentStep - 1].icon && <steps[currentStep - 1].icon className="w-6 h-6" />}
+              {React.createElement(steps[currentStep - 1].icon, { className: "w-6 h-6" })}
               Step {currentStep}: {steps[currentStep - 1].title}
             </CardTitle>
           </CardHeader>
