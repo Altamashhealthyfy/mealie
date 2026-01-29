@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Calendar, Loader2, Search } from "lucide-react";
+import { Calendar, Loader2, Search, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
@@ -26,7 +28,7 @@ export default function AddTeamAppointment() {
     date: '',
     time: '',
     duration: 30,
-    assigned_to: ''
+    assigned_to: []
   });
 
   const { data: user = null } = useQuery({
@@ -230,20 +232,68 @@ export default function AddTeamAppointment() {
               </div>
 
               <div id="team-member-assignment">
-                <Label>Assign To (Team Member)</Label>
-                <Select value={formData.assigned_to} onValueChange={(value) => setFormData({ ...formData, assigned_to: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select team member (optional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={null}>No one (unassigned)</SelectItem>
-                    {teamMembers.map(member => (
-                      <SelectItem key={member.id} value={member.email}>
-                        {member.full_name} ({member.email})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label>Assign To (Team Members)</Label>
+                <p className="text-sm text-gray-500 mb-2">Select one or multiple team members</p>
+                
+                {/* Selected Members Display */}
+                {formData.assigned_to.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {formData.assigned_to.map(email => {
+                      const member = teamMembers.find(m => m.email === email);
+                      return (
+                        <Badge key={email} className="bg-blue-500 text-white pl-3 pr-2 py-1 flex items-center gap-2">
+                          {member?.full_name || email}
+                          <button
+                            type="button"
+                            onClick={() => setFormData({
+                              ...formData,
+                              assigned_to: formData.assigned_to.filter(e => e !== email)
+                            })}
+                            className="hover:bg-blue-600 rounded-full p-0.5"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Team Members List with Checkboxes */}
+                <div className="border rounded-lg p-3 max-h-64 overflow-y-auto space-y-2">
+                  {teamMembers.length === 0 ? (
+                    <p className="text-sm text-gray-500 text-center py-4">No team members available</p>
+                  ) : (
+                    teamMembers.map(member => (
+                      <div key={member.id} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded">
+                        <Checkbox
+                          id={`member-${member.id}`}
+                          checked={formData.assigned_to.includes(member.email)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setFormData({
+                                ...formData,
+                                assigned_to: [...formData.assigned_to, member.email]
+                              });
+                            } else {
+                              setFormData({
+                                ...formData,
+                                assigned_to: formData.assigned_to.filter(e => e !== member.email)
+                              });
+                            }
+                          }}
+                        />
+                        <label
+                          htmlFor={`member-${member.id}`}
+                          className="flex-1 cursor-pointer text-sm"
+                        >
+                          <p className="font-medium text-gray-900">{member.full_name}</p>
+                          <p className="text-xs text-gray-500">{member.email}</p>
+                        </label>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
 
               <div className="flex gap-4" id="form-actions">
