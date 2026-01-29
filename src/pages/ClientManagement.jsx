@@ -49,6 +49,7 @@ import ImageUploader from "@/components/common/ImageUploader";
 import ClientProgressDashboard from "@/components/client/ClientProgressDashboard";
 import AdvancedFilters from "@/components/client/AdvancedFilters";
 import BulkActionsPanel from "@/components/client/BulkActionsPanel";
+import WelcomeMessageManager from "@/components/common/WelcomeMessageManager";
 
 
 export default function ClientManagement() {
@@ -83,6 +84,8 @@ export default function ClientManagement() {
   const [clientForPassword, setClientForPassword] = useState(null);
   const [newClientPassword, setNewClientPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showWelcomeMessageDialog, setShowWelcomeMessageDialog] = useState(false);
+  const [clientForWelcome, setClientForWelcome] = useState(null);
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -1481,6 +1484,19 @@ support@mealiepro.com`;
                   Create Login Password
                 </Button>
 
+                {/* Send Welcome Message */}
+                <Button 
+                  variant="outline"
+                  className="w-full mt-2 text-orange-600 hover:bg-orange-50"
+                  onClick={() => {
+                    setClientForWelcome(viewingClient);
+                    setShowWelcomeMessageDialog(true);
+                  }}
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Send Welcome Message
+                </Button>
+
                 <Button variant="destructive" onClick={() => handleDeleteClient(viewingClient)} disabled={deleteClientMutation.isPending} className="w-full mt-4">
                   {deleteClientMutation.isPending ? 'Deleting...' : 'Delete Client'}
                 </Button>
@@ -1946,6 +1962,17 @@ support@mealiepro.com`;
             )}
           </DialogContent>
         </Dialog>
+
+        {/* Welcome Message Dialog */}
+        {showWelcomeMessageDialog && clientForWelcome && (
+          <WelcomeMessageManager
+            client={clientForWelcome}
+            onClose={() => {
+              setShowWelcomeMessageDialog(false);
+              setClientForWelcome(null);
+            }}
+          />
+        )}
 
         {/* Help Card for User Invitation */}
         <Card className="border-2 border-orange-500 bg-gradient-to-br from-orange-50 to-red-50">
