@@ -102,8 +102,8 @@ export default function PurchaseAICredits() {
           }
 
           // Update subscription with purchased credits
-          await base44.entities.HealthCoachSubscription.update(coachSubscription.id, {
-            ai_credits_purchased: (coachSubscription.ai_credits_purchased || 0) + amount
+          await base44.entities.HealthCoachSubscription.update(subscription.id, {
+            ai_credits_purchased: (subscription.ai_credits_purchased || 0) + amount
           });
 
           // Update coupon usage if applied
