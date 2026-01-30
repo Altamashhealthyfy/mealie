@@ -271,7 +271,9 @@ export default function PurchaseAICredits() {
   });
 
   const availableCredits = React.useMemo(() => {
-    if (!coachSubscription || !coachPlan) return 0;
+    // For super_admin without subscription, return 0 (will be created on first purchase)
+    if (!coachSubscription) return 0;
+    if (!coachPlan) return 0;
     
     const creditsIncluded = coachPlan.ai_credits_included || 0;
     if (creditsIncluded === -1) return Infinity;
