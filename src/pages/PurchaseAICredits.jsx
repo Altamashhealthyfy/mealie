@@ -73,13 +73,17 @@ export default function PurchaseAICredits() {
       try {
         // Handle free credits (100% discount)
         if (cost === 0) {
+          if (!coachSubscription || !coachSubscription.id) {
+            throw new Error('No active subscription found. Please subscribe to a plan first.');
+          }
+
           // Update subscription with purchased credits
           await base44.entities.HealthCoachSubscription.update(coachSubscription.id, {
             ai_credits_purchased: (coachSubscription.ai_credits_purchased || 0) + amount
           });
 
           // Update coupon usage if applied
-          if (appliedCoupon) {
+          if (appliedCoupon && appliedCoupon.coupon && appliedCoupon.coupon.id) {
             const usedBy = appliedCoupon.coupon.used_by || [];
             usedBy.push({
               user_email: user.email,
