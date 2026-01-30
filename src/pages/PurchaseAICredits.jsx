@@ -247,18 +247,33 @@ export default function PurchaseAICredits() {
       }
     },
     onSuccess: async () => {
-      // Force immediate refetch of all related data
-      await queryClient.invalidateQueries(['coachSubscription', user?.email]);
-      await queryClient.invalidateQueries(['coachPlan']);
-      await queryClient.invalidateQueries(['aiCreditTransactions', user?.email]);
+      // Force immediate refetch of all related data with proper awaits
+      queryClient.invalidateQueries(['coachSubscription', user?.email]);
+      queryClient.invalidateQueries(['coachPlan']);
+      queryClient.invalidateQueries(['aiCreditTransactions', user?.email]);
       
-      // Wait for refetch to complete
-      await queryClient.refetchQueries(['coachSubscription', user?.email]);
-      await queryClient.refetchQueries(['aiCreditTransactions', user?.email]);
+      // Small delay to ensure database has updated
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Force refetch
+      await queryClient.refetchQueries({ 
+        queryKey: ['coachSubscription', user?.email],
+        exact: true 
+      });
+      
+      await queryClient.refetchQueries({ 
+        queryKey: ['aiCreditTransactions', user?.email],
+        exact: true 
+      });
       
       alert('✅ AI Credits purchased successfully! Your balance has been updated.');
       setCreditsAmount(10);
       setAppliedCoupon(null);
+      
+      // Force a second refetch after alert to catch any delayed updates
+      setTimeout(() => {
+        queryClient.refetchQueries(['coachSubscription', user?.email]);
+      }, 1000);
     },
     onError: (error) => {
       console.error('Payment error:', error);
