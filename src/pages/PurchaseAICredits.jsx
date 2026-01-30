@@ -176,9 +176,19 @@ export default function PurchaseAICredits() {
                   throw new Error('Payment verification failed');
                 }
 
+                // Get current subscription (may have been created earlier in this flow)
+                let currentSubscription = subscription || coachSubscription;
+                if (!currentSubscription) {
+                  const subs = await base44.entities.HealthCoachSubscription.filter({ 
+                    coach_email: user.email,
+                    status: 'active'
+                  });
+                  currentSubscription = subs[0];
+                }
+
                 // Update subscription with purchased credits
-                await base44.entities.HealthCoachSubscription.update(coachSubscription.id, {
-                  ai_credits_purchased: (coachSubscription.ai_credits_purchased || 0) + amount
+                await base44.entities.HealthCoachSubscription.update(currentSubscription.id, {
+                  ai_credits_purchased: (currentSubscription.ai_credits_purchased || 0) + amount
                 });
 
                 // Update coupon usage if applied
