@@ -89,9 +89,10 @@ export default function PurchaseAICredits() {
               start_date: new Date().toISOString().split('T')[0],
               status: 'active',
               manually_granted: true,
-              granted_by: user.email
+              granted_by: user.email,
+              ai_credits_purchased: 0,
+              ai_credits_used_this_month: 0
             });
-            await queryClient.invalidateQueries(['coachSubscription']);
           }
         }
 
