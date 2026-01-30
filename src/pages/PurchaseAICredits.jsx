@@ -71,10 +71,34 @@ export default function PurchaseAICredits() {
       const cost = appliedCoupon ? appliedCoupon.finalAmount : amount * (coachPlan?.ai_credit_price || 10);
       
       try {
+        // Create a basic subscription for super_admin if they don't have one
+        let subscription = coachSubscription;
+        if (!subscription && user?.user_type === 'super_admin') {
+          // Get a default plan for admin
+          const plans = await base44.entities.HealthCoachPlan.list();
+          const defaultPlan = plans[0];
+          
+          if (defaultPlan) {
+            subscription = await base44.entities.HealthCoachSubscription.create({
+              coach_email: user.email,
+              coach_name: user.full_name,
+              plan_id: defaultPlan.id,
+              plan_name: defaultPlan.plan_name,
+              billing_cycle: 'monthly',
+              amount: 0,
+              start_date: new Date().toISOString().split('T')[0],
+              status: 'active',
+              manually_granted: true,
+              granted_by: user.email
+            });
+            await queryClient.invalidateQueries(['coachSubscription']);
+          }
+        }
+
         // Handle free credits (100% discount)
         if (cost === 0) {
-          if (!coachSubscription || !coachSubscription.id) {
-            throw new Error('No active subscription found. Please subscribe to a plan first.');
+          if (!subscription || !subscription.id) {
+            throw new Error('Unable to create subscription. Please contact support.');
           }
 
           // Update subscription with purchased credits
