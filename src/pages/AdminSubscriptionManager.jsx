@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Crown, Plus, Trash2, AlertCircle, Users } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Shield, Crown, Plus, Trash2, AlertCircle, Users, Sparkles } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function AdminSubscriptionManager() {
@@ -20,6 +21,10 @@ export default function AdminSubscriptionManager() {
   const [selectedCoachPlan, setSelectedCoachPlan] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [selectedClientPlan, setSelectedClientPlan] = useState("");
+  const [showCreditsDialog, setShowCreditsDialog] = useState(false);
+  const [creditsCoachEmail, setCreditsCoachEmail] = useState("");
+  const [creditsAmount, setCreditsAmount] = useState("");
+  const [creditsReason, setCreditsReason] = useState("");
 
 
   const { data: user } = useQuery({
@@ -145,6 +150,21 @@ export default function AdminSubscriptionManager() {
     },
   });
 
+  const addAICreditsMutation = useMutation({
+    mutationFn: async (data) => {
+      const response = await base44.functions.invoke('addCoachAICredits', data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['allCoachSubscriptions']);
+      setShowCreditsDialog(false);
+      setCreditsCoachEmail("");
+      setCreditsAmount("");
+      setCreditsReason("");
+      alert('✅ AI Credits added successfully!');
+    },
+  });
+
   const handleGrantCoachAccess = () => {
     if (!coachEmail || !selectedCoachPlan) {
       alert('Please fill in all fields');
@@ -159,6 +179,18 @@ export default function AdminSubscriptionManager() {
       return;
     }
     grantClientAccessMutation.mutate({ client_email: clientEmail, plan_id: selectedClientPlan });
+  };
+
+  const handleAddCredits = () => {
+    if (!creditsCoachEmail || !creditsAmount || parseInt(creditsAmount) <= 0) {
+      alert('Please enter coach email and valid credit amount');
+      return;
+    }
+    addAICreditsMutation.mutate({
+      coachEmail: creditsCoachEmail,
+      creditsToAdd: parseInt(creditsAmount),
+      reason: creditsReason || 'Admin manually added credits'
+    });
   };
 
 
@@ -194,7 +226,11 @@ export default function AdminSubscriptionManager() {
           </TabsList>
 
           <TabsContent value="coaches" className="space-y-4">
-            <div className="flex justify-end">
+            <div className="flex justify-end gap-2">
+              <Button onClick={() => setShowCreditsDialog(true)} variant="outline" className="border-green-500 text-green-700 hover:bg-green-50">
+                <Sparkles className="w-5 h-5 mr-2" />
+                Add AI Credits
+              </Button>
               <Button onClick={() => setShowCoachDialog(true)} className="bg-purple-600 hover:bg-purple-700">
                 <Plus className="w-5 h-5 mr-2" />
                 Grant Coach Access
@@ -219,6 +255,12 @@ export default function AdminSubscriptionManager() {
                         <p className="text-sm text-gray-500">
                           Valid: {new Date(sub.start_date).toLocaleDateString()} - {new Date(sub.end_date).toLocaleDateString()}
                         </p>
+                        {sub.ai_credits_purchased > 0 && (
+                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300 mt-1">
+                            <Sparkles className="w-3 h-3 mr-1" />
+                            {sub.ai_credits_purchased} AI Credits
+                          </Badge>
+                        )}
                         {sub.manually_granted && (
                           <p className="text-xs text-blue-600 mt-1">Granted by: {sub.granted_by}</p>
                         )}
@@ -356,6 +398,63 @@ export default function AdminSubscriptionManager() {
               </div>
               <Button onClick={handleGrantClientAccess} className="w-full bg-blue-600 hover:bg-blue-700">
                 Grant Access
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showCreditsDialog} onOpenChange={setShowCreditsDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-green-600" />
+                Add AI Credits to Coach
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Alert className="bg-green-50 border-green-300">
+                <AlertDescription className="text-green-800 text-sm">
+                  This will add AI credits to the coach's active subscription. They can use these credits for AI-powered features.
+                </AlertDescription>
+              </Alert>
+              
+              <div className="space-y-2">
+                <Label>Coach Email *</Label>
+                <Input
+                  value={creditsCoachEmail}
+                  onChange={(e) => setCreditsCoachEmail(e.target.value)}
+                  placeholder="coach@example.com"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Credits to Add *</Label>
+                <Input
+                  type="number"
+                  value={creditsAmount}
+                  onChange={(e) => setCreditsAmount(e.target.value)}
+                  placeholder="e.g., 100"
+                  min="1"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Reason (Optional)</Label>
+                <Textarea
+                  value={creditsReason}
+                  onChange={(e) => setCreditsReason(e.target.value)}
+                  placeholder="e.g., Bonus credits for referral"
+                  rows={3}
+                />
+              </div>
+              
+              <Button 
+                onClick={handleAddCredits} 
+                className="w-full bg-green-600 hover:bg-green-700"
+                disabled={addAICreditsMutation.isPending}
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                {addAICreditsMutation.isPending ? 'Adding...' : 'Add Credits'}
               </Button>
             </div>
           </DialogContent>
