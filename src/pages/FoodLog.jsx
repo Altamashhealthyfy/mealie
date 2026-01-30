@@ -181,7 +181,7 @@ export default function FoodLog() {
           </div>
           <div className="flex gap-2">
             <TourButton pageName="FoodLog" />
-            <Dialog open={showAddDialog} onOpenChange={(open) => !open && handleDialogClose()}>
+            <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
               <DialogTrigger asChild>
                 <Button id="add-food-log" className="bg-gradient-to-r from-orange-500 to-red-500 w-full sm:w-auto">
                   <Plus className="w-4 h-4 mr-2" />
