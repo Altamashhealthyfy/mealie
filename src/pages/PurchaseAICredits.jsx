@@ -247,10 +247,15 @@ export default function PurchaseAICredits() {
       }
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries(['coachSubscription']);
-      await queryClient.invalidateQueries(['aiCreditTransactions']);
-      await queryClient.refetchQueries(['coachSubscription']);
-      await queryClient.refetchQueries(['aiCreditTransactions']);
+      // Force immediate refetch of all related data
+      await queryClient.invalidateQueries(['coachSubscription', user?.email]);
+      await queryClient.invalidateQueries(['coachPlan']);
+      await queryClient.invalidateQueries(['aiCreditTransactions', user?.email]);
+      
+      // Wait for refetch to complete
+      await queryClient.refetchQueries(['coachSubscription', user?.email]);
+      await queryClient.refetchQueries(['aiCreditTransactions', user?.email]);
+      
       alert('✅ AI Credits purchased successfully! Your balance has been updated.');
       setCreditsAmount(10);
       setAppliedCoupon(null);
