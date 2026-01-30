@@ -37,14 +37,13 @@ Deno.serve(async (req) => {
 
     // Log the transaction
     await base44.asServiceRole.entities.AICreditsTransaction.create({
-      user_email: coachEmail,
-      transaction_type: 'admin_grant',
-      credits: creditsToAdd,
-      amount: 0,
-      status: 'completed',
-      reason: reason || 'Admin manually added credits',
-      admin_email: user.email,
-      subscription_id: subscription.id
+      coach_email: coachEmail,
+      subscription_id: subscription.id,
+      transaction_type: 'purchase',
+      credits_amount: creditsToAdd,
+      cost: 0,
+      payment_status: 'completed',
+      description: `${reason || 'Admin manually added credits'} (by ${user.email})`
     });
 
     return Response.json({
