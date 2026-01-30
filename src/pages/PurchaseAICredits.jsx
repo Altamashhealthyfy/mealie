@@ -123,7 +123,7 @@ export default function PurchaseAICredits() {
           // Record transaction
           await base44.entities.AICreditsTransaction.create({
             coach_email: user.email,
-            subscription_id: coachSubscription.id,
+            subscription_id: subscription.id,
             transaction_type: 'purchase',
             credits_amount: amount,
             cost: 0,
