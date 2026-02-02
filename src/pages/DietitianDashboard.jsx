@@ -26,15 +26,18 @@ import {
   TrendingDown,
   Minus,
   Target,
-  ClipboardList
+  ClipboardList,
+  Crown
 } from "lucide-react";
 import { format } from "date-fns";
 import ActionItemsPanel from "@/components/dashboard/ActionItemsPanel";
 import CoachGuidePanel from "@/components/common/CoachGuidePanel";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 export default function DietitianDashboard() {
   const navigate = useNavigate();
-   
+  const [viewAsUser, setViewAsUser] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -42,9 +45,10 @@ export default function DietitianDashboard() {
   });
 
   const { data: clients } = useQuery({
-    queryKey: ['dashboardClients', user?.email, user?.user_type],
+    queryKey: ['dashboardClients', user?.email, user?.user_type, viewAsUser],
     queryFn: async () => {
-      if (user?.user_type === 'super_admin') {
+      // When admin views as user, only show their own clients
+      if (user?.user_type === 'super_admin' && !viewAsUser) {
         return await base44.entities.Client.list('-created_date', 50);
       }
       // Directly filter on server side for better performance
@@ -56,9 +60,9 @@ export default function DietitianDashboard() {
   });
 
   const { data: mealPlans } = useQuery({
-    queryKey: ['dashboardMealPlans', user?.email, user?.user_type],
+    queryKey: ['dashboardMealPlans', user?.email, user?.user_type, viewAsUser],
     queryFn: async () => {
-      if (user?.user_type === 'super_admin') {
+      if (user?.user_type === 'super_admin' && !viewAsUser) {
         return await base44.entities.MealPlan.list('-created_date', 20);
       }
       return await base44.entities.MealPlan.filter({ created_by: user?.email }, '-created_date', 20);
@@ -104,9 +108,9 @@ export default function DietitianDashboard() {
   });
 
   const { data: assessments } = useQuery({
-    queryKey: ['dashboardAssessments'],
+    queryKey: ['dashboardAssessments', viewAsUser],
     queryFn: async () => {
-      if (user?.user_type === 'super_admin') {
+      if (user?.user_type === 'super_admin' && !viewAsUser) {
         return await base44.entities.ClientAssessment.list('-created_date');
       }
       return await base44.entities.ClientAssessment.filter({ assigned_by: user?.email }, '-created_date');
@@ -213,6 +217,8 @@ export default function DietitianDashboard() {
     },
   ];
 
+  const isAdmin = user?.user_type === 'super_admin';
+
   return (
     <div className="min-h-screen p-3 sm:p-4 md:p-8">
        
@@ -225,8 +231,54 @@ export default function DietitianDashboard() {
             </h1>
             <p className="text-sm sm:text-base text-gray-600">Here's what's happening with your practice today</p>
           </div>
-          <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-orange-500" />
+          <div className="flex items-center gap-4">
+            {isAdmin && (
+              <div className="flex items-center gap-3 bg-white p-3 rounded-lg shadow-md border-2 border-purple-200">
+                <Label htmlFor="view-mode" className="text-sm font-semibold text-gray-700 cursor-pointer">
+                  {viewAsUser ? '👤 User View' : '👑 Admin View'}
+                </Label>
+                <Switch
+                  id="view-mode"
+                  checked={viewAsUser}
+                  onCheckedChange={setViewAsUser}
+                  className="data-[state=checked]:bg-purple-600"
+                />
+              </div>
+            )}
+            <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-orange-500" />
+          </div>
         </div>
+
+        {/* View Mode Indicator */}
+        {isAdmin && (
+          <Card className={`border-2 ${viewAsUser ? 'border-blue-500 bg-blue-50' : 'border-purple-500 bg-purple-50'}`}>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                {viewAsUser ? (
+                  <>
+                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                      <Users className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900">User View Mode</h3>
+                      <p className="text-sm text-gray-600">Viewing dashboard as a regular health coach (showing only your data)</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center">
+                      <Crown className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900">Admin View Mode</h3>
+                      <p className="text-sm text-gray-600">Viewing all platform data and analytics</p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Coach Guide Panel */}
         <CoachGuidePanel />
