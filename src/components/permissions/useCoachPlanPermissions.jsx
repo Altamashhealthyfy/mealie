@@ -12,7 +12,7 @@ export function useCoachPlanPermissions() {
     queryFn: async () => {
       const subs = await base44.entities.HealthCoachSubscription.filter({ 
         coach_email: user?.email,
-        status: 'active'
+        status: { '$in': ['active', 'trial'] }
       });
       return subs[0] || null;
     },

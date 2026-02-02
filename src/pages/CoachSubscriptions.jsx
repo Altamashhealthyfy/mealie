@@ -84,6 +84,20 @@ export default function CoachSubscriptions() {
     },
   });
 
+  const activateTrialMutation = useMutation({
+    mutationFn: async () => {
+      const response = await base44.functions.invoke('activateTrial');
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['myCoachSubscription']);
+      alert('🎉 Your 7-day free trial has been activated! Check your email for details.');
+    },
+    onError: (error) => {
+      alert(error.response?.data?.error || 'Failed to activate trial. Please try again.');
+    }
+  });
+
   const handleSubscribe = async (plan) => {
     if (!user) {
       alert('User data not found');
@@ -261,6 +275,17 @@ export default function CoachSubscriptions() {
           </div>
         </div>
 
+        {mySubscription && mySubscription.status === 'trial' && (
+          <Alert className="bg-blue-50 border-blue-500">
+            <Crown className="w-5 h-5 text-blue-600" />
+            <AlertDescription>
+              <strong>🎉 Free Trial Active:</strong> {mySubscription.plan_name} • 
+              Expires: {new Date(mySubscription.trial_end_date).toLocaleDateString()} • 
+              Days Remaining: {Math.max(0, Math.ceil((new Date(mySubscription.trial_end_date) - new Date()) / (1000 * 60 * 60 * 24)))}
+            </AlertDescription>
+          </Alert>
+        )}
+
         {mySubscription && mySubscription.status === 'active' && (
           <Alert className="bg-green-50 border-green-500">
             <Check className="w-5 h-5 text-green-600" />
@@ -268,6 +293,15 @@ export default function CoachSubscriptions() {
               <strong>Active Plan:</strong> {mySubscription.plan_name} • 
               Billing: {mySubscription.billing_cycle} • 
               Next billing: {new Date(mySubscription.next_billing_date).toLocaleDateString()}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {mySubscription && mySubscription.status === 'expired' && mySubscription.is_trial && (
+          <Alert className="bg-red-50 border-red-500">
+            <Lock className="w-5 h-5 text-red-600" />
+            <AlertDescription>
+              <strong>Trial Expired:</strong> Your 7-day free trial has ended. Subscribe now to continue!
             </AlertDescription>
           </Alert>
         )}
@@ -281,10 +315,75 @@ export default function CoachSubscriptions() {
           </Alert>
         )}
 
+        {/* Free Trial Section - Only show if no subscription */}
+        {!mySubscription && (
+          <Card className="border-4 border-orange-500 shadow-2xl bg-gradient-to-br from-orange-50 to-yellow-50">
+            <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+              <div className="flex items-center justify-between mb-2">
+                <Crown className="w-10 h-10" />
+                <Badge className="bg-white text-orange-600 text-lg px-3 py-1">🎉 FREE</Badge>
+              </div>
+              <CardTitle className="text-3xl">7-Day Free Trial</CardTitle>
+              <p className="text-white/90 text-lg mt-2">Try Mealie Basic Plan for FREE!</p>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div className="text-center py-4">
+                <p className="text-4xl font-bold text-gray-900 mb-2">₹0</p>
+                <p className="text-lg text-gray-600">For 7 Days</p>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-green-600" />
+                  <span>Full access to Mealie Basic features</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-green-600" />
+                  <span>Up to 25 clients</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-green-600" />
+                  <span>50 AI meal plan generations</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-green-600" />
+                  <span>No credit card required</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-5 h-5 text-green-600" />
+                  <span>Cancel anytime</span>
+                </div>
+              </div>
+
+              <Button
+                onClick={() => activateTrialMutation.mutate()}
+                disabled={activateTrialMutation.isPending}
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white text-lg py-6 hover:from-orange-600 hover:to-red-600"
+              >
+                {activateTrialMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Activating Trial...
+                  </>
+                ) : (
+                  <>
+                    <Crown className="w-5 h-5 mr-2" />
+                    Start Free Trial Now
+                  </>
+                )}
+              </Button>
+
+              <p className="text-xs text-center text-gray-500">
+                Trial lasts 7 days. Upgrade anytime to continue access.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {plans.map(plan => {
-            const isActivePlan = mySubscription?.plan_id === plan.id && (mySubscription?.status === 'active' || mySubscription?.status === 'pending');
-            const hasActiveSubscription = mySubscription?.status === 'active';
+            const isActivePlan = mySubscription?.plan_id === plan.id && (mySubscription?.status === 'active' || mySubscription?.status === 'pending' || mySubscription?.status === 'trial');
+            const hasActiveSubscription = mySubscription?.status === 'active' || mySubscription?.status === 'trial';
             const isManuallyGranted = mySubscription?.manually_granted === true;
             const shouldDisable = isActivePlan && isManuallyGranted && hasActiveSubscription;
 

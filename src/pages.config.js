@@ -92,12 +92,14 @@ import FoodLog from './pages/FoodLog';
 import FoodLookup from './pages/FoodLookup';
 import GoogleCalendarSettings from './pages/GoogleCalendarSettings';
 import HealthCoachPlans from './pages/HealthCoachPlans';
+import HealthReportAnalysis from './pages/HealthReportAnalysis';
 import Home from './pages/Home';
 import IncomeExpense from './pages/IncomeExpense';
 import InstallmentTracker from './pages/InstallmentTracker';
 import LeadsPipeline from './pages/LeadsPipeline';
 import MPESSTracker from './pages/MPESSTracker';
 import MarketingHub from './pages/MarketingHub';
+import MealPhotoAnalysis from './pages/MealPhotoAnalysis';
 import MealPlanner from './pages/MealPlanner';
 import MealPlansPro from './pages/MealPlansPro';
 import MyAssessment from './pages/MyAssessment';
@@ -123,6 +125,7 @@ import Recipes from './pages/Recipes';
 import ResourceLibrary from './pages/ResourceLibrary';
 import ResourceLibraryEnhanced from './pages/ResourceLibraryEnhanced';
 import SecuritySettings from './pages/SecuritySettings';
+import StudentTraining from './pages/StudentTraining';
 import TaskBoard from './pages/TaskBoard';
 import TeamAppointmentsCalendar from './pages/TeamAppointmentsCalendar';
 import TeamDashboard from './pages/TeamDashboard';
@@ -136,9 +139,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import HealthReportAnalysis from './pages/HealthReportAnalysis';
-import MealPhotoAnalysis from './pages/MealPhotoAnalysis';
-import StudentTraining from './pages/StudentTraining';
 import __Layout from './Layout.jsx';
 
 
@@ -188,12 +188,14 @@ export const PAGES = {
     "FoodLookup": FoodLookup,
     "GoogleCalendarSettings": GoogleCalendarSettings,
     "HealthCoachPlans": HealthCoachPlans,
+    "HealthReportAnalysis": HealthReportAnalysis,
     "Home": Home,
     "IncomeExpense": IncomeExpense,
     "InstallmentTracker": InstallmentTracker,
     "LeadsPipeline": LeadsPipeline,
     "MPESSTracker": MPESSTracker,
     "MarketingHub": MarketingHub,
+    "MealPhotoAnalysis": MealPhotoAnalysis,
     "MealPlanner": MealPlanner,
     "MealPlansPro": MealPlansPro,
     "MyAssessment": MyAssessment,
@@ -219,6 +221,7 @@ export const PAGES = {
     "ResourceLibrary": ResourceLibrary,
     "ResourceLibraryEnhanced": ResourceLibraryEnhanced,
     "SecuritySettings": SecuritySettings,
+    "StudentTraining": StudentTraining,
     "TaskBoard": TaskBoard,
     "TeamAppointmentsCalendar": TeamAppointmentsCalendar,
     "TeamDashboard": TeamDashboard,
@@ -232,9 +235,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "HealthReportAnalysis": HealthReportAnalysis,
-    "MealPhotoAnalysis": MealPhotoAnalysis,
-    "StudentTraining": StudentTraining,
 }
 
 export const pagesConfig = {
