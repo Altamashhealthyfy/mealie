@@ -53,6 +53,7 @@ import Appointments from './pages/Appointments';
 import AssessmentTemplates from './pages/AssessmentTemplates';
 import BroadcastNotification from './pages/BroadcastNotification';
 import BulkImport from './pages/BulkImport';
+import BulkStudentOnboarding from './pages/BulkStudentOnboarding';
 import BusinessGPTs from './pages/BusinessGPTs';
 import BusinessHub from './pages/BusinessHub';
 import BusinessPlan from './pages/BusinessPlan';
@@ -135,7 +136,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import BulkStudentOnboarding from './pages/BulkStudentOnboarding';
 import __Layout from './Layout.jsx';
 
 
@@ -146,6 +146,7 @@ export const PAGES = {
     "AssessmentTemplates": AssessmentTemplates,
     "BroadcastNotification": BroadcastNotification,
     "BulkImport": BulkImport,
+    "BulkStudentOnboarding": BulkStudentOnboarding,
     "BusinessGPTs": BusinessGPTs,
     "BusinessHub": BusinessHub,
     "BusinessPlan": BusinessPlan,
@@ -228,7 +229,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "BulkStudentOnboarding": BulkStudentOnboarding,
 }
 
 export const pagesConfig = {

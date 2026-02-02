@@ -311,12 +311,25 @@ Make it conversion-focused with specific copy.`;
             </div>
             <div className="flex flex-wrap gap-2 mt-4">
               {modules.map((mod, idx) => (
-                <Badge 
+                <Button
                   key={idx}
-                  className={idx === currentModule ? 'bg-purple-600' : idx < currentModule ? 'bg-green-600' : 'bg-gray-300'}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setCurrentModule(idx);
+                    setOutput(null);
+                    setShowDiamondSeed(false);
+                  }}
+                  className={`${
+                    idx === currentModule 
+                      ? 'bg-purple-600 text-white hover:bg-purple-700 hover:text-white' 
+                      : idx < currentModule 
+                      ? 'bg-green-600 text-white hover:bg-green-700 hover:text-white' 
+                      : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+                  } cursor-pointer transition-all duration-200`}
                 >
                   {mod.icon} M{idx + 1}
-                </Badge>
+                </Button>
               ))}
             </div>
           </CardContent>
