@@ -36,8 +36,10 @@ import {
   Globe,
   Palette,
   Loader2,
-  Tag
+  Tag,
+  Lock
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Sidebar,
   SidebarContent,
@@ -433,9 +435,17 @@ export default function Layout({ children, currentPageName }) {
   const isDietitian = ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(userType);
   
   // Determine effective user type based on admin view mode
-  const effectiveUserType = (userType === 'super_admin' && adminViewMode !== 'admin') 
-    ? 'student_coach' 
-    : userType;
+  let effectiveUserType = userType;
+  if (userType === 'super_admin' && adminViewMode !== 'admin') {
+    if (adminViewMode === 'client') {
+      effectiveUserType = 'client';
+    } else {
+      effectiveUserType = 'student_coach';
+    }
+  }
+  
+  // Check if effective type is dietitian (used for sidebar rendering)
+  const isEffectiveDietitian = ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(effectiveUserType);
   
   const filteredDietitianNav = dietitianNavigation.filter(item =>
     !item.roles || item.roles.includes(effectiveUserType)
@@ -482,6 +492,7 @@ export default function Layout({ children, currentPageName }) {
           can_use_bulk_import: true,
           can_access_team_attendance: true,
           can_manage_team: true,
+          can_access_pro_plans: true,
         };
       } else if (adminViewMode === 'basic_user' || adminViewMode === 'trial') {
         simulatedPlan = {
@@ -493,6 +504,7 @@ export default function Layout({ children, currentPageName }) {
           can_use_bulk_import: false,
           can_access_team_attendance: false,
           can_manage_team: false,
+          can_access_pro_plans: false,
         };
       }
     }
@@ -530,6 +542,20 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const filteredBusinessNav = getFilteredBusinessNav();
+  
+  // Get simulated plan for Pro Plans lock logic
+  let simulatedPlan = null;
+  if (userType === 'super_admin' && adminViewMode !== 'admin') {
+    if (adminViewMode === 'pro_user') {
+      simulatedPlan = {
+        can_access_pro_plans: true,
+      };
+    } else if (adminViewMode === 'basic_user' || adminViewMode === 'trial') {
+      simulatedPlan = {
+        can_access_pro_plans: false,
+      };
+    }
+  }
 
   const getClientPermissions = () => {
     // If client has active subscription, use plan features
@@ -633,7 +659,7 @@ export default function Layout({ children, currentPageName }) {
       return baseNav.filter(item => item.show);
   };
 
-  const navigationItems = isDietitian ? filteredDietitianNav : getClientNavigation();
+  const navigationItems = isEffectiveDietitian ? filteredDietitianNav : getClientNavigation();
 
   const getUserLabel = () => {
     if (!isDietitian) return 'Client';
@@ -758,7 +784,7 @@ export default function Layout({ children, currentPageName }) {
           <SidebarContent className="p-2">
             <SidebarGroup id="dietitian-tools-nav">
                               <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
-                                {isDietitian ? 'Dietitian Tools' : 'My Health Journey'}
+                                {isEffectiveDietitian ? 'Dietitian Tools' : 'My Health Journey'}
                               </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
@@ -790,40 +816,71 @@ export default function Layout({ children, currentPageName }) {
               </SidebarGroupContent>
             </SidebarGroup>
 
-            {isDietitian && filteredPaymentNav.length > 0 && (
+            {isEffectiveDietitian && filteredPaymentNav.length > 0 && (
                                 <SidebarGroup id="payment-plans-nav">
                                   <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
                                     Payment & Plans
                                   </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    {filteredPaymentNav.map((item) => (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton
-                           asChild
-                           className={`hover:bg-orange-50 transition-all duration-200 rounded-xl mb-1 ${
-                             location.pathname === item.url ? 'text-white hover:text-white shadow-md' : ''
-                           }`}
-                           style={location.pathname === item.url ? {
-                             background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
-                             color: '#ffffff'
-                           } : {
-                             color: themeColors.menu_text_color
-                           }}
-                         >
-                           <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
-                             <item.icon className="w-5 h-5" />
-                             <span className="font-medium">{item.title}</span>
-                           </Link>
-                         </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
+                    {filteredPaymentNav.map((item) => {
+                      const isProPlansItem = item.title === "Pro Plans 💎";
+                      const activePlanForChecking = simulatedPlan || coachPlan;
+                      const hasProAccess = activePlanForChecking?.can_access_pro_plans;
+                      const isLocked = isProPlansItem && effectiveUserType === 'student_coach' && !hasProAccess;
+
+                      return (
+                        <SidebarMenuItem key={item.title}>
+                          {isLocked ? (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="opacity-60">
+                                    <SidebarMenuButton
+                                      className="hover:bg-orange-50 transition-all duration-200 rounded-xl mb-1 cursor-not-allowed"
+                                      style={{ color: themeColors.menu_text_color }}
+                                    >
+                                      <div className="flex items-center gap-3 px-4 py-3">
+                                        <item.icon className="w-5 h-5" />
+                                        <span className="font-medium">{item.title}</span>
+                                        <Lock className="w-4 h-4 ml-auto" />
+                                      </div>
+                                    </SidebarMenuButton>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Upgrade to Pro to unlock disease-specific plans</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          ) : (
+                            <SidebarMenuButton
+                              asChild
+                              className={`hover:bg-orange-50 transition-all duration-200 rounded-xl mb-1 ${
+                                location.pathname === item.url ? 'text-white hover:text-white shadow-md' : ''
+                              }`}
+                              style={location.pathname === item.url ? {
+                                background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
+                                color: '#ffffff'
+                              } : {
+                                color: themeColors.menu_text_color
+                              }}
+                            >
+                              <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
+                                <item.icon className="w-5 h-5" />
+                                <span className="font-medium">{item.title}</span>
+                              </Link>
+                            </SidebarMenuButton>
+                          )}
+                        </SidebarMenuItem>
+                      );
+                    })}
                   </SidebarMenu>
                 </SidebarGroupContent>
               </SidebarGroup>
             )}
 
-            {isDietitian && filteredBusinessNav.length > 0 && (
+            {isEffectiveDietitian && filteredBusinessNav.length > 0 && (
                                 <SidebarGroup id="business-tools-nav">
                                   <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
                                     Business Tools
