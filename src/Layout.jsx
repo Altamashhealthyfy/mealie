@@ -40,6 +40,7 @@ import {
   Lock
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Sidebar,
   SidebarContent,
@@ -974,10 +975,31 @@ export default function Layout({ children, currentPageName }) {
               </div>
             </div>
             <div className="ml-auto flex items-center gap-4">
-                                <div id="notification-bell-container">
-                                  <NotificationBell userEmail={user?.email} />
-                                </div>
-                              </div>
+              {userType === 'super_admin' && (
+                <div className="flex items-center gap-2 bg-purple-50 border border-purple-200 rounded-lg px-3 py-2">
+                  <Shield className="w-4 h-4 text-purple-600" />
+                  <Select value={adminViewMode} onValueChange={(value) => {
+                    setAdminViewMode(value);
+                    localStorage.setItem('admin_view_mode', value);
+                    window.dispatchEvent(new CustomEvent('viewModeChanged', { detail: value }));
+                  }}>
+                    <SelectTrigger className="w-48 h-8 text-sm border-none bg-transparent">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="admin">👑 Admin View</SelectItem>
+                      <SelectItem value="pro_user">💎 Pro User</SelectItem>
+                      <SelectItem value="basic_user">⭐ Basic User</SelectItem>
+                      <SelectItem value="trial">🎁 Trial User</SelectItem>
+                      <SelectItem value="client">👤 Client View</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              <div id="notification-bell-container">
+                <NotificationBell userEmail={user?.email} />
+              </div>
+            </div>
           </header>
 
           <div className="flex-1 overflow-auto">
