@@ -27,17 +27,19 @@ import {
   Minus,
   Target,
   ClipboardList,
-  Crown
+  Crown,
+  Shield
 } from "lucide-react";
 import { format } from "date-fns";
 import ActionItemsPanel from "@/components/dashboard/ActionItemsPanel";
 import CoachGuidePanel from "@/components/common/CoachGuidePanel";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function DietitianDashboard() {
   const navigate = useNavigate();
-  const [viewAsUser, setViewAsUser] = useState(false);
+  const [viewMode, setViewMode] = useState('admin'); // admin, pro_user, basic_user, client, trial
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -45,13 +47,13 @@ export default function DietitianDashboard() {
   });
 
   const { data: clients } = useQuery({
-    queryKey: ['dashboardClients', user?.email, user?.user_type, viewAsUser],
+    queryKey: ['dashboardClients', user?.email, user?.user_type, viewMode],
     queryFn: async () => {
-      // When admin views as user, only show their own clients
-      if (user?.user_type === 'super_admin' && !viewAsUser) {
+      // Admin view - show all
+      if (user?.user_type === 'super_admin' && viewMode === 'admin') {
         return await base44.entities.Client.list('-created_date', 50);
       }
-      // Directly filter on server side for better performance
+      // All other views - show only user's own clients
       return await base44.entities.Client.filter({ created_by: user?.email }, '-created_date', 50);
     },
     enabled: !!user,
@@ -60,9 +62,9 @@ export default function DietitianDashboard() {
   });
 
   const { data: mealPlans } = useQuery({
-    queryKey: ['dashboardMealPlans', user?.email, user?.user_type, viewAsUser],
+    queryKey: ['dashboardMealPlans', user?.email, user?.user_type, viewMode],
     queryFn: async () => {
-      if (user?.user_type === 'super_admin' && !viewAsUser) {
+      if (user?.user_type === 'super_admin' && viewMode === 'admin') {
         return await base44.entities.MealPlan.list('-created_date', 20);
       }
       return await base44.entities.MealPlan.filter({ created_by: user?.email }, '-created_date', 20);
@@ -108,9 +110,9 @@ export default function DietitianDashboard() {
   });
 
   const { data: assessments } = useQuery({
-    queryKey: ['dashboardAssessments', viewAsUser],
+    queryKey: ['dashboardAssessments', viewMode],
     queryFn: async () => {
-      if (user?.user_type === 'super_admin' && !viewAsUser) {
+      if (user?.user_type === 'super_admin' && viewMode === 'admin') {
         return await base44.entities.ClientAssessment.list('-created_date');
       }
       return await base44.entities.ClientAssessment.filter({ assigned_by: user?.email }, '-created_date');
@@ -219,6 +221,47 @@ export default function DietitianDashboard() {
 
   const isAdmin = user?.user_type === 'super_admin';
 
+  // Simulate plan permissions based on view mode
+  const getViewPermissions = () => {
+    switch(viewMode) {
+      case 'admin':
+        return { all: true };
+      case 'pro_user':
+        return {
+          max_clients: -1,
+          ai_generation_limit: -1,
+          can_access_pro_plans: true,
+          can_create_templates: true,
+          can_access_business_tools: true,
+        };
+      case 'basic_user':
+        return {
+          max_clients: 25,
+          ai_generation_limit: 50,
+          can_access_pro_plans: false,
+          can_create_templates: false,
+          can_access_business_tools: false,
+        };
+      case 'trial':
+        return {
+          max_clients: 25,
+          ai_generation_limit: 50,
+          can_access_pro_plans: false,
+          is_trial: true,
+          trial_days_left: 5,
+        };
+      case 'client':
+        return {
+          is_client_view: true,
+        };
+      default:
+        return { all: true };
+    }
+  };
+
+  const viewPermissions = getViewPermissions();
+  const limitedClients = viewMode === 'basic_user' || viewMode === 'trial' ? clients.slice(0, 25) : clients;
+
   return (
     <div className="min-h-screen p-3 sm:p-4 md:p-8">
        
@@ -233,16 +276,22 @@ export default function DietitianDashboard() {
           </div>
           <div className="flex items-center gap-4">
             {isAdmin && (
-              <div className="flex items-center gap-3 bg-white p-3 rounded-lg shadow-md border-2 border-purple-200">
-                <Label htmlFor="view-mode" className="text-sm font-semibold text-gray-700 cursor-pointer">
-                  {viewAsUser ? '👤 User View' : '👑 Admin View'}
+              <div className="bg-white p-4 rounded-lg shadow-md border-2 border-purple-200">
+                <Label htmlFor="view-mode" className="text-sm font-semibold text-gray-700 mb-2 block">
+                  👁️ Admin View Selector
                 </Label>
-                <Switch
-                  id="view-mode"
-                  checked={viewAsUser}
-                  onCheckedChange={setViewAsUser}
-                  className="data-[state=checked]:bg-purple-600"
-                />
+                <Select value={viewMode} onValueChange={setViewMode}>
+                  <SelectTrigger className="w-56">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admin">👑 Admin View (All Data)</SelectItem>
+                    <SelectItem value="pro_user">💎 Mealie Pro User</SelectItem>
+                    <SelectItem value="basic_user">⭐ Mealie Basic User</SelectItem>
+                    <SelectItem value="trial">🎁 Trial User (7 Days)</SelectItem>
+                    <SelectItem value="client">👤 Client View</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             )}
             <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-orange-500" />
@@ -251,29 +300,78 @@ export default function DietitianDashboard() {
 
         {/* View Mode Indicator */}
         {isAdmin && (
-          <Card className={`border-2 ${viewAsUser ? 'border-blue-500 bg-blue-50' : 'border-purple-500 bg-purple-50'}`}>
+          <Card className={`border-2 ${
+            viewMode === 'admin' ? 'border-purple-500 bg-purple-50' :
+            viewMode === 'pro_user' ? 'border-green-500 bg-green-50' :
+            viewMode === 'basic_user' ? 'border-blue-500 bg-blue-50' :
+            viewMode === 'trial' ? 'border-orange-500 bg-orange-50' :
+            'border-gray-500 bg-gray-50'
+          }`}>
             <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                {viewAsUser ? (
-                  <>
-                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
-                      <Users className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-gray-900">User View Mode</h3>
-                      <p className="text-sm text-gray-600">Viewing dashboard as a regular health coach (showing only your data)</p>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center">
-                      <Crown className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-gray-900">Admin View Mode</h3>
-                      <p className="text-sm text-gray-600">Viewing all platform data and analytics</p>
-                    </div>
-                  </>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {viewMode === 'admin' && (
+                    <>
+                      <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center">
+                        <Crown className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900">Platform Admin View</h3>
+                        <p className="text-sm text-gray-600">Full access to all platform data and analytics</p>
+                      </div>
+                    </>
+                  )}
+                  {viewMode === 'pro_user' && (
+                    <>
+                      <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+                        <Crown className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900">Mealie Pro User</h3>
+                        <p className="text-sm text-gray-600">Unlimited clients • Unlimited AI • Pro Plans • Business Tools</p>
+                      </div>
+                    </>
+                  )}
+                  {viewMode === 'basic_user' && (
+                    <>
+                      <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                        <Users className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900">Mealie Basic User</h3>
+                        <p className="text-sm text-gray-600">Up to 25 clients • 50 AI generations • Basic features</p>
+                      </div>
+                    </>
+                  )}
+                  {viewMode === 'trial' && (
+                    <>
+                      <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900">Trial User (Free Trial)</h3>
+                        <p className="text-sm text-gray-600">7-day free trial • Basic plan features • 5 days remaining</p>
+                      </div>
+                    </>
+                  )}
+                  {viewMode === 'client' && (
+                    <>
+                      <div className="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center">
+                        <Heart className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900">Client View</h3>
+                        <p className="text-sm text-gray-600">Client portal with meal plans and progress tracking</p>
+                      </div>
+                    </>
+                  )}
+                </div>
+                {(viewMode === 'basic_user' || viewMode === 'trial') && (
+                  <div className="text-right">
+                    <Badge className="bg-orange-500 text-white text-xs mb-1">LIMITS ACTIVE</Badge>
+                    <p className="text-xs text-gray-600">Clients: {limitedClients.length}/25</p>
+                    <p className="text-xs text-gray-600">AI: 35/50 used</p>
+                  </div>
                 )}
               </div>
             </CardContent>
@@ -295,6 +393,22 @@ export default function DietitianDashboard() {
 
         {/* Notification Center */}
         <NotificationCenter user={user} />
+
+        {/* Limitations Warning for Basic/Trial */}
+        {isAdmin && (viewMode === 'basic_user' || viewMode === 'trial') && (
+          <Card className="border-2 border-orange-500 bg-orange-50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <Shield className="w-6 h-6 text-orange-600" />
+                <div className="flex-1">
+                  <h3 className="font-bold text-gray-900">Plan Limitations Preview</h3>
+                  <p className="text-sm text-gray-600">This view simulates {viewMode === 'trial' ? 'trial' : 'basic'} plan restrictions and feature access</p>
+                </div>
+                <Badge className="bg-orange-600 text-white">LIMITED ACCESS</Badge>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="dashboard-stats">
