@@ -138,6 +138,7 @@ import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import HealthReportAnalysis from './pages/HealthReportAnalysis';
 import MealPhotoAnalysis from './pages/MealPhotoAnalysis';
+import StudentTraining from './pages/StudentTraining';
 import __Layout from './Layout.jsx';
 
 
@@ -233,6 +234,7 @@ export const PAGES = {
     "WhiteLabelSubscription": WhiteLabelSubscription,
     "HealthReportAnalysis": HealthReportAnalysis,
     "MealPhotoAnalysis": MealPhotoAnalysis,
+    "StudentTraining": StudentTraining,
 }
 
 export const pagesConfig = {
