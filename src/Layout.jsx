@@ -302,6 +302,7 @@ const businessNavigation = [
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const [customBranding, setCustomBranding] = React.useState(null);
+  const [adminViewMode, setAdminViewMode] = React.useState('admin');
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['currentUser'],
@@ -411,15 +412,37 @@ export default function Layout({ children, currentPageName }) {
     initialData: 0,
   });
 
+  // Listen for view mode changes from DietitianDashboard
+  React.useEffect(() => {
+    // Load initial view mode from localStorage
+    const savedViewMode = localStorage.getItem('admin_view_mode') || 'admin';
+    setAdminViewMode(savedViewMode);
+
+    // Listen for changes
+    const handleViewModeChange = (event) => {
+      setAdminViewMode(event.detail);
+    };
+    window.addEventListener('viewModeChanged', handleViewModeChange);
+    
+    return () => {
+      window.removeEventListener('viewModeChanged', handleViewModeChange);
+    };
+  }, []);
+
   const userType = user?.user_type || 'client';
   const isDietitian = ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(userType);
   
+  // Determine effective user type based on admin view mode
+  const effectiveUserType = (userType === 'super_admin' && adminViewMode !== 'admin') 
+    ? 'student_coach' 
+    : userType;
+  
   const filteredDietitianNav = dietitianNavigation.filter(item =>
-    !item.roles || item.roles.includes(userType)
+    !item.roles || item.roles.includes(effectiveUserType)
   );
   
   const filteredPaymentNav = paymentNavigation.filter(item =>
-    !item.roles || item.roles.includes(userType)
+    !item.roles || item.roles.includes(effectiveUserType)
   );
   
   const { data: coachSubscription } = useQuery({
@@ -446,24 +469,53 @@ export default function Layout({ children, currentPageName }) {
 
   // Filter business navigation based on user role AND coach plan permissions
   const getFilteredBusinessNav = () => {
+    // Simulate plan permissions based on admin view mode
+    let simulatedPlan = null;
+    if (userType === 'super_admin' && adminViewMode !== 'admin') {
+      if (adminViewMode === 'pro_user') {
+        simulatedPlan = {
+          can_access_finance_manager: true,
+          can_access_marketing_hub: true,
+          can_access_business_gpts: true,
+          can_access_template_manager: true,
+          can_access_verticals: true,
+          can_use_bulk_import: true,
+          can_access_team_attendance: true,
+          can_manage_team: true,
+        };
+      } else if (adminViewMode === 'basic_user' || adminViewMode === 'trial') {
+        simulatedPlan = {
+          can_access_finance_manager: false,
+          can_access_marketing_hub: false,
+          can_access_business_gpts: false,
+          can_access_template_manager: false,
+          can_access_verticals: false,
+          can_use_bulk_import: false,
+          can_access_team_attendance: false,
+          can_manage_team: false,
+        };
+      }
+    }
+
     // First filter by role
     let filtered = businessNavigation.filter(item =>
-      !item.roles || item.roles.includes(userType)
+      !item.roles || item.roles.includes(effectiveUserType)
     );
 
-    // For student_coach, also filter by plan permissions
-    if (userType === 'student_coach' && coachPlan) {
+    // For student_coach OR simulated views, also filter by plan permissions
+    const activePlan = simulatedPlan || coachPlan;
+    if ((effectiveUserType === 'student_coach' || simulatedPlan) && activePlan) {
       filtered = filtered.filter(item => {
         // Map navigation items to plan permissions
         const permissionMap = {
-          'Finance Manager': coachPlan.can_access_finance_manager,
-          'Marketing Hub': coachPlan.can_access_marketing_hub,
-          'Business GPTs': coachPlan.can_access_business_gpts,
-          'Template Manager': coachPlan.can_access_template_manager,
-          'Verticals Dashboard': coachPlan.can_access_verticals,
-          'Bulk Import': coachPlan.can_use_bulk_import,
-          'Team Attendance': coachPlan.can_access_team_attendance,
-          'My Team': coachPlan.can_manage_team,
+          'Finance Manager': activePlan.can_access_finance_manager,
+          'Marketing Hub': activePlan.can_access_marketing_hub,
+          'Business GPTs': activePlan.can_access_business_gpts,
+          'Template Manager': activePlan.can_access_template_manager,
+          'Verticals Dashboard': activePlan.can_access_verticals,
+          'Bulk Import': activePlan.can_use_bulk_import,
+          'Team Attendance': activePlan.can_access_team_attendance,
+          'Team Management': activePlan.can_manage_team,
         };
 
         // If there's a permission mapping, check it; otherwise allow

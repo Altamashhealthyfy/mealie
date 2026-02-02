@@ -39,7 +39,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export default function DietitianDashboard() {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState('admin'); // admin, pro_user, basic_user, client, trial
+  const [viewMode, setViewMode] = useState(() => {
+    // Load viewMode from localStorage on mount
+    return localStorage.getItem('admin_view_mode') || 'admin';
+  });
+
+  // Save viewMode to localStorage whenever it changes
+  React.useEffect(() => {
+    localStorage.setItem('admin_view_mode', viewMode);
+    // Trigger a custom event to notify Layout component
+    window.dispatchEvent(new CustomEvent('viewModeChanged', { detail: viewMode }));
+  }, [viewMode]);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
