@@ -218,6 +218,26 @@ export default function HealthCoachesManagement() {
     },
   });
 
+  const bulkAssignMutation = useMutation({
+    mutationFn: () =>
+      base44.functions.invoke("bulkAssignCoachSubscriptions", {
+        coachEmails: selectedCoaches.map(id => coaches.find(c => c.id === id)?.email).filter(Boolean),
+        planId: bulkAssignData.plan_id,
+        startDate: bulkAssignData.start_date,
+        endDate: bulkAssignData.end_date,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["coachSubscriptions"] });
+      setShowBulkAssignDialog(false);
+      setSelectedCoaches([]);
+      setBulkAssignData({ plan_id: "", start_date: "", end_date: "" });
+      toast.success("✅ Plans assigned successfully!");
+    },
+    onError: (error) => {
+      toast.error(`❌ Error: ${error?.message || "Failed to assign plans"}`);
+    },
+  });
+
   const filteredAndSortedCoaches = useMemo(() => {
     let filtered = coaches.filter((coach) => {
       const matchesSearch =
