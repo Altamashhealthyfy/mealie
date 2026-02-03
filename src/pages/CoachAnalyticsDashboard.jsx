@@ -546,11 +546,52 @@ export default function CoachAnalyticsDashboard() {
           </Card>
         </div>
 
-        {/* Summary Cards */}
+        {/* Client Progress Overview */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5" />
+              Client Progress Overview
+            </CardTitle>
+            <CardDescription>Recent progress logs with coach feedback and wellness metrics</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {clientProgress.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {clientProgress.map((cp, idx) => (
+                    <div key={idx} className="p-4 border rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50">
+                      <p className="text-sm font-semibold text-gray-700 mb-2">Client {idx + 1}</p>
+                      <div className="space-y-2">
+                        {cp.avgRating > 0 && (
+                          <div>
+                            <p className="text-xs text-gray-600">Coach Rating</p>
+                            <p className="text-lg font-bold text-orange-600">{cp.avgRating} ⭐</p>
+                          </div>
+                        )}
+                        {cp.avgEnergy > 0 && (
+                          <div>
+                            <p className="text-xs text-gray-600">Energy Level</p>
+                            <p className="text-lg font-bold text-green-600">{cp.avgEnergy}/10</p>
+                          </div>
+                        )}
+                        <p className="text-xs text-gray-500">{cp.logs.length} log entries</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-600 text-center py-8">No progress logs available</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Summary KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Average Revenue per Transaction</CardTitle>
+              <CardTitle className="text-lg">Avg Revenue / Transaction</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-bold text-green-600">₹{metrics.avgRevenue.toLocaleString()}</p>
@@ -572,7 +613,7 @@ export default function CoachAnalyticsDashboard() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Average Program Rating</CardTitle>
+              <CardTitle className="text-lg">Avg Program Rating</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-bold text-orange-600">{metrics.avgRating} ⭐</p>
