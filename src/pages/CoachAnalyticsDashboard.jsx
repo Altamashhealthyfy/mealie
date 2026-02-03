@@ -84,52 +84,52 @@ export default function CoachAnalyticsDashboard() {
   });
 
   const { data: revenues } = useQuery({
-    queryKey: ["revenues", user?.email],
+    queryKey: ["revenues", coachEmail],
     queryFn: async () => {
       const revs = await base44.entities.CoachRevenue.filter({
-        coach_email: user?.email
+        coach_email: coachEmail
       });
       return revs;
     },
-    enabled: !!user?.email,
+    enabled: !!coachEmail,
     initialData: [],
   });
 
   const { data: enrollments } = useQuery({
-    queryKey: ["enrollments", user?.email],
+    queryKey: ["enrollments", coachEmail],
     queryFn: async () => {
       const enroll = await base44.entities.ProgramEnrollment.filter({
-        coach_email: user?.email
+        coach_email: coachEmail
       });
       return enroll;
     },
-    enabled: !!user?.email,
+    enabled: !!coachEmail,
     initialData: [],
   });
 
   const { data: programs } = useQuery({
-    queryKey: ["programs", user?.email],
+    queryKey: ["programs", coachEmail],
     queryFn: async () => {
       const progs = await base44.entities.CoachProgram.filter({
-        coach_email: user?.email
+        coach_email: coachEmail
       });
       return progs;
     },
-    enabled: !!user?.email,
+    enabled: !!coachEmail,
     initialData: [],
   });
 
   const { data: clients } = useQuery({
-    queryKey: ["clients", user?.email],
+    queryKey: ["clients", coachEmail],
     queryFn: async () => {
       const allClients = await base44.entities.Client.list();
       return allClients.filter(c =>
         Array.isArray(c.assigned_coach)
-          ? c.assigned_coach.includes(user?.email)
-          : c.assigned_coach === user?.email
+          ? c.assigned_coach.includes(coachEmail)
+          : c.assigned_coach === coachEmail
       );
     },
-    enabled: !!user?.email,
+    enabled: !!coachEmail,
     initialData: [],
   });
 
