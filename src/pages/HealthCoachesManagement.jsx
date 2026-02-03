@@ -200,6 +200,17 @@ export default function HealthCoachesManagement() {
 
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <Button
+              onClick={() => {
+                setEditingCoach(null);
+                setFormData({ full_name: "", email: "", phone: "" });
+                setShowAddDialog(true);
+              }}
+              className="bg-orange-600 hover:bg-orange-700 flex-1 sm:flex-none"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Coach
+            </Button>
+            <Button
               variant="outline"
               onClick={() => setShowBulkImport(true)}
               className="text-green-600 hover:bg-green-50 border-green-300 flex-1 sm:flex-none"
