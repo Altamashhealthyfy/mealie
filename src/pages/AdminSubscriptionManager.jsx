@@ -23,6 +23,7 @@ export default function AdminSubscriptionManager() {
   const [billingCycle, setBillingCycle] = useState("yearly");
   const [durationMonths, setDurationMonths] = useState("");
   const [startDate, setStartDate] = useState("");
+  const [extraMonths, setExtraMonths] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [selectedClientPlan, setSelectedClientPlan] = useState("");
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
@@ -69,13 +70,21 @@ export default function AdminSubscriptionManager() {
       const end = new Date(start);
       
       // Calculate end date based on duration
+      let totalMonths = 0;
       if (data.duration_months) {
-        end.setMonth(end.getMonth() + parseInt(data.duration_months));
+        totalMonths = parseInt(data.duration_months);
       } else if (data.billing_cycle === 'yearly') {
-        end.setFullYear(end.getFullYear() + 1);
+        totalMonths = 12;
       } else {
-        end.setMonth(end.getMonth() + 1);
+        totalMonths = 1;
       }
+      
+      // Add extra months if provided
+      if (data.extra_months) {
+        totalMonths += parseInt(data.extra_months);
+      }
+      
+      end.setMonth(end.getMonth() + totalMonths);
 
       return await base44.entities.HealthCoachSubscription.create({
         coach_email: data.coach_email,
@@ -104,6 +113,7 @@ export default function AdminSubscriptionManager() {
       setBillingCycle("yearly");
       setDurationMonths("");
       setStartDate("");
+      setExtraMonths("");
       alert('✅ Coach access granted successfully!');
     },
   });
@@ -193,7 +203,8 @@ export default function AdminSubscriptionManager() {
       plan_id: selectedCoachPlan,
       billing_cycle: billingCycle,
       duration_months: durationMonths,
-      start_date: startDate
+      start_date: startDate,
+      extra_months: extraMonths
     });
   };
 
@@ -437,7 +448,7 @@ export default function AdminSubscriptionManager() {
               </div>
 
               <div className="space-y-2">
-                <Label>Start Date</Label>
+                <Label>Start Billing Cycle</Label>
                 <Input
                   type="date"
                   value={startDate}
@@ -447,6 +458,49 @@ export default function AdminSubscriptionManager() {
                   Leave empty to start immediately
                 </p>
               </div>
+
+              <div className="space-y-2">
+                <Label>Extra Months (Bonus)</Label>
+                <Input
+                  type="number"
+                  value={extraMonths}
+                  onChange={(e) => setExtraMonths(e.target.value)}
+                  placeholder="Add bonus months"
+                  min="0"
+                />
+                <p className="text-xs text-gray-500">
+                  Add extra months as a bonus (e.g., 1 month free)
+                </p>
+              </div>
+
+              {(startDate || billingCycle || durationMonths || extraMonths) && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-sm font-semibold text-gray-900 mb-2">Billing Summary</p>
+                  <div className="space-y-1 text-xs text-gray-700">
+                    <p>
+                      <strong>Start Date:</strong> {startDate || new Date().toLocaleDateString()}
+                    </p>
+                    <p>
+                      <strong>End Date:</strong> {(() => {
+                        const start = startDate ? new Date(startDate) : new Date();
+                        const end = new Date(start);
+                        let totalMonths = durationMonths ? parseInt(durationMonths) : (billingCycle === 'yearly' ? 12 : 1);
+                        if (extraMonths) totalMonths += parseInt(extraMonths);
+                        end.setMonth(end.getMonth() + totalMonths);
+                        return end.toLocaleDateString();
+                      })()}
+                    </p>
+                    <p>
+                      <strong>Total Duration:</strong> {(() => {
+                        let totalMonths = durationMonths ? parseInt(durationMonths) : (billingCycle === 'yearly' ? 12 : 1);
+                        if (extraMonths) totalMonths += parseInt(extraMonths);
+                        return `${totalMonths} months`;
+                      })()}
+                      {extraMonths && ` (${extraMonths} bonus)`}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {selectedCoachPlan && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-3">
