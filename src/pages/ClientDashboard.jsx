@@ -8,11 +8,12 @@ import { Button } from "@/components/ui/button";
 import ClientTutorial from "@/components/common/ClientTutorial";
 import { Textarea } from "@/components/ui/textarea";
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { TrendingDown, TrendingUp, Calendar, CheckCircle, Target, Activity, Heart, Scale, Flame, Award, AlertCircle, Download, FileText, ChefHat, MessageSquare, Send, Eye } from "lucide-react";
+import { TrendingDown, TrendingUp, Calendar, CheckCircle, Target, Activity, Heart, Scale, Flame, Award, AlertCircle, Download, FileText, ChefHat, MessageSquare, Send, Eye, Star, Clock, CreditCard, ArrowRight } from "lucide-react";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { createPageUrl } from "@/utils";
+import { Link } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { jsPDF } from "jspdf";
 
@@ -66,6 +67,41 @@ export default function ClientDashboard() {
   const { data: goals } = useQuery({
     queryKey: ['goals', clientProfile?.id],
     queryFn: () => base44.entities.ProgressGoal.filter({ client_id: clientProfile?.id }),
+    enabled: !!clientProfile?.id,
+    initialData: [],
+  });
+
+  const { data: clientSubscription } = useQuery({
+    queryKey: ['clientSubscription', clientProfile?.id],
+    queryFn: async () => {
+      const subs = await base44.entities.ClientSubscription.filter({ 
+        client_id: clientProfile?.id,
+        status: 'active'
+      });
+      return subs[0] || null;
+    },
+    enabled: !!clientProfile?.id,
+  });
+
+  const { data: clientPlan } = useQuery({
+    queryKey: ['clientPlanDetails', clientSubscription?.plan_id],
+    queryFn: async () => {
+      if (!clientSubscription?.plan_id) return null;
+      const plans = await base44.entities.ClientPlanDefinition.filter({ id: clientSubscription.plan_id });
+      return plans[0] || null;
+    },
+    enabled: !!clientSubscription?.plan_id,
+  });
+
+  const { data: recentFeedback } = useQuery({
+    queryKey: ['recentFeedback', clientProfile?.id],
+    queryFn: async () => {
+      const logs = await base44.entities.ProgressLog.filter({ 
+        client_id: clientProfile?.id,
+        reviewed: true
+      });
+      return logs.sort((a, b) => new Date(b.coach_feedback?.reviewed_at) - new Date(a.coach_feedback?.reviewed_at)).slice(0, 3);
+    },
     enabled: !!clientProfile?.id,
     initialData: [],
   });
@@ -738,6 +774,139 @@ export default function ClientDashboard() {
           </Card>
         </div>
 
+        {/* Active Plan Subscription */}
+        {clientSubscription && clientPlan && (
+          <Card className="border-none shadow-lg mb-6 overflow-hidden">
+            {clientPlan.thumbnail_url && (
+              <div className="w-full h-48 overflow-hidden bg-gray-100">
+                <img 
+                  src={clientPlan.thumbnail_url} 
+                  alt={clientPlan.plan_name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            <CardHeader className={clientPlan.thumbnail_url ? "bg-white" : "bg-gradient-to-r from-blue-500 to-cyan-600 text-white"}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <CardTitle className={`flex items-center gap-2 text-2xl ${clientPlan.thumbnail_url ? 'text-gray-900' : ''}`}>
+                    <CreditCard className="w-6 h-6" />
+                    Your Active Plan
+                  </CardTitle>
+                  <CardDescription className={clientPlan.thumbnail_url ? "text-gray-700 mt-1" : "text-white/90 mt-1"}>
+                    {clientPlan.plan_name}
+                  </CardDescription>
+                </div>
+                <Badge className="bg-green-500 text-white">Active</Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4 p-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs text-gray-600 mb-1">Duration</p>
+                  <p className="text-xl font-bold text-gray-900">{clientPlan.duration_days} days</p>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs text-gray-600 mb-1">Plan Value</p>
+                  <p className="text-xl font-bold text-gray-900">₹{clientPlan.price}</p>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs text-gray-600 mb-1">Started</p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {format(new Date(clientSubscription.start_date), 'MMM dd, yyyy')}
+                  </p>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs text-gray-600 mb-1">Ends</p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {format(new Date(clientSubscription.end_date), 'MMM dd, yyyy')}
+                  </p>
+                </div>
+              </div>
+
+              {clientPlan.features?.length > 0 && (
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm font-semibold text-gray-900 mb-3">Plan Includes:</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {clientPlan.features.slice(0, 6).map((feature, idx) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                        <span className="text-sm text-gray-700">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Coach Feedback Section */}
+        {recentFeedback.length > 0 && (
+          <Card className="border-none shadow-lg mb-6 bg-gradient-to-br from-purple-50 to-pink-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-2xl">
+                <MessageSquare className="w-6 h-6 text-purple-600" />
+                Recent Coach Feedback
+              </CardTitle>
+              <CardDescription>What your coach says about your progress</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {recentFeedback.map((log, idx) => (
+                  <div key={log.id} className="p-4 bg-white rounded-lg border-2 border-purple-200">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-4 h-4 ${
+                                i < (log.coach_feedback?.rating || 0) ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-sm text-gray-600">
+                          {format(new Date(log.coach_feedback.reviewed_at), 'MMM dd, yyyy')}
+                        </span>
+                      </div>
+                      <Badge className="bg-purple-500">
+                        {log.coach_feedback.reviewed_by?.split('@')[0]}
+                      </Badge>
+                    </div>
+                    
+                    {log.coach_feedback?.feedback_text && (
+                      <p className="text-gray-700 mb-3 leading-relaxed">
+                        {log.coach_feedback.feedback_text}
+                      </p>
+                    )}
+                    
+                    {log.coach_feedback?.celebration_notes && (
+                      <div className="p-3 bg-green-50 border border-green-200 rounded-lg mb-3">
+                        <p className="text-sm font-semibold text-green-800 mb-1">🎉 Celebration:</p>
+                        <p className="text-sm text-green-700">{log.coach_feedback.celebration_notes}</p>
+                      </div>
+                    )}
+                    
+                    {log.coach_feedback?.suggestions?.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-sm font-semibold text-gray-900">💡 Suggestions:</p>
+                        {log.coach_feedback.suggestions.map((suggestion, i) => (
+                          <div key={i} className="flex items-start gap-2">
+                            <ArrowRight className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
+                            <span className="text-sm text-gray-700">{suggestion}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Current Meal Plan Summary */}
         {mealPlan ? (
           <Card id="meal-plan-section" className="border-none shadow-lg mb-6 bg-gradient-to-br from-green-50 to-emerald-50">
@@ -1105,69 +1274,72 @@ export default function ClientDashboard() {
           </DialogContent>
         </Dialog>
 
-        {/* Recent Activity Summary */}
-        <Card className="border-none shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-blue-500" />
-              Recent Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div id="messages-section" className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
-                    <Scale className="w-5 h-5 text-white" />
+        {/* Quick Navigation Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Link to={createPageUrl("ProgressTracking")}>
+            <Card className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer group bg-gradient-to-br from-orange-50 to-red-50">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Scale className="w-6 h-6 text-white" />
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Weight Logs</p>
-                    <p className="text-sm text-gray-600">{progressLogs.length} entries</p>
-                  </div>
+                  <ArrowRight className="w-5 h-5 text-orange-600 group-hover:translate-x-1 transition-transform" />
                 </div>
-                {latestProgress && (
-                  <Badge className="bg-orange-500">
-                    Latest: {format(new Date(latestProgress.date), 'MMM dd')}
-                  </Badge>
-                )}
-              </div>
+                <p className="font-bold text-gray-900 mb-1">Track Progress</p>
+                <p className="text-sm text-gray-600">{progressLogs.length} logs recorded</p>
+              </CardContent>
+            </Card>
+          </Link>
 
-              <div id="food-log-section" className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-                    <Flame className="w-5 h-5 text-white" />
+          <Link to={createPageUrl("FoodLog")}>
+            <Card className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer group bg-gradient-to-br from-blue-50 to-cyan-50">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Flame className="w-6 h-6 text-white" />
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Food Logs</p>
-                    <p className="text-sm text-gray-600">{foodLogs.length} meals logged</p>
-                  </div>
+                  <ArrowRight className="w-5 h-5 text-blue-600 group-hover:translate-x-1 transition-transform" />
                 </div>
-                {foodLogs.length > 0 && (
-                  <Badge className="bg-blue-500">
-                    Last 7 days: {last7Days} meals
-                  </Badge>
-                )}
-              </div>
+                <p className="font-bold text-gray-900 mb-1">Food Log</p>
+                <p className="text-sm text-gray-600">{last7Days} meals this week</p>
+              </CardContent>
+            </Card>
+          </Link>
 
-              <div id="resources-section" className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
-                    <Heart className="w-5 h-5 text-white" />
+          <Link to={createPageUrl("MPESSTracker")}>
+            <Card className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer group bg-gradient-to-br from-purple-50 to-pink-50">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Heart className="w-6 h-6 text-white" />
                   </div>
-                  <div>
-                    <p className="font-medium text-gray-900">MPESS Tracking</p>
-                    <p className="text-sm text-gray-600">{mpessLogs.length} days tracked</p>
-                  </div>
+                  <ArrowRight className="w-5 h-5 text-purple-600 group-hover:translate-x-1 transition-transform" />
                 </div>
-                {mpessLogs.length > 0 && (
-                  <Badge className="bg-purple-500">
-                    Latest: {format(new Date(mpessLogs[mpessLogs.length - 1]?.date), 'MMM dd')}
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+                <p className="font-bold text-gray-900 mb-1">MPESS Wellness</p>
+                <p className="text-sm text-gray-600">{mpessLogs.length} days tracked</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link to={createPageUrl("ClientCommunication")}>
+            <Card className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer group bg-gradient-to-br from-green-50 to-emerald-50">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <MessageSquare className="w-6 h-6 text-white" />
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-green-600 group-hover:translate-x-1 transition-transform" />
+                </div>
+                <p className="font-bold text-gray-900 mb-1">Messages</p>
+                <p className="text-sm text-gray-600">Chat with your coach</p>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+
+        {/* Current Meal Plan Summary */}
+        {mealPlan ? (
+          <Card id="meal-plan-section" className="border-none shadow-lg mb-6 bg-gradient-to-br from-green-50 to-emerald-50">
       </div>
     </div>
   );
