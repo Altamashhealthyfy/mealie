@@ -468,17 +468,6 @@ coach2@example.com,Dr. Jane Smith,Mealie Basic,monthly,3`;
               </div>
 
               <div className="space-y-2">
-                <Label>Duration (Months)</Label>
-                <Input
-                  type="number"
-                  value={manualCoach.duration_months}
-                  onChange={(e) => setManualCoach({...manualCoach, duration_months: e.target.value})}
-                  placeholder="Leave empty for default (12 for yearly, 1 for monthly)"
-                  min="1"
-                />
-              </div>
-
-              <div className="space-y-2">
                 <Label>Start Date</Label>
                 <Input
                   type="date"

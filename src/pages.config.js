@@ -60,6 +60,7 @@ import BusinessHub from './pages/BusinessHub';
 import BusinessPlan from './pages/BusinessPlan';
 import CallCenter from './pages/CallCenter';
 import CallCenterAdmin from './pages/CallCenterAdmin';
+import ClientAccessManager from './pages/ClientAccessManager';
 import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
 import ClientAppointments from './pages/ClientAppointments';
 import ClientAssessments from './pages/ClientAssessments';
@@ -93,6 +94,7 @@ import FeatureControl from './pages/FeatureControl';
 import FoodLog from './pages/FoodLog';
 import FoodLookup from './pages/FoodLookup';
 import GoogleCalendarSettings from './pages/GoogleCalendarSettings';
+import HealthCoachDashboard from './pages/HealthCoachDashboard';
 import HealthCoachPlans from './pages/HealthCoachPlans';
 import HealthReportAnalysis from './pages/HealthReportAnalysis';
 import Home from './pages/Home';
@@ -141,8 +143,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import HealthCoachDashboard from './pages/HealthCoachDashboard';
-import ClientAccessManager from './pages/ClientAccessManager';
 import __Layout from './Layout.jsx';
 
 
@@ -160,6 +160,7 @@ export const PAGES = {
     "BusinessPlan": BusinessPlan,
     "CallCenter": CallCenter,
     "CallCenterAdmin": CallCenterAdmin,
+    "ClientAccessManager": ClientAccessManager,
     "ClientAnalyticsDashboard": ClientAnalyticsDashboard,
     "ClientAppointments": ClientAppointments,
     "ClientAssessments": ClientAssessments,
@@ -193,6 +194,7 @@ export const PAGES = {
     "FoodLog": FoodLog,
     "FoodLookup": FoodLookup,
     "GoogleCalendarSettings": GoogleCalendarSettings,
+    "HealthCoachDashboard": HealthCoachDashboard,
     "HealthCoachPlans": HealthCoachPlans,
     "HealthReportAnalysis": HealthReportAnalysis,
     "Home": Home,
@@ -241,8 +243,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "HealthCoachDashboard": HealthCoachDashboard,
-    "ClientAccessManager": ClientAccessManager,
 }
 
 export const pagesConfig = {
