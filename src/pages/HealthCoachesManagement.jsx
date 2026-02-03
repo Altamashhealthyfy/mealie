@@ -665,7 +665,11 @@ export default function HealthCoachesManagement() {
               <div className="flex gap-3 pt-4">
                 <Button
                   variant="outline"
-                  onClick={() => setShowAddDialog(false)}
+                  onClick={() => {
+                    setShowAddDialog(false);
+                    setEditingCoach(null);
+                    setFormData({ full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" });
+                  }}
                   className="flex-1"
                 >
                   Cancel
