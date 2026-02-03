@@ -765,7 +765,7 @@ export default function HealthCoachesManagement() {
                   onClick={() => {
                     setShowAddDialog(false);
                     setEditingCoach(null);
-                    setFormData({ full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" });
+                    setFormData({ full_name: "", email: "", plan_id: "", start_date: "", end_date: "" });
                   }}
                   className="flex-1"
                 >
