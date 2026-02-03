@@ -140,7 +140,9 @@ export default function HealthCoachesManagement() {
       toast.success("✅ Coach(es) created successfully!");
     },
     onError: (error) => {
-      toast.error(`❌ Error: ${error?.message || "Failed to create coach"}`);
+      console.error("Coach creation error:", error);
+      const errorMsg = error?.response?.data?.error || error?.message || "Failed to create coach";
+      toast.error(`❌ ${errorMsg}`);
     },
   });
 
