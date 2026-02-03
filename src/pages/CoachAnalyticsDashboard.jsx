@@ -54,15 +54,32 @@ export default function CoachAnalyticsDashboard() {
     initialData: [],
   });
 
+  const coachEmail = user?.user_type === "super_admin" && selectedCoach ? selectedCoach : user?.email;
+
   const { data: appointments } = useQuery({
-    queryKey: ["appointments", user?.email],
+    queryKey: ["appointments", coachEmail],
     queryFn: async () => {
       const apps = await base44.entities.Appointment.filter({
-        coach_email: user?.email
+        coach_email: coachEmail
       });
       return apps;
     },
-    enabled: !!user?.email,
+    enabled: !!coachEmail,
+    initialData: [],
+  });
+
+  const { data: progressLogs } = useQuery({
+    queryKey: ["progressLogs", coachEmail],
+    queryFn: async () => {
+      const logs = await base44.entities.ProgressLog.list("-created_date", 1000);
+      // Filter by clients assigned to this coach
+      const coachClients = await base44.entities.Client.filter({
+        assigned_coach: coachEmail
+      });
+      const clientIds = coachClients.map(c => c.id);
+      return logs.filter(l => clientIds.includes(l.client_id));
+    },
+    enabled: !!coachEmail,
     initialData: [],
   });
 
