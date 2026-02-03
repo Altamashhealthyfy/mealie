@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Edit, Trash2, Check, X, Users, Lock, Copy } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import CouponInput from "@/components/payments/CouponInput";
+import { toast } from "sonner";
 
 export default function ClientPlanBuilder() {
   const queryClient = useQueryClient();
@@ -176,9 +177,10 @@ export default function ClientPlanBuilder() {
   };
 
   const copyPurchaseLink = (planId, planName) => {
-    const purchaseUrl = `https://mealiepro.com/#/public-plan-purchase?planId=${planId}`;
+    const baseUrl = window.location.origin;
+    const purchaseUrl = `${baseUrl}/#/public-plan-purchase?planId=${planId}`;
     navigator.clipboard.writeText(purchaseUrl);
-    alert('✅ Public purchase link copied! Anyone can view and purchase this plan.');
+    toast.success('✅ Public purchase link copied! Share this link with anyone to view and purchase this plan.');
   };
 
   const canCreatePlans = user?.user_type === 'super_admin' || 
