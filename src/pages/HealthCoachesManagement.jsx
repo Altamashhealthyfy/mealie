@@ -785,8 +785,13 @@ export default function HealthCoachesManagement() {
                       return;
                     }
 
-                    if (formData.plan_id && (!formData.start_date || !formData.end_date)) {
-                      toast.error("Please fill in start and expiry dates when selecting a plan");
+                    if (formData.plan_id && !formData.start_date) {
+                      toast.error("Please fill in start date when selecting a plan");
+                      return;
+                    }
+
+                    if (formData.plan_id && !formData.end_date) {
+                      toast.error("Please fill in expiry date when selecting a plan");
                       return;
                     }
 
