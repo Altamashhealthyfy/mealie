@@ -36,10 +36,22 @@ const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
 export default function CoachAnalyticsDashboard() {
   const [dateRange, setDateRange] = useState("6months");
+  const [selectedCoach, setSelectedCoach] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
     queryFn: () => base44.auth.me(),
+  });
+
+  // For admin: fetch all coaches
+  const { data: allCoaches } = useQuery({
+    queryKey: ["allCoaches"],
+    queryFn: async () => {
+      const allUsers = await base44.entities.User.list();
+      return allUsers.filter((u) => u.user_type === "student_coach");
+    },
+    enabled: !!user && user?.user_type === "super_admin",
+    initialData: [],
   });
 
   const { data: appointments } = useQuery({
