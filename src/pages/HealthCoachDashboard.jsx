@@ -1,411 +1,354 @@
-import React from "react";
+import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  Crown,
-  Users,
-  Calendar,
-  Sparkles,
-  TrendingUp,
-  DollarSign,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
+import { 
+  Users, 
+  TrendingUp, 
+  Calendar, 
+  DollarSign, 
+  CheckCircle2, 
+  Clock, 
+  Award,
   Loader2,
-  CreditCard,
-  Package,
-  ArrowRight
+  ArrowUpRight,
+  ArrowDownRight
 } from "lucide-react";
-import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import { LineChart, Line, PieChart, Pie, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
 
 export default function HealthCoachDashboard() {
+  const [selectedPeriod, setSelectedPeriod] = useState("month");
+
   const { data: user, isLoading: userLoading } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
+    queryKey: ["currentUser"],
+    queryFn: async () => await base44.auth.me(),
   });
 
-  const { data: subscription, isLoading: subLoading } = useQuery({
-    queryKey: ['coachSubscription', user?.email],
+  const { data: clients, isLoading: clientsLoading } = useQuery({
+    queryKey: ["coachClients", user?.email],
     queryFn: async () => {
-      const subs = await base44.entities.HealthCoachSubscription.filter({
-        coach_email: user?.email,
-        status: 'active'
-      });
-      return subs[0] || null;
-    },
-    enabled: !!user,
-  });
-
-  const { data: plan, isLoading: planLoading } = useQuery({
-    queryKey: ['coachPlan', subscription?.plan_id],
-    queryFn: async () => {
-      const plans = await base44.entities.HealthCoachPlan.filter({ id: subscription?.plan_id });
-      return plans[0] || null;
-    },
-    enabled: !!subscription?.plan_id,
-  });
-
-  const { data: clients = [] } = useQuery({
-    queryKey: ['coachClients', user?.email],
-    queryFn: async () => {
-      return await base44.entities.Client.filter({
+      const result = await base44.entities.Client.filter({
         assigned_coach: user?.email,
-        status: 'active'
+        status: "active"
       });
+      return result || [];
     },
-    enabled: !!user,
-    initialData: [],
+    enabled: !!user?.email,
   });
 
-  const { data: creditTransactions = [] } = useQuery({
-    queryKey: ['creditTransactions', user?.email],
+  const { data: appointments, isLoading: appointmentsLoading } = useQuery({
+    queryKey: ["coachAppointments", user?.email],
     queryFn: async () => {
-      const transactions = await base44.entities.AICreditsTransaction.filter({
+      const result = await base44.entities.Appointment.filter({
+        coach_email: user?.email,
+        status: "scheduled"
+      });
+      return result || [];
+    },
+    enabled: !!user?.email,
+  });
+
+  const { data: progressLogs } = useQuery({
+    queryKey: ["coachProgressLogs", user?.email],
+    queryFn: async () => {
+      if (!clients?.length) return [];
+      const logs = await Promise.all(
+        clients.map(client =>
+          base44.entities.ProgressLog.filter({ client_id: client.id })
+        )
+      );
+      return logs.flat();
+    },
+    enabled: !!clients?.length,
+  });
+
+  const { data: revenue } = useQuery({
+    queryKey: ["coachRevenue", user?.email],
+    queryFn: async () => {
+      const result = await base44.entities.CoachRevenue.filter({
+        coach_email: user?.email,
+        payment_status: "completed"
+      });
+      return result || [];
+    },
+    enabled: !!user?.email,
+  });
+
+  const { data: enrollments } = useQuery({
+    queryKey: ["coachEnrollments", user?.email],
+    queryFn: async () => {
+      const result = await base44.entities.ProgramEnrollment.filter({
         coach_email: user?.email
       });
-      return transactions.sort((a, b) => new Date(b.created_date) - new Date(a.created_date)).slice(0, 5);
+      return result || [];
     },
-    enabled: !!user,
-    initialData: [],
+    enabled: !!user?.email,
   });
 
-  if (userLoading || subLoading || planLoading) {
+  if (userLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 mx-auto text-orange-500 mb-4 animate-spin" />
-          <p className="text-gray-600">Loading dashboard...</p>
-        </div>
+        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
       </div>
     );
   }
 
-  if (user?.user_type !== 'student_coach') {
-    return (
-      <div className="p-6">
-        <Alert className="border-red-200 bg-red-50">
-          <AlertCircle className="w-4 h-4 text-red-600" />
-          <AlertDescription className="text-red-900">
-            This dashboard is only available for health coaches.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+  // Calculate metrics
+  const activeClientsCount = clients?.length || 0;
+  const upcomingAppointmentsCount = appointments?.filter(a => new Date(a.appointment_date) > new Date()).length || 0;
+  const completedSessionsCount = appointments?.filter(a => a.status === "completed").length || 0;
+  const sessionCompletionRate = appointments?.length 
+    ? Math.round((completedSessionsCount / appointments.length) * 100) 
+    : 0;
 
-  if (!subscription) {
-    return (
-      <div className="p-6 max-w-4xl mx-auto">
-        <Alert className="border-orange-200 bg-orange-50">
-          <AlertCircle className="w-4 h-4 text-orange-600" />
-          <AlertDescription className="text-orange-900">
-            You don't have an active subscription. Please subscribe to a plan to access the platform.
-          </AlertDescription>
-        </Alert>
-        <div className="mt-6 flex justify-center">
-          <Link to={createPageUrl("CoachSubscriptions")}>
-            <Button className="bg-gradient-to-r from-orange-500 to-red-500">
-              View Available Plans
-            </Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  const totalRevenue = revenue?.reduce((sum, r) => sum + (r.amount || 0), 0) || 0;
+  const averageRevenuePerClient = activeClientsCount > 0 ? Math.round(totalRevenue / activeClientsCount) : 0;
 
-  const daysUntilBilling = subscription.next_billing_date
-    ? Math.ceil((new Date(subscription.next_billing_date) - new Date()) / (1000 * 60 * 60 * 24))
-    : null;
+  const clientsWithProgress = clients?.filter(c => 
+    progressLogs?.some(log => log.client_id === c.id)
+  ).length || 0;
 
-  const availableCredits = (() => {
-    const monthlyIncluded = plan?.ai_credits_included || 0;
-    const purchased = subscription?.ai_credits_purchased || 0;
-    const used = subscription?.ai_credits_used_this_month || 0;
-    
-    if (monthlyIncluded === -1) return { available: "Unlimited", total: "Unlimited", percentage: 100 };
-    
-    const total = monthlyIncluded + purchased;
-    const available = total - used;
-    const percentage = total > 0 ? ((available / total) * 100) : 0;
-    
-    return { available, total, percentage, used };
-  })();
+  const upcomingAppointments = appointments
+    ?.filter(a => new Date(a.appointment_date) > new Date())
+    .sort((a, b) => new Date(a.appointment_date) - new Date(b.appointment_date))
+    .slice(0, 5) || [];
 
-  const planFeatures = [
-    { key: 'max_clients', label: 'Max Clients', value: plan?.max_clients === -1 ? 'Unlimited' : plan?.max_clients },
-    { key: 'can_access_pro_plans', label: 'Pro Plans Access', enabled: plan?.can_access_pro_plans },
-    { key: 'can_create_client_plans', label: 'Create Client Plans', enabled: plan?.can_create_client_plans },
-    { key: 'can_add_payment_gateway', label: 'Payment Gateway', enabled: plan?.can_add_payment_gateway },
-    { key: 'can_custom_domain', label: 'Custom Domain', enabled: plan?.can_custom_domain },
-    { key: 'can_manage_team', label: 'Team Management', enabled: plan?.can_manage_team },
-    { key: 'can_access_finance_manager', label: 'Finance Manager', enabled: plan?.can_access_finance_manager },
-    { key: 'can_access_marketing_hub', label: 'Marketing Hub', enabled: plan?.can_access_marketing_hub },
-    { key: 'can_access_business_gpts', label: 'Business GPTs', enabled: plan?.can_access_business_gpts },
-  ];
+  // Revenue trend data
+  const revenueTrendData = revenue?.reduce((acc, r) => {
+    const month = new Date(r.transaction_date).toLocaleDateString('en-US', { month: 'short' });
+    const existing = acc.find(item => item.month === month);
+    if (existing) {
+      existing.amount += r.amount;
+    } else {
+      acc.push({ month, amount: r.amount });
+    }
+    return acc;
+  }, []).slice(-6) || [];
+
+  // Client progress overview
+  const clientProgressData = clients?.slice(0, 5).map(client => {
+    const clientLogs = progressLogs?.filter(log => log.client_id === client.id) || [];
+    const avgProgress = clientLogs.length > 0
+      ? Math.round(clientLogs.reduce((sum, log) => sum + (log.coach_feedback?.rating || 0), 0) / clientLogs.length * 20)
+      : 0;
+    return {
+      name: client.full_name,
+      progress: avgProgress,
+      logsCount: clientLogs.length
+    };
+  }) || [];
+
+  const COLORS = ['#f97316', '#dc2626', '#16a34a', '#0284c7', '#9333ea'];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Health Coach Dashboard</h1>
-            <p className="text-gray-600 mt-1">Welcome back, {user?.full_name}</p>
+            <h1 className="text-4xl font-bold text-gray-900">Performance Dashboard</h1>
+            <p className="text-gray-600 mt-2">Welcome back, {user?.full_name}! Here's your coaching overview.</p>
           </div>
-          <Link to={createPageUrl("CoachSubscriptions")}>
-            <Button variant="outline">
-              <Crown className="w-4 h-4 mr-2" />
-              Manage Subscription
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setSelectedPeriod("week")} className={selectedPeriod === "week" ? "bg-orange-100" : ""}>
+              Week
             </Button>
-          </Link>
+            <Button variant="outline" onClick={() => setSelectedPeriod("month")} className={selectedPeriod === "month" ? "bg-orange-100" : ""}>
+              Month
+            </Button>
+            <Button variant="outline" onClick={() => setSelectedPeriod("year")} className={selectedPeriod === "year" ? "bg-orange-100" : ""}>
+              Year
+            </Button>
+          </div>
         </div>
 
-        {/* Quick Stats */}
+        {/* Key Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-white/80 backdrop-blur-sm border-orange-100">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                Active Clients
-              </CardTitle>
+          {/* Active Clients */}
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active Clients</CardTitle>
+              <Users className="h-4 w-4 text-orange-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900">{clients.length}</div>
-              <p className="text-xs text-gray-500 mt-1">
-                {plan?.max_clients === -1 ? 'Unlimited' : `of ${plan?.max_clients} max`}
-              </p>
+              <div className="text-2xl font-bold">{activeClientsCount}</div>
+              <p className="text-xs text-gray-500">{clientsWithProgress} with progress logs</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-purple-100">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                AI Credits
-              </CardTitle>
+          {/* Session Completion Rate */}
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Completion Rate</CardTitle>
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900">
-                {typeof availableCredits.available === 'number' 
-                  ? availableCredits.available.toLocaleString()
-                  : availableCredits.available}
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                {typeof availableCredits.total === 'number'
-                  ? `of ${availableCredits.total} total`
-                  : 'available'}
-              </p>
+              <div className="text-2xl font-bold">{sessionCompletionRate}%</div>
+              <p className="text-xs text-gray-500">{completedSessionsCount} of {appointments?.length || 0} sessions</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-green-100">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                Next Billing
-              </CardTitle>
+          {/* Total Revenue */}
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+              <DollarSign className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900">
-                {daysUntilBilling !== null ? daysUntilBilling : '--'}
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                {daysUntilBilling !== null ? 'days remaining' : 'N/A'}
-              </p>
+              <div className="text-2xl font-bold">₹{totalRevenue.toLocaleString()}</div>
+              <p className="text-xs text-gray-500">₹{averageRevenuePerClient.toLocaleString()} per client</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-blue-100">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <DollarSign className="w-4 h-4" />
-                Plan Cost
-              </CardTitle>
+          {/* Upcoming Appointments */}
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Upcoming</CardTitle>
+              <Calendar className="h-4 w-4 text-blue-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-gray-900">
-                ₹{(subscription.billing_cycle === 'yearly' ? plan?.yearly_price : plan?.monthly_price)?.toLocaleString()}
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                per {subscription.billing_cycle === 'yearly' ? 'year' : 'month'}
-              </p>
+              <div className="text-2xl font-bold">{upcomingAppointmentsCount}</div>
+              <p className="text-xs text-gray-500">Appointments scheduled</p>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Current Plan Details */}
-          <div className="lg:col-span-2 space-y-6">
-            <Card className="bg-white/80 backdrop-blur-sm">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Crown className="w-5 h-5 text-orange-500" />
-                      {plan?.plan_name}
-                    </CardTitle>
-                    <CardDescription className="mt-1">{plan?.plan_description}</CardDescription>
-                  </div>
-                  <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                    {subscription.status}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-gray-600">Billing Cycle</p>
-                    <p className="font-semibold capitalize">{subscription.billing_cycle}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Start Date</p>
-                    <p className="font-semibold">{new Date(subscription.start_date).toLocaleDateString()}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">End Date</p>
-                    <p className="font-semibold">{new Date(subscription.end_date).toLocaleDateString()}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Auto Renew</p>
-                    <p className="font-semibold">{subscription.auto_renew ? 'Yes' : 'No'}</p>
-                  </div>
-                </div>
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Revenue Trend */}
+          <Card className="border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle>Revenue Trend</CardTitle>
+              <CardDescription>Monthly revenue performance</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {revenueTrendData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={revenueTrendData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip formatter={(value) => `₹${value}`} />
+                    <Line type="monotone" dataKey="amount" stroke="#f97316" strokeWidth={2} dot={{ fill: '#f97316' }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-[300px] text-gray-500">No revenue data available</div>
+              )}
+            </CardContent>
+          </Card>
 
-                {typeof availableCredits.percentage === 'number' && (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">AI Credits Usage</span>
-                      <span className="font-semibold">
-                        {availableCredits.used} / {availableCredits.total} used
-                      </span>
-                    </div>
-                    <Progress value={100 - availableCredits.percentage} className="h-2" />
-                  </div>
-                )}
+          {/* Client Progress Overview */}
+          <Card className="border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle>Client Progress</CardTitle>
+              <CardDescription>Top clients and their ratings</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {clientProgressData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={clientProgressData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="progress" fill="#16a34a" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-[300px] text-gray-500">No progress data available</div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
-                <div className="flex gap-2 pt-2">
-                  <Link to={createPageUrl("PurchaseAICredits")} className="flex-1">
-                    <Button variant="outline" className="w-full">
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Buy AI Credits
-                    </Button>
-                  </Link>
-                  <Link to={createPageUrl("CoachSubscriptions")} className="flex-1">
-                    <Button className="w-full bg-gradient-to-r from-orange-500 to-red-500">
-                      <TrendingUp className="w-4 h-4 mr-2" />
-                      Upgrade Plan
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Plan Features */}
-            <Card className="bg-white/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="w-5 h-5 text-orange-500" />
-                  Plan Features
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {planFeatures.map((feature) => (
-                    <div key={feature.key} className="flex items-center gap-2 text-sm">
-                      {feature.enabled !== undefined ? (
-                        feature.enabled ? (
-                          <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
-                        ) : (
-                          <XCircle className="w-4 h-4 text-gray-300 flex-shrink-0" />
-                        )
-                      ) : (
-                        <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
-                      )}
-                      <span className={feature.enabled === false ? 'text-gray-400' : 'text-gray-700'}>
-                        {feature.label}{feature.value && `: ${feature.value}`}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Sidebar */}
-          <div className="space-y-6">
-            {/* Recent Credit Transactions */}
-            <Card className="bg-white/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-orange-500" />
-                  Recent Transactions
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {creditTransactions.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center py-4">No transactions yet</p>
-                ) : (
-                  <div className="space-y-3">
-                    {creditTransactions.map((transaction) => (
-                      <div key={transaction.id} className="flex items-center justify-between text-sm border-b border-gray-100 pb-2 last:border-0">
-                        <div>
-                          <p className="font-medium text-gray-900">{transaction.transaction_type}</p>
-                          <p className="text-xs text-gray-500">
-                            {new Date(transaction.created_date).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <span className={`font-semibold ${
-                          transaction.credits_amount > 0 ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                          {transaction.credits_amount > 0 ? '+' : ''}{transaction.credits_amount}
-                        </span>
+        {/* Upcoming Appointments */}
+        <Card className="border-0 shadow-lg">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Upcoming Appointments</CardTitle>
+                <CardDescription>Your next scheduled sessions</CardDescription>
+              </div>
+              <Calendar className="h-5 w-5 text-orange-500" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            {upcomingAppointments.length > 0 ? (
+              <div className="space-y-4">
+                {upcomingAppointments.map((apt) => (
+                  <div key={apt.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-900">{apt.client_name}</h4>
+                      <p className="text-sm text-gray-600">{apt.title || "Session"}</p>
+                      <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
+                        <Clock className="w-4 h-4" />
+                        {new Date(apt.appointment_date).toLocaleString()}
                       </div>
-                    ))}
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <Badge className="bg-orange-100 text-orange-800">
+                        {apt.appointment_type}
+                      </Badge>
+                      <Button variant="outline" size="sm">
+                        View Details
+                      </Button>
+                    </div>
                   </div>
-                )}
-                <Link to={createPageUrl("PurchaseAICredits")}>
-                  <Button variant="link" className="w-full mt-3 text-orange-600">
-                    View All Transactions
-                    <ArrowRight className="w-4 h-4 ml-1" />
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <Calendar className="w-12 h-12 mx-auto mb-4 opacity-40" />
+                <p>No upcoming appointments</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-            {/* Quick Actions */}
-            <Card className="bg-white/80 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-lg">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Link to={createPageUrl("ClientManagement")}>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Users className="w-4 h-4 mr-2" />
-                    Manage Clients
-                  </Button>
-                </Link>
-                <Link to={createPageUrl("CoachPaymentSetup")}>
-                  <Button variant="outline" className="w-full justify-start">
-                    <DollarSign className="w-4 h-4 mr-2" />
-                    Payment Setup
-                  </Button>
-                </Link>
-                <Link to={createPageUrl("ClientPlanBuilder")}>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Package className="w-4 h-4 mr-2" />
-                    Create Client Plans
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+        {/* Client Engagement Summary */}
+        <Card className="border-0 shadow-lg">
+          <CardHeader>
+            <CardTitle>Client Engagement Summary</CardTitle>
+            <CardDescription>Overview of your active clients</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {clients && clients.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-blue-900">Active Clients</span>
+                    <Users className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <p className="text-2xl font-bold text-blue-900">{activeClientsCount}</p>
+                </div>
+
+                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-green-900">With Progress Logs</span>
+                    <TrendingUp className="w-4 h-4 text-green-600" />
+                  </div>
+                  <p className="text-2xl font-bold text-green-900">{clientsWithProgress}</p>
+                </div>
+
+                <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-purple-900">Program Enrollments</span>
+                    <Award className="w-4 h-4 text-purple-600" />
+                  </div>
+                  <p className="text-2xl font-bold text-purple-900">{enrollments?.length || 0}</p>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <Users className="w-12 h-12 mx-auto mb-4 opacity-40" />
+                <p>No active clients yet</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
