@@ -173,7 +173,7 @@ export default function AdminSubscriptionManager() {
     mutationFn: (id) => base44.entities.HealthCoachSubscription.update(id, { status: 'cancelled' }),
     onSuccess: () => {
       queryClient.invalidateQueries(['allCoachSubscriptions']);
-      alert('✅ Access revoked successfully!');
+      toast.success('Access revoked successfully!');
     },
   });
 
@@ -181,7 +181,7 @@ export default function AdminSubscriptionManager() {
     mutationFn: (id) => base44.entities.ClientPlanPurchase.update(id, { status: 'cancelled' }),
     onSuccess: () => {
       queryClient.invalidateQueries(['allClientPurchases']);
-      alert('✅ Access revoked successfully!');
+      toast.success('Access revoked successfully!');
     },
   });
 
