@@ -163,7 +163,7 @@ Bob Nutritionist,bob@example.com,9876543212`;
   };
 
   const addManualRow = () => {
-    setManualRows([...manualRows, { full_name: "", email: "", phone: "" }]);
+    setManualRows([...manualRows, { full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" }]);
   };
 
   const removeManualRow = (index) => {
