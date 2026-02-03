@@ -43,7 +43,25 @@ export default function UserPermissionManagement() {
 
   const { data: allUsers, refetch: refetchUsers } = useQuery({
     queryKey: ['allUsers'],
-    queryFn: async () => base44.entities.User.list("-created_date", 10000),
+    queryFn: async () => {
+      const users = await base44.entities.User.list("-created_date", 10000);
+      
+      // Also include coaches from subscriptions without User accounts
+      const allSubs = await base44.entities.HealthCoachSubscription.list("", 10000);
+      const userEmails = new Set(users.map(u => u.email));
+      const subscriptionOnlyCoaches = allSubs
+        .filter(s => !userEmails.has(s.coach_email))
+        .map(s => ({
+          id: `sub_${s.id}`,
+          email: s.coach_email,
+          full_name: s.coach_name || s.coach_email,
+          user_type: "student_coach",
+          created_date: s.created_date,
+          is_subscription_only: true
+        }));
+      
+      return [...users, ...subscriptionOnlyCoaches];
+    },
     enabled: !!currentUser && currentUser.user_type === 'super_admin',
     initialData: [],
   });
