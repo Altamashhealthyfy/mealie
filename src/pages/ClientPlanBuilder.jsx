@@ -199,8 +199,7 @@ export default function ClientPlanBuilder() {
 
   const copyPurchaseLink = async (planId, planName) => {
     try {
-      const baseUrl = window.location.origin;
-      const purchaseUrl = `${baseUrl}/#/public-plan-purchase?planId=${planId}`;
+      const purchaseUrl = `https://mealiepro.com/#/public-plan-purchase?planId=${planId}`;
       
       // Try modern clipboard API first
       if (navigator.clipboard && navigator.clipboard.writeText) {
