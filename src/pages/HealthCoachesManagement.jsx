@@ -537,6 +537,102 @@ export default function HealthCoachesManagement() {
           </DialogContent>
         </Dialog>
 
+        {/* Add/Edit Coach Dialog */}
+        <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">
+                {editingCoach ? "Edit Coach" : "Add New Coach"}
+              </DialogTitle>
+              <DialogDescription>
+                {editingCoach
+                  ? "Update coach information"
+                  : "Create a new health coach account"}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 mt-4">
+              <div>
+                <Label className="text-sm font-medium">Full Name</Label>
+                <Input
+                  placeholder="e.g., John Coach"
+                  value={formData.full_name}
+                  onChange={(e) =>
+                    setFormData({ ...formData, full_name: e.target.value })
+                  }
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium">Email</Label>
+                <Input
+                  type="email"
+                  placeholder="e.g., john@example.com"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium">Phone (Optional)</Label>
+                <Input
+                  type="tel"
+                  placeholder="e.g., 9876543210"
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
+                  className="mt-1"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAddDialog(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={async () => {
+                    if (
+                      !formData.full_name.trim() ||
+                      !formData.email.trim()
+                    ) {
+                      toast.error(
+                        "Please fill in name and email"
+                      );
+                      return;
+                    }
+
+                    try {
+                      await createCoachesMutation.mutateAsync([formData]);
+                    } catch (error) {
+                      console.error("Error:", error);
+                    }
+                  }}
+                  disabled={createCoachesMutation.isPending}
+                  className="flex-1 bg-orange-600 hover:bg-orange-700"
+                >
+                  {createCoachesMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    "Add Coach"
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* Bulk Import Dialog */}
         <BulkCoachImport open={showBulkImport} onOpenChange={setShowBulkImport} />
       </div>
