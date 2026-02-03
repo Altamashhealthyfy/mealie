@@ -125,13 +125,30 @@ Bob Nutritionist,bob@example.com,9876543212`;
     reader.readAsText(file);
   };
 
-  const handleCSVImport = async () => {
+  const handleCSVPreview = () => {
     const coaches = parseCSV(csvContent);
     if (!coaches || coaches.length === 0) return;
 
+    setParsedCsvCoaches(coaches);
+    setCsvStep("select-plan");
+  };
+
+  const handleCSVImport = async () => {
+    if (!selectedPlanId) {
+      toast.error("Please select a plan");
+      return;
+    }
+
+    const coachesWithPlan = parsedCsvCoaches.map(coach => ({
+      ...coach,
+      plan_id: selectedPlanId,
+      start_date: csvStartDate,
+      end_date: csvEndDate
+    }));
+
     setIsProcessing(true);
     try {
-      await createCoachesMutation.mutateAsync(coaches);
+      await createCoachesMutation.mutateAsync(coachesWithPlan);
     } finally {
       setIsProcessing(false);
     }
