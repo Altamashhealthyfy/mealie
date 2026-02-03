@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Home,
   Calendar,
@@ -24,13 +25,15 @@ import {
   Loader2,
   Save,
   Eye,
-  EyeOff
+  EyeOff,
+  Users
 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ClientAccessManager() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedClient, setSelectedClient] = useState(null);
+  const [bulkSettings, setBulkSettings] = useState({});
   const queryClient = useQueryClient();
 
   const { data: user, isLoading: userLoading } = useQuery({
@@ -82,6 +85,35 @@ export default function ClientAccessManager() {
     },
   });
 
+  const bulkUpdateMutation = useMutation({
+    mutationFn: async (settingsData) => {
+      const promises = filteredClients.map(async (client) => {
+        const existingControls = await base44.entities.ClientAccessControl.filter({
+          client_id: client.id
+        });
+        
+        const data = {
+          client_id: client.id,
+          client_email: client.email,
+          coach_email: user.email,
+          ...settingsData
+        };
+
+        if (existingControls[0]) {
+          return base44.entities.ClientAccessControl.update(existingControls[0].id, data);
+        } else {
+          return base44.entities.ClientAccessControl.create(data);
+        }
+      });
+
+      return Promise.all(promises);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['clientAccessControl']);
+      toast.success(`Access settings applied to ${filteredClients.length} clients!`);
+    },
+  });
+
   const sections = [
     { key: 'show_my_dashboard', label: 'My Dashboard', icon: Home },
     { key: 'show_my_plans', label: 'My Plans', icon: CreditCard },
@@ -122,6 +154,14 @@ export default function ClientAccessManager() {
     }
   }, [accessControl, selectedClient]);
 
+  React.useEffect(() => {
+    const initial = {};
+    sections.forEach(section => {
+      initial[section.key] = true;
+    });
+    setBulkSettings(initial);
+  }, []);
+
   const handleSave = () => {
     if (!selectedClient) {
       toast.error("Please select a client");
@@ -139,6 +179,17 @@ export default function ClientAccessManager() {
       updateAccessControlMutation.mutate({ id: accessControl.id, data });
     } else {
       createAccessControlMutation.mutate(data);
+    }
+  };
+
+  const handleBulkSave = () => {
+    if (filteredClients.length === 0) {
+      toast.error("No clients to update");
+      return;
+    }
+
+    if (window.confirm(`Apply these settings to all ${filteredClients.length} clients?`)) {
+      bulkUpdateMutation.mutate(bulkSettings);
     }
   };
 
@@ -178,9 +229,16 @@ export default function ClientAccessManager() {
           <p className="text-gray-600 mt-1">Control which menu sections are visible to each client</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Client List */}
-          <Card className="lg:col-span-1 bg-white/80 backdrop-blur-sm">
+        <Tabs defaultValue="individual" className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="individual">Individual Client</TabsTrigger>
+            <TabsTrigger value="bulk">All Clients</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="individual">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+              {/* Client List */}
+              <Card className="lg:col-span-1 bg-white/80 backdrop-blur-sm">
             <CardHeader>
               <CardTitle>Select Client</CardTitle>
               <CardDescription>Choose a client to manage their access</CardDescription>
@@ -219,8 +277,8 @@ export default function ClientAccessManager() {
             </CardContent>
           </Card>
 
-          {/* Access Settings */}
-          <Card className="lg:col-span-2 bg-white/80 backdrop-blur-sm">
+              {/* Access Settings */}
+              <Card className="lg:col-span-2 bg-white/80 backdrop-blur-sm">
             <CardHeader>
               <CardTitle>Menu Access Settings</CardTitle>
               <CardDescription>
@@ -307,8 +365,91 @@ export default function ClientAccessManager() {
                 </div>
               )}
             </CardContent>
-          </Card>
-        </div>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="bulk">
+            <Card className="mt-6 bg-white/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Apply Settings to All Clients
+                </CardTitle>
+                <CardDescription>
+                  Configure menu access for all {filteredClients.length} clients at once
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <Alert className="bg-amber-50 border-amber-200">
+                    <AlertCircle className="w-4 h-4 text-amber-600" />
+                    <AlertDescription className="text-amber-900 text-sm">
+                      These settings will be applied to all {filteredClients.length} clients. Existing settings will be overwritten.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {sections.map((section) => {
+                      const Icon = section.icon;
+                      return (
+                        <div
+                          key={section.key}
+                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                            bulkSettings[section.key]
+                              ? 'border-green-200 bg-green-50'
+                              : 'border-gray-200 bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Icon className={`w-5 h-5 ${
+                              bulkSettings[section.key] ? 'text-green-600' : 'text-gray-400'
+                            }`} />
+                            <Label
+                              htmlFor={`bulk-${section.key}`}
+                              className={`cursor-pointer ${
+                                bulkSettings[section.key] ? 'text-gray-900' : 'text-gray-500'
+                              }`}
+                            >
+                              {section.label}
+                            </Label>
+                          </div>
+                          <Switch
+                            id={`bulk-${section.key}`}
+                            checked={bulkSettings[section.key]}
+                            onCheckedChange={(checked) =>
+                              setBulkSettings({ ...bulkSettings, [section.key]: checked })
+                            }
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-4 border-t">
+                    <Button
+                      onClick={handleBulkSave}
+                      className="bg-gradient-to-r from-orange-500 to-red-500"
+                      disabled={bulkUpdateMutation.isPending || filteredClients.length === 0}
+                    >
+                      {bulkUpdateMutation.isPending ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Applying to {filteredClients.length} clients...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4 mr-2" />
+                          Apply to All {filteredClients.length} Clients
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
