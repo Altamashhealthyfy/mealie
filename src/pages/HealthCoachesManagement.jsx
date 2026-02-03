@@ -830,7 +830,12 @@ export default function HealthCoachesManagement() {
                         toast.success("✅ Coach updated successfully!");
                       }
                     } else {
-                      createCoachesMutation.mutate([formData]);
+                      const validationError = validateCoachForm(formData);
+                       if (validationError) {
+                         toast.error(validationError);
+                         return;
+                       }
+                       createCoachesMutation.mutate([formData]);
                     }
                   }}
                   disabled={createCoachesMutation.isPending}
