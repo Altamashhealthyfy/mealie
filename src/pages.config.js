@@ -139,6 +139,7 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
+import CoachReferralLink from './pages/CoachReferralLink';
 import __Layout from './Layout.jsx';
 
 
@@ -235,6 +236,7 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
+    "CoachReferralLink": CoachReferralLink,
 }
 
 export const pagesConfig = {

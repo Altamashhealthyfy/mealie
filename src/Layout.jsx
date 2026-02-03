@@ -37,7 +37,8 @@ import {
   Palette,
   Loader2,
   Tag,
-  Lock
+  Lock,
+  Share2
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -201,6 +202,12 @@ const paymentNavigation = [
 ];
 
 const businessNavigation = [
+  {
+    title: "Share My Link",
+    url: createPageUrl("CoachReferralLink"),
+    icon: Share2,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
   {
     title: "Health Coach Plans",
     url: createPageUrl("HealthCoachPlans"),
