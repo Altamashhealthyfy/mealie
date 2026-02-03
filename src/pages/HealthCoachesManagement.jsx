@@ -82,23 +82,7 @@ export default function HealthCoachesManagement() {
     queryKey: ["coaches"],
     queryFn: async () => {
       const allUsers = await base44.entities.User.list("", 10000);
-      const userCoaches = allUsers.filter((u) => u.user_type === "student_coach");
-      
-      // Also get coaches from subscriptions without User accounts
-      const allSubs = await base44.entities.HealthCoachSubscription.list("", 10000);
-      const coachEmails = new Set(userCoaches.map(c => c.email));
-      const subscriptionOnlyCoaches = allSubs
-        .filter(s => !coachEmails.has(s.coach_email))
-        .map(s => ({
-          id: `sub_${s.id}`,
-          email: s.coach_email,
-          full_name: s.coach_name || s.coach_email,
-          user_type: "student_coach",
-          created_date: s.created_date,
-          is_subscription_only: true
-        }));
-      
-      return [...userCoaches, ...subscriptionOnlyCoaches];
+      return allUsers.filter((u) => u.user_type === "student_coach");
     },
     enabled: !!user && user?.user_type === "super_admin",
     initialData: [],
