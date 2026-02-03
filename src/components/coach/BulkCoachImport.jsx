@@ -283,15 +283,39 @@ Bob Nutritionist,bob@example.com,9876543212`;
                 <Alert className="bg-green-50 border-green-300">
                   <CheckCircle2 className="w-4 h-4 text-green-600" />
                   <AlertDescription className="text-sm text-green-900">
-                    ✅ {parsedCsvCoaches.length} coach(es) ready. Now select a plan to assign.
+                    ✅ {parsedCsvCoaches.length} coach(es) ready. Edit details, select a plan, then import.
                   </AlertDescription>
                 </Alert>
 
-                <div className="space-y-3 max-h-[40vh] overflow-y-auto border rounded-lg p-3 bg-gray-50">
+                <div className="space-y-3 max-h-[35vh] overflow-y-auto border rounded-lg p-3 bg-gray-50">
                   {parsedCsvCoaches.map((coach, i) => (
-                    <div key={i} className="text-sm p-2 bg-white rounded border">
-                      <div className="font-semibold">{coach.full_name}</div>
-                      <div className="text-gray-600">{coach.email}</div>
+                    <div key={i} className="text-sm p-3 bg-white rounded border space-y-2">
+                      <div>
+                        <label className="text-xs font-medium text-gray-600">Name</label>
+                        <input
+                          type="text"
+                          value={coach.full_name}
+                          onChange={(e) => {
+                            const updated = [...parsedCsvCoaches];
+                            updated[i].full_name = e.target.value;
+                            setParsedCsvCoaches(updated);
+                          }}
+                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-gray-600">Email</label>
+                        <input
+                          type="email"
+                          value={coach.email}
+                          onChange={(e) => {
+                            const updated = [...parsedCsvCoaches];
+                            updated[i].email = e.target.value;
+                            setParsedCsvCoaches(updated);
+                          }}
+                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
