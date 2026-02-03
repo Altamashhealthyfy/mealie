@@ -66,6 +66,12 @@ export default function HealthCoachesManagement() {
   });
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showBulkAssignDialog, setShowBulkAssignDialog] = useState(false);
+  const [bulkAssignData, setBulkAssignData] = useState({
+    plan_id: "",
+    start_date: "",
+    end_date: "",
+  });
 
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
