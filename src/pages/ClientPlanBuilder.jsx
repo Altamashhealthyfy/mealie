@@ -176,8 +176,7 @@ export default function ClientPlanBuilder() {
   };
 
   const copyPurchaseLink = (planId, planName) => {
-    const formattedPlanName = planName.toLowerCase().replace(/\s+/g, '-');
-    const purchaseUrl = `https://mealiepro.com/${formattedPlanName}?planId=${planId}`;
+    const purchaseUrl = `https://mealiepro.com/#/public-plan-purchase?planId=${planId}`;
     navigator.clipboard.writeText(purchaseUrl);
     alert('✅ Public purchase link copied! Anyone can view and purchase this plan.');
   };
