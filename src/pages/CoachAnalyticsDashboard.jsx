@@ -495,22 +495,24 @@ export default function CoachAnalyticsDashboard() {
 
         {/* Charts Row 2 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Appointment Status */}
+          {/* Attendance Trend */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
-                Appointment Status
+                Session Attendance Trend
               </CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={appointmentBreakdown}>
+                <BarChart data={attendanceTrend}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
+                  <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="value" fill="#3b82f6" />
+                  <Legend />
+                  <Bar dataKey="scheduled" fill="#e5e7eb" />
+                  <Bar dataKey="attended" fill="#10b981" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -521,7 +523,7 @@ export default function CoachAnalyticsDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Award className="w-5 h-5" />
-                Top Programs
+                Top Programs Performance
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -536,8 +538,8 @@ export default function CoachAnalyticsDashboard() {
                   <YAxis dataKey="name" type="category" width={190} />
                   <Tooltip />
                   <Legend />
-                  <Bar dataKey="enrollments" fill="#10b981" />
-                  <Bar dataKey="completed" fill="#3b82f6" />
+                  <Bar dataKey="enrollments" fill="#3b82f6" />
+                  <Bar dataKey="completed" fill="#10b981" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
