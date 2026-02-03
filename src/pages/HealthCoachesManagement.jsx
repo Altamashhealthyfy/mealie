@@ -98,7 +98,20 @@ export default function HealthCoachesManagement() {
           is_subscription_only: true
         }));
       
-      return [...userCoaches, ...subscriptionOnlyCoaches];
+      const allCoaches = [...userCoaches, ...subscriptionOnlyCoaches];
+      
+      // Remove duplicates by email (keep first occurrence)
+      const uniqueCoaches = [];
+      const seenEmails = new Set();
+      for (const coach of allCoaches) {
+        const emailLower = coach.email?.toLowerCase();
+        if (!seenEmails.has(emailLower)) {
+          seenEmails.add(emailLower);
+          uniqueCoaches.push(coach);
+        }
+      }
+      
+      return uniqueCoaches;
     },
     enabled: !!user && user?.user_type === "super_admin",
     initialData: [],
