@@ -81,7 +81,7 @@ export default function HealthCoachesManagement() {
   const { data: coaches, refetch: refetchCoaches } = useQuery({
     queryKey: ["coaches"],
     queryFn: async () => {
-      const allUsers = await base44.entities.User.list();
+      const allUsers = await base44.entities.User.list("", 10000);
       return allUsers.filter((u) => u.user_type === "student_coach");
     },
     enabled: !!user && user?.user_type === "super_admin",
