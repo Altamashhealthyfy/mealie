@@ -688,7 +688,7 @@ export default function HealthCoachesManagement() {
 
             <div className="space-y-4 mt-4">
               <div>
-                <Label className="text-sm font-medium">Full Name</Label>
+                <Label className="text-sm font-medium">Full Name *</Label>
                 <Input
                   placeholder="e.g., John Coach"
                   value={formData.full_name}
@@ -696,11 +696,12 @@ export default function HealthCoachesManagement() {
                     setFormData({ ...formData, full_name: e.target.value })
                   }
                   className="mt-1"
+                  disabled={!!editingCoach}
                 />
               </div>
 
               <div>
-                <Label className="text-sm font-medium">Email</Label>
+                <Label className="text-sm font-medium">Email *</Label>
                 <Input
                   type="email"
                   placeholder="e.g., john@example.com"
@@ -709,19 +710,7 @@ export default function HealthCoachesManagement() {
                     setFormData({ ...formData, email: e.target.value })
                   }
                   className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label className="text-sm font-medium">Phone (Optional)</Label>
-                <Input
-                  type="tel"
-                  placeholder="e.g., 9876543210"
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phone: e.target.value })
-                  }
-                  className="mt-1"
+                  disabled={!!editingCoach}
                 />
               </div>
 
