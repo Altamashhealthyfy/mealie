@@ -777,6 +777,33 @@ export default function ProgressTracking() {
                         )}
 
                         {log.notes && <p className="text-xs sm:text-sm text-gray-700 bg-gray-50 p-2 sm:p-3 rounded break-words">{log.notes}</p>}
+
+                        {log.coach_feedback && (
+                          <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge className="bg-green-600 text-white">Coach Feedback</Badge>
+                              <div className="flex gap-0.5">
+                                {[...Array(5)].map((_, i) => (
+                                  <span key={i} className={i < log.coach_feedback.rating ? 'text-yellow-500' : 'text-gray-300'}>★</span>
+                                ))}
+                              </div>
+                            </div>
+                            <p className="text-xs sm:text-sm text-gray-700 mb-2">{log.coach_feedback.feedback_text}</p>
+                            {log.coach_feedback.celebration_notes && (
+                              <div className="p-2 bg-yellow-100 rounded mb-2">
+                                <p className="text-xs sm:text-sm">🎉 {log.coach_feedback.celebration_notes}</p>
+                              </div>
+                            )}
+                            {log.coach_feedback.suggestions?.length > 0 && (
+                              <div className="text-xs sm:text-sm">
+                                <p className="font-semibold mb-1">Suggestions:</p>
+                                <ul className="list-disc list-inside space-y-0.5">
+                                  {log.coach_feedback.suggestions.map((s, idx) => <li key={idx}>{s}</li>)}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
 

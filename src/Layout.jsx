@@ -81,6 +81,12 @@ const dietitianNavigation = [
     icon: FileText,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
+  {
+    title: "Progress Review",
+    url: createPageUrl("ClientProgressReview"),
+    icon: ClipboardList,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
 
   {
     title: "My Subscription",
