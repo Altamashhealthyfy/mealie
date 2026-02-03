@@ -267,7 +267,7 @@ Bob Nutritionist,bob@example.com,9876543212`;
               </AlertDescription>
             </Alert>
 
-            <div className="space-y-3 max-h-96 overflow-y-auto">
+            <div className="space-y-3 max-h-[70vh] overflow-y-auto">
               {manualRows.map((row, index) => (
                 <div key={index} className="flex gap-2 items-start p-3 bg-gray-50 rounded-lg">
                   <div className="flex-1 space-y-2">
@@ -292,6 +292,36 @@ Bob Nutritionist,bob@example.com,9876543212`;
                       onChange={(e) => updateManualRow(index, "phone", e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
+                    <Select value={row.plan_id} onValueChange={(value) => updateManualRow(index, "plan_id", value)}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select Plan (optional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {plans.map((plan) => (
+                          <SelectItem key={plan.id} value={plan.id}>
+                            {plan.plan_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {row.plan_id && (
+                      <>
+                        <input
+                          type="date"
+                          value={row.start_date}
+                          onChange={(e) => updateManualRow(index, "start_date", e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          placeholder="Start Date"
+                        />
+                        <input
+                          type="date"
+                          value={row.end_date}
+                          onChange={(e) => updateManualRow(index, "end_date", e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          placeholder="Expiry Date"
+                        />
+                      </>
+                    )}
                   </div>
                   {manualRows.length > 1 && (
                     <Button
