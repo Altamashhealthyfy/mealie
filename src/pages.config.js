@@ -52,7 +52,6 @@ import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
 import Appointments from './pages/Appointments';
 import AssessmentTemplates from './pages/AssessmentTemplates';
 import BroadcastNotification from './pages/BroadcastNotification';
-import BulkCoachAccess from './pages/BulkCoachAccess';
 import BulkImport from './pages/BulkImport';
 import BulkStudentOnboarding from './pages/BulkStudentOnboarding';
 import BusinessGPTs from './pages/BusinessGPTs';
@@ -152,7 +151,6 @@ export const PAGES = {
     "Appointments": Appointments,
     "AssessmentTemplates": AssessmentTemplates,
     "BroadcastNotification": BroadcastNotification,
-    "BulkCoachAccess": BulkCoachAccess,
     "BulkImport": BulkImport,
     "BulkStudentOnboarding": BulkStudentOnboarding,
     "BusinessGPTs": BusinessGPTs,

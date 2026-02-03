@@ -239,12 +239,7 @@ const businessNavigation = [
     icon: Shield,
     roles: ['super_admin'],
   },
-  {
-    title: "Bulk Coach Access",
-    url: createPageUrl("BulkCoachAccess"),
-    icon: Users,
-    roles: ['super_admin'],
-  },
+
   {
     title: "Client Access Manager",
     url: createPageUrl("ClientAccessManager"),
