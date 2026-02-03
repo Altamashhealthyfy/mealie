@@ -24,7 +24,18 @@ Deno.serve(async (req) => {
         await base44.users.inviteUser(coach.email, 'user');
         
         // Wait a moment for the user to be created
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // Get the newly created user
+        const allUsers = await base44.asServiceRole.entities.User.list();
+        const newUser = allUsers.find(u => u.email === coach.email);
+        
+        if (newUser) {
+          // Update user_type to student_coach
+          await base44.asServiceRole.entities.User.update(newUser.id, {
+            user_type: 'student_coach'
+          });
+        }
         
         // Create coach profile
         const profileResult = await base44.asServiceRole.entities.CoachProfile.create({
