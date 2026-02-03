@@ -35,6 +35,7 @@ export default function BulkCoachAccess() {
     start_date: '',
     end_date: ''
   });
+  const fileInputRef = React.useRef(null);
 
   const queryClient = useQueryClient();
 
@@ -213,32 +214,31 @@ coach2@example.com,Dr. Jane Smith,Mealie Basic,monthly,3`;
                 <Download className="w-4 h-4 mr-2" />
                 Download CSV Template
               </Button>
-              <label className="flex-1">
-                <input
-                  type="file"
-                  accept=".csv"
-                  onChange={handleFileUpload}
-                  disabled={processing}
-                  className="hidden"
-                />
-                <Button
-                  as="span"
-                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                  disabled={processing}
-                >
-                  {processing ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload CSV
-                    </>
-                  )}
-                </Button>
-              </label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                disabled={processing}
+                className="hidden"
+              />
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                disabled={processing}
+              >
+                {processing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload CSV
+                  </>
+                )}
+              </Button>
             </div>
 
             <Alert>
