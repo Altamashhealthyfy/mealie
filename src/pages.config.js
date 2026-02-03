@@ -148,6 +148,7 @@ import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import AdminPlatformAnalytics from './pages/AdminPlatformAnalytics';
+import ClientFeedbackManagement from './pages/ClientFeedbackManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -253,6 +254,7 @@ export const PAGES = {
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
     "AdminPlatformAnalytics": AdminPlatformAnalytics,
+    "ClientFeedbackManagement": ClientFeedbackManagement,
 }
 
 export const pagesConfig = {
