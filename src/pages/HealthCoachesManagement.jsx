@@ -276,6 +276,20 @@ export default function HealthCoachesManagement() {
     setShowAddDialog(true);
   };
 
+  const validateCoachForm = (data) => {
+    if (!data.full_name?.trim()) return "Please fill in full name";
+    if (!data.email?.trim()) return "Please fill in email";
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.email)) return "Please enter a valid email";
+
+    if (data.plan_id) {
+      if (!data.start_date) return "Start date is required when selecting a plan";
+      if (!data.end_date) return "Expiry date is required when selecting a plan";
+    }
+    return null;
+  };
+
   const activeFiltersCount = [searchQuery !== "", statusFilter !== "all", planFilter !== "all"].filter(
     Boolean
   ).length;
