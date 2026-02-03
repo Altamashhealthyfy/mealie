@@ -18,7 +18,11 @@ export default function AdminSubscriptionManager() {
   const [showCoachDialog, setShowCoachDialog] = useState(false);
   const [showClientDialog, setShowClientDialog] = useState(false);
   const [coachEmail, setCoachEmail] = useState("");
+  const [coachName, setCoachName] = useState("");
   const [selectedCoachPlan, setSelectedCoachPlan] = useState("");
+  const [billingCycle, setBillingCycle] = useState("yearly");
+  const [durationMonths, setDurationMonths] = useState("");
+  const [startDate, setStartDate] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [selectedClientPlan, setSelectedClientPlan] = useState("");
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
@@ -61,21 +65,29 @@ export default function AdminSubscriptionManager() {
   const grantCoachAccessMutation = useMutation({
     mutationFn: async (data) => {
       const plan = coachPlans.find(p => p.id === data.plan_id);
-      const startDate = new Date();
-      const endDate = new Date();
-      endDate.setFullYear(endDate.getFullYear() + 1);
+      const start = data.start_date ? new Date(data.start_date) : new Date();
+      const end = new Date(start);
+      
+      // Calculate end date based on duration
+      if (data.duration_months) {
+        end.setMonth(end.getMonth() + parseInt(data.duration_months));
+      } else if (data.billing_cycle === 'yearly') {
+        end.setFullYear(end.getFullYear() + 1);
+      } else {
+        end.setMonth(end.getMonth() + 1);
+      }
 
       return await base44.entities.HealthCoachSubscription.create({
         coach_email: data.coach_email,
-        coach_name: data.coach_email,
+        coach_name: data.coach_name || data.coach_email,
         plan_id: data.plan_id,
         plan_name: plan.plan_name,
-        billing_cycle: 'yearly',
+        billing_cycle: data.billing_cycle,
         amount: 0,
         currency: 'INR',
-        start_date: startDate.toISOString().split('T')[0],
-        end_date: endDate.toISOString().split('T')[0],
-        next_billing_date: endDate.toISOString().split('T')[0],
+        start_date: start.toISOString().split('T')[0],
+        end_date: end.toISOString().split('T')[0],
+        next_billing_date: end.toISOString().split('T')[0],
         status: 'active',
         payment_method: 'manual',
         manually_granted: true,
@@ -87,7 +99,11 @@ export default function AdminSubscriptionManager() {
       queryClient.invalidateQueries(['allCoachSubscriptions']);
       setShowCoachDialog(false);
       setCoachEmail("");
+      setCoachName("");
       setSelectedCoachPlan("");
+      setBillingCycle("yearly");
+      setDurationMonths("");
+      setStartDate("");
       alert('✅ Coach access granted successfully!');
     },
   });
@@ -167,10 +183,18 @@ export default function AdminSubscriptionManager() {
 
   const handleGrantCoachAccess = () => {
     if (!coachEmail || !selectedCoachPlan) {
-      alert('Please fill in all fields');
+      alert('Please fill in coach email and plan');
       return;
     }
-    grantCoachAccessMutation.mutate({ coach_email: coachEmail, plan_id: selectedCoachPlan });
+    
+    grantCoachAccessMutation.mutate({ 
+      coach_email: coachEmail,
+      coach_name: coachName,
+      plan_id: selectedCoachPlan,
+      billing_cycle: billingCycle,
+      duration_months: durationMonths,
+      start_date: startDate
+    });
   };
 
   const handleGrantClientAccess = () => {
@@ -334,35 +358,142 @@ export default function AdminSubscriptionManager() {
         </Tabs>
 
         <Dialog open={showCoachDialog} onOpenChange={setShowCoachDialog}>
-          <DialogContent>
+          <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Grant Coach Access</DialogTitle>
+              <DialogTitle className="flex items-center gap-2">
+                <Crown className="w-5 h-5 text-purple-600" />
+                Assign Health Coach Plan
+              </DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
+              <div className="bg-green-50 border border-green-300 rounded-lg p-4">
+                <p className="text-sm text-gray-700">
+                  <strong>Coach:</strong> {coachEmail || "Not selected"}
+                </p>
+                {coachName && (
+                  <p className="text-sm text-gray-700">{coachName}</p>
+                )}
+              </div>
+
               <div className="space-y-2">
-                <Label>Coach Email</Label>
+                <Label>Coach Email *</Label>
                 <Input
                   value={coachEmail}
                   onChange={(e) => setCoachEmail(e.target.value)}
-                  placeholder="coach@example.com"
+                  placeholder="nutritionist@healthyfy.com"
                 />
               </div>
+
               <div className="space-y-2">
-                <Label>Plan</Label>
+                <Label>Coach Name</Label>
+                <Input
+                  value={coachName}
+                  onChange={(e) => setCoachName(e.target.value)}
+                  placeholder="nutritionisthealthyfy"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Select Plan *</Label>
                 <Select value={selectedCoachPlan} onValueChange={setSelectedCoachPlan}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select plan" />
+                    <SelectValue placeholder="Pro Plan" />
                   </SelectTrigger>
                   <SelectContent>
                     {coachPlans.map(plan => (
-                      <SelectItem key={plan.id} value={plan.id}>{plan.plan_name}</SelectItem>
+                      <SelectItem key={plan.id} value={plan.id}>
+                        {plan.plan_name} - ₹{plan.monthly_price}/mo
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleGrantCoachAccess} className="w-full bg-purple-600 hover:bg-purple-700">
-                Grant Access (1 Year)
-              </Button>
+
+              <div className="space-y-2">
+                <Label>Billing Cycle</Label>
+                <Select value={billingCycle} onValueChange={setBillingCycle}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="yearly">Yearly - ₹99999/year</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Duration (Months)</Label>
+                <Input
+                  type="number"
+                  value={durationMonths}
+                  onChange={(e) => setDurationMonths(e.target.value)}
+                  placeholder="Leave empty to use billing cycle default"
+                  min="1"
+                />
+                <p className="text-xs text-gray-500">
+                  Specify custom duration or leave empty (Monthly = 1 month, Yearly = 12 months)
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Start Date</Label>
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+                <p className="text-xs text-gray-500">
+                  Leave empty to start immediately
+                </p>
+              </div>
+
+              {selectedCoachPlan && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <p className="text-sm font-semibold text-gray-900 mb-1">
+                    {coachPlans.find(p => p.id === selectedCoachPlan)?.plan_name}
+                  </p>
+                  <p className="text-xs text-gray-700">Everything in Advance</p>
+                  <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+                    <p className="flex items-center gap-1">
+                      <span className="text-green-600">✓</span> Max Clients: 50
+                    </p>
+                    <p className="flex items-center gap-1">
+                      <span className="text-green-600">✓</span> AI Limit: 150
+                    </p>
+                    <p className="flex items-center gap-1">
+                      <span className="text-green-600">✓</span> Pro Plans Access
+                    </p>
+                    <p className="flex items-center gap-1">
+                      <span className="text-green-600">✓</span> Team Management
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <Alert className="bg-blue-50 border-blue-200">
+                <AlertDescription className="text-blue-900 text-sm">
+                  This will manually assign a plan to the coach without payment. The plan will be active immediately.
+                </AlertDescription>
+              </Alert>
+
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => setShowCoachDialog(false)} 
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleGrantCoachAccess} 
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  disabled={grantCoachAccessMutation.isPending}
+                >
+                  <Crown className="w-4 h-4 mr-2" />
+                  {grantCoachAccessMutation.isPending ? 'Assigning...' : 'Assign Plan'}
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
