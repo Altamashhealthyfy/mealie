@@ -691,25 +691,47 @@ export default function HealthCoachesManagement() {
                 </Button>
                 <Button
                   onClick={async () => {
-                    if (
-                      !formData.full_name.trim() ||
-                      !formData.email.trim()
-                    ) {
-                      toast.error(
-                        "Please fill in name and email"
-                      );
+                    if (!formData.full_name.trim() || !formData.email.trim()) {
+                      toast.error("Please fill in name and email");
                       return;
                     }
 
                     if (formData.plan_id && (!formData.start_date || !formData.end_date)) {
-                      toast.error("Please fill in start and expiry dates");
+                      toast.error("Please fill in start and expiry dates when selecting a plan");
                       return;
                     }
 
                     try {
-                      await createCoachesMutation.mutateAsync([formData]);
+                      if (editingCoach) {
+                        // Update subscription only
+                        const subscription = subscriptions.find((s) => s.coach_email === editingCoach.email);
+                        if (subscription && formData.plan_id) {
+                          await base44.entities.HealthCoachSubscription.update(subscription.id, {
+                            plan_id: formData.plan_id,
+                            start_date: formData.start_date,
+                            end_date: formData.end_date,
+                          });
+                        } else if (formData.plan_id) {
+                          await base44.entities.HealthCoachSubscription.create({
+                            coach_email: editingCoach.email,
+                            plan_id: formData.plan_id,
+                            start_date: formData.start_date,
+                            end_date: formData.end_date,
+                            status: "active",
+                            billing_cycle: "monthly",
+                            amount: 0,
+                          });
+                        }
+                        queryClient.invalidateQueries({ queryKey: ["coachSubscriptions"] });
+                        setShowAddDialog(false);
+                        setEditingCoach(null);
+                        setFormData({ full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" });
+                        toast.success("✅ Coach updated successfully!");
+                      } else {
+                        await createCoachesMutation.mutateAsync([formData]);
+                      }
                     } catch (error) {
-                      console.error("Error:", error);
+                      toast.error(`Error: ${error?.message || "Failed to save"}`);
                     }
                   }}
                   disabled={createCoachesMutation.isPending}
