@@ -560,6 +560,7 @@ export default function Layout({ children, currentPageName }) {
           'Bulk Import': activePlan.can_use_bulk_import,
           'Team Attendance': activePlan.can_access_team_attendance,
           'Team Management': activePlan.can_manage_team,
+          'Client Access Manager': activePlan.can_manage_client_access,
         };
 
         // If there's a permission mapping, check it; otherwise allow

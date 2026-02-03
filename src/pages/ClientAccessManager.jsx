@@ -41,6 +41,28 @@ export default function ClientAccessManager() {
     queryFn: () => base44.auth.me(),
   });
 
+  const { data: coachSubscription } = useQuery({
+    queryKey: ['coachSubscription', user?.email],
+    queryFn: async () => {
+      const subs = await base44.entities.HealthCoachSubscription.filter({ 
+        coach_email: user?.email,
+        status: 'active'
+      });
+      return subs[0] || null;
+    },
+    enabled: !!user && user?.user_type === 'student_coach',
+  });
+
+  const { data: coachPlan } = useQuery({
+    queryKey: ['coachPlan', coachSubscription?.plan_id],
+    queryFn: async () => {
+      if (!coachSubscription?.plan_id) return null;
+      const plans = await base44.entities.HealthCoachPlan.filter({ id: coachSubscription.plan_id });
+      return plans[0] || null;
+    },
+    enabled: !!coachSubscription?.plan_id,
+  });
+
   const { data: clients = [], isLoading: clientsLoading } = useQuery({
     queryKey: ['coachClients', user?.email],
     queryFn: async () => {
@@ -217,6 +239,66 @@ export default function ClientAccessManager() {
             This feature is only available for health coaches.
           </AlertDescription>
         </Alert>
+      </div>
+    );
+  }
+
+  const hasAccess = user?.user_type === 'super_admin' || 
+                    user?.user_type === 'team_member' || 
+                    coachPlan?.can_manage_client_access;
+
+  if (user?.user_type === 'student_coach' && !hasAccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-6">
+        <div className="max-w-3xl mx-auto">
+          <Card className="bg-white/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-2xl">
+                <Eye className="w-6 h-6 text-orange-500" />
+                Client Access Manager
+              </CardTitle>
+              <CardDescription>Control which menu sections are visible to each client</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Alert className="border-amber-200 bg-amber-50">
+                <AlertCircle className="w-4 h-4 text-amber-600" />
+                <AlertDescription className="text-amber-900">
+                  <strong>Upgrade Required</strong>
+                  <p className="mt-2">
+                    This feature is not available in your current plan. Upgrade to access Client Access Manager and control individual client menu visibility.
+                  </p>
+                </AlertDescription>
+              </Alert>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <h3 className="font-semibold text-gray-900">With this feature you can:</h3>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600">✓</span>
+                    <span>Show or hide menu sections for each client individually</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600">✓</span>
+                    <span>Apply settings to all clients at once</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600">✓</span>
+                    <span>Customize client experience based on their plan or progress</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600">✓</span>
+                    <span>Temporarily disable unused features</span>
+                  </li>
+                </ul>
+              </div>
+              <Button 
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500"
+                onClick={() => window.location.href = '/CoachSubscriptions'}
+              >
+                Upgrade Your Plan
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
