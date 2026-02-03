@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
     return Response.json({
       success: true,
       message: 'Health coach created successfully. Invitation email sent.',
-      email: email
+      email: finalEmail
     });
 
   } catch (error) {
