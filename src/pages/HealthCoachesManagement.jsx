@@ -967,6 +967,14 @@ export default function HealthCoachesManagement() {
                       return;
                     }
 
+                    if (!editingCoach) {
+                      const validationError = validateCoachForm(formData);
+                      if (validationError) {
+                        toast.error(validationError);
+                        return;
+                      }
+                    }
+
                     if (editingCoach) {
                       // Update coach name and subscription
                       const updateTasks = [];
