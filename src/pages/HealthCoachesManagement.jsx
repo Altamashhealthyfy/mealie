@@ -91,6 +91,31 @@ export default function HealthCoachesManagement() {
     initialData: [],
   });
 
+  const createCoachesMutation = useMutation({
+    mutationFn: async (coachesData) => {
+      const results = [];
+      for (const coach of coachesData) {
+        const result = await base44.functions.invoke("createUserWithPassword", {
+          email: coach.email,
+          password: Math.random().toString(36).slice(-12),
+          fullName: coach.full_name,
+          userType: "student_coach",
+        });
+        results.push(result);
+      }
+      return results;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["coaches"] });
+      setShowAddDialog(false);
+      setFormData({ full_name: "", email: "", phone: "" });
+      toast.success("✅ Coach(es) created successfully!");
+    },
+    onError: (error) => {
+      toast.error(`❌ Error: ${error?.message || "Failed to create coach"}`);
+    },
+  });
+
   const deleteCoachMutation = useMutation({
     mutationFn: (coachEmail) =>
       base44.asServiceRole.entities.User.update(
@@ -98,7 +123,7 @@ export default function HealthCoachesManagement() {
         { user_type: "user" }
       ),
     onSuccess: () => {
-      queryClient.invalidateQueries(["coaches"]);
+      queryClient.invalidateQueries({ queryKey: ["coaches"] });
       setViewingCoach(null);
       toast.success("✅ Coach removed successfully!");
     },
