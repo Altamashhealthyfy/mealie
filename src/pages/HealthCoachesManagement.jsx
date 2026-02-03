@@ -968,7 +968,19 @@ export default function HealthCoachesManagement() {
                     }
 
                     if (editingCoach) {
-                      // Update subscription only
+                      // Update coach name and subscription
+                      const updateTasks = [];
+
+                      // Update User entity if it's a regular coach (not subscription-only)
+                      if (!editingCoach.is_subscription_only && editingCoach.id && !editingCoach.id.startsWith("sub_")) {
+                        updateTasks.push(
+                          base44.asServiceRole.entities.User.update(editingCoach.id, {
+                            full_name: formData.full_name
+                          })
+                        );
+                      }
+
+                      // Update subscription
                       const subscription = subscriptions.find((s) => s.coach_email === editingCoach.email);
                       if (subscription && formData.plan_id) {
                         base44.entities.HealthCoachSubscription.update(subscription.id, {
