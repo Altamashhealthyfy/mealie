@@ -612,28 +612,57 @@ export default function HealthCoachesManagement() {
                     )}
                   </div>
 
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setViewingCoach(null);
-                        handleEdit(viewingCoach);
-                      }}
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={() => {
-                        if (window.confirm("Are you sure you want to remove this coach?")) {
-                          deleteCoachMutation.mutate(viewingCoach.email);
-                        }
-                      }}
-                      disabled={deleteCoachMutation.isPending}
-                    >
-                      {deleteCoachMutation.isPending ? "Removing..." : "Remove Coach"}
-                    </Button>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setViewingCoach(null);
+                          handleEdit(viewingCoach);
+                        }}
+                        className="flex-1"
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          const subscription = subscriptions.find((s) => s.coach_email === viewingCoach.email);
+                          setChangePlanData({
+                            plan_id: subscription?.plan_id || "",
+                            start_date: subscription?.start_date || "",
+                            end_date: subscription?.end_date || "",
+                          });
+                          setShowChangePlanDialog(true);
+                        }}
+                        className="text-blue-600 hover:bg-blue-50 flex-1"
+                      >
+                        <Crown className="w-4 h-4 mr-2" />
+                        Change Plan
+                      </Button>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowChangePasswordDialog(true)}
+                        className="text-purple-600 hover:bg-purple-50 flex-1"
+                      >
+                        Change Password
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={() => {
+                          if (window.confirm("Are you sure you want to remove this coach?")) {
+                            deleteCoachMutation.mutate(viewingCoach.email);
+                          }
+                        }}
+                        disabled={deleteCoachMutation.isPending}
+                        className="flex-1"
+                      >
+                        {deleteCoachMutation.isPending ? "Removing..." : "Remove"}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               );
