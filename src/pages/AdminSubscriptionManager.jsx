@@ -23,6 +23,7 @@ export default function AdminSubscriptionManager() {
   const [billingCycle, setBillingCycle] = useState("yearly");
   const [durationMonths, setDurationMonths] = useState("");
   const [startDate, setStartDate] = useState("");
+  const [expireDate, setExpireDate] = useState("");
   const [extraMonths, setExtraMonths] = useState("");
   const [clientEmail, setClientEmail] = useState("");
   const [selectedClientPlan, setSelectedClientPlan] = useState("");
@@ -67,24 +68,30 @@ export default function AdminSubscriptionManager() {
     mutationFn: async (data) => {
       const plan = coachPlans.find(p => p.id === data.plan_id);
       const start = data.start_date ? new Date(data.start_date) : new Date();
-      const end = new Date(start);
+      let end;
       
-      // Calculate end date based on duration
-      let totalMonths = 0;
-      if (data.duration_months) {
-        totalMonths = parseInt(data.duration_months);
-      } else if (data.billing_cycle === 'yearly') {
-        totalMonths = 12;
+      // Use expire_date if provided, otherwise calculate from duration
+      if (data.expire_date) {
+        end = new Date(data.expire_date);
       } else {
-        totalMonths = 1;
+        end = new Date(start);
+        // Calculate end date based on duration
+        let totalMonths = 0;
+        if (data.duration_months) {
+          totalMonths = parseInt(data.duration_months);
+        } else if (data.billing_cycle === 'yearly') {
+          totalMonths = 12;
+        } else {
+          totalMonths = 1;
+        }
+        
+        // Add extra months if provided
+        if (data.extra_months) {
+          totalMonths += parseInt(data.extra_months);
+        }
+        
+        end.setMonth(end.getMonth() + totalMonths);
       }
-      
-      // Add extra months if provided
-      if (data.extra_months) {
-        totalMonths += parseInt(data.extra_months);
-      }
-      
-      end.setMonth(end.getMonth() + totalMonths);
 
       return await base44.entities.HealthCoachSubscription.create({
         coach_email: data.coach_email,
@@ -113,6 +120,7 @@ export default function AdminSubscriptionManager() {
       setBillingCycle("yearly");
       setDurationMonths("");
       setStartDate("");
+      setExpireDate("");
       setExtraMonths("");
       alert('✅ Coach access granted successfully!');
     },
@@ -204,6 +212,7 @@ export default function AdminSubscriptionManager() {
       billing_cycle: billingCycle,
       duration_months: durationMonths,
       start_date: startDate,
+      expire_date: expireDate,
       extra_months: extraMonths
     });
   };
@@ -369,7 +378,7 @@ export default function AdminSubscriptionManager() {
         </Tabs>
 
         <Dialog open={showCoachDialog} onOpenChange={setShowCoachDialog}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Crown className="w-5 h-5 text-purple-600" />
@@ -460,6 +469,18 @@ export default function AdminSubscriptionManager() {
               </div>
 
               <div className="space-y-2">
+                <Label>Expire Date</Label>
+                <Input
+                  type="date"
+                  value={expireDate}
+                  onChange={(e) => setExpireDate(e.target.value)}
+                />
+                <p className="text-xs text-gray-500">
+                  Leave empty to auto-calculate from duration
+                </p>
+              </div>
+
+              <div className="space-y-2">
                 <Label>Extra Months (Bonus)</Label>
                 <Input
                   type="number"
@@ -473,7 +494,7 @@ export default function AdminSubscriptionManager() {
                 </p>
               </div>
 
-              {(startDate || billingCycle || durationMonths || extraMonths) && (
+              {(startDate || billingCycle || durationMonths || extraMonths || expireDate) && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                   <p className="text-sm font-semibold text-gray-900 mb-2">Billing Summary</p>
                   <div className="space-y-1 text-xs text-gray-700">
@@ -482,6 +503,9 @@ export default function AdminSubscriptionManager() {
                     </p>
                     <p>
                       <strong>End Date:</strong> {(() => {
+                        if (expireDate) {
+                          return new Date(expireDate).toLocaleDateString();
+                        }
                         const start = startDate ? new Date(startDate) : new Date();
                         const end = new Date(start);
                         let totalMonths = durationMonths ? parseInt(durationMonths) : (billingCycle === 'yearly' ? 12 : 1);
@@ -490,14 +514,16 @@ export default function AdminSubscriptionManager() {
                         return end.toLocaleDateString();
                       })()}
                     </p>
-                    <p>
-                      <strong>Total Duration:</strong> {(() => {
-                        let totalMonths = durationMonths ? parseInt(durationMonths) : (billingCycle === 'yearly' ? 12 : 1);
-                        if (extraMonths) totalMonths += parseInt(extraMonths);
-                        return `${totalMonths} months`;
-                      })()}
-                      {extraMonths && ` (${extraMonths} bonus)`}
-                    </p>
+                    {!expireDate && (
+                      <p>
+                        <strong>Total Duration:</strong> {(() => {
+                          let totalMonths = durationMonths ? parseInt(durationMonths) : (billingCycle === 'yearly' ? 12 : 1);
+                          if (extraMonths) totalMonths += parseInt(extraMonths);
+                          return `${totalMonths} months`;
+                        })()}
+                        {extraMonths && ` (${extraMonths} bonus)`}
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
