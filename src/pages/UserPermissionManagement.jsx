@@ -182,7 +182,9 @@ export default function UserPermissionManagement() {
       return response.data;
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries(['allUsers']);
+      setTimeout(() => {
+        refetchUsers();
+      }, 1000);
       setCreateCoachDialog(false);
       setNewCoachEmail("");
       setNewCoachName("");
