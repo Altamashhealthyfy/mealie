@@ -13,9 +13,13 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { email, full_name, password, user_type } = await req.json();
+    const { email, fullName, full_name, password, userType, user_type } = await req.json();
+    
+    const finalEmail = email;
+    const finalFullName = fullName || full_name;
+    const finalUserType = userType || user_type || 'student_coach';
 
-    if (!email) {
+    if (!finalEmail) {
       return Response.json(
         { error: 'Email is required' },
         { status: 400 }
@@ -30,20 +34,20 @@ Deno.serve(async (req) => {
     }
 
     // Invite user as "user" role first (works for new users)
-    await base44.users.inviteUser(email, 'user');
+    await base44.users.inviteUser(finalEmail, 'user');
     
     // Wait for invitation to process
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     // Find the newly invited user and update their details
     const users = await base44.asServiceRole.entities.User.list();
-    const newUser = users.find(u => u.email === email);
+    const newUser = users.find(u => u.email === finalEmail);
     
     if (newUser) {
       // Update user details with proper role
       await base44.asServiceRole.entities.User.update(newUser.id, {
-        full_name: full_name || email,
-        user_type: user_type || 'student_coach'
+        full_name: finalFullName || finalEmail,
+        user_type: finalUserType
       });
     }
 
