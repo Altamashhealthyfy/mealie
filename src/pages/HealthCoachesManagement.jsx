@@ -268,7 +268,7 @@ export default function HealthCoachesManagement() {
     setFormData({
       full_name: coach.full_name || "",
       email: coach.email || "",
-      phone: coach.phone || "",
+
       plan_id: subscription?.plan_id || "",
       start_date: subscription?.start_date || "",
       end_date: subscription?.end_date || "",
