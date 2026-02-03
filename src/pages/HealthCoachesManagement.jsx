@@ -140,7 +140,9 @@ export default function HealthCoachesManagement() {
       return results;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["coaches"] });
+      setTimeout(() => {
+        refetchCoaches();
+      }, 1000);
       queryClient.invalidateQueries({ queryKey: ["coachSubscriptions"] });
       setShowAddDialog(false);
       setEditingCoach(null);
