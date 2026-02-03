@@ -50,6 +50,9 @@ export default function HealthCoachesManagement() {
     full_name: "",
     email: "",
     phone: "",
+    plan_id: "",
+    start_date: "",
+    end_date: "",
   });
 
   const { data: user } = useQuery({
