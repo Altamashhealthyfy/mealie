@@ -379,54 +379,54 @@ export default function CoachAnalyticsDashboard() {
           </div>
         </div>
 
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
+        {/* Key Performance Indicators */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <Card className="border-l-4 border-l-blue-500">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Total Clients</p>
-                  <p className="text-3xl font-bold text-blue-600">{metrics.totalClients}</p>
-                </div>
-                <Users className="w-12 h-12 text-blue-200" />
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Total Clients</p>
+                <p className="text-3xl font-bold text-blue-600">{metrics.totalClients}</p>
+                <p className="text-xs text-gray-500 mt-2">Active relationships</p>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-l-4 border-l-green-500">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
-                  <p className="text-3xl font-bold text-green-600">₹{metrics.totalRevenue.toLocaleString()}</p>
-                </div>
-                <DollarSign className="w-12 h-12 text-green-200" />
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Attendance Rate</p>
+                <p className="text-3xl font-bold text-green-600">{attendanceMetrics.attendance}%</p>
+                <p className="text-xs text-gray-500 mt-2">{attendanceMetrics.attended}/{attendanceMetrics.total} attended</p>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-l-4 border-l-purple-500">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Appointments</p>
-                  <p className="text-3xl font-bold text-purple-600">{metrics.totalAppointments}</p>
-                  <p className="text-xs text-gray-500 mt-1">{metrics.appointmentRate}% completed</p>
-                </div>
-                <Calendar className="w-12 h-12 text-purple-200" />
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Client Satisfaction</p>
+                <p className="text-3xl font-bold text-purple-600">{clientSatisfaction} ⭐</p>
+                <p className="text-xs text-gray-500 mt-2">Avg rating from clients</p>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-l-4 border-l-orange-500">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Programs</p>
-                  <p className="text-3xl font-bold text-orange-600">{metrics.totalPrograms}</p>
-                  <p className="text-xs text-gray-500 mt-1">{metrics.completedPrograms} completed</p>
-                </div>
-                <Target className="w-12 h-12 text-orange-200" />
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Program Completion</p>
+                <p className="text-3xl font-bold text-orange-600">{enrollments.length > 0 ? Math.round((metrics.completedPrograms / enrollments.length) * 100) : 0}%</p>
+                <p className="text-xs text-gray-500 mt-2">{metrics.completedPrograms} completed</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-l-4 border-l-pink-500">
+            <CardContent className="p-6">
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Revenue</p>
+                <p className="text-3xl font-bold text-pink-600">₹{(metrics.totalRevenue / 1000).toFixed(1)}k</p>
+                <p className="text-xs text-gray-500 mt-2">{dateRange === "1month" ? "This Month" : "Period"}</p>
               </div>
             </CardContent>
           </Card>
