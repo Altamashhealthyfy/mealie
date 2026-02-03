@@ -877,7 +877,6 @@ export default function HealthCoachesManagement() {
                     setFormData({ ...formData, full_name: e.target.value })
                   }
                   className="mt-1"
-                  disabled={!!editingCoach}
                 />
               </div>
 
@@ -891,7 +890,6 @@ export default function HealthCoachesManagement() {
                     setFormData({ ...formData, email: e.target.value })
                   }
                   className="mt-1"
-                  disabled={!!editingCoach}
                 />
               </div>
 
