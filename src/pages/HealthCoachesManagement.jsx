@@ -53,7 +53,6 @@ export default function HealthCoachesManagement() {
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
-    phone: "",
     plan_id: "",
     start_date: "",
     end_date: "",
