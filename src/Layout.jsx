@@ -308,13 +308,6 @@ const businessNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
-    title: "Bulk Student Onboarding",
-    url: createPageUrl("BulkStudentOnboarding"),
-    icon: UserPlus,
-    roles: ['super_admin'],
-  },
-
-  {
     title: "Feature Control",
     url: createPageUrl("FeatureControl"),
     icon: Shield,
