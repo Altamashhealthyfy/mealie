@@ -14,11 +14,8 @@ export default function PublicPlanPurchase() {
   const { data: plan, isLoading: planLoading } = useQuery({
     queryKey: ['publicClientPlan', planId],
     queryFn: async () => {
-      const plans = await base44.asServiceRole.entities.ClientPlanDefinition.filter({ 
-        id: planId, 
-        status: 'active' 
-      });
-      return plans[0] || null;
+      const response = await base44.functions.invoke('getPublicClientPlan', { planId });
+      return response.data;
     },
     enabled: !!planId,
   });
@@ -26,10 +23,10 @@ export default function PublicPlanPurchase() {
   const { data: coachProfile } = useQuery({
     queryKey: ['coachProfile', plan?.coach_email],
     queryFn: async () => {
-      const profiles = await base44.asServiceRole.entities.CoachProfile.filter({ 
-        created_by: plan?.coach_email 
+      const response = await base44.functions.invoke('getCoachProfile', { 
+        coachEmail: plan?.coach_email 
       });
-      return profiles[0] || null;
+      return response.data;
     },
     enabled: !!plan?.coach_email,
   });
@@ -110,13 +107,7 @@ export default function PublicPlanPurchase() {
               <p className="text-xs text-gray-600">Health & Wellness</p>
             </div>
           </div>
-          
-          {!isAuthenticated && (
-            <Button onClick={handleLogin} variant="outline" size="sm">
-              <LogIn className="w-4 h-4 mr-2" />
-              Login
-            </Button>
-          )}
+
         </div>
       </div>
 
@@ -205,27 +196,12 @@ export default function PublicPlanPurchase() {
                   </Alert>
                 </div>
 
-                {isAuthenticated ? (
-                  <Button
-                    onClick={handleProceedToPurchase}
-                    className="w-full h-14 text-lg bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-lg"
-                  >
-                    Proceed to Secure Checkout
-                  </Button>
-                ) : (
-                  <div className="space-y-3">
-                    <Button
-                      onClick={handleLogin}
-                      className="w-full h-14 text-lg bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-lg"
-                    >
-                      <LogIn className="w-5 h-5 mr-2" />
-                      Login to Purchase
-                    </Button>
-                    <p className="text-center text-sm text-gray-600">
-                      Don't have an account? Contact your health coach to get started.
-                    </p>
-                  </div>
-                )}
+                <Button
+                  onClick={handleProceedToPurchase}
+                  className="w-full h-14 text-lg bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-lg"
+                >
+                  Proceed to Secure Checkout
+                </Button>
 
                 <div className="pt-6 border-t space-y-3">
                   <div className="flex items-center gap-2 text-sm text-gray-600">
