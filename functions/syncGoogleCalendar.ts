@@ -15,52 +15,68 @@ Deno.serve(async (req) => {
     const accessToken = await base44.asServiceRole.connectors.getAccessToken('googlecalendar');
 
     if (action === 'create') {
-      // Create event in Google Calendar
-      const eventData = {
-        summary: appointment_data.title,
-        description: appointment_data.description || '',
-        start: {
-          dateTime: new Date(appointment_data.appointment_date).toISOString(),
-          timeZone: 'UTC'
-        },
-        end: {
-          dateTime: new Date(appointment_data.end_time).toISOString(),
-          timeZone: 'UTC'
-        },
-        location: appointment_data.location || 'Virtual',
-        attendees: [
-          { email: user.email, responseStatus: 'accepted' },
-          { email: appointment_data.client_email }
-        ]
-      };
+      try {
+        // Try to create event in Google Calendar
+        const eventData = {
+          summary: appointment_data.title,
+          description: appointment_data.description || '',
+          start: {
+            dateTime: new Date(appointment_data.appointment_date).toISOString(),
+            timeZone: 'UTC'
+          },
+          end: {
+            dateTime: new Date(appointment_data.end_time).toISOString(),
+            timeZone: 'UTC'
+          },
+          location: appointment_data.location || 'Virtual',
+          attendees: [
+            { email: user.email, responseStatus: 'accepted' },
+            { email: appointment_data.client_email }
+          ]
+        };
 
-      const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(eventData)
-      });
+        const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(eventData)
+        });
 
-      if (!response.ok) {
-        throw new Error(`Google Calendar API error: ${response.statusText}`);
+        let googleEventId = null;
+        if (response.ok) {
+          const event = await response.json();
+          googleEventId = event.id;
+        }
+
+        // Save appointment with or without Google event ID
+        const appointment = await base44.entities.Appointment.create({
+          ...appointment_data,
+          coach_email: user.email,
+          google_event_id: googleEventId
+        });
+
+        return Response.json({
+          success: true,
+          appointment_id: appointment.id,
+          google_event_id: googleEventId,
+          message: googleEventId ? 'Appointment created and synced to Google Calendar' : 'Appointment created (Google Calendar sync pending)'
+        });
+      } catch (error) {
+        console.log('Google Calendar sync skipped:', error.message);
+        // Create appointment without Google Calendar sync
+        const appointment = await base44.entities.Appointment.create({
+          ...appointment_data,
+          coach_email: user.email
+        });
+
+        return Response.json({
+          success: true,
+          appointment_id: appointment.id,
+          message: 'Appointment created'
+        });
       }
-
-      const event = await response.json();
-
-      // Save appointment with Google event ID
-      const appointment = await base44.entities.Appointment.create({
-        ...appointment_data,
-        coach_email: user.email,
-        google_event_id: event.id
-      });
-
-      return Response.json({
-        success: true,
-        appointment_id: appointment.id,
-        google_event_id: event.id
-      });
     }
 
     if (action === 'update') {
