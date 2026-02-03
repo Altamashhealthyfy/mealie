@@ -105,13 +105,28 @@ export default function HealthCoachesManagement() {
           userType: "student_coach",
         });
         results.push(result);
+
+        // If plan is selected, create subscription
+        if (coach.plan_id && coach.start_date && coach.end_date) {
+          await base44.entities.HealthCoachSubscription.create({
+            coach_email: coach.email,
+            plan_id: coach.plan_id,
+            start_date: coach.start_date,
+            end_date: coach.end_date,
+            status: "active",
+            billing_cycle: "monthly",
+            amount: 0,
+          });
+        }
       }
       return results;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["coaches"] });
+      queryClient.invalidateQueries({ queryKey: ["coachSubscriptions"] });
       setShowAddDialog(false);
-      setFormData({ full_name: "", email: "", phone: "" });
+      setEditingCoach(null);
+      setFormData({ full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" });
       toast.success("✅ Coach(es) created successfully!");
     },
     onError: (error) => {
