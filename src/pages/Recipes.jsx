@@ -17,6 +17,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { format } from "date-fns";
 import { createPageUrl } from "@/utils";
 import ImageUploader from "@/components/common/ImageUploader";
+import PersonalizedRecommendations from "@/components/recipes/PersonalizedRecommendations";
 
 export default function Recipes() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -950,11 +951,18 @@ Provide 3 creative variations that ${variationRequest}. Each should maintain sim
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="w-full">
             <TabsTrigger
+              value="personalized"
+              className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              For You
+            </TabsTrigger>
+            <TabsTrigger
               value="library"
               className="flex-1 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white"
             >
               <ChefHat className="w-4 h-4 mr-2" />
-              Recipe Library ({recipes.length})
+              All Recipes ({recipes.length})
             </TabsTrigger>
             {canGenerateAIRecipe && (
               <TabsTrigger
@@ -966,6 +974,10 @@ Provide 3 creative variations that ${variationRequest}. Each should maintain sim
               </TabsTrigger>
             )}
           </TabsList>
+
+          <TabsContent value="personalized" className="space-y-6">
+            <PersonalizedRecommendations onViewRecipe={setSelectedRecipe} />
+          </TabsContent>
 
           <TabsContent value="library" className="space-y-6">
             <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
