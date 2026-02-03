@@ -903,7 +903,11 @@ export default function HealthCoachesManagement() {
                          toast.error(validationError);
                          return;
                        }
-                       createCoachesMutation.mutate([formData]);
+                       const coachToAdd = {
+                         ...formData,
+                         plan_id: formData.plan_id || null
+                       };
+                       createCoachesMutation.mutate([coachToAdd]);
                     }
                   }}
                   disabled={createCoachesMutation.isPending}
