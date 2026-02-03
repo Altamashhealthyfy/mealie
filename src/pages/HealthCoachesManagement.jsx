@@ -784,7 +784,7 @@ export default function HealthCoachesManagement() {
 
               <div>
                 <Label className="text-sm font-medium">Select Plan (Optional)</Label>
-                <Select value={formData.plan_id} onValueChange={(value) => setFormData({ ...formData, plan_id: value })}>
+                <Select value={formData.plan_id || ""} onValueChange={(value) => setFormData({ ...formData, plan_id: value })}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Choose a plan" />
                   </SelectTrigger>
