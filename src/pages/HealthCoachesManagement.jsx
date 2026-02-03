@@ -1065,9 +1065,93 @@ export default function HealthCoachesManagement() {
           </DialogContent>
         </Dialog>
 
+        {/* Bulk Assign Plan Dialog */}
+         <Dialog open={showBulkAssignDialog} onOpenChange={setShowBulkAssignDialog}>
+           <DialogContent className="max-w-md">
+             <DialogHeader>
+               <DialogTitle>Assign Plans to {selectedCoaches.length} Coaches</DialogTitle>
+               <DialogDescription>
+                 Select a plan and dates to assign to selected coaches
+               </DialogDescription>
+             </DialogHeader>
+
+             <div className="space-y-4 mt-4">
+               <div>
+                 <Label className="text-sm font-medium">Select Plan *</Label>
+                 <Select value={bulkAssignData.plan_id} onValueChange={(value) => setBulkAssignData({ ...bulkAssignData, plan_id: value })}>
+                   <SelectTrigger className="mt-1">
+                     <SelectValue placeholder="Choose a plan" />
+                   </SelectTrigger>
+                   <SelectContent>
+                     {plans.map((plan) => (
+                       <SelectItem key={plan.id} value={plan.id}>
+                         {plan.plan_name}
+                       </SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+               </div>
+
+               <div>
+                 <Label className="text-sm font-medium">Start Date *</Label>
+                 <Input
+                   type="date"
+                   value={bulkAssignData.start_date}
+                   onChange={(e) =>
+                     setBulkAssignData({ ...bulkAssignData, start_date: e.target.value })
+                   }
+                   className="mt-1"
+                 />
+               </div>
+
+               <div>
+                 <Label className="text-sm font-medium">Expiry Date *</Label>
+                 <Input
+                   type="date"
+                   value={bulkAssignData.end_date}
+                   onChange={(e) =>
+                     setBulkAssignData({ ...bulkAssignData, end_date: e.target.value })
+                   }
+                   className="mt-1"
+                 />
+               </div>
+
+               <div className="flex gap-3 pt-4">
+                 <Button
+                   variant="outline"
+                   onClick={() => setShowBulkAssignDialog(false)}
+                   className="flex-1"
+                 >
+                   Cancel
+                 </Button>
+                 <Button
+                   onClick={() => {
+                     if (!bulkAssignData.plan_id || !bulkAssignData.start_date || !bulkAssignData.end_date) {
+                       toast.error("Please fill in all fields");
+                       return;
+                     }
+                     bulkAssignMutation.mutate();
+                   }}
+                   disabled={bulkAssignMutation.isPending}
+                   className="flex-1 bg-blue-600 hover:bg-blue-700"
+                 >
+                   {bulkAssignMutation.isPending ? (
+                     <>
+                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                       Assigning...
+                     </>
+                   ) : (
+                     "Assign Plans"
+                   )}
+                 </Button>
+               </div>
+             </div>
+           </DialogContent>
+         </Dialog>
+
         {/* Bulk Import Dialog */}
-        <BulkCoachImport open={showBulkImport} onOpenChange={setShowBulkImport} />
-      </div>
-    </div>
-  );
-}
+         <BulkCoachImport open={showBulkImport} onOpenChange={setShowBulkImport} />
+        </div>
+        </div>
+        );
+        }
