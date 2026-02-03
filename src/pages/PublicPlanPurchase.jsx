@@ -5,11 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Check, Users, Loader2, AlertCircle, LogIn, UserPlus } from "lucide-react";
+import { Check, Users, Loader2, AlertCircle, CreditCard } from "lucide-react";
+import { toast } from "sonner";
 
 export default function PublicPlanPurchase() {
   const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
   const planId = urlParams.get('planId');
+  const [isProcessing, setIsProcessing] = React.useState(false);
 
   const { data: plan, isLoading: planLoading } = useQuery({
     queryKey: ['publicClientPlan', planId],
@@ -31,25 +33,30 @@ export default function PublicPlanPurchase() {
     enabled: !!plan?.coach_email,
   });
 
-  const { data: isAuthenticated } = useQuery({
-    queryKey: ['isAuthenticated'],
-    queryFn: async () => {
+  const handlePurchaseNow = async () => {
+    if (!plan) return;
+    
+    setIsProcessing(true);
+    try {
+      // Check if user is authenticated
+      let user = null;
       try {
-        await base44.auth.me();
-        return true;
-      } catch {
-        return false;
+        user = await base44.auth.me();
+      } catch (error) {
+        // User not authenticated, redirect to login with return URL
+        const returnUrl = window.location.href;
+        localStorage.setItem('post_login_redirect', `/#/purchase-client-plan?planId=${planId}`);
+        base44.auth.redirectToLogin();
+        return;
       }
-    },
-  });
 
-  const handleLogin = () => {
-    const redirectUrl = window.location.href;
-    base44.auth.redirectToLogin(redirectUrl);
-  };
-
-  const handleProceedToPurchase = () => {
-    window.location.href = `/#/purchase-client-plan?planId=${planId}`;
+      // User is authenticated, redirect to purchase page
+      window.location.href = `/#/purchase-client-plan?planId=${planId}`;
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Something went wrong. Please try again.');
+      setIsProcessing(false);
+    }
   };
 
   if (!planId) {
@@ -197,10 +204,21 @@ export default function PublicPlanPurchase() {
                 </div>
 
                 <Button
-                  onClick={handleProceedToPurchase}
+                  onClick={handlePurchaseNow}
+                  disabled={isProcessing}
                   className="w-full h-14 text-lg bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-lg"
                 >
-                  Proceed to Secure Checkout
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-5 h-5 mr-2" />
+                      Purchase Now
+                    </>
+                  )}
                 </Button>
 
                 <div className="pt-6 border-t space-y-3">
