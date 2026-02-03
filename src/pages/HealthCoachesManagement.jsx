@@ -849,6 +849,148 @@ export default function HealthCoachesManagement() {
           </DialogContent>
         </Dialog>
 
+        {/* Change Plan Dialog */}
+        <Dialog open={showChangePlanDialog} onOpenChange={setShowChangePlanDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Change Coach Plan</DialogTitle>
+              <DialogDescription>
+                Update {viewingCoach?.full_name}'s subscription plan
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 mt-4">
+              <div>
+                <Label className="text-sm font-medium">Select Plan</Label>
+                <Select value={changePlanData.plan_id} onValueChange={(value) => setChangePlanData({ ...changePlanData, plan_id: value })}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Choose a plan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {plans.map((plan) => (
+                      <SelectItem key={plan.id} value={plan.id}>
+                        {plan.plan_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium">Start Date</Label>
+                <Input
+                  type="date"
+                  value={changePlanData.start_date}
+                  onChange={(e) =>
+                    setChangePlanData({ ...changePlanData, start_date: e.target.value })
+                  }
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium">Expiry Date</Label>
+                <Input
+                  type="date"
+                  value={changePlanData.end_date}
+                  onChange={(e) =>
+                    setChangePlanData({ ...changePlanData, end_date: e.target.value })
+                  }
+                  className="mt-1"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowChangePlanDialog(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (!changePlanData.plan_id || !changePlanData.start_date || !changePlanData.end_date) {
+                      toast.error("Please fill in all fields");
+                      return;
+                    }
+                    changePlanMutation.mutate();
+                  }}
+                  disabled={changePlanMutation.isPending}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  {changePlanMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    "Update Plan"
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Change Password Dialog */}
+        <Dialog open={showChangePasswordDialog} onOpenChange={setShowChangePasswordDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Change Password</DialogTitle>
+              <DialogDescription>
+                Set a new password for {viewingCoach?.full_name}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 mt-4">
+              <div>
+                <Label className="text-sm font-medium">New Password</Label>
+                <Input
+                  type="password"
+                  placeholder="Enter new password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowChangePasswordDialog(false);
+                    setNewPassword("");
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (!newPassword.trim()) {
+                      toast.error("Please enter a password");
+                      return;
+                    }
+                    changePasswordMutation.mutate();
+                  }}
+                  disabled={changePasswordMutation.isPending}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700"
+                >
+                  {changePasswordMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    "Change Password"
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* Bulk Import Dialog */}
         <BulkCoachImport open={showBulkImport} onOpenChange={setShowBulkImport} />
       </div>
