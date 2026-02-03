@@ -146,6 +146,7 @@ import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import CoachScheduling from './pages/CoachScheduling';
 import CoachProgramManagement from './pages/CoachProgramManagement';
+import CoachAnalyticsDashboard from './pages/CoachAnalyticsDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -249,6 +250,7 @@ export const PAGES = {
     "WhiteLabelSubscription": WhiteLabelSubscription,
     "CoachScheduling": CoachScheduling,
     "CoachProgramManagement": CoachProgramManagement,
+    "CoachAnalyticsDashboard": CoachAnalyticsDashboard,
 }
 
 export const pagesConfig = {
