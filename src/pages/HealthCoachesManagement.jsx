@@ -982,30 +982,33 @@ export default function HealthCoachesManagement() {
 
                       // Update subscription
                       const subscription = subscriptions.find((s) => s.coach_email === editingCoach.email);
-                      if (subscription && formData.plan_id) {
-                        base44.entities.HealthCoachSubscription.update(subscription.id, {
-                          plan_id: formData.plan_id,
-                          start_date: formData.start_date,
-                          end_date: formData.end_date,
-                        }).then(() => {
-                          queryClient.invalidateQueries({ queryKey: ["coachSubscriptions"] });
-                          setShowAddDialog(false);
-                          setEditingCoach(null);
-                          setFormData({ full_name: "", email: "", plan_id: "", start_date: "", end_date: "" });
-                          toast.success("✅ Coach updated successfully!");
-                        }).catch((error) => {
-                          toast.error(`Error: ${error?.message || "Failed to update"}`);
-                        });
+                      if (subscription) {
+                        updateTasks.push(
+                          base44.entities.HealthCoachSubscription.update(subscription.id, {
+                            coach_name: formData.full_name,
+                            plan_id: formData.plan_id,
+                            start_date: formData.start_date,
+                            end_date: formData.end_date,
+                          })
+                        );
                       } else if (formData.plan_id) {
-                        base44.entities.HealthCoachSubscription.create({
-                          coach_email: editingCoach.email,
-                          plan_id: formData.plan_id,
-                          start_date: formData.start_date,
-                          end_date: formData.end_date,
-                          status: "active",
-                          billing_cycle: "monthly",
-                          amount: 0,
-                        }).then(() => {
+                        updateTasks.push(
+                          base44.entities.HealthCoachSubscription.create({
+                            coach_email: editingCoach.email,
+                            coach_name: formData.full_name,
+                            plan_id: formData.plan_id,
+                            start_date: formData.start_date,
+                            end_date: formData.end_date,
+                            status: "active",
+                            billing_cycle: "monthly",
+                            amount: 0,
+                          })
+                        );
+                      }
+
+                      if (updateTasks.length > 0) {
+                        Promise.all(updateTasks).then(() => {
+                          queryClient.invalidateQueries({ queryKey: ["coaches"] });
                           queryClient.invalidateQueries({ queryKey: ["coachSubscriptions"] });
                           setShowAddDialog(false);
                           setEditingCoach(null);
