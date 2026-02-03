@@ -159,6 +159,54 @@ export default function HealthCoachesManagement() {
     },
   });
 
+  const changePlanMutation = useMutation({
+    mutationFn: async () => {
+      const subscription = subscriptions.find((s) => s.coach_email === viewingCoach.email);
+      if (subscription) {
+        await base44.entities.HealthCoachSubscription.update(subscription.id, {
+          plan_id: changePlanData.plan_id,
+          start_date: changePlanData.start_date,
+          end_date: changePlanData.end_date,
+        });
+      } else {
+        await base44.entities.HealthCoachSubscription.create({
+          coach_email: viewingCoach.email,
+          plan_id: changePlanData.plan_id,
+          start_date: changePlanData.start_date,
+          end_date: changePlanData.end_date,
+          status: "active",
+          billing_cycle: "monthly",
+          amount: 0,
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["coachSubscriptions"] });
+      setShowChangePlanDialog(false);
+      setChangePlanData({ plan_id: "", start_date: "", end_date: "" });
+      toast.success("✅ Plan changed successfully!");
+    },
+    onError: (error) => {
+      toast.error(`❌ Error: ${error?.message || "Failed to change plan"}`);
+    },
+  });
+
+  const changePasswordMutation = useMutation({
+    mutationFn: () =>
+      base44.functions.invoke("changeUserPassword", {
+        email: viewingCoach.email,
+        newPassword: newPassword,
+      }),
+    onSuccess: () => {
+      setShowChangePasswordDialog(false);
+      setNewPassword("");
+      toast.success("✅ Password changed successfully!");
+    },
+    onError: (error) => {
+      toast.error(`❌ Error: ${error?.message || "Failed to change password"}`);
+    },
+  });
+
   const filteredAndSortedCoaches = useMemo(() => {
     let filtered = coaches.filter((coach) => {
       const matchesSearch =
