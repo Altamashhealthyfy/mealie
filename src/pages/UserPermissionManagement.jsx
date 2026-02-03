@@ -41,9 +41,9 @@ export default function UserPermissionManagement() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: allUsers } = useQuery({
+  const { data: allUsers, refetch: refetchUsers } = useQuery({
     queryKey: ['allUsers'],
-    queryFn: () => base44.entities.User.list(),
+    queryFn: async () => base44.entities.User.list("-created_date", 10000),
     enabled: !!currentUser && currentUser.user_type === 'super_admin',
     initialData: [],
   });
