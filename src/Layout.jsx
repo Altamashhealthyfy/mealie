@@ -570,20 +570,29 @@ export default function Layout({ children, currentPageName }) {
       filtered = filtered.filter(item => {
         // Map navigation items to plan permissions
         const permissionMap = {
-          'Finance Manager': activePlan.can_access_finance_manager,
-          'Marketing Hub': activePlan.can_access_marketing_hub,
-          'Business GPTs': activePlan.can_access_business_gpts,
-          'Template Manager': activePlan.can_access_template_manager,
-          'Verticals Dashboard': activePlan.can_access_verticals,
-          'Bulk Import': activePlan.can_use_bulk_import,
-          'Team Attendance': activePlan.can_access_team_attendance,
-          'Team Management': activePlan.can_manage_team,
-          'Client Access Manager': activePlan.can_manage_client_access,
+          'Share My Link': true, // Always available
+          'Health Coach Plans': true, // Admin only
+          'Health Coaches': true, // Admin only
+          'Coupon Management': true, // Admin only
+          'Platform Branding': true, // Admin only
+          'Color Customization': true, // Admin only
+          'Subscription Manager': true, // Admin only
+          'Client Access Manager': activePlan?.can_manage_client_access !== false,
+          'User Permissions': true, // Admin only
+          'Webinar Tracker': true, // Admin only
+          'Finance Manager': activePlan?.can_access_finance_manager === true,
+          'Marketing Hub': activePlan?.can_access_marketing_hub === true,
+          'Business GPTs': activePlan?.can_access_business_gpts === true,
+          'Template Manager': activePlan?.can_access_template_manager === true,
+          'Verticals Dashboard': activePlan?.can_access_verticals === true,
+          'Bulk Import': activePlan?.can_use_bulk_import === true,
+          'Team Attendance': activePlan?.can_access_team_attendance === true,
+          'Team Management': activePlan?.can_manage_team === true,
         };
 
         // If there's a permission mapping, check it; otherwise allow
         if (permissionMap.hasOwnProperty(item.title)) {
-          return permissionMap[item.title] === true;
+          return permissionMap[item.title] !== false;
         }
         return true;
       });

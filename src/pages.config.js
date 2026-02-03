@@ -58,7 +58,6 @@ import BusinessHub from './pages/BusinessHub';
 import BusinessPlan from './pages/BusinessPlan';
 import CallCenter from './pages/CallCenter';
 import CallCenterAdmin from './pages/CallCenterAdmin';
-import ClientAccessManager from './pages/ClientAccessManager';
 import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
 import ClientAppointments from './pages/ClientAppointments';
 import ClientAssessments from './pages/ClientAssessments';
@@ -95,7 +94,6 @@ import FoodLog from './pages/FoodLog';
 import FoodLookup from './pages/FoodLookup';
 import GoogleCalendarSettings from './pages/GoogleCalendarSettings';
 import HealthCoachDashboard from './pages/HealthCoachDashboard';
-import HealthCoachPlans from './pages/HealthCoachPlans';
 import HealthCoachesManagement from './pages/HealthCoachesManagement';
 import HealthReportAnalysis from './pages/HealthReportAnalysis';
 import Home from './pages/Home';
@@ -147,6 +145,8 @@ import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import CoachScheduling from './pages/CoachScheduling';
 import CoachProgramManagement from './pages/CoachProgramManagement';
 import CoachAnalyticsDashboard from './pages/CoachAnalyticsDashboard';
+import ClientAccessManager from './pages/ClientAccessManager';
+import HealthCoachPlans from './pages/HealthCoachPlans';
 import __Layout from './Layout.jsx';
 
 
@@ -162,7 +162,6 @@ export const PAGES = {
     "BusinessPlan": BusinessPlan,
     "CallCenter": CallCenter,
     "CallCenterAdmin": CallCenterAdmin,
-    "ClientAccessManager": ClientAccessManager,
     "ClientAnalyticsDashboard": ClientAnalyticsDashboard,
     "ClientAppointments": ClientAppointments,
     "ClientAssessments": ClientAssessments,
@@ -199,7 +198,6 @@ export const PAGES = {
     "FoodLookup": FoodLookup,
     "GoogleCalendarSettings": GoogleCalendarSettings,
     "HealthCoachDashboard": HealthCoachDashboard,
-    "HealthCoachPlans": HealthCoachPlans,
     "HealthCoachesManagement": HealthCoachesManagement,
     "HealthReportAnalysis": HealthReportAnalysis,
     "Home": Home,
@@ -251,6 +249,8 @@ export const PAGES = {
     "CoachScheduling": CoachScheduling,
     "CoachProgramManagement": CoachProgramManagement,
     "CoachAnalyticsDashboard": CoachAnalyticsDashboard,
+    "ClientAccessManager": ClientAccessManager,
+    "HealthCoachPlans": HealthCoachPlans,
 }
 
 export const pagesConfig = {
