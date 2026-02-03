@@ -132,7 +132,6 @@ export default function HealthCoachPlans() {
       can_white_label: false,
       can_send_whatsapp: false,
       can_generate_ai_templates: false,
-      can_manage_client_access: false,
       ai_credits_included: 0,
       ai_credit_price: 10,
       ai_generation_limit: -1,

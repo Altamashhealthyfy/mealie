@@ -1,218 +1,537 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Eye, EyeOff } from "lucide-react";
-
-const menuSections = [
-  { key: 'show_my_dashboard', label: '📊 My Dashboard' },
-  { key: 'show_my_plans', label: '💳 My Plans' },
-  { key: 'show_my_meal_plan', label: '🍽️ My Meal Plan' },
-  { key: 'show_food_log', label: '📝 Food Log' },
-  { key: 'show_my_progress', label: '📈 My Progress' },
-  { key: 'show_mpess_wellness', label: '❤️ MPESS Wellness' },
-  { key: 'show_messages', label: '💬 Messages' },
-  { key: 'show_my_assessments', label: '📋 My Assessments' },
-  { key: 'show_my_appointments', label: '📅 My Appointments' },
-  { key: 'show_recipe_library', label: '🍳 Recipe Library' },
-  { key: 'show_food_lookup', label: '🔍 Food Lookup' },
-  { key: 'show_resources', label: '📚 Resources' },
-  { key: 'show_my_profile', label: '👤 My Profile' },
-];
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Home,
+  Calendar,
+  ChefHat,
+  Search,
+  Heart,
+  MessageSquare,
+  ClipboardList,
+  Utensils,
+  Scale,
+  BookOpen,
+  User,
+  CreditCard,
+  AlertCircle,
+  Loader2,
+  Save,
+  Eye,
+  EyeOff,
+  Users
+} from "lucide-react";
+import { toast } from "sonner";
 
 export default function ClientAccessManager() {
-  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedClient, setSelectedClient] = useState(null);
+  const [bulkSettings, setBulkSettings] = useState({});
+  const queryClient = useQueryClient();
 
-  const { data: user } = useQuery({
+  const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: coachPlan } = useQuery({
-    queryKey: ['coachPlan', user?.email],
+  const { data: coachSubscription } = useQuery({
+    queryKey: ['coachSubscription', user?.email],
     queryFn: async () => {
-      if (!user?.email) return null;
-      const subs = await base44.entities.HealthCoachSubscription.filter({
-        coach_email: user.email,
+      const subs = await base44.entities.HealthCoachSubscription.filter({ 
+        coach_email: user?.email,
         status: 'active'
       });
-      if (!subs[0]) return null;
-      const plans = await base44.entities.HealthCoachPlan.filter({ id: subs[0].plan_id });
+      return subs[0] || null;
+    },
+    enabled: !!user && user?.user_type === 'student_coach',
+  });
+
+  const { data: coachPlan } = useQuery({
+    queryKey: ['coachPlan', coachSubscription?.plan_id],
+    queryFn: async () => {
+      if (!coachSubscription?.plan_id) return null;
+      const plans = await base44.entities.HealthCoachPlan.filter({ id: coachSubscription.plan_id });
       return plans[0] || null;
     },
-    enabled: !!user?.email,
+    enabled: !!coachSubscription?.plan_id,
   });
 
-  const { data: clients } = useQuery({
-    queryKey: ['myClients', user?.email],
+  const { data: clients = [], isLoading: clientsLoading } = useQuery({
+    queryKey: ['coachClients', user?.email],
     queryFn: async () => {
-      if (!user?.email) return [];
-      const allClients = await base44.entities.Client.filter({
-        assigned_coach: { $in: [user.email] }
-      });
-      return allClients;
+      const allClients = await base44.entities.Client.list();
+      // Filter clients where coach email is in assigned_coach array or created by coach
+      return allClients.filter(client => 
+        client.assigned_coach?.includes(user?.email) || 
+        client.created_by === user?.email
+      );
     },
-    enabled: !!user?.email,
-    initialData: [],
+    enabled: !!user,
   });
 
-  const { data: accessControls } = useQuery({
-    queryKey: ['clientAccessControls', user?.email],
+  const { data: accessControl, isLoading: accessLoading } = useQuery({
+    queryKey: ['clientAccessControl', selectedClient?.id],
     queryFn: async () => {
-      if (!user?.email) return [];
       const controls = await base44.entities.ClientAccessControl.filter({
-        coach_email: user.email
+        client_id: selectedClient?.id
       });
-      return controls;
+      return controls[0] || null;
     },
-    enabled: !!user?.email,
-    initialData: [],
+    enabled: !!selectedClient?.id,
   });
 
-  const updateAccessMutation = useMutation({
-    mutationFn: async ({ clientId, clientEmail, settings }) => {
-      const existing = accessControls.find(ac => ac.client_id === clientId);
-      if (existing) {
-        return base44.entities.ClientAccessControl.update(existing.id, {
-          ...settings,
-          client_id: clientId,
-          client_email: clientEmail,
-          coach_email: user.email,
-        });
-      } else {
-        return base44.entities.ClientAccessControl.create({
-          client_id: clientId,
-          client_email: clientEmail,
-          coach_email: user.email,
-          ...settings,
-        });
-      }
+  const createAccessControlMutation = useMutation({
+    mutationFn: async (data) => {
+      return await base44.entities.ClientAccessControl.create(data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['clientAccessControls']);
+      queryClient.invalidateQueries(['clientAccessControl']);
+      toast.success("Access settings created!");
     },
   });
 
+  const updateAccessControlMutation = useMutation({
+    mutationFn: async ({ id, data }) => {
+      return await base44.entities.ClientAccessControl.update(id, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['clientAccessControl']);
+      toast.success("Access settings updated!");
+    },
+  });
+
+  const bulkUpdateMutation = useMutation({
+    mutationFn: async (settingsData) => {
+      const promises = filteredClients.map(async (client) => {
+        const existingControls = await base44.entities.ClientAccessControl.filter({
+          client_id: client.id
+        });
+        
+        const data = {
+          client_id: client.id,
+          client_email: client.email,
+          coach_email: user.email,
+          ...settingsData
+        };
+
+        if (existingControls[0]) {
+          return base44.entities.ClientAccessControl.update(existingControls[0].id, data);
+        } else {
+          return base44.entities.ClientAccessControl.create(data);
+        }
+      });
+
+      return Promise.all(promises);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['clientAccessControl']);
+      toast.success(`Access settings applied to ${filteredClients.length} clients!`);
+    },
+  });
+
+  const sections = [
+    { key: 'show_my_dashboard', label: 'My Dashboard', icon: Home },
+    { key: 'show_my_plans', label: 'My Plans', icon: CreditCard },
+    { key: 'show_my_meal_plan', label: 'My Meal Plan', icon: Calendar },
+    { key: 'show_food_log', label: 'Food Log', icon: Utensils },
+    { key: 'show_my_progress', label: 'My Progress', icon: Scale },
+    { key: 'show_mpess_wellness', label: 'MPESS Wellness', icon: Heart },
+    { key: 'show_messages', label: 'Messages', icon: MessageSquare },
+    { key: 'show_my_assessments', label: 'My Assessments', icon: ClipboardList },
+    { key: 'show_my_appointments', label: 'My Appointments', icon: Calendar },
+    { key: 'show_recipe_library', label: 'Recipe Library', icon: ChefHat },
+    { key: 'show_food_lookup', label: 'Food Lookup', icon: Search },
+    { key: 'show_resources', label: 'Resources', icon: BookOpen },
+    { key: 'show_my_profile', label: 'My Profile', icon: User },
+  ];
+
+  const [settings, setSettings] = useState(() => {
+    const initial = {};
+    sections.forEach(section => {
+      initial[section.key] = true;
+    });
+    return initial;
+  });
+
+  React.useEffect(() => {
+    if (accessControl) {
+      const newSettings = {};
+      sections.forEach(section => {
+        newSettings[section.key] = accessControl[section.key] ?? true;
+      });
+      setSettings(newSettings);
+    } else if (selectedClient) {
+      const defaultSettings = {};
+      sections.forEach(section => {
+        defaultSettings[section.key] = true;
+      });
+      setSettings(defaultSettings);
+    }
+  }, [accessControl, selectedClient]);
+
+  React.useEffect(() => {
+    const initial = {};
+    sections.forEach(section => {
+      initial[section.key] = true;
+    });
+    setBulkSettings(initial);
+  }, []);
+
+  const handleSave = () => {
+    if (!selectedClient) {
+      toast.error("Please select a client");
+      return;
+    }
+
+    const data = {
+      client_id: selectedClient.id,
+      client_email: selectedClient.email,
+      coach_email: user.email,
+      ...settings
+    };
+
+    if (accessControl) {
+      updateAccessControlMutation.mutate({ id: accessControl.id, data });
+    } else {
+      createAccessControlMutation.mutate(data);
+    }
+  };
+
+  const handleBulkSave = () => {
+    if (filteredClients.length === 0) {
+      toast.error("No clients to update");
+      return;
+    }
+
+    if (window.confirm(`Apply these settings to all ${filteredClients.length} clients?`)) {
+      bulkUpdateMutation.mutate(bulkSettings);
+    }
+  };
+
   const filteredClients = clients.filter(client =>
-    client.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.email.toLowerCase().includes(searchQuery.toLowerCase())
+    client.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    client.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const getClientAccessControl = (clientId) => {
-    return accessControls.find(ac => ac.client_id === clientId) || {};
-  };
-
-  const handleToggleSection = (clientId, clientEmail, section) => {
-    const control = getClientAccessControl(clientId);
-    const settings = {
-      show_my_dashboard: control.show_my_dashboard ?? true,
-      show_my_plans: control.show_my_plans ?? true,
-      show_my_meal_plan: control.show_my_meal_plan ?? true,
-      show_food_log: control.show_food_log ?? true,
-      show_my_progress: control.show_my_progress ?? true,
-      show_mpess_wellness: control.show_mpess_wellness ?? true,
-      show_messages: control.show_messages ?? true,
-      show_my_assessments: control.show_my_assessments ?? true,
-      show_my_appointments: control.show_my_appointments ?? true,
-      show_recipe_library: control.show_recipe_library ?? true,
-      show_food_lookup: control.show_food_lookup ?? true,
-      show_resources: control.show_resources ?? true,
-      show_my_profile: control.show_my_profile ?? true,
-    };
-    settings[section] = !settings[section];
-    updateAccessMutation.mutate({ clientId, clientEmail, settings });
-  };
-
-  if (!coachPlan?.can_manage_client_access && user?.user_type !== 'super_admin') {
+  if (userLoading) {
     return (
-      <div className="min-h-screen p-8 flex items-center justify-center">
-        <Alert className="max-w-md">
-          <AlertCircle className="w-5 h-5" />
-          <AlertDescription>
-            This feature is not included in your plan. Upgrade to Pro to control individual client menu access.
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+      </div>
+    );
+  }
+
+  const isDietitian = ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(user?.user_type);
+
+  if (!isDietitian) {
+    return (
+      <div className="p-6">
+        <Alert className="border-red-200 bg-red-50">
+          <AlertCircle className="w-4 h-4 text-red-600" />
+          <AlertDescription className="text-red-900">
+            This feature is only available for health coaches.
           </AlertDescription>
         </Alert>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Client Access Manager</h1>
-          <p className="text-gray-600">Control which menu sections are visible to each client</p>
-        </div>
+  const hasAccess = user?.user_type === 'super_admin' || 
+                    user?.user_type === 'team_member' || 
+                    coachPlan?.can_manage_client_access;
 
-        <div className="mb-6">
-          <Input
-            placeholder="Search clients by name or email..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="max-w-md"
-          />
-        </div>
-
-        {filteredClients.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <p className="text-gray-500">No clients found</p>
+  if (user?.user_type === 'student_coach' && !hasAccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-6">
+        <div className="max-w-3xl mx-auto">
+          <Card className="bg-white/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-2xl">
+                <Eye className="w-6 h-6 text-orange-500" />
+                Client Access Manager
+              </CardTitle>
+              <CardDescription>Control which menu sections are visible to each client</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Alert className="border-amber-200 bg-amber-50">
+                <AlertCircle className="w-4 h-4 text-amber-600" />
+                <AlertDescription className="text-amber-900">
+                  <strong>Upgrade Required</strong>
+                  <p className="mt-2">
+                    This feature is not available in your current plan. Upgrade to access Client Access Manager and control individual client menu visibility.
+                  </p>
+                </AlertDescription>
+              </Alert>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <h3 className="font-semibold text-gray-900">With this feature you can:</h3>
+                <ul className="space-y-2 text-sm text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600">✓</span>
+                    <span>Show or hide menu sections for each client individually</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600">✓</span>
+                    <span>Apply settings to all clients at once</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600">✓</span>
+                    <span>Customize client experience based on their plan or progress</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600">✓</span>
+                    <span>Temporarily disable unused features</span>
+                  </li>
+                </ul>
+              </div>
+              <Button 
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500"
+                onClick={() => window.location.href = '/CoachSubscriptions'}
+              >
+                Upgrade Your Plan
+              </Button>
             </CardContent>
           </Card>
-        ) : (
-          <div className="grid gap-6">
-            {filteredClients.map((client) => {
-              const control = getClientAccessControl(client.id);
-              return (
-                <Card key={client.id} className="border-l-4 border-l-blue-500">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="text-lg">{client.full_name}</CardTitle>
-                        <p className="text-sm text-gray-500">{client.email}</p>
-                      </div>
-                      {selectedClient === client.id && (
-                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                          Expanded
-                        </span>
-                      )}
-                    </div>
-                  </CardHeader>
+        </div>
+      </div>
+    );
+  }
 
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {menuSections.map(({ key, label }) => (
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Client Access Manager</h1>
+          <p className="text-gray-600 mt-1">Control which menu sections are visible to each client</p>
+        </div>
+
+        <Tabs defaultValue="individual" className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="individual">Individual Client</TabsTrigger>
+            <TabsTrigger value="bulk">All Clients</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="individual">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+              {/* Client List */}
+              <Card className="lg:col-span-1 bg-white/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle>Select Client</CardTitle>
+              <CardDescription>Choose a client to manage their access</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Input
+                placeholder="Search clients..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="mb-3"
+              />
+              {clientsLoading ? (
+                <div className="flex justify-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-orange-500" />
+                </div>
+              ) : filteredClients.length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-4">No clients found</p>
+              ) : (
+                <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                  {filteredClients.map((client) => (
+                    <button
+                      key={client.id}
+                      onClick={() => setSelectedClient(client)}
+                      className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
+                        selectedClient?.id === client.id
+                          ? 'border-orange-500 bg-orange-50'
+                          : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50/50'
+                      }`}
+                    >
+                      <p className="font-semibold text-gray-900">{client.full_name}</p>
+                      <p className="text-xs text-gray-600">{client.email}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+              {/* Access Settings */}
+              <Card className="lg:col-span-2 bg-white/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle>Menu Access Settings</CardTitle>
+              <CardDescription>
+                {selectedClient
+                  ? `Managing access for ${selectedClient.full_name}`
+                  : 'Select a client to manage their menu access'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!selectedClient ? (
+                <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                  <Eye className="w-12 h-12 mb-4" />
+                  <p>Select a client to configure their menu access</p>
+                </div>
+              ) : accessLoading ? (
+                <div className="flex justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <Alert className="bg-blue-50 border-blue-200">
+                    <AlertCircle className="w-4 h-4 text-blue-600" />
+                    <AlertDescription className="text-blue-900 text-sm">
+                      Toggle switches to show or hide sections in the client's menu. Changes take effect immediately after saving.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {sections.map((section) => {
+                      const Icon = section.icon;
+                      return (
                         <div
-                          key={key}
-                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                          key={section.key}
+                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                            settings[section.key]
+                              ? 'border-green-200 bg-green-50'
+                              : 'border-gray-200 bg-gray-50'
+                          }`}
                         >
-                          <label className="flex items-center gap-2 flex-1 cursor-pointer">
-                            <span className="text-sm font-medium text-gray-700">{label}</span>
-                          </label>
+                          <div className="flex items-center gap-3">
+                            <Icon className={`w-5 h-5 ${
+                              settings[section.key] ? 'text-green-600' : 'text-gray-400'
+                            }`} />
+                            <Label
+                              htmlFor={section.key}
+                              className={`cursor-pointer ${
+                                settings[section.key] ? 'text-gray-900' : 'text-gray-500'
+                              }`}
+                            >
+                              {section.label}
+                            </Label>
+                          </div>
                           <Switch
-                            checked={control[key] ?? true}
-                            onCheckedChange={() => handleToggleSection(client.id, client.email, key)}
-                            className="ml-2"
+                            id={section.key}
+                            checked={settings[section.key]}
+                            onCheckedChange={(checked) =>
+                              setSettings({ ...settings, [section.key]: checked })
+                            }
                           />
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })}
+                  </div>
 
-                    <div className="mt-4 text-xs text-gray-500">
-                      {Object.values(control).filter(v => v === true).length || menuSections.length} of {menuSections.length} sections visible
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
+                  <div className="flex justify-end gap-3 pt-4 border-t">
+                    <Button
+                      onClick={handleSave}
+                      className="bg-gradient-to-r from-orange-500 to-red-500"
+                      disabled={createAccessControlMutation.isPending || updateAccessControlMutation.isPending}
+                    >
+                      {(createAccessControlMutation.isPending || updateAccessControlMutation.isPending) ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4 mr-2" />
+                          Save Changes
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="bulk">
+            <Card className="mt-6 bg-white/80 backdrop-blur-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Apply Settings to All Clients
+                </CardTitle>
+                <CardDescription>
+                  Configure menu access for all {filteredClients.length} clients at once
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <Alert className="bg-amber-50 border-amber-200">
+                    <AlertCircle className="w-4 h-4 text-amber-600" />
+                    <AlertDescription className="text-amber-900 text-sm">
+                      These settings will be applied to all {filteredClients.length} clients. Existing settings will be overwritten.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {sections.map((section) => {
+                      const Icon = section.icon;
+                      return (
+                        <div
+                          key={section.key}
+                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                            bulkSettings[section.key]
+                              ? 'border-green-200 bg-green-50'
+                              : 'border-gray-200 bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Icon className={`w-5 h-5 ${
+                              bulkSettings[section.key] ? 'text-green-600' : 'text-gray-400'
+                            }`} />
+                            <Label
+                              htmlFor={`bulk-${section.key}`}
+                              className={`cursor-pointer ${
+                                bulkSettings[section.key] ? 'text-gray-900' : 'text-gray-500'
+                              }`}
+                            >
+                              {section.label}
+                            </Label>
+                          </div>
+                          <Switch
+                            id={`bulk-${section.key}`}
+                            checked={bulkSettings[section.key]}
+                            onCheckedChange={(checked) =>
+                              setBulkSettings({ ...bulkSettings, [section.key]: checked })
+                            }
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-4 border-t">
+                    <Button
+                      onClick={handleBulkSave}
+                      className="bg-gradient-to-r from-orange-500 to-red-500"
+                      disabled={bulkUpdateMutation.isPending || filteredClients.length === 0}
+                    >
+                      {bulkUpdateMutation.isPending ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Applying to {filteredClients.length} clients...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="w-4 h-4 mr-2" />
+                          Apply to All {filteredClients.length} Clients
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
