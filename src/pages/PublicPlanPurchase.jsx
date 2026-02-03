@@ -131,18 +131,33 @@ export default function PublicPlanPurchase() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {/* Plan Details */}
-          <Card className="border-none shadow-2xl">
-            <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white">
+          <Card className="border-none shadow-2xl overflow-hidden">
+            {plan.thumbnail_url && (
+              <div className="w-full h-64 overflow-hidden bg-gray-100">
+                <img 
+                  src={plan.thumbnail_url} 
+                  alt={plan.plan_name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            <CardHeader className={plan.thumbnail_url ? "bg-white" : "bg-gradient-to-r from-blue-500 to-cyan-600 text-white"}>
               <div className="flex items-center justify-between mb-3">
-                <Users className="w-10 h-10" />
-                <Badge className="bg-white text-blue-600 text-sm px-3 py-1">
+                <Users className={`w-10 h-10 ${plan.thumbnail_url ? 'text-blue-600' : ''}`} />
+                <Badge className={plan.thumbnail_url ? "bg-blue-600 text-white" : "bg-white text-blue-600"}>
                   {plan.duration_days} DAYS
                 </Badge>
               </div>
-              <CardTitle className="text-3xl mb-3">{plan.plan_name}</CardTitle>
+              <CardTitle className={`text-3xl mb-3 ${plan.thumbnail_url ? 'text-gray-900' : ''}`}>
+                {plan.plan_name}
+              </CardTitle>
               <div className="mt-4">
-                <p className="text-5xl font-bold">₹{plan.price}</p>
-                <p className="text-sm opacity-90 mt-1">Complete {plan.duration_days}-day program</p>
+                <p className={`text-5xl font-bold ${plan.thumbnail_url ? 'text-gray-900' : ''}`}>
+                  ₹{plan.price}
+                </p>
+                <p className={`text-sm mt-1 ${plan.thumbnail_url ? 'text-gray-600' : 'opacity-90'}`}>
+                  Complete {plan.duration_days}-day program
+                </p>
               </div>
             </CardHeader>
             <CardContent className="p-8 space-y-6">

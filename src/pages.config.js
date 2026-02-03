@@ -74,6 +74,7 @@ import ClientPlanBuilder from './pages/ClientPlanBuilder';
 import ClientPlanManagement from './pages/ClientPlanManagement';
 import ClientPlans from './pages/ClientPlans';
 import ClientProgressAnalytics from './pages/ClientProgressAnalytics';
+import ClientProgressReview from './pages/ClientProgressReview';
 import ClientRecipes from './pages/ClientRecipes';
 import ClientReports from './pages/ClientReports';
 import ClientResourceLibrary from './pages/ClientResourceLibrary';
@@ -142,7 +143,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import ClientProgressReview from './pages/ClientProgressReview';
 import __Layout from './Layout.jsx';
 
 
@@ -174,6 +174,7 @@ export const PAGES = {
     "ClientPlanManagement": ClientPlanManagement,
     "ClientPlans": ClientPlans,
     "ClientProgressAnalytics": ClientProgressAnalytics,
+    "ClientProgressReview": ClientProgressReview,
     "ClientRecipes": ClientRecipes,
     "ClientReports": ClientReports,
     "ClientResourceLibrary": ClientResourceLibrary,
@@ -242,7 +243,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "ClientProgressReview": ClientProgressReview,
 }
 
 export const pagesConfig = {

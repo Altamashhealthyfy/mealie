@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Edit, Trash2, Check, X, Users, Lock, Copy } from "lucide-react";
+import { Plus, Edit, Trash2, Check, X, Users, Lock, Copy, Upload, Image as ImageIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import CouponInput from "@/components/payments/CouponInput";
 import { toast } from "sonner";
@@ -26,8 +26,10 @@ export default function ClientPlanBuilder() {
     price: 0,
     features: [],
     is_global: false,
-    status: "active"
+    status: "active",
+    thumbnail_url: ""
   });
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [healthFocusInput, setHealthFocusInput] = useState("");
   const [featureInput, setFeatureInput] = useState("");
 
@@ -107,7 +109,8 @@ export default function ClientPlanBuilder() {
       price: 0,
       features: [],
       is_global: false,
-      status: "active"
+      status: "active",
+      thumbnail_url: ""
     });
     setHealthFocusInput("");
     setFeatureInput("");
@@ -124,7 +127,8 @@ export default function ClientPlanBuilder() {
       price: plan.price,
       features: plan.features || [],
       is_global: plan.is_global || false,
-      status: plan.status
+      status: plan.status,
+      thumbnail_url: plan.thumbnail_url || ""
     });
     setShowDialog(true);
   };
@@ -174,6 +178,23 @@ export default function ClientPlanBuilder() {
 
   const removeFeature = (index) => {
     setFormData({ ...formData, features: formData.features.filter((_, i) => i !== index) });
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+      const { data } = await base44.integrations.Core.UploadFile({ file });
+      setFormData({ ...formData, thumbnail_url: data.file_url });
+      toast.success('✅ Image uploaded successfully!');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Failed to upload image. Please try again.');
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const copyPurchaseLink = async (planId, planName) => {
@@ -236,10 +257,21 @@ export default function ClientPlanBuilder() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {myPlans.map((plan) => (
-            <Card key={plan.id} className="border-none shadow-xl">
-              <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white">
+            <Card key={plan.id} className="border-none shadow-xl overflow-hidden">
+              {plan.thumbnail_url && (
+                <div className="w-full h-48 overflow-hidden bg-gray-100">
+                  <img 
+                    src={plan.thumbnail_url} 
+                    alt={plan.plan_name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <CardHeader className={plan.thumbnail_url ? "bg-white" : "bg-gradient-to-r from-blue-500 to-cyan-600 text-white"}>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl">{plan.plan_name}</CardTitle>
+                  <CardTitle className={`text-xl ${plan.thumbnail_url ? 'text-gray-900' : ''}`}>
+                    {plan.plan_name}
+                  </CardTitle>
                   <div className="flex gap-2">
                     {plan.is_global && <Badge className="bg-purple-600">Global</Badge>}
                     <Badge className={plan.status === 'active' ? 'bg-green-600' : 'bg-gray-600'}>
@@ -306,7 +338,7 @@ export default function ClientPlanBuilder() {
             </DialogHeader>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
+                <div className="space-y-2 col-span-2">
                   <Label>Plan Name *</Label>
                   <Input
                     value={formData.plan_name}
@@ -314,22 +346,76 @@ export default function ClientPlanBuilder() {
                     placeholder="e.g., Weight Loss Plan"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label>Description</Label>
+                <div className="space-y-2">
+                  <Label>Plan Thumbnail</Label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
+                    {formData.thumbnail_url ? (
+                      <div className="space-y-3">
+                        <img 
+                          src={formData.thumbnail_url} 
+                          alt="Plan thumbnail" 
+                          className="w-full h-48 object-cover rounded-lg mx-auto"
+                        />
+                        <div className="flex gap-2 justify-center">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => document.getElementById('thumbnail-upload').click()}
+                          >
+                            <Upload className="w-4 h-4 mr-2" />
+                            Change Image
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setFormData({ ...formData, thumbnail_url: "" })}
+                          >
+                            <X className="w-4 h-4 mr-2" />
+                            Remove
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <ImageIcon className="w-12 h-12 mx-auto text-gray-400" />
+                        <div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => document.getElementById('thumbnail-upload').click()}
+                            disabled={uploadingImage}
+                          >
+                            {uploadingImage ? (
+                              <>Uploading...</>
+                            ) : (
+                              <>
+                                <Upload className="w-4 h-4 mr-2" />
+                                Upload Thumbnail
+                              </>
+                            )}
+                          </Button>
+                          <p className="text-xs text-gray-500 mt-2">
+                            Recommended: 1280x720px (horizontal image)
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    <input
+                      id="thumbnail-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Description</Label>
                 <Textarea
                   value={formData.plan_description}
                   onChange={(e) => setFormData({ ...formData, plan_description: e.target.value })}
