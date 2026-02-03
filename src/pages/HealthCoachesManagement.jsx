@@ -240,6 +240,28 @@ export default function HealthCoachesManagement() {
     },
   });
 
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async () => {
+      const coachEmails = selectedCoaches.map(id => coaches.find(c => c.id === id)?.email).filter(Boolean);
+      for (const email of coachEmails) {
+        const coach = coaches.find(c => c.email === email);
+        if (coach?.id) {
+          await base44.asServiceRole.entities.User.update(coach.id, { user_type: "user" });
+        }
+      }
+    },
+    onSuccess: () => {
+      setTimeout(() => {
+        refetchCoaches();
+      }, 1000);
+      setSelectedCoaches([]);
+      toast.success("✅ Coaches deleted successfully!");
+    },
+    onError: (error) => {
+      toast.error(`❌ Error: ${error?.message || "Failed to delete coaches"}`);
+    },
+  });
+
   const filteredAndSortedCoaches = useMemo(() => {
     let filtered = coaches.filter((coach) => {
       const matchesSearch =
