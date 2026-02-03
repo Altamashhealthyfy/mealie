@@ -175,9 +175,9 @@ export default function ClientPlanBuilder() {
     setFormData({ ...formData, features: formData.features.filter((_, i) => i !== index) });
   };
 
-  const copyPurchaseLink = (planId) => {
-    const baseUrl = window.location.origin;
-    const purchaseUrl = `${baseUrl}/#/public-plan-purchase?planId=${planId}`;
+  const copyPurchaseLink = (planId, planName) => {
+    const formattedPlanName = planName.toLowerCase().replace(/\s+/g, '-');
+    const purchaseUrl = `https://mealiepro.com/${formattedPlanName}?planId=${planId}`;
     navigator.clipboard.writeText(purchaseUrl);
     alert('✅ Public purchase link copied! Anyone can view and purchase this plan.');
   };
@@ -258,7 +258,7 @@ export default function ClientPlanBuilder() {
                 )}
 
                 <div className="space-y-2 pt-4">
-                  <Button onClick={() => copyPurchaseLink(plan.id)} variant="outline" className="w-full bg-green-50 hover:bg-green-100 text-green-700 border-green-300">
+                  <Button onClick={() => copyPurchaseLink(plan.id, plan.plan_name)} variant="outline" className="w-full bg-green-50 hover:bg-green-100 text-green-700 border-green-300">
                     <Copy className="w-4 h-4 mr-2" />
                     Copy Purchase Link
                   </Button>
