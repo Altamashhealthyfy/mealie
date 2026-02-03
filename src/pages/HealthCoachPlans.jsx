@@ -42,6 +42,7 @@ export default function HealthCoachPlans() {
     can_white_label: false,
     can_send_whatsapp: false,
     can_generate_ai_templates: false,
+    can_manage_client_access: false,
     ai_credits_included: 0,
     ai_credit_price: 10,
     ai_generation_limit: -1,
@@ -168,6 +169,7 @@ export default function HealthCoachPlans() {
       can_white_label: plan.can_white_label || false,
       can_send_whatsapp: plan.can_send_whatsapp || false,
       can_generate_ai_templates: plan.can_generate_ai_templates || false,
+      can_manage_client_access: plan.can_manage_client_access || false,
       ai_credits_included: plan.ai_credits_included || 0,
       ai_credit_price: plan.ai_credit_price || 10,
       ai_generation_limit: plan.ai_generation_limit,
@@ -335,6 +337,9 @@ export default function HealthCoachPlans() {
                     </p>
                     <p className={plan.can_generate_ai_templates ? 'text-green-700' : 'text-gray-400'}>
                       {plan.can_generate_ai_templates ? '✓' : '✗'} AI Templates ✨
+                    </p>
+                    <p className={plan.can_manage_client_access ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_manage_client_access ? '✓' : '✗'} Client Access 👁️
                     </p>
                   </div>
                 </div>
@@ -639,6 +644,16 @@ export default function HealthCoachPlans() {
                   <Switch
                     checked={formData.can_generate_ai_templates}
                     onCheckedChange={(checked) => setFormData({ ...formData, can_generate_ai_templates: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 bg-indigo-50 rounded border border-indigo-200">
+                  <div>
+                    <Label>Can Manage Client Access 👁️</Label>
+                    <p className="text-xs text-gray-600 mt-1">Control individual client menu visibility</p>
+                  </div>
+                  <Switch
+                    checked={formData.can_manage_client_access}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_manage_client_access: checked })}
                   />
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
