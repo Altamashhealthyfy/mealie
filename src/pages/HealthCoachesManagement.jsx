@@ -444,28 +444,40 @@ export default function HealthCoachesManagement() {
         </div>
 
         {/* Selection Controls */}
-        {filteredAndSortedCoaches.length > 0 && (
+         {filteredAndSortedCoaches.length > 0 && (
           <div className="flex items-center justify-between p-3 bg-white rounded-lg shadow">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleSelectAll}
-              className="flex items-center gap-2"
-            >
-              {selectedCoaches.length === filteredAndSortedCoaches.length ? (
-                <CheckSquare className="w-4 h-4 text-orange-600" />
-              ) : (
-                <Square className="w-4 h-4" />
-              )}
-              <span className="text-sm">
-                {selectedCoaches.length === filteredAndSortedCoaches.length ? "Deselect All" : "Select All"}
-              </span>
-            </Button>
-            <p className="text-sm text-gray-600">
-              {selectedCoaches.length} of {filteredAndSortedCoaches.length} selected
-            </p>
-          </div>
-        )}
+             <div className="flex items-center gap-3">
+               <Button
+                 variant="outline"
+                 size="sm"
+                 onClick={toggleSelectAll}
+                 className="flex items-center gap-2"
+               >
+                 {selectedCoaches.length === filteredAndSortedCoaches.length ? (
+                   <CheckSquare className="w-4 h-4 text-orange-600" />
+                 ) : (
+                   <Square className="w-4 h-4" />
+                 )}
+                 <span className="text-sm">
+                   {selectedCoaches.length === filteredAndSortedCoaches.length ? "Deselect All" : "Select All"}
+                 </span>
+               </Button>
+               {selectedCoaches.length > 0 && (
+                 <Button
+                   size="sm"
+                   onClick={() => setShowBulkAssignDialog(true)}
+                   className="bg-blue-600 hover:bg-blue-700 text-white"
+                 >
+                   <Crown className="w-4 h-4 mr-2" />
+                   Assign Plan to {selectedCoaches.length}
+                 </Button>
+               )}
+             </div>
+             <p className="text-sm text-gray-600">
+               {selectedCoaches.length} of {filteredAndSortedCoaches.length} selected
+             </p>
+           </div>
+         )}
 
         {/* Coaches Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
