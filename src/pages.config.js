@@ -48,6 +48,7 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import AddTeamAppointment from './pages/AddTeamAppointment';
+import AdminPlatformAnalytics from './pages/AdminPlatformAnalytics';
 import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
 import Appointments from './pages/Appointments';
 import AssessmentTemplates from './pages/AssessmentTemplates';
@@ -65,6 +66,7 @@ import ClientAssessments from './pages/ClientAssessments';
 import ClientCommunication from './pages/ClientCommunication';
 import ClientCommunicationHub from './pages/ClientCommunicationHub';
 import ClientDashboard from './pages/ClientDashboard';
+import ClientFeedbackManagement from './pages/ClientFeedbackManagement';
 import ClientFinanceManager from './pages/ClientFinanceManager';
 import ClientManagement from './pages/ClientManagement';
 import ClientOnboarding from './pages/ClientOnboarding';
@@ -147,13 +149,12 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import AdminPlatformAnalytics from './pages/AdminPlatformAnalytics';
-import ClientFeedbackManagement from './pages/ClientFeedbackManagement';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AddTeamAppointment": AddTeamAppointment,
+    "AdminPlatformAnalytics": AdminPlatformAnalytics,
     "AdminSubscriptionManager": AdminSubscriptionManager,
     "Appointments": Appointments,
     "AssessmentTemplates": AssessmentTemplates,
@@ -171,6 +172,7 @@ export const PAGES = {
     "ClientCommunication": ClientCommunication,
     "ClientCommunicationHub": ClientCommunicationHub,
     "ClientDashboard": ClientDashboard,
+    "ClientFeedbackManagement": ClientFeedbackManagement,
     "ClientFinanceManager": ClientFinanceManager,
     "ClientManagement": ClientManagement,
     "ClientOnboarding": ClientOnboarding,
@@ -253,8 +255,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "AdminPlatformAnalytics": AdminPlatformAnalytics,
-    "ClientFeedbackManagement": ClientFeedbackManagement,
 }
 
 export const pagesConfig = {

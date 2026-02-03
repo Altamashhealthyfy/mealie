@@ -613,8 +613,8 @@ export default function HealthCoachesManagement() {
                         )}
                       </Button>
                       <div className="min-w-0">
-                        <CardTitle className="text-base md:text-lg truncate">{coach.full_name}</CardTitle>
-                        <p className="text-xs md:text-sm text-gray-600 truncate">{coach.email}</p>
+                        <CardTitle className="text-base md:text-lg truncate">{coach.email}</CardTitle>
+                        <p className="text-xs md:text-sm text-gray-600 truncate">{coach.full_name}</p>
                       </div>
                     </div>
                   </div>
