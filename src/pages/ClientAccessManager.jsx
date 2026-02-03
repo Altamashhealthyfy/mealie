@@ -41,9 +41,12 @@ export default function ClientAccessManager() {
   const { data: clients = [], isLoading: clientsLoading } = useQuery({
     queryKey: ['coachClients', user?.email],
     queryFn: async () => {
-      return await base44.entities.Client.filter({
-        assigned_coach: user?.email
-      });
+      const allClients = await base44.entities.Client.list();
+      // Filter clients where coach email is in assigned_coach array or created by coach
+      return allClients.filter(client => 
+        client.assigned_coach?.includes(user?.email) || 
+        client.created_by === user?.email
+      );
     },
     enabled: !!user,
   });
