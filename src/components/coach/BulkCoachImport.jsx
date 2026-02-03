@@ -151,8 +151,8 @@ Bob Nutritionist,bob@example.com,9876543212`;
     setCsvContent("");
     setCsvError("");
     setManualRows([
-      { full_name: "", email: "", phone: "" },
-      { full_name: "", email: "", phone: "" },
+      { full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" },
+      { full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" },
     ]);
   };
 
