@@ -53,6 +53,7 @@ import ClientProgressDashboard from "@/components/client/ClientProgressDashboard
 import AdvancedFilters from "@/components/client/AdvancedFilters";
 import BulkActionsPanel from "@/components/client/BulkActionsPanel";
 import WelcomeMessageManager from "@/components/common/WelcomeMessageManager";
+import BulkClientImport from "@/components/client/BulkClientImport";
 
 
 export default function ClientManagement() {
@@ -89,6 +90,7 @@ export default function ClientManagement() {
   const [showPassword, setShowPassword] = useState(false);
   const [showWelcomeMessageDialog, setShowWelcomeMessageDialog] = useState(false);
   const [clientForWelcome, setClientForWelcome] = useState(null);
+  const [showBulkImport, setShowBulkImport] = useState(false);
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -724,37 +726,38 @@ support@mealiepro.com`;
             <p className="text-sm md:text-base text-gray-600">Manage your clients and their health journeys</p>
           </div>
           
-          <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-            <DialogTrigger asChild>
-              <Button
-                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 w-full sm:w-auto"
-                onClick={() => {
-                  setEditingClient(null);
-                  setFormData({
-                    full_name: "",
-                    email: "",
-                    phone: "",
-                    profile_photo_url: "",
-                    age: "",
-                    gender: "male",
-                    height: "",
-                    weight: "",
-                    target_weight: "",
-                    activity_level: "moderately_active",
-                    goal: "weight_loss",
-                    food_preference: "veg",
-                    regional_preference: "north",
-                    status: "active",
-                    join_date: format(new Date(), 'yyyy-MM-dd'),
-                    notes: '',
-                  });
-                  setShowAddDialog(true);
-                }}
-              >
-                <UserPlus className="w-4 h-4 mr-2" />
-                Add New Client
-              </Button>
-            </DialogTrigger>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+              <DialogTrigger asChild>
+                <Button
+                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 flex-1 sm:flex-none"
+                  onClick={() => {
+                    setEditingClient(null);
+                    setFormData({
+                      full_name: "",
+                      email: "",
+                      phone: "",
+                      profile_photo_url: "",
+                      age: "",
+                      gender: "male",
+                      height: "",
+                      weight: "",
+                      target_weight: "",
+                      activity_level: "moderately_active",
+                      goal: "weight_loss",
+                      food_preference: "veg",
+                      regional_preference: "north",
+                      status: "active",
+                      join_date: format(new Date(), 'yyyy-MM-dd'),
+                      notes: '',
+                    });
+                    setShowAddDialog(true);
+                  }}
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Add New Client
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="text-2xl">
@@ -1029,8 +1032,18 @@ support@mealiepro.com`;
                 {saveClientMutation.isPending ? 'Saving...' : editingClient ? 'Update Client' : '✅ Add Client'}
               </Button>
             </DialogContent>
-          </Dialog>
-        </div>
+            </Dialog>
+
+            <Button
+            variant="outline"
+            onClick={() => setShowBulkImport(true)}
+            className="text-green-600 hover:bg-green-50 border-green-300 flex-1 sm:flex-none"
+            >
+            <Plus className="w-4 h-4 mr-2" />
+            Bulk Import
+            </Button>
+            </div>
+            </div>
 
         {/* Advanced Filters */}
         <AdvancedFilters
