@@ -16,10 +16,17 @@ export default function BulkCoachImport({ open, onOpenChange }) {
   const [csvContent, setCsvContent] = useState("");
   const [csvError, setCsvError] = useState("");
   const [manualRows, setManualRows] = useState([
-    { full_name: "", email: "", phone: "" },
-    { full_name: "", email: "", phone: "" },
+    { full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" },
+    { full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" },
   ]);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const { data: plans = [] } = useQuery({
+    queryKey: ['healthCoachPlans'],
+    queryFn: async () => {
+      return await base44.entities.HealthCoachPlan.list();
+    },
+  });
 
   const createCoachesMutation = useMutation({
     mutationFn: async (coaches) => {
