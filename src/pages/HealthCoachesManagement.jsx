@@ -487,14 +487,29 @@ export default function HealthCoachesManagement() {
                  </span>
                </Button>
                {selectedCoaches.length > 0 && (
-                 <Button
-                   size="sm"
-                   onClick={() => setShowBulkAssignDialog(true)}
-                   className="bg-blue-600 hover:bg-blue-700 text-white"
-                 >
-                   <Crown className="w-4 h-4 mr-2" />
-                   Assign Plan to {selectedCoaches.length}
-                 </Button>
+                 <>
+                   <Button
+                     size="sm"
+                     onClick={() => setShowBulkAssignDialog(true)}
+                     className="bg-blue-600 hover:bg-blue-700 text-white"
+                   >
+                     <Crown className="w-4 h-4 mr-2" />
+                     Assign Plan to {selectedCoaches.length}
+                   </Button>
+                   <Button
+                     size="sm"
+                     onClick={() => {
+                       if (window.confirm(`Delete ${selectedCoaches.length} coach(es)? This action cannot be undone.`)) {
+                         bulkDeleteMutation.mutate();
+                       }
+                     }}
+                     disabled={bulkDeleteMutation.isPending}
+                     className="bg-red-600 hover:bg-red-700 text-white"
+                   >
+                     <Trash2 className="w-4 h-4 mr-2" />
+                     {bulkDeleteMutation.isPending ? "Deleting..." : `Delete ${selectedCoaches.length}`}
+                   </Button>
+                 </>
                )}
              </div>
              <p className="text-sm text-gray-600">
