@@ -50,7 +50,7 @@ export default function UserPermissionManagement() {
       const allSubs = await base44.entities.HealthCoachSubscription.list("", 10000);
       const userEmails = new Set(users.map(u => u.email));
       const subscriptionOnlyCoaches = allSubs
-        .filter(s => !userEmails.has(s.coach_email))
+        .filter(s => !userEmails.has(s.coach_email) && (s.status === "active" || s.manually_granted))
         .map(s => ({
           id: `sub_${s.id}`,
           email: s.coach_email,
