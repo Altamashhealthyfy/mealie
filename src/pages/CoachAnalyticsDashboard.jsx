@@ -249,17 +249,94 @@ export default function CoachAnalyticsDashboard() {
     }));
   }, [programs, enrollments]);
 
-  if (!user || user.user_type !== "student_coach") {
+  // Client satisfaction
+  const clientSatisfaction = useMemo(() => {
+    if (enrollments.length === 0) return 0;
+    const ratings = enrollments.filter(e => e.satisfaction_rating).map(e => e.satisfaction_rating);
+    return ratings.length > 0 ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1) : 0;
+  }, [enrollments]);
+
+  // Appointment attendance rate
+  const attendanceMetrics = useMemo(() => {
+    const attended = appointments.filter(a => a.status === "completed").length;
+    const noShow = appointments.filter(a => a.status === "no_show").length;
+    const total = appointments.length;
+    return {
+      attendance: total > 0 ? Math.round((attended / total) * 100) : 0,
+      attended,
+      noShow,
+      total
+    };
+  }, [appointments]);
+
+  // Client progress tracking
+  const clientProgress = useMemo(() => {
+    if (progressLogs.length === 0) return [];
+    
+    const clientProgressMap = {};
+    progressLogs.forEach(log => {
+      if (!clientProgressMap[log.client_id]) {
+        clientProgressMap[log.client_id] = {
+          client_id: log.client_id,
+          logs: [],
+          avgRating: 0,
+          avgEnergy: 0
+        };
+      }
+      clientProgressMap[log.client_id].logs.push(log);
+      if (log.coach_feedback?.rating) {
+        clientProgressMap[log.client_id].avgRating = log.coach_feedback.rating;
+      }
+      if (log.wellness_metrics?.energy_level) {
+        clientProgressMap[log.client_id].avgEnergy = log.wellness_metrics.energy_level;
+      }
+    });
+
+    return Object.values(clientProgressMap).slice(0, 8);
+  }, [progressLogs]);
+
+  // Monthly attendance chart data
+  const attendanceTrend = useMemo(() => {
+    const monthsData = {};
+    const now = new Date();
+
+    for (let i = 5; i >= 0; i--) {
+      const month = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = format(month, "MMM");
+      monthsData[key] = { scheduled: 0, attended: 0 };
+    }
+
+    appointments.forEach(a => {
+      const month = format(new Date(a.appointment_date), "MMM");
+      if (monthsData.hasOwnProperty(month)) {
+        monthsData[month].scheduled++;
+        if (a.status === "completed") {
+          monthsData[month].attended++;
+        }
+      }
+    });
+
+    return Object.entries(monthsData).map(([month, data]) => ({
+      month,
+      ...data,
+      rate: data.scheduled > 0 ? Math.round((data.attended / data.scheduled) * 100) : 0
+    }));
+  }, [appointments]);
+
+  if (!user) {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
         <Alert className="max-w-md">
           <AlertTriangle className="w-4 h-4" />
           <AlertTitle>Access Denied</AlertTitle>
-          <AlertDescription>Only health coaches can access analytics.</AlertDescription>
+          <AlertDescription>Only health coaches and admins can access analytics.</AlertDescription>
         </Alert>
       </div>
     );
   }
+
+  const isAdmin = user.user_type === "super_admin";
+  const isCoach = user.user_type === "student_coach";
 
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
