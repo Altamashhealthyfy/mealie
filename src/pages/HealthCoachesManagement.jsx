@@ -682,6 +682,11 @@ export default function HealthCoachesManagement() {
                       return;
                     }
 
+                    if (formData.plan_id && (!formData.start_date || !formData.end_date)) {
+                      toast.error("Please fill in start and expiry dates");
+                      return;
+                    }
+
                     try {
                       await createCoachesMutation.mutateAsync([formData]);
                     } catch (error) {
@@ -697,7 +702,7 @@ export default function HealthCoachesManagement() {
                       Adding...
                     </>
                   ) : (
-                    "Add Coach"
+                    editingCoach ? "Update Coach" : "Add Coach"
                   )}
                 </Button>
               </div>
