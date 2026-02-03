@@ -31,7 +31,9 @@ export default function BulkCoachAccess() {
     name: '',
     plan_name: '',
     billing_cycle: 'yearly',
-    duration_months: ''
+    duration_months: '',
+    start_date: '',
+    end_date: ''
   });
 
   const queryClient = useQueryClient();
@@ -56,7 +58,7 @@ export default function BulkCoachAccess() {
     },
     onSuccess: (data) => {
       setShowManualForm(false);
-      setManualCoach({ email: '', name: '', plan_name: '', billing_cycle: 'yearly', duration_months: '' });
+      setManualCoach({ email: '', name: '', plan_name: '', billing_cycle: 'yearly', duration_months: '', start_date: '', end_date: '' });
       setResults(data);
       toast.success("Access granted successfully!");
     },
@@ -135,7 +137,9 @@ coach2@example.com,Dr. Jane Smith,Mealie Basic,monthly,3`;
       coach_name: manualCoach.name || manualCoach.email,
       plan_name: manualCoach.plan_name,
       billing_cycle: manualCoach.billing_cycle,
-      duration_months: manualCoach.duration_months || (manualCoach.billing_cycle === 'yearly' ? '12' : '1')
+      duration_months: manualCoach.duration_months || (manualCoach.billing_cycle === 'yearly' ? '12' : '1'),
+      start_date: manualCoach.start_date,
+      end_date: manualCoach.end_date
     };
 
     grantSingleAccessMutation.mutate(coachData);
@@ -472,6 +476,26 @@ coach2@example.com,Dr. Jane Smith,Mealie Basic,monthly,3`;
                   placeholder="Leave empty for default (12 for yearly, 1 for monthly)"
                   min="1"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Start Date</Label>
+                <Input
+                  type="date"
+                  value={manualCoach.start_date}
+                  onChange={(e) => setManualCoach({...manualCoach, start_date: e.target.value})}
+                />
+                <p className="text-xs text-gray-500">Leave empty to start immediately</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Expire Date</Label>
+                <Input
+                  type="date"
+                  value={manualCoach.end_date}
+                  onChange={(e) => setManualCoach({...manualCoach, end_date: e.target.value})}
+                />
+                <p className="text-xs text-gray-500">Leave empty to auto-calculate from duration</p>
               </div>
 
               <Alert className="bg-blue-50 border-blue-200">
