@@ -313,36 +313,49 @@ export default function HealthCoachesManagement() {
     <div className="min-h-screen p-2 sm:p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              Health Coaches Management
-            </h1>
-            <p className="text-sm md:text-base text-gray-600">Manage health coaches and their subscriptions</p>
-          </div>
+         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+           <div>
+             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+               Health Coaches Management
+             </h1>
+             <p className="text-sm md:text-base text-gray-600">Manage health coaches and their subscriptions</p>
+           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            <Button
-              onClick={() => {
-                setEditingCoach(null);
-                setFormData({ full_name: "", email: "", plan_id: "", start_date: "", end_date: "" });
-                setShowAddDialog(true);
-              }}
-              className="bg-orange-600 hover:bg-orange-700 flex-1 sm:flex-none"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Coach
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => setShowBulkImport(true)}
-              className="text-green-600 hover:bg-green-50 border-green-300 flex-1 sm:flex-none"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Bulk Import
-            </Button>
-          </div>
-        </div>
+           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+             <Button
+               onClick={async () => {
+                 setIsRefreshing(true);
+                 await refetchCoaches();
+                 setTimeout(() => setIsRefreshing(false), 500);
+               }}
+               variant="outline"
+               disabled={isRefreshing}
+               className="flex-1 sm:flex-none"
+             >
+               <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+               {isRefreshing ? 'Refreshing...' : 'Refresh'}
+             </Button>
+             <Button
+               onClick={() => {
+                 setEditingCoach(null);
+                 setFormData({ full_name: "", email: "", plan_id: "", start_date: "", end_date: "" });
+                 setShowAddDialog(true);
+               }}
+               className="bg-orange-600 hover:bg-orange-700 flex-1 sm:flex-none"
+             >
+               <Plus className="w-4 h-4 mr-2" />
+               Add Coach
+             </Button>
+             <Button
+               variant="outline"
+               onClick={() => setShowBulkImport(true)}
+               className="text-green-600 hover:bg-green-50 border-green-300 flex-1 sm:flex-none"
+             >
+               <Plus className="w-4 h-4 mr-2" />
+               Bulk Import
+             </Button>
+           </div>
+         </div>
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow p-4 space-y-4">
