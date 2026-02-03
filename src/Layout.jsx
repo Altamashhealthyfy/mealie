@@ -38,7 +38,8 @@ import {
   Loader2,
   Tag,
   Lock,
-  Share2
+  Share2,
+  Eye
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -245,6 +246,12 @@ const businessNavigation = [
     roles: ['super_admin'],
   },
   {
+    title: "Client Access Manager",
+    url: createPageUrl("ClientAccessManager"),
+    icon: Eye,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
     title: "User Permissions",
     url: createPageUrl("UserPermissionManagement"),
     icon: Settings,
@@ -418,6 +425,17 @@ export default function Layout({ children, currentPageName }) {
     enabled: !!clientProfile?.id,
   });
 
+  const { data: clientAccessControl } = useQuery({
+    queryKey: ['clientAccessControl', clientProfile?.id],
+    queryFn: async () => {
+      const controls = await base44.entities.ClientAccessControl.filter({
+        client_id: clientProfile?.id
+      });
+      return controls[0] || null;
+    },
+    enabled: !!clientProfile?.id && user?.user_type === 'client',
+  });
+
   const { data: unreadCount } = useQuery({
     queryKey: ['unreadMessagesCount'],
     queryFn: async () => {
@@ -588,85 +606,88 @@ export default function Layout({ children, currentPageName }) {
   const getClientNavigation = () => {
     const permissions = getClientPermissions();
     
+    // Coach-controlled access settings override plan permissions
+    const coachAccess = clientAccessControl || {};
+    
     const baseNav = [
       {
         title: "My Dashboard",
         url: createPageUrl("ClientDashboard"),
         icon: Home,
-        show: true,
+        show: (coachAccess.show_my_dashboard ?? true) && true,
       },
       {
         title: "My Plans",
         url: createPageUrl("ClientPlans"),
         icon: CreditCard,
-        show: permissions?.show_my_plans ?? false,
+        show: (coachAccess.show_my_plans ?? true) && (permissions?.show_my_plans ?? false),
       },
       {
         title: "My Meal Plan",
         url: createPageUrl("MyAssignedMealPlan"),
         icon: Calendar,
-        show: permissions?.can_view_meal_plan ?? true,
+        show: (coachAccess.show_my_meal_plan ?? true) && (permissions?.can_view_meal_plan ?? true),
       },
       {
         title: "Food Log",
         url: createPageUrl("FoodLog"),
         icon: Utensils,
-        show: permissions?.can_view_food_log ?? true,
+        show: (coachAccess.show_food_log ?? true) && (permissions?.can_view_food_log ?? true),
       },
       {
         title: "My Progress",
         url: createPageUrl("ProgressTracking"),
         icon: Scale,
-        show: permissions?.can_view_progress ?? true,
+        show: (coachAccess.show_my_progress ?? true) && (permissions?.can_view_progress ?? true),
       },
 
       {
         title: "MPESS Wellness",
         url: createPageUrl("MPESSTracker"),
         icon: Heart,
-        show: permissions?.can_view_mpess ?? true,
+        show: (coachAccess.show_mpess_wellness ?? true) && (permissions?.can_view_mpess ?? true),
       },
       {
         title: "Messages",
         url: createPageUrl("ClientCommunication"),
         icon: MessageSquare,
-        show: permissions?.can_view_messages ?? true,
+        show: (coachAccess.show_messages ?? true) && (permissions?.can_view_messages ?? true),
       },
       {
         title: "My Assessments",
         url: createPageUrl("ClientAssessments"),
         icon: ClipboardList,
-        show: permissions?.can_view_assessments ?? true,
+        show: (coachAccess.show_my_assessments ?? true) && (permissions?.can_view_assessments ?? true),
       },
       {
         title: "My Appointments",
         url: createPageUrl("ClientAppointments"),
         icon: Calendar,
-        show: permissions?.can_view_appointments ?? true,
+        show: (coachAccess.show_my_appointments ?? true) && (permissions?.can_view_appointments ?? true),
       },
       {
         title: "Recipe Library",
         url: createPageUrl("ClientRecipes"),
         icon: ChefHat,
-        show: permissions?.can_view_recipes ?? true,
+        show: (coachAccess.show_recipe_library ?? true) && (permissions?.can_view_recipes ?? true),
       },
       {
         title: "Food Lookup",
         url: createPageUrl("FoodLookup"),
         icon: Search,
-        show: permissions?.can_use_food_lookup_ai ?? true,
+        show: (coachAccess.show_food_lookup ?? true) && (permissions?.can_use_food_lookup_ai ?? true),
       },
       {
         title: "Resources",
         url: createPageUrl("ClientResourceTracker"),
         icon: BookOpen,
-        show: permissions?.can_view_resources ?? true,
+        show: (coachAccess.show_resources ?? true) && (permissions?.can_view_resources ?? true),
       },
       {
         title: "My Profile",
         url: createPageUrl("Profile"),
         icon: User,
-        show: permissions?.can_view_profile ?? true,
+        show: (coachAccess.show_my_profile ?? true) && (permissions?.can_view_profile ?? true),
       },
       ];
 
