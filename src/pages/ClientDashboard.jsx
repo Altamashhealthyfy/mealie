@@ -1337,9 +1337,6 @@ export default function ClientDashboard() {
           </Link>
         </div>
 
-        {/* Current Meal Plan Summary */}
-        {mealPlan ? (
-          <Card id="meal-plan-section" className="border-none shadow-lg mb-6 bg-gradient-to-br from-green-50 to-emerald-50">
       </div>
     </div>
   );
