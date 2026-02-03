@@ -45,11 +45,20 @@ export default function HealthCoachesManagement() {
   const [showBulkImport, setShowBulkImport] = useState(false);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingCoach, setEditingCoach] = useState(null);
+  const [showChangePlanDialog, setShowChangePlanDialog] = useState(false);
+  const [showChangePasswordDialog, setShowChangePasswordDialog] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
 
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
     phone: "",
+    plan_id: "",
+    start_date: "",
+    end_date: "",
+  });
+
+  const [changePlanData, setChangePlanData] = useState({
     plan_id: "",
     start_date: "",
     end_date: "",
