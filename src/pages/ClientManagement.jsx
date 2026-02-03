@@ -2033,6 +2033,9 @@ support@mealiepro.com`;
           />
         )}
 
+        {/* Bulk Import Dialog */}
+        <BulkClientImport open={showBulkImport} onOpenChange={setShowBulkImport} />
+
         {/* Help Card for User Invitation */}
         <Card className="border-2 border-orange-500 bg-gradient-to-br from-orange-50 to-red-50">
           <CardHeader>
