@@ -622,6 +622,46 @@ export default function HealthCoachesManagement() {
                 />
               </div>
 
+              <div>
+                <Label className="text-sm font-medium">Select Plan</Label>
+                <Select value={formData.plan_id} onValueChange={(value) => setFormData({ ...formData, plan_id: value })}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Choose a plan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {plans.map((plan) => (
+                      <SelectItem key={plan.id} value={plan.id}>
+                        {plan.plan_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium">Start Date</Label>
+                <Input
+                  type="date"
+                  value={formData.start_date}
+                  onChange={(e) =>
+                    setFormData({ ...formData, start_date: e.target.value })
+                  }
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label className="text-sm font-medium">Expiry Date</Label>
+                <Input
+                  type="date"
+                  value={formData.end_date}
+                  onChange={(e) =>
+                    setFormData({ ...formData, end_date: e.target.value })
+                  }
+                  className="mt-1"
+                />
+              </div>
+
               <div className="flex gap-3 pt-4">
                 <Button
                   variant="outline"
