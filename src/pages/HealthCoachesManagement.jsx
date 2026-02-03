@@ -363,6 +363,12 @@ export default function HealthCoachesManagement() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(data.email)) return "Please enter a valid email";
 
+    // Check for duplicate email (only when creating new, not editing)
+    if (!editingCoach) {
+      const emailExists = coaches.some(c => c.email?.toLowerCase() === data.email?.toLowerCase());
+      if (emailExists) return "This email already exists";
+    }
+
     if (data.plan_id) {
       if (!data.start_date) return "Start date is required when selecting a plan";
       if (!data.end_date) return "Expiry date is required when selecting a plan";
