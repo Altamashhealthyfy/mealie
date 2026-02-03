@@ -190,10 +190,14 @@ export default function HealthCoachesManagement() {
 
   const handleEdit = (coach) => {
     setEditingCoach(coach);
+    const subscription = subscriptions.find((s) => s.coach_email === coach.email);
     setFormData({
       full_name: coach.full_name || "",
       email: coach.email || "",
       phone: coach.phone || "",
+      plan_id: subscription?.plan_id || "",
+      start_date: subscription?.start_date || "",
+      end_date: subscription?.end_date || "",
     });
     setShowAddDialog(true);
   };
