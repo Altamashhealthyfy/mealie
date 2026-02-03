@@ -39,7 +39,8 @@ import {
   Tag,
   Lock,
   Share2,
-  Eye
+  Eye,
+  BarChart3
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
