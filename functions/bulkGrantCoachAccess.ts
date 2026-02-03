@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
 
     for (const coachData of coaches) {
       try {
-        const { coach_email, coach_name, plan_name, billing_cycle, duration_months } = coachData;
+        const { coach_email, coach_name, plan_name, billing_cycle, duration_months, start_date, end_date } = coachData;
 
         // Validate required fields
         if (!coach_email || !plan_name) {
@@ -69,10 +69,16 @@ Deno.serve(async (req) => {
         }
 
         // Calculate dates
-        const startDate = new Date();
-        const endDate = new Date();
-        const months = parseInt(duration_months) || (cycle === 'yearly' ? 12 : 1);
-        endDate.setMonth(endDate.getMonth() + months);
+        const startDate = start_date ? new Date(start_date) : new Date();
+        let endDate;
+        
+        if (end_date) {
+          endDate = new Date(end_date);
+        } else {
+          endDate = new Date(startDate);
+          const months = parseInt(duration_months) || (cycle === 'yearly' ? 12 : 1);
+          endDate.setMonth(endDate.getMonth() + months);
+        }
 
         const nextBillingDate = new Date(endDate);
 
