@@ -9,10 +9,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized - Admin only' }, { status: 403 });
     }
 
-    // Fetch all recipe templates
-    const recipeTemplates = await base44.asServiceRole.entities.DownloadableTemplate.filter({
-      category: 'recipe'
-    });
+    // Fetch all templates (they contain recipes in their descriptions)
+    const recipeTemplates = await base44.asServiceRole.entities.DownloadableTemplate.list();
 
     if (recipeTemplates.length === 0) {
       return Response.json({
