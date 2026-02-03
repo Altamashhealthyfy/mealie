@@ -27,6 +27,7 @@ import {
   Sparkles,
   Copy,
   X,
+  RefreshCw,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { format, differenceInDays } from "date-fns";
