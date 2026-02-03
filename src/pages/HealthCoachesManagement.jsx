@@ -249,7 +249,7 @@ export default function HealthCoachesManagement() {
             <Button
               onClick={() => {
                 setEditingCoach(null);
-                setFormData({ full_name: "", email: "", phone: "" });
+                setFormData({ full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" });
                 setShowAddDialog(true);
               }}
               className="bg-orange-600 hover:bg-orange-700 flex-1 sm:flex-none"
