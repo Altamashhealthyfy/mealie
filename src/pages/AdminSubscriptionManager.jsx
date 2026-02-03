@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Shield, Crown, Plus, Trash2, AlertCircle, Users, Sparkles } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 export default function AdminSubscriptionManager() {
   const queryClient = useQueryClient();
@@ -122,7 +123,7 @@ export default function AdminSubscriptionManager() {
       setStartDate("");
       setExpireDate("");
       setExtraMonths("");
-      alert('✅ Coach access granted successfully!');
+      toast.success('Coach access granted successfully!');
     },
   });
 
@@ -164,7 +165,7 @@ export default function AdminSubscriptionManager() {
       setShowClientDialog(false);
       setClientEmail("");
       setSelectedClientPlan("");
-      alert('✅ Client access granted successfully!');
+      toast.success('Client access granted successfully!');
     },
   });
 
@@ -195,19 +196,23 @@ export default function AdminSubscriptionManager() {
       setCreditsCoachEmail("");
       setCreditsAmount("");
       setCreditsReason("");
-      alert('✅ AI Credits added successfully!');
+      toast.success('AI Credits added successfully!');
     },
   });
 
   const handleGrantCoachAccess = () => {
-    if (!coachEmail || !selectedCoachPlan) {
-      alert('Please fill in coach email and plan');
+    if (!coachEmail?.trim()) {
+      toast.error('Please enter coach email');
+      return;
+    }
+    if (!selectedCoachPlan) {
+      toast.error('Please select a plan');
       return;
     }
     
     grantCoachAccessMutation.mutate({ 
-      coach_email: coachEmail,
-      coach_name: coachName,
+      coach_email: coachEmail.trim(),
+      coach_name: coachName?.trim() || coachEmail.trim(),
       plan_id: selectedCoachPlan,
       billing_cycle: billingCycle,
       duration_months: durationMonths,
@@ -218,20 +223,28 @@ export default function AdminSubscriptionManager() {
   };
 
   const handleGrantClientAccess = () => {
-    if (!clientEmail || !selectedClientPlan) {
-      alert('Please fill in all fields');
+    if (!clientEmail?.trim()) {
+      toast.error('Please enter client email');
       return;
     }
-    grantClientAccessMutation.mutate({ client_email: clientEmail, plan_id: selectedClientPlan });
+    if (!selectedClientPlan) {
+      toast.error('Please select a plan');
+      return;
+    }
+    grantClientAccessMutation.mutate({ client_email: clientEmail.trim(), plan_id: selectedClientPlan });
   };
 
   const handleAddCredits = () => {
-    if (!creditsCoachEmail || !creditsAmount || parseInt(creditsAmount) <= 0) {
-      alert('Please enter coach email and valid credit amount');
+    if (!creditsCoachEmail?.trim()) {
+      toast.error('Please enter coach email');
+      return;
+    }
+    if (!creditsAmount || parseInt(creditsAmount) <= 0) {
+      toast.error('Please enter valid credit amount');
       return;
     }
     addAICreditsMutation.mutate({
-      coachEmail: creditsCoachEmail,
+      coachEmail: creditsCoachEmail.trim(),
       creditsToAdd: parseInt(creditsAmount),
       reason: creditsReason || 'Admin manually added credits'
     });
