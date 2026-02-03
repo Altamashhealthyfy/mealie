@@ -890,8 +890,8 @@ Provide 3 creative variations that ${variationRequest}. Each should maintain sim
               <Button
                 onClick={() => {
                   setShowManualUpload(true);
-                  setEditingRecipe(null); // Clear editing state when opening for new upload
-                  setManualRecipeForm({ // Reset form for new upload
+                  setEditingRecipe(null);
+                  setManualRecipeForm({
                     name: "", description: "", meal_type: "breakfast", food_preference: "veg", regional_cuisine: "north",
                     prep_time: "", cook_time: "", servings: "", calories: "", protein: "", carbs: "", fats: "",
                     ingredients: [{ item: "", quantity: "" }], instructions: [""], tags: "", image_url: ""
@@ -909,6 +909,25 @@ Provide 3 creative variations that ${variationRequest}. Each should maintain sim
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
                   AI Generate
+                </Button>
+              )}
+              {isSuperAdmin && (
+                <Button
+                  onClick={async () => {
+                    if (window.confirm('Import all recipe templates from Template Library into Recipe Library?\n\nThis will skip recipes that already exist.')) {
+                      try {
+                        const response = await base44.functions.invoke('importRecipesFromTemplates');
+                        alert(`✅ Import Complete!\n\nImported: ${response.data.summary.imported}\nSkipped: ${response.data.summary.skipped}\nFailed: ${response.data.summary.failed}`);
+                        queryClient.invalidateQueries(['recipes']);
+                      } catch (error) {
+                        alert('❌ Import failed: ' + error.message);
+                      }
+                    }
+                  }}
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Import from Templates
                 </Button>
               )}
             </div>
