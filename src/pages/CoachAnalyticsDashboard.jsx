@@ -345,21 +345,38 @@ export default function CoachAnalyticsDashboard() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              📊 Analytics & Reports
+              📊 Coach Analytics & KPIs
             </h1>
-            <p className="text-gray-600">Track revenue, clients, and program performance</p>
+            <p className="text-gray-600">Track client progress, attendance, satisfaction & revenue</p>
           </div>
-          <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1month">Last Month</SelectItem>
-              <SelectItem value="3months">Last 3 Months</SelectItem>
-              <SelectItem value="6months">Last 6 Months</SelectItem>
-              <SelectItem value="1year">Last Year</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col sm:flex-row gap-3">
+            {isAdmin && (
+              <Select value={selectedCoach || ""} onValueChange={setSelectedCoach}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Select Coach" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={null}>All Coaches (Combined)</SelectItem>
+                  {allCoaches.map((coach) => (
+                    <SelectItem key={coach.id} value={coach.email}>
+                      {coach.full_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            <Select value={dateRange} onValueChange={setDateRange}>
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1month">Last Month</SelectItem>
+                <SelectItem value="3months">Last 3 Months</SelectItem>
+                <SelectItem value="6months">Last 6 Months</SelectItem>
+                <SelectItem value="1year">Last Year</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Key Metrics */}
