@@ -496,25 +496,38 @@ export default function HealthCoachesManagement() {
                     </div>
                   )}
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setViewingCoach(coach)}
-                      className="text-gray-600 hover:bg-gray-50 h-9 md:h-auto text-xs md:text-sm"
-                    >
-                      <Eye className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                      View
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(coach)}
-                      className="text-orange-600 hover:bg-orange-50 h-9 md:h-auto text-xs md:text-sm"
-                    >
-                      <Edit className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                      Edit
-                    </Button>
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setViewingCoach(coach)}
+                        className="text-gray-600 hover:bg-gray-50 h-9 md:h-auto text-xs md:text-sm"
+                      >
+                        <Eye className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                        View
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(coach)}
+                        className="text-orange-600 hover:bg-orange-50 h-9 md:h-auto text-xs md:text-sm"
+                      >
+                        <Edit className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                        Edit
+                      </Button>
+                    </div>
+                    {clientCount > 0 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.location.href = createPageUrl("CoachClientManagement")}
+                        className="w-full text-blue-600 hover:bg-blue-50 h-9 md:h-auto text-xs md:text-sm"
+                      >
+                        <Users className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                        View Clients ({clientCount})
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
