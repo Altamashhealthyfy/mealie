@@ -39,7 +39,8 @@ import {
   Tag,
   Lock,
   Share2,
-  Eye
+  Eye,
+  TrendingUp
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -172,6 +173,24 @@ const dietitianNavigation = [
     url: createPageUrl("ResourceLibraryEnhanced"),
     icon: BookOpen,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
+    title: "Appointments",
+    url: createPageUrl("CoachScheduling"),
+    icon: Calendar,
+    roles: ['student_coach'],
+  },
+  {
+    title: "Programs",
+    url: createPageUrl("CoachProgramManagement"),
+    icon: Target,
+    roles: ['student_coach'],
+  },
+  {
+    title: "Coach Analytics",
+    url: createPageUrl("CoachAnalyticsDashboard"),
+    icon: TrendingUp,
+    roles: ['student_coach'],
   },
   ];
 
