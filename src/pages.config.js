@@ -52,6 +52,7 @@ import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
 import Appointments from './pages/Appointments';
 import AssessmentTemplates from './pages/AssessmentTemplates';
 import BroadcastNotification from './pages/BroadcastNotification';
+import BulkCoachAccess from './pages/BulkCoachAccess';
 import BulkImport from './pages/BulkImport';
 import BulkStudentOnboarding from './pages/BulkStudentOnboarding';
 import BusinessGPTs from './pages/BusinessGPTs';
@@ -80,6 +81,7 @@ import ClientResourceTracker from './pages/ClientResourceTracker';
 import ClientWeeklyMealPlans from './pages/ClientWeeklyMealPlans';
 import ClinicalIntake from './pages/ClinicalIntake';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
+import CoachReferralLink from './pages/CoachReferralLink';
 import CoachSubscription from './pages/CoachSubscription';
 import CoachSubscriptions from './pages/CoachSubscriptions';
 import Communication from './pages/Communication';
@@ -139,8 +141,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import CoachReferralLink from './pages/CoachReferralLink';
-import BulkCoachAccess from './pages/BulkCoachAccess';
 import __Layout from './Layout.jsx';
 
 
@@ -150,6 +150,7 @@ export const PAGES = {
     "Appointments": Appointments,
     "AssessmentTemplates": AssessmentTemplates,
     "BroadcastNotification": BroadcastNotification,
+    "BulkCoachAccess": BulkCoachAccess,
     "BulkImport": BulkImport,
     "BulkStudentOnboarding": BulkStudentOnboarding,
     "BusinessGPTs": BusinessGPTs,
@@ -178,6 +179,7 @@ export const PAGES = {
     "ClientWeeklyMealPlans": ClientWeeklyMealPlans,
     "ClinicalIntake": ClinicalIntake,
     "CoachPaymentSetup": CoachPaymentSetup,
+    "CoachReferralLink": CoachReferralLink,
     "CoachSubscription": CoachSubscription,
     "CoachSubscriptions": CoachSubscriptions,
     "Communication": Communication,
@@ -237,8 +239,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "CoachReferralLink": CoachReferralLink,
-    "BulkCoachAccess": BulkCoachAccess,
 }
 
 export const pagesConfig = {

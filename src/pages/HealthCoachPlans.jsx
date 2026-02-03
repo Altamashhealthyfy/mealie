@@ -22,6 +22,7 @@ export default function HealthCoachPlans() {
     plan_description: "",
     monthly_price: 0,
     yearly_price: 0,
+    access_duration_months: null,
     features: [],
     max_clients: -1,
     max_team_members: 0,
@@ -110,6 +111,7 @@ export default function HealthCoachPlans() {
       plan_description: "",
       monthly_price: 0,
       yearly_price: 0,
+      access_duration_months: null,
       features: [],
       max_clients: -1,
       max_team_members: 0,
@@ -146,6 +148,7 @@ export default function HealthCoachPlans() {
       plan_description: plan.plan_description || "",
       monthly_price: plan.monthly_price,
       yearly_price: plan.yearly_price,
+      access_duration_months: plan.access_duration_months || null,
       features: plan.features || [],
       max_clients: plan.max_clients,
       max_team_members: plan.max_team_members || 0,
@@ -260,6 +263,11 @@ export default function HealthCoachPlans() {
                   <p className="text-sm text-gray-600">per month</p>
                   {plan.yearly_price > 0 && (
                     <p className="text-lg font-semibold text-gray-700 mt-2">₹{plan.yearly_price}/year</p>
+                  )}
+                  {plan.access_duration_months && (
+                    <Badge className="bg-blue-500 text-white mt-2">
+                      {plan.access_duration_months} Months Access
+                    </Badge>
                   )}
                 </div>
 
@@ -404,6 +412,17 @@ export default function HealthCoachPlans() {
                     onChange={(e) => setFormData({ ...formData, yearly_price: parseInt(e.target.value) })}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Access Duration (Months)</Label>
+                <Input
+                  type="number"
+                  value={formData.access_duration_months || ""}
+                  onChange={(e) => setFormData({ ...formData, access_duration_months: e.target.value ? parseInt(e.target.value) : null })}
+                  placeholder="Leave empty for recurring subscriptions"
+                />
+                <p className="text-xs text-gray-500">For one-time payment plans, specify how many months of access this plan grants. Leave empty for monthly/yearly recurring subscriptions.</p>
               </div>
 
               <div className="space-y-2">
