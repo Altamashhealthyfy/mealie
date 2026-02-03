@@ -222,6 +222,12 @@ const businessNavigation = [
     roles: ['super_admin'],
   },
   {
+    title: "Health Coaches",
+    url: createPageUrl("HealthCoachesManagement"),
+    icon: Users,
+    roles: ['super_admin'],
+  },
+  {
     title: "Coupon Management",
     url: createPageUrl("CouponManagement"),
     icon: Tag,
