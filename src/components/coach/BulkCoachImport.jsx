@@ -172,6 +172,11 @@ Bob Nutritionist,bob@example.com,9876543212`;
   const resetForm = () => {
     setCsvContent("");
     setCsvError("");
+    setParsedCsvCoaches([]);
+    setCsvStep("upload");
+    setSelectedPlanId("");
+    setCsvStartDate("");
+    setCsvEndDate("");
     setManualRows([
       { full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" },
       { full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" },
