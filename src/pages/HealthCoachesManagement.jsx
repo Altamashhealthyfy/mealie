@@ -65,6 +65,8 @@ export default function HealthCoachesManagement() {
     end_date: "",
   });
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
     queryFn: () => base44.auth.me(),
