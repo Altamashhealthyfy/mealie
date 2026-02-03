@@ -218,71 +218,151 @@ Bob Nutritionist,bob@example.com,9876543212`;
 
           {/* CSV Import Tab */}
           <TabsContent value="csv" className="space-y-4 mt-4">
-            <Alert className="bg-blue-50 border-blue-300">
-              <AlertCircle className="w-4 h-4 text-blue-600" />
-              <AlertDescription className="text-sm text-blue-900">
-                Import coaches using a CSV file. Must contain "Full Name", "Email", and optionally "Phone" columns.
-              </AlertDescription>
-            </Alert>
+            {csvStep === "upload" && (
+              <>
+                <Alert className="bg-blue-50 border-blue-300">
+                  <AlertCircle className="w-4 h-4 text-blue-600" />
+                  <AlertDescription className="text-sm text-blue-900">
+                    Import coaches using a CSV file. Must contain "Full Name", "Email", and optionally "Phone" columns.
+                  </AlertDescription>
+                </Alert>
 
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Download Sample CSV</label>
-                <Button
-                  variant="outline"
-                  onClick={downloadSampleCSV}
-                  className="w-full text-blue-600 hover:bg-blue-50"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download Sample CSV
-                </Button>
-              </div>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Download Sample CSV</label>
+                    <Button
+                      variant="outline"
+                      onClick={downloadSampleCSV}
+                      className="w-full text-blue-600 hover:bg-blue-50"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Sample CSV
+                    </Button>
+                  </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Select CSV File</label>
-                <input
-                  type="file"
-                  accept=".csv"
-                  onChange={handleCSVUpload}
-                  className="block w-full text-sm text-gray-500
-                    file:mr-4 file:py-2 file:px-4
-                    file:rounded-md file:border-0
-                    file:text-sm file:font-semibold
-                    file:bg-orange-50 file:text-orange-700
-                    hover:file:bg-orange-100"
-                />
-              </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Select CSV File</label>
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={handleCSVUpload}
+                      className="block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-md file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-orange-50 file:text-orange-700
+                        hover:file:bg-orange-100"
+                    />
+                  </div>
 
-              {csvContent && (
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">✅ CSV loaded ({csvContent.split("\n").length - 1} rows)</p>
-                  {csvError && (
-                    <Alert className="bg-red-50 border-red-300">
-                      <AlertCircle className="w-4 h-4 text-red-600" />
-                      <AlertDescription className="text-sm text-red-900">{csvError}</AlertDescription>
-                    </Alert>
+                  {csvContent && (
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-600">✅ CSV loaded ({csvContent.split("\n").length - 1} rows)</p>
+                      {csvError && (
+                        <Alert className="bg-red-50 border-red-300">
+                          <AlertCircle className="w-4 h-4 text-red-600" />
+                          <AlertDescription className="text-sm text-red-900">{csvError}</AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
                   )}
-                </div>
-              )}
 
-              <Button
-                onClick={handleCSVImport}
-                disabled={!csvContent || isProcessing || createCoachesMutation.isPending}
-                className="w-full bg-green-600 hover:bg-green-700"
-              >
-                {isProcessing || createCoachesMutation.isPending ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Importing...
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                    Import CSV
-                  </>
+                  <Button
+                    onClick={handleCSVPreview}
+                    disabled={!csvContent || csvError}
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                  >
+                    Preview Data
+                  </Button>
+                </div>
+              </>
+            )}
+
+            {csvStep === "select-plan" && (
+              <>
+                <Alert className="bg-green-50 border-green-300">
+                  <CheckCircle2 className="w-4 h-4 text-green-600" />
+                  <AlertDescription className="text-sm text-green-900">
+                    ✅ {parsedCsvCoaches.length} coach(es) ready. Now select a plan to assign.
+                  </AlertDescription>
+                </Alert>
+
+                <div className="space-y-3 max-h-[40vh] overflow-y-auto border rounded-lg p-3 bg-gray-50">
+                  {parsedCsvCoaches.map((coach, i) => (
+                    <div key={i} className="text-sm p-2 bg-white rounded border">
+                      <div className="font-semibold">{coach.full_name}</div>
+                      <div className="text-gray-600">{coach.email}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Select Plan to Assign</label>
+                  <Select value={selectedPlanId} onValueChange={setSelectedPlanId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a plan..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {plans.map((plan) => (
+                        <SelectItem key={plan.id} value={plan.id}>
+                          {plan.plan_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {selectedPlanId && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Start Date (optional)</label>
+                      <input
+                        type="date"
+                        value={csvStartDate}
+                        onChange={(e) => setCsvStartDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">End Date (optional)</label>
+                      <input
+                        type="date"
+                        value={csvEndDate}
+                        onChange={(e) => setCsvEndDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                    </div>
+                  </div>
                 )}
-              </Button>
-            </div>
+
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCsvStep("upload")}
+                    className="flex-1"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    onClick={handleCSVImport}
+                    disabled={!selectedPlanId || isProcessing || createCoachesMutation.isPending}
+                    className="flex-1 bg-green-600 hover:bg-green-700"
+                  >
+                    {isProcessing || createCoachesMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Importing...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-4 h-4 mr-2" />
+                        Import {parsedCsvCoaches.length} Coach(es)
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </>
+            )}
           </TabsContent>
 
           {/* Manual Entry Tab */}
