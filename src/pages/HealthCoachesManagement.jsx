@@ -186,18 +186,32 @@ export default function HealthCoachesManagement() {
   });
 
   const deleteCoachMutation = useMutation({
-    mutationFn: (coachEmail) =>
-      base44.asServiceRole.entities.User.update(
-        coaches.find((c) => c.email === coachEmail)?.id,
-        { user_type: "user" }
-      ),
+    mutationFn: async (coachEmail) => {
+      const coach = coaches.find((c) => c.email === coachEmail);
+      if (!coach) throw new Error("Coach not found");
+      
+      if (coach.is_subscription_only) {
+        // For subscription-only coaches, cancel their subscription
+        const sub = subscriptions.find(s => s.coach_email === coach.email);
+        if (sub) {
+          await base44.entities.HealthCoachSubscription.update(sub.id, { status: "cancelled" });
+        }
+      } else {
+        // For regular User coaches, change their type back to "user"
+        if (coach.id && !coach.id.startsWith("sub_")) {
+          await base44.asServiceRole.entities.User.update(coach.id, { user_type: "user" });
+        }
+      }
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["coaches"] });
+      setTimeout(() => {
+        refetchCoaches();
+      }, 1000);
       setViewingCoach(null);
       toast.success("✅ Coach removed successfully!");
     },
     onError: (error) => {
-      toast.error(`❌ Error: ${error.message}`);
+      toast.error(`❌ Error: ${error?.message || "Failed to delete coach"}`);
     },
   });
 
