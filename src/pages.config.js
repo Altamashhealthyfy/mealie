@@ -58,6 +58,7 @@ import BusinessHub from './pages/BusinessHub';
 import BusinessPlan from './pages/BusinessPlan';
 import CallCenter from './pages/CallCenter';
 import CallCenterAdmin from './pages/CallCenterAdmin';
+import ClientAccessManager from './pages/ClientAccessManager';
 import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
 import ClientAppointments from './pages/ClientAppointments';
 import ClientAssessments from './pages/ClientAssessments';
@@ -79,9 +80,12 @@ import ClientResourceLibrary from './pages/ClientResourceLibrary';
 import ClientResourceTracker from './pages/ClientResourceTracker';
 import ClientWeeklyMealPlans from './pages/ClientWeeklyMealPlans';
 import ClinicalIntake from './pages/ClinicalIntake';
+import CoachAnalyticsDashboard from './pages/CoachAnalyticsDashboard';
 import CoachClientManagement from './pages/CoachClientManagement';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
+import CoachProgramManagement from './pages/CoachProgramManagement';
 import CoachReferralLink from './pages/CoachReferralLink';
+import CoachScheduling from './pages/CoachScheduling';
 import CoachSubscription from './pages/CoachSubscription';
 import CoachSubscriptions from './pages/CoachSubscriptions';
 import Communication from './pages/Communication';
@@ -94,6 +98,7 @@ import FoodLog from './pages/FoodLog';
 import FoodLookup from './pages/FoodLookup';
 import GoogleCalendarSettings from './pages/GoogleCalendarSettings';
 import HealthCoachDashboard from './pages/HealthCoachDashboard';
+import HealthCoachPlans from './pages/HealthCoachPlans';
 import HealthCoachesManagement from './pages/HealthCoachesManagement';
 import HealthReportAnalysis from './pages/HealthReportAnalysis';
 import Home from './pages/Home';
@@ -142,11 +147,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import CoachScheduling from './pages/CoachScheduling';
-import CoachProgramManagement from './pages/CoachProgramManagement';
-import CoachAnalyticsDashboard from './pages/CoachAnalyticsDashboard';
-import ClientAccessManager from './pages/ClientAccessManager';
-import HealthCoachPlans from './pages/HealthCoachPlans';
 import __Layout from './Layout.jsx';
 
 
@@ -162,6 +162,7 @@ export const PAGES = {
     "BusinessPlan": BusinessPlan,
     "CallCenter": CallCenter,
     "CallCenterAdmin": CallCenterAdmin,
+    "ClientAccessManager": ClientAccessManager,
     "ClientAnalyticsDashboard": ClientAnalyticsDashboard,
     "ClientAppointments": ClientAppointments,
     "ClientAssessments": ClientAssessments,
@@ -183,9 +184,12 @@ export const PAGES = {
     "ClientResourceTracker": ClientResourceTracker,
     "ClientWeeklyMealPlans": ClientWeeklyMealPlans,
     "ClinicalIntake": ClinicalIntake,
+    "CoachAnalyticsDashboard": CoachAnalyticsDashboard,
     "CoachClientManagement": CoachClientManagement,
     "CoachPaymentSetup": CoachPaymentSetup,
+    "CoachProgramManagement": CoachProgramManagement,
     "CoachReferralLink": CoachReferralLink,
+    "CoachScheduling": CoachScheduling,
     "CoachSubscription": CoachSubscription,
     "CoachSubscriptions": CoachSubscriptions,
     "Communication": Communication,
@@ -198,6 +202,7 @@ export const PAGES = {
     "FoodLookup": FoodLookup,
     "GoogleCalendarSettings": GoogleCalendarSettings,
     "HealthCoachDashboard": HealthCoachDashboard,
+    "HealthCoachPlans": HealthCoachPlans,
     "HealthCoachesManagement": HealthCoachesManagement,
     "HealthReportAnalysis": HealthReportAnalysis,
     "Home": Home,
@@ -246,11 +251,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "CoachScheduling": CoachScheduling,
-    "CoachProgramManagement": CoachProgramManagement,
-    "CoachAnalyticsDashboard": CoachAnalyticsDashboard,
-    "ClientAccessManager": ClientAccessManager,
-    "HealthCoachPlans": HealthCoachPlans,
 }
 
 export const pagesConfig = {

@@ -69,7 +69,7 @@ export default function HealthCoachesManagement() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: coaches } = useQuery({
+  const { data: coaches, refetch: refetchCoaches } = useQuery({
     queryKey: ["coaches"],
     queryFn: async () => {
       const allUsers = await base44.entities.User.list();
