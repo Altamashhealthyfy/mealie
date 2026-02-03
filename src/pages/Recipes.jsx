@@ -911,25 +911,7 @@ Provide 3 creative variations that ${variationRequest}. Each should maintain sim
                   AI Generate
                 </Button>
               )}
-              {isSuperAdmin && (
-                <Button
-                  onClick={async () => {
-                    if (window.confirm('🤖 AI will analyze all recipe templates and generate complete recipes with ingredients, instructions, and photos.\n\nThis may take a few minutes. Continue?')) {
-                      try {
-                        const response = await base44.functions.invoke('generateRecipesFromTemplates');
-                        alert(`✅ Recipe Generation Complete!\n\nGenerated: ${response.data.summary.generated}\nSkipped: ${response.data.summary.skipped}\nFailed: ${response.data.summary.failed}`);
-                        queryClient.invalidateQueries(['recipes']);
-                      } catch (error) {
-                        alert('❌ Generation failed: ' + error.message);
-                      }
-                    }
-                  }}
-                  className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Generate from Templates
-                </Button>
-              )}
+
             </div>
           )}
         </div>
