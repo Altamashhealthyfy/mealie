@@ -337,8 +337,20 @@ const businessNavigation = [
     icon: Shield,
     roles: ['super_admin'],
   },
+  {
+    title: "Platform Analytics",
+    url: createPageUrl("AdminPlatformAnalytics"),
+    icon: BarChart3,
+    roles: ['super_admin'],
+  },
+  {
+    title: "Client Feedback",
+    url: createPageUrl("ClientFeedbackManagement"),
+    icon: MessageSquare,
+    roles: ['super_admin'],
+  },
 
-];
+  ];
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
