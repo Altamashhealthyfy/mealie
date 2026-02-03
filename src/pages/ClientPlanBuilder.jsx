@@ -176,11 +176,31 @@ export default function ClientPlanBuilder() {
     setFormData({ ...formData, features: formData.features.filter((_, i) => i !== index) });
   };
 
-  const copyPurchaseLink = (planId, planName) => {
-    const baseUrl = window.location.origin;
-    const purchaseUrl = `${baseUrl}/#/public-plan-purchase?planId=${planId}`;
-    navigator.clipboard.writeText(purchaseUrl);
-    toast.success('✅ Public purchase link copied! Share this link with anyone to view and purchase this plan.');
+  const copyPurchaseLink = async (planId, planName) => {
+    try {
+      const baseUrl = window.location.origin;
+      const purchaseUrl = `${baseUrl}/#/public-plan-purchase?planId=${planId}`;
+      
+      // Try modern clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(purchaseUrl);
+        toast.success('✅ Purchase link copied! Share it to let anyone view and buy this plan.');
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = purchaseUrl;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        toast.success('✅ Purchase link copied! Share it to let anyone view and buy this plan.');
+      }
+    } catch (error) {
+      console.error('Copy failed:', error);
+      toast.error('Failed to copy. Please try again.');
+    }
   };
 
   const canCreatePlans = user?.user_type === 'super_admin' || 
