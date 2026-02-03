@@ -800,7 +800,7 @@ export default function HealthCoachesManagement() {
                           queryClient.invalidateQueries({ queryKey: ["coachSubscriptions"] });
                           setShowAddDialog(false);
                           setEditingCoach(null);
-                          setFormData({ full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" });
+                          setFormData({ full_name: "", email: "", plan_id: "", start_date: "", end_date: "" });
                           toast.success("✅ Coach updated successfully!");
                         }).catch((error) => {
                           toast.error(`Error: ${error?.message || "Failed to update"}`);
@@ -818,7 +818,7 @@ export default function HealthCoachesManagement() {
                           queryClient.invalidateQueries({ queryKey: ["coachSubscriptions"] });
                           setShowAddDialog(false);
                           setEditingCoach(null);
-                          setFormData({ full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" });
+                          setFormData({ full_name: "", email: "", plan_id: "", start_date: "", end_date: "" });
                           toast.success("✅ Coach updated successfully!");
                         }).catch((error) => {
                           toast.error(`Error: ${error?.message || "Failed to update"}`);
@@ -826,7 +826,7 @@ export default function HealthCoachesManagement() {
                       } else {
                         setShowAddDialog(false);
                         setEditingCoach(null);
-                        setFormData({ full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" });
+                        setFormData({ full_name: "", email: "", plan_id: "", start_date: "", end_date: "" });
                         toast.success("✅ Coach updated successfully!");
                       }
                     } else {
