@@ -15,6 +15,11 @@ export default function BulkCoachImport({ open, onOpenChange }) {
   const queryClient = useQueryClient();
   const [csvContent, setCsvContent] = useState("");
   const [csvError, setCsvError] = useState("");
+  const [parsedCsvCoaches, setParsedCsvCoaches] = useState([]);
+  const [csvStep, setCsvStep] = useState("upload"); // "upload", "preview", "select-plan"
+  const [selectedPlanId, setSelectedPlanId] = useState("");
+  const [csvStartDate, setCsvStartDate] = useState("");
+  const [csvEndDate, setCsvEndDate] = useState("");
   const [manualRows, setManualRows] = useState([
     { full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" },
     { full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" },
