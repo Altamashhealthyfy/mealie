@@ -323,14 +323,6 @@ export default function HealthCoachesManagement() {
               <Plus className="w-4 h-4 mr-2" />
               Bulk Import
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => window.location.href = createPageUrl("CoachClientManagement")}
-              className="text-blue-600 hover:bg-blue-50 border-blue-300 flex-1 sm:flex-none"
-            >
-              <Users className="w-4 h-4 mr-2" />
-              Manage Clients
-            </Button>
           </div>
         </div>
 

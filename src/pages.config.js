@@ -80,6 +80,7 @@ import ClientResourceLibrary from './pages/ClientResourceLibrary';
 import ClientResourceTracker from './pages/ClientResourceTracker';
 import ClientWeeklyMealPlans from './pages/ClientWeeklyMealPlans';
 import ClinicalIntake from './pages/ClinicalIntake';
+import CoachClientManagement from './pages/CoachClientManagement';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachReferralLink from './pages/CoachReferralLink';
 import CoachSubscription from './pages/CoachSubscription';
@@ -143,7 +144,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import CoachClientManagement from './pages/CoachClientManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -181,6 +181,7 @@ export const PAGES = {
     "ClientResourceTracker": ClientResourceTracker,
     "ClientWeeklyMealPlans": ClientWeeklyMealPlans,
     "ClinicalIntake": ClinicalIntake,
+    "CoachClientManagement": CoachClientManagement,
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachReferralLink": CoachReferralLink,
     "CoachSubscription": CoachSubscription,
@@ -244,7 +245,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "CoachClientManagement": CoachClientManagement,
 }
 
 export const pagesConfig = {
