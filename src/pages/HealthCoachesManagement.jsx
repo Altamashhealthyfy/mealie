@@ -258,11 +258,22 @@ export default function HealthCoachesManagement() {
 
   const bulkDeleteMutation = useMutation({
     mutationFn: async () => {
-      const coachEmails = selectedCoaches.map(id => coaches.find(c => c.id === id)?.email).filter(Boolean);
-      for (const email of coachEmails) {
-        const coach = coaches.find(c => c.email === email);
-        if (coach?.id) {
-          await base44.asServiceRole.entities.User.update(coach.id, { user_type: "user" });
+      const selectedIds = selectedCoaches;
+      for (const coachId of selectedIds) {
+        const coach = coaches.find(c => c.id === coachId);
+        if (!coach) continue;
+        
+        if (coach.is_subscription_only) {
+          // For subscription-only coaches, cancel their subscription
+          const sub = subscriptions.find(s => s.coach_email === coach.email);
+          if (sub) {
+            await base44.entities.HealthCoachSubscription.update(sub.id, { status: "cancelled" });
+          }
+        } else {
+          // For regular User coaches, change their type back to "user"
+          if (coach.id && !coach.id.startsWith("sub_")) {
+            await base44.asServiceRole.entities.User.update(coach.id, { user_type: "user" });
+          }
         }
       }
     },
