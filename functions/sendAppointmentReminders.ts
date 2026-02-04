@@ -1,65 +1,106 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     
-    // This should be called by a scheduled task
-    const user = await base44.auth.me();
-    if (user?.role !== 'admin') {
-      return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
-    }
-
-    // Get appointments for tomorrow
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowDate = tomorrow.toISOString().split('T')[0];
-
+    const now = new Date();
+    
+    // Get all scheduled and confirmed appointments
     const appointments = await base44.asServiceRole.entities.Appointment.filter({
-      date: tomorrowDate,
-      status: 'scheduled'
+      status: ['scheduled', 'confirmed']
     });
 
-    const reminders = [];
+    // Get all active reminder settings
+    const reminderSettings = await base44.asServiceRole.entities.ReminderSettings.filter({
+      is_active: true,
+      appointment_reminders_enabled: true
+    });
+
+    const settingsMap = {};
+    reminderSettings.forEach(s => {
+      settingsMap[s.client_id] = s;
+    });
+
+    const results = {
+      checked: appointments.length,
+      sent: 0,
+      skipped: 0,
+      errors: []
+    };
 
     for (const appointment of appointments) {
-      // Get client details
-      const clients = await base44.asServiceRole.entities.Client.filter({ id: appointment.client_id });
-      const client = clients[0];
+      try {
+        // Skip if reminder already sent
+        if (appointment.reminder_sent) {
+          results.skipped++;
+          continue;
+        }
 
-      if (client?.email) {
-        // Create notification
-        await base44.asServiceRole.functions.invoke('createNotification', {
-          user_email: client.email,
-          type: 'appointment_reminder',
-          title: 'Appointment Tomorrow',
-          message: `You have an appointment scheduled for tomorrow at ${appointment.time}. ${appointment.title || ''}`,
-          link: `/client-appointments`,
-          priority: 'high',
-          send_email: true,
-          metadata: {
-            appointment_id: appointment.id,
-            appointment_date: appointment.date,
-            appointment_time: appointment.time
+        const appointmentDate = new Date(appointment.appointment_date);
+        const hoursUntil = (appointmentDate - now) / (1000 * 60 * 60);
+
+        // Get reminder settings for this client
+        const settings = settingsMap[appointment.client_id];
+        const reminderHours = settings?.appointment_reminder_hours_before || 24;
+
+        // Check if it's time to send reminder (within 1 hour window)
+        if (hoursUntil <= reminderHours && hoursUntil > (reminderHours - 1)) {
+          const message = `Hi ${appointment.client_name}! This is a reminder that you have an appointment "${appointment.title}" scheduled for ${appointmentDate.toLocaleString('en-US', { 
+            dateStyle: 'full', 
+            timeStyle: 'short' 
+          })}. ${appointment.location || 'Details will be shared soon.'}`;
+
+          const reminderMethod = settings?.reminder_method || 'both';
+
+          // Send notification
+          if (reminderMethod === 'notification' || reminderMethod === 'both') {
+            await base44.asServiceRole.entities.Notification.create({
+              user_email: appointment.client_email,
+              title: '📅 Upcoming Appointment Reminder',
+              message: message,
+              type: 'reminder',
+              priority: 'high',
+              action_url: '/client-appointments',
+              is_read: false
+            });
           }
-        });
 
-        reminders.push({
-          client: client.full_name,
-          appointment: appointment.title,
-          time: appointment.time
+          // Send email
+          if (reminderMethod === 'email' || reminderMethod === 'both') {
+            await base44.asServiceRole.integrations.Core.SendEmail({
+              to: appointment.client_email,
+              subject: `Reminder: Appointment Tomorrow - ${appointment.title}`,
+              body: message
+            });
+          }
+
+          // Mark reminder as sent
+          await base44.asServiceRole.entities.Appointment.update(appointment.id, {
+            reminder_sent: true
+          });
+
+          results.sent++;
+        } else {
+          results.skipped++;
+        }
+      } catch (error) {
+        results.errors.push({
+          appointment: appointment.id,
+          error: error.message
         });
       }
     }
 
     return Response.json({
       success: true,
-      reminders_sent: reminders.length,
-      reminders
+      results
     });
-
   } catch (error) {
-    console.error('Error sending appointment reminders:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('Appointment reminder error:', error);
+    return Response.json({ 
+      success: false, 
+      error: error.message 
+    }, { status: 500 });
   }
 });

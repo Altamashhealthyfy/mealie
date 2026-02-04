@@ -150,6 +150,7 @@ import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import ComprehensiveAnalyticsDashboard from './pages/ComprehensiveAnalyticsDashboard';
+import ReminderManagement from './pages/ReminderManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -257,6 +258,7 @@ export const PAGES = {
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
     "ComprehensiveAnalyticsDashboard": ComprehensiveAnalyticsDashboard,
+    "ReminderManagement": ReminderManagement,
 }
 
 export const pagesConfig = {
