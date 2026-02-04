@@ -180,7 +180,7 @@ export default function MealPlansPro() {
 
       setGenerating(true);
       
-      const prompt = constructDiamondPrompt(selectedClient, intake);
+      const prompt = constructDiamondPrompt(selectedClient, intake, numberOfDays, mealPattern);
       
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
@@ -1201,7 +1201,7 @@ export default function MealPlansPro() {
 }
 
 // Helper function to construct Diamond GPT prompt
-function constructDiamondPrompt(client, intake) {
+function constructDiamondPrompt(client, intake, numberOfDays, mealPattern) {
   const activityMultipliers = {
     sedentary: 1.2,
     lightly_active: 1.375,

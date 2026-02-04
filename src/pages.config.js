@@ -91,6 +91,7 @@ import CoachScheduling from './pages/CoachScheduling';
 import CoachSubscription from './pages/CoachSubscription';
 import CoachSubscriptions from './pages/CoachSubscriptions';
 import Communication from './pages/Communication';
+import ComprehensiveAnalyticsDashboard from './pages/ComprehensiveAnalyticsDashboard';
 import CouponManagement from './pages/CouponManagement';
 import DailyProgressLogger from './pages/DailyProgressLogger';
 import DietitianDashboard from './pages/DietitianDashboard';
@@ -132,6 +133,7 @@ import PurchaseClientPlan from './pages/PurchaseClientPlan';
 import PurchaseCoachPlan from './pages/PurchaseCoachPlan';
 import RecipeManagement from './pages/RecipeManagement';
 import Recipes from './pages/Recipes';
+import ReminderManagement from './pages/ReminderManagement';
 import ResourceLibrary from './pages/ResourceLibrary';
 import ResourceLibraryEnhanced from './pages/ResourceLibraryEnhanced';
 import SecuritySettings from './pages/SecuritySettings';
@@ -149,8 +151,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import ComprehensiveAnalyticsDashboard from './pages/ComprehensiveAnalyticsDashboard';
-import ReminderManagement from './pages/ReminderManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -199,6 +199,7 @@ export const PAGES = {
     "CoachSubscription": CoachSubscription,
     "CoachSubscriptions": CoachSubscriptions,
     "Communication": Communication,
+    "ComprehensiveAnalyticsDashboard": ComprehensiveAnalyticsDashboard,
     "CouponManagement": CouponManagement,
     "DailyProgressLogger": DailyProgressLogger,
     "DietitianDashboard": DietitianDashboard,
@@ -240,6 +241,7 @@ export const PAGES = {
     "PurchaseCoachPlan": PurchaseCoachPlan,
     "RecipeManagement": RecipeManagement,
     "Recipes": Recipes,
+    "ReminderManagement": ReminderManagement,
     "ResourceLibrary": ResourceLibrary,
     "ResourceLibraryEnhanced": ResourceLibraryEnhanced,
     "SecuritySettings": SecuritySettings,
@@ -257,8 +259,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "ComprehensiveAnalyticsDashboard": ComprehensiveAnalyticsDashboard,
-    "ReminderManagement": ReminderManagement,
 }
 
 export const pagesConfig = {
