@@ -60,7 +60,10 @@ export default function UserPermissionManagement() {
           is_subscription_only: true
         }));
       
-      return [...users, ...subscriptionOnlyCoaches];
+      const allUsersList = [...users, ...subscriptionOnlyCoaches];
+      
+      // Filter out the current user from the list
+      return allUsersList.filter(u => u.email?.toLowerCase() !== currentUser?.email?.toLowerCase());
     },
     enabled: !!currentUser && currentUser.user_type === 'super_admin',
     initialData: [],
