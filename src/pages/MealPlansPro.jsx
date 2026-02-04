@@ -1267,13 +1267,16 @@ TDEE: ${Math.round(tdee)} kcal
 ## REQUIREMENTS:
 
 1. Apply disease-specific rules for: ${intake.health_conditions.join(', ')}
-2. Generate ${numberOfDays}-day plan with ${mealPattern} pattern${mealPattern === '3-3-4' ? ' (Plan A: days 1-3, Plan B: days 4-6, Plan C: days 7-' + numberOfDays + ')' : ''}
-3. Each day has 8 meals: Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner, Post Dinner, Bedtime
-4. For each meal provide: meal_name, items, portion_sizes (Indian units), calories, protein, carbs, fats, sodium, potassium, disease_rationale
-5. Include MPESS practices for: ${Object.entries(intake.mpess_preferences).filter(([k,v]) => v).map(([k]) => k).join(', ')}
-6. Provide audit snapshot with compliance tracking
-7. List decision rules applied
-8. Handle conflicts with hierarchy: Kidney > Diabetes > Heart > Thyroid
+2. **CRITICAL**: Generate EXACTLY ${numberOfDays} days of meal plans. Create meals for day 1, day 2, day 3... up to day ${numberOfDays}. Do not stop at day 3.
+3. Pattern: ${mealPattern}${mealPattern === '3-3-4' ? ' (Plan A: days 1-3, Plan B: days 4-6, Plan C: days 7-' + numberOfDays + ')' : ''}
+4. Each day MUST have 8 meals: Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner, Post Dinner, Bedtime
+5. For each meal provide: day (1 to ${numberOfDays}), meal_type, meal_name, items, portion_sizes (Indian units), calories, protein, carbs, fats, sodium, potassium, disease_rationale
+6. Include MPESS practices for: ${Object.entries(intake.mpess_preferences).filter(([k,v]) => v).map(([k]) => k).join(', ')}
+7. Provide audit snapshot with compliance tracking
+8. List decision rules applied
+9. Handle conflicts with hierarchy: Kidney > Diabetes > Heart > Thyroid
 
-Return structured JSON with decision_rules, calculations, meal_plan array, mpess_integration, and audit_snapshot.`;
+**IMPORTANT**: The meal_plan array must contain exactly ${numberOfDays * 8} meals (${numberOfDays} days × 8 meals per day).
+
+Return structured JSON with decision_rules, calculations, meal_plan array (with all ${numberOfDays} days), mpess_integration, and audit_snapshot.`;
 }
