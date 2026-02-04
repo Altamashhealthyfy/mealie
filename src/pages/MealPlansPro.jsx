@@ -182,6 +182,8 @@ export default function MealPlansPro() {
       
       const prompt = constructDiamondPrompt(selectedClient, intake, numberOfDays, mealPattern);
       
+      console.log('Sending prompt to AI with numberOfDays:', numberOfDays);
+      
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
         response_json_schema: {
@@ -258,6 +260,17 @@ export default function MealPlansPro() {
           }
         }
       });
+
+      // Validate that all days were generated
+      const generatedDays = [...new Set(response.meal_plan.map(m => m.day))].sort((a, b) => a - b);
+      const expectedDays = Array.from({ length: numberOfDays }, (_, i) => i + 1);
+      
+      console.log('Generated days:', generatedDays);
+      console.log('Expected days:', expectedDays);
+      
+      if (generatedDays.length < numberOfDays) {
+        alert(`⚠️ Warning: AI only generated ${generatedDays.length} days instead of ${numberOfDays} days. Missing days: ${expectedDays.filter(d => !generatedDays.includes(d)).join(', ')}. Please try generating again.`);
+      }
 
       setGeneratedPlan({
         ...response,
@@ -1267,16 +1280,32 @@ TDEE: ${Math.round(tdee)} kcal
 ## REQUIREMENTS:
 
 1. Apply disease-specific rules for: ${intake.health_conditions.join(', ')}
-2. **CRITICAL**: Generate EXACTLY ${numberOfDays} days of meal plans. Create meals for day 1, day 2, day 3... up to day ${numberOfDays}. Do not stop at day 3.
+
+2. **MANDATORY - DO NOT SKIP ANY DAYS**: 
+   - You MUST generate ALL ${numberOfDays} days of meal plans
+   - Generate day 1, day 2, day 3, day 4, day 5, day 6, day 7, day 8, day 9, day 10
+   - Continue until you reach day ${numberOfDays}
+   - DO NOT stop at day 3 or any day before ${numberOfDays}
+   - Each meal object must have a "day" field from 1 to ${numberOfDays}
+
 3. Pattern: ${mealPattern}${mealPattern === '3-3-4' ? ' (Plan A: days 1-3, Plan B: days 4-6, Plan C: days 7-' + numberOfDays + ')' : ''}
+
 4. Each day MUST have 8 meals: Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner, Post Dinner, Bedtime
+
 5. For each meal provide: day (1 to ${numberOfDays}), meal_type, meal_name, items, portion_sizes (Indian units), calories, protein, carbs, fats, sodium, potassium, disease_rationale
+
 6. Include MPESS practices for: ${Object.entries(intake.mpess_preferences).filter(([k,v]) => v).map(([k]) => k).join(', ')}
+
 7. Provide audit snapshot with compliance tracking
+
 8. List decision rules applied
+
 9. Handle conflicts with hierarchy: Kidney > Diabetes > Heart > Thyroid
 
-**IMPORTANT**: The meal_plan array must contain exactly ${numberOfDays * 8} meals (${numberOfDays} days × 8 meals per day).
+**CRITICAL VALIDATION**: 
+- The meal_plan array must contain EXACTLY ${numberOfDays * 8} meals total
+- That is ${numberOfDays} days × 8 meals per day = ${numberOfDays * 8} meals
+- Verify you have generated meals for EVERY day from day 1 to day ${numberOfDays}
 
-Return structured JSON with decision_rules, calculations, meal_plan array (with all ${numberOfDays} days), mpess_integration, and audit_snapshot.`;
+Return structured JSON with decision_rules, calculations, meal_plan array (with ALL ${numberOfDays} days), mpess_integration, and audit_snapshot.`;
 }
