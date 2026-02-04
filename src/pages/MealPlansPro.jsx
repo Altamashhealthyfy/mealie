@@ -25,6 +25,8 @@ export default function MealPlansPro() {
   const [generatedPlan, setGeneratedPlan] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editedMeals, setEditedMeals] = useState([]);
+  const [mealPattern, setMealPattern] = useState("3-3-4");
+  const [numberOfDays, setNumberOfDays] = useState(10);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -312,8 +314,8 @@ export default function MealPlansPro() {
       client_id: generatedPlan.client_id,
       name: `Diamond Clinical Plan - ${generatedPlan.client_name}`,
       plan_tier: 'advanced',
-      duration: 10,
-      meal_pattern: '3-3-4',
+      duration: numberOfDays,
+      meal_pattern: mealPattern,
       target_calories: generatedPlan.calculations.target_calories,
       disease_focus: latestIntake?.health_conditions || [],
       meals: mealsToSave,
@@ -341,7 +343,7 @@ export default function MealPlansPro() {
       name: templateName,
       description: `Disease-specific template for ${latestIntake?.health_conditions?.join(', ') || 'various conditions'}`,
       category: latestIntake?.health_conditions?.[0]?.toLowerCase() || 'general',
-      duration: 10,
+      duration: numberOfDays,
       target_calories: plan.calculations.target_calories,
       food_preference: latestIntake?.diet_type?.toLowerCase() || 'general',
       regional_preference: 'all',
@@ -718,6 +720,47 @@ export default function MealPlansPro() {
                     </div>
                   )}
 
+                  {/* Meal Plan Options */}
+                  {selectedClient && hasCompletedIntake && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">
+                          Meal Pattern *
+                        </label>
+                        <Select value={mealPattern} onValueChange={setMealPattern}>
+                          <SelectTrigger className="h-12">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="3-3-4">3-3-4 Rotation (Recommended)</SelectItem>
+                            <SelectItem value="daily">Daily Variation</SelectItem>
+                            <SelectItem value="weekly">Weekly Pattern</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-gray-500">
+                          3-3-4: Plan A (days 1-3), Plan B (days 4-6), Plan C (days 7-10)
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700">
+                          Number of Days *
+                        </label>
+                        <Input
+                          type="number"
+                          min="3"
+                          max="30"
+                          value={numberOfDays}
+                          onChange={(e) => setNumberOfDays(Math.max(3, Math.min(30, parseInt(e.target.value) || 10)))}
+                          className="h-12"
+                        />
+                        <p className="text-xs text-gray-500">
+                          Choose between 3-30 days
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Action Buttons */}
                   {selectedClient && !hasCompletedIntake && (
                     <Button
@@ -867,25 +910,25 @@ export default function MealPlansPro() {
                   </CardContent>
                 </Card>
 
-                {/* 10-Day Meal Plan */}
+                {/* Meal Plan */}
                 <Card className="border-none shadow-lg">
                   <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                    <CardTitle>🍽️ 10-Day Meal Plan (3-3-4 Rotation)</CardTitle>
+                    <CardTitle>🍽️ {numberOfDays}-Day Meal Plan ({mealPattern.toUpperCase()} Pattern)</CardTitle>
                     <CardDescription className="text-white/90">
-                      Plan A: Days 1-3 | Plan B: Days 4-6 | Plan C: Days 7-10
+                      {mealPattern === '3-3-4' ? `Plan A: Days 1-3 | Plan B: Days 4-6 | Plan C: Days 7-${numberOfDays}` : `${numberOfDays} days of customized meals`}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="p-6">
                     <Tabs defaultValue="1" className="space-y-4">
                       <TabsList className="flex flex-wrap gap-2">
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(day => (
+                        {Array.from({ length: numberOfDays }, (_, i) => i + 1).map(day => (
                           <TabsTrigger key={day} value={day.toString()}>
                             Day {day}
                           </TabsTrigger>
                         ))}
                       </TabsList>
 
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(day => (
+                      {Array.from({ length: numberOfDays }, (_, i) => i + 1).map(day => (
                         <TabsContent key={day} value={day.toString()} className="space-y-4">
                           {(editMode ? editedMeals : generatedPlan.meal_plan)
                             .filter(meal => meal.day === day)
@@ -1224,7 +1267,7 @@ TDEE: ${Math.round(tdee)} kcal
 ## REQUIREMENTS:
 
 1. Apply disease-specific rules for: ${intake.health_conditions.join(', ')}
-2. Generate 10-day plan with 3-3-4 rotation (Plan A: days 1-3, Plan B: days 4-6, Plan C: days 7-10)
+2. Generate ${numberOfDays}-day plan with ${mealPattern} pattern${mealPattern === '3-3-4' ? ' (Plan A: days 1-3, Plan B: days 4-6, Plan C: days 7-' + numberOfDays + ')' : ''}
 3. Each day has 8 meals: Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner, Post Dinner, Bedtime
 4. For each meal provide: meal_name, items, portion_sizes (Indian units), calories, protein, carbs, fats, sodium, potassium, disease_rationale
 5. Include MPESS practices for: ${Object.entries(intake.mpess_preferences).filter(([k,v]) => v).map(([k]) => k).join(', ')}
