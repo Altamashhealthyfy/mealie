@@ -266,7 +266,11 @@ export default function UserPermissionManagement() {
   }
 
   const getUsersByType = (userType) => {
-    return allUsers.filter(u => u.user_type === userType);
+    return allUsers.filter(u => {
+      // Handle both user_type and role fields
+      const type = u.user_type || (u.role === 'admin' ? 'super_admin' : u.role);
+      return type === userType;
+    });
   };
 
   const getUserCustomPermissions = (userEmail) => {
