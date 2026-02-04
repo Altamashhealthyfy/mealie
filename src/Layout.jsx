@@ -181,12 +181,6 @@ const dietitianNavigation = [
     icon: BookOpen,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
-  {
-    title: "Appointments",
-    url: createPageUrl("CoachScheduling"),
-    icon: Calendar,
-    roles: ['student_coach'],
-  },
   ];
 
 const paymentNavigation = [

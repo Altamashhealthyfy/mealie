@@ -87,7 +87,6 @@ import CoachClientManagement from './pages/CoachClientManagement';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachProgramManagement from './pages/CoachProgramManagement';
 import CoachReferralLink from './pages/CoachReferralLink';
-import CoachScheduling from './pages/CoachScheduling';
 import CoachSubscription from './pages/CoachSubscription';
 import CoachSubscriptions from './pages/CoachSubscriptions';
 import Communication from './pages/Communication';
@@ -195,7 +194,6 @@ export const PAGES = {
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachProgramManagement": CoachProgramManagement,
     "CoachReferralLink": CoachReferralLink,
-    "CoachScheduling": CoachScheduling,
     "CoachSubscription": CoachSubscription,
     "CoachSubscriptions": CoachSubscriptions,
     "Communication": Communication,
