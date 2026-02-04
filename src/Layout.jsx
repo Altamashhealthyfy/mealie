@@ -187,18 +187,6 @@ const dietitianNavigation = [
     icon: Calendar,
     roles: ['student_coach'],
   },
-  {
-    title: "Programs",
-    url: createPageUrl("CoachProgramManagement"),
-    icon: Target,
-    roles: ['student_coach'],
-  },
-  {
-    title: "Coach Analytics",
-    url: createPageUrl("CoachAnalyticsDashboard"),
-    icon: TrendingUp,
-    roles: ['student_coach'],
-  },
   ];
 
 const paymentNavigation = [
