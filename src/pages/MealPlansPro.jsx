@@ -703,9 +703,9 @@ export default function MealPlansPro() {
                           <CheckCircle className="w-4 h-4 text-green-600" />
                           <AlertDescription>
                             <strong>Clinical intake completed!</strong><br/>
-                            Health Conditions: {latestIntake.health_conditions.join(', ')}<br/>
-                            Diet Type: {latestIntake.diet_type}<br/>
-                            Goal: {latestIntake.goal}
+                            Health Conditions: {latestIntake?.health_conditions?.join(', ') || 'Not specified'}<br/>
+                            Diet Type: {latestIntake?.diet_type || 'Not specified'}<br/>
+                            Goal: {latestIntake?.goal || 'Not specified'}
                           </AlertDescription>
                         </Alert>
                       ) : (
