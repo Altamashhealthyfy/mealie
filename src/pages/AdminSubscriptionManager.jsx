@@ -455,7 +455,13 @@ export default function AdminSubscriptionManager() {
 
               <div className="space-y-2">
                 <Label>Select Plan *</Label>
-                <Select value={selectedCoachPlan} onValueChange={setSelectedCoachPlan}>
+                <Select 
+                  value={selectedCoachPlan} 
+                  onValueChange={(value) => {
+                    console.log('Plan selected:', value);
+                    setSelectedCoachPlan(value);
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Pro Plan" />
                   </SelectTrigger>
