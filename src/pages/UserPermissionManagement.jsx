@@ -44,13 +44,22 @@ export default function UserPermissionManagement() {
   const { data: allUsers, refetch: refetchUsers } = useQuery({
     queryKey: ['allUsers'],
     queryFn: async () => {
-      const users = await base44.entities.User.list("-created_date", 10000);
+      const currentEmail = currentUser?.email?.toLowerCase().trim();
       
-      // Also include coaches from subscriptions without User accounts
+      // Get all users and filter out current user
+      const users = await base44.entities.User.list("-created_date", 10000);
+      const filteredUsers = users.filter(u => u.email?.toLowerCase().trim() !== currentEmail);
+      
+      // Also include coaches from subscriptions without User accounts (but not current user)
       const allSubs = await base44.entities.HealthCoachSubscription.list("", 10000);
       const userEmails = new Set(users.map(u => u.email));
       const subscriptionOnlyCoaches = allSubs
-        .filter(s => !userEmails.has(s.coach_email) && (s.status === "active" || s.manually_granted))
+        .filter(s => {
+          const subEmail = s.coach_email?.toLowerCase().trim();
+          return !userEmails.has(s.coach_email) && 
+                 (s.status === "active" || s.manually_granted) &&
+                 subEmail !== currentEmail; // Don't include current user
+        })
         .map(s => ({
           id: `sub_${s.id}`,
           email: s.coach_email,
@@ -60,14 +69,7 @@ export default function UserPermissionManagement() {
           is_subscription_only: true
         }));
       
-      const allUsersList = [...users, ...subscriptionOnlyCoaches];
-      
-      // Filter out the current user from the list (trim and lowercase for robust comparison)
-      return allUsersList.filter(u => {
-        const userEmail = u.email?.toLowerCase().trim();
-        const currentEmail = currentUser?.email?.toLowerCase().trim();
-        return userEmail !== currentEmail;
-      });
+      return [...filteredUsers, ...subscriptionOnlyCoaches];
     },
     enabled: !!currentUser && currentUser.user_type === 'super_admin',
     initialData: [],
