@@ -6,6 +6,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   BarChart,
   Bar,
@@ -22,6 +27,8 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
+  ScatterChart,
+  Scatter,
 } from "recharts";
 import {
   AlertTriangle,
@@ -34,11 +41,27 @@ import {
   Activity,
   Award,
   BarChart3,
+  Filter,
+  FileText,
+  TrendingDown,
+  UserMinus,
+  Layers,
 } from "lucide-react";
-import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import { format, subMonths, startOfMonth, endOfMonth, differenceInDays, differenceInMonths, parseISO } from "date-fns";
+import { toast } from "sonner";
 
 export default function AdminPlatformAnalytics() {
   const [dateRange, setDateRange] = useState("3months");
+  const [customReportDialog, setCustomReportDialog] = useState(false);
+  const [startDate, setStartDate] = useState(format(subMonths(new Date(), 3), 'yyyy-MM-dd'));
+  const [endDate, setEndDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [reportFilters, setReportFilters] = useState({
+    includeDemographics: true,
+    includeRevenue: true,
+    includeEngagement: true,
+    groupByRegion: false,
+    groupByPlan: true,
+  });
 
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
@@ -81,6 +104,24 @@ export default function AdminPlatformAnalytics() {
   const { data: allEnrollments } = useQuery({
     queryKey: ["allEnrollments"],
     queryFn: async () => base44.entities.ProgramEnrollment.list("-enrollment_date", 1000),
+    initialData: [],
+  });
+
+  const { data: allPlans } = useQuery({
+    queryKey: ["allPlans"],
+    queryFn: async () => base44.entities.HealthCoachPlan.list(),
+    initialData: [],
+  });
+
+  const { data: allFeedback } = useQuery({
+    queryKey: ["allFeedback"],
+    queryFn: async () => base44.entities.ClientFeedback.list("-created_date", 1000),
+    initialData: [],
+  });
+
+  const { data: progressLogs } = useQuery({
+    queryKey: ["progressLogs"],
+    queryFn: async () => base44.entities.ProgressLog.list("-date", 1000),
     initialData: [],
   });
 
@@ -179,6 +220,247 @@ export default function AdminPlatformAnalytics() {
 
   const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
+  // Cohort Analysis - Track client retention by signup month
+  const cohortAnalysis = useMemo(() => {
+    const cohorts = {};
+    
+    allClients.forEach(client => {
+      if (!client.join_date) return;
+      
+      const cohortMonth = format(new Date(client.join_date), 'MMM yyyy');
+      if (!cohorts[cohortMonth]) {
+        cohorts[cohortMonth] = {
+          month: cohortMonth,
+          totalClients: 0,
+          activeClients: 0,
+          month1Retention: 0,
+          month3Retention: 0,
+          month6Retention: 0,
+          avgEngagement: 0,
+        };
+      }
+      
+      cohorts[cohortMonth].totalClients++;
+      if (client.status === 'active') {
+        cohorts[cohortMonth].activeClients++;
+      }
+      
+      // Calculate engagement based on progress logs
+      const clientLogs = progressLogs.filter(log => log.client_id === client.id);
+      cohorts[cohortMonth].avgEngagement += clientLogs.length;
+    });
+
+    // Calculate retention rates
+    Object.keys(cohorts).forEach(cohortMonth => {
+      const cohort = cohorts[cohortMonth];
+      cohort.retentionRate = cohort.totalClients > 0 
+        ? (cohort.activeClients / cohort.totalClients) * 100 
+        : 0;
+      cohort.avgEngagement = cohort.totalClients > 0 
+        ? cohort.avgEngagement / cohort.totalClients 
+        : 0;
+    });
+
+    return Object.values(cohorts).slice(-12); // Last 12 cohorts
+  }, [allClients, progressLogs]);
+
+  // Churn Prediction - Identify at-risk subscriptions
+  const churnPrediction = useMemo(() => {
+    const atRiskSubs = [];
+    const now = new Date();
+    
+    allSubscriptions.forEach(sub => {
+      if (sub.status !== 'active') return;
+      
+      const coachEmail = sub.coach_email;
+      const coachClients = allClients.filter(c => 
+        Array.isArray(c.assigned_coach) 
+          ? c.assigned_coach.includes(coachEmail)
+          : c.assigned_coach === coachEmail
+      );
+      
+      const recentAppointments = allAppointments.filter(a => 
+        a.coach_email === coachEmail && 
+        differenceInDays(now, new Date(a.appointment_date)) <= 30
+      );
+      
+      const recentRevenue = allRevenues.filter(r => 
+        r.coach_email === coachEmail && 
+        differenceInDays(now, new Date(r.transaction_date)) <= 30
+      );
+      
+      const avgFeedback = allFeedback.filter(f => f.coach_email === coachEmail);
+      const avgRating = avgFeedback.length > 0 
+        ? avgFeedback.reduce((sum, f) => sum + (f.overall_rating || 0), 0) / avgFeedback.length 
+        : 0;
+      
+      // Calculate churn risk score
+      let riskScore = 0;
+      const riskFactors = [];
+      
+      if (coachClients.length === 0) {
+        riskScore += 30;
+        riskFactors.push("No active clients");
+      } else if (coachClients.length < 3) {
+        riskScore += 15;
+        riskFactors.push("Low client count");
+      }
+      
+      if (recentAppointments.length === 0) {
+        riskScore += 25;
+        riskFactors.push("No recent appointments");
+      }
+      
+      if (recentRevenue.length === 0 || recentRevenue.reduce((s, r) => s + r.amount, 0) < 1000) {
+        riskScore += 20;
+        riskFactors.push("Low recent revenue");
+      }
+      
+      if (avgRating < 3.5 && avgFeedback.length > 0) {
+        riskScore += 15;
+        riskFactors.push("Low feedback ratings");
+      }
+      
+      const daysSinceStart = differenceInDays(now, new Date(sub.start_date));
+      if (daysSinceStart > 60 && recentAppointments.length === 0) {
+        riskScore += 10;
+        riskFactors.push("Inactive for extended period");
+      }
+      
+      if (riskScore >= 30) {
+        atRiskSubs.push({
+          coachEmail: sub.coach_email,
+          coachName: sub.coach_name,
+          plan: sub.plan_name,
+          riskScore,
+          riskLevel: riskScore >= 60 ? 'high' : riskScore >= 40 ? 'medium' : 'low',
+          riskFactors,
+          clients: coachClients.length,
+          recentAppointments: recentAppointments.length,
+          avgRating: avgRating.toFixed(1),
+        });
+      }
+    });
+    
+    return atRiskSubs.sort((a, b) => b.riskScore - a.riskScore);
+  }, [allSubscriptions, allClients, allAppointments, allRevenues, allFeedback]);
+
+  // Revenue by Plan Type
+  const revenueByPlan = useMemo(() => {
+    const planRevenue = {};
+    
+    allSubscriptions.forEach(sub => {
+      if (sub.status === 'active') {
+        const planName = sub.plan_name || 'Unknown';
+        if (!planRevenue[planName]) {
+          planRevenue[planName] = { plan: planName, revenue: 0, count: 0 };
+        }
+        planRevenue[planName].revenue += sub.amount || 0;
+        planRevenue[planName].count++;
+      }
+    });
+    
+    return Object.values(planRevenue);
+  }, [allSubscriptions]);
+
+  // Coach Performance by Region (based on location)
+  const performanceByRegion = useMemo(() => {
+    const regions = {};
+    
+    allClients.forEach(client => {
+      const location = client.location || 'Unknown';
+      if (!regions[location]) {
+        regions[location] = {
+          region: location,
+          clients: 0,
+          revenue: 0,
+          avgSatisfaction: 0,
+          feedbackCount: 0,
+        };
+      }
+      
+      regions[location].clients++;
+      
+      const clientRevenue = allRevenues.filter(r => r.client_id === client.id);
+      regions[location].revenue += clientRevenue.reduce((sum, r) => sum + (r.amount || 0), 0);
+      
+      const clientFeedback = allFeedback.filter(f => f.client_id === client.id);
+      if (clientFeedback.length > 0) {
+        regions[location].feedbackCount += clientFeedback.length;
+        regions[location].avgSatisfaction += clientFeedback.reduce((sum, f) => sum + (f.overall_rating || 0), 0);
+      }
+    });
+    
+    Object.keys(regions).forEach(region => {
+      const data = regions[region];
+      data.avgSatisfaction = data.feedbackCount > 0 
+        ? (data.avgSatisfaction / data.feedbackCount).toFixed(1) 
+        : 0;
+    });
+    
+    return Object.values(regions)
+      .filter(r => r.clients > 0)
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
+  }, [allClients, allRevenues, allFeedback]);
+
+  // Client Demographics
+  const demographics = useMemo(() => {
+    const ageGroups = { '18-25': 0, '26-35': 0, '36-45': 0, '46-55': 0, '56+': 0 };
+    const genderDist = { male: 0, female: 0, other: 0 };
+    const goalDist = {};
+    
+    allClients.forEach(client => {
+      // Age distribution
+      if (client.age) {
+        if (client.age <= 25) ageGroups['18-25']++;
+        else if (client.age <= 35) ageGroups['26-35']++;
+        else if (client.age <= 45) ageGroups['36-45']++;
+        else if (client.age <= 55) ageGroups['46-55']++;
+        else ageGroups['56+']++;
+      }
+      
+      // Gender distribution
+      if (client.gender) {
+        genderDist[client.gender] = (genderDist[client.gender] || 0) + 1;
+      }
+      
+      // Goal distribution
+      if (client.goal) {
+        goalDist[client.goal] = (goalDist[client.goal] || 0) + 1;
+      }
+    });
+    
+    return {
+      age: Object.entries(ageGroups).map(([range, count]) => ({ range, count })),
+      gender: Object.entries(genderDist).map(([gender, count]) => ({ gender, count })),
+      goals: Object.entries(goalDist).map(([goal, count]) => ({ goal, count })),
+    };
+  }, [allClients]);
+
+  const handleExportReport = () => {
+    const report = {
+      generatedAt: new Date().toISOString(),
+      dateRange: { startDate, endDate },
+      metrics,
+      cohortAnalysis,
+      churnPrediction,
+      revenueByPlan,
+      performanceByRegion,
+      demographics,
+    };
+    
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `analytics-report-${format(new Date(), 'yyyy-MM-dd')}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    toast.success('Report exported successfully!');
+  };
+
   if (!user || user.user_type !== "super_admin") {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
@@ -198,28 +480,107 @@ export default function AdminPlatformAnalytics() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              📊 Platform Analytics Dashboard
+              📊 Advanced Analytics Dashboard
             </h1>
-            <p className="text-gray-600">Overall platform usage, revenue trends & coach performance</p>
+            <p className="text-gray-600">Custom reports, cohort analysis & churn prediction</p>
           </div>
           <div className="flex gap-3">
-            <Select value={dateRange} onValueChange={setDateRange}>
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1month">Last Month</SelectItem>
-                <SelectItem value="3months">Last 3 Months</SelectItem>
-                <SelectItem value="6months">Last 6 Months</SelectItem>
-                <SelectItem value="1year">Last Year</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" className="gap-2">
+            <Dialog open={customReportDialog} onOpenChange={setCustomReportDialog}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Filter className="w-4 h-4" />
+                  Custom Report
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Generate Custom Report</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 mt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Start Date</Label>
+                      <Input 
+                        type="date" 
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>End Date</Label>
+                      <Input 
+                        type="date" 
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <Label>Report Sections</Label>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Checkbox 
+                          checked={reportFilters.includeDemographics}
+                          onCheckedChange={(checked) => setReportFilters(prev => ({ ...prev, includeDemographics: checked }))}
+                        />
+                        <Label>Client Demographics</Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Checkbox 
+                          checked={reportFilters.includeRevenue}
+                          onCheckedChange={(checked) => setReportFilters(prev => ({ ...prev, includeRevenue: checked }))}
+                        />
+                        <Label>Revenue Analysis</Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Checkbox 
+                          checked={reportFilters.includeEngagement}
+                          onCheckedChange={(checked) => setReportFilters(prev => ({ ...prev, includeEngagement: checked }))}
+                        />
+                        <Label>Engagement Metrics</Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Checkbox 
+                          checked={reportFilters.groupByRegion}
+                          onCheckedChange={(checked) => setReportFilters(prev => ({ ...prev, groupByRegion: checked }))}
+                        />
+                        <Label>Group by Region</Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Checkbox 
+                          checked={reportFilters.groupByPlan}
+                          onCheckedChange={(checked) => setReportFilters(prev => ({ ...prev, groupByPlan: checked }))}
+                        />
+                        <Label>Group by Plan Type</Label>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Button onClick={handleExportReport} className="w-full">
+                    <Download className="w-4 h-4 mr-2" />
+                    Generate & Export Report
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+            
+            <Button onClick={handleExportReport} className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600">
               <Download className="w-4 h-4" />
-              Export Report
+              Export
             </Button>
           </div>
         </div>
+
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="cohorts">Cohort Analysis</TabsTrigger>
+            <TabsTrigger value="churn">Churn Prediction</TabsTrigger>
+            <TabsTrigger value="custom">Custom Reports</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
 
         {/* Key Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -431,6 +792,312 @@ export default function AdminPlatformAnalytics() {
             </div>
           </CardContent>
         </Card>
+          </TabsContent>
+
+          {/* Cohort Analysis Tab */}
+          <TabsContent value="cohorts" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Layers className="w-5 h-5 text-purple-600" />
+                  Client Cohort Analysis
+                </CardTitle>
+                <CardDescription>Track client retention and engagement by signup month</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={400}>
+                  <LineChart data={cohortAnalysis}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" angle={-45} textAnchor="end" height={100} />
+                    <YAxis yAxisId="left" />
+                    <YAxis yAxisId="right" orientation="right" />
+                    <Tooltip />
+                    <Legend />
+                    <Line yAxisId="left" type="monotone" dataKey="totalClients" stroke="#3b82f6" name="Total Clients" />
+                    <Line yAxisId="left" type="monotone" dataKey="activeClients" stroke="#10b981" name="Active Clients" />
+                    <Line yAxisId="right" type="monotone" dataKey="retentionRate" stroke="#8b5cf6" name="Retention %" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Retention Metrics</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={cohortAnalysis}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="retentionRate" fill="#8b5cf6" name="Retention %" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Engagement by Cohort</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={cohortAnalysis}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" angle={-45} textAnchor="end" height={80} />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="avgEngagement" fill="#10b981" name="Avg Logs/Client" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Cohort Performance Table</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-3 px-4 font-semibold">Cohort Month</th>
+                        <th className="text-center py-3 px-4 font-semibold">Total Clients</th>
+                        <th className="text-center py-3 px-4 font-semibold">Active</th>
+                        <th className="text-center py-3 px-4 font-semibold">Retention %</th>
+                        <th className="text-center py-3 px-4 font-semibold">Avg Engagement</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cohortAnalysis.map((cohort, idx) => (
+                        <tr key={idx} className="border-b hover:bg-gray-50">
+                          <td className="py-3 px-4 font-medium">{cohort.month}</td>
+                          <td className="py-3 px-4 text-center">{cohort.totalClients}</td>
+                          <td className="py-3 px-4 text-center">{cohort.activeClients}</td>
+                          <td className="py-3 px-4 text-center">
+                            <Badge className={cohort.retentionRate >= 70 ? "bg-green-100 text-green-700" : cohort.retentionRate >= 50 ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"}>
+                              {cohort.retentionRate.toFixed(1)}%
+                            </Badge>
+                          </td>
+                          <td className="py-3 px-4 text-center">{cohort.avgEngagement.toFixed(1)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Churn Prediction Tab */}
+          <TabsContent value="churn" className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Card className="border-l-4 border-l-red-500">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase mb-2">High Risk</p>
+                      <p className="text-3xl font-bold text-red-600">
+                        {churnPrediction.filter(s => s.riskLevel === 'high').length}
+                      </p>
+                    </div>
+                    <UserMinus className="w-10 h-10 text-red-200" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-l-4 border-l-orange-500">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Medium Risk</p>
+                      <p className="text-3xl font-bold text-orange-600">
+                        {churnPrediction.filter(s => s.riskLevel === 'medium').length}
+                      </p>
+                    </div>
+                    <TrendingDown className="w-10 h-10 text-orange-200" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-l-4 border-l-yellow-500">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Low Risk</p>
+                      <p className="text-3xl font-bold text-yellow-600">
+                        {churnPrediction.filter(s => s.riskLevel === 'low').length}
+                      </p>
+                    </div>
+                    <Activity className="w-10 h-10 text-yellow-200" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                  At-Risk Subscriptions
+                </CardTitle>
+                <CardDescription>Coaches who may cancel their subscription soon</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-3 px-4 font-semibold">Coach</th>
+                        <th className="text-center py-3 px-4 font-semibold">Plan</th>
+                        <th className="text-center py-3 px-4 font-semibold">Risk Level</th>
+                        <th className="text-center py-3 px-4 font-semibold">Risk Score</th>
+                        <th className="text-center py-3 px-4 font-semibold">Clients</th>
+                        <th className="text-center py-3 px-4 font-semibold">Recent Appts</th>
+                        <th className="text-left py-3 px-4 font-semibold">Risk Factors</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {churnPrediction.map((sub, idx) => (
+                        <tr key={idx} className="border-b hover:bg-gray-50">
+                          <td className="py-3 px-4 font-medium">{sub.coachName}</td>
+                          <td className="py-3 px-4 text-center text-sm">{sub.plan}</td>
+                          <td className="py-3 px-4 text-center">
+                            <Badge className={
+                              sub.riskLevel === 'high' ? "bg-red-100 text-red-700" :
+                              sub.riskLevel === 'medium' ? "bg-orange-100 text-orange-700" :
+                              "bg-yellow-100 text-yellow-700"
+                            }>
+                              {sub.riskLevel}
+                            </Badge>
+                          </td>
+                          <td className="py-3 px-4 text-center font-semibold">{sub.riskScore}</td>
+                          <td className="py-3 px-4 text-center">{sub.clients}</td>
+                          <td className="py-3 px-4 text-center">{sub.recentAppointments}</td>
+                          <td className="py-3 px-4 text-sm">
+                            <div className="space-y-1">
+                              {sub.riskFactors.slice(0, 3).map((factor, i) => (
+                                <div key={i} className="text-gray-600">• {factor}</div>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Custom Reports Tab */}
+          <TabsContent value="custom" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Demographics */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Client Age Distribution</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={demographics.age}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="range" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="count" fill="#3b82f6" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Client Goals Distribution</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={demographics.goals}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={(entry) => `${entry.goal}: ${entry.count}`}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="count"
+                      >
+                        {demographics.goals.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* Revenue by Plan */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Revenue by Plan Type</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={revenueByPlan}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="plan" angle={-45} textAnchor="end" height={100} />
+                      <YAxis />
+                      <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+                      <Bar dataKey="revenue" fill="#10b981" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              {/* Performance by Region */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Performance by Region</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-2 px-3 font-semibold">Region</th>
+                          <th className="text-center py-2 px-3 font-semibold">Clients</th>
+                          <th className="text-right py-2 px-3 font-semibold">Revenue</th>
+                          <th className="text-center py-2 px-3 font-semibold">Satisfaction</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {performanceByRegion.map((region, idx) => (
+                          <tr key={idx} className="border-b hover:bg-gray-50">
+                            <td className="py-2 px-3 font-medium">{region.region}</td>
+                            <td className="py-2 px-3 text-center">{region.clients}</td>
+                            <td className="py-2 px-3 text-right">₹{region.revenue.toLocaleString()}</td>
+                            <td className="py-2 px-3 text-center">
+                              <Badge className="bg-green-100 text-green-700">
+                                {region.avgSatisfaction} ⭐
+                              </Badge>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
