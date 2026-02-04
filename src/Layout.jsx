@@ -831,9 +831,27 @@ export default function Layout({ children, currentPageName }) {
           --theme-sidebar-bg: ${themeColors.sidebar_bg};
           --theme-accent: ${themeColors.accent_color};
         }
+
+        @media (max-width: 768px) {
+          .desktop-sidebar {
+            display: none !important;
+          }
+          .mobile-bottom-nav {
+            display: flex !important;
+          }
+          .main-content-mobile {
+            padding-bottom: 80px !important;
+          }
+        }
+
+        @media (min-width: 769px) {
+          .mobile-bottom-nav {
+            display: none !important;
+          }
+        }
       `}</style>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
-        <Sidebar className="border-r border-orange-100 backdrop-blur-sm" style={{ backgroundColor: sidebarBg }}>
+        <Sidebar className="desktop-sidebar border-r border-orange-100 backdrop-blur-sm" style={{ backgroundColor: sidebarBg }}>
           <SidebarHeader className="border-b border-orange-100 p-6">
             <div className="flex items-center gap-4">
               {brandingLogo ? (
@@ -1034,22 +1052,21 @@ export default function Layout({ children, currentPageName }) {
           </SidebarFooter>
         </Sidebar>
 
-        <main className="flex-1 flex flex-col">
-          <header className="bg-white/80 backdrop-blur-sm border-b border-orange-100 px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-4 md:hidden">
-              <SidebarTrigger className="hover:bg-orange-50 p-2 rounded-lg transition-colors duration-200" />
+        <main className="flex-1 flex flex-col main-content-mobile">
+          <header className="bg-white/80 backdrop-blur-sm border-b border-orange-100 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
+            <div className="flex items-center gap-2 md:gap-4 md:hidden">
               <div className="flex items-center gap-2">
                 {brandingLogo ? (
                   <img src={brandingLogo} alt={brandingName} className="w-6 h-6 rounded object-cover" />
                 ) : (
                   <ChefHat className="w-6 h-6 text-orange-500" />
                 )}
-                <h1 className="text-xl font-bold text-gray-900">
+                <h1 className="text-lg md:text-xl font-bold text-gray-900">
                   {brandingName}
                 </h1>
               </div>
             </div>
-            <div className="ml-auto flex items-center gap-4">
+            <div className="ml-auto flex items-center gap-2 md:gap-4">
               {userType === 'super_admin' && (
                 <div className="flex items-center gap-2 bg-purple-50 border border-purple-200 rounded-lg px-3 py-2">
                   <Shield className="w-4 h-4 text-purple-600" />
@@ -1080,9 +1097,38 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex-1 overflow-auto">
             {children}
           </div>
-        </main>
-        <PWAInstallPrompt />
-      </div>
-    </SidebarProvider>
-  );
-}
+          </main>
+
+          {/* Mobile Bottom Navigation */}
+          <div 
+          className="mobile-bottom-nav hidden fixed bottom-0 left-0 right-0 bg-white border-t border-orange-100 shadow-lg z-50"
+          style={{ backgroundColor: sidebarBg }}
+          >
+          <div className="flex items-center justify-around px-2 py-2 safe-area-inset-bottom">
+            {navigationItems.slice(0, 5).map((item, index) => {
+              const isActive = location.pathname === item.url;
+              return (
+                <Link
+                  key={index}
+                  to={item.url}
+                  className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg flex-1 min-w-0"
+                  style={isActive ? {
+                    background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
+                    color: '#ffffff'
+                  } : {
+                    color: themeColors.menu_text_color
+                  }}
+                >
+                  <item.icon className="w-5 h-5 flex-shrink-0" />
+                  <span className="text-xs font-medium truncate w-full text-center">{item.title}</span>
+                </Link>
+              );
+            })}
+          </div>
+          </div>
+
+          <PWAInstallPrompt />
+          </div>
+          </SidebarProvider>
+          );
+          }
