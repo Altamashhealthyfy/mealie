@@ -46,19 +46,45 @@ export default function UserPermissionManagement() {
     queryFn: async () => {
       const currentEmail = currentUser?.email?.toLowerCase().trim();
       
-      // Get all users and filter out current user
+      // Get all users and subscriptions
       const users = await base44.entities.User.list("-created_date", 10000);
-      const filteredUsers = users.filter(u => u.email?.toLowerCase().trim() !== currentEmail);
-      
-      // Also include coaches from subscriptions without User accounts (but not current user)
       const allSubs = await base44.entities.HealthCoachSubscription.list("", 10000);
-      const userEmails = new Set(users.map(u => u.email));
+      
+      // Create a map of active coach subscriptions
+      const activeCoachEmails = new Set(
+        allSubs
+          .filter(s => s.status === "active" || s.manually_granted)
+          .map(s => s.coach_email?.toLowerCase().trim())
+      );
+      
+      // Process all users - upgrade role to student_coach if they have active subscription
+      const processedUsers = users
+        .filter(u => u.email?.toLowerCase().trim() !== currentEmail)
+        .map(u => {
+          const userEmail = u.email?.toLowerCase().trim();
+          // If user has active coach subscription, treat as student_coach
+          if (activeCoachEmails.has(userEmail) && u.role === 'user') {
+            return {
+              ...u,
+              user_type: 'student_coach',
+              role: 'user' // Keep original role for reference
+            };
+          }
+          // Otherwise use existing user_type or convert role to user_type
+          return {
+            ...u,
+            user_type: u.user_type || (u.role === 'admin' ? 'super_admin' : u.role)
+          };
+        });
+      
+      // Add subscription-only coaches (no User account at all)
+      const userEmails = new Set(users.map(u => u.email?.toLowerCase().trim()));
       const subscriptionOnlyCoaches = allSubs
         .filter(s => {
           const subEmail = s.coach_email?.toLowerCase().trim();
-          return !userEmails.has(s.coach_email) && 
+          return !userEmails.has(subEmail) && 
                  (s.status === "active" || s.manually_granted) &&
-                 subEmail !== currentEmail; // Don't include current user
+                 subEmail !== currentEmail;
         })
         .map(s => ({
           id: `sub_${s.id}`,
@@ -69,7 +95,7 @@ export default function UserPermissionManagement() {
           is_subscription_only: true
         }));
       
-      return [...filteredUsers, ...subscriptionOnlyCoaches];
+      return [...processedUsers, ...subscriptionOnlyCoaches];
     },
     enabled: !!currentUser && currentUser.user_type === 'super_admin',
     initialData: [],
