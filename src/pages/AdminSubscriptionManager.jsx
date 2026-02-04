@@ -612,7 +612,12 @@ export default function AdminSubscriptionManager() {
                   Cancel
                 </Button>
                 <Button 
-                  onClick={handleGrantCoachAccess} 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleGrantCoachAccess();
+                  }} 
+                  type="button"
                   className="flex-1 bg-green-600 hover:bg-green-700"
                   disabled={grantCoachAccessMutation.isPending}
                 >
