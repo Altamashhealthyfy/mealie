@@ -58,6 +58,13 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -357,6 +364,7 @@ export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const [customBranding, setCustomBranding] = React.useState(null);
   const [adminViewMode, setAdminViewMode] = React.useState('admin');
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['currentUser'],
@@ -1101,30 +1109,140 @@ export default function Layout({ children, currentPageName }) {
 
           {/* Mobile Bottom Navigation */}
           <div 
-          className="mobile-bottom-nav hidden fixed bottom-0 left-0 right-0 bg-white border-t border-orange-100 shadow-lg z-50"
-          style={{ backgroundColor: sidebarBg }}
+            className="mobile-bottom-nav hidden fixed bottom-0 left-0 right-0 bg-white border-t border-orange-100 shadow-lg z-50"
+            style={{ backgroundColor: sidebarBg }}
           >
-          <div className="flex items-center justify-around px-2 py-2 safe-area-inset-bottom">
-            {navigationItems.slice(0, 5).map((item, index) => {
-              const isActive = location.pathname === item.url;
-              return (
-                <Link
-                  key={index}
-                  to={item.url}
-                  className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg flex-1 min-w-0"
-                  style={isActive ? {
-                    background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
-                    color: '#ffffff'
-                  } : {
-                    color: themeColors.menu_text_color
-                  }}
-                >
-                  <item.icon className="w-5 h-5 flex-shrink-0" />
-                  <span className="text-xs font-medium truncate w-full text-center">{item.title}</span>
-                </Link>
-              );
-            })}
-          </div>
+            <div className="flex items-center justify-around px-2 py-2 safe-area-inset-bottom">
+              {navigationItems.slice(0, 4).map((item, index) => {
+                const isActive = location.pathname === item.url;
+                return (
+                  <Link
+                    key={index}
+                    to={item.url}
+                    className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg flex-1 min-w-0"
+                    style={isActive ? {
+                      background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
+                      color: '#ffffff'
+                    } : {
+                      color: themeColors.menu_text_color
+                    }}
+                  >
+                    <item.icon className="w-5 h-5 flex-shrink-0" />
+                    <span className="text-xs font-medium truncate w-full text-center">{item.title}</span>
+                  </Link>
+                );
+              })}
+
+              {/* More Menu */}
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <button
+                    className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg flex-1 min-w-0"
+                    style={{ color: themeColors.menu_text_color }}
+                  >
+                    <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
+                    <span className="text-xs font-medium">More</span>
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="h-[80vh] overflow-y-auto" style={{ backgroundColor: sidebarBg }}>
+                  <SheetHeader>
+                    <SheetTitle>All Menus</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-6 space-y-1">
+                    {navigationItems.map((item, index) => {
+                      const isActive = location.pathname === item.url;
+                      return (
+                        <Link
+                          key={index}
+                          to={item.url}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-3 rounded-lg"
+                          style={isActive ? {
+                            background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
+                            color: '#ffffff'
+                          } : {
+                            color: themeColors.menu_text_color
+                          }}
+                        >
+                          <item.icon className="w-5 h-5 flex-shrink-0" />
+                          <span className="font-medium">{item.title}</span>
+                        </Link>
+                      );
+                    })}
+
+                    {isEffectiveDietitian && filteredPaymentNav.length > 0 && (
+                      <>
+                        <div className="pt-4 pb-2">
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider px-4">Payment & Plans</p>
+                        </div>
+                        {filteredPaymentNav.map((item, index) => {
+                          const isActive = location.pathname === item.url;
+                          return (
+                            <Link
+                              key={index}
+                              to={item.url}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="flex items-center gap-3 px-4 py-3 rounded-lg"
+                              style={isActive ? {
+                                background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
+                                color: '#ffffff'
+                              } : {
+                                color: themeColors.menu_text_color
+                              }}
+                            >
+                              <item.icon className="w-5 h-5 flex-shrink-0" />
+                              <span className="font-medium">{item.title}</span>
+                            </Link>
+                          );
+                        })}
+                      </>
+                    )}
+
+                    {isEffectiveDietitian && filteredBusinessNav.length > 0 && (
+                      <>
+                        <div className="pt-4 pb-2">
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider px-4">Business Tools</p>
+                        </div>
+                        {filteredBusinessNav.map((item, index) => {
+                          const isActive = location.pathname === item.url;
+                          return (
+                            <Link
+                              key={index}
+                              to={item.url}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="flex items-center gap-3 px-4 py-3 rounded-lg"
+                              style={isActive ? {
+                                background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
+                                color: '#ffffff'
+                              } : {
+                                color: themeColors.menu_text_color
+                              }}
+                            >
+                              <item.icon className="w-5 h-5 flex-shrink-0" />
+                              <span className="font-medium">{item.title}</span>
+                            </Link>
+                          );
+                        })}
+                      </>
+                    )}
+
+                    <div className="pt-4 border-t border-gray-200 mt-4">
+                      <Button
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          handleLogout();
+                        }}
+                        variant="outline"
+                        className="w-full text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200 font-semibold flex items-center justify-center gap-2"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Logout</span>
+                      </Button>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
 
           <PWAInstallPrompt />
