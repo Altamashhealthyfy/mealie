@@ -67,7 +67,13 @@ export default function AdminSubscriptionManager() {
 
   const grantCoachAccessMutation = useMutation({
     mutationFn: async (data) => {
+      console.log('grantCoachAccessMutation mutationFn called', data);
+      
       const plan = coachPlans.find(p => p.id === data.plan_id);
+      if (!plan) {
+        throw new Error('Plan not found');
+      }
+      
       const start = data.start_date ? new Date(data.start_date) : new Date();
       let end;
       
@@ -94,7 +100,7 @@ export default function AdminSubscriptionManager() {
         end.setMonth(end.getMonth() + totalMonths);
       }
 
-      return await base44.entities.HealthCoachSubscription.create({
+      const subscriptionData = {
         coach_email: data.coach_email,
         coach_name: data.coach_name || data.coach_email,
         plan_id: data.plan_id,
@@ -110,7 +116,11 @@ export default function AdminSubscriptionManager() {
         manually_granted: true,
         granted_by: user?.email,
         auto_renew: false
-      });
+      };
+      
+      console.log('Creating subscription with:', subscriptionData);
+      
+      return await base44.entities.HealthCoachSubscription.create(subscriptionData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['allCoachSubscriptions']);
@@ -124,6 +134,10 @@ export default function AdminSubscriptionManager() {
       setExpireDate("");
       setExtraMonths("");
       toast.success('Coach access granted successfully!');
+    },
+    onError: (error) => {
+      console.error('grantCoachAccessMutation error:', error);
+      toast.error(`Error: ${error?.message || 'Failed to grant access'}`);
     },
   });
 
@@ -201,6 +215,8 @@ export default function AdminSubscriptionManager() {
   });
 
   const handleGrantCoachAccess = () => {
+    console.log('handleGrantCoachAccess called', { coachEmail, selectedCoachPlan });
+    
     if (!coachEmail?.trim()) {
       toast.error('Please enter coach email');
       return;
@@ -209,6 +225,17 @@ export default function AdminSubscriptionManager() {
       toast.error('Please select a plan');
       return;
     }
+    
+    console.log('Mutation data:', {
+      coach_email: coachEmail.trim(),
+      coach_name: coachName?.trim() || coachEmail.trim(),
+      plan_id: selectedCoachPlan,
+      billing_cycle: billingCycle,
+      duration_months: durationMonths,
+      start_date: startDate,
+      expire_date: expireDate,
+      extra_months: extraMonths
+    });
     
     grantCoachAccessMutation.mutate({ 
       coach_email: coachEmail.trim(),
