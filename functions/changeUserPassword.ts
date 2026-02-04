@@ -2,7 +2,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
 
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
+    const base44 = createClientFromRequest(req, {
+      serviceToken: Deno.env.get('BASE44_SERVICE_TOKEN')
+    });
     
     // Verify admin authentication
     const user = await base44.auth.me();
