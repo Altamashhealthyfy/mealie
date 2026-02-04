@@ -62,8 +62,12 @@ export default function UserPermissionManagement() {
       
       const allUsersList = [...users, ...subscriptionOnlyCoaches];
       
-      // Filter out the current user from the list
-      return allUsersList.filter(u => u.email?.toLowerCase() !== currentUser?.email?.toLowerCase());
+      // Filter out the current user from the list (trim and lowercase for robust comparison)
+      return allUsersList.filter(u => {
+        const userEmail = u.email?.toLowerCase().trim();
+        const currentEmail = currentUser?.email?.toLowerCase().trim();
+        return userEmail !== currentEmail;
+      });
     },
     enabled: !!currentUser && currentUser.user_type === 'super_admin',
     initialData: [],
