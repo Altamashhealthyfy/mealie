@@ -1109,26 +1109,39 @@ export default function Layout({ children, currentPageName }) {
 
           {/* Mobile Bottom Navigation */}
           <div 
-            className="mobile-bottom-nav hidden fixed bottom-0 left-0 right-0 bg-white border-t border-orange-100 shadow-lg z-50"
-            style={{ backgroundColor: sidebarBg }}
+            className="mobile-bottom-nav hidden fixed bottom-0 left-0 right-0 border-t shadow-2xl z-50"
+            style={{ 
+              backgroundColor: sidebarBg,
+              borderColor: 'rgba(251, 146, 60, 0.2)'
+            }}
           >
-            <div className="flex items-center justify-around px-2 py-2 safe-area-inset-bottom">
+            <div className="grid grid-cols-5 gap-1 px-2 py-3 safe-area-inset-bottom">
               {navigationItems.slice(0, 4).map((item, index) => {
                 const isActive = location.pathname === item.url;
                 return (
                   <Link
                     key={index}
                     to={item.url}
-                    className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg flex-1 min-w-0"
+                    className="flex flex-col items-center justify-center gap-1.5 py-2 px-1 rounded-xl transition-all active:scale-95"
                     style={isActive ? {
-                      background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
+                      background: `linear-gradient(135deg, ${themeColors.primary_from}, ${themeColors.primary_to})`,
                       color: '#ffffff'
                     } : {
                       color: themeColors.menu_text_color
                     }}
                   >
-                    <item.icon className="w-5 h-5 flex-shrink-0" />
-                    <span className="text-xs font-medium truncate w-full text-center">{item.title}</span>
+                    <item.icon className="w-6 h-6 flex-shrink-0" />
+                    <span className="text-[10px] font-semibold leading-tight text-center"
+                      style={{ 
+                        maxWidth: '100%',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                      }}
+                    >
+                      {item.title}
+                    </span>
                   </Link>
                 );
               })}
@@ -1137,105 +1150,119 @@ export default function Layout({ children, currentPageName }) {
               <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                 <SheetTrigger asChild>
                   <button
-                    className="flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg flex-1 min-w-0"
+                    className="flex flex-col items-center justify-center gap-1.5 py-2 px-1 rounded-xl transition-all active:scale-95"
                     style={{ color: themeColors.menu_text_color }}
                   >
-                    <LayoutDashboard className="w-5 h-5 flex-shrink-0" />
-                    <span className="text-xs font-medium">More</span>
+                    <LayoutDashboard className="w-6 h-6 flex-shrink-0" />
+                    <span className="text-[10px] font-semibold">More</span>
                   </button>
                 </SheetTrigger>
-                <SheetContent side="bottom" className="h-[80vh] overflow-y-auto" style={{ backgroundColor: sidebarBg }}>
-                  <SheetHeader>
-                    <SheetTitle>All Menus</SheetTitle>
+                <SheetContent side="bottom" className="h-[85vh] overflow-y-auto rounded-t-3xl" style={{ backgroundColor: sidebarBg }}>
+                  <SheetHeader className="pb-4 border-b">
+                    <SheetTitle className="text-xl font-bold">All Menus</SheetTitle>
                   </SheetHeader>
-                  <div className="mt-6 space-y-1">
-                    {navigationItems.map((item, index) => {
-                      const isActive = location.pathname === item.url;
-                      return (
-                        <Link
-                          key={index}
-                          to={item.url}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-3 rounded-lg"
-                          style={isActive ? {
-                            background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
-                            color: '#ffffff'
-                          } : {
-                            color: themeColors.menu_text_color
-                          }}
-                        >
-                          <item.icon className="w-5 h-5 flex-shrink-0" />
-                          <span className="font-medium">{item.title}</span>
-                        </Link>
-                      );
-                    })}
+                  <div className="mt-6 space-y-2 pb-6">
+                    {/* Main Navigation */}
+                    <div className="space-y-1">
+                      {navigationItems.map((item, index) => {
+                        const isActive = location.pathname === item.url;
+                        return (
+                          <Link
+                            key={index}
+                            to={item.url}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="flex items-center gap-4 px-5 py-4 rounded-xl transition-all active:scale-98"
+                            style={isActive ? {
+                              background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
+                              color: '#ffffff'
+                            } : {
+                              color: themeColors.menu_text_color,
+                              backgroundColor: 'rgba(0,0,0,0.02)'
+                            }}
+                          >
+                            <item.icon className="w-6 h-6 flex-shrink-0" />
+                            <span className="font-semibold text-base">{item.title}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
 
+                    {/* Payment & Plans Section */}
                     {isEffectiveDietitian && filteredPaymentNav.length > 0 && (
-                      <>
-                        <div className="pt-4 pb-2">
-                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider px-4">Payment & Plans</p>
+                      <div className="pt-3">
+                        <div className="px-5 py-2">
+                          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Payment & Plans</p>
                         </div>
-                        {filteredPaymentNav.map((item, index) => {
-                          const isActive = location.pathname === item.url;
-                          return (
-                            <Link
-                              key={index}
-                              to={item.url}
-                              onClick={() => setMobileMenuOpen(false)}
-                              className="flex items-center gap-3 px-4 py-3 rounded-lg"
-                              style={isActive ? {
-                                background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
-                                color: '#ffffff'
-                              } : {
-                                color: themeColors.menu_text_color
-                              }}
-                            >
-                              <item.icon className="w-5 h-5 flex-shrink-0" />
-                              <span className="font-medium">{item.title}</span>
-                            </Link>
-                          );
-                        })}
-                      </>
+                        <div className="space-y-1">
+                          {filteredPaymentNav.map((item, index) => {
+                            const isActive = location.pathname === item.url;
+                            return (
+                              <Link
+                                key={index}
+                                to={item.url}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="flex items-center gap-4 px-5 py-4 rounded-xl transition-all active:scale-98"
+                                style={isActive ? {
+                                  background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
+                                  color: '#ffffff'
+                                } : {
+                                  color: themeColors.menu_text_color,
+                                  backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}
+                              >
+                                <item.icon className="w-6 h-6 flex-shrink-0" />
+                                <span className="font-semibold text-base">{item.title}</span>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
                     )}
 
+                    {/* Business Tools Section */}
                     {isEffectiveDietitian && filteredBusinessNav.length > 0 && (
-                      <>
-                        <div className="pt-4 pb-2">
-                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wider px-4">Business Tools</p>
+                      <div className="pt-3">
+                        <div className="px-5 py-2">
+                          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Business Tools</p>
                         </div>
-                        {filteredBusinessNav.map((item, index) => {
-                          const isActive = location.pathname === item.url;
-                          return (
-                            <Link
-                              key={index}
-                              to={item.url}
-                              onClick={() => setMobileMenuOpen(false)}
-                              className="flex items-center gap-3 px-4 py-3 rounded-lg"
-                              style={isActive ? {
-                                background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
-                                color: '#ffffff'
-                              } : {
-                                color: themeColors.menu_text_color
-                              }}
-                            >
-                              <item.icon className="w-5 h-5 flex-shrink-0" />
-                              <span className="font-medium">{item.title}</span>
-                            </Link>
-                          );
-                        })}
-                      </>
+                        <div className="space-y-1">
+                          {filteredBusinessNav.map((item, index) => {
+                            const isActive = location.pathname === item.url;
+                            return (
+                              <Link
+                                key={index}
+                                to={item.url}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="flex items-center gap-4 px-5 py-4 rounded-xl transition-all active:scale-98"
+                                style={isActive ? {
+                                  background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
+                                  color: '#ffffff'
+                                } : {
+                                  color: themeColors.menu_text_color,
+                                  backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}
+                              >
+                                <item.icon className="w-6 h-6 flex-shrink-0" />
+                                <span className="font-semibold text-base">{item.title}</span>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
                     )}
 
-                    <div className="pt-4 border-t border-gray-200 mt-4">
+                    {/* Logout Button */}
+                    <div className="pt-4 border-t border-gray-200 mt-4 px-2">
                       <Button
                         onClick={() => {
                           setMobileMenuOpen(false);
                           handleLogout();
                         }}
                         variant="outline"
-                        className="w-full text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200 font-semibold flex items-center justify-center gap-2"
+                        size="lg"
+                        className="w-full text-red-600 hover:bg-red-50 hover:text-red-700 border-red-200 font-bold flex items-center justify-center gap-3 py-4"
                       >
-                        <LogOut className="w-4 h-4" />
+                        <LogOut className="w-5 h-5" />
                         <span>Logout</span>
                       </Button>
                     </div>
