@@ -59,12 +59,16 @@ export default function DietitianDashboard() {
   const { data: clients } = useQuery({
     queryKey: ['dashboardClients', user?.email, user?.user_type, viewMode],
     queryFn: async () => {
+      let allClients = [];
       // Admin view - show all
       if (user?.user_type === 'super_admin' && viewMode === 'admin') {
-        return await base44.entities.Client.list('-created_date', 50);
+        allClients = await base44.entities.Client.list('-created_date', 50);
+      } else {
+        // All other views - show only user's own clients
+        allClients = await base44.entities.Client.filter({ created_by: user?.email }, '-created_date', 50);
       }
-      // All other views - show only user's own clients
-      return await base44.entities.Client.filter({ created_by: user?.email }, '-created_date', 50);
+      // Filter out the current user's own email from the client list
+      return allClients.filter(client => client.email?.toLowerCase() !== user?.email?.toLowerCase());
     },
     enabled: !!user,
     initialData: [],
