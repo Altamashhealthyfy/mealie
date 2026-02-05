@@ -81,45 +81,46 @@ export default function HealthCoachesManagement() {
   const { data: coaches, refetch: refetchCoaches } = useQuery({
     queryKey: ["coaches"],
     queryFn: async () => {
+      // Get ALL active health coach subscriptions as the primary source
+      const allSubs = await base44.entities.HealthCoachSubscription.list("", 10000);
+      const activeSubscriptions = allSubs.filter(s => s.status === "active" || s.manually_granted);
+      
+      // Get all users to match with subscriptions
       const allUsers = await base44.asServiceRole.entities.User.list("", 10000);
       
-      // Check both root level user_type and data.user_type
-      const userCoaches = allUsers.filter((u) => {
-        return u.user_type === "student_coach" || u.data?.user_type === "student_coach";
+      // Create a map of email to user for quick lookup
+      const userMap = new Map();
+      allUsers.forEach(u => {
+        if (u.email) {
+          userMap.set(u.email.toLowerCase(), u);
+        }
       });
       
-      console.log('Found coaches in User table:', userCoaches.length, userCoaches.map(c => ({ email: c.email, user_type: c.user_type, data_user_type: c.data?.user_type })));
-      
-      // Also get coaches from subscriptions without User accounts
-      const allSubs = await base44.entities.HealthCoachSubscription.list("", 10000);
-      const coachEmails = new Set(userCoaches.map(c => c.email));
-      const subscriptionOnlyCoaches = allSubs
-        .filter(s => !coachEmails.has(s.coach_email) && (s.status === "active" || s.manually_granted))
-        .map(s => ({
-          id: `sub_${s.id}`,
-          email: s.coach_email,
-          full_name: s.coach_name || s.coach_email,
+      // Build coach list from subscriptions
+      const coachList = activeSubscriptions.map(sub => {
+        const matchedUser = userMap.get(sub.coach_email?.toLowerCase());
+        return {
+          id: matchedUser?.id || `sub_${sub.id}`,
+          email: sub.coach_email,
+          full_name: matchedUser?.full_name || sub.coach_name || sub.coach_email,
           user_type: "student_coach",
-          created_date: s.created_date,
-          is_subscription_only: true
-        }));
+          created_date: matchedUser?.created_date || sub.created_date,
+          data: matchedUser?.data || {},
+          is_subscription_only: !matchedUser
+        };
+      });
       
-      console.log('Subscription-only coaches:', subscriptionOnlyCoaches.length);
-      
-      const allCoaches = [...userCoaches, ...subscriptionOnlyCoaches];
-      
-      // Remove duplicates by email (keep first occurrence)
+      // Remove duplicates by email
       const uniqueCoaches = [];
       const seenEmails = new Set();
-      for (const coach of allCoaches) {
+      for (const coach of coachList) {
         const emailLower = coach.email?.toLowerCase();
-        if (!seenEmails.has(emailLower)) {
+        if (emailLower && !seenEmails.has(emailLower)) {
           seenEmails.add(emailLower);
           uniqueCoaches.push(coach);
         }
       }
       
-      console.log('Total unique coaches:', uniqueCoaches.length);
       return uniqueCoaches;
     },
     enabled: !!user && user?.user_type === "super_admin",
