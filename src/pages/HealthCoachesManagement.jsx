@@ -123,7 +123,7 @@ export default function HealthCoachesManagement() {
       
       return uniqueCoaches;
     },
-    enabled: !!user && user?.user_type === "super_admin",
+    enabled: !!user && (user?.user_type === "super_admin" || user?.role === "admin"),
     initialData: [],
   });
 
