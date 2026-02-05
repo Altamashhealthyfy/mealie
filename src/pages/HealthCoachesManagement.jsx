@@ -81,7 +81,7 @@ export default function HealthCoachesManagement() {
   const { data: coaches, refetch: refetchCoaches } = useQuery({
     queryKey: ["coaches"],
     queryFn: async () => {
-      const allUsers = await base44.entities.User.list("", 10000);
+      const allUsers = await base44.asServiceRole.entities.User.list("", 10000);
       const userCoaches = allUsers.filter((u) => u.user_type === "student_coach");
       
       // Also get coaches from subscriptions without User accounts
