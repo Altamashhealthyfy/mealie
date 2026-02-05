@@ -898,12 +898,18 @@ export default function HealthCoachesManagement() {
 
               <div>
                 <Label className="text-sm font-medium">Select Plan (Optional)</Label>
-                <Select value={formData.plan_id || ""} onValueChange={(value) => setFormData({ ...formData, plan_id: value })}>
+                <Select 
+                  value={formData.plan_id || ""} 
+                  onValueChange={(value) => {
+                    console.log('Plan selected:', value);
+                    setFormData({ ...formData, plan_id: value === "no_plan" ? "" : value });
+                  }}
+                >
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Choose a plan" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={null}>No Plan</SelectItem>
+                    <SelectItem value="no_plan">No Plan</SelectItem>
                     {plans.map((plan) => (
                       <SelectItem key={plan.id} value={plan.id}>
                         {plan.plan_name}
