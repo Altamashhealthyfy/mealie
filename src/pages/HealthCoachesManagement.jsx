@@ -429,8 +429,9 @@ export default function HealthCoachesManagement() {
 
   // Check actual user type, not simulated view mode
   const actualUserType = user?.user_type;
+  const actualRole = user?.role;
   
-  if (!user || actualUserType !== "super_admin") {
+  if (!user || (actualUserType !== "super_admin" && actualRole !== "admin")) {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
         <Alert className="max-w-md">
