@@ -143,20 +143,27 @@ export default function HealthCoachesManagement() {
 
   const createCoachesMutation = useMutation({
     mutationFn: async (coachesData) => {
+      console.log('createCoachesMutation called with:', coachesData);
       const results = [];
       for (const coach of coachesData) {
+        console.log('Creating coach:', coach);
+        
         const result = await base44.functions.invoke("createUserWithPassword", {
           email: coach.email,
-          password: Math.random().toString(36).slice(-12),
+          password: Math.random().toString(36).slice(-12) + "A1!",
           fullName: coach.full_name,
           userType: "student_coach",
         });
+        
+        console.log('Coach creation result:', result);
         results.push(result);
 
         // If plan is selected, create subscription
         if (coach.plan_id && coach.start_date && coach.end_date) {
+          console.log('Creating subscription for coach:', coach.email);
           await base44.entities.HealthCoachSubscription.create({
             coach_email: coach.email,
+            coach_name: coach.full_name,
             plan_id: coach.plan_id,
             start_date: coach.start_date,
             end_date: coach.end_date,
@@ -168,19 +175,22 @@ export default function HealthCoachesManagement() {
       }
       return results;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Coach creation successful:', data);
       setTimeout(() => {
         refetchCoaches();
-      }, 1000);
+      }, 2000);
       queryClient.invalidateQueries({ queryKey: ["coachSubscriptions"] });
       setShowAddDialog(false);
       setEditingCoach(null);
-      setFormData({ full_name: "", email: "", phone: "", plan_id: "", start_date: "", end_date: "" });
-      toast.success("✅ Coach(es) created successfully!");
+      setFormData({ full_name: "", email: "", plan_id: "", start_date: "", end_date: "" });
+      toast.success("✅ Coach created successfully! Check your email for invitation.");
     },
     onError: (error) => {
-      console.error("Coach creation error:", error);
-      const errorMsg = error?.response?.data?.error || error?.message || "Failed to create coach";
+      console.error("Full coach creation error:", error);
+      console.error("Error data:", error?.data);
+      console.error("Error response:", error?.response);
+      const errorMsg = error?.data?.error || error?.response?.data?.error || error?.message || "Failed to create coach";
       toast.error(`❌ ${errorMsg}`);
     },
   });
