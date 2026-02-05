@@ -1048,13 +1048,18 @@ export default function HealthCoachesManagement() {
                     } else {
                       const validationError = validateCoachForm(formData);
                        if (validationError) {
+                         console.error('Validation error:', validationError);
                          toast.error(validationError);
                          return;
                        }
                        const coachToAdd = {
-                         ...formData,
-                         plan_id: formData.plan_id || null
+                         full_name: formData.full_name.trim(),
+                         email: formData.email.trim(),
+                         plan_id: formData.plan_id || null,
+                         start_date: formData.start_date || null,
+                         end_date: formData.end_date || null
                        };
+                       console.log('Creating coach:', coachToAdd);
                        createCoachesMutation.mutate([coachToAdd]);
                     }
                   }}
