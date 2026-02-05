@@ -954,7 +954,12 @@ export default function HealthCoachesManagement() {
                   Cancel
                 </Button>
                 <Button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log('Add Coach button clicked', { formData, editingCoach });
+                    
                     if (!formData.full_name.trim() || !formData.email.trim()) {
                       toast.error("Please fill in name and email");
                       return;
