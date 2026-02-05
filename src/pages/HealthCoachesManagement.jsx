@@ -82,7 +82,13 @@ export default function HealthCoachesManagement() {
     queryKey: ["coaches"],
     queryFn: async () => {
       const allUsers = await base44.asServiceRole.entities.User.list("", 10000);
-      const userCoaches = allUsers.filter((u) => u.user_type === "student_coach");
+      
+      // Check both root level user_type and data.user_type
+      const userCoaches = allUsers.filter((u) => {
+        return u.user_type === "student_coach" || u.data?.user_type === "student_coach";
+      });
+      
+      console.log('Found coaches in User table:', userCoaches.length, userCoaches.map(c => ({ email: c.email, user_type: c.user_type, data_user_type: c.data?.user_type })));
       
       // Also get coaches from subscriptions without User accounts
       const allSubs = await base44.entities.HealthCoachSubscription.list("", 10000);
@@ -98,6 +104,8 @@ export default function HealthCoachesManagement() {
           is_subscription_only: true
         }));
       
+      console.log('Subscription-only coaches:', subscriptionOnlyCoaches.length);
+      
       const allCoaches = [...userCoaches, ...subscriptionOnlyCoaches];
       
       // Remove duplicates by email (keep first occurrence)
@@ -111,6 +119,7 @@ export default function HealthCoachesManagement() {
         }
       }
       
+      console.log('Total unique coaches:', uniqueCoaches.length);
       return uniqueCoaches;
     },
     enabled: !!user && user?.user_type === "super_admin",
