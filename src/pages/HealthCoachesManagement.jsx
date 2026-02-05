@@ -1053,6 +1053,7 @@ export default function HealthCoachesManagement() {
                     }
                   }}
                   disabled={createCoachesMutation.isPending}
+                  type="button"
                   className="flex-1 bg-orange-600 hover:bg-orange-700"
                 >
                   {createCoachesMutation.isPending ? (
