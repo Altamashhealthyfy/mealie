@@ -73,6 +73,9 @@ export default function HealthCoachesManagement() {
     full_name: '',
     email: '',
     phone: '',
+    plan_id: '',
+    start_date: new Date().toISOString().split('T')[0],
+    end_date: '',
   });
 
   const [planForm, setPlanForm] = useState({
@@ -142,12 +145,59 @@ export default function HealthCoachesManagement() {
         notes: 'Account created - invitation email sent',
       });
 
+      // Assign plan if selected
+      if (coachData.plan_id) {
+        const plan = plans.find(p => p.id === coachData.plan_id);
+        if (plan) {
+          // Calculate end date based on start date
+          const startDate = new Date(coachData.start_date);
+          let endDate;
+          if (coachData.end_date) {
+            endDate = new Date(coachData.end_date);
+          } else {
+            endDate = new Date(startDate);
+            endDate.setMonth(endDate.getMonth() + 1); // Default 1 month
+          }
+
+          await base44.entities.HealthCoachSubscription.create({
+            coach_email: coachData.email,
+            coach_name: coachData.full_name,
+            plan_id: plan.id,
+            plan_name: plan.plan_name,
+            billing_cycle: 'monthly',
+            amount: plan.monthly_price,
+            currency: 'INR',
+            start_date: coachData.start_date,
+            end_date: endDate.toISOString().split('T')[0],
+            next_billing_date: endDate.toISOString().split('T')[0],
+            status: 'active',
+            payment_method: 'manual',
+            auto_renew: false,
+            manually_granted: true,
+            granted_by: user.email,
+            ai_credits_used_this_month: 0,
+            ai_credits_purchased: 0,
+            ai_credits_reset_date: coachData.start_date,
+          });
+
+          await base44.entities.CoachSubscriptionHistory.create({
+            coach_email: coachData.email,
+            coach_name: coachData.full_name,
+            action_type: 'plan_assigned',
+            new_value: plan.plan_name,
+            plan_name: plan.plan_name,
+            performed_by: user.email,
+          });
+        }
+      }
+
       return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['allHealthCoaches']);
+      queryClient.invalidateQueries(['healthCoachSubscriptions']);
       setAddCoachDialog(false);
-      setNewCoach({ full_name: '', email: '', phone: '' });
+      setNewCoach({ full_name: '', email: '', phone: '', plan_id: '', start_date: new Date().toISOString().split('T')[0], end_date: '' });
       toast.success('Health Coach invited successfully! They will receive an email to set their password.');
     },
     onError: (error) => {
@@ -485,14 +535,54 @@ export default function HealthCoachesManagement() {
                   <p className="text-xs text-gray-500">Must be a valid email (e.g., name@example.com)</p>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold">Mobile Number *</Label>
+                  <Label className="text-sm font-semibold">Mobile Number</Label>
                   <Input
                     value={newCoach.phone}
                     onChange={(e) => setNewCoach({ ...newCoach, phone: e.target.value })}
-                    placeholder="Enter mobile number"
+                    placeholder="Enter mobile number (optional)"
                     className="h-11"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">Select Plan (Optional)</Label>
+                  <Select value={newCoach.plan_id} onValueChange={(value) => setNewCoach({ ...newCoach, plan_id: value })}>
+                    <SelectTrigger className="h-11">
+                      <SelectValue placeholder="Choose a plan (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={null}>No Plan</SelectItem>
+                      {plans.map(plan => (
+                        <SelectItem key={plan.id} value={plan.id}>
+                          {plan.plan_name} - ₹{plan.monthly_price}/month
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {newCoach.plan_id && (
+                  <>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">Start Date *</Label>
+                      <Input
+                        type="date"
+                        value={newCoach.start_date}
+                        onChange={(e) => setNewCoach({ ...newCoach, start_date: e.target.value })}
+                        className="h-11"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">End Date (Optional)</Label>
+                      <Input
+                        type="date"
+                        value={newCoach.end_date}
+                        onChange={(e) => setNewCoach({ ...newCoach, end_date: e.target.value })}
+                        placeholder="Leave empty for default 1 month"
+                        className="h-11"
+                      />
+                      <p className="text-xs text-gray-500">Leave empty to auto-calculate (1 month from start date)</p>
+                    </div>
+                  </>
+                )}
                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4">
                   <div className="flex items-start gap-3">
                     <div className="p-2 bg-blue-100 rounded-lg">
@@ -515,7 +605,7 @@ export default function HealthCoachesManagement() {
                     }
                     createCoachMutation.mutate(newCoach);
                   }}
-                  disabled={!newCoach.full_name || !newCoach.email || !newCoach.phone || createCoachMutation.isPending}
+                  disabled={!newCoach.full_name || !newCoach.email || createCoachMutation.isPending}
                   className="w-full bg-gradient-to-r from-orange-600 to-red-600 h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all"
                 >
                   {createCoachMutation.isPending ? 'Creating...' : 'Create Health Coach'}
