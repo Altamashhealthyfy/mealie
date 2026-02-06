@@ -85,6 +85,7 @@ import ClinicalIntake from './pages/ClinicalIntake';
 import CoachAnalyticsDashboard from './pages/CoachAnalyticsDashboard';
 import CoachClientManagement from './pages/CoachClientManagement';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
+import CoachPerformanceAnalytics from './pages/CoachPerformanceAnalytics';
 import CoachProgramManagement from './pages/CoachProgramManagement';
 import CoachReferralLink from './pages/CoachReferralLink';
 import CoachSubscription from './pages/CoachSubscription';
@@ -101,6 +102,7 @@ import FoodLookup from './pages/FoodLookup';
 import GoogleCalendarSettings from './pages/GoogleCalendarSettings';
 import HealthCoachDashboard from './pages/HealthCoachDashboard';
 import HealthCoachPlans from './pages/HealthCoachPlans';
+import HealthCoachesManagement from './pages/HealthCoachesManagement';
 import HealthReportAnalysis from './pages/HealthReportAnalysis';
 import Home from './pages/Home';
 import IncomeExpense from './pages/IncomeExpense';
@@ -149,8 +151,7 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import CoachPerformanceAnalytics from './pages/CoachPerformanceAnalytics';
-import HealthCoachesManagement from './pages/HealthCoachesManagement';
+import ClientManagementHub from './pages/ClientManagementHub';
 import __Layout from './Layout.jsx';
 
 
@@ -193,6 +194,7 @@ export const PAGES = {
     "CoachAnalyticsDashboard": CoachAnalyticsDashboard,
     "CoachClientManagement": CoachClientManagement,
     "CoachPaymentSetup": CoachPaymentSetup,
+    "CoachPerformanceAnalytics": CoachPerformanceAnalytics,
     "CoachProgramManagement": CoachProgramManagement,
     "CoachReferralLink": CoachReferralLink,
     "CoachSubscription": CoachSubscription,
@@ -209,6 +211,7 @@ export const PAGES = {
     "GoogleCalendarSettings": GoogleCalendarSettings,
     "HealthCoachDashboard": HealthCoachDashboard,
     "HealthCoachPlans": HealthCoachPlans,
+    "HealthCoachesManagement": HealthCoachesManagement,
     "HealthReportAnalysis": HealthReportAnalysis,
     "Home": Home,
     "IncomeExpense": IncomeExpense,
@@ -257,8 +260,7 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "CoachPerformanceAnalytics": CoachPerformanceAnalytics,
-    "HealthCoachesManagement": HealthCoachesManagement,
+    "ClientManagementHub": ClientManagementHub,
 }
 
 export const pagesConfig = {
