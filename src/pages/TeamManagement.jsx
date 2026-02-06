@@ -99,10 +99,10 @@ export default function TeamManagement() {
     mutationFn: async (data) => {
       // Create user with password using backend function
       const response = await base44.functions.invoke('createUserWithPassword', {
-        email: data.email,
-        fullName: data.full_name || data.email,
-        password: data.password || 'TempPass123!', // Temporary password
-        userType: data.user_type
+        email: data.email.trim(),
+        full_name: data.full_name?.trim() || data.email.trim(),
+        password: 'TempPass123!',
+        user_type: data.user_type
       });
       return response.data;
     },
@@ -113,7 +113,8 @@ export default function TeamManagement() {
       alert('✅ User created successfully! Temporary password: TempPass123!');
     },
     onError: (error) => {
-      alert('❌ Error: ' + error.message);
+      console.error('User creation error:', error);
+      alert('❌ Error: ' + (error?.response?.data?.error || error?.message || 'Failed to create user'));
     }
   });
 
