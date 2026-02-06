@@ -31,8 +31,11 @@ export default function HealthCoachesManagement() {
   const [showAddCoachDialog, setShowAddCoachDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [selectedCoach, setSelectedCoach] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterPlan, setFilterPlan] = useState("all");
+  const [newPassword, setNewPassword] = useState("");
   
   const [coachFormData, setCoachFormData] = useState({
     full_name: "",
@@ -80,14 +83,20 @@ export default function HealthCoachesManagement() {
   // Filter only student coaches
   const healthCoaches = allUsers.filter(u => u.user_type === 'student_coach');
 
-  // Filter by search query
+  // Filter by search query and plan
   const filteredCoaches = healthCoaches.filter(coach => {
-    if (!searchQuery.trim()) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      coach.full_name?.toLowerCase().includes(query) ||
-      coach.email?.toLowerCase().includes(query)
-    );
+    const matchesSearch = !searchQuery.trim() || 
+      coach.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      coach.email?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (filterPlan === "all") return matchesSearch;
+    if (filterPlan === "no_plan") {
+      const sub = getCoachSubscription(coach.email);
+      return matchesSearch && !sub;
+    }
+    
+    const sub = getCoachSubscription(coach.email);
+    return matchesSearch && sub?.plan_id === filterPlan;
   });
 
   // Get subscription for each coach
@@ -211,6 +220,25 @@ export default function HealthCoachesManagement() {
     }
   });
 
+  const changePasswordMutation = useMutation({
+    mutationFn: async (data) => {
+      const response = await base44.functions.invoke('changeUserPassword', {
+        email: data.email,
+        newPassword: data.password
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      setShowPasswordDialog(false);
+      setNewPassword("");
+      toast.success('Password changed successfully!');
+    },
+    onError: (error) => {
+      console.error('Password change error:', error);
+      toast.error('Failed to change password');
+    }
+  });
+
   const deleteCoachMutation = useMutation({
     mutationFn: async (userId) => {
       return await base44.entities.User.delete(userId);
@@ -281,6 +309,23 @@ export default function HealthCoachesManagement() {
     setShowCreditsDialog(true);
   };
 
+  const handleChangePassword = (coach) => {
+    setSelectedCoach(coach);
+    setNewPassword("");
+    setShowPasswordDialog(true);
+  };
+
+  const handleSubmitPasswordChange = () => {
+    if (!newPassword || newPassword.length < 8) {
+      toast.error('Password must be at least 8 characters');
+      return;
+    }
+    changePasswordMutation.mutate({
+      email: selectedCoach.email,
+      password: newPassword
+    });
+  };
+
   const handleSubmitCredits = () => {
     if (!creditsFormData.credits_amount || parseInt(creditsFormData.credits_amount) <= 0) {
       toast.error('Please enter a valid credit amount');
@@ -327,14 +372,28 @@ export default function HealthCoachesManagement() {
             </Button>
           </div>
 
-          {/* Search Bar */}
-          <div className="max-w-md">
+          {/* Search & Filters */}
+          <div className="flex gap-4">
             <Input
               placeholder="Search by name or email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full"
+              className="max-w-md"
             />
+            <Select value={filterPlan} onValueChange={setFilterPlan}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by plan" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Plans</SelectItem>
+                <SelectItem value="no_plan">No Plan</SelectItem>
+                {coachPlans.map(plan => (
+                  <SelectItem key={plan.id} value={plan.id}>
+                    {plan.plan_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -477,6 +536,15 @@ export default function HealthCoachesManagement() {
                         >
                           <Sparkles className="w-4 h-4 mr-2" />
                           Add Credits
+                        </Button>
+                        <Button
+                          onClick={() => handleChangePassword(coach)}
+                          variant="outline"
+                          size="sm"
+                          className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300"
+                        >
+                          <Shield className="w-4 h-4 mr-2" />
+                          Change Password
                         </Button>
                         <Button
                           onClick={() => {
@@ -699,6 +767,47 @@ export default function HealthCoachesManagement() {
                   className="flex-1 bg-orange-600 hover:bg-orange-700"
                 >
                   {addCreditsMutation.isPending ? 'Adding...' : 'Add Credits'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Change Password Dialog */}
+        <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-blue-600" />
+                Change Password - {selectedCoach?.full_name}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>New Password *</Label>
+                <Input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Minimum 8 characters"
+                />
+                <p className="text-xs text-gray-500">Password must be at least 8 characters long</p>
+              </div>
+              <Alert className="bg-blue-50 border-blue-200">
+                <AlertDescription className="text-blue-900 text-sm">
+                  The new password will be set immediately. Make sure to inform the coach.
+                </AlertDescription>
+              </Alert>
+              <div className="flex gap-2">
+                <Button onClick={() => setShowPasswordDialog(false)} variant="outline" className="flex-1">
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSubmitPasswordChange}
+                  disabled={changePasswordMutation.isPending}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  {changePasswordMutation.isPending ? 'Changing...' : 'Change Password'}
                 </Button>
               </div>
             </div>
