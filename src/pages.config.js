@@ -68,6 +68,8 @@ import ClientCommunicationHub from './pages/ClientCommunicationHub';
 import ClientDashboard from './pages/ClientDashboard';
 import ClientFeedbackManagement from './pages/ClientFeedbackManagement';
 import ClientFinanceManager from './pages/ClientFinanceManager';
+import ClientMPESSAnalytics from './pages/ClientMPESSAnalytics';
+import ClientMPESSAssessment from './pages/ClientMPESSAssessment';
 import ClientManagement from './pages/ClientManagement';
 import ClientManagementHub from './pages/ClientManagementHub';
 import ClientOnboarding from './pages/ClientOnboarding';
@@ -85,6 +87,7 @@ import ClientWeeklyMealPlans from './pages/ClientWeeklyMealPlans';
 import ClinicalIntake from './pages/ClinicalIntake';
 import CoachAnalyticsDashboard from './pages/CoachAnalyticsDashboard';
 import CoachClientManagement from './pages/CoachClientManagement';
+import CoachMPESSTracker from './pages/CoachMPESSTracker';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachPerformanceAnalytics from './pages/CoachPerformanceAnalytics';
 import CoachProgramManagement from './pages/CoachProgramManagement';
@@ -101,7 +104,7 @@ import FeatureControl from './pages/FeatureControl';
 import FoodLog from './pages/FoodLog';
 import FoodLookup from './pages/FoodLookup';
 import GoogleCalendarSettings from './pages/GoogleCalendarSettings';
-import Profile from './pages/Profile';
+import HealthCoachDashboard from './pages/HealthCoachDashboard';
 import HealthCoachPlans from './pages/HealthCoachPlans';
 import HealthCoachesManagement from './pages/HealthCoachesManagement';
 import HealthReportAnalysis from './pages/HealthReportAnalysis';
@@ -125,6 +128,7 @@ import PaymentTracking from './pages/PaymentTracking';
 import PlatformBrandingTracker from './pages/PlatformBrandingTracker';
 import PlatformColorCustomization from './pages/PlatformColorCustomization';
 import PricingPlans from './pages/PricingPlans';
+import Profile from './pages/Profile';
 import ProgressTracking from './pages/ProgressTracking';
 import ProjectManagement from './pages/ProjectManagement';
 import PublicPlanPurchase from './pages/PublicPlanPurchase';
@@ -151,10 +155,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import HealthCoachDashboard from './pages/HealthCoachDashboard';
-import ClientMPESSAssessment from './pages/ClientMPESSAssessment';
-import CoachMPESSTracker from './pages/CoachMPESSTracker';
-import ClientMPESSAnalytics from './pages/ClientMPESSAnalytics';
 import __Layout from './Layout.jsx';
 
 
@@ -180,6 +180,8 @@ export const PAGES = {
     "ClientDashboard": ClientDashboard,
     "ClientFeedbackManagement": ClientFeedbackManagement,
     "ClientFinanceManager": ClientFinanceManager,
+    "ClientMPESSAnalytics": ClientMPESSAnalytics,
+    "ClientMPESSAssessment": ClientMPESSAssessment,
     "ClientManagement": ClientManagement,
     "ClientManagementHub": ClientManagementHub,
     "ClientOnboarding": ClientOnboarding,
@@ -197,6 +199,7 @@ export const PAGES = {
     "ClinicalIntake": ClinicalIntake,
     "CoachAnalyticsDashboard": CoachAnalyticsDashboard,
     "CoachClientManagement": CoachClientManagement,
+    "CoachMPESSTracker": CoachMPESSTracker,
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachPerformanceAnalytics": CoachPerformanceAnalytics,
     "CoachProgramManagement": CoachProgramManagement,
@@ -213,7 +216,7 @@ export const PAGES = {
     "FoodLog": FoodLog,
     "FoodLookup": FoodLookup,
     "GoogleCalendarSettings": GoogleCalendarSettings,
-    "Profile": Profile,
+    "HealthCoachDashboard": HealthCoachDashboard,
     "HealthCoachPlans": HealthCoachPlans,
     "HealthCoachesManagement": HealthCoachesManagement,
     "HealthReportAnalysis": HealthReportAnalysis,
@@ -237,6 +240,7 @@ export const PAGES = {
     "PlatformBrandingTracker": PlatformBrandingTracker,
     "PlatformColorCustomization": PlatformColorCustomization,
     "PricingPlans": PricingPlans,
+    "Profile": Profile,
     "ProgressTracking": ProgressTracking,
     "ProjectManagement": ProjectManagement,
     "PublicPlanPurchase": PublicPlanPurchase,
@@ -263,10 +267,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "HealthCoachDashboard": HealthCoachDashboard,
-    "ClientMPESSAssessment": ClientMPESSAssessment,
-    "CoachMPESSTracker": CoachMPESSTracker,
-    "ClientMPESSAnalytics": ClientMPESSAnalytics,
 }
 
 export const pagesConfig = {

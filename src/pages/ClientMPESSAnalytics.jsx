@@ -4,10 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from "recharts";
 import { format } from "date-fns";
-import { Loader2, Heart, TrendingUp, Calendar } from "lucide-react";
+import { Loader2, Heart, TrendingUp, Calendar, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 export default function ClientMPESSAnalytics() {
+  const [dateRange, setDateRange] = useState({ start: null, end: null });
+
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
@@ -23,6 +26,14 @@ export default function ClientMPESSAnalytics() {
     },
     enabled: !!user?.email,
   });
+
+  // Filter assessments by date range
+  const filteredAssessments = assessments?.filter(a => {
+    const submissionDate = new Date(a.submission_date);
+    if (dateRange.start && submissionDate < new Date(dateRange.start)) return false;
+    if (dateRange.end && submissionDate > new Date(dateRange.end)) return false;
+    return true;
+  }) || [];
 
   // Process data for charts
   const timelineData = assessments?.map(a => ({
