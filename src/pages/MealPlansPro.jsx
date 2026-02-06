@@ -335,11 +335,11 @@ export default function MealPlansPro() {
       food_preference: latestIntake?.diet_type?.toLowerCase() || 'general', // Use latestIntake for diet_type or default
       active: true,
       mpess_integration: {
-        mind_practices: generatedPlan.mpess_integration.mind,
-        physical_practices: generatedPlan.mpess_integration.physical,
-        emotional_practices: generatedPlan.mpess_integration.emotional,
-        social_practices: generatedPlan.mpess_integration.social,
-        spiritual_practices: generatedPlan.mpess_integration.spiritual
+        affirmations: generatedPlan.mpess_integration.affirmations,
+        journaling_prompts: generatedPlan.mpess_integration.journaling_prompts,
+        breathing_exercises: generatedPlan.mpess_integration.breathing_exercises,
+        physical_activities: generatedPlan.mpess_integration.physical_activities,
+        forgiveness_practices: generatedPlan.mpess_integration.forgiveness_practices
       },
       audit_snapshot: generatedPlan.audit_snapshot,
       decision_rules_applied: generatedPlan.decision_rules,
