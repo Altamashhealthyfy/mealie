@@ -69,6 +69,7 @@ import ClientDashboard from './pages/ClientDashboard';
 import ClientFeedbackManagement from './pages/ClientFeedbackManagement';
 import ClientFinanceManager from './pages/ClientFinanceManager';
 import ClientManagement from './pages/ClientManagement';
+import ClientManagementHub from './pages/ClientManagementHub';
 import ClientOnboarding from './pages/ClientOnboarding';
 import ClientOnboardingWizard from './pages/ClientOnboardingWizard';
 import ClientPlanBuilder from './pages/ClientPlanBuilder';
@@ -100,7 +101,7 @@ import FeatureControl from './pages/FeatureControl';
 import FoodLog from './pages/FoodLog';
 import FoodLookup from './pages/FoodLookup';
 import GoogleCalendarSettings from './pages/GoogleCalendarSettings';
-import HealthCoachDashboard from './pages/HealthCoachDashboard';
+import Profile from './pages/Profile';
 import HealthCoachPlans from './pages/HealthCoachPlans';
 import HealthCoachesManagement from './pages/HealthCoachesManagement';
 import HealthReportAnalysis from './pages/HealthReportAnalysis';
@@ -124,7 +125,6 @@ import PaymentTracking from './pages/PaymentTracking';
 import PlatformBrandingTracker from './pages/PlatformBrandingTracker';
 import PlatformColorCustomization from './pages/PlatformColorCustomization';
 import PricingPlans from './pages/PricingPlans';
-import Profile from './pages/Profile';
 import ProgressTracking from './pages/ProgressTracking';
 import ProjectManagement from './pages/ProjectManagement';
 import PublicPlanPurchase from './pages/PublicPlanPurchase';
@@ -151,7 +151,7 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import ClientManagementHub from './pages/ClientManagementHub';
+import HealthCoachDashboard from './pages/HealthCoachDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -178,6 +178,7 @@ export const PAGES = {
     "ClientFeedbackManagement": ClientFeedbackManagement,
     "ClientFinanceManager": ClientFinanceManager,
     "ClientManagement": ClientManagement,
+    "ClientManagementHub": ClientManagementHub,
     "ClientOnboarding": ClientOnboarding,
     "ClientOnboardingWizard": ClientOnboardingWizard,
     "ClientPlanBuilder": ClientPlanBuilder,
@@ -209,7 +210,7 @@ export const PAGES = {
     "FoodLog": FoodLog,
     "FoodLookup": FoodLookup,
     "GoogleCalendarSettings": GoogleCalendarSettings,
-    "HealthCoachDashboard": HealthCoachDashboard,
+    "Profile": Profile,
     "HealthCoachPlans": HealthCoachPlans,
     "HealthCoachesManagement": HealthCoachesManagement,
     "HealthReportAnalysis": HealthReportAnalysis,
@@ -233,7 +234,6 @@ export const PAGES = {
     "PlatformBrandingTracker": PlatformBrandingTracker,
     "PlatformColorCustomization": PlatformColorCustomization,
     "PricingPlans": PricingPlans,
-    "Profile": Profile,
     "ProgressTracking": ProgressTracking,
     "ProjectManagement": ProjectManagement,
     "PublicPlanPurchase": PublicPlanPurchase,
@@ -260,7 +260,7 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "ClientManagementHub": ClientManagementHub,
+    "HealthCoachDashboard": HealthCoachDashboard,
 }
 
 export const pagesConfig = {
