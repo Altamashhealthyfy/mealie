@@ -439,8 +439,8 @@ export default function ClientMPESSAssessment() {
           )}
         </Card>
 
-        {/* SPIRITUAL & SELF-CONNECTION */}
-        <Card className="border-none shadow-lg mb-4">
+            {/* SPIRITUAL & SELF-CONNECTION */}
+            <Card className="border-none shadow-lg mb-4">
           <CardHeader 
             className="cursor-pointer hover:bg-gray-50"
             onClick={() => toggleSection('spiritual')}
