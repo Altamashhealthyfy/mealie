@@ -35,8 +35,8 @@ export default function ClientMPESSAnalytics() {
     return true;
   }) || [];
 
-  // Process data for charts
-  const timelineData = assessments?.map(a => ({
+  // Process data for charts using filtered assessments
+  const timelineData = filteredAssessments?.map(a => ({
     date: format(new Date(a.submission_date), 'MMM yyyy'),
     submissionDate: a.submission_date,
     reviewed: a.coach_reviewed ? 1 : 0,
@@ -44,7 +44,7 @@ export default function ClientMPESSAnalytics() {
   })) || [];
 
   // Calculate willingness average over time
-  const willingnessTimeline = assessments?.map(a => {
+  const willingnessTimeline = filteredAssessments?.map(a => {
     if (!a.submission_data?.mpess_willingness) return null;
     const values = Object.values(a.submission_data.mpess_willingness).filter(v => typeof v === 'number');
     const avg = values.length > 0 ? (values.reduce((sum, v) => sum + v, 0) / values.length).toFixed(1) : 0;
