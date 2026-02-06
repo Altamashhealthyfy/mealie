@@ -471,8 +471,8 @@ export default function ClientMPESSAssessment() {
           )}
         </Card>
 
-        {/* BODY COMPOSITION ANALYSIS */}
-        <Card className="border-none shadow-lg mb-4">
+            {/* BODY COMPOSITION ANALYSIS */}
+            <Card className="border-none shadow-lg mb-4">
           <CardHeader 
             className="cursor-pointer hover:bg-gray-50"
             onClick={() => toggleSection('bodyComposition')}
