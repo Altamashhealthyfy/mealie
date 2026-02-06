@@ -56,12 +56,21 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Wait a moment for user to be created
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Wait for user to be created in the system
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Update user record with additional details
-    const users = await base44.asServiceRole.entities.User.filter({ email: finalEmail });
+    // Try to find and update user record
+    let users = await base44.asServiceRole.entities.User.filter({ email: finalEmail });
     console.log('Found users:', users.length);
+    
+    // Retry a few times if user not found yet
+    let retries = 3;
+    while (users.length === 0 && retries > 0) {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      users = await base44.asServiceRole.entities.User.filter({ email: finalEmail });
+      console.log(`Retry ${4-retries}: Found users:`, users.length);
+      retries--;
+    }
     
     if (users.length > 0) {
       const updatedUser = await base44.asServiceRole.entities.User.update(users[0].id, {
@@ -78,11 +87,12 @@ Deno.serve(async (req) => {
         note: 'User will receive an email to set their password'
       });
     } else {
+      // User will be created when they click the invitation link
       return Response.json({
         success: true,
-        message: `Invitation sent to ${finalEmail}. User will be created when they accept the invitation.`,
+        message: `Invitation sent successfully to ${finalEmail}`,
         email: finalEmail,
-        note: 'User will receive an email to set their password and complete registration'
+        note: 'The health coach will appear in the list once they accept the invitation and set their password'
       });
     }
 

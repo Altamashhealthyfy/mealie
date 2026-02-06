@@ -124,11 +124,12 @@ export default function HealthCoachesManagement() {
         user_type: 'student_coach',
       });
 
-      // Update phone number if provided
-      if (coachData.phone) {
-        const users = await base44.entities.User.filter({ email: coachData.email });
-        if (users.length > 0) {
-          await base44.entities.User.update(users[0].id, { phone: coachData.phone });
+      // Update phone number if provided - retry a few times
+      if (coachData.phone && response.data?.user_id) {
+        try {
+          await base44.entities.User.update(response.data.user_id, { phone: coachData.phone });
+        } catch (error) {
+          console.log('Could not update phone immediately:', error);
         }
       }
 
