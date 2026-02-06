@@ -252,7 +252,7 @@ export default function HealthCoachesManagement() {
     }
   });
 
-  const handleAddCoach = () => {
+  const handleSubmitAddCoach = () => {
     if (!coachFormData.email || !coachFormData.full_name) {
       toast.error('Please fill in email and name');
       return;
@@ -614,7 +614,7 @@ export default function HealthCoachesManagement() {
                   Cancel
                 </Button>
                 <Button
-                  onClick={handleAddCoach}
+                  onClick={handleSubmitAddCoach}
                   disabled={createCoachMutation.isPending}
                   className="flex-1 bg-green-600 hover:bg-green-700"
                 >
