@@ -1048,29 +1048,96 @@ export default function MealPlansPro() {
                 {generatedPlan.mpess_integration && (
                   <Card className="border-none shadow-lg">
                     <CardHeader className="bg-gradient-to-r from-pink-500 to-rose-500 text-white">
-                      <CardTitle>🧘 MPESS Wellness Practices</CardTitle>
+                      <CardTitle>🧘 MPESS Wellness Practices - Client-Specific</CardTitle>
+                      <CardDescription className="text-white/90">Holistic wellness practices tailored to your client's needs</CardDescription>
                     </CardHeader>
                     <CardContent className="p-6">
-                      <Tabs defaultValue="mind" className="space-y-4">
-                        <TabsList className="grid grid-cols-5">
-                          <TabsTrigger value="mind"><Brain className="w-4 h-4" /></TabsTrigger>
-                          <TabsTrigger value="physical"><Activity className="w-4 h-4" /></TabsTrigger>
-                          <TabsTrigger value="emotional"><Heart className="w-4 h-4" /></TabsTrigger>
-                          <TabsTrigger value="social"><Users className="w-4 h-4" /></TabsTrigger>
-                          <TabsTrigger value="spiritual"><Sparkles className="w-4 h-4" /></TabsTrigger>
-                        </TabsList>
+                      <div className="space-y-6">
+                        {/* Affirmations */}
+                        {generatedPlan.mpess_integration.affirmations?.length > 0 && (
+                          <div className="space-y-3">
+                            <h3 className="font-bold text-lg flex items-center gap-2">
+                              <Sparkles className="w-5 h-5 text-purple-600" />
+                              Daily Affirmations
+                            </h3>
+                            <div className="grid gap-3">
+                              {generatedPlan.mpess_integration.affirmations.map((affirmation, index) => (
+                                <div key={index} className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-l-4 border-purple-500">
+                                  <p className="text-gray-800">"{affirmation}"</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
-                        {Object.entries(generatedPlan.mpess_integration).map(([key, practices]) => (
-                          <TabsContent key={key} value={key} className="space-y-2">
-                            <h3 className="font-bold text-lg capitalize">{key} Practices</h3>
-                            {practices.map((practice, index) => (
-                              <div key={index} className="p-3 bg-purple-50 rounded-lg">
-                                <p>{practice}</p>
-                              </div>
-                            ))}
-                          </TabsContent>
-                        ))}
-                      </Tabs>
+                        {/* Journaling Prompts */}
+                        {generatedPlan.mpess_integration.journaling_prompts?.length > 0 && (
+                          <div className="space-y-3">
+                            <h3 className="font-bold text-lg flex items-center gap-2">
+                              <FileText className="w-5 h-5 text-blue-600" />
+                              Journaling Prompts
+                            </h3>
+                            <div className="grid gap-3">
+                              {generatedPlan.mpess_integration.journaling_prompts.map((prompt, index) => (
+                                <div key={index} className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                                  <p className="text-gray-800">{prompt}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Breathing Exercises */}
+                        {generatedPlan.mpess_integration.breathing_exercises?.length > 0 && (
+                          <div className="space-y-3">
+                            <h3 className="font-bold text-lg flex items-center gap-2">
+                              <Heart className="w-5 h-5 text-red-600" />
+                              Breathing Exercises
+                            </h3>
+                            <div className="grid gap-3">
+                              {generatedPlan.mpess_integration.breathing_exercises.map((exercise, index) => (
+                                <div key={index} className="p-4 bg-red-50 rounded-lg border-l-4 border-red-500">
+                                  <p className="text-gray-800">{exercise}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Physical Activities */}
+                        {generatedPlan.mpess_integration.physical_activities?.length > 0 && (
+                          <div className="space-y-3">
+                            <h3 className="font-bold text-lg flex items-center gap-2">
+                              <Activity className="w-5 h-5 text-green-600" />
+                              Physical Activities
+                            </h3>
+                            <div className="grid gap-3">
+                              {generatedPlan.mpess_integration.physical_activities.map((activity, index) => (
+                                <div key={index} className="p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
+                                  <p className="text-gray-800">{activity}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Forgiveness Practices */}
+                        {generatedPlan.mpess_integration.forgiveness_practices?.length > 0 && (
+                          <div className="space-y-3">
+                            <h3 className="font-bold text-lg flex items-center gap-2">
+                              <Heart className="w-5 h-5 text-pink-600" />
+                              Forgiveness & Emotional Release
+                            </h3>
+                            <div className="grid gap-3">
+                              {generatedPlan.mpess_integration.forgiveness_practices.map((practice, index) => (
+                                <div key={index} className="p-4 bg-pink-50 rounded-lg border-l-4 border-pink-500">
+                                  <p className="text-gray-800">{practice}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </CardContent>
                   </Card>
                 )}
