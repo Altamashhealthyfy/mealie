@@ -617,7 +617,7 @@ export default function Profile() {
 
           {/* MPESS FORM SECTION - ONLY FOR CLIENTS */}
           {isClient && (
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-6">
             <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -632,17 +632,17 @@ export default function Profile() {
             </Card>
 
             <Button
-              type="submit"
+              onClick={() => saveMutation.mutate(formData)}
               className="w-full h-14 text-lg bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 shadow-lg"
               disabled={saveMutation.isPending}
             >
               <Save className="w-5 h-5 mr-2" />
               {saveMutation.isPending ? 'Saving...' : 'Save MPESS Assessment'}
             </Button>
-          </form>
+          </div>
           )}
 
-        {/* Change Password Section */}
+          {/* Change Password Section */}
         <Card className="border-none shadow-lg bg-gradient-to-br from-red-50 to-orange-50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
