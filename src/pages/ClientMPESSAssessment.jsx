@@ -597,8 +597,72 @@ export default function ClientMPESSAssessment() {
               </Button>
             </div>
           </>
-        )}
-      </div>
-    </div>
-  );
-}
+          )}
+          </TabsContent>
+
+          {/* History Tab */}
+          <TabsContent value="history" className="space-y-6">
+          {assessmentHistory && assessmentHistory.length > 0 ? (
+           <div className="space-y-4">
+             <Alert className="border-blue-200 bg-blue-50">
+               <Calendar className="w-4 h-4 text-blue-600" />
+               <AlertDescription className="text-blue-900">
+                 View your past assessments to track progress over time
+               </AlertDescription>
+             </Alert>
+             {assessmentHistory.map((assessment, index) => (
+               <Card key={assessment.id} className="border-none shadow-lg">
+                 <CardHeader>
+                   <div className="flex items-center justify-between">
+                     <div>
+                       <CardTitle className="flex items-center gap-2">
+                         <Calendar className="w-4 h-4 text-orange-500" />
+                         {format(new Date(assessment.submission_date), 'MMMM d, yyyy')}
+                       </CardTitle>
+                       <p className="text-sm text-gray-600 mt-1">
+                         Root Cause: <span className="font-semibold text-gray-900">{assessment.submission_data?.mpess_root_cause || 'N/A'}</span>
+                       </p>
+                     </div>
+                     {assessment.coach_reviewed && (
+                       <div className="flex items-center gap-2 bg-green-50 px-3 py-1 rounded-full">
+                         <CheckCircle className="w-4 h-4 text-green-600" />
+                         <span className="text-xs font-semibold text-green-700">Reviewed</span>
+                       </div>
+                     )}
+                   </div>
+                 </CardHeader>
+                 <CardContent className="space-y-4">
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div className="bg-orange-50 p-4 rounded-lg">
+                       <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold mb-1">Physical Factors Selected</p>
+                       <p className="text-gray-900">{Object.keys(assessment.submission_data?.mpess_physical || {}).length} items</p>
+                     </div>
+                     <div className="bg-pink-50 p-4 rounded-lg">
+                       <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold mb-1">Spiritual Connection</p>
+                       <p className="text-gray-900 text-sm">{assessment.submission_data?.mpess_spiritual?.substring(0, 40) || 'N/A'}...</p>
+                     </div>
+                   </div>
+                   {assessment.coach_notes && (
+                     <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                       <p className="text-xs text-gray-600 uppercase tracking-wide font-semibold mb-2">Coach Notes</p>
+                       <p className="text-gray-900">{assessment.coach_notes}</p>
+                     </div>
+                   )}
+                 </CardContent>
+               </Card>
+             ))}
+           </div>
+          ) : (
+           <Alert>
+             <Heart className="w-4 h-4 text-gray-600" />
+             <AlertDescription>
+               No previous assessments yet. Complete your first assessment above!
+             </AlertDescription>
+           </Alert>
+          )}
+          </TabsContent>
+          </Tabs>
+          </div>
+          </div>
+          );
+          }
