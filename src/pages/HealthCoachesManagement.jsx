@@ -32,6 +32,7 @@ export default function HealthCoachesManagement() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showCreditsDialog, setShowCreditsDialog] = useState(false);
   const [selectedCoach, setSelectedCoach] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   
   const [coachFormData, setCoachFormData] = useState({
     full_name: "",
@@ -78,6 +79,16 @@ export default function HealthCoachesManagement() {
 
   // Filter only student coaches
   const healthCoaches = allUsers.filter(u => u.user_type === 'student_coach');
+
+  // Filter by search query
+  const filteredCoaches = healthCoaches.filter(coach => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return (
+      coach.full_name?.toLowerCase().includes(query) ||
+      coach.email?.toLowerCase().includes(query)
+    );
+  });
 
   // Get subscription for each coach
   const getCoachSubscription = (coachEmail) => {
@@ -298,26 +309,46 @@ export default function HealthCoachesManagement() {
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <GraduationCap className="w-10 h-10 text-green-600" />
-              <Badge className="bg-green-600 text-white">
-                {healthCoaches.length} Health Coaches
-              </Badge>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <GraduationCap className="w-10 h-10 text-green-600" />
+                <Badge className="bg-green-600 text-white">
+                  {healthCoaches.length} Health Coaches
+                </Badge>
+              </div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">Health Coaches Management</h1>
+              <p className="text-gray-600">Manage all health coaches, subscriptions, and AI credits</p>
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Health Coaches Management</h1>
-            <p className="text-gray-600">Manage all health coaches, subscriptions, and AI credits</p>
+            <Button onClick={() => setShowAddCoachDialog(true)} className="bg-green-600 hover:bg-green-700">
+              <Plus className="w-5 h-5 mr-2" />
+              Add Health Coach
+            </Button>
           </div>
-          <Button onClick={() => setShowAddCoachDialog(true)} className="bg-green-600 hover:bg-green-700">
-            <Plus className="w-5 h-5 mr-2" />
-            Add Health Coach
-          </Button>
+
+          {/* Search Bar */}
+          <div className="max-w-md">
+            <Input
+              placeholder="Search by name or email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full"
+            />
+          </div>
         </div>
 
         {/* Health Coaches List */}
         <div className="space-y-4">
-          {healthCoaches.length === 0 ? (
+          {filteredCoaches.length === 0 && searchQuery.trim() ? (
+            <Card className="border-none shadow-xl">
+              <CardContent className="p-12 text-center">
+                <AlertCircle className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No coaches found</h3>
+                <p className="text-gray-600">Try adjusting your search query</p>
+              </CardContent>
+            </Card>
+          ) : healthCoaches.length === 0 ? (
             <Card className="border-none shadow-xl">
               <CardContent className="p-12 text-center">
                 <GraduationCap className="w-16 h-16 mx-auto text-gray-300 mb-4" />
@@ -330,7 +361,7 @@ export default function HealthCoachesManagement() {
               </CardContent>
             </Card>
           ) : (
-            healthCoaches.map((coach) => {
+            filteredCoaches.map((coach) => {
               const subscription = getCoachSubscription(coach.email);
               const plan = subscription ? coachPlans.find(p => p.id === subscription.plan_id) : null;
               
