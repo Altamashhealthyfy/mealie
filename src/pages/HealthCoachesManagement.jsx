@@ -890,6 +890,15 @@ export default function HealthCoachesManagement() {
             </div>
           </CardContent>
         </Card>
+          </TabsContent>
+
+          <TabsContent value="calendar" className="mt-8">
+            <SubscriptionCalendarView 
+              subscriptions={subscriptions}
+              plans={plans}
+            />
+          </TabsContent>
+        </Tabs>
 
         {/* Assign Plan Dialog */}
         <Dialog open={assignPlanDialog} onOpenChange={setAssignPlanDialog}>
