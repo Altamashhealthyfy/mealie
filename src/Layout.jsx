@@ -726,6 +726,12 @@ export default function Layout({ children, currentPageName }) {
         icon: User,
         show: (coachAccess.show_my_profile ?? true) && (permissions?.can_view_profile ?? true),
       },
+      {
+        title: "MPESS Assessment",
+        url: createPageUrl("ClientMPESSAssessment"),
+        icon: Heart,
+        show: (coachAccess.show_mpess_wellness ?? true) && (permissions?.can_view_mpess ?? true),
+      },
       ];
 
       return baseNav.filter(item => item.show);
