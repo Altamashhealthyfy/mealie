@@ -334,6 +334,12 @@ const businessNavigation = [
     roles: ['super_admin'],
   },
   {
+    title: "Coach Performance",
+    url: createPageUrl("CoachPerformanceAnalytics"),
+    icon: TrendingUp,
+    roles: ['super_admin'],
+  },
+  {
     title: "Client Feedback",
     url: createPageUrl("ClientFeedbackManagement"),
     icon: MessageSquare,
