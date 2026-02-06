@@ -95,6 +95,55 @@ export default function CoachMPESSTracker() {
   const unreviewed = filteredAssessments.filter(a => !a.coach_reviewed);
   const reviewed = filteredAssessments.filter(a => a.coach_reviewed);
 
+  // Analytics data
+  const timelineData = filteredAssessments?.reduce((acc, a) => {
+    const date = format(new Date(a.submission_date), 'MMM dd');
+    const existing = acc.find(item => item.date === date);
+    if (existing) {
+      existing.submissions += 1;
+      if (a.coach_reviewed) existing.reviewed += 1;
+    } else {
+      acc.push({
+        date,
+        submissions: 1,
+        reviewed: a.coach_reviewed ? 1 : 0
+      });
+    }
+    return acc;
+  }, []);
+
+  const clientBreakdown = filteredAssessments?.reduce((acc, a) => {
+    const clientName = getClientName(a.client_id);
+    const existing = acc.find(item => item.name === clientName);
+    if (existing) {
+      existing.submissions += 1;
+    } else {
+      acc.push({
+        name: clientName,
+        submissions: 1
+      });
+    }
+    return acc;
+  }, []);
+
+  const rootCauseData = filteredAssessments?.reduce((acc, a) => {
+    if (a.submission_data?.mpess_root_cause) {
+      const cause = a.submission_data.mpess_root_cause;
+      const existing = acc.find(item => item.name === cause);
+      if (existing) {
+        existing.value += 1;
+      } else {
+        acc.push({
+          name: cause.length > 25 ? cause.substring(0, 25) + "..." : cause,
+          value: 1
+        });
+      }
+    }
+    return acc;
+  }, []);
+
+  const COLORS = ['#f97316', '#dc2626', '#ea580c', '#c2410c', '#b45309', '#92400e'];
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
