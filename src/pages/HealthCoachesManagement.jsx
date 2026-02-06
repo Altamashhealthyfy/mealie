@@ -74,6 +74,7 @@ export default function HealthCoachesManagement() {
     email: '',
     phone: '',
     plan_id: '',
+    billing_cycle: 'monthly',
     start_date: new Date().toISOString().split('T')[0],
     end_date: '',
   });
@@ -149,14 +150,18 @@ export default function HealthCoachesManagement() {
       if (coachData.plan_id) {
         const plan = plans.find(p => p.id === coachData.plan_id);
         if (plan) {
-          // Calculate end date based on start date
+          // Calculate end date based on billing cycle
           const startDate = new Date(coachData.start_date);
           let endDate;
           if (coachData.end_date) {
             endDate = new Date(coachData.end_date);
           } else {
             endDate = new Date(startDate);
-            endDate.setMonth(endDate.getMonth() + 1); // Default 1 month
+            if (coachData.billing_cycle === 'monthly') {
+              endDate.setMonth(endDate.getMonth() + 1);
+            } else {
+              endDate.setFullYear(endDate.getFullYear() + 1);
+            }
           }
 
           await base44.entities.HealthCoachSubscription.create({
@@ -164,8 +169,8 @@ export default function HealthCoachesManagement() {
             coach_name: coachData.full_name,
             plan_id: plan.id,
             plan_name: plan.plan_name,
-            billing_cycle: 'monthly',
-            amount: plan.monthly_price,
+            billing_cycle: coachData.billing_cycle,
+            amount: coachData.billing_cycle === 'monthly' ? plan.monthly_price : plan.yearly_price,
             currency: 'INR',
             start_date: coachData.start_date,
             end_date: endDate.toISOString().split('T')[0],
@@ -197,7 +202,7 @@ export default function HealthCoachesManagement() {
       queryClient.invalidateQueries(['allHealthCoaches']);
       queryClient.invalidateQueries(['healthCoachSubscriptions']);
       setAddCoachDialog(false);
-      setNewCoach({ full_name: '', email: '', phone: '', plan_id: '', start_date: new Date().toISOString().split('T')[0], end_date: '' });
+      setNewCoach({ full_name: '', email: '', phone: '', plan_id: '', billing_cycle: 'monthly', start_date: new Date().toISOString().split('T')[0], end_date: '' });
       toast.success('Health Coach invited successfully! They will receive an email to set their password.');
     },
     onError: (error) => {
@@ -562,6 +567,18 @@ export default function HealthCoachesManagement() {
                 {newCoach.plan_id && (
                   <>
                     <div className="space-y-2">
+                      <Label className="text-sm font-semibold">Billing Cycle *</Label>
+                      <Select value={newCoach.billing_cycle} onValueChange={(value) => setNewCoach({ ...newCoach, billing_cycle: value })}>
+                        <SelectTrigger className="h-11">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="monthly">Monthly</SelectItem>
+                          <SelectItem value="yearly">Yearly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
                       <Label className="text-sm font-semibold">Start Date *</Label>
                       <Input
                         type="date"
@@ -576,10 +593,12 @@ export default function HealthCoachesManagement() {
                         type="date"
                         value={newCoach.end_date}
                         onChange={(e) => setNewCoach({ ...newCoach, end_date: e.target.value })}
-                        placeholder="Leave empty for default 1 month"
+                        placeholder="Leave empty for auto-calculation"
                         className="h-11"
                       />
-                      <p className="text-xs text-gray-500">Leave empty to auto-calculate (1 month from start date)</p>
+                      <p className="text-xs text-gray-500">
+                        Leave empty to auto-calculate ({newCoach.billing_cycle === 'monthly' ? '1 month' : '1 year'} from start date)
+                      </p>
                     </div>
                   </>
                 )}
