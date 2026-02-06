@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Save, Calculator, Sparkles, Target, Activity, User, Lock, Eye, EyeOff, KeyRound } from "lucide-react";
+import { Save, Calculator, Sparkles, Target, Activity, User, Lock, Eye, EyeOff, KeyRound, Heart } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import ImageUploader from "@/components/common/ImageUploader";
 import { useUserPermissions } from "@/components/permissions/useUserPermissions";
