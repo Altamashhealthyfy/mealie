@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -61,14 +61,14 @@ import { Link } from 'react-router-dom';
 
 export default function ClientManagementHub() {
   const queryClient = useQueryClient();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [selectedClient, setSelectedClient] = useState(null);
-  const [onboardDialog, setOnboardDialog] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [filterStatus, setFilterStatus] = React.useState('all');
+  const [selectedClient, setSelectedClient] = React.useState(null);
+  const [onboardDialog, setOnboardDialog] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState('overview');
 
   // New client form
-  const [newClient, setNewClient] = useState({
+  const [newClient, setNewClient] = React.useState({
     full_name: '',
     email: '',
     phone: '',
