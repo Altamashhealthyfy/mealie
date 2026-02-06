@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { Search, Loader2, CheckCircle, Calendar, Heart, AlertCircle, BarChart3 } from "lucide-react";
+import { format, isWithinInterval, parseISO } from "date-fns";
+import { Search, Loader2, CheckCircle, Calendar, Heart, AlertCircle, BarChart3, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,6 +18,8 @@ export default function CoachMPESSTracker() {
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [coachNotes, setCoachNotes] = useState("");
   const [monthFilter, setMonthFilter] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
