@@ -396,8 +396,124 @@ export default function CoachMPESSTracker() {
               ))
             )}
           </TabsContent>
-        </Tabs>
-      </div>
-    </div>
-  );
-}
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-6">
+           {filteredAssessments.length === 0 ? (
+             <Alert>
+               <AlertDescription>No assessments to analyze in the selected period.</AlertDescription>
+             </Alert>
+           ) : (
+             <>
+               {/* Summary Stats */}
+               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                 <Card className="border-none shadow-lg">
+                   <CardContent className="p-6">
+                     <p className="text-gray-600 text-sm">Total Submissions</p>
+                     <p className="text-3xl font-bold text-orange-600">{filteredAssessments.length}</p>
+                   </CardContent>
+                 </Card>
+                 <Card className="border-none shadow-lg">
+                   <CardContent className="p-6">
+                     <p className="text-gray-600 text-sm">Reviewed</p>
+                     <p className="text-3xl font-bold text-green-600">{reviewed.length}</p>
+                   </CardContent>
+                 </Card>
+                 <Card className="border-none shadow-lg">
+                   <CardContent className="p-6">
+                     <p className="text-gray-600 text-sm">Pending</p>
+                     <p className="text-3xl font-bold text-red-600">{unreviewed.length}</p>
+                   </CardContent>
+                 </Card>
+                 <Card className="border-none shadow-lg">
+                   <CardContent className="p-6">
+                     <p className="text-gray-600 text-sm">Unique Clients</p>
+                     <p className="text-3xl font-bold text-blue-600">{clientBreakdown.length}</p>
+                   </CardContent>
+                 </Card>
+               </div>
+
+               {/* Timeline Chart */}
+               {timelineData.length > 0 && (
+                 <Card className="border-none shadow-lg">
+                   <CardHeader>
+                     <CardTitle className="flex items-center gap-2">
+                       <Calendar className="w-5 h-5" />
+                       Submissions Over Time
+                     </CardTitle>
+                   </CardHeader>
+                   <CardContent>
+                     <ResponsiveContainer width="100%" height={300}>
+                       <LineChart data={timelineData}>
+                         <CartesianGrid strokeDasharray="3 3" />
+                         <XAxis dataKey="date" />
+                         <YAxis />
+                         <Tooltip />
+                         <Legend />
+                         <Line type="monotone" dataKey="submissions" stroke="#f97316" strokeWidth={2} name="Total" />
+                         <Line type="monotone" dataKey="reviewed" stroke="#22c55e" strokeWidth={2} name="Reviewed" />
+                       </LineChart>
+                     </ResponsiveContainer>
+                   </CardContent>
+                 </Card>
+               )}
+
+               {/* Client Breakdown */}
+               {clientBreakdown.length > 0 && (
+                 <Card className="border-none shadow-lg">
+                   <CardHeader>
+                     <CardTitle>Submissions by Client</CardTitle>
+                   </CardHeader>
+                   <CardContent>
+                     <ResponsiveContainer width="100%" height={300}>
+                       <BarChart data={clientBreakdown}>
+                         <CartesianGrid strokeDasharray="3 3" />
+                         <XAxis dataKey="name" />
+                         <YAxis />
+                         <Tooltip />
+                         <Bar dataKey="submissions" fill="#f97316" name="Submissions" />
+                       </BarChart>
+                     </ResponsiveContainer>
+                   </CardContent>
+                 </Card>
+               )}
+
+               {/* Root Cause Distribution */}
+               {rootCauseData.length > 0 && (
+                 <Card className="border-none shadow-lg">
+                   <CardHeader>
+                     <CardTitle>Root Cause Distribution</CardTitle>
+                   </CardHeader>
+                   <CardContent>
+                     <div className="flex flex-col lg:flex-row gap-8 items-center justify-center">
+                       <ResponsiveContainer width="100%" height={300}>
+                         <PieChart>
+                           <Pie
+                             data={rootCauseData}
+                             cx="50%"
+                             cy="50%"
+                             labelLine={false}
+                             label={({ name, value }) => `${name}: ${value}`}
+                             outerRadius={80}
+                             fill="#8884d8"
+                             dataKey="value"
+                           >
+                             {rootCauseData.map((entry, index) => (
+                               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                             ))}
+                           </Pie>
+                           <Tooltip />
+                         </PieChart>
+                       </ResponsiveContainer>
+                     </div>
+                   </CardContent>
+                 </Card>
+               )}
+             </>
+           )}
+          </TabsContent>
+          </Tabs>
+          </div>
+          </div>
+          );
+          }
