@@ -45,24 +45,46 @@ Deno.serve(async (req) => {
 
     // Invite user through Base44 authentication system
     // This creates the user account and sends invitation email
-    const inviteResult = await base44.users.inviteUser(finalEmail, 'user');
+    try {
+      const inviteResult = await base44.users.inviteUser(finalEmail, 'user');
+      console.log('Invite result:', inviteResult);
+    } catch (inviteError) {
+      console.error('Invite error:', inviteError);
+      // If user already exists, continue to update their details
+      if (!inviteError.message?.includes('already exists')) {
+        throw inviteError;
+      }
+    }
+
+    // Wait a moment for user to be created
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // Update user record with additional details
     const users = await base44.asServiceRole.entities.User.filter({ email: finalEmail });
+    console.log('Found users:', users.length);
+    
     if (users.length > 0) {
-      await base44.asServiceRole.entities.User.update(users[0].id, {
+      const updatedUser = await base44.asServiceRole.entities.User.update(users[0].id, {
         full_name: finalFullName || finalEmail,
         user_type: finalUserType,
       });
-    }
+      console.log('Updated user:', updatedUser);
 
-    return Response.json({
-      success: true,
-      message: `Health coach created successfully. An invitation email has been sent to ${finalEmail}`,
-      email: finalEmail,
-      user_id: users[0]?.id,
-      note: 'User will receive an email to set their password'
-    });
+      return Response.json({
+        success: true,
+        message: `Health coach created successfully. An invitation email has been sent to ${finalEmail}`,
+        email: finalEmail,
+        user_id: users[0].id,
+        note: 'User will receive an email to set their password'
+      });
+    } else {
+      return Response.json({
+        success: true,
+        message: `Invitation sent to ${finalEmail}. User will be created when they accept the invitation.`,
+        email: finalEmail,
+        note: 'User will receive an email to set their password and complete registration'
+      });
+    }
 
   } catch (error) {
     console.error('Error creating user:', error);

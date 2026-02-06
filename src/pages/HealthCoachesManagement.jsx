@@ -150,7 +150,9 @@ export default function HealthCoachesManagement() {
       toast.success('Health Coach invited successfully! They will receive an email to set their password.');
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to add Health Coach');
+      console.error('Create coach error:', error);
+      const errorMessage = error?.response?.data?.error || error?.message || 'Failed to add Health Coach';
+      toast.error(errorMessage);
     },
   });
 
