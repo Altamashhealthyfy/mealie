@@ -255,16 +255,18 @@ export default function ClientMPESSAssessment() {
             <TabsTrigger value="history">History ({assessmentHistory?.length || 0})</TabsTrigger>
           </TabsList>
 
-        {submitSuccess && (
-          <Alert className="mb-6 border-green-200 bg-green-50">
-            <CheckCircle className="w-4 h-4 text-green-600" />
-            <AlertDescription className="text-green-900">
-              Your MPESS assessment has been saved successfully!
-            </AlertDescription>
-          </Alert>
-        )}
+        {/* New Assessment Tab */}
+        <TabsContent value="new" className="space-y-6">
+          {submitSuccess && (
+            <Alert className="border-green-200 bg-green-50">
+              <CheckCircle className="w-4 h-4 text-green-600" />
+              <AlertDescription className="text-green-900">
+                Your MPESS assessment has been saved successfully!
+              </AlertDescription>
+            </Alert>
+          )}
 
-        {!showForm ? (
+          {!showForm ? (
           <div className="text-center py-12">
             <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Assessment Submitted!</h2>
