@@ -208,7 +208,11 @@ export default function ClientFeedbackManagement() {
       return matchesSearch && matchesStatus && matchesSentiment;
     });
 
-    return filtered.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    return filtered.sort((a, b) => {
+      const dateA = a.created_date ? new Date(a.created_date).getTime() : 0;
+      const dateB = b.created_date ? new Date(b.created_date).getTime() : 0;
+      return dateB - dateA;
+    });
   }, [allFeedback, searchQuery, statusFilter, sentimentFilter]);
 
   const COLORS = ["#ef4444", "#f97316", "#eab308", "#84cc16", "#22c55e"];
@@ -466,7 +470,7 @@ export default function ClientFeedbackManagement() {
                     </div>
                   </div>
                   <p className="text-sm text-gray-600 line-clamp-1">{feedback.what_went_well}</p>
-                  <p className="text-xs text-gray-500 mt-2">{format(new Date(feedback.created_date), "MMM d, yyyy")}</p>
+                  <p className="text-xs text-gray-500 mt-2">{feedback.created_date ? format(new Date(feedback.created_date), "MMM d, yyyy") : "N/A"}</p>
                 </div>
               ))}
             </div>
@@ -486,7 +490,7 @@ export default function ClientFeedbackManagement() {
             <DialogHeader>
               <DialogTitle>{viewingFeedback?.client_name}'s Feedback</DialogTitle>
               <DialogDescription>
-                Coach: {viewingFeedback?.coach_name} • {format(new Date(viewingFeedback?.created_date), "MMM d, yyyy")}
+                Coach: {viewingFeedback?.coach_name} • {viewingFeedback?.created_date ? format(new Date(viewingFeedback.created_date), "MMM d, yyyy") : "N/A"}
               </DialogDescription>
             </DialogHeader>
 
