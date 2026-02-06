@@ -231,9 +231,10 @@ export default function CoachMPESSTracker() {
 
         {/* Tabs */}
         <Tabs defaultValue="pending" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="pending">Pending Review ({unreviewed.length})</TabsTrigger>
             <TabsTrigger value="reviewed">Reviewed ({reviewed.length})</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
           {/* Pending Reviews */}
