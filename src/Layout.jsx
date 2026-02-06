@@ -165,7 +165,7 @@ const dietitianNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
-    title: "Client Reports",
+    title: "Clinical Report",
     url: createPageUrl("CoachReportTracker"),
     icon: FileText,
     roles: ['super_admin', 'team_member', 'student_coach'],
