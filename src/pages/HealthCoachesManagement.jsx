@@ -511,46 +511,46 @@ export default function HealthCoachesManagement() {
                 Add Coach
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                <DialogTitle className="text-xl md:text-2xl font-bold flex items-center gap-2">
                   <div className="p-2 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg">
-                    <UserPlus className="w-5 h-5 text-white" />
+                    <UserPlus className="w-4 h-4 md:w-5 md:h-5 text-white" />
                   </div>
                   Add New Health Coach
                 </DialogTitle>
-                <DialogDescription>
+                <DialogDescription className="text-sm">
                   Invite a new Health Coach - they will receive an email to set their password
                 </DialogDescription>
               </DialogHeader>
-              <div className="space-y-5 pt-2">
+              <div className="space-y-4 md:space-y-5 pt-2">
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold">Full Name *</Label>
+                  <Label className="text-xs md:text-sm font-semibold">Full Name *</Label>
                   <Input
                     value={newCoach.full_name}
                     onChange={(e) => setNewCoach({ ...newCoach, full_name: e.target.value })}
                     placeholder="Enter full name"
-                    className="h-11"
+                    className="h-10 md:h-11 text-sm md:text-base"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold">Email ID *</Label>
+                  <Label className="text-xs md:text-sm font-semibold">Email ID *</Label>
                   <Input
                     type="email"
                     value={newCoach.email}
                     onChange={(e) => setNewCoach({ ...newCoach, email: e.target.value.trim().toLowerCase() })}
                     placeholder="coach@example.com"
-                    className="h-11"
+                    className="h-10 md:h-11 text-sm md:text-base"
                   />
                   <p className="text-xs text-gray-500">Must be a valid email (e.g., name@example.com)</p>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold">Mobile Number</Label>
+                  <Label className="text-xs md:text-sm font-semibold">Mobile Number</Label>
                   <Input
                     value={newCoach.phone}
                     onChange={(e) => setNewCoach({ ...newCoach, phone: e.target.value })}
                     placeholder="Enter mobile number (optional)"
-                    className="h-11"
+                    className="h-10 md:h-11 text-sm md:text-base"
                   />
                 </div>
                 <div className="space-y-2">
@@ -572,9 +572,9 @@ export default function HealthCoachesManagement() {
                 {newCoach.plan_id && (
                   <>
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold">Billing Cycle *</Label>
+                      <Label className="text-xs md:text-sm font-semibold">Billing Cycle *</Label>
                       <Select value={newCoach.billing_cycle} onValueChange={(value) => setNewCoach({ ...newCoach, billing_cycle: value })}>
-                        <SelectTrigger className="h-11">
+                        <SelectTrigger className="h-10 md:h-11 text-sm md:text-base">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -584,34 +584,34 @@ export default function HealthCoachesManagement() {
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold">Extra Months (Optional)</Label>
+                      <Label className="text-xs md:text-sm font-semibold">Extra Months (Optional)</Label>
                       <Input
                         type="number"
                         min="0"
                         value={newCoach.extra_months}
                         onChange={(e) => setNewCoach({ ...newCoach, extra_months: parseInt(e.target.value) || 0 })}
                         placeholder="0"
-                        className="h-11"
+                        className="h-10 md:h-11 text-sm md:text-base"
                       />
                       <p className="text-xs text-gray-500">Add extra months to the subscription period</p>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold">Start Date *</Label>
+                      <Label className="text-xs md:text-sm font-semibold">Start Date *</Label>
                       <Input
                         type="date"
                         value={newCoach.start_date}
                         onChange={(e) => setNewCoach({ ...newCoach, start_date: e.target.value })}
-                        className="h-11"
+                        className="h-10 md:h-11 text-sm md:text-base"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold">End Date (Optional)</Label>
+                      <Label className="text-xs md:text-sm font-semibold">End Date (Optional)</Label>
                       <Input
                         type="date"
                         value={newCoach.end_date}
                         onChange={(e) => setNewCoach({ ...newCoach, end_date: e.target.value })}
                         placeholder="Leave empty for auto-calculation"
-                        className="h-11"
+                        className="h-10 md:h-11 text-sm md:text-base"
                       />
                       <p className="text-xs text-gray-500">
                         Leave empty to auto-calculate ({newCoach.billing_cycle === 'monthly' ? '1 month' : '1 year'} from start date)
@@ -619,14 +619,14 @@ export default function HealthCoachesManagement() {
                     </div>
                   </>
                 )}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Shield className="w-5 h-5 text-blue-600" />
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-3 md:p-4">
+                  <div className="flex items-start gap-2 md:gap-3">
+                    <div className="p-1.5 md:p-2 bg-blue-100 rounded-lg flex-shrink-0">
+                      <Shield className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                     </div>
-                    <div className="text-sm text-blue-900 flex-1">
+                    <div className="text-xs md:text-sm text-blue-900 flex-1">
                       <p className="font-bold mb-1">Invitation Email</p>
-                      <p>An invitation email will be sent to the coach's email address</p>
+                      <p className="text-xs md:text-sm">An invitation email will be sent to the coach's email address</p>
                       <p className="text-xs mt-2 text-blue-700">They will receive a link to set their password and activate their account</p>
                     </div>
                   </div>
@@ -642,7 +642,7 @@ export default function HealthCoachesManagement() {
                     createCoachMutation.mutate(newCoach);
                   }}
                   disabled={!newCoach.full_name || !newCoach.email || createCoachMutation.isPending}
-                  className="w-full bg-gradient-to-r from-orange-600 to-red-600 h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all"
+                  className="w-full bg-gradient-to-r from-orange-600 to-red-600 h-11 md:h-12 text-sm md:text-base font-semibold shadow-lg hover:shadow-xl transition-all"
                 >
                   {createCoachMutation.isPending ? 'Creating...' : 'Create Health Coach'}
                 </Button>
