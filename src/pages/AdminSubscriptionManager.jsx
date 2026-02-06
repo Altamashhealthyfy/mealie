@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Shield, Crown, Plus, Trash2, AlertCircle, Users, Sparkles } from "lucide-react";
+import { Shield, Crown, Plus, Trash2, AlertCircle, Users, Sparkles, Search, Filter } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 
@@ -32,6 +32,10 @@ export default function AdminSubscriptionManager() {
   const [creditsCoachEmail, setCreditsCoachEmail] = useState("");
   const [creditsAmount, setCreditsAmount] = useState("");
   const [creditsReason, setCreditsReason] = useState("");
+  const [coachSearchTerm, setCoachSearchTerm] = useState("");
+  const [coachStatusFilter, setCoachStatusFilter] = useState("all");
+  const [clientSearchTerm, setClientSearchTerm] = useState("");
+  const [clientStatusFilter, setClientStatusFilter] = useState("all");
 
 
   const { data: user } = useQuery({
@@ -310,19 +314,61 @@ export default function AdminSubscriptionManager() {
           </TabsList>
 
           <TabsContent value="coaches" className="space-y-4">
-            <div className="flex justify-end gap-2">
-              <Button onClick={() => setShowCreditsDialog(true)} variant="outline" className="border-green-500 text-green-700 hover:bg-green-50">
-                <Sparkles className="w-5 h-5 mr-2" />
-                Add AI Credits
-              </Button>
-              <Button onClick={() => setShowCoachDialog(true)} className="bg-purple-600 hover:bg-purple-700">
-                <Plus className="w-5 h-5 mr-2" />
-                Grant Coach Access
-              </Button>
+            <div className="flex flex-col md:flex-row gap-4 mb-4">
+              <div className="flex-1 flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Search by email, name, or plan..."
+                    value={coachSearchTerm}
+                    onChange={(e) => setCoachSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={coachStatusFilter} onValueChange={setCoachStatusFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="expired">Expired</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={() => setShowCreditsDialog(true)} variant="outline" className="border-green-500 text-green-700 hover:bg-green-50">
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Add AI Credits
+                </Button>
+                <Button onClick={() => setShowCoachDialog(true)} className="bg-purple-600 hover:bg-purple-700">
+                  <Plus className="w-5 h-5 mr-2" />
+                  Grant Coach Access
+                </Button>
+              </div>
             </div>
 
             <div className="grid gap-4">
-              {coachSubscriptions.map((sub) => (
+              {coachSubscriptions
+                .filter(sub => {
+                  const matchesSearch = !coachSearchTerm || 
+                    sub.coach_email.toLowerCase().includes(coachSearchTerm.toLowerCase()) ||
+                    sub.coach_name?.toLowerCase().includes(coachSearchTerm.toLowerCase()) ||
+                    sub.plan_name.toLowerCase().includes(coachSearchTerm.toLowerCase());
+                  
+                  const now = new Date();
+                  const endDate = new Date(sub.end_date);
+                  const isExpired = endDate < now;
+                  
+                  const matchesStatus = coachStatusFilter === 'all' || 
+                    (coachStatusFilter === 'active' && sub.status === 'active' && !isExpired) ||
+                    (coachStatusFilter === 'expired' && (sub.status === 'active' && isExpired)) ||
+                    (coachStatusFilter === 'cancelled' && sub.status === 'cancelled');
+                  
+                  return matchesSearch && matchesStatus;
+                })
+                .map((sub) => (
                 <Card key={sub.id} className="border-none shadow-lg">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
@@ -368,7 +414,29 @@ export default function AdminSubscriptionManager() {
           </TabsContent>
 
           <TabsContent value="clients" className="space-y-4">
-            <div className="flex justify-end">
+            <div className="flex flex-col md:flex-row gap-4 mb-4">
+              <div className="flex-1 flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Search by email, name, plan, or coach..."
+                    value={clientSearchTerm}
+                    onChange={(e) => setClientSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={clientStatusFilter} onValueChange={setClientStatusFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="expired">Expired</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <Button onClick={() => setShowClientDialog(true)} className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="w-5 h-5 mr-2" />
                 Grant Client Access
@@ -376,7 +444,26 @@ export default function AdminSubscriptionManager() {
             </div>
 
             <div className="grid gap-4">
-              {clientPurchases.map((purchase) => (
+              {clientPurchases
+                .filter(purchase => {
+                  const matchesSearch = !clientSearchTerm || 
+                    purchase.client_email.toLowerCase().includes(clientSearchTerm.toLowerCase()) ||
+                    purchase.client_name?.toLowerCase().includes(clientSearchTerm.toLowerCase()) ||
+                    purchase.plan_name.toLowerCase().includes(clientSearchTerm.toLowerCase()) ||
+                    purchase.coach_email.toLowerCase().includes(clientSearchTerm.toLowerCase());
+                  
+                  const now = new Date();
+                  const endDate = new Date(purchase.end_date);
+                  const isExpired = endDate < now;
+                  
+                  const matchesStatus = clientStatusFilter === 'all' || 
+                    (clientStatusFilter === 'active' && purchase.status === 'active' && !isExpired) ||
+                    (clientStatusFilter === 'expired' && (purchase.status === 'active' && isExpired)) ||
+                    (clientStatusFilter === 'cancelled' && purchase.status === 'cancelled');
+                  
+                  return matchesSearch && matchesStatus;
+                })
+                .map((purchase) => (
                 <Card key={purchase.id} className="border-none shadow-lg">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
