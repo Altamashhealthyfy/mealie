@@ -120,12 +120,20 @@ export default function CoachMPESSTracker() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Month</label>
-                <Input
-                  type="month"
+                <select
                   value={monthFilter}
                   onChange={(e) => setMonthFilter(e.target.value)}
-                  className="w-full"
-                />
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value="all">All Months</option>
+                  {Array.from({ length: 12 }).map((_, i) => {
+                    const date = new Date();
+                    date.setMonth(date.getMonth() - i);
+                    const monthStr = date.toISOString().slice(0, 7);
+                    const label = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+                    return <option key={monthStr} value={monthStr}>{label}</option>;
+                  })}
+                </select>
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Search Client</label>
