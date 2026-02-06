@@ -101,7 +101,6 @@ import FoodLookup from './pages/FoodLookup';
 import GoogleCalendarSettings from './pages/GoogleCalendarSettings';
 import HealthCoachDashboard from './pages/HealthCoachDashboard';
 import HealthCoachPlans from './pages/HealthCoachPlans';
-import HealthCoachesManagement from './pages/HealthCoachesManagement';
 import HealthReportAnalysis from './pages/HealthReportAnalysis';
 import Home from './pages/Home';
 import IncomeExpense from './pages/IncomeExpense';
@@ -209,7 +208,6 @@ export const PAGES = {
     "GoogleCalendarSettings": GoogleCalendarSettings,
     "HealthCoachDashboard": HealthCoachDashboard,
     "HealthCoachPlans": HealthCoachPlans,
-    "HealthCoachesManagement": HealthCoachesManagement,
     "HealthReportAnalysis": HealthReportAnalysis,
     "Home": Home,
     "IncomeExpense": IncomeExpense,
