@@ -11,13 +11,11 @@ import { Save, Calculator, Sparkles, Target, Activity, User, Lock, Eye, EyeOff, 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import ImageUploader from "@/components/common/ImageUploader";
 import { useUserPermissions } from "@/components/permissions/useUserPermissions";
-import MPESSForm from "@/components/profile/MPESSForm";
 
 export default function Profile() {
   const queryClient = useQueryClient();
   const [formData, setFormData] = useState({});
   const [calculatedValues, setCalculatedValues] = useState({});
-  const [mpessFormData, setMpessFormData] = useState({});
   const [clientFormData, setClientFormData] = useState({
     full_name: "",
     phone: "",
@@ -209,8 +207,7 @@ export default function Profile() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const combinedData = { ...formData, mpess_assessment: mpessFormData };
-    saveMutation.mutate(combinedData);
+    saveMutation.mutate(formData);
   };
 
   const handleClientProfileUpdate = (e) => {
@@ -546,29 +543,10 @@ export default function Profile() {
                   </Select>
                 </div>
               </div>
-              </CardContent>
-              </Card>
+            </CardContent>
+          </Card>
 
-              {/* MPESS FORM SECTION - ONLY FOR CLIENTS */}
-              {isClient && (
-              <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-indigo-500" />
-                  MPESS Form
-                </CardTitle>
-                <CardDescription>Comprehensive Root Cause Analysis for your wellness journey</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <MPESSForm 
-                  data={mpessFormData} 
-                  onChange={setMpessFormData}
-                />
-              </CardContent>
-              </Card>
-              )}
-
-              {/* Calculate Macros */}
+          {/* Calculate Macros */}
           <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
