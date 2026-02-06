@@ -503,8 +503,8 @@ export default function ClientMPESSAssessment() {
           )}
         </Card>
 
-        {/* WILLINGNESS TO HEAL & GROW */}
-        <Card className="border-none shadow-lg mb-6">
+            {/* WILLINGNESS TO HEAL & GROW */}
+            <Card className="border-none shadow-lg mb-6">
           <CardHeader 
             className="cursor-pointer hover:bg-gray-50"
             onClick={() => toggleSection('willingness')}
