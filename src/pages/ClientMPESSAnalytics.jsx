@@ -315,13 +315,13 @@ export default function ClientMPESSAnalytics() {
             )}
 
             {/* Coach Feedback */}
-            {assessments?.filter(a => a.coach_notes).length > 0 && (
+            {filteredAssessments?.filter(a => a.coach_notes).length > 0 && (
               <Card className="border-none shadow-lg">
                 <CardHeader>
                   <CardTitle>Coach Feedback</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {assessments
+                  {filteredAssessments
                     ?.filter(a => a.coach_notes)
                     ?.reverse()
                     .map(a => (
@@ -336,8 +336,10 @@ export default function ClientMPESSAnalytics() {
                 </CardContent>
               </Card>
             )}
-          </div>
-        )}
+            </>
+            )}
+            </div>
+            )}
       </div>
     </div>
   );
