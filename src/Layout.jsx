@@ -812,6 +812,75 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
+  // Full-width pages without sidebar
+  const fullWidthPages = ['HealthCoachesManagement'];
+  const isFullWidth = fullWidthPages.includes(currentPageName);
+
+  if (isFullWidth) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
+        <style>{`
+          :root {
+            --primary: 25 65% 55%;
+            --primary-foreground: 0 0% 100%;
+            --secondary: 30 70% 60%;
+            --accent: 120 25% 50%;
+            --background: 30 20% 98%;
+            --card: 0 0% 100%;
+            --theme-primary-from: ${themeColors.primary_from};
+            --theme-primary-to: ${themeColors.primary_to};
+            --theme-sidebar-bg: ${themeColors.sidebar_bg};
+            --theme-accent: ${themeColors.accent_color};
+          }
+        `}</style>
+        <header className="bg-white/80 backdrop-blur-sm border-b border-orange-100 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex items-center gap-2">
+              {brandingLogo ? (
+                <img src={brandingLogo} alt={brandingName} className="w-8 h-8 rounded object-cover" />
+              ) : (
+                <ChefHat className="w-8 h-8 text-orange-500" />
+              )}
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">
+                {brandingName}
+              </h1>
+            </div>
+          </div>
+          <div className="ml-auto flex items-center gap-2 md:gap-4">
+            {userType === 'super_admin' && (
+              <div className="flex items-center gap-2 bg-purple-50 border border-purple-200 rounded-lg px-3 py-2">
+                <Shield className="w-4 h-4 text-purple-600" />
+                <Select value={adminViewMode} onValueChange={(value) => {
+                  setAdminViewMode(value);
+                  localStorage.setItem('admin_view_mode', value);
+                  window.dispatchEvent(new CustomEvent('viewModeChanged', { detail: value }));
+                }}>
+                  <SelectTrigger className="w-48 h-8 text-sm border-none bg-transparent">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admin">👑 Admin View</SelectItem>
+                    <SelectItem value="pro_user">💎 Pro User</SelectItem>
+                    <SelectItem value="basic_user">⭐ Basic User</SelectItem>
+                    <SelectItem value="trial">🎁 Trial User</SelectItem>
+                    <SelectItem value="client">👤 Client View</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <div id="notification-bell-container">
+              <NotificationBell userEmail={user?.email} />
+            </div>
+          </div>
+        </header>
+        <main className="flex-1 overflow-auto">
+          {children}
+        </main>
+        <PWAInstallPrompt />
+      </div>
+    );
+  }
+
   return (
     <SidebarProvider>
       <style>{`
