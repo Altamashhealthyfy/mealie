@@ -98,7 +98,7 @@ export default function ClientMPESSAssessment() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userProfile'] });
       setSubmitSuccess(true);
-      setTimeout(() => setSubmitSuccess(false), 3000);
+      setShowForm(false);
     },
   });
 
