@@ -276,28 +276,35 @@ export default function ClientReportUpload() {
           <div>
             <h2 className="text-2xl font-bold text-gray-900 mb-4">📋 Your Reports</h2>
             <div className="space-y-3">
-              {reports.sort((a, b) => new Date(b.upload_date) - new Date(a.upload_date)).map((report) => {
-                const reportType = REPORT_TYPES.find(t => t.value === report.report_type);
-                return (
-                  <Card key={report.id} className="border-none shadow-md hover:shadow-lg transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <Badge variant={report.coach_reviewed ? "default" : "secondary"}>
-                              {report.coach_reviewed ? '✓ Reviewed' : '⏳ Pending Review'}
-                            </Badge>
-                            <Badge className="bg-blue-100 text-blue-800">
-                              {reportType?.label}
-                            </Badge>
-                          </div>
-                          <h3 className="font-semibold text-gray-900">{report.report_title}</h3>
-                          <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              {format(new Date(report.report_date), 'MMM dd, yyyy')}
-                            </span>
-                            <span>Uploaded: {format(new Date(report.upload_date), 'MMM dd, yyyy')}</span>
+               {reports.sort((a, b) => {
+                 const dateA = new Date(a.upload_date || a.created_date || 0);
+                 const dateB = new Date(b.upload_date || b.created_date || 0);
+                 return dateB - dateA;
+               }).map((report) => {
+                 const reportType = REPORT_TYPES.find(t => t.value === report.report_type);
+                 const reportDateStr = report.report_date ? `${report.report_date}T00:00:00Z` : new Date().toISOString();
+                 const uploadDateStr = report.upload_date ? new Date(report.upload_date).toISOString() : new Date().toISOString();
+
+                 return (
+                   <Card key={report.id} className="border-none shadow-md hover:shadow-lg transition-shadow">
+                     <CardContent className="p-4">
+                       <div className="flex items-start justify-between">
+                         <div className="flex-1">
+                           <div className="flex items-center gap-3 mb-2">
+                             <Badge variant={report.coach_reviewed ? "default" : "secondary"}>
+                               {report.coach_reviewed ? '✓ Reviewed' : '⏳ Pending Review'}
+                             </Badge>
+                             <Badge className="bg-blue-100 text-blue-800">
+                               {reportType?.label}
+                             </Badge>
+                           </div>
+                           <h3 className="font-semibold text-gray-900">{report.report_title}</h3>
+                           <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
+                             <span className="flex items-center gap-1">
+                               <Calendar className="w-4 h-4" />
+                               {format(new Date(reportDateStr), 'MMM dd, yyyy')}
+                             </span>
+                             <span>Uploaded: {format(new Date(uploadDateStr), 'MMM dd, yyyy')}</span>
                           </div>
                           {report.description && (
                             <p className="text-gray-600 mt-2">{report.description}</p>
