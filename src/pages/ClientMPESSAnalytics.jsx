@@ -55,7 +55,7 @@ export default function ClientMPESSAnalytics() {
   }).filter(Boolean) || [];
 
   // Root cause distribution
-  const rootCauseCounts = assessments?.reduce((acc, a) => {
+  const rootCauseCounts = filteredAssessments?.reduce((acc, a) => {
     if (a.submission_data?.mpess_root_cause) {
       const cause = a.submission_data.mpess_root_cause;
       acc[cause] = (acc[cause] || 0) + 1;
@@ -69,7 +69,7 @@ export default function ClientMPESSAnalytics() {
   }));
 
   // Physical factors checked over time
-  const physicalSummary = assessments?.reduce((acc, a) => {
+  const physicalSummary = filteredAssessments?.reduce((acc, a) => {
     if (a.submission_data?.mpess_physical) {
       const checked = Object.values(a.submission_data.mpess_physical).filter(v => v).length;
       acc.push({
