@@ -116,16 +116,50 @@ export default function ClientMPESSAnalytics() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-            <Heart className="w-8 h-8 text-pink-500" />
-            Your MPESS Assessment Analytics
-          </h1>
-          <p className="text-gray-600">Track your progress across mind, physical, emotional, social & spiritual dimensions</p>
-        </div>
+         {/* Header */}
+         <div className="mb-8">
+           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+             <Heart className="w-8 h-8 text-pink-500" />
+             Your MPESS Assessment Analytics
+           </h1>
+           <p className="text-gray-600">Track your progress across mind, physical, emotional, social & spiritual dimensions</p>
+         </div>
 
-        {assessments && assessments.length === 0 ? (
+         {/* Date Range Filter */}
+         <div className="mb-6 p-4 bg-white rounded-lg shadow-md border border-gray-200">
+           <div className="flex flex-col md:flex-row gap-4 items-start md:items-end">
+             <div className="flex-1">
+               <label className="block text-sm font-semibold text-gray-700 mb-2">From Date</label>
+               <input
+                 type="date"
+                 value={dateRange.start || ''}
+                 onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+               />
+             </div>
+             <div className="flex-1">
+               <label className="block text-sm font-semibold text-gray-700 mb-2">To Date</label>
+               <input
+                 type="date"
+                 value={dateRange.end || ''}
+                 onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+               />
+             </div>
+             {(dateRange.start || dateRange.end) && (
+               <Button
+                 onClick={() => setDateRange({ start: null, end: null })}
+                 variant="outline"
+                 className="flex items-center gap-2"
+               >
+                 <X className="w-4 h-4" />
+                 Clear Filter
+               </Button>
+             )}
+           </div>
+         </div>
+
+         {assessments && assessments.length === 0 ? (
           <Alert className="border-blue-200 bg-blue-50">
             <Heart className="w-4 h-4 text-blue-600" />
             <AlertDescription className="text-blue-900">
