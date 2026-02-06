@@ -28,7 +28,7 @@ export default function CoachMPESSTracker() {
   });
 
   const { data: assessments, isLoading } = useQuery({
-    queryKey: ['mpessTracking', monthFilter, user?.email],
+    queryKey: ['mpessTracking', monthFilter, startDate, endDate, user?.email],
     queryFn: async () => {
       const allTracking = await base44.entities.MPESSTracker.list();
       
@@ -45,13 +45,28 @@ export default function CoachMPESSTracker() {
       );
       moreClients.forEach(c => coachClientEmails.add(c.email));
       
-      // Filter by coach's clients, optionally by month
+      // Filter by coach's clients, optionally by month or date range
       return allTracking.filter(item => {
         if (!coachClientEmails.has(item.client_id)) return false;
+        
+        // Apply month filter
         if (monthFilter !== "all") {
           const itemMonth = item.submission_date?.slice(0, 7);
-          return itemMonth === monthFilter;
+          if (itemMonth !== monthFilter) return false;
         }
+        
+        // Apply date range filter
+        if (startDate || endDate) {
+          const itemDate = parseISO(item.submission_date);
+          if (startDate && endDate) {
+            return isWithinInterval(itemDate, { start: parseISO(startDate), end: parseISO(endDate) });
+          } else if (startDate) {
+            return itemDate >= parseISO(startDate);
+          } else if (endDate) {
+            return itemDate <= parseISO(endDate);
+          }
+        }
+        
         return true;
       }).sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
     },
