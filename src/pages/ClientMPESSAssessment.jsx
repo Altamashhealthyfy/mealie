@@ -24,6 +24,7 @@ export default function ClientMPESSAssessment() {
   });
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [showForm, setShowForm] = useState(true);
+  const [selectedDate, setSelectedDate] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -50,6 +51,21 @@ export default function ClientMPESSAssessment() {
       } catch (error) {
         console.error('Profile error:', error);
         return null;
+      }
+    },
+    enabled: !!user?.email,
+  });
+
+  const { data: assessmentHistory } = useQuery({
+    queryKey: ['assessmentHistory', user?.email],
+    queryFn: async () => {
+      if (!user?.email) return [];
+      try {
+        const trackers = await base44.entities.MPESSTracker.filter({ client_id: user.email });
+        return trackers.sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
+      } catch (error) {
+        console.error('Assessment history error:', error);
+        return [];
       }
     },
     enabled: !!user?.email,
