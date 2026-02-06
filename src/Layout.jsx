@@ -691,6 +691,12 @@ export default function Layout({ children, currentPageName }) {
         show: (coachAccess.show_messages ?? true) && (permissions?.can_view_messages ?? true),
       },
       {
+        title: "MPESS Assessment",
+        url: createPageUrl("ClientMPESSAssessment"),
+        icon: Heart,
+        show: (coachAccess.show_mpess_wellness ?? true) && (permissions?.can_view_mpess ?? true),
+      },
+      {
         title: "My Assessments",
         url: createPageUrl("ClientAssessments"),
         icon: ClipboardList,
@@ -725,12 +731,6 @@ export default function Layout({ children, currentPageName }) {
         url: createPageUrl("Profile"),
         icon: User,
         show: (coachAccess.show_my_profile ?? true) && (permissions?.can_view_profile ?? true),
-      },
-      {
-        title: "MPESS Assessment",
-        url: createPageUrl("ClientMPESSAssessment"),
-        icon: Heart,
-        show: (coachAccess.show_mpess_wellness ?? true) && (permissions?.can_view_mpess ?? true),
       },
       ];
 
