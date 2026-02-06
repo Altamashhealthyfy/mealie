@@ -168,18 +168,27 @@ export default function ClientMPESSAnalytics() {
           </Alert>
         ) : (
           <div className="space-y-6">
+            {filteredAssessments.length === 0 && dateRange.start ? (
+              <Alert className="border-yellow-200 bg-yellow-50">
+                <Calendar className="w-4 h-4 text-yellow-600" />
+                <AlertDescription className="text-yellow-900">
+                  No assessments found in the selected date range.
+                </AlertDescription>
+              </Alert>
+            ) : (
+            <>
             {/* Summary Stats */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Card className="border-none shadow-lg">
                 <CardContent className="p-6">
                   <p className="text-gray-600 text-sm">Total Submissions</p>
-                  <p className="text-3xl font-bold text-orange-600">{assessments?.length || 0}</p>
+                  <p className="text-3xl font-bold text-orange-600">{filteredAssessments?.length || 0}</p>
                 </CardContent>
               </Card>
               <Card className="border-none shadow-lg">
                 <CardContent className="p-6">
                   <p className="text-gray-600 text-sm">Reviewed by Coach</p>
-                  <p className="text-3xl font-bold text-green-600">{assessments?.filter(a => a.coach_reviewed).length || 0}</p>
+                  <p className="text-3xl font-bold text-green-600">{filteredAssessments?.filter(a => a.coach_reviewed).length || 0}</p>
                 </CardContent>
               </Card>
               <Card className="border-none shadow-lg">
