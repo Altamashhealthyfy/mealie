@@ -740,6 +740,12 @@ export default function Layout({ children, currentPageName }) {
         show: (coachAccess.show_resources ?? true) && (permissions?.can_view_resources ?? true),
       },
       {
+        title: "Upload Reports",
+        url: createPageUrl("ClientReportUpload"),
+        icon: Upload,
+        show: true,
+      },
+      {
         title: "My Profile",
         url: createPageUrl("Profile"),
         icon: User,
