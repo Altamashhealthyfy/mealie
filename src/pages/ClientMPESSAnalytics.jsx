@@ -80,8 +80,8 @@ export default function ClientMPESSAnalytics() {
     return acc;
   }, []) || [];
 
-  // Radar chart data for latest assessment
-  const latestAssessment = assessments?.[assessments.length - 1];
+  // Radar chart data for latest assessment (from filtered data)
+  const latestAssessment = filteredAssessments?.[filteredAssessments.length - 1];
   const radarData = [
     {
       dimension: "Physical Factors",
