@@ -123,20 +123,13 @@ export default function HealthCoachesManagement() {
   // Create Health Coach mutation
   const createCoachMutation = useMutation({
     mutationFn: async (coachData) => {
-      const response = await base44.functions.invoke('createUserWithPassword', {
+      // Directly create user without invitation
+      const newUser = await base44.entities.User.create({
         email: coachData.email,
         full_name: coachData.full_name,
+        phone: coachData.phone,
         user_type: 'student_coach',
       });
-
-      // Update phone number if provided - retry a few times
-      if (coachData.phone && response.data?.user_id) {
-        try {
-          await base44.entities.User.update(response.data.user_id, { phone: coachData.phone });
-        } catch (error) {
-          console.log('Could not update phone immediately:', error);
-        }
-      }
 
       // Record creation in history
       await base44.entities.CoachSubscriptionHistory.create({
@@ -144,7 +137,7 @@ export default function HealthCoachesManagement() {
         coach_name: coachData.full_name,
         action_type: 'account_created',
         performed_by: user.email,
-        notes: 'Account created - invitation email sent',
+        notes: 'Account created directly without invitation',
       });
 
       // Assign plan if selected
@@ -201,14 +194,14 @@ export default function HealthCoachesManagement() {
         }
       }
 
-      return response.data;
+      return newUser;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['allHealthCoaches']);
       queryClient.invalidateQueries(['healthCoachSubscriptions']);
       setAddCoachDialog(false);
       setNewCoach({ full_name: '', email: '', phone: '', plan_id: '', billing_cycle: 'monthly', extra_months: 0, start_date: new Date().toISOString().split('T')[0], end_date: '' });
-      toast.success('Health Coach invited successfully! They will receive an email to set their password.');
+      toast.success('Health Coach created successfully!');
     },
     onError: (error) => {
       console.error('Create coach error:', error);
@@ -520,7 +513,7 @@ export default function HealthCoachesManagement() {
                   Add New Health Coach
                 </DialogTitle>
                 <DialogDescription className="text-sm">
-                  Invite a new Health Coach - they will receive an email to set their password
+                  Create a new Health Coach account directly
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 md:space-y-5 pt-2">
@@ -625,9 +618,9 @@ export default function HealthCoachesManagement() {
                       <Shield className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                     </div>
                     <div className="text-xs md:text-sm text-blue-900 flex-1">
-                      <p className="font-bold mb-1">Invitation Email</p>
-                      <p className="text-xs md:text-sm">An invitation email will be sent to the coach's email address</p>
-                      <p className="text-xs mt-2 text-blue-700">They will receive a link to set their password and activate their account</p>
+                      <p className="font-bold mb-1">Direct Account Creation</p>
+                      <p className="text-xs md:text-sm">Account will be created immediately without sending invitation email</p>
+                      <p className="text-xs mt-2 text-blue-700">Coach will need to reset password to access their account</p>
                     </div>
                   </div>
                 </div>
