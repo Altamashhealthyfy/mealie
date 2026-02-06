@@ -340,7 +340,7 @@ export default function ClientMPESSAnalytics() {
             )}
             </div>
             )}
-      </div>
-    </div>
-  );
-}
+            </div>
+            </div>
+            );
+            }
