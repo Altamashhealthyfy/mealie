@@ -83,7 +83,9 @@ export default function HealthCoachesManagement() {
     queryFn: async () => {
       // Get ALL active health coach subscriptions as the primary source
       const allSubs = await base44.entities.HealthCoachSubscription.list("", 10000);
-      const activeSubscriptions = allSubs.filter(s => s.status === "active" || s.manually_granted);
+      const activeSubscriptions = allSubs.filter(s => 
+        (s.status === "active" || s.manually_granted) && s.coach_email
+      );
       
       // Get all users to match with subscriptions
       const allUsers = await base44.asServiceRole.entities.User.list("", 10000);
