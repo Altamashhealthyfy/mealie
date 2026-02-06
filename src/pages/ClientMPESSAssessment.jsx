@@ -239,14 +239,41 @@ export default function ClientMPESSAssessment() {
           </Alert>
         )}
 
-        <Alert className="mb-6 border-blue-200 bg-blue-50">
-          <Heart className="w-4 h-4 text-blue-600" />
-          <AlertDescription className="text-blue-900">
-            This assessment helps identify root causes of health challenges and create personalized healing strategies.
-          </AlertDescription>
-        </Alert>
+        {!showForm ? (
+          <div className="text-center py-12">
+            <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Assessment Submitted!</h2>
+            <p className="text-gray-600 mb-6">Your MPESS assessment has been saved successfully.</p>
+            <Button
+              onClick={() => {
+                setShowForm(true);
+                setFormData({});
+                setSubmitSuccess(false);
+                setExpandedSections({
+                  rootCause: true,
+                  physical: false,
+                  emotional: false,
+                  social: false,
+                  spiritual: false,
+                  bodyComposition: false,
+                  willingness: false
+                });
+              }}
+              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8 py-3 text-lg"
+            >
+              Fill New Assessment
+            </Button>
+          </div>
+        ) : (
+          <>
+            <Alert className="mb-6 border-blue-200 bg-blue-50">
+              <Heart className="w-4 h-4 text-blue-600" />
+              <AlertDescription className="text-blue-900">
+                This assessment helps identify root causes of health challenges and create personalized healing strategies.
+              </AlertDescription>
+            </Alert>
 
-        {/* ROOT CAUSE ASSESSMENT */}
+            {/* ROOT CAUSE ASSESSMENT */}
         <Card className="border-none shadow-lg mb-4">
           <CardHeader 
             className="cursor-pointer hover:bg-gray-50"
