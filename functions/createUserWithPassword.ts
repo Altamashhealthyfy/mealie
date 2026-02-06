@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
     const finalEmail = email;
     const finalFullName = fullName || full_name;
     const finalUserType = userType || user_type || 'student_coach';
-    const finalPassword = password || 'TempPass123!';
+    const finalPassword = password || 'HFI@123';
 
     if (!finalEmail) {
       return Response.json(
