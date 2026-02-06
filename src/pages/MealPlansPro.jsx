@@ -1294,7 +1294,14 @@ TDEE: ${Math.round(tdee)} kcal
 
 5. For each meal provide: day (1 to ${numberOfDays}), meal_type, meal_name, items, portion_sizes (Indian units), calories, protein, carbs, fats, sodium, potassium, disease_rationale
 
-6. Include MPESS practices for: ${Object.entries(intake.mpess_preferences).filter(([k,v]) => v).map(([k]) => k).join(', ')}
+6. Include MPESS practices SPECIFICALLY for client needs:
+   - **Affirmations**: Based on their health goals and mental wellbeing needs
+   - **Journaling**: Daily reflection prompts for emotional awareness
+   - **Breathing Exercises**: Specific techniques for stress/anxiety management  
+   - **Physical Activity**: Exercises suitable for their health conditions
+   - **Forgiveness**: Practices for emotional release and healing
+   
+   Assign these practices according to: ${Object.entries(intake.mpess_preferences).filter(([k,v]) => v).map(([k]) => k).join(', ')}
 
 7. Provide audit snapshot with compliance tracking
 
