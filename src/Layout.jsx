@@ -158,6 +158,12 @@ const dietitianNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
+    title: "MPESS Tracker",
+    url: createPageUrl("CoachMPESSTracker"),
+    icon: Heart,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
     title: "Assessment Templates",
     url: createPageUrl("AssessmentTemplates"),
     icon: FileText,
