@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Heart, AlertCircle } from "lucide-react";
+import { Heart, AlertCircle, GripVertical } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 
 export default function MPESSFormSection({ formData, onChange }) {
   const [expandedSections, setExpandedSections] = useState({
@@ -17,6 +20,44 @@ export default function MPESSFormSection({ formData, onChange }) {
     bodyComposition: false,
     willingness: false
   });
+
+  const [sectionOrder, setSectionOrder] = useState([
+    'rootCause',
+    'physical',
+    'emotional',
+    'social',
+    'spiritual',
+    'bodyComposition',
+    'willingness'
+  ]);
+
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  // Load section order from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('mpess_section_order');
+    if (saved) {
+      setSectionOrder(JSON.parse(saved));
+    }
+  }, []);
+
+  // Check if drag and drop is allowed
+  const canDragDrop = user && ['client', 'student_coach', 'student_team_member'].includes(user?.user_type);
+
+  const handleDragEnd = (result) => {
+    const { source, destination } = result;
+    if (!destination) return;
+    if (source.index === destination.index) return;
+
+    const newOrder = Array.from(sectionOrder);
+    const [removed] = newOrder.splice(source.index, 1);
+    newOrder.splice(destination.index, 0, removed);
+    setSectionOrder(newOrder);
+    localStorage.setItem('mpess_section_order', JSON.stringify(newOrder));
+  };
 
   const toggleSection = (section) => {
     setExpandedSections(prev => ({
