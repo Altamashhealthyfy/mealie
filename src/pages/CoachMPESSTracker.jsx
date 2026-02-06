@@ -25,17 +25,30 @@ export default function CoachMPESSTracker() {
   });
 
   const { data: assessments, isLoading } = useQuery({
-    queryKey: ['mpessTracking', monthFilter],
+    queryKey: ['mpessTracking', monthFilter, user?.email],
     queryFn: async () => {
       const allTracking = await base44.entities.MPESSTracker.list();
       
-      // Filter by month and coach's clients
+      // Get coach's assigned clients
+      const coachClients = await base44.entities.Client.filter({
+        assigned_to: user?.email
+      });
+      const coachClientEmails = new Set(coachClients.map(c => c.email));
+      
+      // Also get clients assigned via assigned_coach array
+      const allClients = await base44.entities.Client.list();
+      const moreClients = allClients.filter(c => 
+        c.assigned_coach?.includes(user?.email)
+      );
+      moreClients.forEach(c => coachClientEmails.add(c.email));
+      
+      // Filter by month and coach's clients only
       return allTracking.filter(item => {
         const itemMonth = item.submission_date?.slice(0, 7);
-        return itemMonth === monthFilter;
+        return itemMonth === monthFilter && coachClientEmails.has(item.client_id);
       }).sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
     },
-    enabled: !!user,
+    enabled: !!user?.email,
   });
 
   const { data: clients } = useQuery({
