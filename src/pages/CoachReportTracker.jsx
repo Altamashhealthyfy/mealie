@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Eye, Search, Filter, CheckCircle, Clock, Download } from "lucide-react";
+import { Eye, Search, Filter, CheckCircle, Clock, Download, AlertTriangle, Zap } from "lucide-react";
 import { format } from "date-fns";
 
 const REPORT_TYPES = {
@@ -201,12 +201,55 @@ export default function CoachReportTracker() {
                           <p className="text-gray-700 mb-3">{report.description}</p>
                         )}
 
-                        {report.coach_notes && (
-                          <div className="p-3 bg-indigo-50 border border-indigo-200 rounded">
-                            <p className="text-sm font-medium text-indigo-900">Your Notes:</p>
-                            <p className="text-sm text-indigo-800 mt-1">{report.coach_notes}</p>
+                        {/* AI Analysis Display */}
+                        {report.ai_analysis && report.ai_analysis_status === 'completed' && (
+                          <div className="space-y-3 mb-3">
+                            <div className="p-3 bg-blue-50 border border-blue-200 rounded">
+                              <p className="text-sm font-medium text-blue-900 mb-1">📊 AI Analysis:</p>
+                              <p className="text-sm text-blue-800">{report.ai_analysis.coach_summary}</p>
+                            </div>
+                            {report.ai_analysis.abnormalities && report.ai_analysis.abnormalities.length > 0 && (
+                              <div className="p-3 bg-amber-50 border border-amber-200 rounded">
+                                <p className="text-sm font-medium text-amber-900 mb-2 flex items-center gap-1">
+                                  <AlertTriangle className="w-4 h-4" /> Flagged Items:
+                                </p>
+                                <ul className="text-sm text-amber-800 space-y-1">
+                                  {report.ai_analysis.abnormalities.slice(0, 3).map((abnormality, idx) => (
+                                    <li key={idx} className="flex gap-2">
+                                      <span>{abnormality.finding}</span>
+                                      <span className="text-xs font-medium bg-amber-100 px-2 py-0.5 rounded">
+                                        {abnormality.severity}
+                                      </span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            {report.ai_analysis.discussion_points && report.ai_analysis.discussion_points.length > 0 && (
+                              <div className="p-3 bg-green-50 border border-green-200 rounded">
+                                <p className="text-sm font-medium text-green-900 mb-2 flex items-center gap-1">
+                                  <Zap className="w-4 h-4" /> Discussion Points:
+                                </p>
+                                <ul className="text-sm text-green-800 space-y-1">
+                                  {report.ai_analysis.discussion_points.slice(0, 2).map((point, idx) => (
+                                    <li key={idx}>• {point}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
                           </div>
                         )}
+                        {report.ai_analysis_status === 'pending' && (
+                          <div className="p-3 bg-gray-50 border border-gray-200 rounded mb-3">
+                            <p className="text-sm text-gray-700">⏳ AI analysis in progress...</p>
+                          </div>
+                        )}
+                        {report.coach_notes && (
+                           <div className="p-3 bg-indigo-50 border border-indigo-200 rounded">
+                             <p className="text-sm font-medium text-indigo-900">Your Notes:</p>
+                             <p className="text-sm text-indigo-800 mt-1">{report.coach_notes}</p>
+                           </div>
+                         )}
                       </div>
 
                       <Button
@@ -249,6 +292,57 @@ export default function CoachReportTracker() {
               {selectedReport.description && (
                 <div className="p-3 bg-gray-50 rounded border border-gray-200">
                   <p className="text-sm"><strong>Client Notes:</strong> {selectedReport.description}</p>
+                </div>
+              )}
+
+              {/* AI Analysis in Dialog */}
+              {selectedReport.ai_analysis && selectedReport.ai_analysis_status === 'completed' && (
+                <div className="space-y-3 bg-blue-50 border border-blue-200 rounded p-4">
+                  <div>
+                    <p className="font-semibold text-blue-900 mb-2">📊 AI-Generated Summary:</p>
+                    <p className="text-sm text-blue-800 mb-3">{selectedReport.ai_analysis.coach_summary}</p>
+                  </div>
+
+                  {selectedReport.ai_analysis.key_metrics && selectedReport.ai_analysis.key_metrics.length > 0 && (
+                    <div className="bg-white rounded p-3">
+                      <p className="font-semibold text-gray-900 mb-2">📈 Key Metrics:</p>
+                      <div className="space-y-2">
+                        {selectedReport.ai_analysis.key_metrics.map((metric, idx) => (
+                          <div key={idx} className="flex justify-between items-center text-sm">
+                            <span className="text-gray-700">{metric.name}: {metric.value}</span>
+                            <Badge className={metric.status === 'normal' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                              {metric.status}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedReport.ai_analysis.abnormalities && selectedReport.ai_analysis.abnormalities.length > 0 && (
+                    <div className="bg-amber-50 rounded p-3 border border-amber-200">
+                      <p className="font-semibold text-amber-900 mb-2">⚠️ Abnormalities:</p>
+                      <ul className="text-sm text-amber-800 space-y-2">
+                        {selectedReport.ai_analysis.abnormalities.map((abnormality, idx) => (
+                          <li key={idx} className="border-l-2 border-amber-400 pl-2">
+                            <p className="font-medium">{abnormality.finding}</p>
+                            <p className="text-xs mt-1">Severity: {abnormality.severity} | {abnormality.implication}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {selectedReport.ai_analysis.next_steps && selectedReport.ai_analysis.next_steps.length > 0 && (
+                    <div className="bg-white rounded p-3 border border-blue-200">
+                      <p className="font-semibold text-gray-900 mb-2">➡️ Suggested Next Steps:</p>
+                      <ul className="text-sm text-gray-700 space-y-1">
+                        {selectedReport.ai_analysis.next_steps.map((step, idx) => (
+                          <li key={idx}>• {step}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
 
