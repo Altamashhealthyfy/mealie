@@ -570,7 +570,7 @@ export default function HealthCoachesManagement() {
                   </Select>
                 </div>
                 {newCoach.plan_id && (
-                  <>
+                  <div className="space-y-4">
                     <div className="space-y-2">
                       <Label className="text-xs md:text-sm font-semibold">Billing Cycle *</Label>
                       <Select value={newCoach.billing_cycle} onValueChange={(value) => setNewCoach({ ...newCoach, billing_cycle: value })}>
@@ -617,7 +617,7 @@ export default function HealthCoachesManagement() {
                         Leave empty to auto-calculate ({newCoach.billing_cycle === 'monthly' ? '1 month' : '1 year'} from start date)
                       </p>
                     </div>
-                  </>
+                  </div>
                 )}
                 <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-3 md:p-4">
                   <div className="flex items-start gap-2 md:gap-3">
