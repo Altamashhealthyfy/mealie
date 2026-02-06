@@ -255,10 +255,22 @@ export default function MPESSFormSection({ formData, onChange }) {
         </DragDropContext>
       ) : (
         <div className="space-y-4">
-
-        {sectionOrder.map((sectionKey) => (
-          renderSectionContent(sectionKey)
-        ))}
+          {sectionOrder.map((sectionKey) => (
+            <Card key={sectionKey} className="border-none shadow-lg">
+              <CardHeader
+                className="cursor-pointer hover:bg-gray-50"
+                onClick={() => toggleSection(sectionKey)}
+              >
+                <CardTitle className="text-base flex items-center gap-2">
+                  <span className="text-xl">{sections[sectionKey].icon}</span>
+                  {sections[sectionKey].title}
+                  <span className="text-red-500 ml-1">*</span>
+                </CardTitle>
+              </CardHeader>
+              {renderSectionContent(sectionKey)}
+            </Card>
+          ))}
+        </div>
       )}
     </div>
   );
@@ -466,28 +478,6 @@ export default function MPESSFormSection({ formData, onChange }) {
           </div>
         </CardContent>
       ) : null;
-    }
-  }
-    </div>
-  );
-
-  function renderSectionCard(sectionKey) {
-    if (!canDragDrop) {
-      return (
-        <Card key={sectionKey} className="border-none shadow-lg mb-4">
-          <CardHeader
-            className="cursor-pointer hover:bg-gray-50"
-            onClick={() => toggleSection(sectionKey)}
-          >
-            <CardTitle className="text-base flex items-center gap-2">
-              <span className="text-xl">{sections[sectionKey].icon}</span>
-              {sections[sectionKey].title}
-              <span className="text-red-500 ml-1">*</span>
-            </CardTitle>
-          </CardHeader>
-          {renderSectionContent(sectionKey)}
-        </Card>
-      );
     }
   }
 }
