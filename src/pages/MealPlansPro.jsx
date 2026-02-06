@@ -230,11 +230,11 @@ export default function MealPlansPro() {
             mpess_integration: {
               type: "object",
               properties: {
-                mind: { type: "array", items: { type: "string" } },
-                physical: { type: "array", items: { type: "string" } },
-                emotional: { type: "array", items: { type: "string" } },
-                social: { type: "array", items: { type: "string" } },
-                spiritual: { type: "array", items: { type: "string" } }
+                affirmations: { type: "array", items: { type: "string" } },
+                journaling_prompts: { type: "array", items: { type: "string" } },
+                breathing_exercises: { type: "array", items: { type: "string" } },
+                physical_activities: { type: "array", items: { type: "string" } },
+                forgiveness_practices: { type: "array", items: { type: "string" } }
               }
             },
             audit_snapshot: {
