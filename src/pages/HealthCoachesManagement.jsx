@@ -307,71 +307,83 @@ export default function HealthCoachesManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-pink-50 p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <Crown className="w-8 h-8 text-orange-600" />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent flex items-center gap-3">
+              <div className="bg-gradient-to-br from-orange-500 to-red-600 p-3 rounded-2xl shadow-lg">
+                <Crown className="w-8 h-8 text-white" />
+              </div>
               Health Coaches Management
             </h1>
-            <p className="text-gray-600 mt-1">Manage onboarding, subscriptions, and AI credits</p>
+            <p className="text-gray-600 text-lg">Manage onboarding, subscriptions, and AI credits</p>
           </div>
           <Dialog open={addCoachDialog} onOpenChange={setAddCoachDialog}>
             <DialogTrigger asChild>
-              <Button className="bg-gradient-to-r from-orange-600 to-red-600 text-white">
+              <Button className="bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-lg hover:shadow-xl transition-all h-12 px-6">
                 <UserPlus className="w-5 h-5 mr-2" />
                 Add Health Coach
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-md">
               <DialogHeader>
-                <DialogTitle>Add New Health Coach</DialogTitle>
+                <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                  <div className="p-2 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg">
+                    <UserPlus className="w-5 h-5 text-white" />
+                  </div>
+                  Add New Health Coach
+                </DialogTitle>
                 <DialogDescription>
                   Create a new Health Coach account with default password: HFI@23
                 </DialogDescription>
               </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label>Full Name *</Label>
+              <div className="space-y-5 pt-2">
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">Full Name *</Label>
                   <Input
                     value={newCoach.full_name}
                     onChange={(e) => setNewCoach({ ...newCoach, full_name: e.target.value })}
                     placeholder="Enter full name"
+                    className="h-11"
                   />
                 </div>
-                <div>
-                  <Label>Email ID *</Label>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">Email ID *</Label>
                   <Input
                     type="email"
                     value={newCoach.email}
                     onChange={(e) => setNewCoach({ ...newCoach, email: e.target.value })}
                     placeholder="Enter email address"
+                    className="h-11"
                   />
                 </div>
-                <div>
-                  <Label>Mobile Number *</Label>
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold">Mobile Number *</Label>
                   <Input
                     value={newCoach.phone}
                     onChange={(e) => setNewCoach({ ...newCoach, phone: e.target.value })}
                     placeholder="Enter mobile number"
+                    className="h-11"
                   />
                 </div>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
-                    <div className="text-sm text-blue-900">
-                      <p className="font-semibold mb-1">Default Password</p>
-                      <p>Account will be created with password: <strong>HFI@23</strong></p>
-                      <p className="text-xs mt-1">Coach will be required to change password on first login</p>
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <Shield className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div className="text-sm text-blue-900 flex-1">
+                      <p className="font-bold mb-1">Default Password</p>
+                      <p>Account will be created with password: <span className="font-mono font-bold bg-blue-100 px-2 py-0.5 rounded">HFI@23</span></p>
+                      <p className="text-xs mt-2 text-blue-700">Coach will be required to change password on first login</p>
                     </div>
                   </div>
                 </div>
                 <Button
                   onClick={() => createCoachMutation.mutate(newCoach)}
                   disabled={!newCoach.full_name || !newCoach.email || !newCoach.phone || createCoachMutation.isPending}
-                  className="w-full bg-gradient-to-r from-orange-600 to-red-600"
+                  className="w-full bg-gradient-to-r from-orange-600 to-red-600 h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all"
                 >
                   {createCoachMutation.isPending ? 'Creating...' : 'Create Health Coach'}
                 </Button>
@@ -381,51 +393,78 @@ export default function HealthCoachesManagement() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="border-none shadow-lg hover:shadow-xl transition-shadow bg-white/80 backdrop-blur">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Coaches</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium text-gray-600">Total Coaches</CardTitle>
+                <div className="p-2 bg-gray-100 rounded-lg">
+                  <UserPlus className="w-5 h-5 text-gray-600" />
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-gray-900">{allUsers?.length || 0}</p>
+              <p className="text-4xl font-bold text-gray-900">{allUsers?.length || 0}</p>
+              <p className="text-xs text-gray-500 mt-2">Registered coaches</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-none shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-br from-green-50 to-emerald-50">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600">Active Plans</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium text-green-700">Active Plans</CardTitle>
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-green-600">
+              <p className="text-4xl font-bold text-green-600">
                 {subscriptions.filter(s => s.status === 'active' && !isPlanExpired(s)).length}
               </p>
+              <p className="text-xs text-green-600 mt-2">Currently active</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-none shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-br from-red-50 to-pink-50">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600">Expired Plans</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium text-red-700">Expired Plans</CardTitle>
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <AlertCircle className="w-5 h-5 text-red-600" />
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-red-600">
+              <p className="text-4xl font-bold text-red-600">
                 {subscriptions.filter(s => s.status === 'active' && isPlanExpired(s)).length}
               </p>
+              <p className="text-xs text-red-600 mt-2">Need renewal</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-none shadow-lg hover:shadow-xl transition-shadow bg-gradient-to-br from-orange-50 to-amber-50">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600">Available Plans</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium text-orange-700">Available Plans</CardTitle>
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <Crown className="w-5 h-5 text-orange-600" />
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-orange-600">{plans?.length || 0}</p>
+              <p className="text-4xl font-bold text-orange-600">{plans?.length || 0}</p>
+              <p className="text-xs text-orange-600 mt-2">Plan options</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Search and Filters */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Search & Filter</CardTitle>
+        <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+          <CardHeader className="border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <Filter className="w-5 h-5 text-orange-600" />
+              <CardTitle className="text-lg">Search & Filter</CardTitle>
+            </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="md:col-span-2">
                 <div className="relative">
@@ -434,13 +473,13 @@ export default function HealthCoachesManagement() {
                     placeholder="Search by name, email, or phone"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 h-11 border-gray-200 focus:border-orange-500 focus:ring-orange-500"
                   />
                 </div>
               </div>
               <div>
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-11 border-gray-200 focus:border-orange-500 focus:ring-orange-500">
                     <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -452,7 +491,7 @@ export default function HealthCoachesManagement() {
               </div>
               <div>
                 <Select value={filterPlan} onValueChange={setFilterPlan}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-11 border-gray-200 focus:border-orange-500 focus:ring-orange-500">
                     <SelectValue placeholder="Filter by plan" />
                   </SelectTrigger>
                   <SelectContent>
@@ -468,24 +507,29 @@ export default function HealthCoachesManagement() {
         </Card>
 
         {/* Coaches Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Health Coaches ({filteredCoaches.length})</CardTitle>
+        <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+          <CardHeader className="border-b border-gray-100">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl">Health Coaches ({filteredCoaches.length})</CardTitle>
+              <Badge className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-4 py-1">
+                {filteredCoaches.length} Coaches
+              </Badge>
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
+          <CardContent className="pt-6">
+            <div className="overflow-x-auto rounded-lg border border-gray-200">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Phone</TableHead>
-                    <TableHead>Plan</TableHead>
-                    <TableHead>Start Date</TableHead>
-                    <TableHead>End Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>AI Credits</TableHead>
-                    <TableHead>Actions</TableHead>
+                  <TableRow className="bg-gradient-to-r from-orange-50 to-red-50 hover:bg-gradient-to-r">
+                    <TableHead className="font-bold text-gray-900">Name</TableHead>
+                    <TableHead className="font-bold text-gray-900">Email</TableHead>
+                    <TableHead className="font-bold text-gray-900">Phone</TableHead>
+                    <TableHead className="font-bold text-gray-900">Plan</TableHead>
+                    <TableHead className="font-bold text-gray-900">Start Date</TableHead>
+                    <TableHead className="font-bold text-gray-900">End Date</TableHead>
+                    <TableHead className="font-bold text-gray-900">Status</TableHead>
+                    <TableHead className="font-bold text-gray-900">AI Credits</TableHead>
+                    <TableHead className="font-bold text-gray-900 text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -496,49 +540,72 @@ export default function HealthCoachesManagement() {
                     const expired = subscription ? isPlanExpired(subscription) : true;
 
                     return (
-                      <TableRow key={coach.id}>
-                        <TableCell className="font-medium">{coach.full_name}</TableCell>
-                        <TableCell>{coach.email}</TableCell>
-                        <TableCell>{coach.phone || '-'}</TableCell>
+                      <TableRow key={coach.id} className="hover:bg-orange-50/50 transition-colors">
+                        <TableCell className="font-semibold text-gray-900">{coach.full_name}</TableCell>
+                        <TableCell className="text-gray-600">{coach.email}</TableCell>
+                        <TableCell className="text-gray-600">{coach.phone || '-'}</TableCell>
                         <TableCell>
                           {plan ? (
-                            <Badge className="bg-purple-100 text-purple-800">
+                            <Badge className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white border-none">
+                              <Crown className="w-3 h-3 mr-1" />
                               {plan.plan_name}
                             </Badge>
                           ) : (
-                            <Badge variant="outline">No Plan</Badge>
+                            <Badge variant="outline" className="text-gray-500">No Plan</Badge>
                           )}
                         </TableCell>
-                        <TableCell>
-                          {subscription?.start_date ? new Date(subscription.start_date).toLocaleDateString() : '-'}
+                        <TableCell className="text-gray-600">
+                          {subscription?.start_date ? (
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3 text-gray-400" />
+                              {new Date(subscription.start_date).toLocaleDateString()}
+                            </div>
+                          ) : '-'}
                         </TableCell>
-                        <TableCell>
-                          {subscription?.end_date ? new Date(subscription.end_date).toLocaleDateString() : '-'}
+                        <TableCell className="text-gray-600">
+                          {subscription?.end_date ? (
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3 text-gray-400" />
+                              {new Date(subscription.end_date).toLocaleDateString()}
+                            </div>
+                          ) : '-'}
                         </TableCell>
                         <TableCell>
                           {subscription && !expired ? (
-                            <Badge className="bg-green-100 text-green-800">
+                            <Badge className="bg-green-100 text-green-800 border-green-200">
                               <CheckCircle2 className="w-3 h-3 mr-1" />
                               Active
                             </Badge>
                           ) : (
-                            <Badge className="bg-red-100 text-red-800">
+                            <Badge className="bg-red-100 text-red-800 border-red-200">
                               <AlertCircle className="w-3 h-3 mr-1" />
                               {expired ? 'Expired' : 'No Plan'}
                             </Badge>
                           )}
                         </TableCell>
                         <TableCell>
-                          <div className="text-sm">
-                            <p className="font-semibold">{credits.remaining} / {credits.total}</p>
-                            <p className="text-xs text-gray-500">Used: {credits.used}</p>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-1 mb-1">
+                                <Sparkles className="w-3 h-3 text-orange-500" />
+                                <p className="font-bold text-gray-900">{credits.remaining}</p>
+                                <span className="text-xs text-gray-400">/ {credits.total}</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-1.5">
+                                <div 
+                                  className="bg-gradient-to-r from-orange-500 to-red-600 h-1.5 rounded-full transition-all"
+                                  style={{ width: `${credits.total > 0 ? (credits.remaining / credits.total) * 100 : 0}%` }}
+                                />
+                              </div>
+                            </div>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center justify-end gap-2">
                             <Button
                               size="sm"
                               variant="outline"
+                              className="hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300"
                               onClick={() => {
                                 setSelectedCoach(coach);
                                 setAssignPlanDialog(true);
@@ -549,6 +616,7 @@ export default function HealthCoachesManagement() {
                             <Button
                               size="sm"
                               variant="outline"
+                              className="hover:bg-purple-50 hover:text-purple-600 hover:border-purple-300"
                               onClick={() => {
                                 setSelectedCoach(coach);
                                 setAddCreditsDialog(true);
@@ -560,6 +628,9 @@ export default function HealthCoachesManagement() {
                               <Button
                                 size="sm"
                                 variant="outline"
+                                className={subscription.status === 'active' 
+                                  ? "hover:bg-red-50 hover:text-red-600 hover:border-red-300" 
+                                  : "hover:bg-green-50 hover:text-green-600 hover:border-green-300"}
                                 onClick={() => toggleAccessMutation.mutate({ 
                                   coachEmail: coach.email, 
                                   enable: subscription.status !== 'active' 
