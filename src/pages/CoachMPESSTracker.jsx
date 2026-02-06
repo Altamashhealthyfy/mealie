@@ -42,10 +42,14 @@ export default function CoachMPESSTracker() {
       );
       moreClients.forEach(c => coachClientEmails.add(c.email));
       
-      // Filter by month and coach's clients only
+      // Filter by coach's clients, optionally by month
       return allTracking.filter(item => {
-        const itemMonth = item.submission_date?.slice(0, 7);
-        return itemMonth === monthFilter && coachClientEmails.has(item.client_id);
+        if (!coachClientEmails.has(item.client_id)) return false;
+        if (monthFilter !== "all") {
+          const itemMonth = item.submission_date?.slice(0, 7);
+          return itemMonth === monthFilter;
+        }
+        return true;
       }).sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
     },
     enabled: !!user?.email,
