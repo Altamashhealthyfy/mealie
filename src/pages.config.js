@@ -154,6 +154,7 @@ import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import HealthCoachDashboard from './pages/HealthCoachDashboard';
 import ClientMPESSAssessment from './pages/ClientMPESSAssessment';
 import CoachMPESSTracker from './pages/CoachMPESSTracker';
+import ClientMPESSAnalytics from './pages/ClientMPESSAnalytics';
 import __Layout from './Layout.jsx';
 
 
@@ -265,6 +266,7 @@ export const PAGES = {
     "HealthCoachDashboard": HealthCoachDashboard,
     "ClientMPESSAssessment": ClientMPESSAssessment,
     "CoachMPESSTracker": CoachMPESSTracker,
+    "ClientMPESSAnalytics": ClientMPESSAnalytics,
 }
 
 export const pagesConfig = {

@@ -13,6 +13,7 @@ import {
   MessageSquare,
   TrendingUp,
   ClipboardList,
+  BarChart3 as BarChart,
   LayoutDashboard,
   DollarSign,
   Megaphone,
@@ -700,6 +701,12 @@ export default function Layout({ children, currentPageName }) {
         title: "MPESS Assessment",
         url: createPageUrl("ClientMPESSAssessment"),
         icon: Heart,
+        show: (coachAccess.show_mpess_wellness ?? true) && (permissions?.can_view_mpess ?? true),
+      },
+      {
+        title: "MPESS Analytics",
+        url: createPageUrl("ClientMPESSAnalytics"),
+        icon: TrendingUp,
         show: (coachAccess.show_mpess_wellness ?? true) && (permissions?.can_view_mpess ?? true),
       },
       {
