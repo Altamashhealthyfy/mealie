@@ -52,6 +52,7 @@ import {
 import { toast } from 'sonner';
 import SubscriptionCalendarView from '@/components/coach/SubscriptionCalendarView';
 import CoachHistoryDialog from '@/components/coach/CoachHistoryDialog';
+import CoachDashboard from '@/components/coach/CoachDashboard';
 
 export default function HealthCoachesManagement() {
   const queryClient = useQueryClient();
@@ -63,6 +64,7 @@ export default function HealthCoachesManagement() {
   const [addCreditsDialog, setAddCreditsDialog] = useState(false);
   const [bulkActionDialog, setBulkActionDialog] = useState(false);
   const [historyDialog, setHistoryDialog] = useState(false);
+  const [dashboardDialog, setDashboardDialog] = useState(false);
   const [selectedCoach, setSelectedCoach] = useState(null);
   const [selectedCoaches, setSelectedCoaches] = useState([]);
   const [activeTab, setActiveTab] = useState('list');
@@ -740,8 +742,7 @@ export default function HealthCoachesManagement() {
                         onCheckedChange={toggleSelectAll}
                       />
                     </TableHead>
-                    <TableHead className="font-bold text-gray-900">Name</TableHead>
-                    <TableHead className="font-bold text-gray-900">Email</TableHead>
+                    <TableHead className="font-bold text-gray-900">Coach</TableHead>
                     <TableHead className="font-bold text-gray-900">Phone</TableHead>
                     <TableHead className="font-bold text-gray-900">Plan</TableHead>
                     <TableHead className="font-bold text-gray-900">Start Date</TableHead>
@@ -766,8 +767,20 @@ export default function HealthCoachesManagement() {
                             onCheckedChange={() => toggleCoachSelection(coach.email)}
                           />
                         </TableCell>
-                        <TableCell className="font-semibold text-gray-900">{coach.full_name}</TableCell>
-                        <TableCell className="text-gray-600">{coach.email}</TableCell>
+                        <TableCell>
+                          <div>
+                            <button
+                              onClick={() => {
+                                setSelectedCoach(coach);
+                                setDashboardDialog(true);
+                              }}
+                              className="font-semibold text-gray-900 hover:text-orange-600 transition-colors text-left"
+                            >
+                              {coach.full_name}
+                            </button>
+                            <p className="text-xs text-gray-500">{coach.email}</p>
+                          </div>
+                        </TableCell>
                         <TableCell className="text-gray-600">{coach.phone || '-'}</TableCell>
                         <TableCell>
                           {plan ? (
@@ -827,6 +840,17 @@ export default function HealthCoachesManagement() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300"
+                              onClick={() => {
+                                setSelectedCoach(coach);
+                                setDashboardDialog(true);
+                              }}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
                             <Button
                               size="sm"
                               variant="outline"
@@ -1017,6 +1041,25 @@ export default function HealthCoachesManagement() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Coach Dashboard */}
+        <CoachDashboard
+          coach={selectedCoach}
+          open={dashboardDialog}
+          onOpenChange={setDashboardDialog}
+          onEdit={() => {
+            setDashboardDialog(false);
+            setAssignPlanDialog(true);
+          }}
+          onAddCredits={() => {
+            setDashboardDialog(false);
+            setAddCreditsDialog(true);
+          }}
+          onViewHistory={() => {
+            setDashboardDialog(false);
+            setHistoryDialog(true);
+          }}
+        />
 
         {/* History Dialog */}
         <CoachHistoryDialog
