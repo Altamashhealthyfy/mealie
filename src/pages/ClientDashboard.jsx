@@ -100,7 +100,12 @@ export default function ClientDashboard() {
         client_id: clientProfile?.id,
         reviewed: true
       });
-      return logs.sort((a, b) => new Date(b.coach_feedback?.reviewed_at) - new Date(a.coach_feedback?.reviewed_at)).slice(0, 3);
+      return logs.filter(log => log.coach_feedback?.reviewed_at).sort((a, b) => {
+        const dateA = new Date(a.coach_feedback?.reviewed_at);
+        const dateB = new Date(b.coach_feedback?.reviewed_at);
+        if (isNaN(dateA) || isNaN(dateB)) return 0;
+        return dateB - dateA;
+      }).slice(0, 3);
     },
     enabled: !!clientProfile?.id,
     initialData: [],
@@ -813,13 +818,13 @@ export default function ClientDashboard() {
                 <div className="p-3 bg-gray-50 rounded-lg">
                   <p className="text-xs text-gray-600 mb-1">Started</p>
                   <p className="text-sm font-bold text-gray-900">
-                    {format(new Date(clientSubscription.start_date), 'MMM dd, yyyy')}
+                    {clientSubscription.start_date ? format(new Date(clientSubscription.start_date), 'MMM dd, yyyy') : 'N/A'}
                   </p>
                 </div>
                 <div className="p-3 bg-gray-50 rounded-lg">
                   <p className="text-xs text-gray-600 mb-1">Ends</p>
                   <p className="text-sm font-bold text-gray-900">
-                    {format(new Date(clientSubscription.end_date), 'MMM dd, yyyy')}
+                    {clientSubscription.end_date ? format(new Date(clientSubscription.end_date), 'MMM dd, yyyy') : 'N/A'}
                   </p>
                 </div>
               </div>
@@ -868,7 +873,7 @@ export default function ClientDashboard() {
                           ))}
                         </div>
                         <span className="text-sm text-gray-600">
-                          {format(new Date(log.coach_feedback.reviewed_at), 'MMM dd, yyyy')}
+                          {log.coach_feedback?.reviewed_at ? format(new Date(log.coach_feedback.reviewed_at), 'MMM dd, yyyy') : 'Date not available'}
                         </span>
                       </div>
                       <Badge className="bg-purple-500">
