@@ -68,14 +68,31 @@ export default function ClientMPESSAssessment() {
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Save to UserProfile
+      let profileResult;
       if (userProfile?.id) {
-        return await base44.entities.UserProfile.update(userProfile.id, data);
-      } else {
-        return await base44.entities.UserProfile.create({
+        profileResult = await base44.entities.UserProfile.update(userProfile.id, {
           ...data,
-          created_by: user.email
+          mpess_last_submission: today
+        });
+      } else {
+        profileResult = await base44.entities.UserProfile.create({
+          ...data,
+          created_by: user.email,
+          mpess_last_submission: today
         });
       }
+      
+      // Also create a tracker record for monthly tracking
+      await base44.entities.MPESSTracker.create({
+        client_id: user.email,
+        submission_date: today,
+        submission_data: data
+      });
+      
+      return profileResult;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userProfile'] });
