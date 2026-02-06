@@ -75,6 +75,7 @@ export default function HealthCoachesManagement() {
     phone: '',
     plan_id: '',
     billing_cycle: 'monthly',
+    extra_months: 0,
     start_date: new Date().toISOString().split('T')[0],
     end_date: '',
   });
@@ -162,6 +163,10 @@ export default function HealthCoachesManagement() {
             } else {
               endDate.setFullYear(endDate.getFullYear() + 1);
             }
+            // Add extra months if specified
+            if (coachData.extra_months > 0) {
+              endDate.setMonth(endDate.getMonth() + parseInt(coachData.extra_months));
+            }
           }
 
           await base44.entities.HealthCoachSubscription.create({
@@ -202,7 +207,7 @@ export default function HealthCoachesManagement() {
       queryClient.invalidateQueries(['allHealthCoaches']);
       queryClient.invalidateQueries(['healthCoachSubscriptions']);
       setAddCoachDialog(false);
-      setNewCoach({ full_name: '', email: '', phone: '', plan_id: '', billing_cycle: 'monthly', start_date: new Date().toISOString().split('T')[0], end_date: '' });
+      setNewCoach({ full_name: '', email: '', phone: '', plan_id: '', billing_cycle: 'monthly', extra_months: 0, start_date: new Date().toISOString().split('T')[0], end_date: '' });
       toast.success('Health Coach invited successfully! They will receive an email to set their password.');
     },
     onError: (error) => {
@@ -577,6 +582,18 @@ export default function HealthCoachesManagement() {
                           <SelectItem value="yearly">Yearly</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold">Extra Months (Optional)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={newCoach.extra_months}
+                        onChange={(e) => setNewCoach({ ...newCoach, extra_months: parseInt(e.target.value) || 0 })}
+                        placeholder="0"
+                        className="h-11"
+                      />
+                      <p className="text-xs text-gray-500">Add extra months to the subscription period</p>
                     </div>
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold">Start Date *</Label>
