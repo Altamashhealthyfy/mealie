@@ -387,7 +387,7 @@ export default function MealPlansPro() {
       },
       decision_rules: ['Template-based plan'],
       conflict_resolution: 'From template',
-      mpess_integration: { mind: [], physical: [], emotional: [], social: [], spiritual: [] },
+      mpess_integration: { affirmations: [], journaling_prompts: [], breathing_exercises: [], physical_activities: [], forgiveness_practices: [] },
       audit_snapshot: {
         avg_calories_per_day: template.target_calories || 0,
         calorie_range: 'Template-based',
