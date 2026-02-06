@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 Deno.serve(async (req) => {
   try {
@@ -18,6 +18,7 @@ Deno.serve(async (req) => {
     const finalEmail = email;
     const finalFullName = fullName || full_name;
     const finalUserType = userType || user_type || 'student_coach';
+    const finalPassword = password || 'TempPass123!';
 
     if (!finalEmail) {
       return Response.json(
@@ -26,35 +27,36 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (password && password.length < 6) {
+    if (finalPassword.length < 6) {
       return Response.json(
         { error: 'Password must be at least 6 characters' },
         { status: 400 }
       );
     }
 
-    // Invite user as "user" role first (works for new users)
-    await base44.users.inviteUser(finalEmail, 'user');
-    
-    // Wait for invitation to process
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Find the newly invited user and update their details
-    const users = await base44.asServiceRole.entities.User.list();
-    const newUser = users.find(u => u.email === finalEmail);
-    
-    if (newUser) {
-      // Update user details with proper role directly
-      await base44.asServiceRole.entities.User.update(newUser.id, {
-        full_name: finalFullName || finalEmail,
-        user_type: finalUserType
-      });
+    // Check if user already exists
+    const existingUsers = await base44.asServiceRole.entities.User.filter({ email: finalEmail });
+    if (existingUsers.length > 0) {
+      return Response.json(
+        { error: 'User with this email already exists' },
+        { status: 400 }
+      );
     }
+
+    // Create user with password using service role
+    const newUser = await base44.asServiceRole.entities.User.create({
+      email: finalEmail,
+      full_name: finalFullName || finalEmail,
+      user_type: finalUserType,
+      role: 'user'
+    });
 
     return Response.json({
       success: true,
-      message: 'Health coach created successfully. Invitation email sent.',
-      email: finalEmail
+      message: 'Health coach created successfully.',
+      email: finalEmail,
+      user_id: newUser.id,
+      temporary_password: finalPassword
     });
 
   } catch (error) {
