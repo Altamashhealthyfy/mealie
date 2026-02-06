@@ -105,6 +105,7 @@ export default function Profile() {
       return;
     }
 
+    // BMR Calculation using Mifflin-St Jeor Formula
     let bmr;
     if (gender === 'male') {
       bmr = (10 * weight) + (6.25 * height) - (5 * age) + 5;
@@ -112,6 +113,7 @@ export default function Profile() {
       bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
     }
 
+    // Activity Level Multipliers
     const activityMultipliers = {
       sedentary: 1.2,
       lightly_active: 1.375,
@@ -120,8 +122,15 @@ export default function Profile() {
       extremely_active: 1.9,
     };
     
-    const tdee = bmr * activityMultipliers[activity_level];
+    const activityFactor = activityMultipliers[activity_level];
+    
+    // TEF (Thermic Effect of Food) = 10% of (BMR × Activity Factor)
+    const tef = (bmr * activityFactor) * 0.1;
+    
+    // TDEE = BMR × Activity Factor + TEF
+    const tdee = (bmr * activityFactor) + tef;
 
+    // Calculate Target Calories based on goal
     let targetCalories;
     switch (goal) {
       case 'weight_loss':
@@ -137,6 +146,7 @@ export default function Profile() {
         targetCalories = tdee;
     }
 
+    // Macro Distribution: Protein 22.5%, Carbs 55%, Fats 22.5%
     const protein = (targetCalories * 0.225) / 4;
     const carbs = (targetCalories * 0.55) / 4;
     const fats = (targetCalories * 0.225) / 9;
