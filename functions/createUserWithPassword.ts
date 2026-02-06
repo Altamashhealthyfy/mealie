@@ -44,14 +44,10 @@ Deno.serve(async (req) => {
     const newUser = users.find(u => u.email === finalEmail);
     
     if (newUser) {
-      // Update user details with proper role - store in data object to match existing pattern
-      const currentData = newUser.data || {};
+      // Update user details with proper role directly
       await base44.asServiceRole.entities.User.update(newUser.id, {
         full_name: finalFullName || finalEmail,
-        data: {
-          ...currentData,
-          user_type: finalUserType
-        }
+        user_type: finalUserType
       });
     }
 
