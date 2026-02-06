@@ -505,17 +505,199 @@ export default function ClinicalIntake() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Vitamin B12 (pg/mL)</Label>
-                  <Input
-                    type="number"
-                    placeholder="200-900"
-                    value={formData.lab_values.vitamin_b12 || ''}
-                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, vitamin_b12: parseFloat(e.target.value)}})}
-                  />
+                   <Label>Vitamin B12 (pg/mL)</Label>
+                   <Input
+                     type="number"
+                     placeholder="200-900"
+                     value={formData.lab_values.vitamin_b12 || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, vitamin_b12: parseFloat(e.target.value)}})}
+                   />
+                 </div>
+
+                {/* Standard KFT Parameters */}
+                <div className="col-span-2 md:col-span-3 mt-6 pt-6 border-t">
+                  <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <span className="text-lg">🧪</span>
+                    Standard KFT Parameters
+                  </h4>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+
+                <div className="space-y-2">
+                   <Label>Urea / Blood Urea (mg/dL)</Label>
+                   <Input
+                     type="number"
+                     step="0.1"
+                     placeholder="15-45"
+                     value={formData.lab_values.urea || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, urea: parseFloat(e.target.value)}})}
+                   />
+                 </div>
+
+                <div className="space-y-2">
+                   <Label>Urea Nitrogen (BUN) (mg/dL)</Label>
+                   <Input
+                     type="number"
+                     step="0.1"
+                     placeholder="7-21"
+                     value={formData.lab_values.bun || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, bun: parseFloat(e.target.value)}})}
+                   />
+                 </div>
+
+                <div className="space-y-2">
+                   <Label>Creatinine (mg/dL)</Label>
+                   <Input
+                     type="number"
+                     step="0.1"
+                     placeholder="0.6-1.2"
+                     value={formData.lab_values.creatinine || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, creatinine: parseFloat(e.target.value)}})}
+                   />
+                 </div>
+
+                <div className="space-y-2">
+                   <Label>Uric Acid (mg/dL)</Label>
+                   <Input
+                     type="number"
+                     step="0.1"
+                     placeholder="3.5-7.2"
+                     value={formData.lab_values.uric_acid || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, uric_acid: parseFloat(e.target.value)}})}
+                   />
+                 </div>
+
+                <div className="space-y-2">
+                   <Label>Estimated GFR / GFR Category (mL/min)</Label>
+                   <Input
+                     type="number"
+                     step="0.1"
+                     placeholder=">90"
+                     value={formData.lab_values.gfr || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, gfr: parseFloat(e.target.value)}})}
+                   />
+                 </div>
+
+                <div className="space-y-2">
+                   <Label>Sodium (mEq/L)</Label>
+                   <Input
+                     type="number"
+                     step="0.1"
+                     placeholder="135-145"
+                     value={formData.lab_values.sodium || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, sodium: parseFloat(e.target.value)}})}
+                   />
+                 </div>
+
+                <div className="space-y-2">
+                   <Label>Potassium (mEq/L)</Label>
+                   <Input
+                     type="number"
+                     step="0.1"
+                     placeholder="3.5-5.0"
+                     value={formData.lab_values.potassium || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, potassium: parseFloat(e.target.value)}})}
+                   />
+                 </div>
+
+                <div className="space-y-2">
+                   <Label>Chloride (mEq/L)</Label>
+                   <Input
+                     type="number"
+                     step="0.1"
+                     placeholder="96-106"
+                     value={formData.lab_values.chloride || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, chloride: parseFloat(e.target.value)}})}
+                   />
+                 </div>
+
+                <div className="space-y-2">
+                   <Label>Calcium Total (mg/dL)</Label>
+                   <Input
+                     type="number"
+                     step="0.1"
+                     placeholder="8.5-10.2"
+                     value={formData.lab_values.calcium_total || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, calcium_total: parseFloat(e.target.value)}})}
+                   />
+                 </div>
+
+                <div className="space-y-2">
+                   <Label>Phosphorus (mg/dL)</Label>
+                   <Input
+                     type="number"
+                     step="0.1"
+                     placeholder="2.5-4.5"
+                     value={formData.lab_values.phosphorus || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, phosphorus: parseFloat(e.target.value)}})}
+                   />
+                 </div>
+
+                <div className="space-y-2">
+                   <Label>BUN/Creatinine Ratio</Label>
+                   <Input
+                     type="number"
+                     step="0.1"
+                     placeholder="10-20"
+                     value={formData.lab_values.bun_creatinine_ratio || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, bun_creatinine_ratio: parseFloat(e.target.value)}})}
+                   />
+                 </div>
+
+                <div className="space-y-2">
+                   <Label>Albumin (Serum) (g/dL)</Label>
+                   <Input
+                     type="number"
+                     step="0.1"
+                     placeholder="3.5-5.0"
+                     value={formData.lab_values.albumin || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, albumin: parseFloat(e.target.value)}})}
+                   />
+                 </div>
+
+                <div className="space-y-2">
+                   <Label>Globulin (Calculated) (g/dL)</Label>
+                   <Input
+                     type="number"
+                     step="0.1"
+                     placeholder="2.0-3.5"
+                     value={formData.lab_values.globulin || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, globulin: parseFloat(e.target.value)}})}
+                   />
+                 </div>
+
+                <div className="space-y-2">
+                   <Label>A:G Ratio (Albumin to Globulin)</Label>
+                   <Input
+                     type="number"
+                     step="0.01"
+                     placeholder="1.0-2.5"
+                     value={formData.lab_values.ag_ratio || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, ag_ratio: parseFloat(e.target.value)}})}
+                   />
+                 </div>
+
+                <div className="space-y-2">
+                   <Label>Ultrasound Report</Label>
+                   <Textarea
+                     placeholder="Ultrasound findings (if available)"
+                     value={formData.lab_values.ultrasound_report || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, ultrasound_report: e.target.value}})}
+                     rows={2}
+                   />
+                 </div>
+
+                <div className="space-y-2">
+                   <Label>X-Ray Report</Label>
+                   <Textarea
+                     placeholder="X-Ray findings (if available)"
+                     value={formData.lab_values.xray_report || ''}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, xray_report: e.target.value}})}
+                     rows={2}
+                   />
+                 </div>
+                </div>
+                </CardContent>
+                </Card>
 
           {/* Section 5: Diet Preferences */}
           <Card className="border-none shadow-lg">
