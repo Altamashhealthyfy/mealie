@@ -121,10 +121,16 @@ export default function HealthCoachesManagement() {
       const response = await base44.functions.invoke('createUserWithPassword', {
         email: coachData.email,
         full_name: coachData.full_name,
-        phone: coachData.phone,
         user_type: 'student_coach',
-        password: 'HFI@23',
       });
+
+      // Update phone number if provided
+      if (coachData.phone) {
+        const users = await base44.entities.User.filter({ email: coachData.email });
+        if (users.length > 0) {
+          await base44.entities.User.update(users[0].id, { phone: coachData.phone });
+        }
+      }
 
       // Record creation in history
       await base44.entities.CoachSubscriptionHistory.create({
@@ -132,7 +138,7 @@ export default function HealthCoachesManagement() {
         coach_name: coachData.full_name,
         action_type: 'account_created',
         performed_by: user.email,
-        notes: 'Account created with default password HFI@23',
+        notes: 'Account created - invitation email sent',
       });
 
       return response.data;
@@ -141,7 +147,7 @@ export default function HealthCoachesManagement() {
       queryClient.invalidateQueries(['allHealthCoaches']);
       setAddCoachDialog(false);
       setNewCoach({ full_name: '', email: '', phone: '' });
-      toast.success('Health Coach added successfully! Password: HFI@23');
+      toast.success('Health Coach invited successfully! They will receive an email to set their password.');
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to add Health Coach');
@@ -451,7 +457,7 @@ export default function HealthCoachesManagement() {
                   Add New Health Coach
                 </DialogTitle>
                 <DialogDescription>
-                  Create a new Health Coach account with default password: HFI@23
+                  Invite a new Health Coach - they will receive an email to set their password
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-5 pt-2">
@@ -489,9 +495,9 @@ export default function HealthCoachesManagement() {
                       <Shield className="w-5 h-5 text-blue-600" />
                     </div>
                     <div className="text-sm text-blue-900 flex-1">
-                      <p className="font-bold mb-1">Default Password</p>
-                      <p>Account will be created with password: <span className="font-mono font-bold bg-blue-100 px-2 py-0.5 rounded">HFI@23</span></p>
-                      <p className="text-xs mt-2 text-blue-700">Coach will be required to change password on first login</p>
+                      <p className="font-bold mb-1">Invitation Email</p>
+                      <p>An invitation email will be sent to the coach's email address</p>
+                      <p className="text-xs mt-2 text-blue-700">They will receive a link to set their password and activate their account</p>
                     </div>
                   </div>
                 </div>

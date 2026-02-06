@@ -43,20 +43,25 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Create user with password using service role
-    const newUser = await base44.asServiceRole.entities.User.create({
-      email: finalEmail,
-      full_name: finalFullName || finalEmail,
-      user_type: finalUserType,
-      role: 'user'
-    });
+    // Invite user through Base44 authentication system
+    // This creates the user account and sends invitation email
+    const inviteResult = await base44.users.inviteUser(finalEmail, 'user');
+
+    // Update user record with additional details
+    const users = await base44.asServiceRole.entities.User.filter({ email: finalEmail });
+    if (users.length > 0) {
+      await base44.asServiceRole.entities.User.update(users[0].id, {
+        full_name: finalFullName || finalEmail,
+        user_type: finalUserType,
+      });
+    }
 
     return Response.json({
       success: true,
-      message: 'Health coach created successfully.',
+      message: `Health coach created successfully. An invitation email has been sent to ${finalEmail}`,
       email: finalEmail,
-      user_id: newUser.id,
-      temporary_password: finalPassword
+      user_id: users[0]?.id,
+      note: 'User will receive an email to set their password'
     });
 
   } catch (error) {
