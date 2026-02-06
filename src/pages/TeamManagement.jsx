@@ -97,16 +97,20 @@ export default function TeamManagement() {
 
   const addUserMutation = useMutation({
     mutationFn: async (data) => {
-      // Use Base44's invite system instead of creating users with passwords
-      const role = data.user_type === 'client' ? 'user' : 'admin';
-      await base44.users.inviteUser(data.email, role);
-      return { success: true };
+      // Create user with password using backend function
+      const response = await base44.functions.invoke('createUserWithPassword', {
+        email: data.email,
+        fullName: data.full_name || data.email,
+        password: data.password || 'TempPass123!', // Temporary password
+        userType: data.user_type
+      });
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['allUsers']);
       setShowAddDialog(false);
       setFormData({ full_name: "", email: "", password: "", user_type: "team_member" });
-      alert('✅ Invitation sent! User will receive an email to set their password.');
+      alert('✅ User created successfully! Temporary password: TempPass123!');
     },
     onError: (error) => {
       alert('❌ Error: ' + error.message);
