@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Upload, FileUp, Loader2, CheckCircle, AlertTriangle, Droplet, Radio, X, Eye, Calendar } from "lucide-react";
 import { format } from "date-fns";
+import AIAnalysisDisplay from "@/components/reports/AIAnalysisDisplay";
 
 const REPORT_TYPES = [
   { value: "blood_report", label: "🩸 Blood Report", icon: Droplet },
@@ -309,44 +310,16 @@ export default function ClientReportUpload() {
                           {report.description && (
                             <p className="text-gray-600 mt-2">{report.description}</p>
                           )}
-                          {/* AI Analysis Summary */}
                           {report.ai_analysis && (
-                            <div className="mt-3 space-y-3">
-                              {report.ai_analysis_status === 'completed' && (
-                                <>
-                                  <div className="p-3 bg-blue-50 border border-blue-200 rounded">
-                                    <p className="text-sm font-medium text-blue-900 mb-1">📊 AI Analysis Summary:</p>
-                                    <p className="text-sm text-blue-800">{report.ai_analysis.summary}</p>
-                                  </div>
-                                  {report.ai_analysis.abnormalities && report.ai_analysis.abnormalities.length > 0 && (
-                                    <div className="p-3 bg-amber-50 border border-amber-200 rounded">
-                                      <p className="text-sm font-medium text-amber-900 mb-2">⚠️ Findings:</p>
-                                      <ul className="text-sm text-amber-800 space-y-1">
-                                        {report.ai_analysis.abnormalities.map((abnormality, idx) => (
-                                          <li key={idx} className="flex gap-2">
-                                            <span className="font-medium">{abnormality.finding}</span>
-                                            <span className="text-xs bg-amber-100 px-2 py-0.5 rounded">
-                                              {abnormality.severity}
-                                            </span>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  )}
-                                </>
-                              )}
-                              {report.ai_analysis_status === 'pending' && (
-                                <div className="p-3 bg-gray-50 border border-gray-200 rounded">
-                                  <p className="text-sm text-gray-700">⏳ AI analysis in progress...</p>
-                                </div>
-                              )}
-                              {report.ai_analysis_status === 'failed' && (
-                                <div className="p-3 bg-red-50 border border-red-200 rounded">
-                                  <p className="text-sm text-red-700">❌ AI analysis failed. Coach will review manually.</p>
-                                </div>
-                              )}
+                            <div className="mt-4 pt-4 border-t">
+                              <AIAnalysisDisplay 
+                                analysis={report.ai_analysis} 
+                                status={report.ai_analysis_status}
+                                isCoachView={false}
+                              />
                             </div>
                           )}
+
                           {report.coach_notes && (
                             <div className="mt-3 p-3 bg-indigo-50 border border-indigo-200 rounded">
                               <p className="text-sm font-medium text-indigo-900">Coach Notes:</p>
