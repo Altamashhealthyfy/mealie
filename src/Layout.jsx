@@ -165,6 +165,12 @@ const dietitianNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
+    title: "Client Reports",
+    url: createPageUrl("CoachReportTracker"),
+    icon: FileText,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
     title: "Assessment Templates",
     url: createPageUrl("AssessmentTemplates"),
     icon: FileText,
