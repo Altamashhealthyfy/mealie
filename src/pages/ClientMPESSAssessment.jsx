@@ -114,10 +114,11 @@ export default function ClientMPESSAssessment() {
       return profileResult;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['userProfile'] });
-      setSubmitSuccess(true);
-      setShowForm(false);
-    },
+       queryClient.invalidateQueries({ queryKey: ['userProfile'] });
+       queryClient.invalidateQueries({ queryKey: ['assessmentHistory'] });
+       setSubmitSuccess(true);
+       setShowForm(false);
+     },
   });
 
   const toggleSection = (section) => {
