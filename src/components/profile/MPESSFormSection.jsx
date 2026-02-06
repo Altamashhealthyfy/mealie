@@ -164,14 +164,97 @@ export default function MPESSFormSection({ formData, onChange }) {
     "Self-belief & confidence"
   ];
 
+  const sections = {
+    rootCause: {
+      icon: '🔍',
+      title: 'ROOT CAUSE ASSESSMENT (MPESS framework)',
+      content: 'rootCauseContent'
+    },
+    physical: {
+      icon: '💪',
+      title: 'P – Physical Factors',
+      content: 'physicalContent'
+    },
+    emotional: {
+      icon: '❤️',
+      title: 'E – Emotional Triggers',
+      content: 'emotionalContent'
+    },
+    social: {
+      icon: '👥',
+      title: 'S – Social & Environmental',
+      content: 'socialContent'
+    },
+    spiritual: {
+      icon: '🌱',
+      title: 'S – Spiritual & Self-Connection',
+      content: 'spiritualContent'
+    },
+    bodyComposition: {
+      icon: '📊',
+      title: 'Body Composition Analysis',
+      content: 'bodyCompositionContent'
+    },
+    willingness: {
+      icon: '✨',
+      title: 'Your willingness to Heal & Grow',
+      content: 'willingnessContent'
+    }
+  };
+
   return (
     <div className="space-y-4">
       <Alert className="border-blue-200 bg-blue-50">
         <Heart className="w-4 h-4 text-blue-600" />
         <AlertDescription className="text-blue-900">
           The MPESS Framework helps identify root causes of health challenges across Mind, Physical, Emotional, Social, and Spiritual dimensions.
+          {canDragDrop && <span className="block mt-1 text-xs">💡 Drag sections to reorder them</span>}
         </AlertDescription>
       </Alert>
+
+      {canDragDrop ? (
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="mpess-sections">
+            {(provided, snapshot) => (
+              <div
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className={snapshot.isDraggingOver ? 'bg-blue-50 rounded-lg p-2' : ''}
+              >
+                {sectionOrder.map((sectionKey, index) => (
+                  <Draggable key={sectionKey} draggableId={sectionKey} index={index}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className="mb-4"
+                      >
+                        <Card className={`border-none shadow-lg ${snapshot.isDragging ? 'shadow-2xl' : ''}`}>
+                          <CardHeader
+                            className="cursor-pointer hover:bg-gray-50 flex flex-row items-center gap-3"
+                            onClick={() => toggleSection(sectionKey)}
+                            {...provided.dragHandleProps}
+                          >
+                            <GripVertical className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                            <CardTitle className="text-base flex items-center gap-2 flex-1">
+                              <span className="text-xl">{sections[sectionKey].icon}</span>
+                              {sections[sectionKey].title}
+                              <span className="text-red-500 ml-1">*</span>
+                            </CardTitle>
+                          </CardHeader>
+                          {renderSectionContent(sectionKey)}
+                        </Card>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      ) : (
+        <div className="space-y-4">
 
       {/* ROOT CAUSE ASSESSMENT */}
       <Card className="border-none shadow-lg">
