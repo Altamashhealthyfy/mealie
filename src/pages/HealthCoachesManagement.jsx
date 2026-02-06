@@ -41,7 +41,7 @@ export default function HealthCoachesManagement() {
     full_name: "",
     email: "",
     phone: "",
-    password: "TempPass123!"
+    password: "HFI@123"
   });
 
   const [subscriptionFormData, setSubscriptionFormData] = useState({
@@ -119,7 +119,7 @@ export default function HealthCoachesManagement() {
     onSuccess: () => {
       queryClient.invalidateQueries(['allUsers']);
       setShowAddCoachDialog(false);
-      setCoachFormData({ full_name: "", email: "", phone: "", password: "TempPass123!" });
+      setCoachFormData({ full_name: "", email: "", phone: "", password: "HFI@123" });
       toast.success('Health coach created successfully!');
     },
     onError: (error) => {
@@ -605,7 +605,7 @@ export default function HealthCoachesManagement() {
               </div>
               <Alert className="bg-blue-50 border-blue-200">
                 <AlertDescription className="text-blue-900 text-sm">
-                  Coach will be created with temporary password: <strong>TempPass123!</strong>
+                  Coach will be created with temporary password: <strong>HFI@123</strong>
                   <br />They should change it after first login.
                 </AlertDescription>
               </Alert>
