@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -29,6 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   UserPlus, 
   Search, 
@@ -42,9 +44,14 @@ import {
   Plus,
   Filter,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  History,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 import { toast } from 'sonner';
+import SubscriptionCalendarView from '@/components/coach/SubscriptionCalendarView';
+import CoachHistoryDialog from '@/components/coach/CoachHistoryDialog';
 
 export default function HealthCoachesManagement() {
   const queryClient = useQueryClient();
@@ -54,7 +61,11 @@ export default function HealthCoachesManagement() {
   const [addCoachDialog, setAddCoachDialog] = useState(false);
   const [assignPlanDialog, setAssignPlanDialog] = useState(false);
   const [addCreditsDialog, setAddCreditsDialog] = useState(false);
+  const [bulkActionDialog, setBulkActionDialog] = useState(false);
+  const [historyDialog, setHistoryDialog] = useState(false);
   const [selectedCoach, setSelectedCoach] = useState(null);
+  const [selectedCoaches, setSelectedCoaches] = useState([]);
+  const [activeTab, setActiveTab] = useState('list');
 
   // Form states
   const [newCoach, setNewCoach] = useState({
@@ -72,6 +83,12 @@ export default function HealthCoachesManagement() {
 
   const [creditsForm, setCreditsForm] = useState({
     credits: 0,
+  });
+
+  const [bulkActionForm, setBulkActionForm] = useState({
+    action: '',
+    plan_id: '',
+    billing_cycle: 'monthly',
   });
 
   // Fetch current user
@@ -142,9 +159,21 @@ export default function HealthCoachesManagement() {
       }
 
       // Check if subscription exists
-      const existingSubs = subscriptions.filter(s => s.coach_email === selectedCoach.email);
+      const existingSubs = subscriptions.filter(s => s.coach_email === selectedCoach.email && s.status === 'active');
+      
+      let actionType = 'plan_assigned';
+      let oldPlanName = null;
       
       if (existingSubs.length > 0) {
+        const oldSub = existingSubs[0];
+        const oldPlan = plans.find(p => p.id === oldSub.plan_id);
+        oldPlanName = oldPlan?.plan_name;
+        
+        // Determine if upgrade or downgrade
+        const oldPrice = oldSub.billing_cycle === 'monthly' ? oldPlan?.monthly_price : oldPlan?.yearly_price;
+        const newPrice = data.billing_cycle === 'monthly' ? plan.monthly_price : plan.yearly_price;
+        actionType = newPrice > oldPrice ? 'plan_upgraded' : newPrice < oldPrice ? 'plan_downgraded' : 'plan_assigned';
+        
         // Cancel old subscriptions
         for (const sub of existingSubs) {
           await base44.entities.HealthCoachSubscription.update(sub.id, { status: 'cancelled' });
@@ -152,7 +181,7 @@ export default function HealthCoachesManagement() {
       }
 
       // Create new subscription
-      return await base44.entities.HealthCoachSubscription.create({
+      const newSub = await base44.entities.HealthCoachSubscription.create({
         coach_email: selectedCoach.email,
         coach_name: selectedCoach.full_name,
         plan_id: plan.id,
@@ -172,6 +201,19 @@ export default function HealthCoachesManagement() {
         ai_credits_purchased: 0,
         ai_credits_reset_date: startDate.toISOString().split('T')[0],
       });
+
+      // Record history
+      await base44.entities.CoachSubscriptionHistory.create({
+        coach_email: selectedCoach.email,
+        coach_name: selectedCoach.full_name,
+        action_type: actionType,
+        old_value: oldPlanName,
+        new_value: plan.plan_name,
+        plan_name: plan.plan_name,
+        performed_by: user.email,
+      });
+
+      return newSub;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['healthCoachSubscriptions']);
@@ -200,9 +242,21 @@ export default function HealthCoachesManagement() {
       const sub = coachSubs[0];
       const newCredits = (sub.ai_credits_purchased || 0) + parseInt(data.credits);
 
-      return await base44.entities.HealthCoachSubscription.update(sub.id, {
+      const updated = await base44.entities.HealthCoachSubscription.update(sub.id, {
         ai_credits_purchased: newCredits,
       });
+
+      // Record history
+      await base44.entities.CoachSubscriptionHistory.create({
+        coach_email: selectedCoach.email,
+        coach_name: selectedCoach.full_name,
+        action_type: 'credits_added',
+        amount: parseInt(data.credits),
+        new_value: `${newCredits} total credits`,
+        performed_by: user.email,
+      });
+
+      return updated;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['healthCoachSubscriptions']);
@@ -217,16 +271,26 @@ export default function HealthCoachesManagement() {
 
   // Toggle access mutation
   const toggleAccessMutation = useMutation({
-    mutationFn: async ({ coachEmail, enable }) => {
+    mutationFn: async ({ coachEmail, coachName, enable }) => {
       const coachSubs = subscriptions.filter(s => s.coach_email === coachEmail && s.status === 'active');
       if (coachSubs.length === 0) {
         throw new Error('No active subscription found');
       }
 
       const sub = coachSubs[0];
-      return await base44.entities.HealthCoachSubscription.update(sub.id, {
+      const updated = await base44.entities.HealthCoachSubscription.update(sub.id, {
         status: enable ? 'active' : 'cancelled',
       });
+
+      // Record history
+      await base44.entities.CoachSubscriptionHistory.create({
+        coach_email: coachEmail,
+        coach_name: coachName,
+        action_type: enable ? 'access_enabled' : 'access_disabled',
+        performed_by: user.email,
+      });
+
+      return updated;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['healthCoachSubscriptions']);
@@ -286,6 +350,111 @@ export default function HealthCoachesManagement() {
     if (!subscription) return true;
     const endDate = new Date(subscription.end_date);
     return endDate < new Date();
+  };
+
+  // Bulk action mutation
+  const bulkActionMutation = useMutation({
+    mutationFn: async (data) => {
+      const results = [];
+      const plan = plans.find(p => p.id === data.plan_id);
+      if (!plan) throw new Error('Plan not found');
+
+      for (const coachEmail of selectedCoaches) {
+        const coach = allUsers.find(u => u.email === coachEmail);
+        if (!coach) continue;
+
+        const existingSubs = subscriptions.filter(s => s.coach_email === coachEmail && s.status === 'active');
+        
+        let actionType = 'plan_assigned';
+        let oldPlanName = null;
+        
+        if (existingSubs.length > 0) {
+          const oldSub = existingSubs[0];
+          const oldPlan = plans.find(p => p.id === oldSub.plan_id);
+          oldPlanName = oldPlan?.plan_name;
+          
+          const oldPrice = oldSub.billing_cycle === 'monthly' ? oldPlan?.monthly_price : oldPlan?.yearly_price;
+          const newPrice = data.billing_cycle === 'monthly' ? plan.monthly_price : plan.yearly_price;
+          actionType = newPrice > oldPrice ? 'plan_upgraded' : newPrice < oldPrice ? 'plan_downgraded' : 'plan_assigned';
+          
+          for (const sub of existingSubs) {
+            await base44.entities.HealthCoachSubscription.update(sub.id, { status: 'cancelled' });
+          }
+        }
+
+        const startDate = new Date();
+        const endDate = new Date(startDate);
+        if (data.billing_cycle === 'monthly') {
+          endDate.setMonth(endDate.getMonth() + 1);
+        } else {
+          endDate.setFullYear(endDate.getFullYear() + 1);
+        }
+
+        await base44.entities.HealthCoachSubscription.create({
+          coach_email: coachEmail,
+          coach_name: coach.full_name,
+          plan_id: plan.id,
+          plan_name: plan.plan_name,
+          billing_cycle: data.billing_cycle,
+          amount: data.billing_cycle === 'monthly' ? plan.monthly_price : plan.yearly_price,
+          currency: 'INR',
+          start_date: startDate.toISOString().split('T')[0],
+          end_date: endDate.toISOString().split('T')[0],
+          next_billing_date: endDate.toISOString().split('T')[0],
+          status: 'active',
+          payment_method: 'manual',
+          auto_renew: false,
+          manually_granted: true,
+          granted_by: user.email,
+          ai_credits_used_this_month: 0,
+          ai_credits_purchased: 0,
+          ai_credits_reset_date: startDate.toISOString().split('T')[0],
+        });
+
+        await base44.entities.CoachSubscriptionHistory.create({
+          coach_email: coachEmail,
+          coach_name: coach.full_name,
+          action_type: actionType,
+          old_value: oldPlanName,
+          new_value: plan.plan_name,
+          plan_name: plan.plan_name,
+          performed_by: user.email,
+          notes: 'Bulk action',
+        });
+
+        results.push(coachEmail);
+      }
+
+      return results;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['healthCoachSubscriptions']);
+      setBulkActionDialog(false);
+      setSelectedCoaches([]);
+      setBulkActionForm({ action: '', plan_id: '', billing_cycle: 'monthly' });
+      toast.success('Bulk action completed successfully!');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Bulk action failed');
+    },
+  });
+
+  // Toggle coach selection
+  const toggleCoachSelection = (coachEmail) => {
+    setSelectedCoaches(prev => 
+      prev.includes(coachEmail) 
+        ? prev.filter(e => e !== coachEmail)
+        : [...prev, coachEmail]
+    );
+  };
+
+  // Select all coaches
+  const toggleSelectAll = () => {
+    if (selectedCoaches.length === filteredCoaches.length) {
+      setSelectedCoaches([]);
+    } else {
+      setSelectedCoaches(filteredCoaches.map(c => c.email));
+    }
   };
 
   if (user?.user_type !== 'super_admin') {
@@ -392,6 +561,18 @@ export default function HealthCoachesManagement() {
           </Dialog>
         </div>
 
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2 h-12">
+            <TabsTrigger value="list" className="text-base">
+              Coaches List
+            </TabsTrigger>
+            <TabsTrigger value="calendar" className="text-base">
+              Expiry Calendar
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="list" className="space-y-8 mt-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card className="border-none shadow-lg hover:shadow-xl transition-shadow bg-white/80 backdrop-blur">
@@ -506,6 +687,38 @@ export default function HealthCoachesManagement() {
           </CardContent>
         </Card>
 
+        {/* Bulk Actions Bar */}
+        {selectedCoaches.length > 0 && (
+          <Card className="border-none shadow-lg bg-gradient-to-r from-orange-600 to-red-600">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between text-white">
+                <div className="flex items-center gap-3">
+                  <CheckSquare className="w-5 h-5" />
+                  <span className="font-semibold">{selectedCoaches.length} coaches selected</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-white text-orange-600 hover:bg-gray-100"
+                    onClick={() => setBulkActionDialog(true)}
+                  >
+                    Bulk Assign Plan
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-white text-orange-600 hover:bg-gray-100"
+                    onClick={() => setSelectedCoaches([])}
+                  >
+                    Clear Selection
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Coaches Table */}
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
           <CardHeader className="border-b border-gray-100">
@@ -521,6 +734,12 @@ export default function HealthCoachesManagement() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-gradient-to-r from-orange-50 to-red-50 hover:bg-gradient-to-r">
+                    <TableHead className="font-bold text-gray-900 w-12">
+                      <Checkbox
+                        checked={selectedCoaches.length === filteredCoaches.length && filteredCoaches.length > 0}
+                        onCheckedChange={toggleSelectAll}
+                      />
+                    </TableHead>
                     <TableHead className="font-bold text-gray-900">Name</TableHead>
                     <TableHead className="font-bold text-gray-900">Email</TableHead>
                     <TableHead className="font-bold text-gray-900">Phone</TableHead>
@@ -541,6 +760,12 @@ export default function HealthCoachesManagement() {
 
                     return (
                       <TableRow key={coach.id} className="hover:bg-orange-50/50 transition-colors">
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedCoaches.includes(coach.email)}
+                            onCheckedChange={() => toggleCoachSelection(coach.email)}
+                          />
+                        </TableCell>
                         <TableCell className="font-semibold text-gray-900">{coach.full_name}</TableCell>
                         <TableCell className="text-gray-600">{coach.email}</TableCell>
                         <TableCell className="text-gray-600">{coach.phone || '-'}</TableCell>
@@ -605,6 +830,17 @@ export default function HealthCoachesManagement() {
                             <Button
                               size="sm"
                               variant="outline"
+                              className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300"
+                              onClick={() => {
+                                setSelectedCoach(coach);
+                                setHistoryDialog(true);
+                              }}
+                            >
+                              <History className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
                               className="hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300"
                               onClick={() => {
                                 setSelectedCoach(coach);
@@ -632,7 +868,8 @@ export default function HealthCoachesManagement() {
                                   ? "hover:bg-red-50 hover:text-red-600 hover:border-red-300" 
                                   : "hover:bg-green-50 hover:text-green-600 hover:border-green-300"}
                                 onClick={() => toggleAccessMutation.mutate({ 
-                                  coachEmail: coach.email, 
+                                  coachEmail: coach.email,
+                                  coachName: coach.full_name,
                                   enable: subscription.status !== 'active' 
                                 })}
                               >
@@ -709,6 +946,75 @@ export default function HealthCoachesManagement() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Bulk Action Dialog */}
+        <Dialog open={bulkActionDialog} onOpenChange={setBulkActionDialog}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                <div className="p-2 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg">
+                  <CheckSquare className="w-5 h-5 text-white" />
+                </div>
+                Bulk Assign Plan
+              </DialogTitle>
+              <DialogDescription>
+                Assign plan to {selectedCoaches.length} selected coaches
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-5 pt-2">
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">Select Plan *</Label>
+                <Select value={bulkActionForm.plan_id} onValueChange={(value) => setBulkActionForm({ ...bulkActionForm, plan_id: value })}>
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Choose a plan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {plans.map(plan => (
+                      <SelectItem key={plan.id} value={plan.id}>
+                        {plan.plan_name} - ₹{plan.monthly_price}/month
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">Billing Cycle *</Label>
+                <Select value={bulkActionForm.billing_cycle} onValueChange={(value) => setBulkActionForm({ ...bulkActionForm, billing_cycle: value })}>
+                  <SelectTrigger className="h-11">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="yearly">Yearly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-4">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+                  <div className="text-sm text-amber-900">
+                    <p className="font-semibold mb-1">Bulk Action</p>
+                    <p>This will update plans for all selected coaches. Existing active plans will be replaced.</p>
+                  </div>
+                </div>
+              </div>
+              <Button
+                onClick={() => bulkActionMutation.mutate(bulkActionForm)}
+                disabled={!bulkActionForm.plan_id || bulkActionMutation.isPending}
+                className="w-full bg-gradient-to-r from-orange-600 to-red-600 h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all"
+              >
+                {bulkActionMutation.isPending ? 'Processing...' : `Assign to ${selectedCoaches.length} Coaches`}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* History Dialog */}
+        <CoachHistoryDialog
+          coach={selectedCoach}
+          open={historyDialog}
+          onOpenChange={setHistoryDialog}
+        />
 
         {/* Add Credits Dialog */}
         <Dialog open={addCreditsDialog} onOpenChange={setAddCreditsDialog}>
