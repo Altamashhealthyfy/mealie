@@ -123,13 +123,26 @@ export default function HealthCoachesManagement() {
   // Create Health Coach mutation
   const createCoachMutation = useMutation({
     mutationFn: async (coachData) => {
-      // Directly create user (similar to client creation)
-      const newUser = await base44.entities.User.create({
+      // Create user via backend function
+      const response = await base44.functions.invoke('createUserWithPassword', {
         email: coachData.email,
         full_name: coachData.full_name,
-        phone: coachData.phone || '',
         user_type: 'student_coach',
+        password: 'TempPass@123', // Default temporary password
       });
+
+      if (response.data?.error) {
+        throw new Error(response.data.error);
+      }
+
+      // Update phone if provided
+      if (coachData.phone && response.data?.user_id) {
+        try {
+          await base44.entities.User.update(response.data.user_id, { phone: coachData.phone });
+        } catch (error) {
+          console.log('Could not update phone:', error);
+        }
+      }
 
       // Record creation in history
       await base44.entities.CoachSubscriptionHistory.create({
@@ -137,7 +150,7 @@ export default function HealthCoachesManagement() {
         coach_name: coachData.full_name,
         action_type: 'account_created',
         performed_by: user.email,
-        notes: 'Account created directly',
+        notes: 'Account created directly with temporary password',
       });
 
       // Assign plan if selected
@@ -194,7 +207,7 @@ export default function HealthCoachesManagement() {
         }
       }
 
-      return newUser;
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['allHealthCoaches']);
@@ -619,8 +632,8 @@ export default function HealthCoachesManagement() {
                     </div>
                     <div className="text-xs md:text-sm text-blue-900 flex-1">
                       <p className="font-bold mb-1">Direct Account Creation</p>
-                      <p className="text-xs md:text-sm">Account will be created immediately like client accounts</p>
-                      <p className="text-xs mt-2 text-blue-700">Coach can login directly using their email</p>
+                      <p className="text-xs md:text-sm">Account will be created with temporary password: <strong>TempPass@123</strong></p>
+                      <p className="text-xs mt-2 text-blue-700">Coach should change password after first login</p>
                     </div>
                   </div>
                 </div>
