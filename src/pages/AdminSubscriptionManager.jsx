@@ -353,9 +353,9 @@ export default function AdminSubscriptionManager() {
               {coachSubscriptions
                 .filter(sub => {
                   const matchesSearch = !coachSearchTerm || 
-                    sub.coach_email.toLowerCase().includes(coachSearchTerm.toLowerCase()) ||
+                    sub.coach_email?.toLowerCase().includes(coachSearchTerm.toLowerCase()) ||
                     sub.coach_name?.toLowerCase().includes(coachSearchTerm.toLowerCase()) ||
-                    sub.plan_name.toLowerCase().includes(coachSearchTerm.toLowerCase());
+                    sub.plan_name?.toLowerCase().includes(coachSearchTerm.toLowerCase());
                   
                   const now = new Date();
                   const endDate = new Date(sub.end_date);
@@ -447,10 +447,10 @@ export default function AdminSubscriptionManager() {
               {clientPurchases
                 .filter(purchase => {
                   const matchesSearch = !clientSearchTerm || 
-                    purchase.client_email.toLowerCase().includes(clientSearchTerm.toLowerCase()) ||
+                    purchase.client_email?.toLowerCase().includes(clientSearchTerm.toLowerCase()) ||
                     purchase.client_name?.toLowerCase().includes(clientSearchTerm.toLowerCase()) ||
-                    purchase.plan_name.toLowerCase().includes(clientSearchTerm.toLowerCase()) ||
-                    purchase.coach_email.toLowerCase().includes(clientSearchTerm.toLowerCase());
+                    purchase.plan_name?.toLowerCase().includes(clientSearchTerm.toLowerCase()) ||
+                    purchase.coach_email?.toLowerCase().includes(clientSearchTerm.toLowerCase());
                   
                   const now = new Date();
                   const endDate = new Date(purchase.end_date);
