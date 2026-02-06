@@ -274,7 +274,7 @@ export default function ClientMPESSAssessment() {
             </Alert>
 
             {/* ROOT CAUSE ASSESSMENT */}
-        <Card className="border-none shadow-lg mb-4">
+            <Card className="border-none shadow-lg mb-4">
           <CardHeader 
             className="cursor-pointer hover:bg-gray-50"
             onClick={() => toggleSection('rootCause')}
