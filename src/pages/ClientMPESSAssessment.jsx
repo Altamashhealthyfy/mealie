@@ -552,23 +552,25 @@ export default function ClientMPESSAssessment() {
           )}
         </Card>
 
-        {/* Submit Button */}
-        <div className="flex gap-3">
-          <Button
-            onClick={handleSubmit}
-            className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white py-6 text-lg font-semibold"
-            disabled={saveMutation.isPending}
-          >
-            {saveMutation.isPending ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              "Save Assessment"
-            )}
-          </Button>
-        </div>
+            {/* Submit Button */}
+            <div className="flex gap-3">
+              <Button
+                onClick={handleSubmit}
+                className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white py-6 text-lg font-semibold"
+                disabled={saveMutation.isPending}
+              >
+                {saveMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Assessment"
+                )}
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
