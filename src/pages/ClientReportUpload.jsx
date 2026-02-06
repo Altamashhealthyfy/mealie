@@ -132,136 +132,144 @@ export default function ClientReportUpload() {
           <p className="text-gray-600">Share your test results and prescriptions with your health coach</p>
         </div>
 
-        {/* Upload Form */}
-        <Card className="border-none shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
-            <CardTitle className="flex items-center gap-2">
-              <Upload className="w-5 h-5" />
-              Upload New Report
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <form onSubmit={handleUpload} className="space-y-6">
-              {/* Report Type Selection */}
-              <div className="space-y-3">
-                <Label className="text-base font-semibold">Report Type *</Label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {REPORT_TYPES.map(({ value, label }) => (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() => setSelectedReportType(value)}
-                      className={`p-4 rounded-lg border-2 transition-all text-center font-medium ${
-                        selectedReportType === value
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300'
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Report Title */}
-              <div className="space-y-2">
-                <Label>Report Title *</Label>
-                <Input
-                  placeholder="e.g., Monthly Blood Test, Kidney Function Report..."
-                  value={reportTitle}
-                  onChange={(e) => setReportTitle(e.target.value)}
-                  required
-                />
-              </div>
-
-              {/* Report Date */}
-              <div className="space-y-2">
-                <Label>Report Date *</Label>
-                <Input
-                  type="date"
-                  value={reportDate}
-                  onChange={(e) => setReportDate(e.target.value)}
-                  required
-                />
-              </div>
-
-              {/* Description */}
-              <div className="space-y-2">
-                <Label>Additional Notes</Label>
-                <Textarea
-                  placeholder="Add any relevant information about this report..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={3}
-                />
-              </div>
-
-              {/* File Upload */}
-              <div className="space-y-3">
-                <Label>Select File *</Label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
-                  <input
-                    type="file"
-                    id="file-upload"
-                    onChange={handleFileSelect}
-                    accept="image/*,.pdf,.doc,.docx"
-                    className="hidden"
-                  />
-                  <label htmlFor="file-upload" className="cursor-pointer">
-                    <FileUp className="w-10 h-10 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-700 font-medium">Click to upload or drag and drop</p>
-                    <p className="text-sm text-gray-500 mt-1">PDF, Images, or Documents (Max 10MB)</p>
-                  </label>
-                </div>
-                {selectedFile && (
-                  <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <span className="text-green-700 font-medium">{selectedFile.name}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedFile(null)}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
+        {/* Upload Forms - Separate Sections */}
+        <div className="space-y-6">
+          {REPORT_TYPES.map(({ value, label }) => (
+            <Card key={value} className="border-none shadow-lg">
+              <CardHeader className={`text-white ${
+                value === 'blood_report' ? 'bg-gradient-to-r from-red-500 to-pink-500' :
+                value === 'ultrasound_report' ? 'bg-gradient-to-r from-cyan-500 to-blue-500' :
+                value === 'xray_report' ? 'bg-gradient-to-r from-gray-500 to-slate-500' :
+                'bg-gradient-to-r from-green-500 to-emerald-500'
+              }`}>
+                <CardTitle className="text-xl">{label}</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <form onSubmit={(e) => {
+                  setSelectedReportType(value);
+                  handleUpload(e);
+                }} className="space-y-4">
+                  {/* Report Title */}
+                  <div className="space-y-2">
+                    <Label>Report Title *</Label>
+                    <Input
+                      placeholder={value === 'blood_report' ? 'e.g., Monthly Blood Test, CBC, KFT...' :
+                               value === 'ultrasound_report' ? 'e.g., Abdominal Ultrasound...' :
+                               value === 'xray_report' ? 'e.g., Chest X-Ray...' :
+                               'e.g., Doctor Prescription...'}
+                      value={selectedReportType === value ? reportTitle : ''}
+                      onChange={(e) => {
+                        setSelectedReportType(value);
+                        setReportTitle(e.target.value);
+                      }}
+                      required
+                    />
                   </div>
-                )}
-              </div>
 
-              {/* Upload Progress */}
-              {uploadProgress > 0 && uploadProgress < 100 && (
-                <div className="space-y-2">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-500 h-2 rounded-full transition-all"
-                      style={{ width: `${uploadProgress}%` }}
-                    ></div>
+                  {/* Report Date */}
+                  <div className="space-y-2">
+                    <Label>Report Date *</Label>
+                    <Input
+                      type="date"
+                      value={selectedReportType === value ? reportDate : format(new Date(), 'yyyy-MM-dd')}
+                      onChange={(e) => {
+                        setSelectedReportType(value);
+                        setReportDate(e.target.value);
+                      }}
+                      required
+                    />
                   </div>
-                  <p className="text-sm text-gray-600 text-center">Uploading... {uploadProgress}%</p>
-                </div>
-              )}
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                disabled={createReportMutation.isPending || uploadFileMutation.isPending}
-                className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 h-12 text-lg"
-              >
-                {createReportMutation.isPending || uploadFileMutation.isPending ? (
-                  <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Uploading...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-5 h-5 mr-2" />
-                    Upload Report
-                  </>
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                  {/* Description */}
+                  <div className="space-y-2">
+                    <Label>Additional Notes</Label>
+                    <Textarea
+                      placeholder="Add any relevant information about this report..."
+                      value={selectedReportType === value ? description : ''}
+                      onChange={(e) => {
+                        setSelectedReportType(value);
+                        setDescription(e.target.value);
+                      }}
+                      rows={2}
+                    />
+                  </div>
+
+                  {/* File Upload */}
+                  <div className="space-y-3">
+                    <Label>Select File *</Label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
+                      <input
+                        type="file"
+                        id={`file-upload-${value}`}
+                        onChange={(e) => {
+                          setSelectedReportType(value);
+                          handleFileSelect(e);
+                        }}
+                        accept="image/*,.pdf,.doc,.docx"
+                        className="hidden"
+                      />
+                      <label htmlFor={`file-upload-${value}`} className="cursor-pointer block">
+                        <FileUp className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-gray-700 font-medium text-sm">Click to upload</p>
+                        <p className="text-xs text-gray-500 mt-1">PDF, Images, or Documents</p>
+                      </label>
+                    </div>
+                    {selectedReportType === value && selectedFile && (
+                      <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <span className="text-green-700 font-medium text-sm">{selectedFile.name}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedFile(null)}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Upload Progress */}
+                  {selectedReportType === value && uploadProgress > 0 && uploadProgress < 100 && (
+                    <div className="space-y-2">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-blue-500 h-2 rounded-full transition-all"
+                          style={{ width: `${uploadProgress}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-sm text-gray-600 text-center">Uploading... {uploadProgress}%</p>
+                    </div>
+                  )}
+
+                  {/* Submit Button */}
+                  <Button
+                    type="submit"
+                    disabled={createReportMutation.isPending || uploadFileMutation.isPending || selectedReportType !== value}
+                    className={`w-full h-10 text-base font-medium ${
+                      value === 'blood_report' ? 'bg-gradient-to-r from-red-500 to-pink-500' :
+                      value === 'ultrasound_report' ? 'bg-gradient-to-r from-cyan-500 to-blue-500' :
+                      value === 'xray_report' ? 'bg-gradient-to-r from-gray-500 to-slate-500' :
+                      'bg-gradient-to-r from-green-500 to-emerald-500'
+                    }`}
+                  >
+                    {createReportMutation.isPending || uploadFileMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4 mr-2" />
+                        Upload {label.split(' ')[1]}
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
         {/* Recent Reports */}
         {reports.length > 0 && (
