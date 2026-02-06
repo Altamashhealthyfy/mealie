@@ -243,10 +243,17 @@ export default function ClientMPESSAssessment() {
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2 flex items-center gap-3">
             <Heart className="w-8 h-8 text-pink-500" />
-            MPESS Assessment Form
+            MPESS Assessment
           </h1>
-          <p className="text-gray-600 text-lg">Comprehensive health assessment across Mind, Physical, Emotional, Social & Spiritual dimensions</p>
+          <p className="text-gray-600 text-lg">Track your comprehensive health assessment across Mind, Physical, Emotional, Social & Spiritual dimensions</p>
         </div>
+
+        {/* Tabs */}
+        <Tabs defaultValue="new" className="w-full mb-8">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="new">New Assessment</TabsTrigger>
+            <TabsTrigger value="history">History ({assessmentHistory?.length || 0})</TabsTrigger>
+          </TabsList>
 
         {submitSuccess && (
           <Alert className="mb-6 border-green-200 bg-green-50">
