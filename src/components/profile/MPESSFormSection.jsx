@@ -256,286 +256,218 @@ export default function MPESSFormSection({ formData, onChange }) {
       ) : (
         <div className="space-y-4">
 
-      {/* ROOT CAUSE ASSESSMENT */}
-      <Card className="border-none shadow-lg">
-        <CardHeader 
-          className="cursor-pointer hover:bg-gray-50"
-          onClick={() => toggleSection('rootCause')}
-        >
-          <CardTitle className="text-base flex items-center gap-2">
-            <span className="text-xl">🔍</span>
-            ROOT CAUSE ASSESSMENT (MPESS framework)
-            <span className="text-red-500 ml-1">*</span>
-          </CardTitle>
-        </CardHeader>
-        {expandedSections.rootCause && (
-          <CardContent className="space-y-3">
-            <RadioGroup value={formData.mpess_root_cause || ""} onValueChange={handleRootCauseChange}>
-              {[
-                "Low motivation or consistency",
-                "All-or-nothing approach",
-                "Negative body image / low self-worth",
-                "Lack of patience / quick results expectation",
-                "Poor discipline in routine",
-                "Fear of change or commitment"
-              ].map((option) => (
-                <div key={option} className="flex items-center space-x-2">
-                  <RadioGroupItem value={option} id={`root-${option}`} />
-                  <Label htmlFor={`root-${option}`} className="cursor-pointer">{option}</Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </CardContent>
-        )}
-      </Card>
+        {sectionOrder.map((sectionKey) => (
+          renderSectionContent(sectionKey)
+        ))}
+      )}
+    </div>
+  );
 
-      {/* PHYSICAL FACTORS */}
-      <Card className="border-none shadow-lg">
-        <CardHeader 
-          className="cursor-pointer hover:bg-gray-50"
-          onClick={() => toggleSection('physical')}
-        >
-          <CardTitle className="text-base flex items-center gap-2">
-            <span className="text-xl">💪</span>
-            P – Physical Factors
-            <span className="text-red-500 ml-1">*</span>
-          </CardTitle>
-        </CardHeader>
-        {expandedSections.physical && (
-          <CardContent className="space-y-3">
+  function renderSectionContent(sectionKey) {
+    if (sectionKey === 'rootCause') {
+      return expandedSections.rootCause ? (
+        <CardContent className="space-y-3" key={sectionKey}>
+          <RadioGroup value={formData.mpess_root_cause || ""} onValueChange={handleRootCauseChange}>
             {[
-              "Lack of exercise / movement",
-              "Hormonal imbalance (e.g., PCOS, thyroid)",
-              "Sleep disturbances / poor sleep cycle",
-              "Digestive issues (acidity, bloating, constipation)",
-              "Chronic fatigue / Low energy",
-              "Post-pregnancy or post-surgery changes"
-            ].map((item) => (
-              <div key={item} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`physical-${item}`}
-                  checked={formData.mpess_physical?.[item] || false}
-                  onCheckedChange={() => handlePhysicalChange(item)}
-                />
-                <Label htmlFor={`physical-${item}`} className="cursor-pointer">{item}</Label>
+              "Low motivation or consistency",
+              "All-or-nothing approach",
+              "Negative body image / low self-worth",
+              "Lack of patience / quick results expectation",
+              "Poor discipline in routine",
+              "Fear of change or commitment"
+            ].map((option) => (
+              <div key={option} className="flex items-center space-x-2">
+                <RadioGroupItem value={option} id={`root-${option}`} />
+                <Label htmlFor={`root-${option}`} className="cursor-pointer">{option}</Label>
               </div>
             ))}
-          </CardContent>
-        )}
-      </Card>
+          </RadioGroup>
+        </CardContent>
+      ) : null;
+    }
 
-      {/* EMOTIONAL TRIGGERS */}
-      <Card className="border-none shadow-lg">
-        <CardHeader 
-          className="cursor-pointer hover:bg-gray-50"
-          onClick={() => toggleSection('emotional')}
-        >
-          <CardTitle className="text-base flex items-center gap-2">
-            <span className="text-xl">❤️</span>
-            E – Emotional Triggers
-            <span className="text-red-500 ml-1">*</span>
-          </CardTitle>
-        </CardHeader>
-        {expandedSections.emotional && (
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr>
-                    <th className="text-left py-2 pr-2">Trigger</th>
+    if (sectionKey === 'physical') {
+      return expandedSections.physical ? (
+        <CardContent className="space-y-3" key={sectionKey}>
+          {[
+            "Lack of exercise / movement",
+            "Hormonal imbalance (e.g., PCOS, thyroid)",
+            "Sleep disturbances / poor sleep cycle",
+            "Digestive issues (acidity, bloating, constipation)",
+            "Chronic fatigue / Low energy",
+            "Post-pregnancy or post-surgery changes"
+          ].map((item) => (
+            <div key={item} className="flex items-center space-x-2">
+              <Checkbox
+                id={`physical-${item}`}
+                checked={formData.mpess_physical?.[item] || false}
+                onCheckedChange={() => handlePhysicalChange(item)}
+              />
+              <Label htmlFor={`physical-${item}`} className="cursor-pointer">{item}</Label>
+            </div>
+          ))}
+        </CardContent>
+      ) : null;
+    }
+
+    if (sectionKey === 'emotional') {
+      return expandedSections.emotional ? (
+        <CardContent key={sectionKey}>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr>
+                  <th className="text-left py-2 pr-2">Trigger</th>
+                  {[1, 2, 3, 4, 5].map(col => (
+                    <th key={col} className="text-center py-2 px-1">Col {col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="space-y-2">
+                {emotionalRows.map((row) => (
+                  <tr key={row} className="border-b">
+                    <td className="py-2 pr-2">{row}</td>
                     {[1, 2, 3, 4, 5].map(col => (
-                      <th key={col} className="text-center py-2 px-1">Col {col}</th>
+                      <td key={col} className="text-center py-2 px-1">
+                        <RadioGroup
+                          value={formData.mpess_emotional?.[row] || ""}
+                          onValueChange={(val) => val === col.toString() ? handleEmotionalChange(row, col) : null}
+                        >
+                          <div className="flex justify-center">
+                            <RadioGroupItem value={col.toString()} id={`emotion-${row}-${col}`} />
+                          </div>
+                        </RadioGroup>
+                      </td>
                     ))}
                   </tr>
-                </thead>
-                <tbody className="space-y-2">
-                  {emotionalRows.map((row) => (
-                    <tr key={row} className="border-b">
-                      <td className="py-2 pr-2">{row}</td>
-                      {[1, 2, 3, 4, 5].map(col => (
-                        <td key={col} className="text-center py-2 px-1">
-                          <RadioGroup
-                            value={formData.mpess_emotional?.[row] || ""}
-                            onValueChange={(val) => val === col.toString() ? handleEmotionalChange(row, col) : null}
-                          >
-                            <div className="flex justify-center">
-                              <RadioGroupItem value={col.toString()} id={`emotion-${row}-${col}`} />
-                            </div>
-                          </RadioGroup>
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        )}
-      </Card>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      ) : null;
+    }
 
-      {/* SOCIAL & ENVIRONMENTAL */}
-      <Card className="border-none shadow-lg">
-        <CardHeader 
-          className="cursor-pointer hover:bg-gray-50"
-          onClick={() => toggleSection('social')}
-        >
-          <CardTitle className="text-base flex items-center gap-2">
-            <span className="text-xl">👥</span>
-            S – Social & Environmental
-            <span className="text-red-500 ml-1">*</span>
-          </CardTitle>
-        </CardHeader>
-        {expandedSections.social && (
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr>
-                    <th className="text-left py-2 pr-2">Factor</th>
+    if (sectionKey === 'social') {
+      return expandedSections.social ? (
+        <CardContent key={sectionKey}>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr>
+                  <th className="text-left py-2 pr-2">Factor</th>
+                  {[1, 2, 3, 4].map(col => (
+                    <th key={col} className="text-center py-2 px-1">Col {col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="space-y-2">
+                {socialRows.map((row) => (
+                  <tr key={row} className="border-b">
+                    <td className="py-2 pr-2">{row}</td>
                     {[1, 2, 3, 4].map(col => (
-                      <th key={col} className="text-center py-2 px-1">Col {col}</th>
+                      <td key={col} className="text-center py-2 px-1">
+                        <RadioGroup
+                          value={formData.mpess_social?.[row] || ""}
+                          onValueChange={(val) => val === col.toString() ? handleSocialChange(row, col) : null}
+                        >
+                          <div className="flex justify-center">
+                            <RadioGroupItem value={col.toString()} id={`social-${row}-${col}`} />
+                          </div>
+                        </RadioGroup>
+                      </td>
                     ))}
                   </tr>
-                </thead>
-                <tbody className="space-y-2">
-                  {socialRows.map((row) => (
-                    <tr key={row} className="border-b">
-                      <td className="py-2 pr-2">{row}</td>
-                      {[1, 2, 3, 4].map(col => (
-                        <td key={col} className="text-center py-2 px-1">
-                          <RadioGroup
-                            value={formData.mpess_social?.[row] || ""}
-                            onValueChange={(val) => val === col.toString() ? handleSocialChange(row, col) : null}
-                          >
-                            <div className="flex justify-center">
-                              <RadioGroupItem value={col.toString()} id={`social-${row}-${col}`} />
-                            </div>
-                          </RadioGroup>
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        )}
-      </Card>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      ) : null;
+    }
 
-      {/* SPIRITUAL & SELF-CONNECTION */}
-      <Card className="border-none shadow-lg">
-        <CardHeader 
-          className="cursor-pointer hover:bg-gray-50"
-          onClick={() => toggleSection('spiritual')}
-        >
-          <CardTitle className="text-base flex items-center gap-2">
-            <span className="text-xl">🌱</span>
-            S – Spiritual & Self-Connection
-            <span className="text-red-500 ml-1">*</span>
-          </CardTitle>
-        </CardHeader>
-        {expandedSections.spiritual && (
-          <CardContent className="space-y-3">
-            <RadioGroup value={formData.mpess_spiritual || ""} onValueChange={handleSpiritualChange}>
-              {[
-                "Disconnection from self / lack of self-awareness",
-                "Not listening to hunger or fullness cues",
-                "Lack of gratitude & mindfulness around eating",
-                "Feeling unworthy of healing or success",
-                "Living in survival mode, not presence"
-              ].map((option) => (
-                <div key={option} className="flex items-center space-x-2">
-                  <RadioGroupItem value={option} id={`spirit-${option}`} />
-                  <Label htmlFor={`spirit-${option}`} className="cursor-pointer">{option}</Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </CardContent>
-        )}
-      </Card>
-
-      {/* BODY COMPOSITION ANALYSIS */}
-      <Card className="border-none shadow-lg">
-        <CardHeader 
-          className="cursor-pointer hover:bg-gray-50"
-          onClick={() => toggleSection('bodyComposition')}
-        >
-          <CardTitle className="text-base flex items-center gap-2">
-            <span className="text-xl">📊</span>
-            Body Composition Analysis
-            <span className="text-red-500 ml-1">*</span>
-          </CardTitle>
-        </CardHeader>
-        {expandedSections.bodyComposition && (
-          <CardContent className="space-y-3">
-            <p className="text-sm text-gray-600 mb-4">Why is it important</p>
+    if (sectionKey === 'spiritual') {
+      return expandedSections.spiritual ? (
+        <CardContent className="space-y-3" key={sectionKey}>
+          <RadioGroup value={formData.mpess_spiritual || ""} onValueChange={handleSpiritualChange}>
             {[
-              "Weight Breakdown",
-              "Fat Loss vs. Muscle Gain",
-              "Metabolic Health"
-            ].map((item) => (
-              <div key={item} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`bc-${item}`}
-                  checked={formData.mpess_body_composition?.[item] || false}
-                  onCheckedChange={() => handleBodyCompositionChange(item)}
-                />
-                <Label htmlFor={`bc-${item}`} className="cursor-pointer">{item}</Label>
+              "Disconnection from self / lack of self-awareness",
+              "Not listening to hunger or fullness cues",
+              "Lack of gratitude & mindfulness around eating",
+              "Feeling unworthy of healing or success",
+              "Living in survival mode, not presence"
+            ].map((option) => (
+              <div key={option} className="flex items-center space-x-2">
+                <RadioGroupItem value={option} id={`spirit-${option}`} />
+                <Label htmlFor={`spirit-${option}`} className="cursor-pointer">{option}</Label>
               </div>
             ))}
-          </CardContent>
-        )}
-      </Card>
+          </RadioGroup>
+        </CardContent>
+      ) : null;
+    }
 
-      {/* WILLINGNESS TO HEAL & GROW */}
-      <Card className="border-none shadow-lg">
-        <CardHeader 
-          className="cursor-pointer hover:bg-gray-50"
-          onClick={() => toggleSection('willingness')}
-        >
-          <CardTitle className="text-base flex items-center gap-2">
-            <span className="text-xl">✨</span>
-            Your willingness to Heal & Grow
-            <span className="text-red-500 ml-1">*</span>
-          </CardTitle>
-        </CardHeader>
-        {expandedSections.willingness && (
-          <CardContent>
-            <p className="text-sm text-gray-600 mb-4">Rate yourself on a scale of 1 to 10 (1 = very low, 10 = very high)</p>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs md:text-sm">
-                <thead>
-                  <tr>
-                    <th className="text-left py-2 pr-2">Dimension</th>
+    if (sectionKey === 'bodyComposition') {
+      return expandedSections.bodyComposition ? (
+        <CardContent className="space-y-3" key={sectionKey}>
+          <p className="text-sm text-gray-600 mb-4">Why is it important</p>
+          {[
+            "Weight Breakdown",
+            "Fat Loss vs. Muscle Gain",
+            "Metabolic Health"
+          ].map((item) => (
+            <div key={item} className="flex items-center space-x-2">
+              <Checkbox
+                id={`bc-${item}`}
+                checked={formData.mpess_body_composition?.[item] || false}
+                onCheckedChange={() => handleBodyCompositionChange(item)}
+              />
+              <Label htmlFor={`bc-${item}`} className="cursor-pointer">{item}</Label>
+            </div>
+          ))}
+        </CardContent>
+      ) : null;
+    }
+
+    if (sectionKey === 'willingness') {
+      return expandedSections.willingness ? (
+        <CardContent key={sectionKey}>
+          <p className="text-sm text-gray-600 mb-4">Rate yourself on a scale of 1 to 10 (1 = very low, 10 = very high)</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs md:text-sm">
+              <thead>
+                <tr>
+                  <th className="text-left py-2 pr-2">Dimension</th>
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(col => (
+                    <th key={col} className="text-center py-2 px-1">{col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="space-y-2">
+                {willingnessRows.map((row) => (
+                  <tr key={row} className="border-b">
+                    <td className="py-2 pr-2 text-xs">{row}</td>
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(col => (
-                      <th key={col} className="text-center py-2 px-1">{col}</th>
+                      <td key={col} className="text-center py-2 px-1">
+                        <RadioGroup
+                          value={formData.mpess_willingness?.[row] || ""}
+                          onValueChange={(val) => val === col.toString() ? handleWillingnessChange(row, col) : null}
+                        >
+                          <div className="flex justify-center">
+                            <RadioGroupItem value={col.toString()} id={`will-${row}-${col}`} />
+                          </div>
+                        </RadioGroup>
+                      </td>
                     ))}
                   </tr>
-                </thead>
-                <tbody className="space-y-2">
-                  {willingnessRows.map((row) => (
-                    <tr key={row} className="border-b">
-                      <td className="py-2 pr-2 text-xs">{row}</td>
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(col => (
-                        <td key={col} className="text-center py-2 px-1">
-                          <RadioGroup
-                            value={formData.mpess_willingness?.[row] || ""}
-                            onValueChange={(val) => val === col.toString() ? handleWillingnessChange(row, col) : null}
-                          >
-                            <div className="flex justify-center">
-                              <RadioGroupItem value={col.toString()} id={`will-${row}-${col}`} />
-                            </div>
-                          </RadioGroup>
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        )}
-      </Card>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      ) : null;
+    }
+  }
     </div>
   );
 }
