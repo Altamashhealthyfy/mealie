@@ -475,10 +475,11 @@ export default function HealthCoachesManagement() {
                   <Input
                     type="email"
                     value={newCoach.email}
-                    onChange={(e) => setNewCoach({ ...newCoach, email: e.target.value })}
-                    placeholder="Enter email address"
+                    onChange={(e) => setNewCoach({ ...newCoach, email: e.target.value.trim().toLowerCase() })}
+                    placeholder="coach@example.com"
                     className="h-11"
                   />
+                  <p className="text-xs text-gray-500">Must be a valid email (e.g., name@example.com)</p>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold">Mobile Number *</Label>
@@ -502,7 +503,15 @@ export default function HealthCoachesManagement() {
                   </div>
                 </div>
                 <Button
-                  onClick={() => createCoachMutation.mutate(newCoach)}
+                  onClick={() => {
+                    // Validate email format
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(newCoach.email)) {
+                      toast.error('Please enter a valid email address (e.g., name@example.com)');
+                      return;
+                    }
+                    createCoachMutation.mutate(newCoach);
+                  }}
                   disabled={!newCoach.full_name || !newCoach.email || !newCoach.phone || createCoachMutation.isPending}
                   className="w-full bg-gradient-to-r from-orange-600 to-red-600 h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all"
                 >
