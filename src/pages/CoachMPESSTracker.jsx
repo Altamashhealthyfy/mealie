@@ -185,35 +185,16 @@ export default function CoachMPESSTracker() {
         <Card className="border-none shadow-lg mb-6">
           <CardContent className="p-6">
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Month</label>
-                  <select
-                    value={monthFilter}
-                    onChange={(e) => setMonthFilter(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  >
-                    <option value="all">All Months</option>
-                    {Array.from({ length: 12 }).map((_, i) => {
-                      const date = new Date();
-                      date.setMonth(date.getMonth() - i);
-                      const monthStr = date.toISOString().slice(0, 7);
-                      const label = date.toLocaleString('default', { month: 'long', year: 'numeric' });
-                      return <option key={monthStr} value={monthStr}>{label}</option>;
-                    })}
-                  </select>
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Search Client</label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                    <Input
-                      placeholder="Search by name or email..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Search Client</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                  <Input
+                    placeholder="Search by name or email..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
                 </div>
               </div>
 
