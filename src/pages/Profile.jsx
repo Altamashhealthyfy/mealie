@@ -551,13 +551,13 @@ export default function Profile() {
 
           {/* MPESS FORM SECTION - ONLY FOR CLIENTS */}
           {isClient && (
-            <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
+            <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Heart className="w-5 h-5 text-pink-500" />
                   MPESS Assessment Form
                 </CardTitle>
-                <CardDescription>Comprehensive health assessment using the MPESS framework</CardDescription>
+                <CardDescription>Comprehensive health assessment across Mind, Physical, Emotional, Social & Spiritual dimensions</CardDescription>
               </CardHeader>
               <CardContent>
                 <MPESSFormSection formData={formData} onChange={setFormData} />
