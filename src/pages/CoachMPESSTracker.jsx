@@ -16,7 +16,7 @@ export default function CoachMPESSTracker() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [coachNotes, setCoachNotes] = useState("");
-  const [monthFilter, setMonthFilter] = useState(new Date().toISOString().slice(0, 7));
+  const [monthFilter, setMonthFilter] = useState("all");
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
