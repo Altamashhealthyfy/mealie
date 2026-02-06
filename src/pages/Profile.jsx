@@ -413,18 +413,27 @@ export default function Profile() {
                   </div>
                 </div>
 
+                {/* MPESS ASSESSMENT SECTION */}
+                <div className="pt-6 border-t">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <Heart className="w-5 h-5 text-pink-500" />
+                    MPESS Assessment
+                  </h3>
+                  <MPESSFormSection formData={formData} onChange={setFormData} />
+                </div>
+
                 <Button
-                  type="submit"
-                  className="w-full h-12 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                  disabled={saveClientMutation.isPending}
-                >
-                  <Save className="w-5 h-5 mr-2" />
-                  {saveClientMutation.isPending ? 'Updating...' : 'Update Personal Info'}
-                </Button>
-              </CardContent>
-            </Card>
-          </form>
-        )}
+                   type="submit"
+                   className="w-full h-12 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 mt-6"
+                   disabled={saveClientMutation.isPending}
+                 >
+                   <Save className="w-5 h-5 mr-2" />
+                   {saveClientMutation.isPending ? 'Updating...' : 'Update Personal Info'}
+                 </Button>
+                </CardContent>
+                </Card>
+                </form>
+                )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
@@ -587,21 +596,7 @@ export default function Profile() {
             </CardContent>
           </Card>
 
-          {/* MPESS FORM SECTION - ONLY FOR CLIENTS */}
-          {isClient && (
-            <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-pink-500" />
-                  MPESS Assessment Form
-                </CardTitle>
-                <CardDescription>Comprehensive health assessment across Mind, Physical, Emotional, Social & Spiritual dimensions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <MPESSFormSection formData={formData} onChange={setFormData} />
-              </CardContent>
-            </Card>
-          )}
+
 
           {/* Calculate Macros */}
           <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
