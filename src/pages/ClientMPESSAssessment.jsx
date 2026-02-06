@@ -341,8 +341,8 @@ export default function ClientMPESSAssessment() {
           )}
         </Card>
 
-        {/* EMOTIONAL TRIGGERS */}
-        <Card className="border-none shadow-lg mb-4">
+            {/* EMOTIONAL TRIGGERS */}
+            <Card className="border-none shadow-lg mb-4">
           <CardHeader 
             className="cursor-pointer hover:bg-gray-50"
             onClick={() => toggleSection('emotional')}
