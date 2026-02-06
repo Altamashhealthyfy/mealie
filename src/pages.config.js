@@ -153,6 +153,7 @@ import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import HealthCoachDashboard from './pages/HealthCoachDashboard';
 import ClientMPESSAssessment from './pages/ClientMPESSAssessment';
+import CoachMPESSTracker from './pages/CoachMPESSTracker';
 import __Layout from './Layout.jsx';
 
 
@@ -263,6 +264,7 @@ export const PAGES = {
     "WhiteLabelSubscription": WhiteLabelSubscription,
     "HealthCoachDashboard": HealthCoachDashboard,
     "ClientMPESSAssessment": ClientMPESSAssessment,
+    "CoachMPESSTracker": CoachMPESSTracker,
 }
 
 export const pagesConfig = {
