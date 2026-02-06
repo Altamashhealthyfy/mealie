@@ -210,6 +210,34 @@ export default function Profile() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Validate required fields
+    if (!formData.age || !formData.height || !formData.weight || !formData.gender || !formData.activity_level || !formData.goal) {
+      alert("Please fill in all required health profile fields");
+      return;
+    }
+    // For clients, validate MPESS form
+    if (isClient) {
+      if (!formData.mpess_root_cause) {
+        alert("Please complete Root Cause Assessment in MPESS form");
+        return;
+      }
+      if (!formData.mpess_physical || Object.keys(formData.mpess_physical).length === 0) {
+        alert("Please complete Physical Factors in MPESS form");
+        return;
+      }
+      if (!formData.mpess_emotional || Object.keys(formData.mpess_emotional).length === 0) {
+        alert("Please complete Emotional Triggers in MPESS form");
+        return;
+      }
+      if (!formData.mpess_social || Object.keys(formData.mpess_social).length === 0) {
+        alert("Please complete Social & Environmental in MPESS form");
+        return;
+      }
+      if (!formData.mpess_spiritual) {
+        alert("Please complete Spiritual & Self-Connection in MPESS form");
+        return;
+      }
+    }
     saveMutation.mutate(formData);
   };
 
