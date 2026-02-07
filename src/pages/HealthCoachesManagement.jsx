@@ -116,7 +116,11 @@ export default function HealthCoachesManagement() {
     queryKey: ['allHealthCoaches'],
     queryFn: async () => {
       const users = await base44.entities.User.list();
-      return users.filter(u => u.user_type === 'student_coach' && !u.is_deleted);
+      return users.filter(u => {
+        const userType = u.user_type || u.data?.user_type;
+        const isDeleted = u.is_deleted || u.data?.is_deleted;
+        return userType === 'student_coach' && !isDeleted;
+      });
     },
   });
 
