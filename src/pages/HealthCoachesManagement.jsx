@@ -65,6 +65,8 @@ export default function HealthCoachesManagement() {
   const [addCoachDialog, setAddCoachDialog] = useState(false);
   const [assignPlanDialog, setAssignPlanDialog] = useState(false);
   const [addCreditsDialog, setAddCreditsDialog] = useState(false);
+  const [extendPlanDialog, setExtendPlanDialog] = useState(false);
+  const [editCoachDialog, setEditCoachDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [selectedCoach, setSelectedCoach] = useState(null);
 
@@ -89,6 +91,16 @@ export default function HealthCoachesManagement() {
 
   const [creditsForm, setCreditsForm] = useState({
     credits: 0,
+  });
+
+  const [extendForm, setExtendForm] = useState({
+    extra_months: 1,
+  });
+
+  const [editForm, setEditForm] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
   });
 
   // Fetch current user
@@ -362,6 +374,91 @@ export default function HealthCoachesManagement() {
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to assign plan');
+    },
+  });
+
+  // Extend plan mutation
+  const extendPlanMutation = useMutation({
+    mutationFn: async (data) => {
+      const coachSubs = subscriptions.filter(s => s.coach_email === selectedCoach.email && s.status === 'active');
+      if (coachSubs.length === 0) {
+        throw new Error('No active subscription found');
+      }
+
+      const sub = coachSubs[0];
+      const currentEndDate = new Date(sub.end_date);
+      const newEndDate = new Date(currentEndDate);
+      newEndDate.setMonth(newEndDate.getMonth() + parseInt(data.extra_months));
+
+      await base44.entities.HealthCoachSubscription.update(sub.id, {
+        end_date: newEndDate.toISOString().split('T')[0],
+        next_billing_date: newEndDate.toISOString().split('T')[0],
+      });
+
+      // Record history
+      await base44.entities.CoachSubscriptionHistory.create({
+        coach_email: selectedCoach.email,
+        coach_name: selectedCoach.full_name,
+        action_type: 'plan_extended',
+        amount: parseInt(data.extra_months),
+        old_value: sub.end_date,
+        new_value: newEndDate.toISOString().split('T')[0],
+        performed_by: user.email,
+        notes: `Extended by ${data.extra_months} month(s)`,
+      });
+
+      return { success: true };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['healthCoachSubscriptions']);
+      setExtendPlanDialog(false);
+      setExtendForm({ extra_months: 1 });
+      toast.success('Plan extended successfully!');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to extend plan');
+    },
+  });
+
+  // Edit coach mutation
+  const editCoachMutation = useMutation({
+    mutationFn: async (data) => {
+      // Update user details
+      await base44.entities.User.update(selectedCoach.id, {
+        full_name: data.full_name,
+        email: data.email,
+        phone: data.phone,
+      });
+
+      // Update subscription records with new name/email
+      const coachSubs = subscriptions.filter(s => s.coach_email === selectedCoach.email);
+      for (const sub of coachSubs) {
+        await base44.entities.HealthCoachSubscription.update(sub.id, {
+          coach_email: data.email,
+          coach_name: data.full_name,
+        });
+      }
+
+      // Record history
+      await base44.entities.CoachSubscriptionHistory.create({
+        coach_email: data.email,
+        coach_name: data.full_name,
+        action_type: 'profile_updated',
+        old_value: `${selectedCoach.full_name} (${selectedCoach.email})`,
+        new_value: `${data.full_name} (${data.email})`,
+        performed_by: user.email,
+      });
+
+      return { success: true };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['allHealthCoaches']);
+      queryClient.invalidateQueries(['healthCoachSubscriptions']);
+      setEditCoachDialog(false);
+      toast.success('Coach details updated successfully!');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to update coach details');
     },
   });
 
@@ -922,6 +1019,22 @@ export default function HealthCoachesManagement() {
                             <Button
                               size="sm"
                               variant="outline"
+                              className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300 h-7 w-7 p-0"
+                              onClick={() => {
+                                setSelectedCoach(coach);
+                                setEditForm({
+                                  full_name: coach.full_name,
+                                  email: coach.email,
+                                  phone: coach.phone || '',
+                                });
+                                setEditCoachDialog(true);
+                              }}
+                            >
+                              <User className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
                               className="hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300 h-7 w-7 p-0"
                               onClick={() => {
                                 setSelectedCoach(coach);
@@ -930,6 +1043,19 @@ export default function HealthCoachesManagement() {
                             >
                               <Edit className="w-3 h-3" />
                             </Button>
+                            {subscription && subscription.status === 'active' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="hover:bg-green-50 hover:text-green-600 hover:border-green-300 h-7 w-7 p-0"
+                                onClick={() => {
+                                  setSelectedCoach(coach);
+                                  setExtendPlanDialog(true);
+                                }}
+                              >
+                                <CalendarPlus className="w-3 h-3" />
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant="outline"
@@ -1034,6 +1160,113 @@ export default function HealthCoachesManagement() {
                 className="w-full bg-gradient-to-r from-orange-600 to-red-600"
               >
                 {assignPlanMutation.isPending ? 'Assigning...' : 'Assign Plan'}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Extend Plan Dialog */}
+        <Dialog open={extendPlanDialog} onOpenChange={setExtendPlanDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <CalendarPlus className="w-5 h-5 text-green-600" />
+                Extend Plan Duration
+              </DialogTitle>
+              <DialogDescription>
+                Extend the subscription period for {selectedCoach?.full_name}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              {selectedCoach && getCoachSubscription(selectedCoach.email) && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-900 mb-2">
+                    <strong>Current End Date:</strong> {new Date(getCoachSubscription(selectedCoach.email).end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </p>
+                  {extendForm.extra_months > 0 && (
+                    <p className="text-sm text-green-900">
+                      <strong>New End Date:</strong> {new Date(new Date(getCoachSubscription(selectedCoach.email).end_date).setMonth(new Date(getCoachSubscription(selectedCoach.email).end_date).getMonth() + parseInt(extendForm.extra_months))).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </p>
+                  )}
+                </div>
+              )}
+              <div>
+                <Label>Extend By (Months) *</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={extendForm.extra_months}
+                  onChange={(e) => setExtendForm({ extra_months: parseInt(e.target.value) || 1 })}
+                  placeholder="Enter number of months"
+                />
+              </div>
+              <Button
+                onClick={() => extendPlanMutation.mutate(extendForm)}
+                disabled={extendForm.extra_months <= 0 || extendPlanMutation.isPending}
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600"
+              >
+                {extendPlanMutation.isPending ? 'Extending...' : `Extend by ${extendForm.extra_months} Month(s)`}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Coach Dialog */}
+        <Dialog open={editCoachDialog} onOpenChange={setEditCoachDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <User className="w-5 h-5 text-blue-600" />
+                Edit Coach Details
+              </DialogTitle>
+              <DialogDescription>
+                Update name, email, or phone for {selectedCoach?.full_name}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Full Name *</Label>
+                <Input
+                  value={editForm.full_name}
+                  onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
+                  placeholder="Enter full name"
+                />
+              </div>
+              <div>
+                <Label>Email ID *</Label>
+                <Input
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm({ ...editForm, email: e.target.value.trim().toLowerCase() })}
+                  placeholder="coach@example.com"
+                />
+              </div>
+              <div>
+                <Label>Phone Number</Label>
+                <Input
+                  value={editForm.phone}
+                  onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                  placeholder="Enter phone number"
+                />
+              </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <p className="text-xs text-amber-900">
+                  <strong>Note:</strong> Changing email will update all subscription records. Login credentials will use the new email.
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                  if (!emailRegex.test(editForm.email)) {
+                    toast.error('Please enter a valid email address');
+                    return;
+                  }
+                  editCoachMutation.mutate(editForm);
+                }}
+                disabled={!editForm.full_name || !editForm.email || editCoachMutation.isPending}
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600"
+              >
+                {editCoachMutation.isPending ? 'Updating...' : 'Update Details'}
               </Button>
             </div>
           </DialogContent>

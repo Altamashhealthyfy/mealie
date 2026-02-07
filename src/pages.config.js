@@ -80,6 +80,7 @@ import ClientPlans from './pages/ClientPlans';
 import ClientProgressAnalytics from './pages/ClientProgressAnalytics';
 import ClientProgressReview from './pages/ClientProgressReview';
 import ClientRecipes from './pages/ClientRecipes';
+import ClientReportUpload from './pages/ClientReportUpload';
 import ClientReports from './pages/ClientReports';
 import ClientResourceLibrary from './pages/ClientResourceLibrary';
 import ClientResourceTracker from './pages/ClientResourceTracker';
@@ -92,6 +93,7 @@ import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachPerformanceAnalytics from './pages/CoachPerformanceAnalytics';
 import CoachProgramManagement from './pages/CoachProgramManagement';
 import CoachReferralLink from './pages/CoachReferralLink';
+import CoachReportTracker from './pages/CoachReportTracker';
 import CoachSubscription from './pages/CoachSubscription';
 import CoachSubscriptions from './pages/CoachSubscriptions';
 import Communication from './pages/Communication';
@@ -155,8 +157,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import ClientReportUpload from './pages/ClientReportUpload';
-import CoachReportTracker from './pages/CoachReportTracker';
 import __Layout from './Layout.jsx';
 
 
@@ -194,6 +194,7 @@ export const PAGES = {
     "ClientProgressAnalytics": ClientProgressAnalytics,
     "ClientProgressReview": ClientProgressReview,
     "ClientRecipes": ClientRecipes,
+    "ClientReportUpload": ClientReportUpload,
     "ClientReports": ClientReports,
     "ClientResourceLibrary": ClientResourceLibrary,
     "ClientResourceTracker": ClientResourceTracker,
@@ -206,6 +207,7 @@ export const PAGES = {
     "CoachPerformanceAnalytics": CoachPerformanceAnalytics,
     "CoachProgramManagement": CoachProgramManagement,
     "CoachReferralLink": CoachReferralLink,
+    "CoachReportTracker": CoachReportTracker,
     "CoachSubscription": CoachSubscription,
     "CoachSubscriptions": CoachSubscriptions,
     "Communication": Communication,
@@ -269,8 +271,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "ClientReportUpload": ClientReportUpload,
-    "CoachReportTracker": CoachReportTracker,
 }
 
 export const pagesConfig = {
