@@ -17,11 +17,13 @@ Deno.serve(async (req) => {
     }
 
     // Update user details with service role (directly by ID)
-    await base44.asServiceRole.entities.User.update(coach_id, {
+    const userUpdateResult = await base44.asServiceRole.entities.User.update(coach_id, {
       full_name: full_name,
       email: email,
       phone: phone || null,
     });
+    
+    console.log('User update result:', userUpdateResult);
 
     // Update all subscription records with new name/email
     const subscriptions = await base44.asServiceRole.entities.HealthCoachSubscription.filter({ 
