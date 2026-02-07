@@ -425,33 +425,20 @@ export default function HealthCoachesManagement() {
   // Edit coach mutation
   const editCoachMutation = useMutation({
     mutationFn: async (data) => {
-      // Update user details
-      await base44.entities.User.update(selectedCoach.id, {
+      // Update user details using backend function for proper permissions
+      const response = await base44.functions.invoke('updateCoachProfile', {
+        coach_id: selectedCoach.id,
         full_name: data.full_name,
         email: data.email,
         phone: data.phone,
+        old_email: selectedCoach.email,
       });
 
-      // Update subscription records with new name/email
-      const coachSubs = subscriptions.filter(s => s.coach_email === selectedCoach.email);
-      for (const sub of coachSubs) {
-        await base44.entities.HealthCoachSubscription.update(sub.id, {
-          coach_email: data.email,
-          coach_name: data.full_name,
-        });
+      if (response.data?.error) {
+        throw new Error(response.data.error);
       }
 
-      // Record history
-      await base44.entities.CoachSubscriptionHistory.create({
-        coach_email: data.email,
-        coach_name: data.full_name,
-        action_type: 'profile_updated',
-        old_value: `${selectedCoach.full_name} (${selectedCoach.email})`,
-        new_value: `${data.full_name} (${data.email})`,
-        performed_by: user.email,
-      });
-
-      return { success: true };
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['allHealthCoaches']);
