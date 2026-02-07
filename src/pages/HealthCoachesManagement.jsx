@@ -1254,7 +1254,15 @@ export default function HealthCoachesManagement() {
                     toast.error('Please enter a valid email address');
                     return;
                   }
-                  editCoachMutation.mutate(editForm);
+                  if (!selectedCoach) {
+                    toast.error('No coach selected');
+                    return;
+                  }
+                  editCoachMutation.mutate({
+                    ...editForm,
+                    coach_id: selectedCoach.id,
+                    old_email: selectedCoach.email
+                  });
                 }}
                 disabled={!editForm.full_name || !editForm.email || editCoachMutation.isPending}
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600"
