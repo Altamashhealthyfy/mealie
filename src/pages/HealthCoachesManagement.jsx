@@ -53,7 +53,9 @@ import {
   Filter,
   AlertCircle,
   CheckCircle2,
-  Clock
+  Clock,
+  CalendarPlus,
+  User
 } from 'lucide-react';
 import { toast } from 'sonner';
 
