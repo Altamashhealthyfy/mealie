@@ -93,9 +93,41 @@ export default function ClinicalIntake() {
     enabled: !!formData.client_id,
   });
 
-  // Pre-fill from client data
+  // Fetch existing clinical intake for this client
+  const { data: existingIntake, isLoading: intakeLoading } = useQuery({
+    queryKey: ['clinicalIntake', formData.client_id],
+    queryFn: async () => {
+      const intakes = await base44.entities.ClinicalIntake.filter({ client_id: formData.client_id });
+      return intakes.length > 0 ? intakes[0] : null;
+    },
+    enabled: !!formData.client_id,
+  });
+
+  // Load existing intake data if available
   useEffect(() => {
-    if (client && formData.client_id) {
+    if (existingIntake && formData.client_id) {
+      setFormData({
+        ...existingIntake,
+        client_id: formData.client_id,
+      });
+      
+      // Load medications
+      if (existingIntake.current_medications?.length > 0) {
+        setMedications(existingIntake.current_medications);
+      }
+      
+      // Load text fields
+      if (existingIntake.symptom_goals?.length > 0) {
+        setSymptomGoalsText(existingIntake.symptom_goals.join('\n'));
+      }
+      if (existingIntake.likes_dislikes_allergies) {
+        setLikesText(existingIntake.likes_dislikes_allergies.likes?.join(', ') || '');
+        setDislikesText(existingIntake.likes_dislikes_allergies.dislikes?.join(', ') || '');
+        setAllergiesText(existingIntake.likes_dislikes_allergies.allergies?.join(', ') || '');
+        setNoGoText(existingIntake.likes_dislikes_allergies.no_go_foods?.join(', ') || '');
+      }
+    } else if (client && formData.client_id && !existingIntake) {
+      // Pre-fill from client data only if no existing intake
       setFormData(prev => ({
         ...prev,
         basic_info: {
@@ -111,7 +143,7 @@ export default function ClinicalIntake() {
         goal: client.goal || ''
       }));
     }
-  }, [client, formData.client_id]);
+  }, [client, formData.client_id, existingIntake]);
 
   // Auto-calculate BMI
   useEffect(() => {
@@ -126,10 +158,15 @@ export default function ClinicalIntake() {
   }, [formData.basic_info.height, formData.basic_info.weight]);
 
   const saveMutation = useMutation({
-    mutationFn: (data) => base44.entities.ClinicalIntake.create(data),
+    mutationFn: (data) => {
+      if (existingIntake?.id) {
+        return base44.entities.ClinicalIntake.update(existingIntake.id, data);
+      }
+      return base44.entities.ClinicalIntake.create(data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['clinicalIntake']);
-      alert('✅ Clinical intake saved successfully!');
+      alert(existingIntake?.id ? '✅ Clinical intake updated successfully!' : '✅ Clinical intake saved successfully!');
       window.location.href = `/#/MealPlansPro?client=${formData.client_id}`;
     },
   });
@@ -200,11 +237,21 @@ export default function ClinicalIntake() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">🩺 Clinical Intake Form</h1>
-            <p className="text-gray-600">Disease-specific meal planning{client ? ` for ${client.full_name}` : ''}</p>
+            <p className="text-gray-600">
+              {existingIntake ? 'Update clinical intake' : 'Disease-specific meal planning'}
+              {client ? ` for ${client.full_name}` : ''}
+            </p>
           </div>
-          <Badge className="bg-purple-600 text-white text-lg px-4 py-2">
-            💎 Mealie Pro
-          </Badge>
+          <div className="flex items-center gap-2">
+            {existingIntake && (
+              <Badge className="bg-green-600 text-white px-3 py-1">
+                ✓ Previously Submitted
+              </Badge>
+            )}
+            <Badge className="bg-purple-600 text-white text-lg px-4 py-2">
+              💎 Mealie Pro
+            </Badge>
+          </div>
         </div>
 
         {/* Client Selection */}
@@ -928,11 +975,11 @@ export default function ClinicalIntake() {
               className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg"
             >
               {saveMutation.isPending ? (
-                'Saving...'
+                existingIntake ? 'Updating...' : 'Saving...'
               ) : (
                 <>
                   <CheckCircle className="w-5 h-5 mr-2" />
-                  Submit & Generate Pro Plan
+                  {existingIntake ? 'Update & Regenerate Pro Plan' : 'Submit & Generate Pro Plan'}
                 </>
               )}
             </Button>
