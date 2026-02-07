@@ -287,12 +287,33 @@ export default function ClinicalIntake() {
           </CardContent>
         </Card>
 
-        <Alert className="bg-indigo-50 border-indigo-500">
-          <Sparkles className="w-4 h-4 text-indigo-600" />
-          <AlertDescription>
-            <strong>Complete this detailed intake</strong> to generate a personalized 10-day disease-specific meal plan with MPESS wellness integration.
-          </AlertDescription>
-        </Alert>
+        {existingIntake ? (
+          <Alert className="bg-green-50 border-green-500">
+            <CheckCircle className="w-4 h-4 text-green-600" />
+            <AlertDescription className="flex items-center justify-between">
+              <div>
+                <strong>Clinical Intake Completed!</strong>
+                <p className="text-sm text-green-700 mt-1">
+                  Last submitted on {new Date(existingIntake.intake_date).toLocaleDateString()}. You can edit and resubmit below.
+                </p>
+              </div>
+              <Button
+                type="button"
+                onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
+                className="bg-green-600 hover:bg-green-700 ml-4"
+              >
+                Resubmit Form
+              </Button>
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <Alert className="bg-indigo-50 border-indigo-500">
+            <Sparkles className="w-4 h-4 text-indigo-600" />
+            <AlertDescription>
+              <strong>Complete this detailed intake</strong> to generate a personalized 10-day disease-specific meal plan with MPESS wellness integration.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Section 1: Basic Information */}
