@@ -431,11 +431,11 @@ export default function HealthCoachesManagement() {
     mutationFn: async (data) => {
       // Update user details using backend function for proper permissions
       const response = await base44.functions.invoke('updateCoachProfile', {
-        coach_id: selectedCoach.id,
+        coach_id: data.coach_id,
         full_name: data.full_name,
         email: data.email,
-        phone: data.phone,
-        old_email: selectedCoach.email,
+        phone: data.phone || '',
+        old_email: data.old_email,
       });
 
       if (response.data?.error) {
@@ -448,9 +448,11 @@ export default function HealthCoachesManagement() {
       queryClient.invalidateQueries(['allHealthCoaches']);
       queryClient.invalidateQueries(['healthCoachSubscriptions']);
       setEditCoachDialog(false);
+      setSelectedCoach(null);
       toast.success('Coach details updated successfully!');
     },
     onError: (error) => {
+      console.error('Edit coach error:', error);
       toast.error(error.message || 'Failed to update coach details');
     },
   });
