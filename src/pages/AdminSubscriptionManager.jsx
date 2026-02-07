@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Shield, Crown, Plus, Trash2, AlertCircle, Users, Sparkles, Search, Filter } from "lucide-react";
+import { Shield, Crown, Plus, Trash2, AlertCircle, Users, Sparkles, Search, Filter, CalendarPlus, Edit2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 
@@ -18,6 +18,9 @@ export default function AdminSubscriptionManager() {
   const queryClient = useQueryClient();
   const [showCoachDialog, setShowCoachDialog] = useState(false);
   const [showClientDialog, setShowClientDialog] = useState(false);
+  const [showExtendPlanDialog, setShowExtendPlanDialog] = useState(false);
+  const [showEditCoachDialog, setShowEditCoachDialog] = useState(false);
+  const [selectedSubscription, setSelectedSubscription] = useState(null);
   const [coachEmail, setCoachEmail] = useState("");
   const [coachName, setCoachName] = useState("");
   const [selectedCoachPlan, setSelectedCoachPlan] = useState("");
@@ -36,6 +39,11 @@ export default function AdminSubscriptionManager() {
   const [coachStatusFilter, setCoachStatusFilter] = useState("all");
   const [clientSearchTerm, setClientSearchTerm] = useState("");
   const [clientStatusFilter, setClientStatusFilter] = useState("all");
+  const [extendMonths, setExtendMonths] = useState(1);
+  const [editCoachForm, setEditCoachForm] = useState({
+    full_name: '',
+    email: '',
+  });
 
 
   const { data: user } = useQuery({
@@ -218,6 +226,84 @@ export default function AdminSubscriptionManager() {
     },
   });
 
+  const extendPlanMutation = useMutation({
+    mutationFn: async (data) => {
+      const currentEndDate = new Date(selectedSubscription.end_date);
+      const newEndDate = new Date(currentEndDate);
+      newEndDate.setMonth(newEndDate.getMonth() + parseInt(data.months));
+
+      await base44.entities.HealthCoachSubscription.update(selectedSubscription.id, {
+        end_date: newEndDate.toISOString().split('T')[0],
+        next_billing_date: newEndDate.toISOString().split('T')[0],
+      });
+
+      await base44.entities.CoachSubscriptionHistory.create({
+        coach_email: selectedSubscription.coach_email,
+        coach_name: selectedSubscription.coach_name,
+        action_type: 'plan_extended',
+        amount: parseInt(data.months),
+        old_value: selectedSubscription.end_date,
+        new_value: newEndDate.toISOString().split('T')[0],
+        performed_by: user.email,
+        notes: `Extended by ${data.months} month(s)`,
+      });
+
+      return { success: true };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['allCoachSubscriptions']);
+      setShowExtendPlanDialog(false);
+      setExtendMonths(1);
+      toast.success('Plan extended successfully!');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to extend plan');
+    },
+  });
+
+  const editCoachMutation = useMutation({
+    mutationFn: async (data) => {
+      // Find coach user record
+      const users = await base44.entities.User.filter({ email: selectedSubscription.coach_email });
+      const coachUser = users[0];
+
+      if (coachUser) {
+        await base44.entities.User.update(coachUser.id, {
+          full_name: data.full_name,
+          email: data.email,
+        });
+      }
+
+      // Update all subscription records for this coach
+      const allSubs = await base44.entities.HealthCoachSubscription.filter({ coach_email: selectedSubscription.coach_email });
+      for (const sub of allSubs) {
+        await base44.entities.HealthCoachSubscription.update(sub.id, {
+          coach_email: data.email,
+          coach_name: data.full_name,
+        });
+      }
+
+      await base44.entities.CoachSubscriptionHistory.create({
+        coach_email: data.email,
+        coach_name: data.full_name,
+        action_type: 'profile_updated',
+        old_value: `${selectedSubscription.coach_name} (${selectedSubscription.coach_email})`,
+        new_value: `${data.full_name} (${data.email})`,
+        performed_by: user.email,
+      });
+
+      return { success: true };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['allCoachSubscriptions']);
+      setShowEditCoachDialog(false);
+      toast.success('Coach details updated successfully!');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to update coach details');
+    },
+  });
+
   const handleGrantCoachAccess = () => {
     console.log('handleGrantCoachAccess called', { coachEmail, selectedCoachPlan });
     
@@ -376,6 +462,7 @@ export default function AdminSubscriptionManager() {
                         <div className="flex items-center gap-2 mb-2">
                           <Crown className="w-5 h-5 text-purple-600" />
                           <h3 className="text-lg font-bold">{sub.coach_email}</h3>
+                          {sub.coach_name && <span className="text-sm text-gray-600">({sub.coach_name})</span>}
                           {sub.manually_granted && <Badge className="bg-blue-600">Manual</Badge>}
                           <Badge className={sub.status === 'active' ? 'bg-green-600' : 'bg-gray-600'}>
                             {sub.status}
@@ -395,17 +482,49 @@ export default function AdminSubscriptionManager() {
                           <p className="text-xs text-blue-600 mt-1">Granted by: {sub.granted_by}</p>
                         )}
                       </div>
-                      <Button
-                        onClick={() => {
-                          if (confirm('Revoke access for this coach?')) {
-                            revokeCoachAccessMutation.mutate(sub.id);
-                          }
-                        }}
-                        variant="destructive"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Revoke
-                      </Button>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="hover:bg-blue-50 hover:text-blue-600"
+                          onClick={() => {
+                            setSelectedSubscription(sub);
+                            setEditCoachForm({
+                              full_name: sub.coach_name || '',
+                              email: sub.coach_email,
+                            });
+                            setShowEditCoachDialog(true);
+                          }}
+                        >
+                          <Edit2 className="w-4 h-4 mr-2" />
+                          Edit
+                        </Button>
+                        {sub.status === 'active' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="hover:bg-green-50 hover:text-green-600"
+                            onClick={() => {
+                              setSelectedSubscription(sub);
+                              setShowExtendPlanDialog(true);
+                            }}
+                          >
+                            <CalendarPlus className="w-4 h-4 mr-2" />
+                            Extend
+                          </Button>
+                        )}
+                        <Button
+                          onClick={() => {
+                            if (confirm('Revoke access for this coach?')) {
+                              revokeCoachAccessMutation.mutate(sub.id);
+                            }
+                          }}
+                          variant="destructive"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Revoke
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -804,6 +923,106 @@ export default function AdminSubscriptionManager() {
               >
                 <Sparkles className="w-4 h-4 mr-2" />
                 {addAICreditsMutation.isPending ? 'Adding...' : 'Add Credits'}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Extend Plan Dialog */}
+        <Dialog open={showExtendPlanDialog} onOpenChange={setShowExtendPlanDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <CalendarPlus className="w-5 h-5 text-green-600" />
+                Extend Plan Duration
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              {selectedSubscription && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-900 mb-2">
+                    <strong>Coach:</strong> {selectedSubscription.coach_name || selectedSubscription.coach_email}
+                  </p>
+                  <p className="text-sm text-blue-900 mb-2">
+                    <strong>Current End Date:</strong> {new Date(selectedSubscription.end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </p>
+                  {extendMonths > 0 && (
+                    <p className="text-sm text-green-900">
+                      <strong>New End Date:</strong> {(() => {
+                        const newDate = new Date(selectedSubscription.end_date);
+                        newDate.setMonth(newDate.getMonth() + parseInt(extendMonths));
+                        return newDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                      })()}
+                    </p>
+                  )}
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label>Extend By (Months) *</Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={extendMonths}
+                  onChange={(e) => setExtendMonths(parseInt(e.target.value) || 1)}
+                  placeholder="Enter number of months"
+                />
+              </div>
+              <Button
+                onClick={() => extendPlanMutation.mutate({ months: extendMonths })}
+                disabled={extendMonths <= 0 || extendPlanMutation.isPending}
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600"
+              >
+                {extendPlanMutation.isPending ? 'Extending...' : `Extend by ${extendMonths} Month(s)`}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Coach Dialog */}
+        <Dialog open={showEditCoachDialog} onOpenChange={setShowEditCoachDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Edit2 className="w-5 h-5 text-blue-600" />
+                Edit Coach Details
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Full Name *</Label>
+                <Input
+                  value={editCoachForm.full_name}
+                  onChange={(e) => setEditCoachForm({ ...editCoachForm, full_name: e.target.value })}
+                  placeholder="Enter full name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Email ID *</Label>
+                <Input
+                  type="email"
+                  value={editCoachForm.email}
+                  onChange={(e) => setEditCoachForm({ ...editCoachForm, email: e.target.value.trim().toLowerCase() })}
+                  placeholder="coach@example.com"
+                />
+              </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <p className="text-xs text-amber-900">
+                  <strong>Note:</strong> Changing email will update all subscription records. Login credentials will use the new email.
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                  if (!emailRegex.test(editCoachForm.email)) {
+                    toast.error('Please enter a valid email address');
+                    return;
+                  }
+                  editCoachMutation.mutate(editCoachForm);
+                }}
+                disabled={!editCoachForm.full_name || !editCoachForm.email || editCoachMutation.isPending}
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600"
+              >
+                {editCoachMutation.isPending ? 'Updating...' : 'Update Details'}
               </Button>
             </div>
           </DialogContent>
