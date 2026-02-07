@@ -16,13 +16,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Verify user exists
-    const users = await base44.asServiceRole.entities.User.filter({ id: coach_id });
-    if (!users || users.length === 0) {
-      return Response.json({ error: 'Coach not found' }, { status: 404 });
-    }
-
-    // Update user details with service role
+    // Update user details with service role (directly by ID)
     await base44.asServiceRole.entities.User.update(coach_id, {
       full_name: full_name,
       email: email,
