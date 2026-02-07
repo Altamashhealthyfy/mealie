@@ -715,10 +715,21 @@ export default function MealPlansPro() {
                         <Alert className="bg-green-50 border-green-500">
                           <CheckCircle className="w-4 h-4 text-green-600" />
                           <AlertDescription>
-                            <strong>Clinical intake completed!</strong><br/>
-                            Health Conditions: {latestIntake?.health_conditions?.join(', ') || 'Not specified'}<br/>
-                            Diet Type: {latestIntake?.diet_type || 'Not specified'}<br/>
-                            Goal: {latestIntake?.goal || 'Not specified'}
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <strong>Clinical intake completed!</strong><br/>
+                                Health Conditions: {latestIntake?.health_conditions?.join(', ') || 'Not specified'}<br/>
+                                Diet Type: {latestIntake?.diet_type || 'Not specified'}<br/>
+                                Goal: {latestIntake?.goal || 'Not specified'}
+                              </div>
+                              <Button
+                                onClick={() => navigate(`/ClinicalIntake?clientId=${selectedClient.id}`)}
+                                className="bg-green-600 hover:bg-green-700 ml-4"
+                              >
+                                <Edit className="w-4 h-4 mr-2" />
+                                Resubmit
+                              </Button>
+                            </div>
                           </AlertDescription>
                         </Alert>
                       ) : (
