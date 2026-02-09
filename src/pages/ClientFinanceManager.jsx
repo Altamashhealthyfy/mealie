@@ -126,19 +126,40 @@ export default function ClientFinanceManager() {
 
   const { data: transactions } = useQuery({
     queryKey: ['clientTransactions'],
-    queryFn: () => base44.entities.ClientTransaction.list('-transaction_date'),
+    queryFn: async () => {
+      const allTransactions = await base44.entities.ClientTransaction.list('-transaction_date');
+      if (user?.user_type === 'super_admin') {
+        return allTransactions;
+      }
+      return allTransactions.filter(t => t.created_by === user?.email);
+    },
+    enabled: !!user,
     initialData: [],
   });
 
   const { data: expenses } = useQuery({
     queryKey: ['businessExpenses'],
-    queryFn: () => base44.entities.BusinessExpense.list('-expense_date'),
+    queryFn: async () => {
+      const allExpenses = await base44.entities.BusinessExpense.list('-expense_date');
+      if (user?.user_type === 'super_admin') {
+        return allExpenses;
+      }
+      return allExpenses.filter(e => e.created_by === user?.email);
+    },
+    enabled: !!user,
     initialData: [],
   });
 
   const { data: ccPayments } = useQuery({
     queryKey: ['creditCardPayments'],
-    queryFn: () => base44.entities.CreditCardPayment.list('-payment_date'),
+    queryFn: async () => {
+      const allPayments = await base44.entities.CreditCardPayment.list('-payment_date');
+      if (user?.user_type === 'super_admin') {
+        return allPayments;
+      }
+      return allPayments.filter(p => p.created_by === user?.email);
+    },
+    enabled: !!user,
     initialData: [],
   });
 
