@@ -63,10 +63,15 @@ export default function ClientPlanBuilder() {
   const { data: myPlans } = useQuery({
     queryKey: ['myClientPlans', user?.email],
     queryFn: async () => {
+      const allPlans = await base44.entities.ClientPlanDefinition.list('-created_date');
+      
+      // Super admin sees ALL plans
       if (user?.user_type === 'super_admin') {
-        return await base44.entities.ClientPlanDefinition.list('-created_date');
+        return allPlans;
       }
-      return await base44.entities.ClientPlanDefinition.filter({ coach_email: user?.email });
+      
+      // Student coaches and team members see only their own plans
+      return allPlans.filter(plan => plan.coach_email === user?.email);
     },
     enabled: !!user,
     initialData: [],
