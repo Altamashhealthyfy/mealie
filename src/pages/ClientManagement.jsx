@@ -120,15 +120,20 @@ export default function ClientManagement() {
     queryKey: ['clients'],
     queryFn: async () => {
       const allClients = await base44.entities.Client.list('-created_date');
+      
+      console.log('🔍 Fetched clients:', allClients.length);
+      console.log('👤 Current user type:', user?.user_type);
+      console.log('📧 Current user email:', user?.email);
 
       // Super admin sees ALL clients
       if (user?.user_type === 'super_admin') {
+        console.log('✅ Super admin - showing ALL clients:', allClients.length);
         return allClients;
       }
 
       // Student coaches see clients they created OR clients assigned to them
       if (user?.user_type === 'student_coach') {
-        return allClients.filter(client => {
+        const filtered = allClients.filter(client => {
           const assignedCoaches = Array.isArray(client.assigned_coach) 
             ? client.assigned_coach 
             : client.assigned_coach 
@@ -136,10 +141,14 @@ export default function ClientManagement() {
               : [];
           return client.created_by === user?.email || assignedCoaches.includes(user?.email);
         });
+        console.log('✅ Student coach - showing filtered clients:', filtered.length);
+        return filtered;
       }
 
       // Team members, student team members - only see clients they created
-      return allClients.filter(client => client.created_by === user?.email);
+      const filtered = allClients.filter(client => client.created_by === user?.email);
+      console.log('✅ Team member - showing filtered clients:', filtered.length);
+      return filtered;
     },
     enabled: !!user,
     initialData: [],
