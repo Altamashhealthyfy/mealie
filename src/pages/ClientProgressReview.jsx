@@ -36,7 +36,14 @@ export default function ClientProgressReview() {
     queryKey: ['myClients', user?.email],
     queryFn: async () => {
       const allClients = await base44.entities.Client.list();
-      return allClients.filter(c => c.assigned_coach?.includes(user?.email));
+      return allClients.filter(c => {
+        const assignedCoaches = Array.isArray(c.assigned_coach) 
+          ? c.assigned_coach 
+          : c.assigned_coach 
+            ? [c.assigned_coach] 
+            : [];
+        return assignedCoaches.includes(user?.email);
+      });
     },
     enabled: !!user,
   });

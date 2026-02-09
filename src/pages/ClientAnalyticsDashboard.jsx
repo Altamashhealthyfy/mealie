@@ -48,10 +48,14 @@ export default function ClientAnalyticsDashboard() {
         return allClients;
       }
       if (user?.user_type === 'student_coach') {
-        return allClients.filter(client => 
-          client.created_by === user?.email || 
-          client.assigned_coach === user?.email
-        );
+        return allClients.filter(client => {
+          const assignedCoaches = Array.isArray(client.assigned_coach) 
+            ? client.assigned_coach 
+            : client.assigned_coach 
+              ? [client.assigned_coach] 
+              : [];
+          return client.created_by === user?.email || assignedCoaches.includes(user?.email);
+        });
       }
       return allClients.filter(client => client.created_by === user?.email);
     },
