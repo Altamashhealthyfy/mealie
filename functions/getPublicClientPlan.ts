@@ -14,7 +14,20 @@ Deno.serve(async (req) => {
       status: 'active' 
     });
 
-    return Response.json(plans[0] || null);
+    const plan = plans[0];
+    
+    // Only return plans that are global OR created by coaches (not test/personal plans)
+    if (!plan) {
+      return Response.json(null);
+    }
+    
+    // Allow if plan is marked as global OR has a coach_email (created by a coach)
+    if (plan.is_global || plan.coach_email) {
+      return Response.json(plan);
+    }
+    
+    // Hide personal/test plans
+    return Response.json(null);
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
