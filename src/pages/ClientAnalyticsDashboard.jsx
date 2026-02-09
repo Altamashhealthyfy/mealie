@@ -109,7 +109,7 @@ export default function ClientAnalyticsDashboard() {
 
   const { data: mpessLogs } = useQuery({
     queryKey: ['mpessLogs'],
-    queryFn: () => base44.entities.MPESSTracker.list('-date', 500),
+    queryFn: () => base44.entities.MPESSTracker.list('-submission_date', 500),
     initialData: [],
   });
 
@@ -248,7 +248,7 @@ export default function ClientAnalyticsDashboard() {
     const pendingAssessments = assessments.filter(a => a.status === 'pending' && (selectedClient === "all" || a.client_id === selectedClient)).length;
     const activeGoals = filteredGoals.filter(g => g.status === 'active').length;
     const completedGoals = filteredGoals.filter(g => g.status === 'completed').length;
-    const recentMPESS = mpessLogs.filter(log => new Date(log.date) >= cutoffDate).length;
+    const recentMPESS = mpessLogs.filter(log => new Date(log.submission_date) >= cutoffDate).length;
     
     // Assessment completion rate
     const assessmentCompletionRate = assessments.length > 0 
@@ -275,7 +275,7 @@ export default function ClientAnalyticsDashboard() {
       ).length;
       
       const mpessCount = mpessLogs.filter(log => 
-        format(new Date(log.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+        format(new Date(log.submission_date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
       ).length;
 
       moduleUsageData.push({ date: dateStr, progress: progressCount, food: foodCount, mpess: mpessCount });
