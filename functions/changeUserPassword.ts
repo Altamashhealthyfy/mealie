@@ -44,8 +44,20 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Update user password - use admin.updateUser method
-    await base44.asServiceRole.admin.updateUser(emailToUpdate, {
+    // Update user password using asServiceRole
+    const users = await base44.asServiceRole.entities.User.filter({ email: emailToUpdate });
+    
+    if (!users || users.length === 0) {
+      return Response.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    const targetUser = users[0];
+    
+    // Update password using service role
+    await base44.asServiceRole.entities.User.update(targetUser.id, {
       password: password
     });
 
