@@ -522,12 +522,15 @@ export default function HealthCoachesManagement() {
       return response.data;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries(['allHealthCoaches']);
       setChangePasswordDialog(false);
       setPasswordForm({ newPassword: '', confirmPassword: '' });
+      setSelectedCoach(null);
       toast.success('Password changed successfully!');
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to change password');
+      console.error('Password change error:', error);
+      toast.error(error?.response?.data?.error || error.message || 'Failed to change password');
     },
   });
 
