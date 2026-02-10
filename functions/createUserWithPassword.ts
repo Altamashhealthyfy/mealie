@@ -4,11 +4,19 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     
-    // Verify admin access
+    // Verify access - allow super_admin, student_coach, and team_member
     const user = await base44.auth.me();
-    if (!user || user.user_type !== 'super_admin') {
+    if (!user) {
       return Response.json(
-        { error: 'Unauthorized - Admin access required' },
+        { error: 'Unauthorized - Please login' },
+        { status: 401 }
+      );
+    }
+
+    const allowedTypes = ['super_admin', 'student_coach', 'team_member', 'student_team_member'];
+    if (!allowedTypes.includes(user.user_type)) {
+      return Response.json(
+        { error: 'Unauthorized - Only health coaches and team members can create accounts' },
         { status: 403 }
       );
     }

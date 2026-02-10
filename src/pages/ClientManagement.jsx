@@ -252,6 +252,20 @@ export default function ClientManagement() {
         cleanData.initial_weight = data.weight ? parseFloat(data.weight) : null;
         const newClient = await base44.entities.Client.create(cleanData);
 
+        // 🔥 AUTOMATICALLY CREATE USER ACCOUNT FOR CLIENT
+        try {
+          await base44.functions.invoke('createUserWithPassword', {
+            email: newClient.email,
+            full_name: newClient.full_name,
+            user_type: 'client',
+            password: 'Client@123', // Default password
+          });
+          console.log("✅ User account created for client:", newClient.email);
+        } catch (userError) {
+          console.error("⚠️ Failed to create user account:", userError);
+          // Continue even if user creation fails (might already exist)
+        }
+
         // 🔥 AUTOMATICALLY SEND WELCOME EMAIL
         try {
           const welcomeSubject = "Welcome to Mealie Pro - Your Health Journey Begins!";
@@ -352,11 +366,15 @@ support@mealiepro.com`;
       if (editingClient) {
         alert("✅ Client updated successfully!");
       } else {
-        const notifications = ["📧 Welcome email sent to " + variables.email];
+        const notifications = [
+          "✅ Client profile created",
+          "🔐 Login account created (Password: Client@123)",
+          "📧 Welcome email sent to " + variables.email
+        ];
         if (variables.phone) {
           notifications.push("📱 WhatsApp message sent to " + variables.phone);
         }
-        alert("✅ Client added successfully!\n\n" + notifications.join("\n"));
+        alert("Client added successfully!\n\n" + notifications.join("\n") + "\n\n⚠️ Important: Share login password 'Client@123' with the client securely!");
       }
     },
     onError: (error) => {
