@@ -648,8 +648,9 @@ export default function HealthCoachesManagement() {
 
   // Check if plan is expired
   const isPlanExpired = (subscription) => {
-    if (!subscription) return true;
+    if (!subscription || !subscription.end_date) return true;
     const endDate = new Date(subscription.end_date);
+    if (isNaN(endDate.getTime())) return true;
     return endDate < new Date();
   };
 
@@ -657,6 +658,7 @@ export default function HealthCoachesManagement() {
   const getDaysUntilExpiry = (subscription) => {
     if (!subscription?.end_date) return null;
     const endDate = new Date(subscription.end_date);
+    if (isNaN(endDate.getTime())) return null;
     const today = new Date();
     const diffTime = endDate - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -1001,13 +1003,13 @@ export default function HealthCoachesManagement() {
                         </TableCell>
                         <TableCell className="py-2">
                           <div className="space-y-1 text-xs">
-                            {subscription?.start_date && (
+                            {subscription?.start_date && !isNaN(new Date(subscription.start_date).getTime()) && (
                               <div className="flex items-center gap-1 text-gray-600">
                                 <Calendar className="w-3 h-3 text-gray-400" />
                                 {new Date(subscription.start_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
                               </div>
                             )}
-                            {subscription?.end_date && (
+                            {subscription?.end_date && !isNaN(new Date(subscription.end_date).getTime()) && (
                               <div className="flex items-center gap-1 text-gray-600">
                                 <Calendar className="w-3 h-3 text-gray-400" />
                                 {new Date(subscription.end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
@@ -1224,16 +1226,21 @@ export default function HealthCoachesManagement() {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              {selectedCoach && getCoachSubscription(selectedCoach.email) && (
+              {selectedCoach && getCoachSubscription(selectedCoach.email)?.end_date && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <p className="text-sm text-blue-900 mb-2">
                     <strong>Current End Date:</strong> {new Date(getCoachSubscription(selectedCoach.email).end_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </p>
-                  {extendForm.extra_months > 0 && (
-                    <p className="text-sm text-green-900">
-                      <strong>New End Date:</strong> {new Date(new Date(getCoachSubscription(selectedCoach.email).end_date).setMonth(new Date(getCoachSubscription(selectedCoach.email).end_date).getMonth() + parseInt(extendForm.extra_months))).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                    </p>
-                  )}
+                  {extendForm.extra_months > 0 && (() => {
+                    const currentEndDate = new Date(getCoachSubscription(selectedCoach.email).end_date);
+                    const newEndDate = new Date(currentEndDate);
+                    newEndDate.setMonth(newEndDate.getMonth() + parseInt(extendForm.extra_months));
+                    return (
+                      <p className="text-sm text-green-900">
+                        <strong>New End Date:</strong> {newEndDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </p>
+                    );
+                  })()}
                 </div>
               )}
               <div>
