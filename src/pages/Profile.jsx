@@ -206,7 +206,7 @@ export default function Profile() {
 
   const changePasswordMutation = useMutation({
     mutationFn: async (data) => {
-      return await base44.functions.invoke('changeUserPassword', data);
+      return await base44.functions.invoke('changeUserPassword', { password: data.newPassword });
     },
     onSuccess: () => {
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
@@ -269,8 +269,8 @@ export default function Profile() {
     e.preventDefault();
     setPasswordError("");
 
-    if (passwordForm.newPassword.length < 8) {
-      setPasswordError("New password must be at least 8 characters long");
+    if (passwordForm.newPassword.length < 6) {
+      setPasswordError("New password must be at least 6 characters long");
       return;
     }
 
@@ -280,7 +280,6 @@ export default function Profile() {
     }
 
     changePasswordMutation.mutate({
-      currentPassword: passwordForm.currentPassword,
       newPassword: passwordForm.newPassword
     });
   };
@@ -664,94 +663,76 @@ export default function Profile() {
           </Button>
           </form>
 
-          {/* Change Password Section */}
-        <Card className="border-none shadow-lg bg-gradient-to-br from-red-50 to-orange-50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <KeyRound className="w-5 h-5 text-red-500" />
-              Change Password
-            </CardTitle>
-            <CardDescription>Update your account password</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handlePasswordChange} className="space-y-4">
-              {passwordError && (
-                <Alert className="bg-red-50 border-red-500">
-                  <AlertDescription className="text-red-700">{passwordError}</AlertDescription>
-                </Alert>
-              )}
-              
-              <div className="space-y-2">
-                <Label>Current Password</Label>
-                <div className="relative">
-                  <Input
-                    type={showPasswords.current ? "text" : "password"}
-                    value={passwordForm.currentPassword}
-                    onChange={(e) => setPasswordForm({...passwordForm, currentPassword: e.target.value})}
-                    placeholder="Enter current password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPasswords({...showPasswords, current: !showPasswords.current})}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
+          {/* Change Password Section - For Health Coaches and Clients */}
+        {(user?.user_type === 'student_coach' || user?.user_type === 'client') && (
+          <Card className="border-none shadow-lg bg-gradient-to-br from-red-50 to-orange-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <KeyRound className="w-5 h-5 text-red-500" />
+                Change Password
+              </CardTitle>
+              <CardDescription>Update your account password (no old password required)</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handlePasswordChange} className="space-y-4">
+                {passwordError && (
+                  <Alert className="bg-red-50 border-red-500">
+                    <AlertDescription className="text-red-700">{passwordError}</AlertDescription>
+                  </Alert>
+                )}
 
-              <div className="space-y-2">
-                <Label>New Password</Label>
-                <div className="relative">
-                  <Input
-                    type={showPasswords.new ? "text" : "password"}
-                    value={passwordForm.newPassword}
-                    onChange={(e) => setPasswordForm({...passwordForm, newPassword: e.target.value})}
-                    placeholder="Enter new password (min 8 characters)"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPasswords({...showPasswords, new: !showPasswords.new})}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+                <div className="space-y-2">
+                  <Label>New Password</Label>
+                  <div className="relative">
+                    <Input
+                      type={showPasswords.new ? "text" : "password"}
+                      value={passwordForm.newPassword}
+                      onChange={(e) => setPasswordForm({...passwordForm, newPassword: e.target.value})}
+                      placeholder="Enter new password (min 6 characters)"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswords({...showPasswords, new: !showPasswords.new})}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label>Confirm New Password</Label>
-                <div className="relative">
-                  <Input
-                    type={showPasswords.confirm ? "text" : "password"}
-                    value={passwordForm.confirmPassword}
-                    onChange={(e) => setPasswordForm({...passwordForm, confirmPassword: e.target.value})}
-                    placeholder="Confirm new password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPasswords({...showPasswords, confirm: !showPasswords.confirm})}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
+                <div className="space-y-2">
+                  <Label>Confirm New Password</Label>
+                  <div className="relative">
+                    <Input
+                      type={showPasswords.confirm ? "text" : "password"}
+                      value={passwordForm.confirmPassword}
+                      onChange={(e) => setPasswordForm({...passwordForm, confirmPassword: e.target.value})}
+                      placeholder="Confirm new password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswords({...showPasswords, confirm: !showPasswords.confirm})}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    >
+                      {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <Button
-                type="submit"
-                className="w-full h-12 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600"
-                disabled={changePasswordMutation.isPending}
-              >
-                <Lock className="w-5 h-5 mr-2" />
-                {changePasswordMutation.isPending ? 'Changing Password...' : 'Change Password'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                <Button
+                  type="submit"
+                  className="w-full h-12 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600"
+                  disabled={changePasswordMutation.isPending}
+                >
+                  <Lock className="w-5 h-5 mr-2" />
+                  {changePasswordMutation.isPending ? 'Changing Password...' : 'Change Password'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        )}
 
         <Alert className="border-orange-200 bg-orange-50">
           <Sparkles className="w-4 h-4 text-orange-600" />

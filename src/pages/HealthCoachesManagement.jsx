@@ -55,7 +55,8 @@ import {
   CheckCircle2,
   Clock,
   CalendarPlus,
-  User
+  User,
+  KeyRound
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -70,6 +71,7 @@ export default function HealthCoachesManagement() {
   const [extendPlanDialog, setExtendPlanDialog] = useState(false);
   const [editCoachDialog, setEditCoachDialog] = useState(false);
   const [deleteDialog, setDeleteDialog] = useState(false);
+  const [changePasswordDialog, setChangePasswordDialog] = useState(false);
   const [selectedCoach, setSelectedCoach] = useState(null);
 
   // Form states
@@ -103,6 +105,16 @@ export default function HealthCoachesManagement() {
     full_name: '',
     email: '',
     phone: '',
+  });
+
+  const [passwordForm, setPasswordForm] = useState({
+    newPassword: '',
+    confirmPassword: '',
+  });
+
+  const [showPassword, setShowPassword] = useState({
+    new: false,
+    confirm: false,
   });
 
   // Fetch current user
@@ -492,6 +504,30 @@ export default function HealthCoachesManagement() {
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to add credits');
+    },
+  });
+
+  // Change password mutation
+  const changePasswordMutation = useMutation({
+    mutationFn: async ({ coachEmail, password }) => {
+      const response = await base44.functions.invoke('changeUserPassword', {
+        targetUserEmail: coachEmail,
+        password: password,
+      });
+      
+      if (response.data?.error) {
+        throw new Error(response.data.error);
+      }
+      
+      return response.data;
+    },
+    onSuccess: () => {
+      setChangePasswordDialog(false);
+      setPasswordForm({ newPassword: '', confirmPassword: '' });
+      toast.success('Password changed successfully!');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to change password');
     },
   });
 
@@ -1030,6 +1066,18 @@ export default function HealthCoachesManagement() {
                             <Button
                               size="sm"
                               variant="outline"
+                              className="hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300 h-7 w-7 p-0"
+                              onClick={() => {
+                                setSelectedCoach(coach);
+                                setPasswordForm({ newPassword: '', confirmPassword: '' });
+                                setChangePasswordDialog(true);
+                              }}
+                            >
+                              <KeyRound className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
                               className="hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300 h-7 w-7 p-0"
                               onClick={() => {
                                 setSelectedCoach(coach);
@@ -1308,6 +1356,84 @@ export default function HealthCoachesManagement() {
                 className="w-full bg-gradient-to-r from-orange-600 to-red-600"
               >
                 {addCreditsMutation.isPending ? 'Adding...' : 'Add Credits'}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Change Password Dialog */}
+        <Dialog open={changePasswordDialog} onOpenChange={setChangePasswordDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <KeyRound className="w-5 h-5 text-indigo-600" />
+                Change Coach Password
+              </DialogTitle>
+              <DialogDescription>
+                Set a new password for {selectedCoach?.full_name}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <p className="text-xs text-amber-900">
+                  <strong>Note:</strong> Password will be changed without requiring the old password. Make sure to inform the coach about the new password.
+                </p>
+              </div>
+              <div>
+                <Label>New Password *</Label>
+                <div className="relative">
+                  <Input
+                    type={showPassword.new ? "text" : "password"}
+                    value={passwordForm.newPassword}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                    placeholder="Enter new password (min 6 characters)"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword({ ...showPassword, new: !showPassword.new })}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <Label>Confirm New Password *</Label>
+                <div className="relative">
+                  <Input
+                    type={showPassword.confirm ? "text" : "password"}
+                    value={passwordForm.confirmPassword}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                    placeholder="Confirm new password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword({ ...showPassword, confirm: !showPassword.confirm })}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+              <Button
+                onClick={() => {
+                  if (passwordForm.newPassword.length < 6) {
+                    toast.error('Password must be at least 6 characters');
+                    return;
+                  }
+                  if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+                    toast.error('Passwords do not match');
+                    return;
+                  }
+                  changePasswordMutation.mutate({
+                    coachEmail: selectedCoach.email,
+                    password: passwordForm.newPassword,
+                  });
+                }}
+                disabled={!passwordForm.newPassword || !passwordForm.confirmPassword || changePasswordMutation.isPending}
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600"
+              >
+                {changePasswordMutation.isPending ? 'Changing Password...' : 'Change Password'}
               </Button>
             </div>
           </DialogContent>

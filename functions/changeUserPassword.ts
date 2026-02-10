@@ -1,23 +1,38 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     
-    // Verify admin authentication
+    // Get authenticated user
     const user = await base44.auth.me();
-    if (!user || user.user_type !== 'super_admin') {
+    if (!user) {
       return Response.json(
-        { error: 'Only super admins can change passwords' },
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const { email, password, targetUserEmail } = await req.json();
+
+    // Check if this is admin changing someone else's password
+    const isAdminChangingPassword = targetUserEmail && user.user_type === 'super_admin';
+    
+    // Check if coach is changing their own password
+    const isCoachChangingSelf = !targetUserEmail && user.user_type === 'student_coach';
+    
+    if (!isAdminChangingPassword && !isCoachChangingSelf) {
+      return Response.json(
+        { error: 'Unauthorized to change password' },
         { status: 403 }
       );
     }
 
-    const { email, password } = await req.json();
+    const emailToUpdate = isAdminChangingPassword ? targetUserEmail : user.email;
 
-    if (!email || !password) {
+    if (!password) {
       return Response.json(
-        { error: 'Email and password are required' },
+        { error: 'Password is required' },
         { status: 400 }
       );
     }
@@ -29,8 +44,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Update user password using admin privileges
-    const result = await base44.asServiceRole.auth.updateUserPassword(email, password);
+    // Update user password using service role
+    await base44.asServiceRole.auth.updateUserPassword(emailToUpdate, password);
 
     return Response.json({
       success: true,
