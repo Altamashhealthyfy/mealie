@@ -44,8 +44,31 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Update user password using service role
-    await base44.asServiceRole.auth.updateUserPassword(emailToUpdate, password);
+    // Update user password using backend SDK admin method
+    const users = await base44.asServiceRole.entities.User.filter({ email: emailToUpdate });
+    
+    if (users.length === 0) {
+      return Response.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+    
+    // Use the admin SDK to update password
+    const adminUpdateUrl = `${Deno.env.get('BASE44_API_URL') || 'https://api.base44.com'}/admin/users/${users[0].id}/password`;
+    const adminResponse = await fetch(adminUpdateUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${Deno.env.get('BASE44_SERVICE_ROLE_KEY')}`
+      },
+      body: JSON.stringify({ password })
+    });
+
+    if (!adminResponse.ok) {
+      const error = await adminResponse.text();
+      throw new Error(`Failed to update password: ${error}`);
+    }
 
     return Response.json({
       success: true,
