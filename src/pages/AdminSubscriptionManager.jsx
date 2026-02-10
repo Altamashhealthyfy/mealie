@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Shield, Crown, Plus, Trash2, AlertCircle, Users, Sparkles, Search, Filter, CalendarPlus, Edit2 } from "lucide-react";
+import { Shield, Crown, Plus, Trash2, AlertCircle, Users, Sparkles, Search, Filter, CalendarPlus, Edit2, KeyRound, Eye, EyeOff } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 
@@ -44,6 +44,14 @@ export default function AdminSubscriptionManager() {
     full_name: '',
     email: '',
   });
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    coachEmail: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 
   const { data: user } = useQuery({
@@ -304,6 +312,24 @@ export default function AdminSubscriptionManager() {
     },
   });
 
+  const changePasswordMutation = useMutation({
+    mutationFn: async (data) => {
+      const response = await base44.functions.invoke('changeUserPassword', {
+        email: data.coachEmail,
+        password: data.newPassword
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      setShowPasswordDialog(false);
+      setPasswordForm({ coachEmail: '', newPassword: '', confirmPassword: '' });
+      toast.success('Password changed successfully!');
+    },
+    onError: (error) => {
+      toast.error(error?.response?.data?.error || 'Failed to change password');
+    },
+  });
+
   const handleGrantCoachAccess = () => {
     console.log('handleGrantCoachAccess called', { coachEmail, selectedCoachPlan });
     
@@ -385,23 +411,23 @@ export default function AdminSubscriptionManager() {
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Subscription Manager</h1>
-            <p className="text-gray-600">Manually grant or revoke access to plans</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">Subscription Manager</h1>
+            <p className="text-sm md:text-base text-gray-600">Manually grant or revoke access to plans</p>
           </div>
-          <Shield className="w-10 h-10 text-purple-500" />
+          <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-purple-500 shrink-0" />
         </div>
 
         <Tabs defaultValue="coaches" className="space-y-6">
-          <TabsList className="grid grid-cols-2">
-            <TabsTrigger value="coaches">Health Coaches</TabsTrigger>
-            <TabsTrigger value="clients">Clients</TabsTrigger>
+          <TabsList className="grid grid-cols-2 w-full">
+            <TabsTrigger value="coaches" className="text-xs sm:text-sm">Health Coaches</TabsTrigger>
+            <TabsTrigger value="clients" className="text-xs sm:text-sm">Clients</TabsTrigger>
           </TabsList>
 
           <TabsContent value="coaches" className="space-y-4">
-            <div className="flex flex-col md:flex-row gap-4 mb-4">
-              <div className="flex-1 flex gap-2">
+            <div className="flex flex-col gap-4 mb-4">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
@@ -412,7 +438,7 @@ export default function AdminSubscriptionManager() {
                   />
                 </div>
                 <Select value={coachStatusFilter} onValueChange={setCoachStatusFilter}>
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="w-full sm:w-[180px]">
                     <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -423,14 +449,18 @@ export default function AdminSubscriptionManager() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex gap-2">
-                <Button onClick={() => setShowCreditsDialog(true)} variant="outline" className="border-green-500 text-green-700 hover:bg-green-50">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button onClick={() => setShowPasswordDialog(true)} variant="outline" className="flex-1 border-red-500 text-red-700 hover:bg-red-50">
+                  <KeyRound className="w-5 h-5 mr-2" />
+                  Change Password
+                </Button>
+                <Button onClick={() => setShowCreditsDialog(true)} variant="outline" className="flex-1 border-green-500 text-green-700 hover:bg-green-50">
                   <Sparkles className="w-5 h-5 mr-2" />
                   Add AI Credits
                 </Button>
-                <Button onClick={() => setShowCoachDialog(true)} className="bg-purple-600 hover:bg-purple-700">
+                <Button onClick={() => setShowCoachDialog(true)} className="flex-1 bg-purple-600 hover:bg-purple-700">
                   <Plus className="w-5 h-5 mr-2" />
-                  Grant Coach Access
+                  Grant Access
                 </Button>
               </div>
             </div>
@@ -456,37 +486,39 @@ export default function AdminSubscriptionManager() {
                 })
                 .map((sub) => (
                 <Card key={sub.id} className="border-none shadow-lg">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Crown className="w-5 h-5 text-purple-600" />
-                          <h3 className="text-lg font-bold">{sub.coach_email}</h3>
-                          {sub.coach_name && <span className="text-sm text-gray-600">({sub.coach_name})</span>}
-                          {sub.manually_granted && <Badge className="bg-blue-600">Manual</Badge>}
-                          <Badge className={sub.status === 'active' ? 'bg-green-600' : 'bg-gray-600'}>
-                            {sub.status}
-                          </Badge>
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <Crown className="w-5 h-5 text-purple-600 shrink-0" />
+                            <h3 className="text-base sm:text-lg font-bold truncate">{sub.coach_email}</h3>
+                            {sub.coach_name && <span className="text-sm text-gray-600 truncate">({sub.coach_name})</span>}
+                            {sub.manually_granted && <Badge className="bg-blue-600 text-xs">Manual</Badge>}
+                            <Badge className={`text-xs ${sub.status === 'active' ? 'bg-green-600' : 'bg-gray-600'}`}>
+                              {sub.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm sm:text-base text-gray-600 truncate">Plan: {sub.plan_name}</p>
+                          <p className="text-xs sm:text-sm text-gray-500">
+                            Valid: {new Date(sub.start_date).toLocaleDateString()} - {new Date(sub.end_date).toLocaleDateString()}
+                          </p>
+                          {sub.ai_credits_purchased > 0 && (
+                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300 mt-1 text-xs">
+                              <Sparkles className="w-3 h-3 mr-1" />
+                              {sub.ai_credits_purchased} AI Credits
+                            </Badge>
+                          )}
+                          {sub.manually_granted && (
+                            <p className="text-xs text-blue-600 mt-1 truncate">Granted by: {sub.granted_by}</p>
+                          )}
                         </div>
-                        <p className="text-gray-600">Plan: {sub.plan_name}</p>
-                        <p className="text-sm text-gray-500">
-                          Valid: {new Date(sub.start_date).toLocaleDateString()} - {new Date(sub.end_date).toLocaleDateString()}
-                        </p>
-                        {sub.ai_credits_purchased > 0 && (
-                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300 mt-1">
-                            <Sparkles className="w-3 h-3 mr-1" />
-                            {sub.ai_credits_purchased} AI Credits
-                          </Badge>
-                        )}
-                        {sub.manually_granted && (
-                          <p className="text-xs text-blue-600 mt-1">Granted by: {sub.granted_by}</p>
-                        )}
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <Button
                           size="sm"
                           variant="outline"
-                          className="hover:bg-blue-50 hover:text-blue-600"
+                          className="flex-1 sm:flex-none hover:bg-blue-50 hover:text-blue-600"
                           onClick={() => {
                             setSelectedSubscription(sub);
                             setEditCoachForm({
@@ -503,7 +535,7 @@ export default function AdminSubscriptionManager() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="hover:bg-green-50 hover:text-green-600"
+                            className="flex-1 sm:flex-none hover:bg-green-50 hover:text-green-600"
                             onClick={() => {
                               setSelectedSubscription(sub);
                               setShowExtendPlanDialog(true);
@@ -514,12 +546,14 @@ export default function AdminSubscriptionManager() {
                           </Button>
                         )}
                         <Button
+                          size="sm"
                           onClick={() => {
                             if (confirm('Revoke access for this coach?')) {
                               revokeCoachAccessMutation.mutate(sub.id);
                             }
                           }}
                           variant="destructive"
+                          className="flex-1 sm:flex-none"
                         >
                           <Trash2 className="w-4 h-4 mr-2" />
                           Revoke
@@ -533,8 +567,8 @@ export default function AdminSubscriptionManager() {
           </TabsContent>
 
           <TabsContent value="clients" className="space-y-4">
-            <div className="flex flex-col md:flex-row gap-4 mb-4">
-              <div className="flex-1 flex gap-2">
+            <div className="flex flex-col gap-4 mb-4">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                   <Input
@@ -545,7 +579,7 @@ export default function AdminSubscriptionManager() {
                   />
                 </div>
                 <Select value={clientStatusFilter} onValueChange={setClientStatusFilter}>
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="w-full sm:w-[180px]">
                     <SelectValue placeholder="Filter by status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -556,7 +590,7 @@ export default function AdminSubscriptionManager() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={() => setShowClientDialog(true)} className="bg-blue-600 hover:bg-blue-700">
+              <Button onClick={() => setShowClientDialog(true)} className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700">
                 <Plus className="w-5 h-5 mr-2" />
                 Grant Client Access
               </Button>
@@ -584,33 +618,37 @@ export default function AdminSubscriptionManager() {
                 })
                 .map((purchase) => (
                 <Card key={purchase.id} className="border-none shadow-lg">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Users className="w-5 h-5 text-blue-600" />
-                          <h3 className="text-lg font-bold">{purchase.client_email}</h3>
-                          {purchase.manually_granted && <Badge className="bg-blue-600">Manual</Badge>}
-                          <Badge className={purchase.status === 'active' ? 'bg-green-600' : 'bg-gray-600'}>
-                            {purchase.status}
-                          </Badge>
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <Users className="w-5 h-5 text-blue-600 shrink-0" />
+                            <h3 className="text-base sm:text-lg font-bold truncate">{purchase.client_email}</h3>
+                            {purchase.manually_granted && <Badge className="bg-blue-600 text-xs">Manual</Badge>}
+                            <Badge className={`text-xs ${purchase.status === 'active' ? 'bg-green-600' : 'bg-gray-600'}`}>
+                              {purchase.status}
+                            </Badge>
+                          </div>
+                          <p className="text-sm sm:text-base text-gray-600 truncate">Plan: {purchase.plan_name}</p>
+                          <p className="text-xs sm:text-sm text-gray-500 truncate">Coach: {purchase.coach_email}</p>
+                          <p className="text-xs sm:text-sm text-gray-500">
+                            Valid: {new Date(purchase.start_date).toLocaleDateString()} - {new Date(purchase.end_date).toLocaleDateString()}
+                          </p>
+                          {purchase.manually_granted && (
+                            <p className="text-xs text-blue-600 mt-1 truncate">Granted by: {purchase.granted_by}</p>
+                          )}
                         </div>
-                        <p className="text-gray-600">Plan: {purchase.plan_name}</p>
-                        <p className="text-sm text-gray-500">Coach: {purchase.coach_email}</p>
-                        <p className="text-sm text-gray-500">
-                          Valid: {new Date(purchase.start_date).toLocaleDateString()} - {new Date(purchase.end_date).toLocaleDateString()}
-                        </p>
-                        {purchase.manually_granted && (
-                          <p className="text-xs text-blue-600 mt-1">Granted by: {purchase.granted_by}</p>
-                        )}
                       </div>
                       <Button
+                        size="sm"
                         onClick={() => {
                           if (confirm('Revoke access for this client?')) {
                             revokeClientAccessMutation.mutate(purchase.id);
                           }
                         }}
                         variant="destructive"
+                        className="w-full sm:w-auto"
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
                         Revoke
@@ -624,7 +662,7 @@ export default function AdminSubscriptionManager() {
         </Tabs>
 
         <Dialog open={showCoachDialog} onOpenChange={setShowCoachDialog}>
-          <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+          <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Crown className="w-5 h-5 text-purple-600" />
@@ -809,11 +847,11 @@ export default function AdminSubscriptionManager() {
                 </AlertDescription>
               </Alert>
 
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button 
                   onClick={() => setShowCoachDialog(false)} 
                   variant="outline"
-                  className="flex-1"
+                  className="flex-1 order-2 sm:order-1"
                 >
                   Cancel
                 </Button>
@@ -824,7 +862,7 @@ export default function AdminSubscriptionManager() {
                     handleGrantCoachAccess();
                   }} 
                   type="button"
-                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  className="flex-1 bg-green-600 hover:bg-green-700 order-1 sm:order-2"
                   disabled={grantCoachAccessMutation.isPending}
                 >
                   <Crown className="w-4 h-4 mr-2" />
@@ -836,7 +874,7 @@ export default function AdminSubscriptionManager() {
         </Dialog>
 
         <Dialog open={showClientDialog} onOpenChange={setShowClientDialog}>
-          <DialogContent>
+          <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Grant Client Access</DialogTitle>
             </DialogHeader>
@@ -864,15 +902,20 @@ export default function AdminSubscriptionManager() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleGrantClientAccess} className="w-full bg-blue-600 hover:bg-blue-700">
-                Grant Access
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button onClick={() => setShowClientDialog(false)} variant="outline" className="flex-1 order-2 sm:order-1">
+                  Cancel
+                </Button>
+                <Button onClick={handleGrantClientAccess} className="flex-1 bg-blue-600 hover:bg-blue-700 order-1 sm:order-2">
+                  Grant Access
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
 
         <Dialog open={showCreditsDialog} onOpenChange={setShowCreditsDialog}>
-          <DialogContent>
+          <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-green-600" />
@@ -916,21 +959,26 @@ export default function AdminSubscriptionManager() {
                 />
               </div>
               
-              <Button 
-                onClick={handleAddCredits} 
-                className="w-full bg-green-600 hover:bg-green-700"
-                disabled={addAICreditsMutation.isPending}
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                {addAICreditsMutation.isPending ? 'Adding...' : 'Add Credits'}
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button onClick={() => setShowCreditsDialog(false)} variant="outline" className="flex-1 order-2 sm:order-1">
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleAddCredits} 
+                  className="flex-1 bg-green-600 hover:bg-green-700 order-1 sm:order-2"
+                  disabled={addAICreditsMutation.isPending}
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  {addAICreditsMutation.isPending ? 'Adding...' : 'Add Credits'}
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
 
         {/* Extend Plan Dialog */}
         <Dialog open={showExtendPlanDialog} onOpenChange={setShowExtendPlanDialog}>
-          <DialogContent>
+          <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <CalendarPlus className="w-5 h-5 text-green-600" />
@@ -967,20 +1015,25 @@ export default function AdminSubscriptionManager() {
                   placeholder="Enter number of months"
                 />
               </div>
-              <Button
-                onClick={() => extendPlanMutation.mutate({ months: extendMonths })}
-                disabled={extendMonths <= 0 || extendPlanMutation.isPending}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600"
-              >
-                {extendPlanMutation.isPending ? 'Extending...' : `Extend by ${extendMonths} Month(s)`}
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button onClick={() => setShowExtendPlanDialog(false)} variant="outline" className="flex-1 order-2 sm:order-1">
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => extendPlanMutation.mutate({ months: extendMonths })}
+                  disabled={extendMonths <= 0 || extendPlanMutation.isPending}
+                  className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 order-1 sm:order-2"
+                >
+                  {extendPlanMutation.isPending ? 'Extending...' : `Extend by ${extendMonths} Month(s)`}
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
 
         {/* Edit Coach Dialog */}
         <Dialog open={showEditCoachDialog} onOpenChange={setShowEditCoachDialog}>
-          <DialogContent>
+          <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Edit2 className="w-5 h-5 text-blue-600" />
@@ -1010,20 +1063,121 @@ export default function AdminSubscriptionManager() {
                   <strong>Note:</strong> Changing email will update all subscription records. Login credentials will use the new email.
                 </p>
               </div>
-              <Button
-                onClick={() => {
-                  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                  if (!emailRegex.test(editCoachForm.email)) {
-                    toast.error('Please enter a valid email address');
-                    return;
-                  }
-                  editCoachMutation.mutate(editCoachForm);
-                }}
-                disabled={!editCoachForm.full_name || !editCoachForm.email || editCoachMutation.isPending}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600"
-              >
-                {editCoachMutation.isPending ? 'Updating...' : 'Update Details'}
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button onClick={() => setShowEditCoachDialog(false)} variant="outline" className="flex-1 order-2 sm:order-1">
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(editCoachForm.email)) {
+                      toast.error('Please enter a valid email address');
+                      return;
+                    }
+                    editCoachMutation.mutate(editCoachForm);
+                  }}
+                  disabled={!editCoachForm.full_name || !editCoachForm.email || editCoachMutation.isPending}
+                  className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 order-1 sm:order-2"
+                >
+                  {editCoachMutation.isPending ? 'Updating...' : 'Update Details'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Change Password Dialog */}
+        <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <KeyRound className="w-5 h-5 text-red-600" />
+                Change Coach Password
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Alert className="bg-red-50 border-red-300">
+                <AlertDescription className="text-red-800 text-sm">
+                  <strong>Note:</strong> Password will be changed without requiring the old password. Make sure to inform the coach about the new password.
+                </AlertDescription>
+              </Alert>
+
+              <div className="space-y-2">
+                <Label>Coach Email *</Label>
+                <Input
+                  value={passwordForm.coachEmail}
+                  onChange={(e) => setPasswordForm({...passwordForm, coachEmail: e.target.value})}
+                  placeholder="coach@example.com"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>New Password *</Label>
+                <div className="relative">
+                  <Input
+                    type={showNewPassword ? "text" : "password"}
+                    value={passwordForm.newPassword}
+                    onChange={(e) => setPasswordForm({...passwordForm, newPassword: e.target.value})}
+                    placeholder="Enter new password (min 6 characters)"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  >
+                    {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Confirm New Password *</Label>
+                <div className="relative">
+                  <Input
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={passwordForm.confirmPassword}
+                    onChange={(e) => setPasswordForm({...passwordForm, confirmPassword: e.target.value})}
+                    placeholder="Confirm new password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button onClick={() => {
+                  setShowPasswordDialog(false);
+                  setPasswordForm({ coachEmail: '', newPassword: '', confirmPassword: '' });
+                }} variant="outline" className="flex-1 order-2 sm:order-1">
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (!passwordForm.coachEmail.trim()) {
+                      toast.error('Please enter coach email');
+                      return;
+                    }
+                    if (passwordForm.newPassword.length < 6) {
+                      toast.error('Password must be at least 6 characters');
+                      return;
+                    }
+                    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+                      toast.error('Passwords do not match');
+                      return;
+                    }
+                    changePasswordMutation.mutate(passwordForm);
+                  }}
+                  disabled={changePasswordMutation.isPending}
+                  className="flex-1 bg-gradient-to-r from-red-600 to-orange-600 order-1 sm:order-2"
+                >
+                  {changePasswordMutation.isPending ? 'Changing...' : 'Change Password'}
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
