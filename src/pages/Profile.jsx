@@ -25,6 +25,9 @@ export default function Profile() {
     profile_photo_url: ""
   });
   const [userFormData, setUserFormData] = useState({
+    full_name: "",
+    email: "",
+    phone: "",
     profile_photo_url: ""
   });
   const [passwordForm, setPasswordForm] = useState({
@@ -92,6 +95,9 @@ export default function Profile() {
   useEffect(() => {
     if (user) {
       setUserFormData({
+        full_name: user.full_name || "",
+        email: user.email || "",
+        phone: user.phone || "",
         profile_photo_url: user.profile_photo_url || ""
       });
     }
@@ -194,14 +200,18 @@ export default function Profile() {
     }
   });
 
-  const saveUserPhotoMutation = useMutation({
+  const saveUserProfileMutation = useMutation({
     mutationFn: async (data) => {
       return await base44.auth.updateMe(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['currentUser']);
-      alert("✅ Profile photo updated successfully!");
+      alert("✅ Profile updated successfully!");
     },
+    onError: (error) => {
+      console.error("Error updating profile:", error);
+      alert("Error updating profile. Please try again.");
+    }
   });
 
   const changePasswordMutation = useMutation({
@@ -260,9 +270,17 @@ export default function Profile() {
     saveClientMutation.mutate(clientFormData);
   };
 
-  const handleUserPhotoUpdate = (e) => {
+  const handleUserProfileUpdate = (e) => {
     e.preventDefault();
-    saveUserPhotoMutation.mutate(userFormData);
+    if (!userFormData.full_name.trim()) {
+      alert("Please enter your name");
+      return;
+    }
+    if (!userFormData.email.trim()) {
+      alert("Please enter your email");
+      return;
+    }
+    saveUserProfileMutation.mutate(userFormData);
   };
 
   const handlePasswordChange = (e) => {
@@ -316,8 +334,97 @@ export default function Profile() {
           </Alert>
         )}
 
-        {/* PROFILE PHOTO DISPLAY & UPLOAD */}
-        {canEditProfile && (
+        {/* HEALTH COACH PROFILE - FOR COACHES ONLY */}
+        {!isClient && canEditProfile && (
+          <form onSubmit={handleUserProfileUpdate} className="space-y-6">
+            <Card className="border-none shadow-xl bg-gradient-to-br from-indigo-50 to-blue-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="w-5 h-5 text-indigo-500" />
+                  My Profile
+                </CardTitle>
+                <CardDescription>Update your profile information</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex flex-col items-center gap-6">
+                  {/* Large Profile Photo Display */}
+                  <div className="relative">
+                    {userFormData.profile_photo_url ? (
+                      <img
+                        src={userFormData.profile_photo_url}
+                        alt={user?.full_name || 'Profile'}
+                        className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-indigo-500 shadow-2xl"
+                      />
+                    ) : (
+                      <div className="w-32 h-32 sm:w-40 sm:h-40 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full flex items-center justify-center shadow-2xl border-4 border-white">
+                        <span className="text-white font-bold text-4xl sm:text-5xl">
+                          {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                        </span>
+                      </div>
+                    )}
+                    <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-indigo-500">
+                      <User className="w-6 h-6 text-indigo-500" />
+                    </div>
+                  </div>
+
+                  {canUploadUserPhoto && (
+                    <ImageUploader
+                      onImageUploaded={(url) => setUserFormData({...userFormData, profile_photo_url: url})}
+                      currentImageUrl={userFormData.profile_photo_url}
+                      requiredWidth={400}
+                      requiredHeight={400}
+                      aspectRatio="1:1"
+                      maxSizeMB={2}
+                      label="Upload Profile Photo"
+                    />
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Full Name *</Label>
+                    <Input
+                      value={userFormData.full_name}
+                      onChange={(e) => setUserFormData({...userFormData, full_name: e.target.value})}
+                      placeholder="Enter your full name"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Email *</Label>
+                    <Input
+                      type="email"
+                      value={userFormData.email}
+                      onChange={(e) => setUserFormData({...userFormData, email: e.target.value})}
+                      placeholder="Enter your email"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Mobile Number</Label>
+                    <Input
+                      value={userFormData.phone}
+                      onChange={(e) => setUserFormData({...userFormData, phone: e.target.value})}
+                      placeholder="10-digit mobile number"
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full h-12 bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600"
+                  disabled={saveUserProfileMutation.isPending}
+                >
+                  <Save className="w-5 h-5 mr-2" />
+                  {saveUserProfileMutation.isPending ? 'Updating...' : 'Update Profile'}
+                </Button>
+              </CardContent>
+            </Card>
+          </form>
+        )}
+
+        {/* CLIENT PROFILE PHOTO DISPLAY - FOR CLIENTS ONLY */}
+        {isClient && canEditProfile && (
           <Card className="border-none shadow-xl bg-gradient-to-br from-indigo-50 to-blue-50">
             <CardContent className="p-4 sm:p-6 md:p-8">
               <div className="flex flex-col items-center gap-6">
@@ -347,7 +454,10 @@ export default function Profile() {
                 </div>
 
                 {canUploadUserPhoto && (
-                  <form onSubmit={handleUserPhotoUpdate} className="w-full space-y-4">
+                  <form onSubmit={(e) => {
+                    e.preventDefault();
+                    saveUserProfileMutation.mutate({ profile_photo_url: userFormData.profile_photo_url });
+                  }} className="w-full space-y-4">
                     <ImageUploader
                       onImageUploaded={(url) => setUserFormData({...userFormData, profile_photo_url: url})}
                       currentImageUrl={userFormData.profile_photo_url}
@@ -360,10 +470,10 @@ export default function Profile() {
                     <Button
                       type="submit"
                       className="w-full h-12 bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600"
-                      disabled={saveUserPhotoMutation.isPending}
+                      disabled={saveUserProfileMutation.isPending}
                     >
                       <Save className="w-5 h-5 mr-2" />
-                      {saveUserPhotoMutation.isPending ? 'Updating...' : 'Update Profile Photo'}
+                      {saveUserProfileMutation.isPending ? 'Updating...' : 'Update Profile Photo'}
                     </Button>
                   </form>
                 )}
