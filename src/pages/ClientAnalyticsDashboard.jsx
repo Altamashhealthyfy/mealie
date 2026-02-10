@@ -130,8 +130,8 @@ export default function ClientAnalyticsDashboard() {
     // Active clients (logged progress or food in last 7 days)
     const recentDate = subDays(new Date(), 7);
     const activeClientIds = new Set([
-      ...filteredProgressLogs.filter(log => new Date(log.date) >= recentDate).map(log => log.client_id),
-      ...filteredFoodLogs.filter(log => new Date(log.date) >= recentDate).map(log => log.client_id)
+      ...filteredProgressLogs.filter(log => log.date && !isNaN(new Date(log.date).getTime()) && new Date(log.date) >= recentDate).map(log => log.client_id),
+      ...filteredFoodLogs.filter(log => log.date && !isNaN(new Date(log.date).getTime()) && new Date(log.date) >= recentDate).map(log => log.client_id)
     ]);
 
     // Clients with plans
@@ -142,7 +142,7 @@ export default function ClientAnalyticsDashboard() {
     // Weight loss progress
     const clientProgress = filteredClients.map(client => {
       const clientLogs = filteredProgressLogs
-        .filter(log => log.client_id === client.id && log.weight)
+        .filter(log => log.client_id === client.id && log.weight && log.date && !isNaN(new Date(log.date).getTime()))
         .sort((a, b) => new Date(a.date) - new Date(b.date));
       
       if (clientLogs.length < 2) return null;
@@ -167,6 +167,7 @@ export default function ClientAnalyticsDashboard() {
     const clientAdherence = filteredClients.map(client => {
       const recentLogs = filteredProgressLogs.filter(log => 
         log.client_id === client.id && 
+        log.date && !isNaN(new Date(log.date).getTime()) &&
         new Date(log.date) >= cutoffDate &&
         log.meal_adherence !== null
       );
@@ -184,19 +185,19 @@ export default function ClientAnalyticsDashboard() {
 
     // Clients needing attention
     const needsAttention = filteredClients.filter(client => {
-      const clientLogs = filteredProgressLogs.filter(log => log.client_id === client.id);
-      const clientFoodLogs = filteredFoodLogs.filter(log => log.client_id === client.id);
+      const clientLogs = filteredProgressLogs.filter(log => log.client_id === client.id && log.date && !isNaN(new Date(log.date).getTime()));
+      const clientFoodLogs = filteredFoodLogs.filter(log => log.client_id === client.id && log.date && !isNaN(new Date(log.date).getTime()));
       const lastProgress = clientLogs[0];
       const lastFood = clientFoodLogs[0];
       
-      const daysSinceProgress = lastProgress ? differenceInDays(new Date(), new Date(lastProgress.date)) : 999;
-      const daysSinceFood = lastFood ? differenceInDays(new Date(), new Date(lastFood.date)) : 999;
+      const daysSinceProgress = lastProgress && lastProgress.date && !isNaN(new Date(lastProgress.date).getTime()) ? differenceInDays(new Date(), new Date(lastProgress.date)) : 999;
+      const daysSinceFood = lastFood && lastFood.date && !isNaN(new Date(lastFood.date).getTime()) ? differenceInDays(new Date(), new Date(lastFood.date)) : 999;
 
       return daysSinceProgress > 7 || daysSinceFood > 7;
     });
 
     // Message activity
-    const recentMessages = messages.filter(msg => new Date(msg.created_date) >= cutoffDate);
+    const recentMessages = messages.filter(msg => msg.created_date && !isNaN(new Date(msg.created_date).getTime()) && new Date(msg.created_date) >= cutoffDate);
 
     // Weight trend data (last 30 days average)
     const weightTrendData = [];
@@ -205,6 +206,7 @@ export default function ClientAnalyticsDashboard() {
       const dateStr = format(date, 'MMM dd');
       
       const logsOnDate = filteredProgressLogs.filter(log => 
+        log.date && !isNaN(new Date(log.date).getTime()) &&
         format(new Date(log.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd') &&
         log.weight
       );
@@ -252,7 +254,7 @@ export default function ClientAnalyticsDashboard() {
     const pendingAssessments = assessments.filter(a => a.status === 'pending' && (selectedClient === "all" || a.client_id === selectedClient)).length;
     const activeGoals = filteredGoals.filter(g => g.status === 'active').length;
     const completedGoals = filteredGoals.filter(g => g.status === 'completed').length;
-    const recentMPESS = mpessLogs.filter(log => new Date(log.submission_date) >= cutoffDate).length;
+    const recentMPESS = mpessLogs.filter(log => log.submission_date && !isNaN(new Date(log.submission_date).getTime()) && new Date(log.submission_date) >= cutoffDate).length;
     
     // Assessment completion rate
     const assessmentCompletionRate = assessments.length > 0 
@@ -271,14 +273,17 @@ export default function ClientAnalyticsDashboard() {
       const dateStr = format(date, 'MMM dd');
       
       const progressCount = filteredProgressLogs.filter(log => 
+        log.date && !isNaN(new Date(log.date).getTime()) &&
         format(new Date(log.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
       ).length;
       
       const foodCount = filteredFoodLogs.filter(log => 
+        log.date && !isNaN(new Date(log.date).getTime()) &&
         format(new Date(log.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
       ).length;
       
       const mpessCount = mpessLogs.filter(log => 
+        log.submission_date && !isNaN(new Date(log.submission_date).getTime()) &&
         format(new Date(log.submission_date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
       ).length;
 
@@ -287,7 +292,7 @@ export default function ClientAnalyticsDashboard() {
 
     // Client wellness trends
     const wellnessTrends = filteredProgressLogs
-      .filter(log => log.wellness_metrics && new Date(log.date) >= cutoffDate)
+      .filter(log => log.wellness_metrics && log.date && !isNaN(new Date(log.date).getTime()) && new Date(log.date) >= cutoffDate)
       .reduce((acc, log) => {
         if (log.wellness_metrics.energy_level) {
           acc.totalEnergy += log.wellness_metrics.energy_level;
@@ -322,8 +327,8 @@ export default function ClientAnalyticsDashboard() {
       adherenceRanges,
       goalData,
       recentMessages: recentMessages.length,
-      totalProgressLogs: filteredProgressLogs.filter(log => new Date(log.date) >= cutoffDate).length,
-      totalFoodLogs: filteredFoodLogs.filter(log => new Date(log.date) >= cutoffDate).length,
+      totalProgressLogs: filteredProgressLogs.filter(log => log.date && !isNaN(new Date(log.date).getTime()) && new Date(log.date) >= cutoffDate).length,
+      totalFoodLogs: filteredFoodLogs.filter(log => log.date && !isNaN(new Date(log.date).getTime()) && new Date(log.date) >= cutoffDate).length,
       completedAssessments,
       pendingAssessments,
       assessmentCompletionRate,
@@ -1017,10 +1022,10 @@ export default function ClientAnalyticsDashboard() {
                 {analytics.needsAttention.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {analytics.needsAttention.map((client) => {
-                      const lastProgress = progressLogs.find(log => log.client_id === client.id);
-                      const lastFood = foodLogs.find(log => log.client_id === client.id);
-                      const daysSinceProgress = lastProgress ? differenceInDays(new Date(), new Date(lastProgress.date)) : null;
-                      const daysSinceFood = lastFood ? differenceInDays(new Date(), new Date(lastFood.date)) : null;
+                     const lastProgress = progressLogs.find(log => log.client_id === client.id && log.date && !isNaN(new Date(log.date).getTime()));
+                     const lastFood = foodLogs.find(log => log.client_id === client.id && log.date && !isNaN(new Date(log.date).getTime()));
+                     const daysSinceProgress = lastProgress && lastProgress.date && !isNaN(new Date(lastProgress.date).getTime()) ? differenceInDays(new Date(), new Date(lastProgress.date)) : null;
+                     const daysSinceFood = lastFood && lastFood.date && !isNaN(new Date(lastFood.date).getTime()) ? differenceInDays(new Date(), new Date(lastFood.date)) : null;
 
                       return (
                         <Card key={client.id} className="border-2 border-red-200 bg-red-50">
