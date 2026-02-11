@@ -30,6 +30,15 @@ export default function Profile() {
     phone: "",
     profile_photo_url: ""
   });
+  const [coachFormData, setCoachFormData] = useState({
+    business_name: "",
+    phone: "",
+    bio: "",
+    specializations: [],
+    certifications: [],
+    location: "",
+    consultation_fee: ""
+  });
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
@@ -74,6 +83,15 @@ export default function Profile() {
     enabled: !!user && user?.user_type === 'client',
   });
 
+  const { data: coachProfile } = useQuery({
+    queryKey: ['coachProfile', user?.email],
+    queryFn: async () => {
+      const profiles = await base44.entities.CoachProfile.filter({ created_by: user?.email });
+      return profiles[0] || null;
+    },
+    enabled: !!user && user?.user_type === 'student_coach',
+  });
+
   const { permissions, hasPermission } = useUserPermissions();
 
   useEffect(() => {
@@ -102,6 +120,20 @@ export default function Profile() {
       });
     }
   }, [user]);
+
+  useEffect(() => {
+    if (coachProfile) {
+      setCoachFormData({
+        business_name: coachProfile.business_name || "",
+        phone: coachProfile.phone || "",
+        bio: coachProfile.bio || "",
+        specializations: coachProfile.specializations || [],
+        certifications: coachProfile.certifications || [],
+        location: coachProfile.location || "",
+        consultation_fee: coachProfile.consultation_fee || ""
+      });
+    }
+  }, [coachProfile]);
 
   const calculateMacros = () => {
     const { weight, height, age, gender, activity_level, goal } = formData;
@@ -228,6 +260,24 @@ export default function Profile() {
     }
   });
 
+  const saveCoachProfileMutation = useMutation({
+    mutationFn: async (data) => {
+      if (coachProfile) {
+        return await base44.entities.CoachProfile.update(coachProfile.id, data);
+      } else {
+        return await base44.entities.CoachProfile.create(data);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['coachProfile']);
+      alert("✅ Business profile updated successfully!");
+    },
+    onError: (error) => {
+      console.error("Error updating coach profile:", error);
+      alert("Error updating business profile. Please try again.");
+    }
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
     // Validate required fields
@@ -334,7 +384,7 @@ export default function Profile() {
           </Alert>
         )}
 
-        {/* HEALTH COACH PROFILE - FOR COACHES ONLY */}
+        {/* HEALTH COACH USER PROFILE - FOR COACHES ONLY */}
         {!isClient && canEditProfile && (
           <form onSubmit={handleUserProfileUpdate} className="space-y-6">
             <Card className="border-none shadow-xl bg-gradient-to-br from-indigo-50 to-blue-50">
@@ -417,6 +467,78 @@ export default function Profile() {
                 >
                   <Save className="w-5 h-5 mr-2" />
                   {saveUserProfileMutation.isPending ? 'Updating...' : 'Update Profile'}
+                </Button>
+              </CardContent>
+            </Card>
+          </form>
+        )}
+
+        {/* HEALTH COACH BUSINESS PROFILE - FOR COACHES ONLY */}
+        {user?.user_type === 'student_coach' && canEditProfile && (
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            saveCoachProfileMutation.mutate(coachFormData);
+          }} className="space-y-6">
+            <Card className="border-none shadow-xl bg-gradient-to-br from-green-50 to-emerald-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5 text-green-500" />
+                  Business Profile
+                </CardTitle>
+                <CardDescription>Update your business and professional information</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Business Name</Label>
+                    <Input
+                      value={coachFormData.business_name}
+                      onChange={(e) => setCoachFormData({...coachFormData, business_name: e.target.value})}
+                      placeholder="Your business/practice name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Business Phone</Label>
+                    <Input
+                      value={coachFormData.phone}
+                      onChange={(e) => setCoachFormData({...coachFormData, phone: e.target.value})}
+                      placeholder="Contact number"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Location</Label>
+                    <Input
+                      value={coachFormData.location}
+                      onChange={(e) => setCoachFormData({...coachFormData, location: e.target.value})}
+                      placeholder="City/Location"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Consultation Fee (₹)</Label>
+                    <Input
+                      type="number"
+                      value={coachFormData.consultation_fee}
+                      onChange={(e) => setCoachFormData({...coachFormData, consultation_fee: e.target.value})}
+                      placeholder="Standard consultation fee"
+                    />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label>Professional Bio</Label>
+                    <Input
+                      value={coachFormData.bio}
+                      onChange={(e) => setCoachFormData({...coachFormData, bio: e.target.value})}
+                      placeholder="Brief description about yourself"
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full h-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                  disabled={saveCoachProfileMutation.isPending}
+                >
+                  <Save className="w-5 h-5 mr-2" />
+                  {saveCoachProfileMutation.isPending ? 'Updating...' : 'Update Business Profile'}
                 </Button>
               </CardContent>
             </Card>
