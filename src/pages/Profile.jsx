@@ -234,7 +234,22 @@ export default function Profile() {
 
   const saveUserProfileMutation = useMutation({
     mutationFn: async (data) => {
-      return await base44.auth.updateMe(data);
+      // Update user profile using auth.updateMe for basic fields
+      await base44.auth.updateMe({
+        full_name: data.full_name,
+        phone: data.phone,
+        profile_photo_url: data.profile_photo_url
+      });
+      
+      // If email changed, update via backend function
+      if (data.email && data.email !== user?.email) {
+        const users = await base44.entities.User.filter({ id: user?.id });
+        if (users.length > 0) {
+          await base44.entities.User.update(users[0].id, { email: data.email });
+        }
+      }
+      
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['currentUser']);
@@ -449,6 +464,7 @@ export default function Profile() {
                       placeholder="Enter your email"
                       required
                     />
+                    <p className="text-xs text-gray-500">⚠️ Changing email will update your login credentials</p>
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <Label>Mobile Number</Label>
