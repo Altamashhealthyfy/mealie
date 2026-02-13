@@ -9,9 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MessageSquare, CheckCircle, Clock, Star, TrendingUp, Scale, Ruler, Heart, Image as ImageIcon, Search, Filter } from "lucide-react";
+import { MessageSquare, CheckCircle, Clock, Star, TrendingUp, Scale, Ruler, Heart, Image as ImageIcon, Search, Filter, Target, Eye, TrendingDown, Activity, Flame } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell } from "recharts";
+import SMARTGoalBuilder from "../components/progress/SMARTGoalBuilder";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function ClientProgressReview() {
   const queryClient = useQueryClient();
@@ -53,6 +56,36 @@ export default function ClientProgressReview() {
     queryFn: async () => {
       const logs = await base44.entities.ProgressLog.filter({ client_id: selectedClient?.id });
       return logs.sort((a, b) => new Date(b.date) - new Date(a.date));
+    },
+    enabled: !!selectedClient?.id,
+  });
+
+  const { data: clientGoals = [] } = useQuery({
+    queryKey: ['clientGoals', selectedClient?.id],
+    queryFn: async () => {
+      const goals = await base44.entities.ProgressGoal.filter({ client_id: selectedClient?.id });
+      return goals.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    },
+    enabled: !!selectedClient?.id,
+  });
+
+  const { data: foodLogs = [] } = useQuery({
+    queryKey: ['clientFoodLogs', selectedClient?.id],
+    queryFn: async () => {
+      const logs = await base44.entities.FoodLog.filter({ client_id: selectedClient?.id });
+      return logs.sort((a, b) => new Date(b.date) - new Date(a.date));
+    },
+    enabled: !!selectedClient?.id,
+  });
+
+  const { data: mealPlan } = useQuery({
+    queryKey: ['clientMealPlan', selectedClient?.id],
+    queryFn: async () => {
+      const plans = await base44.entities.MealPlan.filter({ 
+        client_id: selectedClient?.id,
+        active: true 
+      });
+      return plans[0] || null;
     },
     enabled: !!selectedClient?.id,
   });
@@ -134,6 +167,41 @@ export default function ClientProgressReview() {
   const pendingReviewCount = progressLogs.filter(log => !log.reviewed).length;
   const reviewedCount = progressLogs.filter(log => log.reviewed).length;
 
+  // Analytics calculations
+  const weightChartData = React.useMemo(() => 
+    progressLogs
+      .filter(log => log.weight)
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .map(log => ({
+        date: format(new Date(log.date), 'MMM dd'),
+        weight: log.weight,
+        target: selectedClient?.target_weight
+      })),
+    [progressLogs, selectedClient]
+  );
+
+  const last7DaysFoodLogs = React.useMemo(() => {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - 7);
+    return foodLogs.filter(log => new Date(log.date) >= cutoffDate);
+  }, [foodLogs]);
+
+  const avgCaloriesIntake = React.useMemo(() => {
+    if (last7DaysFoodLogs.length === 0) return 0;
+    const total = last7DaysFoodLogs.reduce((sum, log) => sum + (log.calories || 0), 0);
+    return Math.round(total / last7DaysFoodLogs.length);
+  }, [last7DaysFoodLogs]);
+
+  const targetCalories = mealPlan?.target_calories || selectedClient?.target_calories || 2000;
+  const calorieAdherence = Math.round((avgCaloriesIntake / targetCalories) * 100);
+
+  const initialWeight = selectedClient?.initial_weight || selectedClient?.weight;
+  const latestLog = progressLogs[0];
+  const currentWeight = latestLog?.weight || selectedClient?.weight;
+  const weightLost = initialWeight && currentWeight ? initialWeight - currentWeight : 0;
+
+  const activeGoals = clientGoals.filter(g => g.status === 'active');
+
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -188,7 +256,7 @@ export default function ClientProgressReview() {
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div>
                 <Button variant="outline" onClick={() => setSelectedClient(null)}>
                   ← Back to Clients
@@ -196,6 +264,7 @@ export default function ClientProgressReview() {
                 <h2 className="text-2xl font-bold text-gray-900 mt-4">{selectedClient.full_name}</h2>
               </div>
               <div className="flex gap-3">
+                <SMARTGoalBuilder clientId={selectedClient.id} clientName={selectedClient.full_name} />
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
                   <SelectTrigger className="w-40">
                     <SelectValue />
@@ -209,15 +278,36 @@ export default function ClientProgressReview() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-none">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Weight Lost</p>
+                      <p className="text-3xl font-bold text-green-600">{Math.abs(weightLost).toFixed(1)}</p>
+                      <p className="text-xs text-gray-500">kg</p>
+                    </div>
+                    {weightLost >= 0 ? (
+                      <TrendingDown className="w-10 h-10 text-green-500" />
+                    ) : (
+                      <TrendingUp className="w-10 h-10 text-red-500" />
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
               <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-none">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">Total Logs</p>
-                      <p className="text-3xl font-bold text-orange-600">{progressLogs.length}</p>
+                      <p className="text-sm text-gray-600 mb-1">Avg Calories</p>
+                      <p className="text-3xl font-bold text-orange-600">{avgCaloriesIntake}</p>
+                      <p className="text-xs text-gray-500">kcal/day</p>
                     </div>
-                    <TrendingUp className="w-10 h-10 text-orange-500" />
+                    <Flame className="w-10 h-10 text-orange-500" />
+                  </div>
+                  <div className="mt-2">
+                    <p className="text-xs text-gray-600">Target: {targetCalories} ({calorieAdherence}%)</p>
                   </div>
                 </CardContent>
               </Card>
@@ -238,14 +328,223 @@ export default function ClientProgressReview() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">Reviewed</p>
-                      <p className="text-3xl font-bold text-green-600">{reviewedCount}</p>
+                      <p className="text-sm text-gray-600 mb-1">Active Goals</p>
+                      <p className="text-3xl font-bold text-green-600">{activeGoals.length}</p>
                     </div>
-                    <CheckCircle className="w-10 h-10 text-green-500" />
+                    <Target className="w-10 h-10 text-green-500" />
                   </div>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Visual Analytics Dashboard */}
+            <Tabs defaultValue="overview" className="space-y-6">
+              <TabsList className="grid grid-cols-3 w-full">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="nutrition">Nutrition</TabsTrigger>
+                <TabsTrigger value="goals">Goals</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="overview" className="space-y-6">
+                {/* Weight Trend */}
+                <Card className="border-none shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Scale className="w-5 h-5 text-blue-600" />
+                      Weight Progress Trend
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {weightChartData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={weightChartData}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="date" />
+                          <YAxis domain={['dataMin - 2', 'dataMax + 2']} />
+                          <ChartTooltip />
+                          <Legend />
+                          <Line type="monotone" dataKey="weight" stroke="#3b82f6" strokeWidth={3} name="Weight" />
+                          <Line type="monotone" dataKey="target" stroke="#10b981" strokeDasharray="5 5" name="Target" />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <p className="text-center py-8 text-gray-500">No weight data available</p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Wellness Metrics */}
+                <Card className="border-none shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Activity className="w-5 h-5 text-purple-600" />
+                      Wellness Metrics Trend
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {progressLogs.filter(log => log.wellness_metrics).length > 0 ? (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={progressLogs.slice(0, 14).reverse().map(log => ({
+                          date: format(new Date(log.date), 'MMM dd'),
+                          energy: log.wellness_metrics?.energy_level || 0,
+                          sleep: log.wellness_metrics?.sleep_quality || 0,
+                          stress: 10 - (log.wellness_metrics?.stress_level || 5)
+                        }))}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="date" />
+                          <YAxis domain={[0, 10]} />
+                          <ChartTooltip />
+                          <Legend />
+                          <Line type="monotone" dataKey="energy" stroke="#f59e0b" strokeWidth={2} name="Energy" />
+                          <Line type="monotone" dataKey="sleep" stroke="#6366f1" strokeWidth={2} name="Sleep" />
+                          <Line type="monotone" dataKey="stress" stroke="#10b981" strokeWidth={2} name="Calm" />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <p className="text-center py-8 text-gray-500">No wellness data available</p>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="nutrition" className="space-y-6">
+                {/* Calorie Intake Trend */}
+                <Card className="border-none shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Flame className="w-5 h-5 text-orange-600" />
+                      Calorie Intake vs Target (Last 7 Days)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {last7DaysFoodLogs.length > 0 ? (
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={last7DaysFoodLogs.reduce((acc, log) => {
+                          const date = format(new Date(log.date), 'MMM dd');
+                          const existing = acc.find(item => item.date === date);
+                          if (existing) {
+                            existing.calories += log.calories || 0;
+                          } else {
+                            acc.push({ 
+                              date, 
+                              calories: log.calories || 0,
+                              target: targetCalories
+                            });
+                          }
+                          return acc;
+                        }, []).reverse()}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="date" />
+                          <YAxis />
+                          <ChartTooltip />
+                          <Legend />
+                          <Bar dataKey="calories" fill="#f97316" name="Actual" />
+                          <Bar dataKey="target" fill="#10b981" opacity={0.5} name="Target" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <p className="text-center py-8 text-gray-500">No food log data available</p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Macro Adherence */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card className="bg-gradient-to-br from-red-50 to-pink-50 border-none">
+                    <CardContent className="p-6">
+                      <p className="text-sm text-gray-600 mb-2">Protein Adherence</p>
+                      <p className="text-3xl font-bold text-red-600">
+                        {Math.round((last7DaysFoodLogs.reduce((sum, log) => sum + (log.protein || 0), 0) / last7DaysFoodLogs.length / (mealPlan?.target_protein || 150)) * 100)}%
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-gradient-to-br from-yellow-50 to-orange-50 border-none">
+                    <CardContent className="p-6">
+                      <p className="text-sm text-gray-600 mb-2">Carbs Adherence</p>
+                      <p className="text-3xl font-bold text-yellow-600">
+                        {Math.round((last7DaysFoodLogs.reduce((sum, log) => sum + (log.carbs || 0), 0) / last7DaysFoodLogs.length / (mealPlan?.target_carbs || 250)) * 100)}%
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-none">
+                    <CardContent className="p-6">
+                      <p className="text-sm text-gray-600 mb-2">Fats Adherence</p>
+                      <p className="text-3xl font-bold text-purple-600">
+                        {Math.round((last7DaysFoodLogs.reduce((sum, log) => sum + (log.fats || 0), 0) / last7DaysFoodLogs.length / (mealPlan?.target_fats || 50)) * 100)}%
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="goals" className="space-y-6">
+                {activeGoals.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {activeGoals.map(goal => {
+                      const progress = goal.start_value && goal.target_value 
+                        ? Math.round(((goal.current_value - goal.start_value) / (goal.target_value - goal.start_value)) * 100)
+                        : 0;
+                      
+                      return (
+                        <Card key={goal.id} className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
+                          <CardContent className="p-6">
+                            <div className="flex items-start justify-between mb-4">
+                              <div>
+                                <h3 className="font-bold text-lg text-gray-900">{goal.title}</h3>
+                                <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
+                              </div>
+                              <Badge className={
+                                goal.priority === 'high' ? 'bg-red-500' :
+                                goal.priority === 'medium' ? 'bg-yellow-500' : 'bg-blue-500'
+                              }>
+                                {goal.priority}
+                              </Badge>
+                            </div>
+                            
+                            <div className="space-y-3">
+                              <div className="grid grid-cols-3 gap-2 text-sm">
+                                <div>
+                                  <p className="text-gray-500">Start</p>
+                                  <p className="font-semibold">{goal.start_value} {goal.unit}</p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-500">Current</p>
+                                  <p className="font-semibold">{goal.current_value} {goal.unit}</p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-500">Target</p>
+                                  <p className="font-semibold">{goal.target_value} {goal.unit}</p>
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+                                  <div 
+                                    className="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full" 
+                                    style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+                                  />
+                                </div>
+                                <p className="text-xs text-gray-600">
+                                  {progress}% complete • Due: {format(new Date(goal.target_date), 'MMM dd, yyyy')}
+                                </p>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <Card>
+                    <CardContent className="p-12 text-center">
+                      <Target className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                      <p className="text-gray-600 mb-4">No active goals set for this client</p>
+                      <SMARTGoalBuilder clientId={selectedClient.id} clientName={selectedClient.full_name} />
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+            </Tabs>
 
             <div className="space-y-4">
               {filteredLogs.length === 0 ? (

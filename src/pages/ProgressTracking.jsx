@@ -17,6 +17,8 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, R
 import GoalCard from "../components/progress/GoalCard";
 import WellnessCharts from "../components/progress/WellnessCharts";
 import AdvancedAnalyticsDashboard from "../components/progress/AdvancedAnalyticsDashboard";
+import DailyProgressLogger from "../components/progress/DailyProgressLogger";
+import MacroAdherenceDashboard from "../components/progress/MacroAdherenceDashboard";
 
 export default function ProgressTracking() {
   const queryClient = useQueryClient();
@@ -78,6 +80,16 @@ export default function ProgressTracking() {
     queryFn: async () => {
       const allGoals = await base44.entities.ProgressGoal.filter({ client_id: clientProfile?.id });
       return allGoals.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    },
+    enabled: !!clientProfile,
+    initialData: [],
+  });
+
+  const { data: foodLogs } = useQuery({
+    queryKey: ['myFoodLogs', clientProfile?.id],
+    queryFn: async () => {
+      const logs = await base44.entities.FoodLog.filter({ client_id: clientProfile?.id });
+      return logs.sort((a, b) => new Date(b.date) - new Date(a.date));
     },
     enabled: !!clientProfile,
     initialData: [],
@@ -619,6 +631,19 @@ export default function ProgressTracking() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Daily Progress Logger */}
+        <DailyProgressLogger clientId={clientProfile?.id} />
+
+        {/* Macro Adherence Dashboard */}
+        <div>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Nutrition Adherence</h2>
+          <MacroAdherenceDashboard 
+            foodLogs={foodLogs} 
+            mealPlan={mealPlan} 
+            clientProfile={clientProfile} 
+          />
         </div>
 
         {/* Goals Section */}

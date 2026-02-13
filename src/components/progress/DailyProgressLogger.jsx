@@ -1,360 +1,276 @@
-import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
-import { Scale, Moon, Battery, Brain, Heart, Droplets, Activity, Utensils, Calendar, Plus, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import React, { useState } from "react";
+import { base44 } from "@/api/base44Client";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Smile, Zap, Moon, CloudRain, Droplets, Dumbbell, CheckCircle, Flame } from "lucide-react";
+import { format } from "date-fns";
 
-export default function DailyProgressLogger({ clientProfile, existingLog, onSuccess }) {
+export default function DailyProgressLogger({ clientId }) {
   const queryClient = useQueryClient();
-  const today = new Date().toISOString().split('T')[0];
-
-  const [logData, setLogData] = useState(existingLog || {
-    date: today,
-    weight: clientProfile?.weight || '',
+  const [formData, setFormData] = useState({
+    date: format(new Date(), 'yyyy-MM-dd'),
+    weight: '',
+    meal_adherence: 80,
     wellness_metrics: {
-      mood: 'neutral',
-      energy_level: 5,
-      sleep_quality: 5,
+      mood: 'good',
+      energy_level: 7,
+      sleep_quality: 7,
       sleep_hours: 7,
-      stress_level: 5,
+      stress_level: 4,
       water_intake: 2,
       exercise_minutes: 30
     },
-    meal_adherence: 80,
-    symptoms: [],
     notes: ''
   });
 
-  const [newSymptom, setNewSymptom] = useState('');
-
-  const saveLogMutation = useMutation({
-    mutationFn: async (data) => {
-      if (existingLog?.id) {
-        return await base44.entities.ProgressLog.update(existingLog.id, data);
-      }
-      return await base44.entities.ProgressLog.create({
-        ...data,
-        client_id: clientProfile.id
+  const { data: todayLog } = useQuery({
+    queryKey: ['todayProgressLog', clientId],
+    queryFn: async () => {
+      const logs = await base44.entities.ProgressLog.filter({ 
+        client_id: clientId,
+        date: format(new Date(), 'yyyy-MM-dd')
       });
+      return logs[0] || null;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['progressLogs']);
-      queryClient.invalidateQueries(['todayProgress']);
-      toast.success('Progress logged successfully!');
-      if (onSuccess) onSuccess();
-    },
-    onError: () => toast.error('Failed to save progress')
+    enabled: !!clientId,
   });
 
-  const handleSave = () => {
-    if (!logData.weight && !logData.wellness_metrics.energy_level) {
-      toast.error('Please log at least your weight or energy level');
-      return;
-    }
-    saveLogMutation.mutate(logData);
+  const saveMutation = useMutation({
+    mutationFn: async (data) => {
+      if (todayLog) {
+        return await base44.entities.ProgressLog.update(todayLog.id, data);
+      }
+      return await base44.entities.ProgressLog.create({ ...data, client_id: clientId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['todayProgressLog']);
+      queryClient.invalidateQueries(['myProgressLogs']);
+      alert('✅ Daily progress saved!');
+    },
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    const dataToSave = {
+      ...formData,
+      weight: formData.weight ? parseFloat(formData.weight) : undefined,
+      meal_adherence: parseInt(formData.meal_adherence)
+    };
+    
+    saveMutation.mutate(dataToSave);
   };
 
-  const moodOptions = [
-    { value: 'very_poor', label: '😢 Very Poor', color: 'bg-red-100 text-red-700' },
-    { value: 'poor', label: '😕 Poor', color: 'bg-orange-100 text-orange-700' },
-    { value: 'neutral', label: '😐 Okay', color: 'bg-yellow-100 text-yellow-700' },
-    { value: 'good', label: '🙂 Good', color: 'bg-green-100 text-green-700' },
-    { value: 'excellent', label: '😄 Excellent', color: 'bg-blue-100 text-blue-700' }
-  ];
-
-  const addSymptom = () => {
-    if (newSymptom.trim()) {
-      setLogData({
-        ...logData,
-        symptoms: [...(logData.symptoms || []), newSymptom.trim()]
+  React.useEffect(() => {
+    if (todayLog) {
+      setFormData({
+        date: todayLog.date,
+        weight: todayLog.weight || '',
+        meal_adherence: todayLog.meal_adherence || 80,
+        wellness_metrics: todayLog.wellness_metrics || formData.wellness_metrics,
+        notes: todayLog.notes || ''
       });
-      setNewSymptom('');
     }
-  };
+  }, [todayLog]);
 
   return (
-    <div className="space-y-4">
-      {/* Weight */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Scale className="w-5 h-5 text-purple-500" />
-            Weight
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-2">
-            <Input
-              type="number"
-              step="0.1"
-              placeholder="Enter weight"
-              value={logData.weight}
-              onChange={(e) => setLogData({ ...logData, weight: parseFloat(e.target.value) })}
-              className="max-w-32"
-            />
-            <span className="text-sm text-gray-600">kg</span>
-          </div>
-        </CardContent>
-      </Card>
+    <Card className="border-none shadow-xl bg-gradient-to-br from-blue-50 to-purple-50">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <CheckCircle className="w-6 h-6 text-blue-600" />
+          Daily Progress Check-In
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <Alert className="bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200">
+            <Flame className="w-4 h-4 text-orange-600" />
+            <AlertDescription className="text-orange-900">
+              <strong>Quick daily check-in!</strong> Log your weight and wellness to track progress
+            </AlertDescription>
+          </Alert>
 
-      {/* Mood */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Heart className="w-5 h-5 text-pink-500" />
-            How are you feeling today?
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-            {moodOptions.map(option => (
-              <button
-                key={option.value}
-                onClick={() => setLogData({
-                  ...logData,
-                  wellness_metrics: { ...logData.wellness_metrics, mood: option.value }
-                })}
-                className={`p-3 rounded-lg border-2 transition text-sm font-medium ${
-                  logData.wellness_metrics.mood === option.value
-                    ? `${option.color} border-current`
-                    : 'bg-white border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Energy, Sleep, Stress */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Battery className="w-5 h-5 text-green-500" />
-            Wellness Metrics
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <div className="flex justify-between mb-2">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Battery className="w-4 h-4" />
-                Energy Level
-              </label>
-              <span className="text-sm font-bold text-green-600">{logData.wellness_metrics.energy_level}/10</span>
-            </div>
-            <Slider
-              value={[logData.wellness_metrics.energy_level]}
-              onValueChange={([value]) => setLogData({
-                ...logData,
-                wellness_metrics: { ...logData.wellness_metrics, energy_level: value }
-              })}
-              max={10}
-              min={1}
-              step={1}
-              className="w-full"
-            />
-          </div>
-
-          <div>
-            <div className="flex justify-between mb-2">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Moon className="w-4 h-4" />
-                Sleep Quality
-              </label>
-              <span className="text-sm font-bold text-blue-600">{logData.wellness_metrics.sleep_quality}/10</span>
-            </div>
-            <Slider
-              value={[logData.wellness_metrics.sleep_quality]}
-              onValueChange={([value]) => setLogData({
-                ...logData,
-                wellness_metrics: { ...logData.wellness_metrics, sleep_quality: value }
-              })}
-              max={10}
-              min={1}
-              step={1}
-            />
-            <div className="flex items-center gap-2 mt-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Weight (kg)</Label>
               <Input
                 type="number"
-                step="0.5"
-                placeholder="Hours"
-                value={logData.wellness_metrics.sleep_hours}
-                onChange={(e) => setLogData({
-                  ...logData,
-                  wellness_metrics: { ...logData.wellness_metrics, sleep_hours: parseFloat(e.target.value) }
-                })}
-                className="max-w-24"
+                step="0.1"
+                value={formData.weight}
+                onChange={(e) => setFormData({...formData, weight: e.target.value})}
+                placeholder="Enter today's weight"
               />
-              <span className="text-sm text-gray-600">hours of sleep</span>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Meal Plan Adherence</Label>
+              <div className="space-y-2">
+                <Slider
+                  value={[formData.meal_adherence]}
+                  onValueChange={(value) => setFormData({...formData, meal_adherence: value[0]})}
+                  max={100}
+                  step={5}
+                  className="py-4"
+                />
+                <div className="text-center">
+                  <span className="text-2xl font-bold text-orange-600">{formData.meal_adherence}%</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div>
-            <div className="flex justify-between mb-2">
-              <label className="text-sm font-medium flex items-center gap-2">
-                <Brain className="w-4 h-4" />
-                Stress Level
-              </label>
-              <span className="text-sm font-bold text-orange-600">{logData.wellness_metrics.stress_level}/10</span>
+          <div className="p-4 bg-white rounded-lg space-y-4">
+            <h3 className="font-semibold flex items-center gap-2">
+              <Smile className="w-5 h-5 text-purple-600" />
+              Wellness Metrics
+            </h3>
+
+            <div className="space-y-2">
+              <Label>How do you feel today?</Label>
+              <Select 
+                value={formData.wellness_metrics.mood} 
+                onValueChange={(value) => setFormData({
+                  ...formData, 
+                  wellness_metrics: {...formData.wellness_metrics, mood: value}
+                })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="excellent">😄 Excellent</SelectItem>
+                  <SelectItem value="good">😊 Good</SelectItem>
+                  <SelectItem value="neutral">😐 Neutral</SelectItem>
+                  <SelectItem value="poor">😕 Poor</SelectItem>
+                  <SelectItem value="very_poor">😢 Very Poor</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <Slider
-              value={[logData.wellness_metrics.stress_level]}
-              onValueChange={([value]) => setLogData({
-                ...logData,
-                wellness_metrics: { ...logData.wellness_metrics, stress_level: value }
-              })}
-              max={10}
-              min={1}
-              step={1}
-            />
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Water & Exercise */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Droplets className="w-5 h-5 text-blue-500" />
-            Water & Activity
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Droplets className="w-4 h-4 text-blue-500" />
-            <Input
-              type="number"
-              step="0.5"
-              placeholder="Liters"
-              value={logData.wellness_metrics.water_intake}
-              onChange={(e) => setLogData({
-                ...logData,
-                wellness_metrics: { ...logData.wellness_metrics, water_intake: parseFloat(e.target.value) }
-              })}
-              className="max-w-24"
-            />
-            <span className="text-sm text-gray-600">liters of water</span>
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-yellow-500" />
+                  Energy Level: {formData.wellness_metrics.energy_level}/10
+                </Label>
+                <Slider
+                  value={[formData.wellness_metrics.energy_level]}
+                  onValueChange={(value) => setFormData({
+                    ...formData,
+                    wellness_metrics: {...formData.wellness_metrics, energy_level: value[0]}
+                  })}
+                  max={10}
+                  min={1}
+                  step={1}
+                />
+              </div>
 
-          <div className="flex items-center gap-2">
-            <Activity className="w-4 h-4 text-green-500" />
-            <Input
-              type="number"
-              placeholder="Minutes"
-              value={logData.wellness_metrics.exercise_minutes}
-              onChange={(e) => setLogData({
-                ...logData,
-                wellness_metrics: { ...logData.wellness_metrics, exercise_minutes: parseInt(e.target.value) }
-              })}
-              className="max-w-24"
-            />
-            <span className="text-sm text-gray-600">minutes of exercise</span>
-          </div>
-        </CardContent>
-      </Card>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Moon className="w-4 h-4 text-indigo-500" />
+                  Sleep Quality: {formData.wellness_metrics.sleep_quality}/10
+                </Label>
+                <Slider
+                  value={[formData.wellness_metrics.sleep_quality]}
+                  onValueChange={(value) => setFormData({
+                    ...formData,
+                    wellness_metrics: {...formData.wellness_metrics, sleep_quality: value[0]}
+                  })}
+                  max={10}
+                  min={1}
+                  step={1}
+                />
+              </div>
 
-      {/* Meal Adherence */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Utensils className="w-5 h-5 text-orange-500" />
-            Meal Plan Adherence
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-between mb-2">
-            <span className="text-sm font-medium">How well did you follow your meal plan?</span>
-            <span className="text-sm font-bold text-orange-600">{logData.meal_adherence}%</span>
-          </div>
-          <Slider
-            value={[logData.meal_adherence]}
-            onValueChange={([value]) => setLogData({ ...logData, meal_adherence: value })}
-            max={100}
-            min={0}
-            step={5}
-          />
-        </CardContent>
-      </Card>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <CloudRain className="w-4 h-4 text-red-500" />
+                  Stress Level: {formData.wellness_metrics.stress_level}/10
+                </Label>
+                <Slider
+                  value={[formData.wellness_metrics.stress_level]}
+                  onValueChange={(value) => setFormData({
+                    ...formData,
+                    wellness_metrics: {...formData.wellness_metrics, stress_level: value[0]}
+                  })}
+                  max={10}
+                  min={1}
+                  step={1}
+                />
+              </div>
 
-      {/* Symptoms */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Symptoms (if any)</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Add symptom (e.g., headache, bloating)"
-              value={newSymptom}
-              onChange={(e) => setNewSymptom(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addSymptom()}
-            />
-            <Button onClick={addSymptom} size="icon" variant="outline">
-              <Plus className="w-4 h-4" />
-            </Button>
-          </div>
-          {logData.symptoms?.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {logData.symptoms.map((symptom, idx) => (
-                <Badge key={idx} variant="secondary" className="gap-1">
-                  {symptom}
-                  <button
-                    onClick={() => setLogData({
-                      ...logData,
-                      symptoms: logData.symptoms.filter((_, i) => i !== idx)
-                    })}
-                    className="ml-1 hover:text-red-600"
-                  >
-                    ×
-                  </button>
-                </Badge>
-              ))}
+              <div className="space-y-2">
+                <Label>Sleep Hours</Label>
+                <Input
+                  type="number"
+                  step="0.5"
+                  value={formData.wellness_metrics.sleep_hours}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    wellness_metrics: {...formData.wellness_metrics, sleep_hours: parseFloat(e.target.value)}
+                  })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Droplets className="w-4 h-4 text-blue-500" />
+                  Water Intake (liters)
+                </Label>
+                <Input
+                  type="number"
+                  step="0.5"
+                  value={formData.wellness_metrics.water_intake}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    wellness_metrics: {...formData.wellness_metrics, water_intake: parseFloat(e.target.value)}
+                  })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Dumbbell className="w-4 h-4 text-green-500" />
+                  Exercise (minutes)
+                </Label>
+                <Input
+                  type="number"
+                  value={formData.wellness_metrics.exercise_minutes}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    wellness_metrics: {...formData.wellness_metrics, exercise_minutes: parseInt(e.target.value)}
+                  })}
+                />
+              </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
 
-      {/* Notes */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Additional Notes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Textarea
-            placeholder="How was your day? Any challenges or achievements?"
-            value={logData.notes}
-            onChange={(e) => setLogData({ ...logData, notes: e.target.value })}
-            className="min-h-24"
-          />
-        </CardContent>
-      </Card>
+          <div className="space-y-2">
+            <Label>Notes (Optional)</Label>
+            <Textarea
+              value={formData.notes}
+              onChange={(e) => setFormData({...formData, notes: e.target.value})}
+              placeholder="How are you feeling? Any challenges or wins today?"
+              rows={3}
+            />
+          </div>
 
-      {/* Save Button */}
-      <Button
-        onClick={handleSave}
-        disabled={saveLogMutation.isPending}
-        className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 h-12 text-lg font-semibold"
-      >
-        {saveLogMutation.isPending ? (
-          <>
-            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-            Saving...
-          </>
-        ) : (
-          <>
-            <Calendar className="w-5 h-5 mr-2" />
-            {existingLog ? 'Update' : 'Log'} Today's Progress
-          </>
-        )}
-      </Button>
-    </div>
+          <Button
+            type="submit"
+            className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+            disabled={saveMutation.isPending}
+          >
+            {saveMutation.isPending ? 'Saving...' : todayLog ? 'Update Today\'s Log' : 'Save Today\'s Progress'}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

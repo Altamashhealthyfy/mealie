@@ -8,8 +8,11 @@ import { Button } from "@/components/ui/button";
 import ClientTutorial from "@/components/common/ClientTutorial";
 import { Textarea } from "@/components/ui/textarea";
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { TrendingDown, TrendingUp, Calendar, CheckCircle, Target, Activity, Heart, Scale, Flame, Award, AlertCircle, Download, FileText, ChefHat, MessageSquare, Send, Eye, Star, Clock, CreditCard, ArrowRight } from "lucide-react";
+import { TrendingDown, TrendingUp, Calendar, CheckCircle, Target, Activity, Heart, Scale, Flame, Award, AlertCircle, Download, FileText, ChefHat, MessageSquare, Send, Eye, Star, Clock, CreditCard, ArrowRight, Zap } from "lucide-react";
 import { format, differenceInDays, parseISO } from "date-fns";
+import { useNavigate } from "react-router-dom";
+import DailyProgressLogger from "../components/progress/DailyProgressLogger";
+import MacroAdherenceDashboard from "../components/progress/MacroAdherenceDashboard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { createPageUrl } from "@/utils";
@@ -18,11 +21,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { jsPDF } from "jspdf";
 
 export default function ClientDashboard() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [feedback, setFeedback] = React.useState("");
   const [showFeedbackDialog, setShowFeedbackDialog] = React.useState(false);
   const [showPlanDialog, setShowPlanDialog] = React.useState(false);
   const [showDownloadOptionsDialog, setShowDownloadOptionsDialog] = React.useState(false);
+  const [showDailyLogger, setShowDailyLogger] = React.useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -1204,6 +1209,39 @@ export default function ClientDashboard() {
             )}
           </CardContent>
         </Card>
+
+        {/* Daily Progress Quick Logger */}
+        <Dialog open={showDailyLogger} onOpenChange={setShowDailyLogger}>
+          <DialogTrigger asChild>
+            <Card className="border-none shadow-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white cursor-pointer hover:shadow-xl transition-all">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-bold mb-1">Quick Daily Check-In 📝</h3>
+                    <p className="text-white/90 text-sm">Log today's weight and wellness metrics</p>
+                  </div>
+                  <Zap className="w-12 h-12 text-white/80" />
+                </div>
+              </CardContent>
+            </Card>
+          </DialogTrigger>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DailyProgressLogger clientId={clientProfile?.id} />
+          </DialogContent>
+        </Dialog>
+
+        {/* Macro Adherence Section */}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <Flame className="w-6 h-6 text-orange-500" />
+            Nutrition Tracking
+          </h2>
+          <MacroAdherenceDashboard 
+            foodLogs={foodLogs} 
+            mealPlan={mealPlan} 
+            clientProfile={clientProfile} 
+          />
+        </div>
 
         {/* Active Goals */}
         {activeGoals.length > 0 && (
