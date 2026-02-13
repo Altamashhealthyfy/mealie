@@ -234,7 +234,7 @@ export default function Profile() {
 
   const saveUserProfileMutation = useMutation({
     mutationFn: async (data) => {
-      // Update user profile using auth.updateMe for basic fields
+      // Update basic profile fields
       await base44.auth.updateMe({
         full_name: data.full_name,
         phone: data.phone,
@@ -243,9 +243,9 @@ export default function Profile() {
       
       // If email changed, update via backend function
       if (data.email && data.email !== user?.email) {
-        const users = await base44.entities.User.filter({ id: user?.id });
-        if (users.length > 0) {
-          await base44.entities.User.update(users[0].id, { email: data.email });
+        const response = await base44.functions.invoke('updateUserEmail', { email: data.email });
+        if (response.data?.error) {
+          throw new Error(response.data.error);
         }
       }
       
@@ -253,11 +253,11 @@ export default function Profile() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['currentUser']);
-      alert("✅ Profile updated successfully!");
+      alert("✅ Profile updated successfully! If you changed your email, use it for future logins.");
     },
     onError: (error) => {
       console.error("Error updating profile:", error);
-      alert("Error updating profile. Please try again.");
+      alert(error.message || "Error updating profile. Please try again.");
     }
   });
 
