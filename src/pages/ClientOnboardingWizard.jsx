@@ -14,11 +14,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle2, ChevronRight, ChevronLeft, Sparkles, User, Heart, Target, Utensils } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import ImageUploader from "@/components/common/ImageUploader";
+import FeatureTutorial from "@/components/onboarding/FeatureTutorial";
 
 export default function ClientOnboardingWizard() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
+  const [showTutorial, setShowTutorial] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -55,10 +57,28 @@ export default function ClientOnboardingWizard() {
   });
 
   const updateClientMutation = useMutation({
-    mutationFn: (data) => base44.entities.Client.update(clientProfile.id, data),
+    mutationFn: async (data) => {
+      await base44.entities.Client.update(clientProfile.id, data);
+      
+      // Send automated welcome message
+      if (clientProfile.assigned_coach && !clientProfile.welcome_message_sent) {
+        await base44.entities.Message.create({
+          client_id: clientProfile.id,
+          sender_type: 'dietitian',
+          sender_id: clientProfile.assigned_coach,
+          message: `🎉 Welcome to your personalized health journey, ${clientProfile.full_name}!\n\nI'm thrilled to have you here! I've received your profile information and I'm already working on creating a customized meal plan just for you.\n\n📋 What happens next:\n• I'll review your health goals and preferences\n• Create your personalized meal plan within 24-48 hours\n• You'll receive notifications once your plan is ready\n\n💡 Getting Started Tips:\n• Explore the "My Meal Plan" section to view your plan\n• Use "Food Log" to track your daily meals\n• Track progress in "My Progress" section\n• Log your MPESS wellness practices daily\n• Message me anytime with questions!\n\nLet's achieve your health goals together! 💪`,
+          read: false
+        });
+        
+        // Mark welcome message as sent
+        await base44.entities.Client.update(clientProfile.id, { welcome_message_sent: true });
+      }
+      
+      return data;
+    },
     onSuccess: () => {
       if (currentStep === totalSteps) {
-        navigate(createPageUrl("ClientDashboard"));
+        setShowTutorial(true);
       } else {
         setCurrentStep(currentStep + 1);
       }
@@ -114,7 +134,16 @@ export default function ClientOnboardingWizard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-4 md:p-8">
+    <>
+      <FeatureTutorial 
+        open={showTutorial} 
+        onClose={() => {
+          setShowTutorial(false);
+          navigate(createPageUrl("ClientDashboard"));
+        }} 
+      />
+      
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
@@ -162,9 +191,21 @@ export default function ClientOnboardingWizard() {
               <div className="space-y-4">
                 <Alert className="bg-blue-50 border-blue-300">
                   <AlertDescription>
-                    <strong>📸 Let's start with your profile!</strong> Add a photo and basic details.
+                    <strong>📸 Let's start with your profile!</strong> Add a photo and basic details. This helps your coach personalize your experience.
                   </AlertDescription>
                 </Alert>
+                
+                <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-2 border-purple-200">
+                  <h4 className="font-semibold text-purple-900 mb-2 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    Why we need this:
+                  </h4>
+                  <ul className="text-sm text-purple-800 space-y-1">
+                    <li>✓ Your photo helps your coach recognize you</li>
+                    <li>✓ Age, height & weight are crucial for calculating your nutrition needs</li>
+                    <li>✓ Target weight helps us track your progress effectively</li>
+                  </ul>
+                </div>
 
                 <ImageUploader
                   onImageUploaded={(url) => setFormData({...formData, profile_photo_url: url})}
@@ -246,6 +287,19 @@ export default function ClientOnboardingWizard() {
                     <strong>🎯 What are your health goals?</strong> This helps us create the perfect plan for you.
                   </AlertDescription>
                 </Alert>
+                
+                <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-200">
+                  <h4 className="font-semibold text-green-900 mb-2 flex items-center gap-2">
+                    <Target className="w-4 h-4" />
+                    Understanding Your Goals:
+                  </h4>
+                  <ul className="text-sm text-green-800 space-y-1">
+                    <li>💪 <strong>Weight Loss:</strong> We'll create a calorie deficit while ensuring proper nutrition</li>
+                    <li>📈 <strong>Weight Gain:</strong> Focus on healthy calorie surplus with balanced macros</li>
+                    <li>🏋️ <strong>Muscle Gain:</strong> High protein intake with strength training support</li>
+                    <li>❤️ <strong>Disease Reversal:</strong> Specialized plans for diabetes, PCOS, thyroid, etc.</li>
+                  </ul>
+                </div>
 
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -312,6 +366,19 @@ export default function ClientOnboardingWizard() {
                     <strong>🍽️ Tell us about your food preferences!</strong> We'll customize your meal plans accordingly.
                   </AlertDescription>
                 </Alert>
+                
+                <div className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg border-2 border-yellow-200">
+                  <h4 className="font-semibold text-orange-900 mb-2 flex items-center gap-2">
+                    <Utensils className="w-4 h-4" />
+                    Personalizing Your Meals:
+                  </h4>
+                  <ul className="text-sm text-orange-800 space-y-1">
+                    <li>🥗 Your food preferences ensure you enjoy every meal</li>
+                    <li>🌶️ Regional preferences keep flavors you love</li>
+                    <li>⚠️ Dietary restrictions are strictly followed for your safety</li>
+                    <li>✨ We'll create plans you'll actually want to follow!</li>
+                  </ul>
+                </div>
 
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -367,6 +434,21 @@ export default function ClientOnboardingWizard() {
                     <strong>💪 Almost done! Tell us about your daily routine.</strong>
                   </AlertDescription>
                 </Alert>
+                
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border-2 border-blue-200">
+                  <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                    <Heart className="w-4 h-4" />
+                    How to Use the Platform:
+                  </h4>
+                  <ul className="text-sm text-blue-800 space-y-2">
+                    <li><strong>📋 My Meal Plan:</strong> View your personalized daily meal plans with recipes and portions</li>
+                    <li><strong>🍽️ Food Log:</strong> Track what you eat daily - helps your coach adjust your plan</li>
+                    <li><strong>📊 My Progress:</strong> Log weight, measurements, photos, and wellness metrics</li>
+                    <li><strong>💬 Messages:</strong> Chat directly with your coach anytime</li>
+                    <li><strong>❤️ MPESS Wellness:</strong> Track Mind, Physical, Emotional, Social & Spiritual practices</li>
+                    <li><strong>📤 Upload Reports:</strong> Share blood reports and medical documents securely</li>
+                  </ul>
+                </div>
 
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -437,5 +519,6 @@ export default function ClientOnboardingWizard() {
         </Card>
       </div>
     </div>
+    </>
   );
 }

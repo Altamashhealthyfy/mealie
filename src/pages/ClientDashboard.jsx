@@ -498,6 +498,13 @@ export default function ClientDashboard() {
     setShowDownloadOptionsDialog(false);
   };
 
+  // Redirect to onboarding if not completed
+  React.useEffect(() => {
+    if (clientProfile && !clientProfile.onboarding_completed) {
+      navigate(createPageUrl("ClientOnboardingWizard"));
+    }
+  }, [clientProfile, navigate]);
+
   // Early return AFTER all hooks are defined
   if (!user || !clientProfile) {
     return (
@@ -508,6 +515,11 @@ export default function ClientDashboard() {
         </div>
       </div>
     );
+  }
+
+  // If onboarding not completed, don't render dashboard (redirect will happen)
+  if (!clientProfile.onboarding_completed) {
+    return null;
   }
 
   return (
