@@ -38,6 +38,9 @@ import TypingIndicator from "@/components/communication/TypingIndicator";
 import { useTypingIndicator } from "@/components/communication/useTypingIndicator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
+import ContentTypePicker from "@/components/communication/ContentTypePicker";
+import PollCreator from "@/components/communication/PollCreator";
+import PollDisplay from "@/components/communication/PollDisplay";
 
 export default function Communication() {
   const queryClient = useQueryClient();
@@ -50,6 +53,8 @@ export default function Communication() {
   const [messageMode, setMessageMode] = useState('one-to-one'); // 'one-to-one' or 'group'
   const [isImportant, setIsImportant] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
+  const [contentType, setContentType] = useState('file');
+  const [showPollCreator, setShowPollCreator] = useState(false);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -274,6 +279,43 @@ export default function Communication() {
     setAttachedFile(file);
   };
 
+  const handleContentTypeSelect = (type) => {
+    setContentType(type);
+    setAttachedFile(null);
+    
+    if (type === 'poll') {
+      setShowPollCreator(true);
+    } else if (fileInputRef.current) {
+      // Set accept attribute based on content type
+      const acceptTypes = {
+        photo: 'image/*',
+        video: 'video/*',
+        audio: 'audio/*',
+        file: '*/*'
+      };
+      fileInputRef.current.accept = acceptTypes[type] || '*/*';
+      fileInputRef.current.click();
+    }
+  };
+
+  const handlePollCreate = (pollData) => {
+    setShowPollCreator(false);
+    
+    const messageData = {
+      sender_type: 'dietitian',
+      message: `📊 Poll: ${pollData.question}`,
+      content_type: 'poll',
+      poll_data: pollData,
+      read: false,
+      is_important: isImportant,
+    };
+
+    if (selectedClient) messageData.client_id = selectedClient.id;
+    if (selectedGroup) messageData.group_id = selectedGroup.id;
+
+    sendMessageMutation.mutate(messageData);
+  };
+
   const removeAttachment = () => {
     setAttachedFile(null);
     if (fileInputRef.current) {
@@ -413,6 +455,7 @@ export default function Communication() {
       message: messageText.trim() || '(File attachment)',
       read: false,
       is_important: isImportant,
+      content_type: attachedFile ? contentType : 'text',
     };
 
     if (selectedClient) messageData.client_id = selectedClient.id;
@@ -742,8 +785,12 @@ export default function Communication() {
                                   
                                   {renderAttachment(message, isFromDietitian)}
 
+                                  {message.content_type === 'poll' && (
+                                   <PollDisplay message={message} currentUserId={user?.id} />
+                                  )}
+
                                   <div className={`flex items-center gap-2 mt-2 text-xs ${
-                                    isFromDietitian ? 'text-white/70' : 'text-gray-500'
+                                   isFromDietitian ? 'text-white/70' : 'text-gray-500'
                                   }`}>
                                     <span>{formatToIST(message.created_date)}</span>
                                     {isFromDietitian && (
@@ -818,15 +865,11 @@ export default function Communication() {
                         className="hidden"
                         accept="*/*"
                       />
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="h-[50px] w-[50px] md:h-[60px] md:w-[60px] flex-shrink-0 border-2 border-orange-300 hover:bg-orange-50"
+                      <ContentTypePicker
+                        selectedType={contentType}
+                        onTypeSelect={handleContentTypeSelect}
                         disabled={uploading || sendMessageMutation.isPending}
-                      >
-                        <Paperclip className="w-4 h-4 md:w-5 md:h-5 text-orange-600" />
-                      </Button>
+                      />
                       <div className="flex items-center gap-2 bg-white p-2 rounded border border-orange-200">
                         <Checkbox
                           checked={isImportant}
@@ -884,9 +927,15 @@ export default function Communication() {
                     </div>
                     
                     <p className="text-xs text-gray-500 text-center mt-2">
-                      <Paperclip className="w-3 h-3 inline" /> Attach files up to 1 GB • 
+                      Select content type • Attach files up to 1 GB • 
                       <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono ml-1">Enter</kbd> to send
                     </p>
+
+                    <PollCreator
+                      open={showPollCreator}
+                      onClose={() => setShowPollCreator(false)}
+                      onCreatePoll={handlePollCreate}
+                    />
                   </div>
                 </>
               ) : (

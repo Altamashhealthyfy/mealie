@@ -14,6 +14,9 @@ import { Switch } from '@/components/ui/switch';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from 'sonner';
+import ContentTypePicker from './ContentTypePicker';
+import PollCreator from './PollCreator';
+import PollDisplay from './PollDisplay';
 
 export default function GroupMessaging({ userEmail }) {
   const queryClient = useQueryClient();
@@ -29,6 +32,8 @@ export default function GroupMessaging({ userEmail }) {
   const [uploading, setUploading] = useState(false);
   const [replyingTo, setReplyingTo] = useState(null);
   const [showThreads, setShowThreads] = useState({});
+  const [contentType, setContentType] = useState('file');
+  const [showPollCreator, setShowPollCreator] = useState(false);
   const [groupSettings, setGroupSettings] = useState({
     only_admins_can_pin: true,
     only_admins_can_send: false,
@@ -192,6 +197,52 @@ export default function GroupMessaging({ userEmail }) {
     return (bytes / 1073741824).toFixed(1) + ' GB';
   };
 
+  const handleContentTypeSelect = (type) => {
+    setContentType(type);
+    setAttachedFile(null);
+    
+    if (type === 'poll') {
+      setShowPollCreator(true);
+    } else if (fileInputRef.current) {
+      const acceptTypes = {
+        photo: 'image/*',
+        video: 'video/*',
+        audio: 'audio/*',
+        file: '*/*'
+      };
+      fileInputRef.current.accept = acceptTypes[type] || '*/*';
+      fileInputRef.current.click();
+    }
+  };
+
+  const handlePollCreate = (pollData) => {
+    setShowPollCreator(false);
+    
+    const messageData = {
+      group_id: selectedGroup.id,
+      sender_type: 'dietitian',
+      sender_id: user?.id,
+      sender_name: user?.full_name,
+      message: `📊 Poll: ${pollData.question}`,
+      content_type: 'poll',
+      poll_data: pollData,
+      read: false,
+    };
+
+    if (replyingTo) {
+      messageData.parent_message_id = replyingTo.id;
+    }
+
+    sendGroupMessageMutation.mutateAsync(messageData).then(() => {
+      if (replyingTo) {
+        updateMessageMutation.mutate({
+          id: replyingTo.id,
+          data: { thread_count: (replyingTo.thread_count || 0) + 1 }
+        });
+      }
+    });
+  };
+
   const handleSendGroupMessage = async () => {
     if (!messageText.trim() && !attachedFile) return;
 
@@ -202,6 +253,7 @@ export default function GroupMessaging({ userEmail }) {
       sender_id: user?.id,
       sender_name: user?.full_name,
       read: false,
+      content_type: attachedFile ? contentType : 'text',
     };
 
     if (replyingTo) {
@@ -396,6 +448,7 @@ export default function GroupMessaging({ userEmail }) {
               )}
               <p className="text-sm text-gray-900 whitespace-pre-wrap">{msg.message}</p>
               {renderAttachment(msg)}
+              {msg.content_type === 'poll' && <PollDisplay message={msg} currentUserId={user?.id} />}
               
               {/* Reactions */}
               {Object.keys(reactionGroups).length > 0 && (
@@ -692,14 +745,11 @@ export default function GroupMessaging({ userEmail }) {
               accept="*/*"
             />
             {selectedGroup.settings?.allow_file_sharing !== false && (
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => fileInputRef.current?.click()}
+              <ContentTypePicker
+                selectedType={contentType}
+                onTypeSelect={handleContentTypeSelect}
                 disabled={uploading}
-              >
-                <Paperclip className="w-4 h-4" />
-              </Button>
+              />
             )}
             <Textarea
               placeholder="Type message (use @ to mention)..."
@@ -720,6 +770,12 @@ export default function GroupMessaging({ userEmail }) {
               )}
             </Button>
           </div>
+          
+          <PollCreator
+            open={showPollCreator}
+            onClose={() => setShowPollCreator(false)}
+            onCreatePoll={handlePollCreate}
+          />
         </div>
       </div>
     );
