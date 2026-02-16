@@ -1,462 +1,452 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Bell, Clock, Mail, Settings, Users, Calendar, Activity, Loader2, Search } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { Bell, Plus, Trash2, Edit, Clock, Mail, User, Calendar, CheckCircle, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ReminderManagement() {
-  const queryClient = useQueryClient();
-  const [selectedClient, setSelectedClient] = useState(null);
-  const [editDialog, setEditDialog] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [reminderSettings, setReminderSettings] = useState({
-    progress_reminders_enabled: false,
-    progress_reminder_frequency: 'daily',
-    progress_reminder_time: '09:00',
-    progress_reminder_days: [1, 2, 3, 4, 5],
-    weigh_in_reminders: true,
-    meal_log_reminders: true,
-    exercise_reminders: true,
-    mpess_reminders: true,
-    appointment_reminders_enabled: true,
-    appointment_reminder_hours_before: 24,
-    reminder_method: 'both',
-    custom_message: '',
-    is_active: true
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [editingReminder, setEditingReminder] = useState(null);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [reminderData, setReminderData] = useState({
+    reminder_type: 'daily_progress',
+    frequency: 'daily',
+    notification_method: 'both',
+    time_of_day: '09:00',
+    days_of_week: [],
+    is_active: true,
+    conditions: {
+      only_if_not_completed: true,
+      grace_period_hours: 2
+    }
   });
+
+  const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
+    queryFn: () => base44.auth.me()
   });
 
-  const { data: clients, isLoading } = useQuery({
+  const { data: clients = [] } = useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
-      if (user?.user_type === 'super_admin' || user?.user_type === 'team_member') {
-        return await base44.entities.Client.list('-created_date', 10000);
+      if (user?.user_type === 'super_admin') {
+        return await base44.entities.Client.list();
       } else {
         return await base44.entities.Client.filter({ assigned_coach: user?.email });
       }
     },
-    enabled: !!user,
-    initialData: [],
+    enabled: !!user
   });
 
-  const { data: allReminderSettings } = useQuery({
-    queryKey: ['reminderSettings'],
-    queryFn: async () => {
-      if (user?.user_type === 'super_admin' || user?.user_type === 'team_member') {
-        return await base44.entities.ReminderSettings.list('', 10000);
-      } else {
-        return await base44.entities.ReminderSettings.filter({ coach_email: user?.email });
-      }
-    },
-    enabled: !!user,
-    initialData: [],
+  const { data: reminders = [] } = useQuery({
+    queryKey: ['reminders', user?.email],
+    queryFn: () => base44.entities.ReminderSettings.filter({ coach_email: user?.email }),
+    enabled: !!user
   });
 
-  const saveReminderMutation = useMutation({
-    mutationFn: async (data) => {
-      const existing = allReminderSettings.find(s => s.client_id === data.client_id);
-      if (existing) {
-        return await base44.entities.ReminderSettings.update(existing.id, data);
-      } else {
-        return await base44.entities.ReminderSettings.create(data);
-      }
-    },
+  const createReminderMutation = useMutation({
+    mutationFn: (data) => base44.entities.ReminderSettings.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries(['reminderSettings']);
-      setEditDialog(false);
-      toast.success('Reminder settings saved successfully!');
+      queryClient.invalidateQueries({ queryKey: ['reminders'] });
+      setShowCreateDialog(false);
+      setEditingReminder(null);
+      resetForm();
+      toast.success("Reminder created successfully!");
     },
     onError: (error) => {
-      toast.error('Failed to save settings: ' + error.message);
+      toast.error(`Failed to create reminder: ${error.message}`);
     }
   });
 
-  const handleEditClient = (client) => {
-    setSelectedClient(client);
-    const existing = allReminderSettings.find(s => s.client_id === client.id);
-    
-    if (existing) {
-      setReminderSettings({
-        progress_reminders_enabled: existing.progress_reminders_enabled || false,
-        progress_reminder_frequency: existing.progress_reminder_frequency || 'daily',
-        progress_reminder_time: existing.progress_reminder_time || '09:00',
-        progress_reminder_days: existing.progress_reminder_days || [1, 2, 3, 4, 5],
-        weigh_in_reminders: existing.weigh_in_reminders ?? true,
-        meal_log_reminders: existing.meal_log_reminders ?? true,
-        exercise_reminders: existing.exercise_reminders ?? true,
-        mpess_reminders: existing.mpess_reminders ?? true,
-        appointment_reminders_enabled: existing.appointment_reminders_enabled ?? true,
-        appointment_reminder_hours_before: existing.appointment_reminder_hours_before || 24,
-        reminder_method: existing.reminder_method || 'both',
-        custom_message: existing.custom_message || '',
-        is_active: existing.is_active ?? true
-      });
-    } else {
-      setReminderSettings({
-        progress_reminders_enabled: false,
-        progress_reminder_frequency: 'daily',
-        progress_reminder_time: '09:00',
-        progress_reminder_days: [1, 2, 3, 4, 5],
-        weigh_in_reminders: true,
-        meal_log_reminders: true,
-        exercise_reminders: true,
-        mpess_reminders: true,
-        appointment_reminders_enabled: true,
-        appointment_reminder_hours_before: 24,
-        reminder_method: 'both',
-        custom_message: '',
-        is_active: true
-      });
+  const updateReminderMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.ReminderSettings.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reminders'] });
+      setShowCreateDialog(false);
+      setEditingReminder(null);
+      resetForm();
+      toast.success("Reminder updated successfully!");
     }
-    
-    setEditDialog(true);
+  });
+
+  const deleteReminderMutation = useMutation({
+    mutationFn: (id) => base44.entities.ReminderSettings.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reminders'] });
+      toast.success("Reminder deleted!");
+    }
+  });
+
+  const toggleReminderMutation = useMutation({
+    mutationFn: ({ id, isActive }) => 
+      base44.entities.ReminderSettings.update(id, { is_active: isActive }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reminders'] });
+      toast.success("Reminder updated!");
+    }
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!selectedClient) {
+      toast.error("Please select a client");
+      return;
+    }
+
+    const data = {
+      ...reminderData,
+      client_id: selectedClient,
+      coach_email: user?.email
+    };
+
+    if (editingReminder) {
+      updateReminderMutation.mutate({ id: editingReminder.id, data });
+    } else {
+      createReminderMutation.mutate(data);
+    }
   };
 
-  const handleSave = () => {
-    saveReminderMutation.mutate({
-      client_id: selectedClient.id,
-      client_email: selectedClient.email,
-      client_name: selectedClient.full_name,
-      coach_email: user?.email,
-      ...reminderSettings
+  const handleEdit = (reminder) => {
+    setEditingReminder(reminder);
+    setSelectedClient(reminder.client_id);
+    setReminderData({
+      reminder_type: reminder.reminder_type,
+      title: reminder.title,
+      message: reminder.message,
+      frequency: reminder.frequency,
+      time_of_day: reminder.time_of_day,
+      days_of_week: reminder.days_of_week || [],
+      notification_method: reminder.notification_method,
+      is_active: reminder.is_active,
+      conditions: reminder.conditions || { only_if_not_completed: true }
+    });
+    setShowCreateDialog(true);
+  };
+
+  const resetForm = () => {
+    setSelectedClient('');
+    setReminderData({
+      reminder_type: 'daily_progress',
+      frequency: 'daily',
+      notification_method: 'both',
+      time_of_day: '09:00',
+      days_of_week: [],
+      is_active: true,
+      conditions: {
+        only_if_not_completed: true,
+        grace_period_hours: 2
+      }
     });
   };
 
-  const filteredClients = clients.filter(c =>
-    c.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const toggleDay = (day) => {
+    const days = reminderData.days_of_week || [];
+    if (days.includes(day)) {
+      setReminderData({
+        ...reminderData,
+        days_of_week: days.filter(d => d !== day)
+      });
+    } else {
+      setReminderData({
+        ...reminderData,
+        days_of_week: [...days, day].sort()
+      });
+    }
+  };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
-      </div>
-    );
-  }
+  const getClientName = (clientId) => {
+    const client = clients.find(c => c.id === clientId);
+    return client?.full_name || 'Unknown';
+  };
+
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Reminder Management</h1>
-            <p className="text-gray-600">Configure automated reminders for your clients</p>
+            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+              <Bell className="w-8 h-8 text-orange-500" />
+              Reminder Management
+            </h1>
+            <p className="text-gray-600 mt-1">Configure automated reminders for your clients</p>
           </div>
-          <Bell className="w-10 h-10 text-orange-500" />
-        </div>
-
-        <Card className="border-none shadow-lg">
-          <CardContent className="p-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <Input
-                placeholder="Search clients..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredClients.map(client => {
-            const settings = allReminderSettings.find(s => s.client_id === client.id);
-            const hasReminders = settings?.progress_reminders_enabled || settings?.appointment_reminders_enabled;
-            
-            return (
-              <Card key={client.id} className="border-none shadow-lg hover:shadow-xl transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg text-gray-900">{client.full_name}</h3>
-                      <p className="text-sm text-gray-600">{client.email}</p>
-                    </div>
-                    <Users className="w-5 h-5 text-gray-400" />
-                  </div>
-
-                  {settings && (
-                    <div className="space-y-2 mb-4">
-                      {settings.progress_reminders_enabled && (
-                        <Badge className="bg-green-100 text-green-700">
-                          <Activity className="w-3 h-3 mr-1" />
-                          Progress Reminders
-                        </Badge>
-                      )}
-                      {settings.appointment_reminders_enabled && (
-                        <Badge className="bg-blue-100 text-blue-700">
-                          <Calendar className="w-3 h-3 mr-1" />
-                          Appointment Reminders
-                        </Badge>
-                      )}
-                      {!settings.is_active && (
-                        <Badge className="bg-red-100 text-red-700">Paused</Badge>
-                      )}
-                    </div>
-                  )}
-
-                  {!hasReminders && (
-                    <p className="text-sm text-gray-500 mb-4">No reminders configured</p>
-                  )}
-
-                  <Button
-                    onClick={() => handleEditClient(client)}
-                    variant="outline"
-                    className="w-full"
-                  >
-                    <Settings className="w-4 h-4 mr-2" />
-                    Configure Reminders
-                  </Button>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {selectedClient && (
-          <Dialog open={editDialog} onOpenChange={setEditDialog}>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                <Plus className="w-4 h-4 mr-2" />
+                Create Reminder
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Bell className="w-5 h-5 text-orange-500" />
-                  Reminder Settings: {selectedClient.full_name}
+                <DialogTitle>
+                  {editingReminder ? 'Edit Reminder' : 'Create New Reminder'}
                 </DialogTitle>
               </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label>Select Client</Label>
+                  <Select value={selectedClient} onValueChange={setSelectedClient}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a client..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clients.map(client => (
+                        <SelectItem key={client.id} value={client.id}>
+                          {client.full_name} - {client.email}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="space-y-6 mt-4">
-                {/* Master Switch */}
-                <Card className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-none">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold">Master Control</p>
-                        <p className="text-sm opacity-90">Enable/disable all reminders</p>
-                      </div>
-                      <Switch
-                        checked={reminderSettings.is_active}
-                        onCheckedChange={(checked) => setReminderSettings(prev => ({ ...prev, is_active: checked }))}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
+                <div>
+                  <Label>Reminder Type</Label>
+                  <Select
+                    value={reminderData.reminder_type}
+                    onValueChange={(value) => setReminderData({...reminderData, reminder_type: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="daily_progress">Daily Progress Log</SelectItem>
+                      <SelectItem value="food_log">Food Log</SelectItem>
+                      <SelectItem value="appointment">Appointment</SelectItem>
+                      <SelectItem value="challenge">Challenge Engagement</SelectItem>
+                      <SelectItem value="meal_plan_review">Meal Plan Review</SelectItem>
+                      <SelectItem value="custom">Custom Reminder</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                {/* Progress Reminders */}
-                <Card className="border-2 border-green-200">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Activity className="w-5 h-5 text-green-600" />
-                      Progress Logging Reminders
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Label>Enable Progress Reminders</Label>
-                      <Switch
-                        checked={reminderSettings.progress_reminders_enabled}
-                        onCheckedChange={(checked) => setReminderSettings(prev => ({ ...prev, progress_reminders_enabled: checked }))}
-                      />
-                    </div>
+                <div>
+                  <Label>Title</Label>
+                  <Input
+                    placeholder="Reminder title..."
+                    value={reminderData.title || ''}
+                    onChange={(e) => setReminderData({...reminderData, title: e.target.value})}
+                    required
+                  />
+                </div>
 
-                    {reminderSettings.progress_reminders_enabled && (
-                      <>
-                        <div className="space-y-2">
-                          <Label>Reminder Frequency</Label>
-                          <Select
-                            value={reminderSettings.progress_reminder_frequency}
-                            onValueChange={(value) => setReminderSettings(prev => ({ ...prev, progress_reminder_frequency: value }))}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="daily">Every Day</SelectItem>
-                              <SelectItem value="every_2_days">Every 2 Days</SelectItem>
-                              <SelectItem value="weekly">Specific Days of Week</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+                <div>
+                  <Label>Custom Message (Optional)</Label>
+                  <Textarea
+                    placeholder="Add a custom message..."
+                    value={reminderData.message || ''}
+                    onChange={(e) => setReminderData({...reminderData, message: e.target.value})}
+                    rows={3}
+                  />
+                </div>
 
-                        {reminderSettings.progress_reminder_frequency === 'weekly' && (
-                          <div className="space-y-2">
-                            <Label>Select Days</Label>
-                            <div className="grid grid-cols-4 gap-2">
-                              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, idx) => (
-                                <div key={idx} className="flex items-center gap-2">
-                                  <Checkbox
-                                    checked={reminderSettings.progress_reminder_days?.includes(idx)}
-                                    onCheckedChange={(checked) => {
-                                      const days = [...(reminderSettings.progress_reminder_days || [])];
-                                      if (checked) {
-                                        days.push(idx);
-                                      } else {
-                                        const index = days.indexOf(idx);
-                                        if (index > -1) days.splice(index, 1);
-                                      }
-                                      setReminderSettings(prev => ({ ...prev, progress_reminder_days: days }));
-                                    }}
-                                  />
-                                  <Label className="text-sm">{day}</Label>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="space-y-2">
-                          <Label>Reminder Time</Label>
-                          <Input
-                            type="time"
-                            value={reminderSettings.progress_reminder_time}
-                            onChange={(e) => setReminderSettings(prev => ({ ...prev, progress_reminder_time: e.target.value }))}
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>What to remind about:</Label>
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <Checkbox
-                                checked={reminderSettings.weigh_in_reminders}
-                                onCheckedChange={(checked) => setReminderSettings(prev => ({ ...prev, weigh_in_reminders: checked }))}
-                              />
-                              <Label>Daily Weigh-in</Label>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Checkbox
-                                checked={reminderSettings.meal_log_reminders}
-                                onCheckedChange={(checked) => setReminderSettings(prev => ({ ...prev, meal_log_reminders: checked }))}
-                              />
-                              <Label>Meal Logging</Label>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Checkbox
-                                checked={reminderSettings.exercise_reminders}
-                                onCheckedChange={(checked) => setReminderSettings(prev => ({ ...prev, exercise_reminders: checked }))}
-                              />
-                              <Label>Exercise Tracking</Label>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Checkbox
-                                checked={reminderSettings.mpess_reminders}
-                                onCheckedChange={(checked) => setReminderSettings(prev => ({ ...prev, mpess_reminders: checked }))}
-                              />
-                              <Label>MPESS Wellness</Label>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label>Custom Message (Optional)</Label>
-                          <Textarea
-                            placeholder="Add a personal touch to the reminder..."
-                            value={reminderSettings.custom_message}
-                            onChange={(e) => setReminderSettings(prev => ({ ...prev, custom_message: e.target.value }))}
-                            rows={3}
-                          />
-                        </div>
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Appointment Reminders */}
-                <Card className="border-2 border-blue-200">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Calendar className="w-5 h-5 text-blue-600" />
-                      Appointment Reminders
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Label>Enable Appointment Reminders</Label>
-                      <Switch
-                        checked={reminderSettings.appointment_reminders_enabled}
-                        onCheckedChange={(checked) => setReminderSettings(prev => ({ ...prev, appointment_reminders_enabled: checked }))}
-                      />
-                    </div>
-
-                    {reminderSettings.appointment_reminders_enabled && (
-                      <div className="space-y-2">
-                        <Label>Send Reminder (Hours Before)</Label>
-                        <Select
-                          value={reminderSettings.appointment_reminder_hours_before.toString()}
-                          onValueChange={(value) => setReminderSettings(prev => ({ ...prev, appointment_reminder_hours_before: parseInt(value) }))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="1">1 hour before</SelectItem>
-                            <SelectItem value="2">2 hours before</SelectItem>
-                            <SelectItem value="4">4 hours before</SelectItem>
-                            <SelectItem value="12">12 hours before</SelectItem>
-                            <SelectItem value="24">24 hours before</SelectItem>
-                            <SelectItem value="48">48 hours before</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-
-                {/* Reminder Method */}
-                <Card className="border-2 border-purple-200">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Mail className="w-5 h-5 text-purple-600" />
-                      Reminder Method
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Frequency</Label>
                     <Select
-                      value={reminderSettings.reminder_method}
-                      onValueChange={(value) => setReminderSettings(prev => ({ ...prev, reminder_method: value }))}
+                      value={reminderData.frequency}
+                      onValueChange={(value) => setReminderData({...reminderData, frequency: value})}
                     >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="both">Email + In-App Notification</SelectItem>
-                        <SelectItem value="email">Email Only</SelectItem>
-                        <SelectItem value="notification">In-App Notification Only</SelectItem>
+                        <SelectItem value="daily">Daily</SelectItem>
+                        <SelectItem value="weekly">Weekly</SelectItem>
+                        <SelectItem value="biweekly">Bi-weekly</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
                       </SelectContent>
                     </Select>
-                  </CardContent>
-                </Card>
+                  </div>
 
-                <div className="flex gap-3 pt-4 border-t">
-                  <Button variant="outline" onClick={() => setEditDialog(false)} className="flex-1">
+                  <div>
+                    <Label>Time of Day</Label>
+                    <Input
+                      type="time"
+                      value={reminderData.time_of_day || ''}
+                      onChange={(e) => setReminderData({...reminderData, time_of_day: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="mb-2 block">Days of Week</Label>
+                  <div className="flex gap-2">
+                    {dayNames.map((day, idx) => (
+                      <Button
+                        key={idx}
+                        type="button"
+                        variant={(reminderData.days_of_week || []).includes(idx) ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => toggleDay(idx)}
+                        className="flex-1"
+                      >
+                        {day}
+                      </Button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Leave empty for all days</p>
+                </div>
+
+                <div>
+                  <Label>Notification Method</Label>
+                  <Select
+                    value={reminderData.notification_method}
+                    onValueChange={(value) => setReminderData({...reminderData, notification_method: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="in_app">In-App Only</SelectItem>
+                      <SelectItem value="email">Email Only</SelectItem>
+                      <SelectItem value="both">Both</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                  <Label htmlFor="only-if-not-completed" className="cursor-pointer">
+                    Only send if action not completed
+                  </Label>
+                  <Switch
+                    id="only-if-not-completed"
+                    checked={reminderData.conditions?.only_if_not_completed || false}
+                    onCheckedChange={(checked) => setReminderData({
+                      ...reminderData,
+                      conditions: {
+                        ...reminderData.conditions,
+                        only_if_not_completed: checked
+                      }
+                    })}
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button type="button" variant="outline" onClick={() => {
+                    setShowCreateDialog(false);
+                    setEditingReminder(null);
+                    resetForm();
+                  }}>
                     Cancel
                   </Button>
-                  <Button
-                    onClick={handleSave}
-                    disabled={saveReminderMutation.isPending}
-                    className="flex-1 bg-gradient-to-r from-orange-500 to-red-500"
-                  >
-                    <Bell className="w-4 h-4 mr-2" />
-                    {saveReminderMutation.isPending ? 'Saving...' : 'Save Settings'}
+                  <Button type="submit" className="flex-1 bg-gradient-to-r from-orange-500 to-red-500">
+                    {editingReminder ? 'Update' : 'Create'} Reminder
                   </Button>
                 </div>
-              </div>
+              </form>
             </DialogContent>
           </Dialog>
-        )}
+        </div>
+
+        {/* Reminders List */}
+        <div className="grid gap-4">
+          {reminders.length === 0 ? (
+            <Card>
+              <CardContent className="text-center py-12">
+                <Bell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">No reminders configured yet</p>
+                <p className="text-sm text-gray-500 mt-2">Create your first reminder to automate client engagement</p>
+              </CardContent>
+            </Card>
+          ) : (
+            reminders.map(reminder => (
+              <Card key={reminder.id} className={!reminder.is_active ? 'opacity-60' : ''}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        {reminder.title}
+                        {reminder.is_active ? (
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                        ) : (
+                          <AlertCircle className="w-4 h-4 text-gray-400" />
+                        )}
+                      </CardTitle>
+                      <CardDescription className="flex items-center gap-2 mt-1">
+                        <User className="w-3 h-3" />
+                        {getClientName(reminder.client_id)}
+                      </CardDescription>
+                    </div>
+                    <div className="flex gap-2">
+                      <Switch
+                        checked={reminder.is_active}
+                        onCheckedChange={(checked) => 
+                          toggleReminderMutation.mutate({ id: reminder.id, isActive: checked })
+                        }
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(reminder)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          if (confirm('Delete this reminder?')) {
+                            deleteReminderMutation.mutate(reminder.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4 text-red-600" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <Badge className="capitalize">{reminder.reminder_type.replace('_', ' ')}</Badge>
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {reminder.time_of_day}
+                    </Badge>
+                    <Badge variant="outline">{reminder.frequency}</Badge>
+                    <Badge variant="outline" className="flex items-center gap-1">
+                      <Mail className="w-3 h-3" />
+                      {reminder.notification_method}
+                    </Badge>
+                  </div>
+                  
+                  {reminder.days_of_week?.length > 0 && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                      <Calendar className="w-4 h-4" />
+                      <span>
+                        {reminder.days_of_week.map(d => dayNames[d]).join(', ')}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {reminder.message && (
+                    <p className="text-sm text-gray-600 mt-2 italic">"{reminder.message}"</p>
+                  )}
+                  
+                  {reminder.last_sent && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      Last sent: {new Date(reminder.last_sent).toLocaleString()}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
