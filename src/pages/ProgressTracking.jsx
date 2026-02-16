@@ -19,6 +19,8 @@ import WellnessCharts from "../components/progress/WellnessCharts";
 import AdvancedAnalyticsDashboard from "../components/progress/AdvancedAnalyticsDashboard";
 import DailyProgressLogger from "../components/progress/DailyProgressLogger";
 import MacroAdherenceDashboard from "../components/progress/MacroAdherenceDashboard";
+import EnhancedHealthLogger from "../components/health/EnhancedHealthLogger";
+import HealthTrendsVisualization from "../components/health/HealthTrendsVisualization";
 
 export default function ProgressTracking() {
   const queryClient = useQueryClient();
@@ -321,76 +323,12 @@ export default function ProgressTracking() {
                         onChange={(e) => setFormData({...formData, weight: parseFloat(e.target.value)})} placeholder="65.5" />
                     </div>
 
-                    {/* Wellness Metrics */}
-                    <div className="space-y-3 p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg">
-                      <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                        <Smile className="w-5 h-5 text-purple-600" />
-                        Wellness Metrics
-                      </h3>
-
-                      <div className="space-y-2">
-                        <Label>Mood</Label>
-                        <Select value={formData.wellness_metrics?.mood || ''} 
-                          onValueChange={(value) => setFormData({...formData, wellness_metrics: {...formData.wellness_metrics, mood: value}})}>
-                          <SelectTrigger><SelectValue placeholder="How do you feel?" /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="excellent">😄 Excellent</SelectItem>
-                            <SelectItem value="good">😊 Good</SelectItem>
-                            <SelectItem value="neutral">😐 Neutral</SelectItem>
-                            <SelectItem value="poor">😕 Poor</SelectItem>
-                            <SelectItem value="very_poor">😢 Very Poor</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label className="flex items-center gap-2">
-                            <Zap className="w-4 h-4 text-yellow-500" />
-                            Energy Level (1-10)
-                          </Label>
-                          <Input type="number" min="1" max="10" value={formData.wellness_metrics?.energy_level || ''}
-                            onChange={(e) => setFormData({...formData, wellness_metrics: {...formData.wellness_metrics, energy_level: parseInt(e.target.value)}})} />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="flex items-center gap-2">
-                            <Moon className="w-4 h-4 text-indigo-500" />
-                            Sleep Quality (1-10)
-                          </Label>
-                          <Input type="number" min="1" max="10" value={formData.wellness_metrics?.sleep_quality || ''}
-                            onChange={(e) => setFormData({...formData, wellness_metrics: {...formData.wellness_metrics, sleep_quality: parseInt(e.target.value)}})} />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Sleep Hours</Label>
-                          <Input type="number" step="0.5" value={formData.wellness_metrics?.sleep_hours || ''}
-                            onChange={(e) => setFormData({...formData, wellness_metrics: {...formData.wellness_metrics, sleep_hours: parseFloat(e.target.value)}})} />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="flex items-center gap-2">
-                            <CloudRain className="w-4 h-4 text-red-500" />
-                            Stress Level (1-10)
-                          </Label>
-                          <Input type="number" min="1" max="10" value={formData.wellness_metrics?.stress_level || ''}
-                            onChange={(e) => setFormData({...formData, wellness_metrics: {...formData.wellness_metrics, stress_level: parseInt(e.target.value)}})} />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="flex items-center gap-2">
-                            <Droplets className="w-4 h-4 text-blue-500" />
-                            Water Intake (liters)
-                          </Label>
-                          <Input type="number" step="0.5" value={formData.wellness_metrics?.water_intake || ''}
-                            onChange={(e) => setFormData({...formData, wellness_metrics: {...formData.wellness_metrics, water_intake: parseFloat(e.target.value)}})} />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="flex items-center gap-2">
-                            <Dumbbell className="w-4 h-4 text-green-500" />
-                            Exercise (minutes)
-                          </Label>
-                          <Input type="number" value={formData.wellness_metrics?.exercise_minutes || ''}
-                            onChange={(e) => setFormData({...formData, wellness_metrics: {...formData.wellness_metrics, exercise_minutes: parseInt(e.target.value)}})} />
-                        </div>
-                      </div>
-                    </div>
+                    {/* Enhanced Health Logger */}
+                    <EnhancedHealthLogger 
+                      formData={formData}
+                      setFormData={setFormData}
+                      clientProfile={clientProfile}
+                    />
 
                     {/* Body Measurements */}
                     <div className="space-y-3 p-4 bg-gradient-to-br from-orange-50 to-red-50 rounded-lg">
@@ -674,6 +612,12 @@ export default function ProgressTracking() {
             )}
           </div>
         )}
+
+        {/* Health Trends Visualization */}
+        <div>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Health Trends & Insights</h2>
+          <HealthTrendsVisualization progressLogs={progressLogs} />
+        </div>
 
         {/* Advanced Analytics */}
         <div>

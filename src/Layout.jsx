@@ -336,6 +336,12 @@ const businessNavigation = [
     roles: ['super_admin', 'student_coach', 'team_member'],
   },
   {
+    title: "Client Goal Setter",
+    url: createPageUrl("CoachGoalSetter"),
+    icon: Target,
+    roles: ['super_admin', 'student_coach', 'team_member'],
+  },
+  {
     title: "Team Management",
     url: createPageUrl("TeamManagement"),
     icon: UserPlus,
