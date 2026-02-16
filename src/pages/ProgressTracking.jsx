@@ -247,10 +247,12 @@ export default function ProgressTracking() {
   const targetWeight = clientProfile?.target_weight;
   const weightChange = initialWeight ? currentWeight - initialWeight : 0;
 
-  const chartData = progressLogs.map(log => ({
-    date: format(new Date(log.date), 'MMM d'),
-    weight: log.weight,
-  }));
+  const chartData = progressLogs
+    .filter(log => log.date)
+    .map(log => ({
+      date: format(new Date(log.date), 'MMM d'),
+      weight: log.weight,
+    }));
 
   const { data: mealPlan } = useQuery({
     queryKey: ['activeMealPlan', clientProfile?.id],
@@ -711,13 +713,13 @@ export default function ProgressTracking() {
                   <div className="space-y-3 sm:space-y-4">
                     {/* Progress Logs */}
                     {progressLogs.slice().reverse().map((log) => (
-                      <div key={`progress-${log.id}`} className="p-3 sm:p-4 border-2 border-orange-200 rounded-lg hover:bg-orange-50 bg-white">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge className="bg-orange-500 text-white">Progress Log</Badge>
-                        </div>
-                        <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-3 mb-3">
-                          <div className="min-w-0">
-                            <p className="font-semibold text-sm sm:text-base">{format(new Date(log.date), 'MMMM d, yyyy')}</p>
+                     <div key={`progress-${log.id}`} className="p-3 sm:p-4 border-2 border-orange-200 rounded-lg hover:bg-orange-50 bg-white">
+                       <div className="flex items-center gap-2 mb-2">
+                         <Badge className="bg-orange-500 text-white">Progress Log</Badge>
+                       </div>
+                       <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-3 mb-3">
+                         <div className="min-w-0">
+                           <p className="font-semibold text-sm sm:text-base">{log.date ? format(new Date(log.date), 'MMMM d, yyyy') : 'No date'}</p>
                             <p className="text-xs sm:text-sm text-gray-600">Weight: <span className="font-medium text-green-600">{log.weight} kg</span></p>
                           </div>
                           <div className="flex gap-2 shrink-0">
@@ -792,7 +794,7 @@ export default function ProgressTracking() {
                           </div>
                           <div className="flex flex-col sm:flex-row justify-between items-start gap-2 sm:gap-3 mb-3">
                             <div className="min-w-0">
-                              <p className="font-semibold text-sm sm:text-base">{format(new Date(mpess.date), 'MMMM d, yyyy')}</p>
+                              <p className="font-semibold text-sm sm:text-base">{mpess.date ? format(new Date(mpess.date), 'MMMM d, yyyy') : 'No date'}</p>
                               {mpess.overall_rating && (
                                 <p className="text-xs sm:text-sm text-gray-600">
                                   Overall Rating: <span className="font-medium text-purple-600">{mpess.overall_rating}/5 ⭐</span>
