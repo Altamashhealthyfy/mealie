@@ -14,12 +14,20 @@ import { toast } from "sonner";
 
 export default function CoachBonusAwards() {
   const [showDialog, setShowDialog] = useState(false);
+  const [showBadgeDialog, setShowBadgeDialog] = useState(false);
   const [selectedClient, setSelectedClient] = useState('');
   const [awardType, setAwardType] = useState('points');
   const [awardData, setAwardData] = useState({
     points: 100,
     description: '',
     badge_id: ''
+  });
+  const [newBadge, setNewBadge] = useState({
+    name: '',
+    description: '',
+    icon: '🏆',
+    category: 'special',
+    rarity: 'common'
   });
 
   const queryClient = useQueryClient();
@@ -129,6 +137,30 @@ export default function CoachBonusAwards() {
     }
   });
 
+  const createBadgeMutation = useMutation({
+    mutationFn: async (badgeData) => {
+      return await base44.entities.Badge.create({
+        ...badgeData,
+        is_active: true
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['badges'] });
+      setShowBadgeDialog(false);
+      setNewBadge({
+        name: '',
+        description: '',
+        icon: '🏆',
+        category: 'special',
+        rarity: 'common'
+      });
+      toast.success("Custom badge created!");
+    },
+    onError: (error) => {
+      toast.error(`Failed to create badge: ${error.message}`);
+    }
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!selectedClient) {
@@ -186,7 +218,16 @@ export default function CoachBonusAwards() {
             </h1>
             <p className="text-gray-600 mt-1">Reward exceptional client effort and achievements</p>
           </div>
-          <Dialog open={showDialog} onOpenChange={setShowDialog}>
+          <div className="flex gap-3">
+            <Button 
+              variant="outline"
+              onClick={() => setShowBadgeDialog(true)}
+              className="border-purple-500 text-purple-700 hover:bg-purple-50"
+            >
+              <Award className="w-4 h-4 mr-2" />
+              Create Badge
+            </Button>
+            <Dialog open={showDialog} onOpenChange={setShowDialog}>
             <DialogTrigger asChild>
               <Button className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
                 <Sparkles className="w-4 h-4 mr-2" />
@@ -239,23 +280,29 @@ export default function CoachBonusAwards() {
                     />
                   </div>
                 ) : (
-                  <div>
+                  <div className="space-y-2">
                     <Label>Select Badge</Label>
-                    <Select
-                      value={awardData.badge_id}
-                      onValueChange={(value) => setAwardData({...awardData, badge_id: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose a badge..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {badges.map(badge => (
-                          <SelectItem key={badge.id} value={badge.id}>
-                            {badge.icon} {badge.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    {badges.length > 0 ? (
+                      <Select
+                        value={awardData.badge_id}
+                        onValueChange={(value) => setAwardData({...awardData, badge_id: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose a badge..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {badges.map(badge => (
+                            <SelectItem key={badge.id} value={badge.id}>
+                              {badge.icon} {badge.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <div className="text-sm text-gray-500 p-3 bg-gray-50 rounded border">
+                        No badges available. Create badges in Badge Management first.
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -284,7 +331,104 @@ export default function CoachBonusAwards() {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
+
+        {/* Create Badge Dialog */}
+        <Dialog open={showBadgeDialog} onOpenChange={setShowBadgeDialog}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Create Custom Badge</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              createBadgeMutation.mutate(newBadge);
+            }} className="space-y-4">
+              <div>
+                <Label>Badge Name</Label>
+                <Input
+                  placeholder="e.g., Consistency Champion"
+                  value={newBadge.name}
+                  onChange={(e) => setNewBadge({...newBadge, name: e.target.value})}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label>Description</Label>
+                <Textarea
+                  placeholder="What this badge represents..."
+                  value={newBadge.description}
+                  onChange={(e) => setNewBadge({...newBadge, description: e.target.value})}
+                  rows={2}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label>Icon (Emoji)</Label>
+                <Input
+                  placeholder="🏆"
+                  value={newBadge.icon}
+                  onChange={(e) => setNewBadge({...newBadge, icon: e.target.value})}
+                  maxLength={2}
+                  required
+                />
+              </div>
+
+              <div>
+                <Label>Category</Label>
+                <Select
+                  value={newBadge.category}
+                  onValueChange={(value) => setNewBadge({...newBadge, category: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="weight_loss">Weight Loss</SelectItem>
+                    <SelectItem value="consistency">Consistency</SelectItem>
+                    <SelectItem value="wellness">Wellness</SelectItem>
+                    <SelectItem value="nutrition">Nutrition</SelectItem>
+                    <SelectItem value="milestone">Milestone</SelectItem>
+                    <SelectItem value="special">Special</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Rarity</Label>
+                <Select
+                  value={newBadge.rarity}
+                  onValueChange={(value) => setNewBadge({...newBadge, rarity: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="common">Common</SelectItem>
+                    <SelectItem value="rare">Rare</SelectItem>
+                    <SelectItem value="epic">Epic</SelectItem>
+                    <SelectItem value="legendary">Legendary</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button type="button" variant="outline" onClick={() => setShowBadgeDialog(false)} className="flex-1">
+                  Cancel
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={createBadgeMutation.isPending}
+                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500"
+                >
+                  {createBadgeMutation.isPending ? 'Creating...' : 'Create Badge'}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
 
         {/* Quick Award Presets */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
