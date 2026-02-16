@@ -351,6 +351,18 @@ const businessNavigation = [
     roles: ['super_admin', 'student_coach', 'team_member'],
   },
   {
+    title: "Milestone Goals",
+    url: createPageUrl("CoachMilestoneGoals"),
+    icon: Target,
+    roles: ['super_admin', 'student_coach', 'team_member'],
+  },
+  {
+    title: "Progress Reports",
+    url: createPageUrl("CoachProgressReports"),
+    icon: FileText,
+    roles: ['super_admin', 'student_coach', 'team_member'],
+  },
+  {
     title: "Badge Management",
     url: createPageUrl("BadgeManagement"),
     icon: Award,
