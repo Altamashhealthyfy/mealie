@@ -13,6 +13,7 @@ import { format, differenceInDays, parseISO } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import DailyProgressLogger from "../components/progress/DailyProgressLogger";
 import MacroAdherenceDashboard from "../components/progress/MacroAdherenceDashboard";
+import PointsTracker from "../components/gamification/PointsTracker";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { createPageUrl } from "@/utils";
@@ -540,6 +541,11 @@ export default function ClientDashboard() {
             <p className="text-gray-600">Here's your health journey progress</p>
           </div>
           <TourButton pageName="ClientDashboard" />
+        </div>
+
+        {/* Gamification Points */}
+        <div className="mb-6">
+          <PointsTracker clientId={clientProfile?.id} compact={false} />
         </div>
 
         {/* Key Stats */}
