@@ -132,12 +132,18 @@ export default function ClientAchievements() {
           <p className="text-gray-600 mt-2">Track your progress, earn points, and unlock badges!</p>
         </div>
 
-        {/* Points Tracker */}
-        <PointsTracker clientId={clientProfile.id} />
+        {/* Gamification Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <PointsTracker clientId={clientProfile.id} />
+          <StreakTracker clientId={clientProfile.id} />
+        </div>
+
+        {/* Leaderboard */}
+        <Leaderboard type="all" limit={10} showCurrentUser={true} />
 
         {/* Tabs */}
         <Tabs defaultValue="challenges" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="challenges" className="flex items-center gap-2">
               <Target className="w-4 h-4" />
               Challenges
@@ -145,10 +151,6 @@ export default function ClientAchievements() {
             <TabsTrigger value="badges" className="flex items-center gap-2">
               <Award className="w-4 h-4" />
               Badges
-            </TabsTrigger>
-            <TabsTrigger value="leaderboard" className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" />
-              Stats
             </TabsTrigger>
           </TabsList>
 
@@ -222,46 +224,6 @@ export default function ClientAchievements() {
           {/* Badges Tab */}
           <TabsContent value="badges">
             <BadgeDisplay clientId={clientProfile.id} />
-          </TabsContent>
-
-          {/* Stats Tab */}
-          <TabsContent value="leaderboard">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm text-gray-600">Total Challenges</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-4xl font-bold text-gray-900">
-                    {myActiveChallenges.length + myCompletedChallenges.length}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm text-gray-600">Completed</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-4xl font-bold text-green-600">
-                    {myCompletedChallenges.length}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm text-gray-600">Success Rate</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-4xl font-bold text-blue-600">
-                    {myActiveChallenges.length + myCompletedChallenges.length > 0
-                      ? Math.round((myCompletedChallenges.length / (myActiveChallenges.length + myCompletedChallenges.length)) * 100)
-                      : 0}%
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
           </TabsContent>
         </Tabs>
 
