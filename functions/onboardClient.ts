@@ -186,7 +186,93 @@ This is an automated welcome message. Please reply if you have any questions!
       results.steps.push({ step: 'create_goals', status: 'failed', error: error.message });
     }
 
-    // Step 5: Send assessment reminder email
+    // Step 5: Auto-assign coach based on specialization
+    try {
+      if (!client.assigned_coach || client.assigned_coach.length === 0) {
+        // Get all available coaches
+        const allCoaches = await base44.asServiceRole.entities.User.filter({ user_type: 'student_coach' });
+        const coachProfiles = await base44.asServiceRole.entities.CoachProfile.list();
+        
+        let selectedCoach = null;
+        
+        // Match based on health conditions and specializations
+        if (client.health_conditions && client.health_conditions.length > 0) {
+          for (const coach of allCoaches) {
+            const profile = coachProfiles.find(p => p.created_by === coach.email);
+            if (profile?.specializations) {
+              const hasMatch = client.health_conditions.some(condition => 
+                profile.specializations.some(spec => 
+                  spec.toLowerCase().includes(condition.toLowerCase()) ||
+                  condition.toLowerCase().includes(spec.toLowerCase())
+                )
+              );
+              if (hasMatch) {
+                selectedCoach = coach;
+                break;
+              }
+            }
+          }
+        }
+        
+        // If no specialization match, assign based on client load (least loaded coach)
+        if (!selectedCoach && allCoaches.length > 0) {
+          const allClients = await base44.asServiceRole.entities.Client.list();
+          const coachLoads = {};
+          
+          allCoaches.forEach(coach => {
+            coachLoads[coach.email] = allClients.filter(c => 
+              c.assigned_coach && c.assigned_coach.includes(coach.email)
+            ).length;
+          });
+          
+          // Find coach with minimum load
+          const minLoad = Math.min(...Object.values(coachLoads));
+          const leastLoadedCoachEmail = Object.keys(coachLoads).find(
+            email => coachLoads[email] === minLoad
+          );
+          selectedCoach = allCoaches.find(c => c.email === leastLoadedCoachEmail);
+        }
+        
+        // Assign the coach
+        if (selectedCoach) {
+          await base44.asServiceRole.entities.Client.update(client.id, {
+            assigned_coach: [selectedCoach.email]
+          });
+          
+          // Notify the coach
+          await base44.asServiceRole.entities.Notification.create({
+            user_email: selectedCoach.email,
+            type: 'client_update',
+            title: `New Client Assigned: ${client.full_name}`,
+            message: `${client.full_name} has been automatically assigned to you. Please review their profile and reach out to welcome them.`,
+            priority: 'high',
+            link: '/ClientManagement',
+            read: false,
+            metadata: {
+              client_id: client.id,
+              client_name: client.full_name
+            }
+          });
+          
+          results.steps.push({ 
+            step: 'assign_coach', 
+            status: 'success', 
+            message: `Assigned to ${selectedCoach.full_name}`,
+            coach: selectedCoach.email 
+          });
+        } else {
+          results.steps.push({ 
+            step: 'assign_coach', 
+            status: 'skipped', 
+            message: 'No coaches available for assignment' 
+          });
+        }
+      }
+    } catch (error) {
+      results.steps.push({ step: 'assign_coach', status: 'failed', error: error.message });
+    }
+
+    // Step 6: Send assessment reminder email
     if (sendEmail && client.email) {
       try {
         const coachName = user.full_name || 'Your Health Coach';
@@ -219,6 +305,18 @@ ${coachName}
         });
 
         results.steps.push({ step: 'assessment_reminder_email', status: 'success', message: 'Assessment reminder sent' });
+      } catch (error) {
+        results.steps.push({ step: 'assessment_reminder_email', status: 'failed', error: error.message });
+      }
+    }
+
+    // Step 7: Mark onboarding as complete
+    try {
+      await base44.asServiceRole.entities.Client.update(client.id, {
+        onboarding_completed: true,
+        welcome_message_sent: true
+      });
+      results.steps.push({ step: 'mark_complete', status: 'success', message: 'Onboarding marked complete' });
       } catch (error) {
         results.steps.push({ step: 'assessment_reminder_email', status: 'failed', error: error.message });
       }
