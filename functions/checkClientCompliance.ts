@@ -38,9 +38,11 @@ Deno.serve(async (req) => {
 
       // Low compliance check (no logs in 7 days)
       if (clientProgress.length === 0 && clientFood.length === 0) {
-        const notifyEmail = client.assigned_coach || client.created_by;
+        const notifyEmail = (client.assigned_coach && client.assigned_coach.length > 0) 
+          ? client.assigned_coach[0] 
+          : client.created_by;
         
-        if (notifyEmail) {
+        if (notifyEmail && typeof notifyEmail === 'string') {
           await base44.asServiceRole.entities.Notification.create({
             user_email: notifyEmail,
             type: 'progress_update',
@@ -75,9 +77,11 @@ Deno.serve(async (req) => {
           const weightLoss = firstLog.weight - latestLog.weight;
           
           if (weightLoss >= 5) { // 5kg milestone
-            const notifyEmail = client.assigned_coach || client.created_by;
+            const notifyEmail = (client.assigned_coach && client.assigned_coach.length > 0) 
+              ? client.assigned_coach[0] 
+              : client.created_by;
             
-            if (notifyEmail) {
+            if (notifyEmail && typeof notifyEmail === 'string') {
               await base44.asServiceRole.entities.Notification.create({
                 user_email: notifyEmail,
                 type: 'progress_update',
