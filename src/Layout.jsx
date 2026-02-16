@@ -44,7 +44,8 @@ import {
   Eye,
   BarChart3,
   Trophy,
-  Award
+  Award,
+  Gift
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -354,6 +355,12 @@ const businessNavigation = [
     url: createPageUrl("BadgeManagement"),
     icon: Award,
     roles: ['super_admin'],
+  },
+  {
+    title: "Bonus Awards",
+    url: createPageUrl("CoachBonusAwards"),
+    icon: Gift,
+    roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
     title: "Team Management",

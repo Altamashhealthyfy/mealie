@@ -11,6 +11,8 @@ import { format, addDays } from "date-fns";
 import { toast } from "sonner";
 import PointsTracker from "../components/gamification/PointsTracker";
 import BadgeDisplay from "../components/gamification/BadgeDisplay";
+import Leaderboard from "../components/gamification/Leaderboard";
+import StreakTracker from "../components/gamification/StreakTracker";
 import ChallengeCard from "../components/gamification/ChallengeCard";
 
 export default function ClientAchievements() {

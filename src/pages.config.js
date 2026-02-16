@@ -163,6 +163,7 @@ import CoachGoalSetter from './pages/CoachGoalSetter';
 import ClientAchievements from './pages/ClientAchievements';
 import CoachChallenges from './pages/CoachChallenges';
 import BadgeManagement from './pages/BadgeManagement';
+import CoachBonusAwards from './pages/CoachBonusAwards';
 import __Layout from './Layout.jsx';
 
 
@@ -283,6 +284,7 @@ export const PAGES = {
     "ClientAchievements": ClientAchievements,
     "CoachChallenges": CoachChallenges,
     "BadgeManagement": BadgeManagement,
+    "CoachBonusAwards": CoachBonusAwards,
 }
 
 export const pagesConfig = {

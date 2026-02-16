@@ -14,6 +14,8 @@ import { useNavigate } from "react-router-dom";
 import DailyProgressLogger from "../components/progress/DailyProgressLogger";
 import MacroAdherenceDashboard from "../components/progress/MacroAdherenceDashboard";
 import PointsTracker from "../components/gamification/PointsTracker";
+import Leaderboard from "../components/gamification/Leaderboard";
+import StreakTracker from "../components/gamification/StreakTracker";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { createPageUrl } from "@/utils";
