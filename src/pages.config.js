@@ -166,6 +166,10 @@ import BadgeManagement from './pages/BadgeManagement';
 import CoachBonusAwards from './pages/CoachBonusAwards';
 import CoachMilestoneGoals from './pages/CoachMilestoneGoals';
 import CoachProgressReports from './pages/CoachProgressReports';
+import GamificationPoints from './pages/GamificationPoints';
+import GamificationLeaderboard from './pages/GamificationLeaderboard';
+import GamificationSettings from './pages/GamificationSettings';
+import FeedSettings from './pages/FeedSettings';
 import __Layout from './Layout.jsx';
 
 
@@ -289,6 +293,10 @@ export const PAGES = {
     "CoachBonusAwards": CoachBonusAwards,
     "CoachMilestoneGoals": CoachMilestoneGoals,
     "CoachProgressReports": CoachProgressReports,
+    "GamificationPoints": GamificationPoints,
+    "GamificationLeaderboard": GamificationLeaderboard,
+    "GamificationSettings": GamificationSettings,
+    "FeedSettings": FeedSettings,
 }
 
 export const pagesConfig = {

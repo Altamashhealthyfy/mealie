@@ -239,6 +239,51 @@ const paymentNavigation = [
   },
 ];
 
+const gamificationNavigation = [
+  {
+    title: "Points",
+    url: createPageUrl("GamificationPoints"),
+    icon: Target,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
+    title: "Badges",
+    url: createPageUrl("BadgeManagement"),
+    icon: Award,
+    roles: ['super_admin'],
+  },
+  {
+    title: "Leaderboard",
+    url: createPageUrl("GamificationLeaderboard"),
+    icon: Trophy,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
+    title: "Challenge Manager",
+    url: createPageUrl("CoachChallenges"),
+    icon: Trophy,
+    roles: ['super_admin', 'student_coach', 'team_member'],
+  },
+  {
+    title: "Bonus Awards",
+    url: createPageUrl("CoachBonusAwards"),
+    icon: Gift,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
+    title: "Gamification Settings",
+    url: createPageUrl("GamificationSettings"),
+    icon: Settings,
+    roles: ['super_admin'],
+  },
+  {
+    title: "Feed Settings",
+    url: createPageUrl("FeedSettings"),
+    icon: BarChart3,
+    roles: ['super_admin'],
+  },
+];
+
 const businessNavigation = [
   {
     title: "Share My Link",
@@ -345,12 +390,6 @@ const businessNavigation = [
     roles: ['super_admin', 'student_coach', 'team_member'],
   },
   {
-    title: "Challenge Manager",
-    url: createPageUrl("CoachChallenges"),
-    icon: Trophy,
-    roles: ['super_admin', 'student_coach', 'team_member'],
-  },
-  {
     title: "Milestone Goals",
     url: createPageUrl("CoachMilestoneGoals"),
     icon: Target,
@@ -361,18 +400,6 @@ const businessNavigation = [
     url: createPageUrl("CoachProgressReports"),
     icon: FileText,
     roles: ['super_admin', 'student_coach', 'team_member'],
-  },
-  {
-    title: "Badge Management",
-    url: createPageUrl("BadgeManagement"),
-    icon: Award,
-    roles: ['super_admin'],
-  },
-  {
-    title: "Bonus Awards",
-    url: createPageUrl("CoachBonusAwards"),
-    icon: Gift,
-    roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
     title: "Team Management",
@@ -676,6 +703,9 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const filteredBusinessNav = getFilteredBusinessNav();
+  const filteredGamificationNav = gamificationNavigation.filter(item =>
+    !item.roles || item.roles.includes(effectiveUserType)
+  );
   
   // Get simulated plan for Pro Plans lock logic
   let simulatedPlan = null;
@@ -1064,6 +1094,39 @@ export default function Layout({ children, currentPageName }) {
               </SidebarGroupContent>
             </SidebarGroup>
 
+            {isEffectiveDietitian && filteredGamificationNav.length > 0 && (
+              <SidebarGroup id="gamification-nav">
+                <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
+                  🏆 Gamification
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {filteredGamificationNav.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                           asChild
+                           className={`hover:bg-orange-50 transition-all duration-200 rounded-xl mb-1 ${
+                             location.pathname === item.url ? 'text-white hover:text-white shadow-md' : ''
+                           }`}
+                           style={location.pathname === item.url ? {
+                             background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
+                             color: '#ffffff'
+                           } : {
+                             color: themeColors.menu_text_color
+                           }}
+                         >
+                           <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
+                             <item.icon className="w-5 h-5" />
+                             <span className="font-medium">{item.title}</span>
+                           </Link>
+                         </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
+
             {isEffectiveDietitian && filteredPaymentNav.length > 0 && (
                                 <SidebarGroup id="payment-plans-nav">
                                   <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
@@ -1332,6 +1395,38 @@ export default function Layout({ children, currentPageName }) {
                         );
                       })}
                     </div>
+
+                    {/* Gamification Section */}
+                    {isEffectiveDietitian && filteredGamificationNav.length > 0 && (
+                      <div className="pt-3">
+                        <div className="px-5 py-2">
+                          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">🏆 Gamification</p>
+                        </div>
+                        <div className="space-y-1">
+                          {filteredGamificationNav.map((item, index) => {
+                            const isActive = location.pathname === item.url;
+                            return (
+                              <Link
+                                key={index}
+                                to={item.url}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="flex items-center gap-4 px-5 py-4 rounded-xl transition-all active:scale-98"
+                                style={isActive ? {
+                                  background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
+                                  color: '#ffffff'
+                                } : {
+                                  color: themeColors.menu_text_color,
+                                  backgroundColor: 'rgba(0,0,0,0.02)'
+                                }}
+                              >
+                                <item.icon className="w-6 h-6 flex-shrink-0" />
+                                <span className="font-semibold text-base">{item.title}</span>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
 
                     {/* Payment & Plans Section */}
                     {isEffectiveDietitian && filteredPaymentNav.length > 0 && (
