@@ -42,7 +42,9 @@ import {
   Lock,
   Share2,
   Eye,
-  BarChart3
+  BarChart3,
+  Trophy,
+  Award
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -340,6 +342,18 @@ const businessNavigation = [
     url: createPageUrl("CoachGoalSetter"),
     icon: Target,
     roles: ['super_admin', 'student_coach', 'team_member'],
+  },
+  {
+    title: "Challenge Manager",
+    url: createPageUrl("CoachChallenges"),
+    icon: Trophy,
+    roles: ['super_admin', 'student_coach', 'team_member'],
+  },
+  {
+    title: "Badge Management",
+    url: createPageUrl("BadgeManagement"),
+    icon: Award,
+    roles: ['super_admin'],
   },
   {
     title: "Team Management",
@@ -684,6 +698,12 @@ export default function Layout({ children, currentPageName }) {
         url: createPageUrl("ClientDashboard"),
         icon: Home,
         show: (coachAccess.show_my_dashboard ?? true) && true,
+      },
+      {
+        title: "My Achievements",
+        url: createPageUrl("ClientAchievements"),
+        icon: Trophy,
+        show: (coachAccess.show_achievements ?? true) && (permissions?.show_achievements ?? true),
       },
       {
         title: "My Plans",
