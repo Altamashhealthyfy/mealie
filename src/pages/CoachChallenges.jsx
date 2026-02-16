@@ -21,7 +21,13 @@ export default function CoachChallenges() {
     challenge_type: 'weight_loss',
     difficulty: 'medium',
     is_template: true,
+    is_recurring: false,
+    stages: [],
+    auto_completion_rules: {
+      enabled: false
+    }
   });
+  const [showStageBuilder, setShowStageBuilder] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -59,10 +65,16 @@ export default function CoachChallenges() {
       queryClient.invalidateQueries({ queryKey: ['challenges'] });
       setShowCreateDialog(false);
       setEditingChallenge(null);
+      setShowStageBuilder(false);
       setChallengeData({
         challenge_type: 'weight_loss',
         difficulty: 'medium',
         is_template: true,
+        is_recurring: false,
+        stages: [],
+        auto_completion_rules: {
+          enabled: false
+        }
       });
       toast.success(editingChallenge ? "Challenge updated!" : "Challenge created!");
     },
@@ -89,7 +101,12 @@ export default function CoachChallenges() {
       badge_reward_id: challenge.badge_reward_id,
       is_template: challenge.is_template,
       difficulty: challenge.difficulty,
+      is_recurring: challenge.is_recurring || false,
+      recurring_pattern: challenge.recurring_pattern,
+      stages: challenge.stages || [],
+      auto_completion_rules: challenge.auto_completion_rules || { enabled: false }
     });
+    setShowStageBuilder((challenge.stages?.length || 0) > 0);
     setShowCreateDialog(true);
   };
 
@@ -263,6 +280,207 @@ export default function CoachChallenges() {
                   </Select>
                 </div>
 
+                <div className="space-y-3 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="is-recurring"
+                      checked={challengeData.is_recurring || false}
+                      onChange={(e) => setChallengeData({...challengeData, is_recurring: e.target.checked})}
+                      className="w-4 h-4"
+                    />
+                    <Label htmlFor="is-recurring" className="text-sm font-semibold">
+                      🔄 Recurring Challenge
+                    </Label>
+                  </div>
+                  {challengeData.is_recurring && (
+                    <Select
+                      value={challengeData.recurring_pattern || 'daily'}
+                      onValueChange={(value) => setChallengeData({...challengeData, recurring_pattern: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select pattern..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="daily">Daily</SelectItem>
+                        <SelectItem value="weekly">Weekly</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+
+                <div className="space-y-3 p-4 bg-purple-50 border-2 border-purple-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-semibold">⚡ Auto-Completion Rules</Label>
+                    <input
+                      type="checkbox"
+                      checked={challengeData.auto_completion_rules?.enabled || false}
+                      onChange={(e) => setChallengeData({
+                        ...challengeData,
+                        auto_completion_rules: {
+                          ...challengeData.auto_completion_rules,
+                          enabled: e.target.checked
+                        }
+                      })}
+                      className="w-4 h-4"
+                    />
+                  </div>
+                  {challengeData.auto_completion_rules?.enabled && (
+                    <div className="space-y-3">
+                      <Select
+                        value={challengeData.auto_completion_rules?.data_source || ''}
+                        onValueChange={(value) => setChallengeData({
+                          ...challengeData,
+                          auto_completion_rules: {
+                            ...challengeData.auto_completion_rules,
+                            data_source: value
+                          }
+                        })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Data source..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="progress_log">Progress Log</SelectItem>
+                          <SelectItem value="food_log">Food Log</SelectItem>
+                          <SelectItem value="mpess_tracker">MPESS Tracker</SelectItem>
+                          <SelectItem value="custom_metric">Custom Metric</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <Input
+                        placeholder="Metric field (e.g., water_intake, exercise_minutes)"
+                        value={challengeData.auto_completion_rules?.metric_field || ''}
+                        onChange={(e) => setChallengeData({
+                          ...challengeData,
+                          auto_completion_rules: {
+                            ...challengeData.auto_completion_rules,
+                            metric_field: e.target.value
+                          }
+                        })}
+                      />
+
+                      <Select
+                        value={challengeData.auto_completion_rules?.condition || ''}
+                        onValueChange={(value) => setChallengeData({
+                          ...challengeData,
+                          auto_completion_rules: {
+                            ...challengeData.auto_completion_rules,
+                            condition: value
+                          }
+                        })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Condition..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="greater_or_equal">Greater or Equal (≥)</SelectItem>
+                          <SelectItem value="greater_than">Greater Than (&gt;)</SelectItem>
+                          <SelectItem value="less_than">Less Than (&lt;)</SelectItem>
+                          <SelectItem value="equals">Equals (=)</SelectItem>
+                          <SelectItem value="consecutive_days">Consecutive Days</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <Input
+                        type="number"
+                        placeholder="Threshold value"
+                        value={challengeData.auto_completion_rules?.threshold_value || ''}
+                        onChange={(e) => setChallengeData({
+                          ...challengeData,
+                          auto_completion_rules: {
+                            ...challengeData.auto_completion_rules,
+                            threshold_value: parseFloat(e.target.value)
+                          }
+                        })}
+                      />
+
+                      {challengeData.auto_completion_rules?.condition === 'consecutive_days' && (
+                        <Input
+                          type="number"
+                          placeholder="Number of consecutive days"
+                          value={challengeData.auto_completion_rules?.consecutive_days_required || ''}
+                          onChange={(e) => setChallengeData({
+                            ...challengeData,
+                            auto_completion_rules: {
+                              ...challengeData.auto_completion_rules,
+                              consecutive_days_required: parseInt(e.target.value)
+                            }
+                          })}
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3 p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-semibold">🎯 Multi-Stage Challenge</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowStageBuilder(!showStageBuilder)}
+                    >
+                      {showStageBuilder ? 'Hide' : 'Add'} Stages
+                    </Button>
+                  </div>
+                  
+                  {showStageBuilder && (
+                    <div className="space-y-3">
+                      {(challengeData.stages || []).map((stage, idx) => (
+                        <div key={idx} className="p-3 bg-white rounded-lg border">
+                          <div className="flex items-center justify-between mb-2">
+                            <p className="font-semibold">Stage {stage.stage_number}</p>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const newStages = challengeData.stages.filter((_, i) => i !== idx);
+                                setChallengeData({...challengeData, stages: newStages});
+                              }}
+                            >
+                              <Trash2 className="w-4 h-4 text-red-600" />
+                            </Button>
+                          </div>
+                          <p className="text-sm text-gray-700">{stage.title}</p>
+                          <div className="flex gap-2 mt-2">
+                            <Badge variant="outline">{stage.target_value} target</Badge>
+                            <Badge className="bg-yellow-500">+{stage.points_reward} pts</Badge>
+                          </div>
+                        </div>
+                      ))}
+                      
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => {
+                          const newStage = {
+                            stage_number: (challengeData.stages?.length || 0) + 1,
+                            title: prompt('Stage title:', `Stage ${(challengeData.stages?.length || 0) + 1}`),
+                            description: prompt('Stage description:'),
+                            target_value: parseFloat(prompt('Target value:', '50')),
+                            points_reward: parseInt(prompt('Points reward:', '50'))
+                          };
+                          if (newStage.title && newStage.target_value && newStage.points_reward) {
+                            setChallengeData({
+                              ...challengeData,
+                              stages: [...(challengeData.stages || []), newStage]
+                            });
+                          }
+                        }}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Stage
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -329,11 +547,22 @@ export default function CoachChallenges() {
                   <Badge variant="outline">{challenge.duration_days} days</Badge>
                   <Badge className="bg-yellow-500">{challenge.points_reward} pts</Badge>
                   {challenge.is_template && <Badge className="bg-purple-500">Template</Badge>}
+                  {challenge.is_recurring && <Badge className="bg-blue-500">🔄 Recurring</Badge>}
+                  {challenge.stages?.length > 0 && <Badge className="bg-green-500">🎯 {challenge.stages.length} Stages</Badge>}
+                  {challenge.auto_completion_rules?.enabled && <Badge className="bg-cyan-500">⚡ Auto</Badge>}
                 </div>
                 {challenge.target_metric && (
                   <p className="text-sm text-gray-600">
                     <strong>Target:</strong> {challenge.target_value} {challenge.target_metric}
                   </p>
+                )}
+                {challenge.stages?.length > 0 && (
+                  <div className="text-xs text-gray-600 space-y-1 mt-2">
+                    <p className="font-semibold">Stages:</p>
+                    {challenge.stages.map((stage, idx) => (
+                      <p key={idx}>• Stage {stage.stage_number}: {stage.title} (+{stage.points_reward} pts)</p>
+                    ))}
+                  </div>
                 )}
               </CardContent>
             </Card>

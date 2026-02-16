@@ -21,6 +21,11 @@ export default function ChallengeCard({ challenge, clientChallenge, onStart, onV
     expert: "bg-red-100 text-red-700"
   };
 
+  const hasStages = challenge.stages && challenge.stages.length > 0;
+  const currentStage = hasStages ? challenge.stages.find(s => 
+    s.stage_number === (clientChallenge?.current_stage || 1)
+  ) : null;
+
   return (
     <Card className={`border-2 ${isCompleted ? 'border-green-400 bg-green-50' : isActive ? 'border-orange-400' : 'border-gray-200'} hover:shadow-lg transition-all`}>
       <CardHeader>
@@ -41,13 +46,53 @@ export default function ChallengeCard({ challenge, clientChallenge, onStart, onV
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="flex items-center gap-2">
             <Calendar className="w-4 h-4 text-gray-500" />
-            <span>{challenge.duration_days} days</span>
+            <span>{challenge.is_recurring ? `${challenge.recurring_pattern}` : `${challenge.duration_days} days`}</span>
           </div>
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-yellow-500" />
             <span>{challenge.points_reward} points</span>
           </div>
         </div>
+
+        {hasStages && (
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-gray-700">Multi-Stage Challenge:</p>
+            <div className="space-y-1">
+              {challenge.stages.map((stage, idx) => {
+                const isCurrentStage = stage.stage_number === (clientChallenge?.current_stage || 1);
+                const isCompleted = (clientChallenge?.completed_stages || []).includes(stage.stage_number);
+                
+                return (
+                  <div
+                    key={idx}
+                    className={`flex items-center justify-between p-2 rounded ${
+                      isCompleted ? 'bg-green-100 border border-green-400' :
+                      isCurrentStage ? 'bg-orange-100 border border-orange-400' :
+                      'bg-gray-100'
+                    }`}
+                  >
+                    <div className="flex-1">
+                      <p className="text-xs font-medium">{stage.title}</p>
+                      <p className="text-xs text-gray-600">Target: {stage.target_value}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge className="text-xs bg-yellow-500">+{stage.points_reward}</Badge>
+                      {isCompleted && <CheckCircle className="w-4 h-4 text-green-600" />}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {challenge.auto_completion_rules?.enabled && (
+          <div className="p-2 bg-cyan-50 border border-cyan-300 rounded">
+            <p className="text-xs text-cyan-900">
+              ⚡ Auto-completes when {challenge.auto_completion_rules.metric_field} {challenge.auto_completion_rules.condition.replace('_', ' ')} {challenge.auto_completion_rules.threshold_value}
+            </p>
+          </div>
+        )}
 
         {clientChallenge && (
           <>
