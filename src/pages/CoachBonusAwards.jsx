@@ -26,9 +26,12 @@ export default function CoachBonusAwards() {
     name: '',
     description: '',
     icon: '🏆',
+    icon_type: 'emoji',
+    icon_image_url: '',
     category: 'special',
     rarity: 'common'
   });
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -139,8 +142,13 @@ export default function CoachBonusAwards() {
 
   const createBadgeMutation = useMutation({
     mutationFn: async (badgeData) => {
+      const finalIcon = badgeData.icon_type === 'image' ? badgeData.icon_image_url : badgeData.icon;
       return await base44.entities.Badge.create({
-        ...badgeData,
+        name: badgeData.name,
+        description: badgeData.description,
+        icon: finalIcon,
+        category: badgeData.category,
+        rarity: badgeData.rarity,
         is_active: true
       });
     },
@@ -151,6 +159,8 @@ export default function CoachBonusAwards() {
         name: '',
         description: '',
         icon: '🏆',
+        icon_type: 'emoji',
+        icon_image_url: '',
         category: 'special',
         rarity: 'common'
       });
@@ -160,6 +170,29 @@ export default function CoachBonusAwards() {
       toast.error(`Failed to create badge: ${error.message}`);
     }
   });
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const { data } = await base44.integrations.Core.UploadFile({ file });
+      setNewBadge({...newBadge, icon_image_url: data.file_url, icon_type: 'image'});
+      toast.success('Image uploaded!');
+    } catch (error) {
+      toast.error('Failed to upload image');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const commonEmojis = ['🏆', '⭐', '🎯', '💪', '🔥', '👑', '💎', '🌟', '⚡', '🎉', '✨', '🥇', '🥈', '🥉', '🏅', '🎖️', '💫', '🌈', '🦄', '🚀'];
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -365,15 +398,89 @@ export default function CoachBonusAwards() {
                 />
               </div>
 
-              <div>
-                <Label>Icon (Emoji)</Label>
-                <Input
-                  placeholder="🏆"
-                  value={newBadge.icon}
-                  onChange={(e) => setNewBadge({...newBadge, icon: e.target.value})}
-                  maxLength={2}
-                  required
-                />
+              <div className="space-y-3">
+                <Label>Icon Type</Label>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant={newBadge.icon_type === 'emoji' ? 'default' : 'outline'}
+                    onClick={() => setNewBadge({...newBadge, icon_type: 'emoji'})}
+                    className="flex-1"
+                  >
+                    Emoji
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={newBadge.icon_type === 'image' ? 'default' : 'outline'}
+                    onClick={() => setNewBadge({...newBadge, icon_type: 'image'})}
+                    className="flex-1"
+                  >
+                    Image
+                  </Button>
+                </div>
+
+                {newBadge.icon_type === 'emoji' ? (
+                  <div className="space-y-2">
+                    <Label>Select Emoji</Label>
+                    <div className="grid grid-cols-10 gap-2 p-3 bg-gray-50 rounded-lg border">
+                      {commonEmojis.map((emoji) => (
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => setNewBadge({...newBadge, icon: emoji})}
+                          className={`text-2xl p-2 rounded transition hover:bg-white ${
+                            newBadge.icon === emoji ? 'bg-white border-2 border-orange-500' : ''
+                          }`}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                    <Input
+                      placeholder="Or type custom emoji"
+                      value={newBadge.icon}
+                      onChange={(e) => setNewBadge({...newBadge, icon: e.target.value})}
+                      maxLength={2}
+                      className="text-center text-2xl"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Label>Upload Badge Image</Label>
+                    <div className="flex items-center gap-3">
+                      {newBadge.icon_image_url && (
+                        <img 
+                          src={newBadge.icon_image_url} 
+                          alt="Badge preview" 
+                          className="w-16 h-16 rounded-full object-cover border-2 border-orange-500"
+                        />
+                      )}
+                      <label className="flex-1">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                        />
+                        <div className="flex items-center justify-center gap-2 p-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-500 cursor-pointer transition">
+                          {uploadingImage ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-500"></div>
+                              <span className="text-sm text-gray-600">Uploading...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Award className="w-4 h-4 text-gray-400" />
+                              <span className="text-sm text-gray-600">
+                                {newBadge.icon_image_url ? 'Change Image' : 'Upload Image'}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
