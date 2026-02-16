@@ -186,51 +186,78 @@ This is an automated welcome message. Please reply if you have any questions!
       results.steps.push({ step: 'create_goals', status: 'failed', error: error.message });
     }
 
-    // Step 5: Auto-assign coach based on specialization
+    // Step 5: Auto-assign coach based on specialization and availability
     try {
       if (!client.assigned_coach || client.assigned_coach.length === 0) {
         // Get all available coaches
         const allCoaches = await base44.asServiceRole.entities.User.filter({ user_type: 'student_coach' });
         const coachProfiles = await base44.asServiceRole.entities.CoachProfile.list();
+        const allClients = await base44.asServiceRole.entities.Client.list();
         
-        let selectedCoach = null;
+        // Filter coaches who are accepting new clients and not at capacity
+        const availableCoaches = allCoaches.filter(coach => {
+          const profile = coachProfiles.find(p => p.created_by === coach.email);
+          const currentLoad = allClients.filter(c => 
+            c.assigned_coach && c.assigned_coach.includes(coach.email)
+          ).length;
+          const maxCapacity = profile?.availability_settings?.max_client_capacity || 50;
+          const acceptingClients = profile?.availability_settings?.accepting_new_clients ?? true;
+          
+          return acceptingClients && currentLoad < maxCapacity;
+        });
         
-        // Match based on health conditions and specializations
-        if (client.health_conditions && client.health_conditions.length > 0) {
-          for (const coach of allCoaches) {
-            const profile = coachProfiles.find(p => p.created_by === coach.email);
-            if (profile?.specializations) {
-              const hasMatch = client.health_conditions.some(condition => 
-                profile.specializations.some(spec => 
-                  spec.toLowerCase().includes(condition.toLowerCase()) ||
-                  condition.toLowerCase().includes(spec.toLowerCase())
-                )
-              );
-              if (hasMatch) {
-                selectedCoach = coach;
-                break;
-              }
-            }
-          }
+        if (availableCoaches.length === 0) {
+          results.steps.push({ 
+            step: 'assign_coach', 
+            status: 'skipped', 
+            message: 'No coaches available (all at capacity or not accepting)' 
+          });
+          return;
         }
         
-        // If no specialization match, assign based on client load (least loaded coach)
-        if (!selectedCoach && allCoaches.length > 0) {
-          const allClients = await base44.asServiceRole.entities.Client.list();
-          const coachLoads = {};
+        let selectedCoach = null;
+        let matchScore = 0;
+        
+        // Advanced matching algorithm
+        for (const coach of availableCoaches) {
+          const profile = coachProfiles.find(p => p.created_by === coach.email);
+          let score = profile?.matching_priority || 0;
           
-          allCoaches.forEach(coach => {
-            coachLoads[coach.email] = allClients.filter(c => 
-              c.assigned_coach && c.assigned_coach.includes(coach.email)
+          // Match based on specializations
+          if (client.health_conditions && client.health_conditions.length > 0 && profile?.specializations) {
+            const specializationMatches = client.health_conditions.filter(condition => 
+              profile.specializations.some(spec => 
+                spec.toLowerCase().includes(condition.toLowerCase()) ||
+                condition.toLowerCase().includes(spec.toLowerCase())
+              )
             ).length;
-          });
+            score += specializationMatches * 10; // +10 per match
+          }
           
-          // Find coach with minimum load
-          const minLoad = Math.min(...Object.values(coachLoads));
-          const leastLoadedCoachEmail = Object.keys(coachLoads).find(
-            email => coachLoads[email] === minLoad
-          );
-          selectedCoach = allCoaches.find(c => c.email === leastLoadedCoachEmail);
+          // Match based on preferred client types
+          if (profile?.availability_settings?.preferred_client_types && client.health_conditions) {
+            const preferredMatches = client.health_conditions.filter(condition =>
+              profile.availability_settings.preferred_client_types.some(pref =>
+                pref.toLowerCase().includes(condition.toLowerCase()) ||
+                condition.toLowerCase().includes(pref.toLowerCase())
+              )
+            ).length;
+            score += preferredMatches * 5; // +5 per preferred match
+          }
+          
+          // Consider current load (prefer less loaded coaches)
+          const currentLoad = allClients.filter(c => 
+            c.assigned_coach && c.assigned_coach.includes(coach.email)
+          ).length;
+          const maxCapacity = profile?.availability_settings?.max_client_capacity || 50;
+          const loadFactor = 1 - (currentLoad / maxCapacity);
+          score += loadFactor * 5; // Up to +5 for available capacity
+          
+          // Select coach with highest score
+          if (score > matchScore) {
+            matchScore = score;
+            selectedCoach = coach;
+          }
         }
         
         // Assign the coach
