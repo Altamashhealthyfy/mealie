@@ -317,9 +317,8 @@ ${coachName}
         welcome_message_sent: true
       });
       results.steps.push({ step: 'mark_complete', status: 'success', message: 'Onboarding marked complete' });
-      } catch (error) {
-        results.steps.push({ step: 'assessment_reminder_email', status: 'failed', error: error.message });
-      }
+    } catch (error) {
+      results.steps.push({ step: 'mark_complete', status: 'failed', error: error.message });
     }
 
     // Calculate success rate
