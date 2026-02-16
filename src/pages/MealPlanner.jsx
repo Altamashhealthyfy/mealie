@@ -21,6 +21,7 @@ import GeneratedMealPlan from "@/components/mealplanner/GeneratedMealPlan";
 import UsageLimitWarning from "@/components/mealplanner/UsageLimitWarning";
 import ManualMealPlanBuilder from "@/components/mealplanner/ManualMealPlanBuilder";
 import ManualTemplateBuilder from "@/components/mealplanner/ManualTemplateBuilder";
+import AIMealPlanGenerator from "@/components/mealplanner/AIMealPlanGenerator";
 
 export default function MealPlanner() {
   const queryClient = useQueryClient();
@@ -2534,27 +2535,38 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                     </Alert>
                   )}
 
-                  <Button
-                    onClick={generateMealPlan}
-                    disabled={generating || !selectedClientId}
-                    className="w-full h-14 text-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg"
-                  >
-                    {generating ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Generating Meal Plan...
-                      </>
-                    ) : (
-                      <>
-                        <Zap className="w-5 h-5 mr-2" />
-                        {user?.user_type === 'student_coach' && coachPlan ? (
-                          availableAICredits > 0 ? 'Generate Meal Plan (FREE with credits)' : `Generate Meal Plan (₹${coachPlan.ai_credit_price || 10})`
-                        ) : (
-                          `Generate with AI (₹${coachPlan?.ai_credit_price || 10})`
-                        )}
-                      </>
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={generateMealPlan}
+                      disabled={generating || !selectedClientId}
+                      className="flex-1 h-14 text-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg"
+                    >
+                      {generating ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Generating Meal Plan...
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="w-5 h-5 mr-2" />
+                          {user?.user_type === 'student_coach' && coachPlan ? (
+                            availableAICredits > 0 ? 'Generate Meal Plan (FREE with credits)' : `Generate Meal Plan (₹${coachPlan.ai_credit_price || 10})`
+                          ) : (
+                            `Generate with AI (₹${coachPlan?.ai_credit_price || 10})`
+                          )}
+                        </>
+                      )}
+                    </Button>
+                    {selectedClient && (
+                      <AIMealPlanGenerator 
+                        client={selectedClient}
+                        onPlanGenerated={(plan) => {
+                          setGeneratedPlan(plan);
+                          setViewingPlan(plan);
+                        }}
+                      />
                     )}
-                  </Button>
+                  </div>
                 </CardContent>
               </Card>
             ) : (

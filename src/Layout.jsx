@@ -15,6 +15,7 @@ import {
   ClipboardList,
   BarChart3 as BarChart,
   LayoutDashboard,
+  Filter,
   DollarSign,
   Megaphone,
   BookOpen,
@@ -89,6 +90,12 @@ const dietitianNavigation = [
     url: createPageUrl("ClientReports"),
     icon: FileText,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
+    title: "Segmentation & Analytics",
+    url: createPageUrl("ClientSegmentationReports"),
+    icon: Filter,
+    roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
     title: "Progress Review",
@@ -322,6 +329,12 @@ const businessNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
 
+  {
+    title: "Coach Profile Manager",
+    url: createPageUrl("CoachProfileManager"),
+    icon: User,
+    roles: ['super_admin', 'student_coach', 'team_member'],
+  },
   {
     title: "Team Management",
     url: createPageUrl("TeamManagement"),

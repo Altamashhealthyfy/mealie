@@ -84,6 +84,7 @@ import ClientReportUpload from './pages/ClientReportUpload';
 import ClientReports from './pages/ClientReports';
 import ClientResourceLibrary from './pages/ClientResourceLibrary';
 import ClientResourceTracker from './pages/ClientResourceTracker';
+import ClientSegmentationReports from './pages/ClientSegmentationReports';
 import ClientWeeklyMealPlans from './pages/ClientWeeklyMealPlans';
 import ClinicalIntake from './pages/ClinicalIntake';
 import CoachAnalyticsDashboard from './pages/CoachAnalyticsDashboard';
@@ -91,6 +92,7 @@ import CoachClientManagement from './pages/CoachClientManagement';
 import CoachMPESSTracker from './pages/CoachMPESSTracker';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachPerformanceAnalytics from './pages/CoachPerformanceAnalytics';
+import CoachProfileManager from './pages/CoachProfileManager';
 import CoachProgramManagement from './pages/CoachProgramManagement';
 import CoachReferralLink from './pages/CoachReferralLink';
 import CoachReportTracker from './pages/CoachReportTracker';
@@ -157,8 +159,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import CoachProfileManager from './pages/CoachProfileManager';
-import ClientSegmentationReports from './pages/ClientSegmentationReports';
 import __Layout from './Layout.jsx';
 
 
@@ -200,6 +200,7 @@ export const PAGES = {
     "ClientReports": ClientReports,
     "ClientResourceLibrary": ClientResourceLibrary,
     "ClientResourceTracker": ClientResourceTracker,
+    "ClientSegmentationReports": ClientSegmentationReports,
     "ClientWeeklyMealPlans": ClientWeeklyMealPlans,
     "ClinicalIntake": ClinicalIntake,
     "CoachAnalyticsDashboard": CoachAnalyticsDashboard,
@@ -207,6 +208,7 @@ export const PAGES = {
     "CoachMPESSTracker": CoachMPESSTracker,
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachPerformanceAnalytics": CoachPerformanceAnalytics,
+    "CoachProfileManager": CoachProfileManager,
     "CoachProgramManagement": CoachProgramManagement,
     "CoachReferralLink": CoachReferralLink,
     "CoachReportTracker": CoachReportTracker,
@@ -273,8 +275,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "CoachProfileManager": CoachProfileManager,
-    "ClientSegmentationReports": ClientSegmentationReports,
 }
 
 export const pagesConfig = {
