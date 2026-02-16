@@ -97,7 +97,7 @@ const dietitianNavigation = [
     title: "Segmentation & Analytics",
     url: createPageUrl("ClientSegmentationReports"),
     icon: Filter,
-    roles: ['super_admin', 'team_member', 'student_coach'],
+    roles: ['super_admin', 'team_member'],
   },
   {
     title: "Progress Review",
