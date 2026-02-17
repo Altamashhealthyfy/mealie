@@ -705,6 +705,22 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const filteredBusinessNav = getFilteredBusinessNav();
+  
+  // Get simulated plan for Pro Plans lock logic
+  let simulatedPlan = null;
+  if (userType === 'super_admin' && adminViewMode !== 'admin') {
+    if (adminViewMode === 'pro_user') {
+      simulatedPlan = {
+        can_access_pro_plans: true,
+        can_access_gamification: true,
+      };
+    } else if (adminViewMode === 'basic_user' || adminViewMode === 'trial') {
+      simulatedPlan = {
+        can_access_pro_plans: false,
+        can_access_gamification: false,
+      };
+    }
+  }
 
   // Filter gamification navigation based on plan permissions
   const getFilteredGamificationNav = () => {
@@ -728,20 +744,6 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const filteredGamificationNav = getFilteredGamificationNav();
-  
-  // Get simulated plan for Pro Plans lock logic
-  let simulatedPlan = null;
-  if (userType === 'super_admin' && adminViewMode !== 'admin') {
-    if (adminViewMode === 'pro_user') {
-      simulatedPlan = {
-        can_access_pro_plans: true,
-      };
-    } else if (adminViewMode === 'basic_user' || adminViewMode === 'trial') {
-      simulatedPlan = {
-        can_access_pro_plans: false,
-      };
-    }
-  }
 
   const getClientPermissions = () => {
     // If client has active subscription, use plan features
