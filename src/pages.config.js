@@ -52,6 +52,7 @@ import AdminPlatformAnalytics from './pages/AdminPlatformAnalytics';
 import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
 import Appointments from './pages/Appointments';
 import AssessmentTemplates from './pages/AssessmentTemplates';
+import BadgeManagement from './pages/BadgeManagement';
 import BroadcastNotification from './pages/BroadcastNotification';
 import BulkImport from './pages/BulkImport';
 import BusinessGPTs from './pages/BusinessGPTs';
@@ -60,6 +61,7 @@ import BusinessPlan from './pages/BusinessPlan';
 import CallCenter from './pages/CallCenter';
 import CallCenterAdmin from './pages/CallCenterAdmin';
 import ClientAccessManager from './pages/ClientAccessManager';
+import ClientAchievements from './pages/ClientAchievements';
 import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
 import ClientAppointments from './pages/ClientAppointments';
 import ClientAssessments from './pages/ClientAssessments';
@@ -88,12 +90,17 @@ import ClientSegmentationReports from './pages/ClientSegmentationReports';
 import ClientWeeklyMealPlans from './pages/ClientWeeklyMealPlans';
 import ClinicalIntake from './pages/ClinicalIntake';
 import CoachAnalyticsDashboard from './pages/CoachAnalyticsDashboard';
+import CoachBonusAwards from './pages/CoachBonusAwards';
+import CoachChallenges from './pages/CoachChallenges';
 import CoachClientManagement from './pages/CoachClientManagement';
+import CoachGoalSetter from './pages/CoachGoalSetter';
 import CoachMPESSTracker from './pages/CoachMPESSTracker';
+import CoachMilestoneGoals from './pages/CoachMilestoneGoals';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachPerformanceAnalytics from './pages/CoachPerformanceAnalytics';
 import CoachProfileManager from './pages/CoachProfileManager';
 import CoachProgramManagement from './pages/CoachProgramManagement';
+import CoachProgressReports from './pages/CoachProgressReports';
 import CoachReferralLink from './pages/CoachReferralLink';
 import CoachReportTracker from './pages/CoachReportTracker';
 import CoachSubscription from './pages/CoachSubscription';
@@ -105,8 +112,12 @@ import DailyProgressLogger from './pages/DailyProgressLogger';
 import DietitianDashboard from './pages/DietitianDashboard';
 import Documentation from './pages/Documentation';
 import FeatureControl from './pages/FeatureControl';
+import FeedSettings from './pages/FeedSettings';
 import FoodLog from './pages/FoodLog';
 import FoodLookup from './pages/FoodLookup';
+import GamificationLeaderboard from './pages/GamificationLeaderboard';
+import GamificationPoints from './pages/GamificationPoints';
+import GamificationSettings from './pages/GamificationSettings';
 import GoogleCalendarSettings from './pages/GoogleCalendarSettings';
 import HealthCoachDashboard from './pages/HealthCoachDashboard';
 import HealthCoachPlans from './pages/HealthCoachPlans';
@@ -159,17 +170,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import CoachGoalSetter from './pages/CoachGoalSetter';
-import ClientAchievements from './pages/ClientAchievements';
-import CoachChallenges from './pages/CoachChallenges';
-import BadgeManagement from './pages/BadgeManagement';
-import CoachBonusAwards from './pages/CoachBonusAwards';
-import CoachMilestoneGoals from './pages/CoachMilestoneGoals';
-import CoachProgressReports from './pages/CoachProgressReports';
-import GamificationPoints from './pages/GamificationPoints';
-import GamificationLeaderboard from './pages/GamificationLeaderboard';
-import GamificationSettings from './pages/GamificationSettings';
-import FeedSettings from './pages/FeedSettings';
 import __Layout from './Layout.jsx';
 
 
@@ -179,6 +179,7 @@ export const PAGES = {
     "AdminSubscriptionManager": AdminSubscriptionManager,
     "Appointments": Appointments,
     "AssessmentTemplates": AssessmentTemplates,
+    "BadgeManagement": BadgeManagement,
     "BroadcastNotification": BroadcastNotification,
     "BulkImport": BulkImport,
     "BusinessGPTs": BusinessGPTs,
@@ -187,6 +188,7 @@ export const PAGES = {
     "CallCenter": CallCenter,
     "CallCenterAdmin": CallCenterAdmin,
     "ClientAccessManager": ClientAccessManager,
+    "ClientAchievements": ClientAchievements,
     "ClientAnalyticsDashboard": ClientAnalyticsDashboard,
     "ClientAppointments": ClientAppointments,
     "ClientAssessments": ClientAssessments,
@@ -215,12 +217,17 @@ export const PAGES = {
     "ClientWeeklyMealPlans": ClientWeeklyMealPlans,
     "ClinicalIntake": ClinicalIntake,
     "CoachAnalyticsDashboard": CoachAnalyticsDashboard,
+    "CoachBonusAwards": CoachBonusAwards,
+    "CoachChallenges": CoachChallenges,
     "CoachClientManagement": CoachClientManagement,
+    "CoachGoalSetter": CoachGoalSetter,
     "CoachMPESSTracker": CoachMPESSTracker,
+    "CoachMilestoneGoals": CoachMilestoneGoals,
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachPerformanceAnalytics": CoachPerformanceAnalytics,
     "CoachProfileManager": CoachProfileManager,
     "CoachProgramManagement": CoachProgramManagement,
+    "CoachProgressReports": CoachProgressReports,
     "CoachReferralLink": CoachReferralLink,
     "CoachReportTracker": CoachReportTracker,
     "CoachSubscription": CoachSubscription,
@@ -232,8 +239,12 @@ export const PAGES = {
     "DietitianDashboard": DietitianDashboard,
     "Documentation": Documentation,
     "FeatureControl": FeatureControl,
+    "FeedSettings": FeedSettings,
     "FoodLog": FoodLog,
     "FoodLookup": FoodLookup,
+    "GamificationLeaderboard": GamificationLeaderboard,
+    "GamificationPoints": GamificationPoints,
+    "GamificationSettings": GamificationSettings,
     "GoogleCalendarSettings": GoogleCalendarSettings,
     "HealthCoachDashboard": HealthCoachDashboard,
     "HealthCoachPlans": HealthCoachPlans,
@@ -286,17 +297,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "CoachGoalSetter": CoachGoalSetter,
-    "ClientAchievements": ClientAchievements,
-    "CoachChallenges": CoachChallenges,
-    "BadgeManagement": BadgeManagement,
-    "CoachBonusAwards": CoachBonusAwards,
-    "CoachMilestoneGoals": CoachMilestoneGoals,
-    "CoachProgressReports": CoachProgressReports,
-    "GamificationPoints": GamificationPoints,
-    "GamificationLeaderboard": GamificationLeaderboard,
-    "GamificationSettings": GamificationSettings,
-    "FeedSettings": FeedSettings,
 }
 
 export const pagesConfig = {

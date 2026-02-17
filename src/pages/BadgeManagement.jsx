@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Award, Plus, Edit, Trash2, Loader2, CheckCircle } from "lucide-react";
+import { Award, Plus, Edit, Trash2, Loader2, CheckCircle, Image, Smile } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
 export default function BadgeManagement() {
@@ -21,6 +22,8 @@ export default function BadgeManagement() {
     rarity: 'common',
     is_active: true,
   });
+  const [iconType, setIconType] = useState('emoji');
+  const [uploading, setUploading] = useState(false);
 
   const { data: badges } = useQuery({
     queryKey: ['badges'],
@@ -123,13 +126,85 @@ export default function BadgeManagement() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Icon (Emoji) *</Label>
-                  <Input
-                    value={badgeData.icon || ''}
-                    onChange={(e) => setBadgeData({...badgeData, icon: e.target.value})}
-                    placeholder="🏆 🎯 💪 ⭐ 🔥 💎"
-                  />
-                  <p className="text-xs text-gray-500">Use an emoji to represent this badge</p>
+                  <Label>Icon *</Label>
+                  <Tabs value={iconType} onValueChange={setIconType}>
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="emoji" className="flex items-center gap-2">
+                        <Smile className="w-4 h-4" />
+                        Select Emoji
+                      </TabsTrigger>
+                      <TabsTrigger value="upload" className="flex items-center gap-2">
+                        <Image className="w-4 h-4" />
+                        Upload Icon
+                      </TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="emoji" className="space-y-3 mt-3">
+                      <Input
+                        value={badgeData.icon || ''}
+                        onChange={(e) => setBadgeData({...badgeData, icon: e.target.value})}
+                        placeholder="🏆 🎯 💪 ⭐ 🔥 💎"
+                      />
+                      <div className="grid grid-cols-8 gap-2 p-3 bg-gray-50 rounded-lg border">
+                        {['🏆', '🎯', '💪', '⭐', '🔥', '💎', '👑', '🥇', '🥈', '🥉', '🎖️', '🏅', '🌟', '✨', '💫', '⚡'].map(emoji => (
+                          <button
+                            key={emoji}
+                            type="button"
+                            onClick={() => setBadgeData({...badgeData, icon: emoji})}
+                            className={`text-3xl p-2 rounded hover:bg-white transition-all ${
+                              badgeData.icon === emoji ? 'bg-white ring-2 ring-purple-500' : ''
+                            }`}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-500">Click an emoji or type your own</p>
+                    </TabsContent>
+
+                    <TabsContent value="upload" className="space-y-3 mt-3">
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            
+                            setUploading(true);
+                            try {
+                              const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                              setBadgeData({...badgeData, icon: file_url});
+                              toast.success("Icon uploaded!");
+                            } catch (error) {
+                              toast.error("Failed to upload icon");
+                            } finally {
+                              setUploading(false);
+                            }
+                          }}
+                          className="hidden"
+                          id="badge-icon-upload"
+                        />
+                        <label htmlFor="badge-icon-upload" className="cursor-pointer">
+                          {badgeData.icon && badgeData.icon.startsWith('http') ? (
+                            <div className="space-y-2">
+                              <img src={badgeData.icon} alt="Badge icon" className="w-20 h-20 mx-auto object-contain" />
+                              <p className="text-sm text-green-600 font-semibold">✓ Icon uploaded</p>
+                              <p className="text-xs text-gray-500">Click to change</p>
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              <Image className="w-12 h-12 mx-auto text-gray-400" />
+                              <p className="text-sm font-semibold text-gray-700">
+                                {uploading ? 'Uploading...' : 'Click to upload icon'}
+                              </p>
+                              <p className="text-xs text-gray-500">PNG, JPG, SVG up to 5MB</p>
+                            </div>
+                          )}
+                        </label>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </div>
 
                 <div className="space-y-2">
@@ -224,7 +299,13 @@ export default function BadgeManagement() {
             <Card key={badge.id} className={`border-2 ${rarityColors[badge.rarity]} hover:shadow-lg transition-all`}>
               <CardHeader>
                 <div className="flex justify-between items-start">
-                  <div className="text-5xl">{badge.icon}</div>
+                  <div className="text-5xl">
+                    {badge.icon?.startsWith('http') ? (
+                      <img src={badge.icon} alt={badge.name} className="w-16 h-16 object-contain" />
+                    ) : (
+                      badge.icon
+                    )}
+                  </div>
                   <div className="flex gap-1">
                     <Button variant="ghost" size="sm" onClick={() => handleEdit(badge)}>
                       <Edit className="w-4 h-4 text-blue-600" />
