@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Trophy, Calendar, Target, CheckCircle, Clock } from "lucide-react";
+import { Trophy, Calendar, Target, CheckCircle, Clock, Sparkles } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 
 export default function ChallengeCard({ challenge, clientChallenge, onStart, onViewProgress, isClient = false }) {
