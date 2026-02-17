@@ -26,7 +26,9 @@ import {
   Save,
   Eye,
   EyeOff,
-  Users
+  Users,
+  Trophy,
+  Upload
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -138,6 +140,7 @@ export default function ClientAccessManager() {
 
   const sections = [
     { key: 'show_my_dashboard', label: 'My Dashboard', icon: Home },
+    { key: 'show_achievements', label: 'My Achievements', icon: Trophy },
     { key: 'show_my_plans', label: 'My Plans', icon: CreditCard },
     { key: 'show_my_meal_plan', label: 'My Meal Plan', icon: Calendar },
     { key: 'show_food_log', label: 'Food Log', icon: Utensils },
@@ -149,6 +152,7 @@ export default function ClientAccessManager() {
     { key: 'show_recipe_library', label: 'Recipe Library', icon: ChefHat },
     { key: 'show_food_lookup', label: 'Food Lookup', icon: Search },
     { key: 'show_resources', label: 'Resources', icon: BookOpen },
+    { key: 'show_upload_reports', label: 'Upload Reports', icon: Upload },
     { key: 'show_my_profile', label: 'My Profile', icon: User },
   ];
 
