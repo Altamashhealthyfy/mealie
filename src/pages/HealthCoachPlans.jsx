@@ -43,6 +43,7 @@ export default function HealthCoachPlans() {
     can_send_whatsapp: false,
     can_generate_ai_templates: false,
     can_manage_client_access: false,
+    can_access_gamification: false,
     ai_credits_included: 0,
     ai_credit_price: 10,
     ai_generation_limit: -1,
@@ -132,6 +133,7 @@ export default function HealthCoachPlans() {
       can_white_label: false,
       can_send_whatsapp: false,
       can_generate_ai_templates: false,
+      can_access_gamification: false,
       ai_credits_included: 0,
       ai_credit_price: 10,
       ai_generation_limit: -1,
@@ -170,6 +172,7 @@ export default function HealthCoachPlans() {
       can_send_whatsapp: plan.can_send_whatsapp || false,
       can_generate_ai_templates: plan.can_generate_ai_templates || false,
       can_manage_client_access: plan.can_manage_client_access || false,
+      can_access_gamification: plan.can_access_gamification || false,
       ai_credits_included: plan.ai_credits_included || 0,
       ai_credit_price: plan.ai_credit_price || 10,
       ai_generation_limit: plan.ai_generation_limit,
@@ -340,6 +343,9 @@ export default function HealthCoachPlans() {
                     </p>
                     <p className={plan.can_manage_client_access ? 'text-green-700' : 'text-gray-400'}>
                       {plan.can_manage_client_access ? '✓' : '✗'} Client Access 👁️
+                    </p>
+                    <p className={plan.can_access_gamification ? 'text-green-700' : 'text-gray-400'}>
+                      {plan.can_access_gamification ? '✓' : '✗'} Gamification 🏆
                     </p>
                   </div>
                 </div>
@@ -654,6 +660,16 @@ export default function HealthCoachPlans() {
                   <Switch
                     checked={formData.can_manage_client_access}
                     onCheckedChange={(checked) => setFormData({ ...formData, can_manage_client_access: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between p-3 bg-orange-50 rounded border border-orange-200">
+                  <div>
+                    <Label>Can Access Gamification 🏆</Label>
+                    <p className="text-xs text-gray-600 mt-1">Points, badges, challenges, and leaderboard features</p>
+                  </div>
+                  <Switch
+                    checked={formData.can_access_gamification}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_access_gamification: checked })}
                   />
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
