@@ -57,7 +57,13 @@ export default function BadgeDisplay({ clientId }) {
                   </div>
                 )}
                 <div className="text-center">
-                  <div className="text-5xl mb-2">{badge.icon}</div>
+                  <div className="text-5xl mb-2">
+                    {badge.icon?.startsWith('http') ? (
+                      <img src={badge.icon} alt={badge.name} className="w-16 h-16 mx-auto object-contain" />
+                    ) : (
+                      badge.icon
+                    )}
+                  </div>
                   <p className="font-bold text-sm text-gray-900">{badge.name}</p>
                   <p className="text-xs text-gray-600 mt-1">{badge.description}</p>
                   <Badge className="mt-2 text-xs capitalize">{badge.rarity}</Badge>
@@ -81,7 +87,13 @@ export default function BadgeDisplay({ clientId }) {
                 <Lock className="w-4 h-4 text-gray-400" />
               </div>
               <div className="text-center">
-                <div className="text-5xl mb-2 grayscale">{badge.icon}</div>
+                <div className="text-5xl mb-2 grayscale">
+                  {badge.icon?.startsWith('http') ? (
+                    <img src={badge.icon} alt={badge.name} className="w-16 h-16 mx-auto object-contain" />
+                  ) : (
+                    badge.icon
+                  )}
+                </div>
                 <p className="font-bold text-sm text-gray-500">{badge.name}</p>
                 <p className="text-xs text-gray-400 mt-1">{badge.unlock_criteria?.description || badge.description}</p>
                 <Badge variant="outline" className="mt-2 text-xs">Locked</Badge>
