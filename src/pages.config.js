@@ -52,6 +52,7 @@ import AdminPlatformAnalytics from './pages/AdminPlatformAnalytics';
 import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
 import Appointments from './pages/Appointments';
 import AssessmentTemplates from './pages/AssessmentTemplates';
+import AutoAwardRules from './pages/AutoAwardRules';
 import BadgeManagement from './pages/BadgeManagement';
 import BroadcastNotification from './pages/BroadcastNotification';
 import BulkImport from './pages/BulkImport';
@@ -65,17 +66,20 @@ import ClientAchievements from './pages/ClientAchievements';
 import ClientAnalyticsDashboard from './pages/ClientAnalyticsDashboard';
 import ClientAppointments from './pages/ClientAppointments';
 import ClientAssessments from './pages/ClientAssessments';
+import ClientChallengeLibrary from './pages/ClientChallengeLibrary';
 import ClientCommunication from './pages/ClientCommunication';
 import ClientCommunicationHub from './pages/ClientCommunicationHub';
 import ClientDashboard from './pages/ClientDashboard';
 import ClientFeedbackManagement from './pages/ClientFeedbackManagement';
 import ClientFinanceManager from './pages/ClientFinanceManager';
+import ClientGamificationDashboard from './pages/ClientGamificationDashboard';
 import ClientMPESSAnalytics from './pages/ClientMPESSAnalytics';
 import ClientMPESSAssessment from './pages/ClientMPESSAssessment';
 import ClientManagement from './pages/ClientManagement';
 import ClientManagementHub from './pages/ClientManagementHub';
 import ClientOnboarding from './pages/ClientOnboarding';
 import ClientOnboardingWizard from './pages/ClientOnboardingWizard';
+import ClientPersonalGoals from './pages/ClientPersonalGoals';
 import ClientPlanBuilder from './pages/ClientPlanBuilder';
 import ClientPlanManagement from './pages/ClientPlanManagement';
 import ClientPlans from './pages/ClientPlans';
@@ -96,6 +100,7 @@ import CoachClientManagement from './pages/CoachClientManagement';
 import CoachGoalSetter from './pages/CoachGoalSetter';
 import CoachMPESSTracker from './pages/CoachMPESSTracker';
 import CoachMilestoneGoals from './pages/CoachMilestoneGoals';
+import CoachOnboarding from './pages/CoachOnboarding';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachPerformanceAnalytics from './pages/CoachPerformanceAnalytics';
 import CoachProfileManager from './pages/CoachProfileManager';
@@ -170,11 +175,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import CoachOnboarding from './pages/CoachOnboarding';
-import ClientGamificationDashboard from './pages/ClientGamificationDashboard';
-import AutoAwardRules from './pages/AutoAwardRules';
-import ClientChallengeLibrary from './pages/ClientChallengeLibrary';
-import ClientPersonalGoals from './pages/ClientPersonalGoals';
 import __Layout from './Layout.jsx';
 
 
@@ -184,6 +184,7 @@ export const PAGES = {
     "AdminSubscriptionManager": AdminSubscriptionManager,
     "Appointments": Appointments,
     "AssessmentTemplates": AssessmentTemplates,
+    "AutoAwardRules": AutoAwardRules,
     "BadgeManagement": BadgeManagement,
     "BroadcastNotification": BroadcastNotification,
     "BulkImport": BulkImport,
@@ -197,17 +198,20 @@ export const PAGES = {
     "ClientAnalyticsDashboard": ClientAnalyticsDashboard,
     "ClientAppointments": ClientAppointments,
     "ClientAssessments": ClientAssessments,
+    "ClientChallengeLibrary": ClientChallengeLibrary,
     "ClientCommunication": ClientCommunication,
     "ClientCommunicationHub": ClientCommunicationHub,
     "ClientDashboard": ClientDashboard,
     "ClientFeedbackManagement": ClientFeedbackManagement,
     "ClientFinanceManager": ClientFinanceManager,
+    "ClientGamificationDashboard": ClientGamificationDashboard,
     "ClientMPESSAnalytics": ClientMPESSAnalytics,
     "ClientMPESSAssessment": ClientMPESSAssessment,
     "ClientManagement": ClientManagement,
     "ClientManagementHub": ClientManagementHub,
     "ClientOnboarding": ClientOnboarding,
     "ClientOnboardingWizard": ClientOnboardingWizard,
+    "ClientPersonalGoals": ClientPersonalGoals,
     "ClientPlanBuilder": ClientPlanBuilder,
     "ClientPlanManagement": ClientPlanManagement,
     "ClientPlans": ClientPlans,
@@ -228,6 +232,7 @@ export const PAGES = {
     "CoachGoalSetter": CoachGoalSetter,
     "CoachMPESSTracker": CoachMPESSTracker,
     "CoachMilestoneGoals": CoachMilestoneGoals,
+    "CoachOnboarding": CoachOnboarding,
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachPerformanceAnalytics": CoachPerformanceAnalytics,
     "CoachProfileManager": CoachProfileManager,
@@ -302,11 +307,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "CoachOnboarding": CoachOnboarding,
-    "ClientGamificationDashboard": ClientGamificationDashboard,
-    "AutoAwardRules": AutoAwardRules,
-    "ClientChallengeLibrary": ClientChallengeLibrary,
-    "ClientPersonalGoals": ClientPersonalGoals,
 }
 
 export const pagesConfig = {
