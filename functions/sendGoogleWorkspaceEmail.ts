@@ -1,5 +1,4 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 Deno.serve(async (req) => {
     try {
@@ -23,43 +22,38 @@ Deno.serve(async (req) => {
             }, { status: 400 });
         }
 
-        const workspaceEmail = Deno.env.get('GOOGLE_WORKSPACE_EMAIL');
-        const workspacePassword = Deno.env.get('GOOGLE_WORKSPACE_APP_PASSWORD');
+        const workspaceEmail = Deno.env.get('GOOGLE_WORKSPACE_EMAIL') || 'contactus@healthyfy.com';
 
-        if (!workspaceEmail || !workspacePassword) {
-            return Response.json({ 
-                success: false,
-                error: 'Google Workspace credentials not configured. Please set GOOGLE_WORKSPACE_EMAIL and GOOGLE_WORKSPACE_APP_PASSWORD.'
-            }, { status: 500 });
+        // Use Gmail API via fetch since SMTP is blocked
+        const response = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${await base44.asServiceRole.connectors.getAccessToken('gmail')}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                raw: btoa(
+                    `From: ${workspaceEmail}\r\n` +
+                    `To: ${to}\r\n` +
+                    `Subject: ${subject}\r\n` +
+                    `Content-Type: text/html; charset=utf-8\r\n\r\n` +
+                    emailBody
+                ).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.text();
+            throw new Error(`Gmail API error: ${error}`);
         }
 
-        // Send email using Google Workspace SMTP
-        const client = new SMTPClient({
-            connection: {
-                hostname: "smtp.gmail.com",
-                port: 587,
-                tls: true,
-                auth: {
-                    username: workspaceEmail,
-                    password: workspacePassword,
-                },
-            },
-        });
-
-        await client.send({
-            from: workspaceEmail,
-            to: to,
-            subject: subject,
-            content: emailBody,
-            html: emailBody,
-        });
-
-        await client.close();
+        const result = await response.json();
 
         return Response.json({ 
             success: true,
             from: workspaceEmail,
             to: to,
+            messageId: result.id,
             sentAt: new Date().toISOString()
         });
 
