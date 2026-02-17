@@ -414,16 +414,22 @@ export default function CoachChallenges() {
                   )}
                 </div>
 
-                <div className="space-y-3 p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                <div className="space-y-4 p-5 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl shadow-sm">
                   <div className="flex items-center justify-between">
-                    <Label className="text-sm font-semibold">🎯 Multi-Stage Challenge</Label>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-green-500 flex items-center justify-center text-white">
+                        🎯
+                      </div>
+                      <Label className="text-base font-bold text-gray-900">Multi-Stage Challenge</Label>
+                    </div>
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => setShowStageBuilder(!showStageBuilder)}
+                      className="border-green-300 hover:bg-green-100 font-semibold"
                     >
-                      {showStageBuilder ? 'Hide' : 'Add'} Stages
+                      {showStageBuilder ? '✕ Hide Stages' : '+ Add Stages'}
                     </Button>
                   </div>
                   
@@ -457,7 +463,7 @@ export default function CoachChallenges() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        className="w-full"
+                        className="w-full border-2 border-dashed border-green-300 hover:border-green-500 hover:bg-green-50 text-green-700 font-semibold"
                         onClick={() => {
                           const newStage = {
                             stage_number: (challengeData.stages?.length || 0) + 1,
