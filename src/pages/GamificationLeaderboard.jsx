@@ -4,13 +4,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Trophy, Medal, Award, TrendingUp, Sparkles, ChevronDown, ChevronUp, Undo2, Target } from "lucide-react";
+import { Trophy, Medal, Award, TrendingUp, Sparkles, ChevronDown, ChevronUp, Undo2, Target, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export default function GamificationLeaderboard() {
   const [expandedClient, setExpandedClient] = useState(null);
   const [revertDialog, setRevertDialog] = useState({ open: false, item: null, type: null });
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, client: null });
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -78,6 +79,17 @@ export default function GamificationLeaderboard() {
       setRevertDialog({ open: false, item: null, type: null });
     },
     onError: () => toast.error("Failed to revert badge")
+  });
+
+  const deleteClientMutation = useMutation({
+    mutationFn: (clientId) => base44.entities.Client.delete(clientId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['clients']);
+      toast.success("Client deleted successfully");
+      setDeleteDialog({ open: false, client: null });
+      setExpandedClient(null);
+    },
+    onError: () => toast.error("Failed to delete client")
   });
 
   const getBadgeDetails = (badgeId) => {
@@ -170,6 +182,21 @@ export default function GamificationLeaderboard() {
 
                     {isExpanded && (
                       <div className="mt-2 p-6 bg-white rounded-xl border border-gray-200 space-y-6">
+                        {/* Delete Client Button */}
+                        <div className="flex justify-end">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeleteDialog({ open: true, client });
+                            }}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete Client
+                          </Button>
+                        </div>
                         {/* Badges Section */}
                         <div>
                           <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
@@ -351,6 +378,28 @@ export default function GamificationLeaderboard() {
                 disabled={revertPointMutation.isPending || revertBadgeMutation.isPending}
               >
                 {revertPointMutation.isPending || revertBadgeMutation.isPending ? 'Reverting...' : 'Revert'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Delete Client Confirmation Dialog */}
+        <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog({ open, client: null })}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Client?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete <strong>{deleteDialog.client?.full_name}</strong>? This will permanently remove all their data including points, badges, challenges, and progress. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteClientMutation.mutate(deleteDialog.client.id)}
+                className="bg-red-600 hover:bg-red-700"
+                disabled={deleteClientMutation.isPending}
+              >
+                {deleteClientMutation.isPending ? 'Deleting...' : 'Delete Client'}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
