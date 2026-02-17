@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Target, TrendingUp, Award, Calendar } from "lucide-react";
+import { Target, TrendingUp, Award, Calendar, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 
 export default function GamificationPoints() {
