@@ -172,6 +172,7 @@ import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import CoachOnboarding from './pages/CoachOnboarding';
 import ClientGamificationDashboard from './pages/ClientGamificationDashboard';
+import AutoAwardRules from './pages/AutoAwardRules';
 import __Layout from './Layout.jsx';
 
 
@@ -301,6 +302,7 @@ export const PAGES = {
     "WhiteLabelSubscription": WhiteLabelSubscription,
     "CoachOnboarding": CoachOnboarding,
     "ClientGamificationDashboard": ClientGamificationDashboard,
+    "AutoAwardRules": AutoAwardRules,
 }
 
 export const pagesConfig = {
