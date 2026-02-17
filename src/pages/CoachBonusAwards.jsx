@@ -326,7 +326,14 @@ export default function CoachBonusAwards() {
                         <SelectContent>
                           {badges.map(badge => (
                             <SelectItem key={badge.id} value={badge.id}>
-                              {badge.icon} {badge.name}
+                              <div className="flex items-center gap-2">
+                                {badge.icon?.startsWith('http') ? (
+                                  <img src={badge.icon} alt="" className="w-5 h-5 object-contain" />
+                                ) : (
+                                  <span className="text-lg">{badge.icon}</span>
+                                )}
+                                <span>{badge.name}</span>
+                              </div>
                             </SelectItem>
                           ))}
                         </SelectContent>
