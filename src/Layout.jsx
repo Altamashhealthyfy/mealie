@@ -605,41 +605,6 @@ export default function Layout({ children, currentPageName }) {
   const filteredPaymentNav = paymentNavigation.filter(item =>
     !item.roles || item.roles.includes(effectiveUserType)
   );
-
-  // Filter gamification navigation based on plan permissions
-  const getFilteredGamificationNav = () => {
-    // Simulate plan permissions based on admin view mode
-    let simulatedPlan = null;
-    if (userType === 'super_admin' && adminViewMode !== 'admin') {
-      if (adminViewMode === 'pro_user') {
-        simulatedPlan = {
-          can_access_gamification: true,
-        };
-      } else if (adminViewMode === 'basic_user' || adminViewMode === 'trial') {
-        simulatedPlan = {
-          can_access_gamification: false,
-        };
-      }
-    }
-
-    // First filter by role
-    let filtered = gamificationNavigation.filter(item =>
-      !item.roles || item.roles.includes(effectiveUserType)
-    );
-
-    // For student_coach OR simulated views, also filter by plan permissions
-    const activePlan = simulatedPlan || coachPlan;
-    if ((effectiveUserType === 'student_coach' || simulatedPlan) && activePlan) {
-      // If coach doesn't have gamification access, hide all gamification items
-      if (activePlan.can_access_gamification !== true) {
-        filtered = [];
-      }
-    }
-
-    return filtered;
-  };
-
-  const filteredGamificationNav = getFilteredGamificationNav();
   
   const { data: coachSubscription } = useQuery({
     queryKey: ['coachSubscription', user?.email],
@@ -738,6 +703,41 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const filteredBusinessNav = getFilteredBusinessNav();
+
+  // Filter gamification navigation based on plan permissions
+  const getFilteredGamificationNav = () => {
+    // Simulate plan permissions based on admin view mode
+    let simulatedPlan = null;
+    if (userType === 'super_admin' && adminViewMode !== 'admin') {
+      if (adminViewMode === 'pro_user') {
+        simulatedPlan = {
+          can_access_gamification: true,
+        };
+      } else if (adminViewMode === 'basic_user' || adminViewMode === 'trial') {
+        simulatedPlan = {
+          can_access_gamification: false,
+        };
+      }
+    }
+
+    // First filter by role
+    let filtered = gamificationNavigation.filter(item =>
+      !item.roles || item.roles.includes(effectiveUserType)
+    );
+
+    // For student_coach OR simulated views, also filter by plan permissions
+    const activePlan = simulatedPlan || coachPlan;
+    if ((effectiveUserType === 'student_coach' || simulatedPlan) && activePlan) {
+      // If coach doesn't have gamification access, hide all gamification items
+      if (activePlan.can_access_gamification !== true) {
+        filtered = [];
+      }
+    }
+
+    return filtered;
+  };
+
+  const filteredGamificationNav = getFilteredGamificationNav();
   
   // Get simulated plan for Pro Plans lock logic
   let simulatedPlan = null;
