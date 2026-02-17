@@ -1,4 +1,5 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 Deno.serve(async (req) => {
     try {
@@ -22,17 +23,42 @@ Deno.serve(async (req) => {
             }, { status: 400 });
         }
 
-        // Use the built-in SendEmail integration
-        const result = await base44.asServiceRole.integrations.Core.SendEmail({
-            from_name: user.full_name || 'Mealie Pro',
+        const workspaceEmail = Deno.env.get('GOOGLE_WORKSPACE_EMAIL');
+        const workspacePassword = Deno.env.get('GOOGLE_WORKSPACE_APP_PASSWORD');
+
+        if (!workspaceEmail || !workspacePassword) {
+            return Response.json({ 
+                success: false,
+                error: 'Google Workspace credentials not configured'
+            }, { status: 500 });
+        }
+
+        // Send email using Google Workspace SMTP
+        const client = new SMTPClient({
+            connection: {
+                hostname: "smtp.gmail.com",
+                port: 465,
+                tls: true,
+                auth: {
+                    username: workspaceEmail,
+                    password: workspacePassword,
+                },
+            },
+        });
+
+        await client.send({
+            from: workspaceEmail,
             to: to,
             subject: subject,
-            body: emailBody
+            content: emailBody,
+            html: emailBody,
         });
+
+        await client.close();
 
         return Response.json({ 
             success: true,
-            from: 'noreply@mealiepro.com',
+            from: workspaceEmail,
             to: to,
             sentAt: new Date().toISOString()
         });
