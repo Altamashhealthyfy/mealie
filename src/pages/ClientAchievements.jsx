@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Award, Trophy, Target, Zap, Calendar, TrendingUp, CheckCircle } from "lucide-react";
+import { Award, Trophy, Target, Zap, Calendar, TrendingUp, CheckCircle, Sparkles } from "lucide-react";
 import { format, addDays } from "date-fns";
 import { toast } from "sonner";
 import PointsTracker from "../components/gamification/PointsTracker";
