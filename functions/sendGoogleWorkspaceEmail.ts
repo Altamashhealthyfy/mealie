@@ -24,7 +24,24 @@ Deno.serve(async (req) => {
 
         const workspaceEmail = Deno.env.get('GOOGLE_WORKSPACE_EMAIL') || 'contactus@healthyfy.com';
 
-        // Use Gmail API via fetch since SMTP is blocked
+        // Create properly formatted MIME message
+        const emailContent = [
+            `From: ${workspaceEmail}`,
+            `To: ${to}`,
+            `Subject: ${subject}`,
+            `MIME-Version: 1.0`,
+            `Content-Type: text/html; charset=utf-8`,
+            ``,
+            emailBody
+        ].join('\r\n');
+
+        // Encode to base64url format (replace + with -, / with _, remove =)
+        const encoder = new TextEncoder();
+        const data = encoder.encode(emailContent);
+        const base64 = btoa(String.fromCharCode(...data));
+        const base64url = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+        // Use Gmail API via fetch
         const response = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
             method: 'POST',
             headers: {
@@ -32,13 +49,7 @@ Deno.serve(async (req) => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                raw: btoa(
-                    `From: ${workspaceEmail}\r\n` +
-                    `To: ${to}\r\n` +
-                    `Subject: ${subject}\r\n` +
-                    `Content-Type: text/html; charset=utf-8\r\n\r\n` +
-                    emailBody
-                ).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+                raw: base64url
             })
         });
 
