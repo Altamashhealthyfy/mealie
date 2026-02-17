@@ -171,6 +171,7 @@ import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import CoachOnboarding from './pages/CoachOnboarding';
+import ClientGamificationDashboard from './pages/ClientGamificationDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -299,6 +300,7 @@ export const PAGES = {
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
     "CoachOnboarding": CoachOnboarding,
+    "ClientGamificationDashboard": ClientGamificationDashboard,
 }
 
 export const pagesConfig = {
