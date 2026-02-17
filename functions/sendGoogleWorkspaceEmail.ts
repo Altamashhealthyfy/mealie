@@ -38,10 +38,12 @@ Deno.serve(async (req) => {
         });
 
     } catch (error) {
+        console.error('Email sending error:', error);
         return Response.json({ 
             success: false,
             error: 'Email sending failed',
             details: error.message,
+            stack: error.stack
         }, { status: 500 });
     }
 });
