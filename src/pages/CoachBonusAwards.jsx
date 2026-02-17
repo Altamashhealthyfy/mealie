@@ -33,7 +33,7 @@ export default function CoachBonusAwards() {
     rarity: 'common'
   });
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [revertDialog, setRevertDialog] = useState({ open: false, awardId: null });
+  const [revertDialog, setRevertDialog] = useState({ open: false, awardId: null, award: null });
 
   const queryClient = useQueryClient();
 
@@ -66,8 +66,19 @@ export default function CoachBonusAwards() {
       const points = await base44.entities.GamificationPoints.filter({
         action_type: 'custom'
       });
-      return points
-        .sort((a, b) => new Date(b.date_earned) - new Date(a.date_earned))
+      const badgeAwards = await base44.entities.ClientBadge.list();
+      
+      // Combine points and badges into one array with type indicator
+      const pointsWithType = points.map(p => ({ ...p, awardType: 'points' }));
+      const badgesWithType = badgeAwards.map(b => ({ ...b, awardType: 'badge' }));
+      
+      const combined = [...pointsWithType, ...badgesWithType];
+      return combined
+        .sort((a, b) => {
+          const dateA = new Date(a.date_earned || a.earned_date);
+          const dateB = new Date(b.date_earned || b.earned_date);
+          return dateB - dateA;
+        })
         .slice(0, 20);
     },
     enabled: !!user
@@ -187,6 +198,20 @@ export default function CoachBonusAwards() {
     }
   });
 
+  const revertBadgeMutation = useMutation({
+    mutationFn: async (badgeAwardId) => {
+      await base44.entities.ClientBadge.delete(badgeAwardId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recentBonusAwards'] });
+      setRevertDialog({ open: false, awardId: null });
+      toast.success("Badge award reverted successfully");
+    },
+    onError: (error) => {
+      toast.error(`Failed to revert badge: ${error.message}`);
+    }
+  });
+
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -253,6 +278,24 @@ export default function CoachBonusAwards() {
   const getClientName = (clientId) => {
     const client = clients.find(c => c.id === clientId);
     return client?.full_name || 'Unknown';
+  };
+
+  const getBadgeName = (badgeId) => {
+    const badge = badges.find(b => b.id === badgeId);
+    return badge?.name || 'Unknown Badge';
+  };
+
+  const getBadgeIcon = (badgeId) => {
+    const badge = badges.find(b => b.id === badgeId);
+    return badge?.icon || '🏆';
+  };
+
+  const handleRevertAward = (award) => {
+    if (award.awardType === 'points') {
+      revertAwardMutation.mutate(award.id);
+    } else {
+      revertBadgeMutation.mutate(award.id);
+    }
   };
 
   return (
@@ -604,23 +647,50 @@ export default function CoachBonusAwards() {
             ) : (
               <div className="space-y-3">
                 {recentAwards.map(award => (
-                  <div key={award.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200">
+                  <div key={award.id} className={`flex items-center justify-between p-4 rounded-lg border ${
+                    award.awardType === 'badge' 
+                      ? 'bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200'
+                      : 'bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200'
+                  }`}>
                     <div className="flex items-center gap-3 flex-1">
                       <User className="w-5 h-5 text-gray-600" />
-                      <div>
+                      <div className="flex-1">
                         <p className="font-semibold">{getClientName(award.client_id)}</p>
-                        <p className="text-sm text-gray-600">{award.description}</p>
-                        <p className="text-xs text-gray-500">{new Date(award.date_earned).toLocaleDateString()}</p>
+                        {award.awardType === 'points' ? (
+                          <>
+                            <p className="text-sm text-gray-600">{award.description}</p>
+                            <p className="text-xs text-gray-500">{new Date(award.date_earned).toLocaleDateString()}</p>
+                          </>
+                        ) : (
+                          <>
+                            <div className="flex items-center gap-2 mt-1">
+                              {getBadgeIcon(award.badge_id)?.startsWith('http') ? (
+                                <img src={getBadgeIcon(award.badge_id)} alt="" className="w-5 h-5 object-contain" />
+                              ) : (
+                                <span className="text-lg">{getBadgeIcon(award.badge_id)}</span>
+                              )}
+                              <span className="text-sm font-medium text-purple-700">{getBadgeName(award.badge_id)}</span>
+                            </div>
+                            <p className="text-xs text-gray-500">{new Date(award.earned_date).toLocaleDateString()}</p>
+                          </>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Badge className="bg-orange-500 text-white text-lg">
-                        +{award.points_earned}
-                      </Badge>
+                      {award.awardType === 'points' ? (
+                        <Badge className="bg-orange-500 text-white text-lg">
+                          +{award.points_earned}
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-purple-500 text-white">
+                          <Award className="w-4 h-4 mr-1" />
+                          Badge
+                        </Badge>
+                      )}
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => setRevertDialog({ open: true, awardId: award.id })}
+                        onClick={() => setRevertDialog({ open: true, awardId: award.id, award })}
                         className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
                         <Undo2 className="w-4 h-4" />
@@ -634,22 +704,22 @@ export default function CoachBonusAwards() {
         </Card>
 
         {/* Revert Confirmation Dialog */}
-        <AlertDialog open={revertDialog.open} onOpenChange={(open) => setRevertDialog({ open, awardId: null })}>
+        <AlertDialog open={revertDialog.open} onOpenChange={(open) => setRevertDialog({ open, awardId: null, award: null })}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Revert Bonus Award?</AlertDialogTitle>
+              <AlertDialogTitle>Revert {revertDialog.award?.awardType === 'badge' ? 'Badge' : 'Bonus'} Award?</AlertDialogTitle>
               <AlertDialogDescription>
-                This will remove the bonus points from the client's account. This action cannot be undone.
+                This will remove the {revertDialog.award?.awardType === 'badge' ? 'badge' : 'bonus points'} from the client's account. This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
-                onClick={() => revertAwardMutation.mutate(revertDialog.awardId)}
+                onClick={() => handleRevertAward(revertDialog.award)}
                 className="bg-red-600 hover:bg-red-700"
-                disabled={revertAwardMutation.isPending}
+                disabled={revertAwardMutation.isPending || revertBadgeMutation.isPending}
               >
-                {revertAwardMutation.isPending ? 'Reverting...' : 'Revert Award'}
+                {revertAwardMutation.isPending || revertBadgeMutation.isPending ? 'Reverting...' : 'Revert Award'}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
