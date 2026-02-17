@@ -644,6 +644,7 @@ export default function Layout({ children, currentPageName }) {
           can_access_team_attendance: true,
           can_manage_team: true,
           can_access_pro_plans: true,
+          can_access_gamification: true,
         };
       } else if (adminViewMode === 'basic_user' || adminViewMode === 'trial') {
         simulatedPlan = {
@@ -656,6 +657,7 @@ export default function Layout({ children, currentPageName }) {
           can_access_team_attendance: false,
           can_manage_team: false,
           can_access_pro_plans: false,
+          can_access_gamification: false,
         };
       }
     }
@@ -703,9 +705,29 @@ export default function Layout({ children, currentPageName }) {
   };
 
   const filteredBusinessNav = getFilteredBusinessNav();
-  const filteredGamificationNav = gamificationNavigation.filter(item =>
-    !item.roles || item.roles.includes(effectiveUserType)
-  );
+
+  // Filter gamification navigation based on plan permissions
+  const getFilteredGamificationNav = () => {
+    // Simulate plan permissions based on admin view mode
+    const activePlan = simulatedPlan || coachPlan;
+
+    // First filter by role
+    let filtered = gamificationNavigation.filter(item =>
+      !item.roles || item.roles.includes(effectiveUserType)
+    );
+
+    // For student_coach OR simulated views, also filter by plan permissions
+    if ((effectiveUserType === 'student_coach' || simulatedPlan) && activePlan) {
+      // If the plan doesn't have gamification access, return empty array
+      if (activePlan.can_access_gamification === false) {
+        return [];
+      }
+    }
+
+    return filtered;
+  };
+
+  const filteredGamificationNav = getFilteredGamificationNav();
   
   // Get simulated plan for Pro Plans lock logic
   let simulatedPlan = null;
