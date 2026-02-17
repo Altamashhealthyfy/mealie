@@ -173,6 +173,8 @@ import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
 import CoachOnboarding from './pages/CoachOnboarding';
 import ClientGamificationDashboard from './pages/ClientGamificationDashboard';
 import AutoAwardRules from './pages/AutoAwardRules';
+import ClientChallengeLibrary from './pages/ClientChallengeLibrary';
+import ClientPersonalGoals from './pages/ClientPersonalGoals';
 import __Layout from './Layout.jsx';
 
 
@@ -303,6 +305,8 @@ export const PAGES = {
     "CoachOnboarding": CoachOnboarding,
     "ClientGamificationDashboard": ClientGamificationDashboard,
     "AutoAwardRules": AutoAwardRules,
+    "ClientChallengeLibrary": ClientChallengeLibrary,
+    "ClientPersonalGoals": ClientPersonalGoals,
 }
 
 export const pagesConfig = {
