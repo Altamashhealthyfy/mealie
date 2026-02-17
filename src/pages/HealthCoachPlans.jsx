@@ -662,12 +662,13 @@ export default function HealthCoachPlans() {
                     onCheckedChange={(checked) => setFormData({ ...formData, can_manage_client_access: checked })}
                   />
                 </div>
-                <div className="flex items-center justify-between p-3 bg-orange-50 rounded border border-orange-200">
+                <div className="flex items-center justify-between p-3 bg-yellow-50 rounded border border-yellow-200">
                   <div>
-                    <Label>Can Access Gamification 🏆</Label>
+                    <Label htmlFor="gamification-switch">Can Access Gamification 🏆</Label>
                     <p className="text-xs text-gray-600 mt-1">Points, badges, challenges, and leaderboard features</p>
                   </div>
                   <Switch
+                    id="gamification-switch"
                     checked={formData.can_access_gamification}
                     onCheckedChange={(checked) => setFormData({ ...formData, can_access_gamification: checked })}
                   />
