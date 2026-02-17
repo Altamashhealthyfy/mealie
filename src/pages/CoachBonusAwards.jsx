@@ -9,8 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Gift, Award, Sparkles, User, TrendingUp } from "lucide-react";
+import { Gift, Award, Sparkles, User, TrendingUp, Undo2 } from "lucide-react";
 import { toast } from "sonner";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 export default function CoachBonusAwards() {
   const [showDialog, setShowDialog] = useState(false);
@@ -32,6 +33,7 @@ export default function CoachBonusAwards() {
     rarity: 'common'
   });
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [revertDialog, setRevertDialog] = useState({ open: false, awardId: null });
 
   const queryClient = useQueryClient();
 
@@ -168,6 +170,20 @@ export default function CoachBonusAwards() {
     },
     onError: (error) => {
       toast.error(`Failed to create badge: ${error.message}`);
+    }
+  });
+
+  const revertAwardMutation = useMutation({
+    mutationFn: async (awardId) => {
+      await base44.entities.GamificationPoints.delete(awardId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recentBonusAwards'] });
+      setRevertDialog({ open: false, awardId: null });
+      toast.success("Bonus award reverted successfully");
+    },
+    onError: (error) => {
+      toast.error(`Failed to revert award: ${error.message}`);
     }
   });
 
@@ -589,7 +605,7 @@ export default function CoachBonusAwards() {
               <div className="space-y-3">
                 {recentAwards.map(award => (
                   <div key={award.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-1">
                       <User className="w-5 h-5 text-gray-600" />
                       <div>
                         <p className="font-semibold">{getClientName(award.client_id)}</p>
@@ -597,15 +613,47 @@ export default function CoachBonusAwards() {
                         <p className="text-xs text-gray-500">{new Date(award.date_earned).toLocaleDateString()}</p>
                       </div>
                     </div>
-                    <Badge className="bg-orange-500 text-white text-lg">
-                      +{award.points_earned}
-                    </Badge>
+                    <div className="flex items-center gap-3">
+                      <Badge className="bg-orange-500 text-white text-lg">
+                        +{award.points_earned}
+                      </Badge>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setRevertDialog({ open: true, awardId: award.id })}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Undo2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
             )}
           </CardContent>
         </Card>
+
+        {/* Revert Confirmation Dialog */}
+        <AlertDialog open={revertDialog.open} onOpenChange={(open) => setRevertDialog({ open, awardId: null })}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Revert Bonus Award?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will remove the bonus points from the client's account. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => revertAwardMutation.mutate(revertDialog.awardId)}
+                className="bg-red-600 hover:bg-red-700"
+                disabled={revertAwardMutation.isPending}
+              >
+                {revertAwardMutation.isPending ? 'Reverting...' : 'Revert Award'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
