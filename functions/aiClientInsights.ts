@@ -6,7 +6,8 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { type, clientId } = await req.json();
+    const body = await req.json();
+    const { type, clientId, period: bodyPeriod = 'monthly' } = body;
     if (!clientId || !type) return Response.json({ error: 'Missing params' }, { status: 400 });
 
     // Fetch all client data
