@@ -64,6 +64,52 @@ RECENT FOOD LOGS: ${recentFood.map(f => `${f.meal_type}:${f.meal_name || f.items
     // Build conversation history for context
     const historyText = history.slice(-6).map(m => `${m.role === 'user' ? 'Coach' : 'AI'}: ${m.content}`).join('\n');
 
+    // ── Proactive scan mode ──────────────────────────────────────────────────
+    if (mode === 'proactive_scan' && clientObj) {
+      const scanPrompt = `You are a clinical dietitian AI. Scan this client's recent data and proactively identify issues the coach should act on TODAY.
+
+${clientContext}
+
+Analyze for:
+1. Weight stall (no change > 2 weeks)
+2. Low or declining adherence (< 70%)
+3. Missed progress logs (no log in > 5 days)
+4. Recurring symptoms
+5. Goal progress concerns
+6. Energy/mood decline trends
+7. Any other red flags worth noting
+
+For each issue found, give a specific check-in message the coach can send directly to the client.`;
+
+      const scan = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        prompt: scanPrompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            overall_status: { type: "string", enum: ["on_track", "needs_attention", "at_risk"] },
+            status_summary: { type: "string" },
+            proactive_alerts: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  issue: { type: "string" },
+                  severity: { type: "string", enum: ["info", "warning", "urgent"] },
+                  detail: { type: "string" },
+                  checkin_message: { type: "string" }
+                }
+              }
+            },
+            follow_up_actions: { type: "array", items: { type: "string" } }
+          }
+        }
+      });
+      return Response.json({ success: true, scan });
+    }
+
+    // ── Standard chat mode ───────────────────────────────────────────────────
+    const isSummaryRequest = message.toLowerCase().includes('summarize') || message.toLowerCase().includes('summary') || message.toLowerCase().includes('status');
+
     const prompt = `You are an expert AI assistant for a health coach/dietitian platform. You have deep knowledge of clinical nutrition, dietetics, behaviour change, and health coaching.
 
 Your job is to help the coach with client-specific queries, suggest clinical actions, and provide evidence-based guidance.
@@ -80,9 +126,9 @@ ${message}
 3. If you identify a concern (low adherence, weight plateau, missed logs, symptom patterns), flag it clearly.
 4. Suggest 2-3 concrete actionable steps the coach can take right now.
 5. If the question requires medical escalation (e.g. severe symptoms, drug interactions, clinical red flags), say so explicitly.
-6. Format your response with clear sections: Answer, Key Observations (if applicable), Suggested Actions, and Escalation Flag (only if needed).
-7. Keep your response practical and coach-focused, not overly academic.
-8. If no client is selected, answer as a general nutrition/coaching expert.`;
+6. Keep your response practical and coach-focused, not overly academic.
+7. If no client is selected, answer as a general nutrition/coaching expert.
+${isSummaryRequest ? '8. For a status summary: cover weight trend, adherence, goal progress, wellness, and top 2 priorities. Be concise but complete.' : ''}`;
 
     const aiReply = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
