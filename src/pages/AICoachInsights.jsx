@@ -135,7 +135,7 @@ export default function AICoachInsights() {
           </Card>
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="w-full h-auto grid grid-cols-3 gap-1 p-1 bg-gray-100">
+            <TabsList className="w-full h-auto grid grid-cols-4 gap-1 p-1 bg-gray-100">
               {TABS.map(tab => (
                 <TabsTrigger key={tab.id} value={tab.id} className="flex flex-col items-center gap-1 py-2.5 text-xs data-[state=active]:shadow-md">
                   <tab.icon className={`w-4 h-4 ${tab.color}`} />
