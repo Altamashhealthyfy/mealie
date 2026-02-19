@@ -59,7 +59,9 @@ export default function AICoachInsights() {
     if (!selectedClient) return;
     setLoading(true);
     try {
-      const res = await base44.functions.invoke('aiClientInsights', { type, clientId: selectedClient });
+      const payload = { type, clientId: selectedClient };
+      if (type === 'progress_report') payload.period = reportPeriod;
+      const res = await base44.functions.invoke('aiClientInsights', payload);
       setResults(prev => ({ ...prev, [type]: res.data?.data || res.data }));
     } catch (e) {
       console.error(e);
