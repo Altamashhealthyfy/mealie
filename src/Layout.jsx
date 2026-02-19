@@ -780,12 +780,18 @@ export default function Layout({ children, currentPageName }) {
     const coachAccess = clientAccessControl || {};
     
     const baseNav = [
-      {
-        title: "My Dashboard",
-        url: createPageUrl("ClientDashboard"),
-        icon: Home,
-        show: (coachAccess.show_my_dashboard ?? true) && true,
-      },
+          {
+            title: "My Dashboard",
+            url: createPageUrl("ClientDashboard"),
+            icon: Home,
+            show: (coachAccess.show_my_dashboard ?? true) && true,
+          },
+          {
+            title: "Help & Guide",
+            url: createPageUrl("HelpGuide"),
+            icon: HelpCircle,
+            show: true,
+          },
       {
         title: "My Achievements",
         url: createPageUrl("ClientAchievements"),
