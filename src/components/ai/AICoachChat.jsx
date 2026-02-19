@@ -403,6 +403,13 @@ export default function AICoachChat({ clientId, clientName }) {
 
   const summarizeClient = () => send("Give me a full status summary of this client — cover weight trend, adherence, goal progress, wellness metrics, and top 2 priorities for this week.");
 
+  const showFeatureGuide = () => {
+    setMessages(prev => [...prev,
+      { role: "user", content: "❓ Help me understand all the features on the dashboard" },
+      { role: "feature_guide" }
+    ]);
+  };
+
   return (
     <div className="flex flex-col h-full min-h-[500px]">
       {/* Chat area */}
