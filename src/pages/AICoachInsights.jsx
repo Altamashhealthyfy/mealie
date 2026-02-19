@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Sparkles, FileText, ShieldAlert, BookOpen, Search, RefreshCw } from "lucide-react";
+import { Loader2, Sparkles, FileText, ShieldAlert, BookOpen, Search, RefreshCw, MessageSquare } from "lucide-react";
 import AIProgressReport from "@/components/ai/AIProgressReport";
 import AIRiskAssessment from "@/components/ai/AIRiskAssessment";
 import AIEducationMaterial from "@/components/ai/AIEducationMaterial";
+import AICoachChat from "@/components/ai/AICoachChat";
 
 const TABS = [
+  { id: "chat", label: "AI Chat", icon: MessageSquare, color: "text-indigo-600", desc: "Ask the AI anything about this client — get context-aware answers, action suggestions, and escalation flags" },
   { id: "progress_report", label: "Progress Report", icon: FileText, color: "text-blue-600", desc: "AI-generated comprehensive progress report based on intake data & adherence" },
   { id: "risk_assessment", label: "Risk Assessment", icon: ShieldAlert, color: "text-red-600", desc: "AI-driven risk analysis highlighting micronutrient deficiencies, adherence issues & more" },
   { id: "education_material", label: "Education Materials", icon: BookOpen, color: "text-purple-600", desc: "Personalized educational content on conditions & nutrients relevant to their plan" },

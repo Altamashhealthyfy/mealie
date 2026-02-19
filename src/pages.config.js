@@ -47,6 +47,7 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AICoachInsights from './pages/AICoachInsights';
 import AddTeamAppointment from './pages/AddTeamAppointment';
 import AdminPlatformAnalytics from './pages/AdminPlatformAnalytics';
 import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
@@ -175,11 +176,11 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import AICoachInsights from './pages/AICoachInsights';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AICoachInsights": AICoachInsights,
     "AddTeamAppointment": AddTeamAppointment,
     "AdminPlatformAnalytics": AdminPlatformAnalytics,
     "AdminSubscriptionManager": AdminSubscriptionManager,
@@ -308,7 +309,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "AICoachInsights": AICoachInsights,
 }
 
 export const pagesConfig = {
