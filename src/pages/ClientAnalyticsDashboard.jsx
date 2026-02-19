@@ -37,6 +37,8 @@ export default function ClientAnalyticsDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState("30"); // days
   const [selectedMetric, setSelectedMetric] = useState("all");
   const [selectedClient, setSelectedClient] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
