@@ -14,6 +14,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import ImageUploader from "@/components/common/ImageUploader";
 import { useUserPermissions } from "@/components/permissions/useUserPermissions";
 import MPESSFormSection from "@/components/profile/MPESSFormSection";
+import HealthMetricsSection from "@/components/profile/HealthMetricsSection";
+import LifestyleSection from "@/components/profile/LifestyleSection";
+import FamilyHistorySection from "@/components/profile/FamilyHistorySection";
+import ConsentsSection from "@/components/profile/ConsentsSection";
 
 export default function Profile() {
   const queryClient = useQueryClient();
