@@ -709,9 +709,42 @@ const coachDashboardSections = [
 
 export default function HelpGuide() {
   const [expandedSection, setExpandedSection] = useState(null);
-  const [userType, setUserType] = useState('client');
+  const [displayMode, setDisplayMode] = useState('auto');
 
-  const sections = userType === 'client' ? dashboardSections : coachDashboardSections;
+  const { data: user, isLoading } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: async () => {
+      try {
+        return await base44.auth.me();
+      } catch (error) {
+        console.error('Auth error:', error);
+        return null;
+      }
+    },
+    retry: false,
+  });
+
+  // Determine user type and auto-set display
+  const userType = user?.user_type;
+  const isCoach = ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(userType);
+  const isClient = userType === 'client';
+  const canViewBoth = false; // Clients can only see client guide, coaches only see coach guide
+
+  // Auto-set display based on user type
+  const defaultMode = isCoach ? 'coach' : 'client';
+  const currentMode = displayMode === 'auto' ? defaultMode : displayMode;
+  const sections = currentMode === 'client' ? dashboardSections : coachDashboardSections;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 mx-auto text-orange-500 mb-4 animate-spin" />
+          <p className="text-gray-600">Loading Guide...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-6">
