@@ -188,13 +188,13 @@ Respond ONLY with valid JSON: { "summary": "...", "updated_meals": [...] }`;
 
           {/* Quick suggestions */}
           <div className="px-4 pt-2 pb-1 bg-white border-t border-gray-100">
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="flex flex-wrap gap-2 pb-1">
               {QUICK_SUGGESTIONS.map((s, i) => (
                 <button
                   key={i}
                   onClick={() => sendMessage(s)}
                   disabled={isLoading}
-                  className="flex-shrink-0 text-xs px-3 py-1.5 rounded-full border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors disabled:opacity-50 whitespace-nowrap"
+                  className="text-xs px-3 py-1.5 rounded-full border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors disabled:opacity-50"
                 >
                   {s}
                 </button>
