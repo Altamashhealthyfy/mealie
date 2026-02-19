@@ -182,7 +182,7 @@ export default function ClientDashboard() {
   );
 
   const mpessAdherence = React.useMemo(() => 
-    (mpessLogs || []).slice(-7).map(log => {
+    (mpessLogs || []).filter(l => l.date).slice(-7).map(log => {
       const total = [
         log.mind_practices?.affirmations_completed,
         log.physical_practices?.movement_done,
