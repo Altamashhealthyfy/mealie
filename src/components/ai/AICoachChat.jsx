@@ -401,7 +401,7 @@ export default function AICoachChat({ clientId, clientName, onClientChange }) {
     try {
       const history = messages.slice(-6);
       const res = await base44.functions.invoke('aiCoachChat', {
-        clientId: clientId || null,
+        clientId: selectedClientId || null,
         message: q,
         history,
       });
