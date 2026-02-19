@@ -124,10 +124,28 @@ export default function ClientAnalyticsDashboard() {
 
   // Calculate analytics
   const analytics = useMemo(() => {
-    const cutoffDate = subDays(new Date(), parseInt(selectedPeriod));
+    // Apply date range if specified
+    let cutoffDate = subDays(new Date(), parseInt(selectedPeriod));
+    let endDate = new Date();
+
+    if (dateRange.start) {
+      cutoffDate = new Date(dateRange.start);
+    }
+    if (dateRange.end) {
+      endDate = new Date(dateRange.end);
+      endDate.setHours(23, 59, 59, 999);
+    }
     
-    // Filter data by selected client
-    const filteredClients = selectedClient === "all" ? clients : clients.filter(c => c.id === selectedClient);
+    // Filter data by selected client and search term
+    let filteredClients = selectedClient === "all" ? clients : clients.filter(c => c.id === selectedClient);
+    
+    // Apply search filter to clients
+    if (searchTerm.trim()) {
+      filteredClients = filteredClients.filter(c => 
+        c.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        c.email.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
     const filteredProgressLogs = selectedClient === "all" ? progressLogs : progressLogs.filter(l => l.client_id === selectedClient);
     const filteredFoodLogs = selectedClient === "all" ? foodLogs : foodLogs.filter(l => l.client_id === selectedClient);
     const filteredGoals = selectedClient === "all" ? progressGoals : progressGoals.filter(g => g.client_id === selectedClient);
