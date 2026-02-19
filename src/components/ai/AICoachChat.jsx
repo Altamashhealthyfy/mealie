@@ -5,6 +5,114 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Send, Loader2, AlertTriangle, Lightbulb, Zap, Bot, User, Trash2, MessageSquare, Bell, ClipboardList, CheckCircle2, Copy, HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
 
+const FEATURE_GUIDE = [
+  {
+    title: "Dashboard",
+    icon: "🏠",
+    description: "Your main overview hub showing today's key stats, active client alerts, recent activity, and quick access to all tools.",
+    benefits: ["See all clients at a glance", "Spot urgent issues quickly", "Track daily activity"],
+    usage: "Open each day to review who needs attention, check unread messages, and take quick actions.",
+  },
+  {
+    title: "Client Management",
+    icon: "👥",
+    description: "Add, search, and manage all your client profiles including their health data, goals, dietary preferences, and program status.",
+    benefits: ["Centralized client records", "Filter by status/goal/plan", "Bulk actions support"],
+    usage: "Use to onboard new clients, update profiles, assign meal plans, and monitor active vs. inactive clients.",
+  },
+  {
+    title: "Meal Plans",
+    icon: "🍽️",
+    description: "Create AI-powered or manual meal plans tailored to each client's calorie targets, food preferences, and regional cuisine.",
+    benefits: ["AI generates complete plans in seconds", "Disease-specific advanced plans", "Assign directly to client"],
+    usage: "Select a client, choose Basic or Pro plan, configure preferences, and generate or build manually.",
+  },
+  {
+    title: "Progress Review",
+    icon: "📊",
+    description: "Review client-submitted progress logs including weight, body measurements, photos, and wellness metrics.",
+    benefits: ["See daily/weekly progress", "Leave feedback and ratings", "Track measurement trends"],
+    usage: "Check daily for new submissions, review logs, add coach feedback, and mark entries as reviewed.",
+  },
+  {
+    title: "AI Coach Insights",
+    icon: "✨",
+    description: "AI-powered analysis of client data including progress reports, risk assessments, educational material, and this chat assistant.",
+    benefits: ["Weekly/monthly AI reports", "Risk flag detection", "Personalized education content"],
+    usage: "Select a client, then choose a tab: Chat for questions, Progress Report for period analysis, Risk Assessment for red flags, Education for content.",
+  },
+  {
+    title: "AI Coach Chat (This!)",
+    icon: "🤖",
+    description: "Ask any question about a selected client and get AI answers backed by their actual data — logs, goals, meal plans, and clinical intake.",
+    benefits: ["Context-aware answers using real client data", "Proactive scan detects issues automatically", "Suggested check-in messages ready to copy"],
+    usage: "Select a client, then type a question or use quick prompts. Use 'Proactive Scan' to auto-detect trends and 'Summarize' for a full status overview.",
+  },
+  {
+    title: "Messages",
+    icon: "💬",
+    description: "Real-time messaging between coaches and clients, with support for group chats, file sharing, polls, and scheduled messages.",
+    benefits: ["Direct client communication", "File and photo sharing", "Schedule messages in advance"],
+    usage: "Click a client to open their chat. Use the '+' to attach files, create polls, or schedule a message for later.",
+  },
+  {
+    title: "Appointments",
+    icon: "📅",
+    description: "Schedule, manage, and track client consultations and follow-ups with Google Calendar sync.",
+    benefits: ["Google Calendar integration", "Automated reminders", "Track attendance and payment"],
+    usage: "Click 'New Appointment', pick client and time, enable Google Calendar sync, then send reminders.",
+  },
+  {
+    title: "MPESS Tracker",
+    icon: "❤️",
+    description: "Track client holistic wellness across Mind, Physical, Emotional, Social, and Spiritual dimensions.",
+    benefits: ["Holistic health view beyond nutrition", "Coach review and notes", "Trend tracking over time"],
+    usage: "Review client MPESS submissions, add your observations, and use insights in your coaching conversations.",
+  },
+  {
+    title: "Risk Assessment",
+    icon: "🛡️",
+    description: "AI scans client data to identify health risks, warning signs, and areas requiring immediate attention.",
+    benefits: ["Proactive risk detection", "Priority action list", "Escalation recommendations"],
+    usage: "Go to AI Coach Insights → Risk Assessment tab, select a client, and click Generate to get a risk analysis.",
+  },
+  {
+    title: "Progress Reports",
+    icon: "📈",
+    description: "Generate structured weekly or monthly AI reports summarizing weight trends, adherence, wellness, goals, and recommendations.",
+    benefits: ["Ready-to-share client report", "Period comparison (week-over-week)", "Copy client message instantly"],
+    usage: "AI Coach Insights → Progress Report tab → select Weekly or Monthly → Generate. Copy the client message to send directly.",
+  },
+  {
+    title: "Resource Library",
+    icon: "📚",
+    description: "Upload and assign educational resources, PDFs, videos, and articles to clients.",
+    benefits: ["Organized resource management", "Assign to specific clients", "Track client progress"],
+    usage: "Upload resources in the library, then assign them to clients via the assign button.",
+  },
+  {
+    title: "Recipes",
+    icon: "🥗",
+    description: "A database of healthy recipes with nutritional info, dietary tags, and regional preferences for meal planning.",
+    benefits: ["Rich nutritional details", "Filter by diet type", "Use in meal plans"],
+    usage: "Search by cuisine, diet type, or meal type. Add recipes to meal plans or share directly with clients.",
+  },
+  {
+    title: "Gamification",
+    icon: "🏆",
+    description: "Motivate clients with points, badges, challenges, and leaderboards to boost engagement and consistency.",
+    benefits: ["Increased client motivation", "Reward healthy behaviors", "Friendly competition"],
+    usage: "Set up auto-award rules, create challenges, and monitor the leaderboard to keep clients engaged.",
+  },
+  {
+    title: "Client Assessments",
+    icon: "📝",
+    description: "Create and assign custom health assessments to gather structured data from clients at any point in their journey.",
+    benefits: ["Custom question templates", "Structured data collection", "Track changes over time"],
+    usage: "Build an assessment template, assign it to a client, and review their responses in the assessment tracker.",
+  },
+];
+
 const QUICK_PROMPTS = [
   "Why is this client's adherence low?",
   "Suggest meal plan adjustments based on progress",
