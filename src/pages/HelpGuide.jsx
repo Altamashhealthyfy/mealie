@@ -708,9 +708,23 @@ const coachDashboardSections = [
 
 export default function HelpGuide() {
   const [expandedSection, setExpandedSection] = useState(null);
-  const [userType, setUserType] = useState('client');
 
+  const { data: user, isLoading } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const userType = user?.user_type === 'client' ? 'client' : 'coach';
   const sections = userType === 'client' ? dashboardSections : coachDashboardSections;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-6">
