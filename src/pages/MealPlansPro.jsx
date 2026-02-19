@@ -12,6 +12,7 @@ import { Sparkles, Loader2, Users, AlertTriangle, CheckCircle, FileText, Heart, 
 import { createPageUrl } from "@/utils";
 import ManualMealPlanBuilder from "@/components/mealplanner/ManualMealPlanBuilder";
 import { Input } from "@/components/ui/input";
+import ProMealPlanChatModifier from "@/components/pro/ProMealPlanChatModifier";
 
 export default function MealPlansPro() {
   const [searchParams] = useSearchParams();
