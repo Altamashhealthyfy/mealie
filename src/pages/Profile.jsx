@@ -849,6 +849,18 @@ export default function Profile() {
 
 
 
+          {/* Health Metrics */}
+          <HealthMetricsSection formData={formData} onChange={setFormData} />
+
+          {/* Lifestyle */}
+          <LifestyleSection formData={formData} onChange={setFormData} />
+
+          {/* Family History */}
+          <FamilyHistorySection formData={formData} onChange={setFormData} />
+
+          {/* Consents & Preferences */}
+          <ConsentsSection formData={formData} onChange={setFormData} />
+
           {/* Calculate Macros */}
           <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
             <CardHeader>
