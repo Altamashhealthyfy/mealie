@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Search, ChevronDown, Home, Users, MessageSquare, Calendar, ChefHat,
-  FileText, BarChart3, Settings, Heart, TrendingUp, BookOpen, Award, Lock
+  FileText, BarChart3, Settings, Heart, TrendingUp, BookOpen, Award, Lock,
+  Zap, Eye, X
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const guideData = [
   {
