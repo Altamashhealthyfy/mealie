@@ -699,35 +699,35 @@ export default function MealPlansPro() {
 
                   {/* Show client info and intake status */}
                   {selectedClient && (
-                    <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
+                    <div className="p-3 md:p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
                       <div className="flex items-center gap-3 mb-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
-                          <span className="text-white font-medium text-lg">
+                        <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-white font-medium text-base md:text-lg">
                             {selectedClient.full_name.charAt(0)}
                           </span>
                         </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900">{selectedClient.full_name}</h3>
-                          <p className="text-sm text-gray-600">{selectedClient.email}</p>
+                        <div className="min-w-0">
+                          <h3 className="font-semibold text-gray-900 truncate">{selectedClient.full_name}</h3>
+                          <p className="text-xs md:text-sm text-gray-600 truncate">{selectedClient.email}</p>
                         </div>
                       </div>
 
                       {hasCompletedIntake ? (
                         <Alert className="bg-green-50 border-green-500">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
                           <AlertDescription>
-                            <div className="flex items-center justify-between">
-                              <div>
+                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                              <div className="text-sm">
                                 <strong>Clinical intake completed!</strong><br/>
-                                Health Conditions: {latestIntake?.health_conditions?.join(', ') || 'Not specified'}<br/>
-                                Diet Type: {latestIntake?.diet_type || 'Not specified'}<br/>
-                                Goal: {latestIntake?.goal || 'Not specified'}
+                                <span className="text-gray-600">Conditions: {latestIntake?.health_conditions?.join(', ') || 'Not specified'}</span><br/>
+                                <span className="text-gray-600">Diet: {latestIntake?.diet_type || 'Not specified'}</span>
                               </div>
                               <Button
                                 onClick={() => navigate(`/ClinicalIntake?clientId=${selectedClient.id}`)}
-                                className="bg-green-600 hover:bg-green-700 ml-4"
+                                size="sm"
+                                className="bg-green-600 hover:bg-green-700 shrink-0"
                               >
-                                <Edit className="w-4 h-4 mr-2" />
+                                <Edit className="w-4 h-4 mr-1" />
                                 Resubmit
                               </Button>
                             </div>
@@ -736,9 +736,8 @@ export default function MealPlansPro() {
                       ) : (
                         <Alert className="bg-orange-50 border-orange-500">
                           <AlertTriangle className="w-4 h-4 text-orange-600" />
-                          <AlertDescription>
-                            <strong>Clinical intake not completed.</strong><br/>
-                            Please complete the clinical intake form first.
+                          <AlertDescription className="text-sm">
+                            <strong>Clinical intake not completed.</strong> Please complete the clinical intake form first.
                           </AlertDescription>
                         </Alert>
                       )}
