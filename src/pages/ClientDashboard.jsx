@@ -148,6 +148,7 @@ export default function ClientDashboard() {
 
   const last7Days = React.useMemo(() => 
     (foodLogs || []).filter(log => {
+      if (!log.date) return false;
       const daysDiff = differenceInDays(new Date(), new Date(log.date));
       return daysDiff <= 7;
     }).length,
