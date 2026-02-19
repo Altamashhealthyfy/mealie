@@ -171,6 +171,15 @@ export default function Communication() {
   const sendMessageMutation = useMutation({
     mutationFn: async (data) => {
       const result = await base44.entities.Message.create(data);
+      // Fire push notification (non-blocking)
+      base44.functions.invoke('notifyNewMessage', {
+        message_id: result.id,
+        client_id: data.client_id || null,
+        group_id: data.group_id || null,
+        sender_type: 'dietitian',
+        sender_name: user?.full_name || 'Your coach',
+        message_preview: data.message?.slice(0, 80) || null,
+      }).catch(() => {});
       return result;
     },
     onSuccess: () => {
@@ -183,12 +192,7 @@ export default function Communication() {
     },
     onError: (error) => {
       console.error("Failed to send message:", error);
-      toast({
-        title: "Failed to send message",
-        description: "Please try again.",
-        variant: "destructive",
-        duration: 3000,
-      });
+      toast.error("Failed to send message. Please try again.");
     }
   });
 
