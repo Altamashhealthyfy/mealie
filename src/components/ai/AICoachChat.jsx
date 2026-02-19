@@ -580,9 +580,10 @@ export default function AICoachChat({ clientId, clientName, onClientChange }) {
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
-            placeholder={clientName ? `Ask about ${clientName}... (Enter to send)` : "Ask a nutrition or coaching question..."}
+            placeholder={selectedClientName ? `Ask about ${selectedClientName}... (Enter to send)` : "Select a client and ask a question..."}
             rows={1}
-            className="flex-1 resize-none border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent max-h-32 overflow-y-auto"
+            disabled={!selectedClientId}
+            className="flex-1 resize-none border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent max-h-32 overflow-y-auto disabled:bg-gray-100 disabled:text-gray-400"
             style={{ minHeight: '44px' }}
           />
           {messages.length > 0 && (
