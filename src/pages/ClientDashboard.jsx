@@ -32,22 +32,21 @@ export default function ClientDashboard() {
   const [showDownloadOptionsDialog, setShowDownloadOptionsDialog] = React.useState(false);
   const [showDailyLogger, setShowDailyLogger] = React.useState(false);
 
-  const { data: user, isLoading: userLoading } = useQuery({
+  const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
       try { return await base44.auth.me(); } catch { return null; }
     },
     retry: false,
-    staleTime: 5 * 60 * 1000,
   });
 
-  const { data: clientProfile, isLoading: profileLoading } = useQuery({
+  const { data: clientProfile } = useQuery({
     queryKey: ['clientProfile', user?.email],
     queryFn: async () => {
       const clients = await base44.entities.Client.filter({ email: user?.email });
       return clients[0] || null;
     },
-    enabled: !!user?.email,
+    enabled: !!user,
   });
 
   const { data: progressLogs } = useQuery({
@@ -519,34 +518,12 @@ export default function ClientDashboard() {
   }, [clientProfile, navigate]);
 
   // Early return AFTER all hooks are defined
-  if (userLoading || (user && profileLoading)) {
+  if (!user || !clientProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <AlertCircle className="w-12 h-12 mx-auto text-gray-400 mb-4" />
           <p className="text-gray-600">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600">Please log in to view your dashboard.</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!clientProfile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600">No client profile found. Please contact your coach.</p>
         </div>
       </div>
     );
