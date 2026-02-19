@@ -1,536 +1,430 @@
-import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
+import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { Progress } from '@/components/ui/progress';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+  AlertCircle, CheckCircle2, Clock, Star, Download, MessageSquare,
+  Loader2, FileText, Play, BookOpen, Eye, Zap
+} from 'lucide-react';
 import {
-  CheckCircle2,
-  Circle,
-  Star,
-  MessageCircle,
-  Calendar,
-  Loader2,
-  AlertCircle,
-  TrendingUp,
-} from "lucide-react";
-import { toast } from "sonner";
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle
+} from '@/components/ui/dialog';
+import { toast } from 'sonner';
+
+const typeIcons = {
+  pdf: FileText,
+  article: FileText,
+  video: Play,
+  guide: BookOpen,
+  infographic: BookOpen,
+  workbook: FileText,
+  worksheet: FileText,
+  other: FileText
+};
+
+const statusConfig = {
+  assigned: { icon: Clock, color: 'text-blue-600', bg: 'bg-blue-50', label: 'Assigned' },
+  viewed: { icon: Eye, color: 'text-indigo-600', bg: 'bg-indigo-50', label: 'Viewed' },
+  in_progress: { icon: Zap, color: 'text-amber-600', bg: 'bg-amber-50', label: 'In Progress' },
+  completed: { icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50', label: 'Completed' },
+  overdue: { icon: AlertCircle, color: 'text-red-600', bg: 'bg-red-50', label: 'Overdue' }
+};
 
 export default function ClientResourceTracker() {
-  const queryClient = useQueryClient();
-  const [selectedResource, setSelectedResource] = useState(null);
-  const [showProgressDialog, setShowProgressDialog] = useState(false);
-  const [showFeedbackDialog, setShowFeedbackDialog] = useState(false);
+  const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [feedbackText, setFeedbackText] = useState('');
+  const [ratingValue, setRatingValue] = useState(0);
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
 
-  const [progressForm, setProgressForm] = useState({
-    notes: "",
-    rating: 5,
-    completed_date: new Date().toISOString().split("T")[0],
-  });
+  const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
-    queryKey: ["currentUser"],
+    queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+    staleTime: 5 * 60 * 1000,
   });
 
   const { data: clientProfile } = useQuery({
-    queryKey: ["myClientProfile", user?.email],
+    queryKey: ['clientProfile', user?.email],
     queryFn: async () => {
-      if (!user?.email) return null;
-      const clients = await base44.entities.Client.filter({
-        email: user.email,
-      });
+      const clients = await base44.entities.Client.filter({ email: user?.email });
       return clients[0] || null;
     },
-    enabled: !!user?.email,
+    enabled: !!user?.email && user?.user_type === 'client',
   });
 
-  const { data: assignments = [] } = useQuery({
-    queryKey: ["myAssignments", clientProfile?.id],
+  const { data: assignments = [], isLoading } = useQuery({
+    queryKey: ['myResourceAssignments', clientProfile?.id],
     queryFn: async () => {
-      if (!clientProfile?.id) return [];
-      return base44.entities.ResourceAssignment.filter({
-        client_id: clientProfile.id,
-      });
+      const res = await base44.entities.ResourceAssignment.filter(
+        { client_id: clientProfile?.id },
+        '-assigned_date',
+        100
+      );
+      return res;
     },
     enabled: !!clientProfile?.id,
   });
 
-  const { data: progress = [] } = useQuery({
-    queryKey: ["myResourceProgress", clientProfile?.id],
+  const { data: resources = {} } = useQuery({
+    queryKey: ['assignedResourcesDetail', assignments],
     queryFn: async () => {
-      if (!clientProfile?.id) return [];
-      return base44.entities.ResourceProgress.filter({
-        client_id: clientProfile.id,
-      });
-    },
-    enabled: !!clientProfile?.id,
-  });
-
-  const { data: resources = [] } = useQuery({
-    queryKey: ["allPublishedResources"],
-    queryFn: async () => {
-      return base44.entities.Resource.filter({
-        is_published: true,
-      });
-    },
-  });
-
-  const logProgressMutation = useMutation({
-    mutationFn: async (data) => {
-      const existingProgress = progress.find(
-        (p) => p.resource_id === selectedResource.id && p.progress_type === "completed"
-      );
-
-      if (existingProgress) {
-        return base44.entities.ResourceProgress.update(existingProgress.id, {
-          ...data,
-          completed_count: (existingProgress.completed_count || 1) + 1,
-        });
-      } else {
-        return base44.entities.ResourceProgress.create({
-          client_id: clientProfile.id,
-          resource_id: selectedResource.id,
-          resource_title: selectedResource.title,
-          resource_category: selectedResource.category,
-          progress_type: "completed",
-          ...data,
-        });
+      const resourceMap = {};
+      for (const assignment of assignments) {
+        const res = await base44.entities.Resource.filter({ id: assignment.resource_id });
+        if (res[0]) resourceMap[assignment.resource_id] = res[0];
       }
+      return resourceMap;
+    },
+    enabled: assignments.length > 0,
+  });
+
+  const { data: progress = {} } = useQuery({
+    queryKey: ['resourceProgress', selectedAssignment?.id],
+    queryFn: async () => {
+      const res = await base44.entities.ResourceProgress.filter(
+        { assignment_id: selectedAssignment?.id },
+        '-session_date',
+        100
+      );
+      return { sessions: res };
+    },
+    enabled: !!selectedAssignment?.id,
+  });
+
+  const updateAssignmentMutation = useMutation({
+    mutationFn: async (updates) => {
+      return base44.entities.ResourceAssignment.update(selectedAssignment.id, updates);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["myResourceProgress", clientProfile?.id],
-      });
-      // Update assignment status
-      const assignment = assignments.find(
-        (a) => a.resource_id === selectedResource.id
-      );
-      if (assignment) {
-        base44.entities.ResourceAssignment.update(assignment.id, {
-          assignment_status: "completed",
-          completed_at: new Date().toISOString(),
-        });
-      }
-      setProgressForm({
-        notes: "",
-        rating: 5,
-        completed_date: new Date().toISOString().split("T")[0],
-      });
-      setShowProgressDialog(false);
-      toast.success("Progress logged!");
+      queryClient.invalidateQueries({ queryKey: ['myResourceAssignments'] });
+      toast.success('Progress saved');
     },
   });
 
-  const updateAssignmentStatusMutation = useMutation({
-    mutationFn: (assignmentId) =>
-      base44.entities.ResourceAssignment.update(assignmentId, {
-        assignment_status: "viewed",
-        viewed_at: new Date().toISOString(),
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["myAssignments", clientProfile?.id],
+  const handleMarkAsViewed = async () => {
+    await updateAssignmentMutation.mutateAsync({ status: 'viewed', first_viewed_at: new Date().toISOString() });
+  };
+
+  const handleMarkAsCompleted = async () => {
+    await updateAssignmentMutation.mutateAsync({ status: 'completed', completed_at: new Date().toISOString() });
+  };
+
+  const handleSubmitFeedback = async () => {
+    if (!feedbackText && ratingValue === 0) {
+      toast.error('Please provide feedback or a rating');
+      return;
+    }
+
+    setSubmittingFeedback(true);
+    try {
+      await updateAssignmentMutation.mutateAsync({
+        client_notes: feedbackText,
+        client_rating: ratingValue,
+        status: 'completed'
       });
-    },
-  });
-
-  const getAssignmentForResource = (resourceId) => {
-    return assignments.find((a) => a.resource_id === resourceId);
+      setFeedbackText('');
+      setRatingValue(0);
+      setSelectedAssignment(null);
+      toast.success('Feedback submitted');
+    } finally {
+      setSubmittingFeedback(false);
+    }
   };
 
-  const getProgressForResource = (resourceId) => {
-    return progress.filter((p) => p.resource_id === resourceId);
+  const handleDownload = (fileUrl) => {
+    const a = document.createElement('a');
+    a.href = fileUrl;
+    a.download = true;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
-  const getCompletionCount = (resourceId) => {
-    const progressList = getProgressForResource(resourceId);
-    return progressList.reduce((sum, p) => sum + (p.completed_count || 1), 0);
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+      </div>
+    );
+  }
+
+  // Group assignments by status
+  const assignmentsByStatus = {
+    assigned: assignments.filter(a => a.status === 'assigned'),
+    in_progress: assignments.filter(a => a.status === 'in_progress'),
+    completed: assignments.filter(a => a.status === 'completed')
   };
-
-  const getTotalRating = (resourceId) => {
-    const progressList = getProgressForResource(resourceId);
-    if (progressList.length === 0) return 0;
-    const sum = progressList.reduce((sum, p) => sum + (p.rating || 0), 0);
-    return (sum / progressList.length).toFixed(1);
-  };
-
-  const assignedResources = resources.filter((r) =>
-    assignments.some((a) => a.resource_id === r.id)
-  );
-
-  const completedResources = resources.filter((r) =>
-    progress.some((p) => p.resource_id === r.id && p.progress_type === "completed")
-  );
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            My Resources
-          </h1>
-          <p className="text-gray-600">
-            Track resources assigned to you and log your progress
-          </p>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">📚 My Learning Resources</h1>
+          <p className="text-gray-600 mt-1">Track and complete educational materials assigned by your coach</p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card className="border-none shadow-lg">
-            <CardContent className="p-6">
-              <p className="text-sm text-gray-600 mb-1">Assigned to You</p>
-              <p className="text-3xl font-bold text-blue-600">
-                {assignedResources.length}
-              </p>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Assigned</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-blue-600">{assignmentsByStatus.assigned.length}</p>
             </CardContent>
           </Card>
-          <Card className="border-none shadow-lg">
-            <CardContent className="p-6">
-              <p className="text-sm text-gray-600 mb-1">Completed</p>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">In Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-amber-600">{assignmentsByStatus.in_progress.length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Completed</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-green-600">{assignmentsByStatus.completed.length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Completion Rate</CardTitle>
+            </CardHeader>
+            <CardContent>
               <p className="text-3xl font-bold text-green-600">
-                {completedResources.length}
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="border-none shadow-lg">
-            <CardContent className="p-6">
-              <p className="text-sm text-gray-600 mb-1">Total Completions</p>
-              <p className="text-3xl font-bold text-purple-600">
-                {progress.reduce((sum, p) => sum + (p.completed_count || 0), 0)}
+                {assignments.length === 0 ? '0%' : Math.round((assignmentsByStatus.completed.length / assignments.length) * 100)}%
               </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Tabs */}
-        <Tabs defaultValue="assigned" className="space-y-6">
-          <TabsList className="bg-white border-b w-full rounded-none">
-            <TabsTrigger value="assigned">
-              Assigned {assignedResources.length > 0 && `(${assignedResources.length})`}
-            </TabsTrigger>
-            <TabsTrigger value="completed">
-              Completed {completedResources.length > 0 && `(${completedResources.length})`}
-            </TabsTrigger>
-            <TabsTrigger value="progress">Progress Tracker</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="assigned" className="space-y-4">
-            {assignedResources.length === 0 ? (
-              <Card className="p-12 text-center border-dashed">
-                <AlertCircle className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                <p className="text-xl font-semibold text-gray-900 mb-2">
-                  No resources assigned yet
-                </p>
-                <p className="text-gray-600">
-                  Your coach will assign resources to help you on your journey
-                </p>
-              </Card>
-            ) : (
-              assignedResources.map((resource) => {
-                const assignment = getAssignmentForResource(resource.id);
-                const isViewed =
-                  assignment?.assignment_status === "viewed" ||
-                  assignment?.assignment_status === "completed";
-                return (
-                  <Card key={resource.id} className="overflow-hidden hover:shadow-lg transition">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <CardTitle className="text-lg mb-1">
-                            {resource.title}
-                          </CardTitle>
-                          {assignment?.notes && (
-                            <p className="text-sm text-gray-600 italic">
-                              Coach notes: {assignment.notes}
-                            </p>
-                          )}
+        {/* Assigned Resources */}
+        {assignmentsByStatus.assigned.length > 0 && (
+          <Card className="border-blue-200 bg-blue-50">
+            <CardHeader>
+              <CardTitle className="text-base">🔔 Waiting to Start ({assignmentsByStatus.assigned.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {assignmentsByStatus.assigned.map(assignment => {
+                  const resource = resources[assignment.resource_id];
+                  const Icon = typeIcons[resource?.type] || FileText;
+                  return (
+                    <button
+                      key={assignment.id}
+                      onClick={() => setSelectedAssignment(assignment)}
+                      className="w-full text-left p-3 bg-white border border-blue-200 rounded-lg hover:border-blue-400 hover:shadow transition-all"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 truncate">{resource?.title}</p>
+                          <p className="text-xs text-gray-500">
+                            Assigned {new Date(assignment.assigned_date).toLocaleDateString()}
+                            {assignment.due_date && ` • Due ${new Date(assignment.due_date).toLocaleDateString()}`}
+                          </p>
                         </div>
-                        {isViewed ? (
-                          <Badge className="bg-green-100 text-green-800">
-                            <CheckCircle2 className="w-4 h-4 mr-1" />
-                            Viewed
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="text-orange-600">
-                            <Circle className="w-4 h-4 mr-1" />
-                            Pending
-                          </Badge>
-                        )}
+                        <Badge variant="outline" className="bg-white">Start</Badge>
                       </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {resource.description && (
-                        <p className="text-sm text-gray-600">
-                          {resource.description}
-                        </p>
-                      )}
-                      <div className="flex flex-wrap gap-2">
-                        <Badge variant="secondary">{resource.category}</Badge>
-                        {resource.difficulty_level && (
-                          <Badge variant="outline">
-                            {resource.difficulty_level}
-                          </Badge>
-                        )}
-                        {resource.duration_minutes && (
-                          <Badge variant="outline">
-                            ⏱️ {resource.duration_minutes} min
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex gap-3 pt-2">
-                        <a
-                          href={resource.content_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1"
-                        >
-                          <Button
-                            className="w-full"
-                            onClick={() => {
-                              if (!isViewed) {
-                                updateAssignmentStatusMutation.mutate(
-                                  assignment.id
-                                );
-                              }
-                            }}
-                          >
-                            View Resource
-                          </Button>
-                        </a>
-                        <Dialog
-                          open={
-                            showProgressDialog &&
-                            selectedResource?.id === resource.id
-                          }
-                          onOpenChange={(open) => {
-                            if (!open) {
-                              setSelectedResource(null);
-                              setProgressForm({
-                                notes: "",
-                                rating: 5,
-                                completed_date: new Date()
-                                  .toISOString()
-                                  .split("T")[0],
-                              });
-                            }
-                          }}
-                        >
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              onClick={() => setSelectedResource(resource)}
-                            >
-                              <CheckCircle2 className="w-4 h-4 mr-2" />
-                              Log Complete
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>
-                                Log Progress: {resource.title}
-                              </DialogTitle>
-                            </DialogHeader>
-                            <div className="space-y-4">
-                              <div>
-                                <label className="block text-sm font-medium mb-2">
-                                  Date Completed
-                                </label>
-                                <input
-                                  type="date"
-                                  value={progressForm.completed_date}
-                                  onChange={(e) =>
-                                    setProgressForm({
-                                      ...progressForm,
-                                      completed_date: e.target.value,
-                                    })
-                                  }
-                                  className="w-full px-3 py-2 border rounded-lg"
-                                />
-                              </div>
-
-                              <div>
-                                <label className="block text-sm font-medium mb-2">
-                                  Rating
-                                </label>
-                                <div className="flex gap-2">
-                                  {[1, 2, 3, 4, 5].map((rating) => (
-                                    <button
-                                      key={rating}
-                                      onClick={() =>
-                                        setProgressForm({
-                                          ...progressForm,
-                                          rating,
-                                        })
-                                      }
-                                      className={`text-3xl transition ${
-                                        rating <= progressForm.rating
-                                          ? "opacity-100"
-                                          : "opacity-30"
-                                      }`}
-                                    >
-                                      ⭐
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-
-                              <div>
-                                <label className="block text-sm font-medium mb-2">
-                                  Notes
-                                </label>
-                                <Textarea
-                                  placeholder="How was this resource? Any feedback?"
-                                  value={progressForm.notes}
-                                  onChange={(e) =>
-                                    setProgressForm({
-                                      ...progressForm,
-                                      notes: e.target.value,
-                                    })
-                                  }
-                                  rows={3}
-                                />
-                              </div>
-
-                              <Button
-                                onClick={() => {
-                                  logProgressMutation.mutate(progressForm);
-                                }}
-                                disabled={logProgressMutation.isPending}
-                                className="w-full"
-                              >
-                                {logProgressMutation.isPending ? (
-                                  <>
-                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                    Logging...
-                                  </>
-                                ) : (
-                                  "Log Progress"
-                                )}
-                              </Button>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })
-            )}
-          </TabsContent>
-
-          <TabsContent value="completed" className="space-y-4">
-            {completedResources.length === 0 ? (
-              <Card className="p-12 text-center border-dashed">
-                <CheckCircle2 className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                <p className="text-xl font-semibold text-gray-900 mb-2">
-                  No completed resources yet
-                </p>
-                <p className="text-gray-600">
-                  Start logging resources you've completed to track your progress
-                </p>
-              </Card>
-            ) : (
-              completedResources.map((resource) => {
-                const completionCount = getCompletionCount(resource.id);
-                const rating = getTotalRating(resource.id);
-                return (
-                  <Card key={resource.id} className="overflow-hidden">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <CardTitle className="text-lg">
-                            {resource.title}
-                          </CardTitle>
-                          <div className="flex items-center gap-2 mt-1">
-                            {rating > 0 && (
-                              <div className="flex items-center gap-1">
-                                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                <span className="text-sm font-medium">
-                                  {rating}
-                                </span>
-                              </div>
-                            )}
-                            <span className="text-xs text-gray-500">
-                              Completed {completionCount}x
-                            </span>
-                          </div>
-                        </div>
-                        <Badge className="bg-green-100 text-green-800">
-                          <CheckCircle2 className="w-4 h-4 mr-1" />
-                          Completed
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                  </Card>
-                );
-              })
-            )}
-          </TabsContent>
-
-          <TabsContent value="progress" className="space-y-4">
-            {progress.length === 0 ? (
-              <Card className="p-12 text-center border-dashed">
-                <TrendingUp className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                <p className="text-xl font-semibold text-gray-900 mb-2">
-                  No progress logged yet
-                </p>
-              </Card>
-            ) : (
-              <div className="space-y-3">
-                {progress
-                  .sort(
-                    (a, b) =>
-                      new Date(b.created_date) - new Date(a.created_date)
-                  )
-                  .map((entry) => (
-                    <Card key={entry.id} className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900">
-                            {entry.resource_title}
-                          </h4>
-                          <div className="flex items-center gap-3 mt-2 text-sm">
-                            <span className="text-gray-600 flex items-center gap-1">
-                              <Calendar className="w-4 h-4" />
-                              {entry.completed_date || entry.created_date?.split("T")[0]}
-                            </span>
-                            {entry.rating && (
-                              <span className="text-gray-600 flex items-center gap-1">
-                                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                {entry.rating}
-                              </span>
-                            )}
-                            {entry.completed_count > 1 && (
-                              <Badge variant="outline">
-                                Done {entry.completed_count}x
-                              </Badge>
-                            )}
-                          </div>
-                          {entry.notes && (
-                            <p className="text-sm text-gray-600 mt-2 italic">
-                              {entry.notes}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
+                    </button>
+                  );
+                })}
               </div>
-            )}
-          </TabsContent>
-        </Tabs>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* In Progress */}
+        {assignmentsByStatus.in_progress.length > 0 && (
+          <Card className="border-amber-200 bg-amber-50">
+            <CardHeader>
+              <CardTitle className="text-base">⚡ In Progress ({assignmentsByStatus.in_progress.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {assignmentsByStatus.in_progress.map(assignment => {
+                  const resource = resources[assignment.resource_id];
+                  const Icon = typeIcons[resource?.type] || FileText;
+                  return (
+                    <div
+                      key={assignment.id}
+                      onClick={() => setSelectedAssignment(assignment)}
+                      className="cursor-pointer p-3 bg-white border border-amber-200 rounded-lg hover:border-amber-400 hover:shadow transition-all"
+                    >
+                      <div className="flex items-start gap-3 mb-2">
+                        <Icon className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900">{resource?.title}</p>
+                          <p className="text-xs text-gray-500">
+                            {assignment.time_spent_minutes || 0} min spent • {assignment.completion_percentage || 0}% complete
+                          </p>
+                        </div>
+                      </div>
+                      <Progress value={assignment.completion_percentage || 0} className="h-2" />
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Completed */}
+        {assignmentsByStatus.completed.length > 0 && (
+          <Card className="border-green-200 bg-green-50">
+            <CardHeader>
+              <CardTitle className="text-base">✅ Completed ({assignmentsByStatus.completed.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {assignmentsByStatus.completed.map(assignment => {
+                  const resource = resources[assignment.resource_id];
+                  const Icon = typeIcons[resource?.type] || FileText;
+                  return (
+                    <div
+                      key={assignment.id}
+                      onClick={() => setSelectedAssignment(assignment)}
+                      className="p-3 bg-white border border-green-200 rounded-lg hover:shadow transition-all cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className="w-5 h-5 text-green-600 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 truncate">{resource?.title}</p>
+                          <p className="text-xs text-gray-500">
+                            Completed {new Date(assignment.completed_at).toLocaleDateString()}
+                            {assignment.client_rating && ` • Rated ${assignment.client_rating}/5`}
+                          </p>
+                        </div>
+                        {assignment.coach_feedback && (
+                          <Badge className="bg-green-600">Feedback</Badge>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {assignments.length === 0 && (
+          <div className="text-center py-12">
+            <BookOpen className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+            <p className="text-gray-500 font-medium">No resources assigned yet</p>
+            <p className="text-gray-400 text-sm">Your coach will assign learning materials here</p>
+          </div>
+        )}
       </div>
+
+      {/* Detail Dialog */}
+      {selectedAssignment && (
+        <Dialog open={!!selectedAssignment} onOpenChange={() => setSelectedAssignment(null)}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            {resources[selectedAssignment.resource_id] && (
+              <>
+                <DialogHeader>
+                  <DialogTitle>{resources[selectedAssignment.resource_id]?.title}</DialogTitle>
+                  <DialogDescription>{resources[selectedAssignment.resource_id]?.description}</DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4">
+                  {/* Status & Actions */}
+                  <div className="flex items-center justify-between">
+                    <Badge className="bg-orange-600">{statusConfig[selectedAssignment.status]?.label}</Badge>
+                    <div className="flex gap-2">
+                      {selectedAssignment.status !== 'completed' && (
+                        <Button
+                          size="sm"
+                          onClick={handleMarkAsCompleted}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          Mark Completed
+                        </Button>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDownload(resources[selectedAssignment.resource_id]?.file_url)}
+                      >
+                        <Download className="w-4 h-4 mr-1" />
+                        Download
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Progress Info */}
+                  {selectedAssignment.completion_percentage > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-gray-700 mb-2">Progress</p>
+                      <Progress value={selectedAssignment.completion_percentage} className="h-2" />
+                      <p className="text-xs text-gray-500 mt-1">{selectedAssignment.completion_percentage}% complete</p>
+                    </div>
+                  )}
+
+                  {/* Feedback Section */}
+                  {selectedAssignment.status === 'completed' && selectedAssignment.coach_feedback && (
+                    <Card className="bg-green-50 border-green-200">
+                      <CardHeader>
+                        <CardTitle className="text-sm">Coach Feedback</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-gray-700">{selectedAssignment.coach_feedback}</p>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Submit Feedback */}
+                  {selectedAssignment.status === 'completed' && !selectedAssignment.client_notes && (
+                    <div className="space-y-3 border-t pt-4">
+                      <p className="text-sm font-medium text-gray-700">Share Your Feedback</p>
+                      <Textarea
+                        value={feedbackText}
+                        onChange={(e) => setFeedbackText(e.target.value)}
+                        placeholder="What did you learn? How was this resource?"
+                        rows={3}
+                      />
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-gray-700">Rate This Resource:</p>
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map(rating => (
+                            <button
+                              key={rating}
+                              onClick={() => setRatingValue(rating)}
+                              className="focus:outline-none transition-transform"
+                            >
+                              <Star
+                                className="w-5 h-5"
+                                fill={rating <= ratingValue ? '#fbbf24' : 'none'}
+                                color={rating <= ratingValue ? '#fbbf24' : '#d1d5db'}
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <Button
+                        onClick={handleSubmitFeedback}
+                        disabled={submittingFeedback}
+                        className="bg-orange-600 hover:bg-orange-700 w-full"
+                      >
+                        {submittingFeedback ? 'Submitting...' : 'Submit Feedback'}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
