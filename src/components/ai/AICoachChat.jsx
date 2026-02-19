@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Send, Loader2, AlertTriangle, Lightbulb, Zap, Bot, User, Trash2, MessageSquare, Bell, ClipboardList, CheckCircle2, Copy } from "lucide-react";
+import { Send, Loader2, AlertTriangle, Lightbulb, Zap, Bot, User, Trash2, MessageSquare, Bell, ClipboardList, CheckCircle2, Copy, HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
 
 const QUICK_PROMPTS = [
   "Why is this client's adherence low?",
