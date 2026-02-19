@@ -517,38 +517,13 @@ export default function ClientDashboard() {
     }
   }, [clientProfile, navigate]);
 
-  const { data: userLoaded, isLoading: userLoading } = useQuery({ queryKey: ['currentUser'], queryFn: async () => { try { return await base44.auth.me(); } catch { return null; } }, retry: false, staleTime: 5 * 60 * 1000 });
-  const profileLoading = !clientProfile && !!user;
-
   // Early return AFTER all hooks are defined
-  if (userLoading) {
+  if (!user || !clientProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600">Please log in to view your dashboard.</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!clientProfile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-          <p className="text-gray-600">No client profile found. Please contact your coach.</p>
+          <p className="text-gray-600">{!user ? "Please log in." : "No client profile found. Please contact your coach."}</p>
         </div>
       </div>
     );
