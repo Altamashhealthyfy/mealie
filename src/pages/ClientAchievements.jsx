@@ -290,6 +290,15 @@ export default function ClientAchievements() {
           <TabsContent value="badges">
             <BadgeDisplay clientId={clientProfile.id} />
           </TabsContent>
+
+          {/* Rewards Store Tab */}
+          <TabsContent value="store">
+            <RewardsStore
+              clientId={clientProfile.id}
+              clientName={clientProfile.full_name}
+              availablePoints={myPoints.reduce((sum, p) => sum + (p.points_earned || 0), 0)}
+            />
+          </TabsContent>
         </Tabs>
 
         {/* Challenge Progress Dialog */}
