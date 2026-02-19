@@ -6,8 +6,8 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { clientId, message, history = [] } = await req.json();
-    if (!message) return Response.json({ error: 'Message required' }, { status: 400 });
+    const { clientId, message, history = [], mode } = await req.json();
+    if (!message && mode !== 'proactive_scan') return Response.json({ error: 'Message required' }, { status: 400 });
 
     let clientContext = "No specific client selected. Answer general coaching/nutrition questions.";
 
