@@ -32,21 +32,24 @@ export default function ClientDashboard() {
   const [showDownloadOptionsDialog, setShowDownloadOptionsDialog] = React.useState(false);
   const [showDailyLogger, setShowDailyLogger] = React.useState(false);
 
-  const { data: user } = useQuery({
+  const { data: user, isLoading: userLoading, error: userError } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
-      try { return await base44.auth.me(); } catch { return null; }
+      return await base44.auth.me();
     },
-    retry: false,
+    retry: 1,
+    staleTime: 5 * 60 * 1000,
   });
 
-  const { data: clientProfile } = useQuery({
+  const { data: clientProfile, isLoading: clientLoading, error: clientError } = useQuery({
     queryKey: ['clientProfile', user?.email],
     queryFn: async () => {
+      if (!user?.email) return null;
       const clients = await base44.entities.Client.filter({ email: user?.email });
       return clients[0] || null;
     },
-    enabled: !!user,
+    enabled: !!user?.email,
+    retry: 1,
   });
 
   const { data: progressLogs } = useQuery({
