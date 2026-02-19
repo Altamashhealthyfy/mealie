@@ -33,6 +33,7 @@ import {
 import { format } from "date-fns";
 import ActionItemsPanel from "@/components/dashboard/ActionItemsPanel";
 import CoachGuidePanel from "@/components/common/CoachGuidePanel";
+import CoachAIAssistant from "@/components/dashboard/CoachAIAssistant";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
