@@ -500,21 +500,21 @@ export default function MealPlansPro() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
           <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4 h-auto">
-            <TabsTrigger value="templates">
-              <Star className="w-4 h-4 mr-2" />
-              Pro Templates
+            <TabsTrigger value="templates" className="flex-col sm:flex-row gap-1 py-2 px-1 sm:px-3 text-xs sm:text-sm">
+              <Star className="w-4 h-4" />
+              <span className="hidden xs:inline">Pro </span>Templates
             </TabsTrigger>
-            <TabsTrigger value="manual">
-              <Edit className="w-4 h-4 mr-2" />
+            <TabsTrigger value="manual" className="flex-col sm:flex-row gap-1 py-2 px-1 sm:px-3 text-xs sm:text-sm">
+              <Edit className="w-4 h-4" />
               Manual
             </TabsTrigger>
-            <TabsTrigger value="generate">
-              <Sparkles className="w-4 h-4 mr-2" />
+            <TabsTrigger value="generate" className="flex-col sm:flex-row gap-1 py-2 px-1 sm:px-3 text-xs sm:text-sm">
+              <Sparkles className="w-4 h-4" />
               AI Generate
             </TabsTrigger>
-            <TabsTrigger value="saved">
-              <FileText className="w-4 h-4 mr-2" />
-              My Plans ({proMealPlans.length})
+            <TabsTrigger value="saved" className="flex-col sm:flex-row gap-1 py-2 px-1 sm:px-3 text-xs sm:text-sm">
+              <FileText className="w-4 h-4" />
+              <span>Plans ({proMealPlans.length})</span>
             </TabsTrigger>
           </TabsList>
 
