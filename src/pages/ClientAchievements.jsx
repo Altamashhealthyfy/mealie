@@ -33,6 +33,15 @@ export default function ClientAchievements() {
     queryFn: () => base44.auth.me(),
   });
 
+  const { data: myPoints = [] } = useQuery({
+    queryKey: ['clientPoints', null],
+    queryFn: async () => {
+      if (!clientProfile?.id) return [];
+      return base44.entities.GamificationPoints.filter({ client_id: clientProfile?.id });
+    },
+    enabled: !!clientProfile,
+  });
+
   const { data: clientProfile } = useQuery({
     queryKey: ['myClientProfile', user?.email],
     queryFn: async () => {
