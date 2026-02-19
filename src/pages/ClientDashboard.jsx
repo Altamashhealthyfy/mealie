@@ -607,6 +607,15 @@ export default function ClientDashboard() {
           <Leaderboard type="all" limit={10} showCurrentUser={true} />
         </div>
 
+        {/* Wearables Section */}
+        <div id="wearables-section" className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            ⌚ Connected Wearables
+          </h2>
+          <WearableDeviceManager clientId={clientProfile?.id} clientEmail={user?.email} />
+          <WearableDataDashboard clientId={clientProfile?.id} />
+        </div>
+
         {/* Key Stats */}
         <div id="client-overview" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
           <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
