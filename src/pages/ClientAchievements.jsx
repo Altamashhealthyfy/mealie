@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { Award, Trophy, Target, Zap, Calendar, TrendingUp, CheckCircle, Sparkles } from "lucide-react";
+import { Award, Trophy, Target, Zap, Calendar, TrendingUp, CheckCircle, Sparkles, ShoppingBag } from "lucide-react";
 import { format, addDays, differenceInDays } from "date-fns";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,7 @@ import Leaderboard from "../components/gamification/Leaderboard";
 import StreakTracker from "../components/gamification/StreakTracker";
 import ChallengeCard from "../components/gamification/ChallengeCard";
 import ClientPersonalGoals from "./ClientPersonalGoals";
+import RewardsStore from "../components/gamification/RewardsStore";
 
 export default function ClientAchievements() {
   const queryClient = useQueryClient();
