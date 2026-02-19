@@ -25,6 +25,7 @@ export default function AICoachInsights() {
   const [activeTab, setActiveTab] = useState("chat");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState({});
+  const [reportPeriod, setReportPeriod] = useState("monthly");
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
