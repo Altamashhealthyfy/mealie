@@ -757,28 +757,15 @@ export default function HelpGuide() {
           </p>
         </div>
 
-        {/* User Type Selector */}
-        <div className="flex justify-center gap-4">
-          <button
-            onClick={() => { setUserType('client'); setExpandedSection(null); }}
-            className={`px-6 py-3 rounded-xl font-semibold transition-all ${
-              userType === 'client'
-                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
-                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-orange-300'
-            }`}
-          >
-            👤 Client Dashboard
-          </button>
-          <button
-            onClick={() => { setUserType('coach'); setExpandedSection(null); }}
-            className={`px-6 py-3 rounded-xl font-semibold transition-all ${
-              userType === 'coach'
-                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
-                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-orange-300'
-            }`}
-          >
-            🏥 Coach Dashboard
-          </button>
+        {/* Role Badge */}
+        <div className="flex justify-center">
+          <Badge className={`text-lg px-4 py-2 ${
+            isCoach
+              ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
+              : 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white'
+          }`}>
+            {isCoach ? '🏥 Health Coach Guide' : '👤 Client Guide'}
+          </Badge>
         </div>
 
         {/* Guide Sections */}
