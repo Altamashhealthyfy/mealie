@@ -145,7 +145,14 @@ export default function AICoachInsights() {
               ))}
             </TabsList>
 
-            {TABS.map(tab => (
+            {/* Chat tab */}
+            <TabsContent value="chat" className="mt-4">
+              <Card className="border-none shadow-lg overflow-hidden" style={{ minHeight: 560 }}>
+                <AICoachChat clientId={selectedClient} clientName={client?.full_name} />
+              </Card>
+            </TabsContent>
+
+            {TABS.filter(t => t.id !== 'chat').map(tab => (
               <TabsContent key={tab.id} value={tab.id} className="space-y-4 mt-4">
                 {/* Feature description + generate button */}
                 <Card className="border-none shadow-md bg-gradient-to-r from-gray-50 to-slate-50">
