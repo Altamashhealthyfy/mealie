@@ -846,7 +846,7 @@ export default function MealPlansPro() {
                   )}
 
                   {/* Info about Pro features */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 mt-4">
                     <div className="p-4 bg-purple-50 rounded-lg">
                       <h4 className="font-semibold text-purple-900 mb-2">🎯 Disease-Specific Rules</h4>
                       <p className="text-sm text-gray-700">
