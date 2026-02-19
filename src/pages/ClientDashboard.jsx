@@ -128,7 +128,7 @@ export default function ClientDashboard() {
 
   // Calculate statistics - AFTER all hooks, BEFORE early return
   const sortedProgressLogs = React.useMemo(() => 
-    [...(progressLogs || [])].sort((a, b) => new Date(a.date) - new Date(b.date)),
+    [...(progressLogs || [])].filter(l => l.date).sort((a, b) => new Date(a.date) - new Date(b.date)),
     [progressLogs]
   );
   
