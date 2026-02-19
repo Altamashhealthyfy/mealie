@@ -22,18 +22,22 @@ export default function ClientOnboardingWizard() {
   const totalSteps = 4;
   const [showTutorial, setShowTutorial] = useState(false);
 
-  const { data: user } = useQuery({
+  const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
+    queryFn: async () => {
+      try { return await base44.auth.me(); } catch { return null; }
+    },
+    retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 
-  const { data: clientProfile } = useQuery({
+  const { data: clientProfile, isLoading: profileLoading } = useQuery({
     queryKey: ['clientProfile', user?.email],
     queryFn: async () => {
       const clients = await base44.entities.Client.filter({ email: user?.email });
       return clients[0] || null;
     },
-    enabled: !!user,
+    enabled: !!user?.email,
   });
 
   const [formData, setFormData] = useState({
