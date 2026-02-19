@@ -24,9 +24,13 @@ export default function ProMealPlanView({ plan, onPlanUpdated }) {
   };
 
   const mealsByDay = groupMealsByDay();
+  // use localPlan for rendering meal_plan data
 
   return (
     <div className="space-y-6">
+      {/* AI Chat Modifier */}
+      <MealPlanChatModifier plan={localPlan} onPlanUpdated={handleChatUpdate} planType="pro" />
+
       {/* Decision Rules */}
       <Card className="border-none shadow-lg">
         <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">
