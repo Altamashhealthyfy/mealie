@@ -47,34 +47,150 @@ Avg Adherence (last 10): ${recentLogs.slice(0,10).filter(l=>l.meal_adherence!=nu
     let schema = {};
 
     if (type === 'progress_report') {
-      prompt = `You are an expert clinical dietitian AI. Generate a comprehensive, professional client progress report based on the following data.
+      const { period = 'monthly' } = await req.json().catch(() => ({}));
+      const periodDays = period === 'weekly' ? 7 : 30;
+      const periodLabel = period === 'weekly' ? 'last 7 days' : 'last 30 days';
+      const nextPeriodLabel = period === 'weekly' ? 'next week' : 'next month';
 
+      // Filter logs to period
+      const cutoff = new Date(Date.now() - periodDays * 24 * 60 * 60 * 1000);
+      const periodLogs = sortedLogs.filter(l => new Date(l.date) >= cutoff);
+      const prevLogs = sortedLogs.filter(l => new Date(l.date) < cutoff).slice(0, periodDays);
+
+      const periodFoodLogs = foodLogs.filter(l => new Date(l.date) >= cutoff);
+      const periodGoals = await base44.asServiceRole.entities.ProgressGoal.filter({ client_id: clientId });
+
+      // Build detailed period stats
+      const weightValues = periodLogs.filter(l => l.weight).map(l => ({ date: l.date, w: l.weight }));
+      const prevWeightValues = prevLogs.filter(l => l.weight).map(l => ({ date: l.date, w: l.weight }));
+      const weightChange = weightValues.length >= 2
+        ? (weightValues[0].w - weightValues[weightValues.length - 1].w).toFixed(1)
+        : null;
+      const prevWeightChange = prevWeightValues.length >= 2
+        ? (prevWeightValues[0].w - prevWeightValues[prevWeightValues.length - 1].w).toFixed(1)
+        : null;
+
+      const adherenceVals = periodLogs.filter(l => l.meal_adherence != null).map(l => l.meal_adherence);
+      const avgAdherence = adherenceVals.length ? (adherenceVals.reduce((s, v) => s + v, 0) / adherenceVals.length).toFixed(1) : null;
+
+      const symptomsRaw = periodLogs.flatMap(l => l.symptoms || []);
+      const symptomFreq = symptomsRaw.reduce((acc, s) => { acc[s] = (acc[s] || 0) + 1; return acc; }, {});
+      const topSymptoms = Object.entries(symptomFreq).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([s, c]) => `${s} (${c}x)`);
+
+      const energyVals = periodLogs.filter(l => l.wellness_metrics?.energy_level).map(l => l.wellness_metrics.energy_level);
+      const avgEnergy = energyVals.length ? (energyVals.reduce((s, v) => s + v, 0) / energyVals.length).toFixed(1) : null;
+      const sleepVals = periodLogs.filter(l => l.wellness_metrics?.sleep_quality).map(l => l.wellness_metrics.sleep_quality);
+      const avgSleep = sleepVals.length ? (sleepVals.reduce((s, v) => s + v, 0) / sleepVals.length).toFixed(1) : null;
+      const stressVals = periodLogs.filter(l => l.wellness_metrics?.stress_level).map(l => l.wellness_metrics.stress_level);
+      const avgStress = stressVals.length ? (stressVals.reduce((s, v) => s + v, 0) / stressVals.length).toFixed(1) : null;
+      const exerciseMins = periodLogs.reduce((s, l) => s + (l.wellness_metrics?.exercise_minutes || 0), 0);
+
+      const activeGoals = periodGoals.filter(g => g.status === 'active');
+      const completedGoals = periodGoals.filter(g => g.status === 'completed');
+
+      const periodContext = `
+REPORT PERIOD: ${periodLabel.toUpperCase()}
+Period: ${cutoff.toISOString().split('T')[0]} to ${new Date().toISOString().split('T')[0]}
+${client.full_name} — ${client.goal?.replace(/_/g, ' ')} | Target Weight: ${client.target_weight || 'N/A'} kg
+
+WEIGHT DATA:
+- Logs in period: ${weightValues.length}
+- Weight entries: ${weightValues.slice(0, 8).map(v => `${v.date}: ${v.w}kg`).join(' → ')}
+- Weight change this period: ${weightChange !== null ? (weightChange > 0 ? '+' : '') + weightChange + ' kg' : 'insufficient data'}
+- Previous period change: ${prevWeightChange !== null ? (prevWeightChange > 0 ? '+' : '') + prevWeightChange + ' kg' : 'N/A'}
+- Current weight: ${client.weight || 'N/A'} kg | Starting: ${client.initial_weight || 'N/A'} kg | Target: ${client.target_weight || 'N/A'} kg
+
+MEAL ADHERENCE:
+- Average adherence: ${avgAdherence !== null ? avgAdherence + '%' : 'N/A'}
+- Adherence by day: ${periodLogs.slice(0, 10).map(l => `${l.date}: ${l.meal_adherence ?? 'N/A'}%`).join(', ')}
+- Food logs recorded: ${periodFoodLogs.length}
+
+WELLNESS METRICS (period averages):
+- Energy level: ${avgEnergy !== null ? avgEnergy + '/10' : 'N/A'}
+- Sleep quality: ${avgSleep !== null ? avgSleep + '/10' : 'N/A'}
+- Stress level: ${avgStress !== null ? avgStress + '/10' : 'N/A'}
+- Total exercise minutes: ${exerciseMins}
+
+SYMPTOMS REPORTED: ${topSymptoms.length ? topSymptoms.join(', ') : 'None'}
+
+GOALS:
+- Active goals: ${activeGoals.map(g => `${g.title} (${g.current_value || 0}/${g.target_value} ${g.unit || ''})`).join(', ') || 'None'}
+- Completed this period: ${completedGoals.map(g => g.title).join(', ') || 'None'}
+
+MPESS SUBMISSIONS: ${mpessLogs.filter(l => new Date(l.submission_date) >= cutoff).length} in period
+`.trim();
+
+      const prompt2 = `You are an expert clinical dietitian AI. Generate a detailed ${period} progress report for a client.
+
+CLIENT PROFILE:
 ${clientContext}
 
-Generate a detailed progress report with:
-1. An executive summary (2-3 sentences)
-2. Weight & body composition analysis
-3. Meal plan adherence analysis
-4. Wellness & lifestyle observations
-5. Key achievements (list 3-5 specific wins)
-6. Areas needing improvement (list 2-4 specific areas)
-7. Personalized recommendations for next 30 days (list 4-6 actionable steps)
-8. Overall progress rating: excellent/good/fair/needs_attention
+PERIOD DATA:
+${periodContext}
 
-Be specific, data-driven, empathetic and professional.`;
+Write a comprehensive, empathetic, data-driven ${period} progress report. Be specific about numbers and trends.
+For the coach version: be clinical and actionable.
+For the client message: be warm, encouraging, motivating, and easy to understand.`;
 
+      prompt = prompt2;
       schema = {
         type: "object",
         properties: {
+          report_period: { type: "string" },
           executive_summary: { type: "string" },
-          weight_analysis: { type: "string" },
-          adherence_analysis: { type: "string" },
-          wellness_observations: { type: "string" },
+          weight_analysis: {
+            type: "object",
+            properties: {
+              summary: { type: "string" },
+              trend: { type: "string", description: "improving/stable/declining/insufficient_data" },
+              key_insight: { type: "string" }
+            }
+          },
+          adherence_analysis: {
+            type: "object",
+            properties: {
+              summary: { type: "string" },
+              trend: { type: "string", description: "improving/stable/declining/insufficient_data" },
+              key_insight: { type: "string" }
+            }
+          },
+          activity_analysis: { type: "string" },
+          wellness_observations: {
+            type: "object",
+            properties: {
+              energy: { type: "string" },
+              sleep: { type: "string" },
+              stress: { type: "string" },
+              symptoms_noted: { type: "string" }
+            }
+          },
+          goal_progress: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                goal: { type: "string" },
+                status: { type: "string" },
+                comment: { type: "string" }
+              }
+            }
+          },
           achievements: { type: "array", items: { type: "string" } },
           areas_for_improvement: { type: "array", items: { type: "string" } },
-          recommendations: { type: "array", items: { type: "string" } },
-          overall_rating: { type: "string" },
-          next_check_in_focus: { type: "string" }
+          recommendations: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                action: { type: "string" },
+                reason: { type: "string" },
+                priority: { type: "string", description: "high/medium/low" }
+              }
+            }
+          },
+          focus_for_next_period: { type: "string" },
+          client_message: { type: "string", description: "A warm, encouraging message to share directly with the client (2-4 sentences)" },
+          overall_rating: { type: "string", description: "excellent/good/fair/needs_attention" }
         }
       };
 
