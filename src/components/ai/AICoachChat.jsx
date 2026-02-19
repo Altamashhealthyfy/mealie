@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Send, Loader2, AlertTriangle, Lightbulb, Zap, Bot, User, Trash2, MessageSquare } from "lucide-react";
+import { Send, Loader2, AlertTriangle, Lightbulb, Zap, Bot, User, Trash2, MessageSquare, Bell, ClipboardList, CheckCircle2, Copy } from "lucide-react";
 
 const QUICK_PROMPTS = [
   "Why is this client's adherence low?",
@@ -12,9 +12,25 @@ const QUICK_PROMPTS = [
   "What are the best foods for their condition?",
   "How is their weight trending?",
   "What goals should we focus on next?",
-  "Summarize this client's last 2 weeks",
   "Any medication-diet interactions to watch?",
+  "What should I discuss at the next check-in?",
 ];
+
+const SEVERITY_STYLES = {
+  urgent: "bg-red-50 border-red-300 text-red-800",
+  warning: "bg-amber-50 border-amber-300 text-amber-800",
+  info: "bg-blue-50 border-blue-200 text-blue-800",
+};
+const SEVERITY_ICONS = {
+  urgent: "🚨",
+  warning: "⚠️",
+  info: "ℹ️",
+};
+const STATUS_CONFIG = {
+  on_track: { color: "bg-green-100 text-green-800 border-green-300", icon: "✅" },
+  needs_attention: { color: "bg-amber-100 text-amber-800 border-amber-300", icon: "⚠️" },
+  at_risk: { color: "bg-red-100 text-red-800 border-red-300", icon: "🚨" },
+};
 
 function AIMessage({ msg }) {
   const r = msg.reply;
