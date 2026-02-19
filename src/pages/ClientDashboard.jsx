@@ -16,6 +16,8 @@ import MacroAdherenceDashboard from "../components/progress/MacroAdherenceDashbo
 import PointsTracker from "../components/gamification/PointsTracker";
 import Leaderboard from "../components/gamification/Leaderboard";
 import StreakTracker from "../components/gamification/StreakTracker";
+import WearableDeviceManager from "../components/wearables/WearableDeviceManager";
+import WearableDataDashboard from "../components/wearables/WearableDataDashboard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { createPageUrl } from "@/utils";
