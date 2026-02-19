@@ -187,10 +187,14 @@ export default function ClientAchievements() {
         <Leaderboard type="all" limit={10} showCurrentUser={true} />
 
         {/* Tabs */}
-        <Tabs defaultValue="challenges" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="challenges" className="flex items-center gap-2">
+        <Tabs defaultValue="goals" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="goals" className="flex items-center gap-2">
               <Target className="w-4 h-4" />
+              My Goals
+            </TabsTrigger>
+            <TabsTrigger value="challenges" className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4" />
               Challenges
             </TabsTrigger>
             <TabsTrigger value="badges" className="flex items-center gap-2">
@@ -198,6 +202,11 @@ export default function ClientAchievements() {
               Badges
             </TabsTrigger>
           </TabsList>
+
+          {/* Personal Goals Tab */}
+          <TabsContent value="goals">
+            <ClientPersonalGoals embedded={true} clientProfile={clientProfile} />
+          </TabsContent>
 
           {/* Challenges Tab */}
           <TabsContent value="challenges" className="space-y-6">
