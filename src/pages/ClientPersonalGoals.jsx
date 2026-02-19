@@ -260,15 +260,17 @@ export default function ClientPersonalGoals({ embedded = false, clientProfile: p
   if (!clientProfile) return <div className="p-8 text-center text-gray-500">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-4 md:p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className={embedded ? "space-y-6" : "min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-4 md:p-6"}>
+      <div className={embedded ? "space-y-6" : "max-w-6xl mx-auto space-y-6"}>
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <Target className="w-8 h-8 text-orange-500" />
-              My Personal Goals
-            </h1>
+            {!embedded && (
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-3">
+                <Target className="w-8 h-8 text-orange-500" />
+                My Personal Goals
+              </h1>
+            )}
             <p className="text-gray-600 mt-1">Create measurable goals and earn points upon completion</p>
           </div>
           <Button
