@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Sparkles, FileText, ShieldAlert, BookOpen, Search, RefreshCw, MessageSquare } from "lucide-react";
+import { Loader2, Sparkles, FileText, ShieldAlert, BookOpen, Search, RefreshCw, MessageSquare, Calendar } from "lucide-react";
 import AIProgressReport from "@/components/ai/AIProgressReport";
 import AIRiskAssessment from "@/components/ai/AIRiskAssessment";
 import AIEducationMaterial from "@/components/ai/AIEducationMaterial";
