@@ -195,7 +195,7 @@ export default function ClientAchievements() {
 
         {/* Tabs */}
         <Tabs defaultValue="goals" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="goals" className="flex items-center gap-2">
               <Target className="w-4 h-4" />
               My Goals
@@ -207,6 +207,10 @@ export default function ClientAchievements() {
             <TabsTrigger value="badges" className="flex items-center gap-2">
               <Award className="w-4 h-4" />
               Badges
+            </TabsTrigger>
+            <TabsTrigger value="store" className="flex items-center gap-2">
+              <ShoppingBag className="w-4 h-4" />
+              Store
             </TabsTrigger>
           </TabsList>
 
