@@ -109,6 +109,75 @@ function UserMessage({ content }) {
   );
 }
 
+function ProactiveScanResult({ scan }) {
+  const [copied, setCopied] = useState(null);
+  const status = STATUS_CONFIG[scan.overall_status] || STATUS_CONFIG.needs_attention;
+
+  const copyMsg = (msg, i) => {
+    navigator.clipboard.writeText(msg);
+    setCopied(i);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  return (
+    <div className="flex gap-3 items-start">
+      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0 mt-0.5">
+        <Bell className="w-4 h-4 text-white" />
+      </div>
+      <div className="flex-1 space-y-2.5 min-w-0">
+        <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-sm p-3.5 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm font-semibold text-gray-700">Proactive Status Scan</span>
+            <Badge className={`border text-xs px-2 py-0.5 ${status.color}`}>{status.icon} {scan.overall_status?.replace(/_/g, ' ')}</Badge>
+          </div>
+          <p className="text-sm text-gray-700 leading-relaxed">{scan.status_summary}</p>
+        </div>
+
+        {scan.proactive_alerts?.length > 0 && (
+          <div className="space-y-2">
+            {scan.proactive_alerts.map((alert, i) => (
+              <div key={i} className={`border rounded-xl p-3 ${SEVERITY_STYLES[alert.severity] || SEVERITY_STYLES.info}`}>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <p className="text-xs font-semibold mb-1">{SEVERITY_ICONS[alert.severity]} {alert.issue}</p>
+                    <p className="text-xs opacity-80 mb-2">{alert.detail}</p>
+                    {alert.checkin_message && (
+                      <div className="bg-white/70 rounded-lg p-2.5 mt-1">
+                        <p className="text-xs font-medium opacity-70 mb-1">💬 Suggested check-in message:</p>
+                        <p className="text-xs italic">"{alert.checkin_message}"</p>
+                      </div>
+                    )}
+                  </div>
+                  {alert.checkin_message && (
+                    <button onClick={() => copyMsg(alert.checkin_message, i)} className="shrink-0 p-1.5 rounded-lg hover:bg-white/50 transition-colors" title="Copy message">
+                      {copied === i ? <CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5 opacity-60" />}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {scan.follow_up_actions?.length > 0 && (
+          <div className="bg-green-50 border border-green-100 rounded-xl p-3">
+            <p className="text-xs font-semibold text-green-700 mb-2 flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5" /> Follow-up Actions
+            </p>
+            <ol className="space-y-1">
+              {scan.follow_up_actions.map((a, i) => (
+                <li key={i} className="text-xs text-green-800 flex items-start gap-1.5">
+                  <span className="font-bold text-green-500 shrink-0">{i + 1}.</span>{a}
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AICoachChat({ clientId, clientName }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
