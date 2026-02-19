@@ -34,12 +34,9 @@ export default function ClientAchievements() {
   });
 
   const { data: myPoints = [] } = useQuery({
-    queryKey: ['clientPoints', null],
-    queryFn: async () => {
-      if (!clientProfile?.id) return [];
-      return base44.entities.GamificationPoints.filter({ client_id: clientProfile?.id });
-    },
-    enabled: !!clientProfile,
+    queryKey: ['clientPoints', clientProfile?.id],
+    queryFn: async () => base44.entities.GamificationPoints.filter({ client_id: clientProfile?.id }),
+    enabled: !!clientProfile?.id,
   });
 
   const { data: clientProfile } = useQuery({
