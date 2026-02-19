@@ -3,84 +3,76 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const { clientId, clientEmail, activityType, description } = await req.json();
 
-    const { client_id, action_type, points_earned, description } = await req.json();
-
-    if (!client_id || !action_type || !points_earned) {
-      return Response.json({ error: 'Missing required fields' }, { status: 400 });
-    }
-
-    // Define point values for different activities
-    const pointValues = {
-      meal_logged: 10,
-      food_log_submitted: 15,
-      progress_logged: 25,
-      workout_completed: 30,
-      mpess_assessment_done: 20,
-      resource_completed: 15,
-      appointment_attended: 30,
-      water_intake_logged: 5,
-      sleep_logged: 15,
-      custom: points_earned // Custom points from coach
+    // Define points for different activities
+    const activityPoints = {
+      'meal_logged': 10,
+      'workout_logged': 25,
+      'water_logged': 5,
+      'progress_logged': 15,
+      'assessment_completed': 30,
+      'goal_achieved': 50,
+      'streak_7_days': 40,
+      'streak_30_days': 100,
+      'challenge_completed': 75,
+      'feedback_given': 20
     };
 
-    // Create point record
-    const point = await base44.entities.GamificationPoints.create({
-      client_id,
-      action_type,
-      points_earned: points_earned || pointValues[action_type] || 10,
-      description: description || `Points awarded for ${action_type.replace(/_/g, ' ')}`,
-      date_earned: new Date().toISOString()
+    const points = activityPoints[activityType] || 10;
+
+    // Create points record
+    const pointsRecord = await base44.entities.GamificationPoints.create({
+      client_id: clientId,
+      client_email: clientEmail,
+      points_awarded: points,
+      activity_type: activityType,
+      description: description || `Points awarded for ${activityType}`,
+      date_awarded: new Date().toISOString()
     });
 
-    // Check for milestone badges
-    const allPoints = await base44.entities.GamificationPoints.filter({ client_id });
-    const totalPoints = allPoints.reduce((sum, p) => sum + p.points_earned, 0);
+    // Check if client should earn milestone badges
+    const allPoints = await base44.entities.GamificationPoints.filter({ 
+      client_id: clientId 
+    });
+    
+    const totalPoints = allPoints.reduce((sum, p) => sum + p.points_awarded, 0);
+    
+    // Award milestone badges
+    const badgeMilestones = {
+      100: 'bronze_achiever',
+      500: 'silver_champion',
+      1000: 'gold_master',
+      5000: 'platinum_legend'
+    };
 
-    const milestoneBadges = [];
-    const badgeDefinitions = await base44.entities.Badge.list();
+    for (const [threshold, badgeId] of Object.entries(badgeMilestones)) {
+      if (totalPoints >= parseInt(threshold)) {
+        const existingBadge = await base44.entities.Badge.filter({
+          client_id: clientId,
+          badge_id: badgeId
+        });
 
-    // Check milestone achievements
-    const milestones = [
-      { points: 100, badgeName: 'Hundred Points Club' },
-      { points: 500, badgeName: 'Five Hundred Points Club' },
-      { points: 1000, badgeName: 'Thousand Points Club' },
-      { points: 2500, badgeName: 'Gamification Champion' }
-    ];
-
-    for (const milestone of milestones) {
-      if (totalPoints >= milestone.points) {
-        const badge = badgeDefinitions.find(b => b.name === milestone.badgeName);
-        if (badge) {
-          const existing = await base44.entities.ClientBadge.filter({
-            client_id,
-            badge_id: badge.id
+        if (!existingBadge.length) {
+          await base44.entities.Badge.create({
+            client_id: clientId,
+            client_email: clientEmail,
+            badge_id: badgeId,
+            badge_name: badgeId.replace('_', ' ').toUpperCase(),
+            earned_date: new Date().toISOString(),
+            description: `Earned ${threshold}+ points`
           });
-          
-          if (existing.length === 0) {
-            await base44.entities.ClientBadge.create({
-              client_id,
-              badge_id: badge.id,
-              earned_date: new Date().toISOString()
-            });
-            milestoneBadges.push(badge.name);
-          }
         }
       }
     }
 
     return Response.json({
       success: true,
-      point,
-      badgesEarned: milestoneBadges
+      pointsAwarded: points,
+      totalPoints: totalPoints,
+      activity: activityType
     });
   } catch (error) {
-    console.error('Error awarding points:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
