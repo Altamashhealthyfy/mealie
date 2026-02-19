@@ -277,6 +277,12 @@ const gamificationNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
+    title: "Client Referrals",
+    url: createPageUrl("CoachReferralDashboard"),
+    icon: Users,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
     title: "Gamification Settings",
     url: createPageUrl("GamificationSettings"),
     icon: Settings,
