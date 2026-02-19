@@ -731,34 +731,12 @@ export default function HelpGuide() {
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">📖 Mealie Dashboard Help Guide</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            📖 Mealie {userType === 'client' ? 'Dashboard' : 'Coach'} Help Guide
+          </h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Learn about every section of your personalized health coaching dashboard. This guide explains features, benefits, and how to use each tool effectively.
+            Learn about every section of your {userType === 'client' ? 'personalized health coaching' : 'coach'} dashboard. This guide explains features, benefits, and how to use each tool effectively.
           </p>
-        </div>
-
-        {/* User Type Selector */}
-        <div className="flex justify-center gap-4">
-          <button
-            onClick={() => { setUserType('client'); setExpandedSection(null); }}
-            className={`px-6 py-3 rounded-xl font-semibold transition-all ${
-              userType === 'client'
-                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
-                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-orange-300'
-            }`}
-          >
-            👤 Client Dashboard
-          </button>
-          <button
-            onClick={() => { setUserType('coach'); setExpandedSection(null); }}
-            className={`px-6 py-3 rounded-xl font-semibold transition-all ${
-              userType === 'coach'
-                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
-                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-orange-300'
-            }`}
-          >
-            🏥 Coach Dashboard
-          </button>
         </div>
 
         {/* Guide Sections */}
