@@ -217,6 +217,56 @@ function UserMessage({ content }) {
   );
 }
 
+function FeatureGuideMessage() {
+  const [expanded, setExpanded] = useState(null);
+  return (
+    <div className="flex gap-3 items-start">
+      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center shrink-0 mt-0.5">
+        <HelpCircle className="w-4 h-4 text-white" />
+      </div>
+      <div className="flex-1 space-y-2 min-w-0">
+        <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-sm p-3.5 shadow-sm">
+          <p className="text-sm font-semibold text-gray-800 mb-1">📖 Platform Feature Guide</p>
+          <p className="text-sm text-gray-600">Here's a breakdown of every feature on the dashboard — tap any feature to learn more.</p>
+        </div>
+        <div className="space-y-1.5">
+          {FEATURE_GUIDE.map((f, i) => (
+            <div key={i} className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+              <button
+                className="w-full flex items-center justify-between gap-3 px-3.5 py-2.5 hover:bg-gray-50 transition-colors text-left"
+                onClick={() => setExpanded(expanded === i ? null : i)}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-base">{f.icon}</span>
+                  <span className="text-sm font-semibold text-gray-800">{f.title}</span>
+                </div>
+                {expanded === i ? <ChevronUp className="w-4 h-4 text-gray-400 shrink-0" /> : <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />}
+              </button>
+              {expanded === i && (
+                <div className="px-3.5 pb-3.5 space-y-2.5 border-t border-gray-50">
+                  <p className="text-xs text-gray-600 leading-relaxed pt-2">{f.description}</p>
+                  <div className="grid grid-cols-1 gap-2">
+                    <div className="bg-green-50 rounded-lg p-2.5">
+                      <p className="text-xs font-semibold text-green-700 mb-1">✅ Benefits</p>
+                      <ul className="space-y-0.5">
+                        {f.benefits.map((b, j) => <li key={j} className="text-xs text-green-800">• {b}</li>)}
+                      </ul>
+                    </div>
+                    <div className="bg-blue-50 rounded-lg p-2.5">
+                      <p className="text-xs font-semibold text-blue-700 mb-1">🔧 How to Use</p>
+                      <p className="text-xs text-blue-800 leading-relaxed">{f.usage}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ProactiveScanResult({ scan }) {
   const [copied, setCopied] = useState(null);
   const status = STATUS_CONFIG[scan.overall_status] || STATUS_CONFIG.needs_attention;
