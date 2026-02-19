@@ -315,6 +315,9 @@ Use ICMR data and standard Indian portion sizes. Be precise.`;
         </CardContent>
       </Card>
 
+      {/* AI Chat Modifier */}
+      <MealPlanChatModifier plan={editablePlan} onPlanUpdated={handleChatUpdate} />
+
       {/* Meal Plan Tabs */}
       <Tabs defaultValue="day-1" className="space-y-4 print:hidden">
         <div className="bg-white/80 backdrop-blur rounded-xl p-2 shadow-lg overflow-x-auto">
