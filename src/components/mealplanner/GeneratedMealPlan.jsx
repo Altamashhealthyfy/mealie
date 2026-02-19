@@ -10,9 +10,14 @@ import { Label } from "@/components/ui/label";
 import { Calendar, Save, RefreshCw, ChefHat, Lightbulb, Edit, Check, X, Download, Copy, FileText, Printer, Loader2, CheckCircle, Star, Plus, TrendingUp, AlertCircle, Calculator } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { base44 } from "@/api/base44Client";
+import MealPlanChatModifier from "./MealPlanChatModifier";
 
 export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGenerateNew, isSaving }) {
   const [editablePlan, setEditablePlan] = useState(plan);
+
+  const handleChatUpdate = (updatedPlan) => {
+    setEditablePlan(prev => ({ ...prev, ...updatedPlan }));
+  };
   const [editingMeal, setEditingMeal] = useState(null);
   const [copiedText, setCopiedText] = useState(false);
   const [recalculating, setRecalculating] = useState(false);
