@@ -929,6 +929,9 @@ export default function DietitianDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* AI Coach Assistant Floating Widget */}
+      <CoachAIAssistant clients={clients} progressLogs={progressLogs} />
     </div>
   );
 }
