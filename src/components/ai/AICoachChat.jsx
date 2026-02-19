@@ -301,14 +301,29 @@ export default function AICoachChat({ clientId, clientName }) {
         <div ref={bottomRef} />
       </div>
 
-      {/* Quick prompts (when chat has started) */}
-      {messages.length > 0 && !loading && (
-        <div className="px-4 pb-2 flex gap-1.5 overflow-x-auto">
-          {QUICK_PROMPTS.slice(0, 4).map((p, i) => (
+      {/* Quick action buttons (always visible when client selected) */}
+      {clientId && (
+        <div className="px-4 pb-2 border-t pt-2 flex gap-2 overflow-x-auto bg-gray-50/80">
+          <button
+            onClick={summarizeClient}
+            disabled={loading || scanning}
+            className="flex items-center gap-1.5 text-xs bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 rounded-full px-3 py-1.5 transition-colors whitespace-nowrap shrink-0 disabled:opacity-50"
+          >
+            <ClipboardList className="w-3.5 h-3.5" /> Summarize Client Status
+          </button>
+          <button
+            onClick={runProactiveScan}
+            disabled={loading || scanning}
+            className="flex items-center gap-1.5 text-xs bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-700 rounded-full px-3 py-1.5 transition-colors whitespace-nowrap shrink-0 disabled:opacity-50"
+          >
+            {scanning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Bell className="w-3.5 h-3.5" />}
+            Proactive Scan
+          </button>
+          {!loading && !scanning && QUICK_PROMPTS.slice(0, 3).map((p, i) => (
             <button
               key={i}
               onClick={() => send(p)}
-              className="text-xs bg-white border border-gray-200 hover:border-purple-300 hover:bg-purple-50 text-gray-500 hover:text-purple-700 rounded-full px-2.5 py-1 transition-colors whitespace-nowrap shrink-0"
+              className="text-xs bg-white border border-gray-200 hover:border-purple-300 hover:bg-purple-50 text-gray-500 hover:text-purple-700 rounded-full px-2.5 py-1.5 transition-colors whitespace-nowrap shrink-0"
             >
               {p}
             </button>
