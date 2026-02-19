@@ -10,6 +10,7 @@ Deno.serve(async (req) => {
     if (!message && mode !== 'proactive_scan') return Response.json({ error: 'Message required' }, { status: 400 });
 
     let clientContext = "No specific client selected. Answer general coaching/nutrition questions.";
+    let clientObj = null;
 
     if (clientId) {
       const [clientArr, progressArr, mealPlansArr, foodLogsArr, goalsArr, clinicalArr] = await Promise.all([
