@@ -181,6 +181,12 @@ const dietitianNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
+    title: "AI Coach Insights",
+    url: createPageUrl("AICoachInsights"),
+    icon: Sparkles,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
     title: "Assessment Templates",
     url: createPageUrl("AssessmentTemplates"),
     icon: FileText,
