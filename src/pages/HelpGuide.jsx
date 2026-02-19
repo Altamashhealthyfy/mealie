@@ -825,31 +825,58 @@ export default function HelpGuide() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bell className="w-5 h-5 text-orange-600" />
-              Getting Started Tips
+              {userType === 'client' ? 'Getting Started Tips' : 'Coaching Tips'}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 text-sm text-gray-700">
-              <li className="flex gap-2">
-                <span className="font-bold text-orange-600">1.</span>
-                <span>Complete your profile/client setup immediately - this personalizes your experience</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-bold text-orange-600">2.</span>
-                <span>Check your dashboard daily - consistency is key to success</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-bold text-orange-600">3.</span>
-                <span>Log meals and progress immediately after eating - accuracy matters</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-bold text-orange-600">4.</span>
-                <span>Review trends weekly - focus on the bigger picture, not daily changes</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="font-bold text-orange-600">5.</span>
-                <span>Communicate with coach - ask questions and share challenges early</span>
-              </li>
+              {userType === 'client' ? (
+                <>
+                  <li className="flex gap-2">
+                    <span className="font-bold text-orange-600">1.</span>
+                    <span>Complete your profile immediately - this personalizes your experience</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-bold text-orange-600">2.</span>
+                    <span>Check your dashboard daily - consistency is key to success</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-bold text-orange-600">3.</span>
+                    <span>Log meals and progress immediately after eating - accuracy matters</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-bold text-orange-600">4.</span>
+                    <span>Review trends weekly - focus on the bigger picture, not daily changes</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-bold text-orange-600">5.</span>
+                    <span>Communicate with coach - ask questions and share challenges early</span>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li className="flex gap-2">
+                    <span className="font-bold text-orange-600">1.</span>
+                    <span>Complete client profiles fully during onboarding - personalizes their program</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-bold text-orange-600">2.</span>
+                    <span>Review client logs 2-3 times weekly - stay proactive with feedback</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-bold text-orange-600">3.</span>
+                    <span>Use AI Insights to save time - run reports and risk assessments regularly</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-bold text-orange-600">4.</span>
+                    <span>Respond within 24 hours - quick communication builds trust</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-bold text-orange-600">5.</span>
+                    <span>Track your practice metrics - measure outcomes and refine your approach</span>
+                  </li>
+                </>
+              )}
             </ul>
           </CardContent>
         </Card>
