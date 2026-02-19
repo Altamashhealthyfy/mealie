@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Home, Users, Calendar, ChefHat, TrendingUp, MessageSquare, Heart, BookOpen,
   Sparkles, BarChart3, ClipboardList, FileText, Settings, Bell, Trophy, Gift,
-  Share2, CreditCard, Shield, Search, CheckCircle2, ArrowRight, Zap, Loader2
+  Share2, CreditCard, Shield, Search, CheckCircle2, ArrowRight, Zap
 } from 'lucide-react';
 
 const dashboardSections = [
@@ -708,35 +707,43 @@ const coachDashboardSections = [
 
 export default function HelpGuide() {
   const [expandedSection, setExpandedSection] = useState(null);
+  const [userType, setUserType] = useState('client');
 
-  const { data: user, isLoading } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const userType = user?.user_type === 'client' ? 'client' : 'coach';
   const sections = userType === 'client' ? dashboardSections : coachDashboardSections;
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-6">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            📖 Mealie {userType === 'client' ? 'Dashboard' : 'Coach'} Help Guide
-          </h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">📖 Mealie Dashboard Help Guide</h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Learn about every section of your {userType === 'client' ? 'personalized health coaching' : 'coach'} dashboard. This guide explains features, benefits, and how to use each tool effectively.
+            Learn about every section of your personalized health coaching dashboard. This guide explains features, benefits, and how to use each tool effectively.
           </p>
+        </div>
+
+        {/* User Type Selector */}
+        <div className="flex justify-center gap-4">
+          <button
+            onClick={() => { setUserType('client'); setExpandedSection(null); }}
+            className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+              userType === 'client'
+                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
+                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-orange-300'
+            }`}
+          >
+            👤 Client Dashboard
+          </button>
+          <button
+            onClick={() => { setUserType('coach'); setExpandedSection(null); }}
+            className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+              userType === 'coach'
+                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
+                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-orange-300'
+            }`}
+          >
+            🏥 Coach Dashboard
+          </button>
         </div>
 
         {/* Guide Sections */}
@@ -825,58 +832,31 @@ export default function HelpGuide() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Bell className="w-5 h-5 text-orange-600" />
-              {userType === 'client' ? 'Getting Started Tips' : 'Coaching Tips'}
+              Getting Started Tips
             </CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 text-sm text-gray-700">
-              {userType === 'client' ? (
-                <>
-                  <li className="flex gap-2">
-                    <span className="font-bold text-orange-600">1.</span>
-                    <span>Complete your profile immediately - this personalizes your experience</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="font-bold text-orange-600">2.</span>
-                    <span>Check your dashboard daily - consistency is key to success</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="font-bold text-orange-600">3.</span>
-                    <span>Log meals and progress immediately after eating - accuracy matters</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="font-bold text-orange-600">4.</span>
-                    <span>Review trends weekly - focus on the bigger picture, not daily changes</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="font-bold text-orange-600">5.</span>
-                    <span>Communicate with coach - ask questions and share challenges early</span>
-                  </li>
-                </>
-              ) : (
-                <>
-                  <li className="flex gap-2">
-                    <span className="font-bold text-orange-600">1.</span>
-                    <span>Complete client profiles fully during onboarding - personalizes their program</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="font-bold text-orange-600">2.</span>
-                    <span>Review client logs 2-3 times weekly - stay proactive with feedback</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="font-bold text-orange-600">3.</span>
-                    <span>Use AI Insights to save time - run reports and risk assessments regularly</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="font-bold text-orange-600">4.</span>
-                    <span>Respond within 24 hours - quick communication builds trust</span>
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="font-bold text-orange-600">5.</span>
-                    <span>Track your practice metrics - measure outcomes and refine your approach</span>
-                  </li>
-                </>
-              )}
+              <li className="flex gap-2">
+                <span className="font-bold text-orange-600">1.</span>
+                <span>Complete your profile/client setup immediately - this personalizes your experience</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-bold text-orange-600">2.</span>
+                <span>Check your dashboard daily - consistency is key to success</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-bold text-orange-600">3.</span>
+                <span>Log meals and progress immediately after eating - accuracy matters</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-bold text-orange-600">4.</span>
+                <span>Review trends weekly - focus on the bigger picture, not daily changes</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="font-bold text-orange-600">5.</span>
+                <span>Communicate with coach - ask questions and share challenges early</span>
+              </li>
             </ul>
           </CardContent>
         </Card>
