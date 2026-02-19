@@ -311,7 +311,7 @@ const guideData = [
 
 export default function HelpCenter() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSection, setSelectedSection] = useState(null);
+  const [activeTab, setActiveTab] = useState('guides');
 
   const filteredGuides = guideData.filter(guide => {
     const matchesSearch = guide.section.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -321,26 +321,58 @@ export default function HelpCenter() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-6">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-gray-900">📚 Mealie Pro Help Center</h1>
-          <p className="text-lg text-gray-600">Learn about every feature and section of your coaching dashboard</p>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
+      {/* Hero Header */}
+      <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-green-500 text-white py-12 px-6">
+        <div className="max-w-6xl mx-auto text-center space-y-4">
+          <div className="inline-block mb-4">
+            <span className="text-5xl">📚</span>
+          </div>
+          <h1 className="text-5xl md:text-6xl font-bold">Mealie Pro Help Center</h1>
+          <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
+            Your complete guide to mastering the platform. Learn features, best practices, and get answers
+          </p>
         </div>
+      </div>
 
-        {/* Search */}
-        <div className="max-w-2xl mx-auto">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+      <div className="max-w-6xl mx-auto px-6 py-12 space-y-8">
+        {/* Enhanced Search */}
+        <div className="max-w-3xl mx-auto">
+          <div className="relative group">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition" />
             <Input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search features, guides, and tips..."
-              className="pl-12 py-3 text-base"
+              className="pl-12 pr-4 py-4 text-base border-2 border-gray-200 focus:border-orange-500 rounded-xl shadow-sm focus:shadow-md transition"
             />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Tabs Navigation */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 bg-white/80 backdrop-blur border border-gray-200 rounded-xl p-1">
+            <TabsTrigger value="guides" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white">
+              <BookOpen className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Guides</span>
+            </TabsTrigger>
+            <TabsTrigger value="tips" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white">
+              <Zap className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Quick Tips</span>
+            </TabsTrigger>
+            <TabsTrigger value="plans" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white">
+              <Eye className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Plans</span>
+            </TabsTrigger>
+          </TabsList>
 
         {/* Guide Sections */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
