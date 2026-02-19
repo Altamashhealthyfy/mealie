@@ -417,12 +417,12 @@ export default function AICoachChat({ clientId, clientName, onClientChange }) {
   };
 
   const runProactiveScan = async () => {
-    if (!clientId || scanning) return;
+    if (!selectedClientId || scanning) return;
     setScanning(true);
     setMessages(prev => [...prev, { role: "user", content: "🔍 Run proactive status scan for this client" }]);
     try {
       const res = await base44.functions.invoke('aiCoachChat', {
-        clientId,
+        clientId: selectedClientId,
         message: "proactive_scan",
         mode: "proactive_scan",
         history: [],
