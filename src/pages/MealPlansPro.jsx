@@ -1034,11 +1034,11 @@ export default function MealPlansPro() {
                 {/* MPESS Integration */}
                 {generatedPlan.mpess_integration && (
                   <Card className="border-none shadow-lg">
-                    <CardHeader className="bg-gradient-to-r from-pink-500 to-rose-500 text-white">
-                      <CardTitle>🧘 MPESS Wellness Practices - Client-Specific</CardTitle>
-                      <CardDescription className="text-white/90">Holistic wellness practices tailored to your client's needs</CardDescription>
+                    <CardHeader className="bg-gradient-to-r from-pink-500 to-rose-500 text-white p-4 md:p-6">
+                      <CardTitle className="text-base md:text-lg">🧘 MPESS Wellness Practices</CardTitle>
+                      <CardDescription className="text-white/90 text-xs md:text-sm">Holistic wellness practices tailored to your client's needs</CardDescription>
                     </CardHeader>
-                    <CardContent className="p-6">
+                    <CardContent className="p-3 md:p-6">
                       <div className="space-y-6">
                         {/* Affirmations */}
                         {generatedPlan.mpess_integration.affirmations?.length > 0 && (
