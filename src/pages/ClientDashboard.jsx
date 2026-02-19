@@ -521,13 +521,55 @@ export default function ClientDashboard() {
   }, [clientProfile, navigate]);
 
   // Early return AFTER all hooks are defined
-  if (!user || !clientProfile) {
+  if (userLoading || clientLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+          <AlertCircle className="w-12 h-12 mx-auto text-gray-400 mb-4 animate-pulse" />
           <p className="text-gray-600">Loading your dashboard...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (userError || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-md border-red-200 bg-red-50">
+          <CardHeader>
+            <CardTitle className="text-red-700 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              Login Required
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-red-700">
+            <p className="mb-4">Please log in to access your dashboard.</p>
+            <Button 
+              onClick={() => base44.auth.redirectToLogin(createPageUrl("ClientDashboard"))}
+              className="w-full bg-red-600 hover:bg-red-700"
+            >
+              Go to Login
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (clientError || !clientProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-md border-yellow-200 bg-yellow-50">
+          <CardHeader>
+            <CardTitle className="text-yellow-700 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              Profile Not Found
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-yellow-700">
+            <p>Your client profile could not be loaded. Please contact support.</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
