@@ -478,28 +478,28 @@ export default function MealPlansPro() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-purple-50 to-indigo-50">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen p-3 md:p-6 lg:p-8 bg-gradient-to-br from-purple-50 to-indigo-50">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">💎 Mealie Pro</h1>
-            <p className="text-gray-600">Disease-Specific Clinical Meal Planning</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1">💎 Mealie Pro</h1>
+            <p className="text-sm md:text-base text-gray-600">Disease-Specific Clinical Meal Planning</p>
           </div>
-          <Badge className="bg-purple-600 text-white text-lg px-4 py-2">
+          <Badge className="bg-purple-600 text-white text-sm md:text-base px-3 py-1.5 md:px-4 md:py-2 self-start sm:self-auto">
             Advanced Tier
           </Badge>
         </div>
 
         <Alert className="bg-gradient-to-r from-purple-100 to-indigo-100 border-purple-300">
-          <Sparkles className="w-5 h-5 text-purple-600" />
-          <AlertDescription>
-            <strong>Pro Features:</strong> 10-day rotation plans (3-3-4 pattern) • Disease-specific rationales • MPESS integration • Lab value tracking • Medication management • Audit compliance
+          <Sparkles className="w-4 h-4 text-purple-600 flex-shrink-0" />
+          <AlertDescription className="text-xs sm:text-sm">
+            <strong>Pro Features:</strong> 10-day rotation plans • Disease-specific rationales • MPESS integration • Lab tracking • Audit compliance
           </AlertDescription>
         </Alert>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4 h-auto">
             <TabsTrigger value="templates">
               <Star className="w-4 h-4 mr-2" />
               Pro Templates
