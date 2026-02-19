@@ -878,6 +878,12 @@ export default function Layout({ children, currentPageName }) {
         show: (coachAccess.show_resources ?? true) && (permissions?.can_view_resources ?? true),
       },
       {
+        title: "Refer & Earn",
+        url: createPageUrl("ClientReferralHub"),
+        icon: Gift,
+        show: true,
+      },
+      {
         title: "Upload Reports",
         url: createPageUrl("ClientReportUpload"),
         icon: Upload,
