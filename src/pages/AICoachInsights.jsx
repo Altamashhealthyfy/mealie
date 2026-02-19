@@ -164,19 +164,33 @@ export default function AICoachInsights() {
                       <tab.icon className={`w-5 h-5 ${tab.color} shrink-0 mt-0.5`} />
                       <p className="text-sm text-gray-600">{tab.desc}</p>
                     </div>
-                    <Button
-                      onClick={() => handleGenerate(tab.id)}
-                      disabled={loading}
-                      className="shrink-0 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white text-sm"
-                    >
-                      {loading && activeTab === tab.id ? (
-                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating...</>
-                      ) : results[tab.id] ? (
-                        <><RefreshCw className="w-4 h-4 mr-2" />Regenerate</>
-                      ) : (
-                        <><Sparkles className="w-4 h-4 mr-2" />Generate with AI</>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {tab.id === 'progress_report' && (
+                        <Select value={reportPeriod} onValueChange={setReportPeriod}>
+                          <SelectTrigger className="w-36 h-9 text-sm">
+                            <Calendar className="w-3.5 h-3.5 mr-1.5 text-gray-400" />
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="weekly">Weekly</SelectItem>
+                            <SelectItem value="monthly">Monthly</SelectItem>
+                          </SelectContent>
+                        </Select>
                       )}
-                    </Button>
+                      <Button
+                        onClick={() => handleGenerate(tab.id)}
+                        disabled={loading}
+                        className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white text-sm"
+                      >
+                        {loading && activeTab === tab.id ? (
+                          <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating...</>
+                        ) : results[tab.id] ? (
+                          <><RefreshCw className="w-4 h-4 mr-2" />Regenerate</>
+                        ) : (
+                          <><Sparkles className="w-4 h-4 mr-2" />Generate with AI</>
+                        )}
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
 
