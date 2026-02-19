@@ -1163,43 +1163,30 @@ export default function MealPlansPro() {
                 />
 
                 {/* Action Buttons */}
-                <div className="flex flex-wrap gap-4">
+                <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3">
                   <Button
                     variant="outline"
-                    className="flex-1"
-                    onClick={() => {
-                      setGeneratedPlan(null);
-                      setEditMode(false);
-                      setEditedMeals([]);
-                    }}
+                    className="col-span-1 sm:flex-1"
+                    onClick={() => { setGeneratedPlan(null); setEditMode(false); setEditedMeals([]); }}
                   >
-                    Generate New Plan
+                    New Plan
                   </Button>
                   {!generatedPlan.from_template && (
-                    <Button
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => handleSaveAsProTemplate(generatedPlan)}
-                    >
-                      <Star className="w-4 h-4 mr-2" />
-                      Save as Template
+                    <Button variant="outline" className="col-span-1 sm:flex-1" onClick={() => handleSaveAsProTemplate(generatedPlan)}>
+                      <Star className="w-4 h-4 mr-1" />
+                      Save Template
                     </Button>
                   )}
                   <Button
                     variant={editMode ? "default" : "outline"}
-                    className={`flex-1 ${editMode ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
-                    onClick={() => {
-                      if (!editMode) {
-                        setEditedMeals([...generatedPlan.meal_plan]);
-                      }
-                      setEditMode(!editMode);
-                    }}
+                    className={`col-span-1 sm:flex-1 ${editMode ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
+                    onClick={() => { if (!editMode) setEditedMeals([...generatedPlan.meal_plan]); setEditMode(!editMode); }}
                   >
-                    <Edit className="w-4 h-4 mr-2" />
-                    {editMode ? 'Done Editing' : 'Edit Plan'}
+                    <Edit className="w-4 h-4 mr-1" />
+                    {editMode ? 'Done' : 'Edit'}
                   </Button>
                   <Button
-                    className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg"
+                    className="col-span-2 sm:flex-1 bg-gradient-to-r from-purple-500 to-indigo-500 h-12 md:h-14 font-semibold"
                     onClick={handleSavePlan}
                     disabled={savePlanMutation.isPending}
                   >
