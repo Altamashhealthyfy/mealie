@@ -1131,41 +1131,24 @@ export default function MealPlansPro() {
 
                 {/* Audit Snapshot */}
                 <Card className="border-none shadow-lg">
-                  <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white">
-                    <CardTitle>📊 Audit & Compliance Snapshot</CardTitle>
+                  <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white p-4 md:p-6">
+                    <CardTitle className="text-base md:text-lg">📊 Audit & Compliance Snapshot</CardTitle>
                   </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      <div>
-                        <p className="text-sm text-gray-600">Avg Calories/Day</p>
-                        <p className="text-xl font-bold">{generatedPlan.audit_snapshot.avg_calories_per_day} kcal</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Calorie Range</p>
-                        <p className="text-xl font-bold">{generatedPlan.audit_snapshot.calorie_range}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Macro Split</p>
-                        <p className="text-xl font-bold">
-                          {generatedPlan.audit_snapshot.macro_percentages.carbs}% / 
-                          {generatedPlan.audit_snapshot.macro_percentages.protein}% / 
-                          {generatedPlan.audit_snapshot.macro_percentages.fats}%
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Sodium</p>
-                        <p className="text-sm font-bold">{generatedPlan.audit_snapshot.sodium_compliance}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Potassium</p>
-                        <p className="text-sm font-bold">{generatedPlan.audit_snapshot.potassium_compliance}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Variety</p>
-                        <p className="text-sm font-bold">
-                          {generatedPlan.audit_snapshot.variety_check ? '✓ >20 items' : '⚠ Limited'}
-                        </p>
-                      </div>
+                  <CardContent className="p-3 md:p-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {[
+                        { label: 'Avg Cal/Day', value: `${generatedPlan.audit_snapshot.avg_calories_per_day} kcal` },
+                        { label: 'Calorie Range', value: generatedPlan.audit_snapshot.calorie_range },
+                        { label: 'Macro (C/P/F)', value: `${generatedPlan.audit_snapshot.macro_percentages.carbs}%/${generatedPlan.audit_snapshot.macro_percentages.protein}%/${generatedPlan.audit_snapshot.macro_percentages.fats}%` },
+                        { label: 'Sodium', value: generatedPlan.audit_snapshot.sodium_compliance },
+                        { label: 'Potassium', value: generatedPlan.audit_snapshot.potassium_compliance },
+                        { label: 'Variety', value: generatedPlan.audit_snapshot.variety_check ? '✓ >20 items' : '⚠ Limited' },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="p-2.5 md:p-3 bg-gray-50 rounded-xl">
+                          <p className="text-xs text-gray-500 mb-1">{label}</p>
+                          <p className="text-xs md:text-sm font-bold text-gray-800 break-words">{value}</p>
+                        </div>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
