@@ -1,11 +1,10 @@
-import React from "react";
-import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Trophy, Award, Target, Sparkles, Calendar, CheckCircle, Flame } from "lucide-react";
-import { motion } from "framer-motion";
+import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Trophy, Medal, Flame, Star, Award, TrendingUp, Target, Calendar } from 'lucide-react';
+import { format } from 'date-fns';
 
 export default function ClientGamificationDashboard() {
   const { data: user } = useQuery({
@@ -13,303 +12,324 @@ export default function ClientGamificationDashboard() {
     queryFn: () => base44.auth.me()
   });
 
-  const { data: client } = useQuery({
+  const { data: clientProfile } = useQuery({
     queryKey: ['clientProfile', user?.email],
     queryFn: async () => {
       const clients = await base44.entities.Client.filter({ email: user?.email });
-      return clients[0];
+      return clients[0] || null;
     },
-    enabled: !!user
+    enabled: !!user && user?.user_type === 'client'
   });
 
-  const { data: points = [] } = useQuery({
-    queryKey: ['clientPoints', client?.id],
-    queryFn: () => base44.entities.GamificationPoints.filter({ client_id: client?.id }),
-    enabled: !!client
+  const { data: myPoints = [] } = useQuery({
+    queryKey: ['myPoints', clientProfile?.id],
+    queryFn: async () => {
+      if (!clientProfile?.id) return [];
+      return await base44.entities.GamificationPoints.filter({ client_id: clientProfile.id });
+    },
+    enabled: !!clientProfile?.id
   });
 
-  const { data: clientBadges = [] } = useQuery({
-    queryKey: ['clientBadges', client?.id],
-    queryFn: () => base44.entities.ClientBadge.filter({ client_id: client?.id }),
-    enabled: !!client
+  const { data: myBadges = [] } = useQuery({
+    queryKey: ['myBadges', clientProfile?.id],
+    queryFn: async () => {
+      if (!clientProfile?.id) return [];
+      return await base44.entities.ClientBadge.filter({ client_id: clientProfile.id });
+    },
+    enabled: !!clientProfile?.id
   });
 
-  const { data: badges = [] } = useQuery({
-    queryKey: ['badges'],
-    queryFn: () => base44.entities.Badge.list(),
-    enabled: !!client
+  const { data: allClients = [] } = useQuery({
+    queryKey: ['allClientsLeaderboard', clientProfile?.assigned_coach],
+    queryFn: async () => {
+      if (!clientProfile?.assigned_coach) return [];
+      return await base44.entities.Client.filter({ assigned_coach: clientProfile.assigned_coach });
+    },
+    enabled: !!clientProfile?.assigned_coach
   });
 
-  const { data: clientChallenges = [] } = useQuery({
-    queryKey: ['clientChallenges', client?.id],
-    queryFn: () => base44.entities.ClientChallenge.filter({ client_id: client?.id }),
-    enabled: !!client
+  const { data: allPoints = [] } = useQuery({
+    queryKey: ['allPointsLeaderboard'],
+    queryFn: () => base44.entities.GamificationPoints.list(),
+    enabled: !!clientProfile
   });
 
-  const { data: challenges = [] } = useQuery({
-    queryKey: ['challenges'],
-    queryFn: () => base44.entities.Challenge.list(),
-    enabled: !!client
+  const { data: allBadges } = useQuery({
+    queryKey: ['badgeDefinitions'],
+    queryFn: () => base44.entities.Badge.list()
   });
 
-  const totalPoints = points.reduce((sum, p) => sum + p.points_earned, 0);
-  const activeChallenges = clientChallenges.filter(c => c.status === 'active');
-  const completedChallenges = clientChallenges.filter(c => c.status === 'completed');
+  const { data: myChallenges = [] } = useQuery({
+    queryKey: ['myChallenges', clientProfile?.id],
+    queryFn: async () => {
+      if (!clientProfile?.id) return [];
+      return await base44.entities.ClientChallenge.filter({ client_id: clientProfile.id });
+    },
+    enabled: !!clientProfile?.id
+  });
 
-  const getBadgeDetails = (badgeId) => badges.find(b => b.id === badgeId);
-  const getChallengeDetails = (challengeId) => challenges.find(c => c.id === challengeId);
+  // Calculate my stats
+  const totalPoints = myPoints.reduce((sum, p) => sum + p.points_earned, 0);
+  const pointsByActivity = {};
+  myPoints.forEach(p => {
+    pointsByActivity[p.action_type] = (pointsByActivity[p.action_type] || 0) + p.points_earned;
+  });
 
-  const getRarityColor = (rarity) => {
-    switch (rarity) {
-      case 'legendary': return 'from-purple-600 to-pink-600';
-      case 'epic': return 'from-purple-500 to-indigo-500';
-      case 'rare': return 'from-blue-500 to-cyan-500';
-      default: return 'from-gray-400 to-gray-500';
+  // Calculate streak (consecutive days of activity)
+  const calculateStreak = () => {
+    if (myPoints.length === 0) return 0;
+    const dates = [...new Set(myPoints.map(p => new Date(p.date_earned).toDateString()))].sort();
+    let streak = 1;
+    for (let i = dates.length - 1; i > 0; i--) {
+      const currDate = new Date(dates[i]);
+      const prevDate = new Date(dates[i - 1]);
+      const diffDays = Math.floor((currDate - prevDate) / (1000 * 60 * 60 * 24));
+      if (diffDays === 1) {
+        streak++;
+      } else {
+        break;
+      }
     }
+    return streak;
   };
 
-  if (!client) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading your achievements...</p>
-      </div>
-    );
-  }
+  const currentStreak = calculateStreak();
+
+  // Build leaderboard
+  const leaderboard = allClients.map(client => {
+    const clientPoints = allPoints.filter(p => p.client_id === client.id);
+    const totalClientPoints = clientPoints.reduce((sum, p) => sum + p.points_earned, 0);
+    const clientBadges = myBadges.filter(b => b.client_id === client.id);
+    return {
+      ...client,
+      totalPoints: totalClientPoints,
+      badgeCount: clientBadges.length,
+      pointsCount: clientPoints.length
+    };
+  }).sort((a, b) => b.totalPoints - a.totalPoints);
+
+  const myRank = leaderboard.findIndex(c => c.id === clientProfile?.id) + 1;
+
+  const getRankIcon = (rank) => {
+    if (rank === 1) return <Trophy className="w-6 h-6 text-yellow-500" />;
+    if (rank === 2) return <Medal className="w-6 h-6 text-gray-400" />;
+    if (rank === 3) return <Medal className="w-6 h-6 text-orange-600" />;
+    return null;
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-4 md:p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div className="text-center">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent flex items-center justify-center gap-3">
-            <Trophy className="w-10 h-10 text-orange-500" />
+        <div className="text-center space-y-2">
+          <h1 className="text-4xl font-bold text-gray-900 flex items-center justify-center gap-3">
+            <Star className="w-10 h-10 text-yellow-500" />
             My Achievements
           </h1>
-          <p className="text-gray-600 mt-2">Track your progress and celebrate your wins!</p>
+          <p className="text-gray-600">Track your progress and compete with others</p>
         </div>
 
-        {/* Points Card */}
-        <motion.div
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Card className="bg-gradient-to-br from-orange-500 to-red-600 text-white border-none shadow-2xl">
-            <CardContent className="p-8">
+        {/* Top Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="bg-gradient-to-br from-orange-500 to-red-600 text-white border-0 shadow-lg">
+            <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-white/80 text-lg mb-2">Total Points</p>
-                  <p className="text-6xl font-bold">{totalPoints}</p>
-                  <p className="text-white/80 mt-2">{points.length} achievements earned</p>
+                  <p className="text-orange-100 text-sm font-medium">Total Points</p>
+                  <p className="text-4xl font-bold">{totalPoints}</p>
                 </div>
-                <Sparkles className="w-24 h-24 text-white/20" />
+                <Target className="w-12 h-12 opacity-20" />
               </div>
             </CardContent>
           </Card>
-        </motion.div>
 
-        {/* Badges Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-2xl">
-              <Award className="w-6 h-6 text-purple-600" />
-              My Badges ({clientBadges.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {clientBadges.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {clientBadges.map((clientBadge) => {
-                  const badge = getBadgeDetails(clientBadge.badge_id);
-                  return (
-                    <motion.div
-                      key={clientBadge.id}
-                      initial={{ scale: 0.9, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      whileHover={{ scale: 1.05 }}
-                      className={`relative p-6 rounded-xl bg-gradient-to-br ${getRarityColor(badge?.rarity)} text-white shadow-lg overflow-hidden`}
-                    >
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-                      <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-3">
-                          {badge?.icon?.startsWith('http') ? (
-                            <img src={badge.icon} alt="" className="w-16 h-16 object-contain" />
-                          ) : (
-                            <span className="text-5xl">{badge?.icon || '🏆'}</span>
-                          )}
-                          <Badge className="bg-white/20 text-white border-none">
-                            {badge?.rarity || 'common'}
-                          </Badge>
-                        </div>
-                        <h3 className="font-bold text-xl mb-2">{badge?.name || 'Special Badge'}</h3>
-                        <p className="text-white/90 text-sm mb-3">{badge?.description || 'Achievement unlocked!'}</p>
-                        <div className="flex items-center gap-2 text-white/80 text-xs">
-                          <Calendar className="w-4 h-4" />
-                          <span>Earned: {new Date(clientBadge.earned_date).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <Award className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg">No badges earned yet</p>
-                <p className="text-gray-400 text-sm mt-2">Complete challenges and reach milestones to earn badges!</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Challenges Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Active Challenges */}
-          <Card className="border-blue-200 bg-blue-50/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-xl text-blue-700">
-                <Target className="w-5 h-5" />
-                Active Challenges ({activeChallenges.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {activeChallenges.length > 0 ? (
-                <div className="space-y-4">
-                  {activeChallenges.map((cc) => {
-                    const challenge = getChallengeDetails(cc.challenge_id);
-                    return (
-                      <motion.div
-                        key={cc.id}
-                        initial={{ x: -20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        className="p-4 bg-white rounded-lg border border-blue-200 shadow-sm"
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1">
-                            <h4 className="font-bold text-lg text-gray-900">{challenge?.title || 'Challenge'}</h4>
-                            <p className="text-sm text-gray-600 mt-1">{challenge?.description}</p>
-                          </div>
-                          <Badge className="bg-blue-600 text-white">
-                            {challenge?.points_reward} pts
-                          </Badge>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-gray-600">Progress</span>
-                            <span className="font-bold text-blue-600">{cc.progress_percentage || 0}%</span>
-                          </div>
-                          <Progress value={cc.progress_percentage || 0} className="h-3" />
-                          <div className="flex items-center justify-between text-xs text-gray-500">
-                            <span>Started: {new Date(cc.start_date).toLocaleDateString()}</span>
-                            <span>Due: {new Date(cc.end_date).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+          <Card className="bg-gradient-to-br from-purple-500 to-pink-600 text-white border-0 shadow-lg">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-purple-100 text-sm font-medium">Badges Earned</p>
+                  <p className="text-4xl font-bold">{myBadges.length}</p>
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Target className="w-12 h-12 text-blue-300 mx-auto mb-3" />
-                  <p className="text-gray-500">No active challenges</p>
-                  <p className="text-gray-400 text-sm mt-1">Start a new challenge to earn points!</p>
-                </div>
-              )}
+                <Award className="w-12 h-12 opacity-20" />
+              </div>
             </CardContent>
           </Card>
 
-          {/* Completed Challenges */}
-          <Card className="border-green-200 bg-green-50/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-xl text-green-700">
-                <CheckCircle className="w-5 h-5" />
-                Completed Challenges ({completedChallenges.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {completedChallenges.length > 0 ? (
-                <div className="space-y-4">
-                  {completedChallenges.map((cc) => {
-                    const challenge = getChallengeDetails(cc.challenge_id);
-                    return (
-                      <motion.div
-                        key={cc.id}
-                        initial={{ x: 20, opacity: 0 }}
-                        animate={{ x: 0, opacity: 1 }}
-                        className="p-4 bg-white rounded-lg border border-green-200 shadow-sm"
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex-1">
-                            <h4 className="font-bold text-lg text-gray-900">{challenge?.title || 'Challenge'}</h4>
-                            <p className="text-sm text-gray-600 mt-1">{challenge?.description}</p>
-                          </div>
-                          <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0" />
-                        </div>
-                        <div className="flex items-center justify-between mt-3 pt-3 border-t border-green-100">
-                          <div className="flex items-center gap-2">
-                            <Badge className="bg-green-600 text-white">
-                              +{challenge?.points_reward} pts
-                            </Badge>
-                            {cc.completed_date && (
-                              <span className="text-xs text-gray-500">
-                                {new Date(cc.completed_date).toLocaleDateString()}
-                              </span>
-                            )}
-                          </div>
-                          <Flame className="w-5 h-5 text-orange-500" />
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+          <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white border-0 shadow-lg">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-green-100 text-sm font-medium">Current Streak</p>
+                  <p className="text-4xl font-bold flex items-center gap-1">{currentStreak} <Flame className="w-6 h-6" /></p>
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <CheckCircle className="w-12 h-12 text-green-300 mx-auto mb-3" />
-                  <p className="text-gray-500">No completed challenges yet</p>
-                  <p className="text-gray-400 text-sm mt-1">Complete your first challenge!</p>
+                <Flame className="w-12 h-12 opacity-20" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className={`text-white border-0 shadow-lg ${
+            myRank === 1 ? 'bg-gradient-to-br from-yellow-500 to-amber-600' :
+            myRank === 2 ? 'bg-gradient-to-br from-gray-500 to-slate-600' :
+            myRank === 3 ? 'bg-gradient-to-br from-orange-500 to-amber-600' :
+            'bg-gradient-to-br from-blue-500 to-cyan-600'
+          }`}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white/80 text-sm font-medium">Your Rank</p>
+                  <p className="text-4xl font-bold">#{myRank}</p>
                 </div>
-              )}
+                {getRankIcon(myRank) || <TrendingUp className="w-12 h-12 opacity-20" />}
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Recent Points Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <Sparkles className="w-5 h-5 text-orange-600" />
-              Recent Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {points.length > 0 ? (
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {points.slice(0, 10).map((point) => (
-                  <div key={point.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <div>
-                      <p className="font-semibold text-gray-900">
-                        {point.action_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                      </p>
-                      {point.description && (
-                        <p className="text-sm text-gray-600">{point.description}</p>
-                      )}
-                      <p className="text-xs text-gray-500 mt-1">
-                        {new Date(point.date_earned).toLocaleDateString()}
+        {/* Active Challenges */}
+        {myChallenges.filter(c => c.status === 'active').length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="w-5 h-5 text-blue-600" />
+                Active Challenges
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {myChallenges.filter(c => c.status === 'active').map(challenge => (
+                  <div key={challenge.id} className="p-4 border rounded-lg bg-blue-50 border-blue-200">
+                    <div className="flex items-start justify-between mb-3">
+                      <h3 className="font-semibold text-gray-900">{challenge.challenge_title}</h3>
+                      <Badge className="bg-blue-500">Active</Badge>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600">Progress</span>
+                        <span className="font-medium">{challenge.progress_percentage || 0}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-blue-500 h-2 rounded-full transition-all" 
+                          style={{ width: `${challenge.progress_percentage || 0}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        Started {format(new Date(challenge.started_date), 'MMM dd, yyyy')}
                       </p>
                     </div>
-                    <Badge className="bg-gradient-to-r from-orange-500 to-red-600 text-white text-lg px-4 py-1">
-                      +{point.points_earned}
-                    </Badge>
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="text-center py-8">
-                <Sparkles className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No activity yet</p>
-                <p className="text-gray-400 text-sm mt-1">Start your journey to earn points!</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* My Badges */}
+        {myBadges.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Award className="w-5 h-5 text-purple-600" />
+                My Badges ({myBadges.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {myBadges.map(badgeRecord => {
+                  const badgeDef = allBadges?.find(b => b.id === badgeRecord.badge_id);
+                  return (
+                    <div key={badgeRecord.id} className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
+                      <div className="text-4xl mb-2">
+                        {badgeDef?.icon?.startsWith('http') ? (
+                          <img src={badgeDef.icon} alt="" className="w-12 h-12 mx-auto object-contain" />
+                        ) : (
+                          badgeDef?.icon || '🏆'
+                        )}
+                      </div>
+                      <p className="font-semibold text-sm text-gray-900">{badgeDef?.name}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {format(new Date(badgeRecord.earned_date), 'MMM dd')}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
-            )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Points Breakdown */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-green-600" />
+              Points Breakdown
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.entries(pointsByActivity)
+                .sort((a, b) => b[1] - a[1])
+                .map(([activity, points]) => (
+                  <div key={activity} className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                    <span className="font-medium text-gray-900 capitalize">
+                      {activity.replace(/_/g, ' ')}
+                    </span>
+                    <Badge className="bg-green-600 text-white">+{points}</Badge>
+                  </div>
+                ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Leaderboard */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-orange-500" />
+              Leaderboard
+            </CardTitle>
+            <CardDescription>See how you rank among your group</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {leaderboard.map((client, idx) => {
+                const isMe = client.id === clientProfile?.id;
+                return (
+                  <div
+                    key={client.id}
+                    className={`flex items-center justify-between p-4 rounded-lg border transition-all ${
+                      isMe
+                        ? 'bg-gradient-to-r from-yellow-100 to-orange-100 border-2 border-yellow-400 shadow-md'
+                        : idx === 0
+                        ? 'bg-yellow-50 border border-yellow-200'
+                        : idx === 1
+                        ? 'bg-gray-50 border border-gray-200'
+                        : idx === 2
+                        ? 'bg-orange-50 border border-orange-200'
+                        : 'bg-white border border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="flex items-center justify-center w-10">
+                        {idx < 3 ? getRankIcon(idx + 1) : <span className="text-lg font-bold text-gray-400">#{idx + 1}</span>}
+                      </div>
+                      <div>
+                        <p className={`font-semibold ${isMe ? 'text-orange-900' : 'text-gray-900'}`}>
+                          {client.full_name} {isMe && '(You)'}
+                        </p>
+                        <p className="text-xs text-gray-500">{client.badgeCount} badges</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <Badge className="bg-orange-500 text-white">
+                        {client.totalPoints} pts
+                      </Badge>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </CardContent>
         </Card>
       </div>
