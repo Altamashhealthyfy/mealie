@@ -279,6 +279,8 @@ export default function AICoachChat({ clientId, clientName }) {
         {messages.map((msg, i) => (
           msg.role === "user"
             ? <UserMessage key={i} content={msg.content} />
+            : msg.role === "scan"
+            ? <ProactiveScanResult key={i} scan={msg.scan} />
             : <AIMessage key={i} msg={msg} />
         ))}
 
