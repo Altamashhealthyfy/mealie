@@ -377,7 +377,17 @@ export default function AICoachChat({ clientId, clientName, onClientChange }) {
   // Reset chat when client changes
   useEffect(() => {
     setMessages([]);
-  }, [clientId]);
+  }, [selectedClientId]);
+
+  const handleClientChange = (newClientId) => {
+    const selected = clients.find(c => c.id === newClientId);
+    setSelectedClientId(newClientId);
+    setSelectedClientName(selected?.full_name || '');
+    setMessages([]);
+    if (onClientChange) {
+      onClientChange(newClientId, selected?.full_name);
+    }
+  };
 
   const send = async (text) => {
     const q = (text || input).trim();
