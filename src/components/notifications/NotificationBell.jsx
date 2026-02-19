@@ -27,7 +27,7 @@ export default function NotificationBell({ userEmail }) {
       );
     },
     enabled: !!userEmail,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 15000, // Refetch every 15 seconds for near-real-time notifications
   });
 
   const markAsReadMutation = useMutation({
