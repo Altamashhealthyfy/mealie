@@ -604,9 +604,17 @@ export default function Layout({ children, currentPageName }) {
   // Check if effective type is dietitian (used for sidebar rendering)
   const isEffectiveDietitian = ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(effectiveUserType);
   
-  const filteredDietitianNav = dietitianNavigation.filter(item =>
-    !item.roles || item.roles.includes(effectiveUserType)
-  );
+  const filteredDietitianNav = [
+    {
+      title: "Help & Guide",
+      url: createPageUrl("HelpGuide"),
+      icon: HelpCircle,
+      roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+    },
+    ...dietitianNavigation
+  ].filter(item =>
+      !item.roles || item.roles.includes(effectiveUserType)
+    );
   
   const filteredPaymentNav = paymentNavigation.filter(item =>
     !item.roles || item.roles.includes(effectiveUserType)
