@@ -853,13 +853,13 @@ export default function ClientDashboard() {
                 <div className="p-3 bg-gray-50 rounded-lg">
                   <p className="text-xs text-gray-600 mb-1">Started</p>
                   <p className="text-sm font-bold text-gray-900">
-                    {clientSubscription.start_date ? format(new Date(clientSubscription.start_date), 'MMM dd, yyyy') : 'N/A'}
+                    {clientSubscription.start_date && !isNaN(new Date(clientSubscription.start_date)) ? format(new Date(clientSubscription.start_date), 'MMM dd, yyyy') : 'N/A'}
                   </p>
                 </div>
                 <div className="p-3 bg-gray-50 rounded-lg">
                   <p className="text-xs text-gray-600 mb-1">Ends</p>
                   <p className="text-sm font-bold text-gray-900">
-                    {clientSubscription.end_date ? format(new Date(clientSubscription.end_date), 'MMM dd, yyyy') : 'N/A'}
+                    {clientSubscription.end_date && !isNaN(new Date(clientSubscription.end_date)) ? format(new Date(clientSubscription.end_date), 'MMM dd, yyyy') : 'N/A'}
                   </p>
                 </div>
               </div>

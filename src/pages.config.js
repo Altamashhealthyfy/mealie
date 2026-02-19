@@ -129,6 +129,7 @@ import HealthCoachDashboard from './pages/HealthCoachDashboard';
 import HealthCoachPlans from './pages/HealthCoachPlans';
 import HealthCoachesManagement from './pages/HealthCoachesManagement';
 import HealthReportAnalysis from './pages/HealthReportAnalysis';
+import HelpCenter from './pages/HelpCenter';
 import Home from './pages/Home';
 import IncomeExpense from './pages/IncomeExpense';
 import InstallmentTracker from './pages/InstallmentTracker';
@@ -152,12 +153,12 @@ import PricingPlans from './pages/PricingPlans';
 import Profile from './pages/Profile';
 import ProgressTracking from './pages/ProgressTracking';
 import ProjectManagement from './pages/ProjectManagement';
+import Recipes from './pages/Recipes';
 import PublicPlanPurchase from './pages/PublicPlanPurchase';
 import PurchaseAICredits from './pages/PurchaseAICredits';
 import PurchaseClientPlan from './pages/PurchaseClientPlan';
 import PurchaseCoachPlan from './pages/PurchaseCoachPlan';
 import RecipeManagement from './pages/RecipeManagement';
-import Recipes from './pages/Recipes';
 import ReminderManagement from './pages/ReminderManagement';
 import ResourceLibrary from './pages/ResourceLibrary';
 import ResourceLibraryEnhanced from './pages/ResourceLibraryEnhanced';
@@ -176,7 +177,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import HelpCenter from './pages/HelpCenter';
 import __Layout from './Layout.jsx';
 
 
@@ -263,6 +263,7 @@ export const PAGES = {
     "HealthCoachPlans": HealthCoachPlans,
     "HealthCoachesManagement": HealthCoachesManagement,
     "HealthReportAnalysis": HealthReportAnalysis,
+    "HelpCenter": HelpCenter,
     "Home": Home,
     "IncomeExpense": IncomeExpense,
     "InstallmentTracker": InstallmentTracker,
@@ -286,12 +287,12 @@ export const PAGES = {
     "Profile": Profile,
     "ProgressTracking": ProgressTracking,
     "ProjectManagement": ProjectManagement,
+    "Recipes": Recipes,
     "PublicPlanPurchase": PublicPlanPurchase,
     "PurchaseAICredits": PurchaseAICredits,
     "PurchaseClientPlan": PurchaseClientPlan,
     "PurchaseCoachPlan": PurchaseCoachPlan,
     "RecipeManagement": RecipeManagement,
-    "Recipes": Recipes,
     "ReminderManagement": ReminderManagement,
     "ResourceLibrary": ResourceLibrary,
     "ResourceLibraryEnhanced": ResourceLibraryEnhanced,
@@ -310,7 +311,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "HelpCenter": HelpCenter,
 }
 
 export const pagesConfig = {
