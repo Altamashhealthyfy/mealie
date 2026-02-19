@@ -338,13 +338,37 @@ function ProactiveScanResult({ scan }) {
   );
 }
 
-export default function AICoachChat({ clientId, clientName }) {
+export default function AICoachChat({ clientId, clientName, onClientChange }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [scanning, setScanning] = useState(false);
+  const [selectedClientId, setSelectedClientId] = useState(clientId);
+  const [selectedClientName, setSelectedClientName] = useState(clientName);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Fetch available clients
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: async () => {
+      try {
+        return await base44.auth.me();
+      } catch (error) {
+        console.error('Auth error:', error);
+        return null;
+      }
+    },
+  });
+
+  const { data: clients = [] } = useQuery({
+    queryKey: ['aiCoachClients', user?.email],
+    queryFn: async () => {
+      if (!user) return [];
+      return await base44.entities.Client.filter({ assigned_to: user?.email });
+    },
+    enabled: !!user,
+  });
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
