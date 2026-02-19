@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Home, Users, Calendar, ChefHat, TrendingUp, MessageSquare, Heart, BookOpen,
   Sparkles, BarChart3, ClipboardList, FileText, Settings, Bell, Trophy, Gift,
-  Share2, CreditCard, Shield, Search, CheckCircle2, ArrowRight, Zap
+  Share2, CreditCard, Shield, Search, CheckCircle2, ArrowRight, Zap, Loader2
 } from 'lucide-react';
 
 const dashboardSections = [
