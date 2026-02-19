@@ -422,11 +422,17 @@ export default function AICoachChat({ clientId, clientName }) {
             <h3 className="font-semibold text-gray-700 mb-1">
               {clientName ? `Ask me about ${clientName}` : "AI Coach Assistant"}
             </h3>
-            <p className="text-sm text-gray-400 mb-6">
+            <p className="text-sm text-gray-400 mb-4">
               {clientName
                 ? "I have access to their progress logs, meal plans, goals, and clinical data."
                 : "Select a client above for context-aware answers, or ask general nutrition questions."}
             </p>
+            <button
+              onClick={showFeatureGuide}
+              className="mb-4 flex items-center gap-2 mx-auto text-xs bg-teal-50 border border-teal-200 hover:bg-teal-100 text-teal-700 rounded-full px-4 py-2 transition-colors"
+            >
+              <HelpCircle className="w-3.5 h-3.5" /> How does each feature work?
+            </button>
             <div className="flex flex-wrap gap-2 justify-center max-w-lg mx-auto">
               {QUICK_PROMPTS.slice(0, clientName ? 8 : 4).map((p, i) => (
                 <button
