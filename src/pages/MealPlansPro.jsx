@@ -903,33 +903,23 @@ export default function MealPlansPro() {
 
                 {/* Calculations */}
                 <Card className="border-none shadow-lg">
-                  <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
-                    <CardTitle>📊 Nutritional Calculations</CardTitle>
+                  <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-4 md:p-6">
+                    <CardTitle className="text-base md:text-lg">📊 Nutritional Calculations</CardTitle>
                   </CardHeader>
-                  <CardContent className="p-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600">BMR</p>
-                        <p className="text-2xl font-bold text-blue-600">{generatedPlan.calculations.bmr}</p>
-                        <p className="text-xs text-gray-500">kcal/day</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600">TDEE</p>
-                        <p className="text-2xl font-bold text-cyan-600">{generatedPlan.calculations.tdee}</p>
-                        <p className="text-xs text-gray-500">kcal/day</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600">Target Calories</p>
-                        <p className="text-2xl font-bold text-orange-600">{generatedPlan.calculations.target_calories}</p>
-                        <p className="text-xs text-gray-500">kcal/day</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-gray-600">Macros (C/P/F)</p>
-                        <p className="text-2xl font-bold text-purple-600">
-                          {generatedPlan.calculations.macros.carbs_g}/{generatedPlan.calculations.macros.protein_g}/{generatedPlan.calculations.macros.fats_g}
-                        </p>
-                        <p className="text-xs text-gray-500">grams</p>
-                      </div>
+                  <CardContent className="p-3 md:p-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                      {[
+                        { label: 'BMR', value: generatedPlan.calculations.bmr, color: 'text-blue-600', unit: 'kcal/day' },
+                        { label: 'TDEE', value: generatedPlan.calculations.tdee, color: 'text-cyan-600', unit: 'kcal/day' },
+                        { label: 'Target Cal', value: generatedPlan.calculations.target_calories, color: 'text-orange-600', unit: 'kcal/day' },
+                        { label: 'C/P/F (g)', value: `${generatedPlan.calculations.macros.carbs_g}/${generatedPlan.calculations.macros.protein_g}/${generatedPlan.calculations.macros.fats_g}`, color: 'text-purple-600', unit: 'grams' },
+                      ].map(({ label, value, color, unit }) => (
+                        <div key={label} className="text-center p-2 md:p-3 bg-gray-50 rounded-xl">
+                          <p className="text-xs text-gray-500 mb-1">{label}</p>
+                          <p className={`text-lg md:text-2xl font-bold ${color}`}>{value}</p>
+                          <p className="text-xs text-gray-400">{unit}</p>
+                        </div>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
