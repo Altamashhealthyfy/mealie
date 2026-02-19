@@ -73,7 +73,10 @@ export default function Home() {
     queryKey: ['recentProgressHome', clientProfile?.id],
     queryFn: async () => {
       const logs = await base44.entities.ProgressLog.filter({ client_id: clientProfile?.id });
-      return logs.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 1);
+      return logs
+        .filter(l => l.date)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 1);
     },
     enabled: !!clientProfile,
     initialData: [],
