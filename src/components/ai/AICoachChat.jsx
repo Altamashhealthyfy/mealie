@@ -492,6 +492,13 @@ export default function AICoachChat({ clientId, clientName }) {
             {scanning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Bell className="w-3.5 h-3.5" />}
             Proactive Scan
           </button>
+          <button
+            onClick={showFeatureGuide}
+            disabled={loading || scanning}
+            className="flex items-center gap-1.5 text-xs bg-teal-50 border border-teal-200 hover:bg-teal-100 text-teal-700 rounded-full px-3 py-1.5 transition-colors whitespace-nowrap shrink-0 disabled:opacity-50"
+          >
+            <HelpCircle className="w-3.5 h-3.5" /> Feature Guide
+          </button>
           {!loading && !scanning && QUICK_PROMPTS.slice(0, 3).map((p, i) => (
             <button
               key={i}
