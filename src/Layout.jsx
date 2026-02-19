@@ -271,6 +271,12 @@ const gamificationNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
+    title: "Rewards Store",
+    url: createPageUrl("CoachRewardsManager"),
+    icon: ShoppingBag,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
     title: "Gamification Settings",
     url: createPageUrl("GamificationSettings"),
     icon: Settings,
