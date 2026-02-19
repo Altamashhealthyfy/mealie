@@ -408,34 +408,109 @@ export default function ClientAnalyticsDashboard() {
         {/* Filters */}
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
           <CardContent className="p-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Filter by Client</Label>
-                <select
-                  value={selectedClient}
-                  onChange={(e) => setSelectedClient(e.target.value)}
-                  className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                >
-                  <option value="all">All Clients</option>
-                  {clients.map(client => (
-                    <option key={client.id} value={client.id}>{client.full_name}</option>
-                  ))}
-                </select>
+            <div className="space-y-4">
+              {/* Search Bar */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search clients by name or email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-10 h-10 border-gray-300 focus:ring-orange-500"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm("")}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Focus Metric</Label>
-                <select
-                  value={selectedMetric}
-                  onChange={(e) => setSelectedMetric(e.target.value)}
-                  className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-                >
-                  <option value="all">All Metrics</option>
-                  <option value="weight">Weight Only</option>
-                  <option value="wellness">Wellness Only</option>
-                  <option value="adherence">Adherence Only</option>
-                  <option value="goals">Goals Only</option>
-                </select>
+
+              {/* Date Range Filter */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Start Date</Label>
+                  <Input
+                    type="date"
+                    value={dateRange.start}
+                    onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                    className="h-10"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">End Date</Label>
+                  <Input
+                    type="date"
+                    value={dateRange.end}
+                    onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                    className="h-10"
+                  />
+                </div>
               </div>
+
+              {/* Other Filters */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Filter by Client</Label>
+                  <select
+                    value={selectedClient}
+                    onChange={(e) => setSelectedClient(e.target.value)}
+                    className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  >
+                    <option value="all">All Clients</option>
+                    {analytics.filteredClients.map(client => (
+                      <option key={client.id} value={client.id}>{client.full_name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Focus Metric</Label>
+                  <select
+                    value={selectedMetric}
+                    onChange={(e) => setSelectedMetric(e.target.value)}
+                    className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  >
+                    <option value="all">All Metrics</option>
+                    <option value="weight">Weight Only</option>
+                    <option value="wellness">Wellness Only</option>
+                    <option value="adherence">Adherence Only</option>
+                    <option value="goals">Goals Only</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Active Filters Display */}
+              {(searchTerm || dateRange.start || dateRange.end) && (
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {searchTerm && (
+                    <Badge variant="secondary" className="flex items-center gap-2">
+                      Search: {searchTerm}
+                      <button onClick={() => setSearchTerm("")} className="ml-1">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  )}
+                  {dateRange.start && (
+                    <Badge variant="secondary" className="flex items-center gap-2">
+                      From: {dateRange.start}
+                      <button onClick={() => setDateRange({ ...dateRange, start: "" })} className="ml-1">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  )}
+                  {dateRange.end && (
+                    <Badge variant="secondary" className="flex items-center gap-2">
+                      To: {dateRange.end}
+                      <button onClick={() => setDateRange({ ...dateRange, end: "" })} className="ml-1">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  )}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
