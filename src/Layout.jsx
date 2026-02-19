@@ -4,50 +4,49 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import {
-        Home,
-        Calendar,
-        ChefHat,
-        Search,
-        Heart,
-        Users,
-        MessageSquare,
-        TrendingUp,
-        ClipboardList,
-        BarChart3 as BarChart,
-        LayoutDashboard,
-        Filter,
-        DollarSign,
-        Megaphone,
-        BookOpen,
-        Utensils,
-        Scale,
-        UserPlus,
-        Sparkles,
-        Rocket,
-        Target,
-        FileText,
-        Upload,
-        LogOut,
-        Stethoscope,
-        Shield,
-        User,
-        CreditCard,
-        Crown,
-        Receipt,
-        Settings,
-        Globe,
-        Palette,
-        Loader2,
-        Tag,
-        Lock,
-        Share2,
-        Eye,
-        BarChart3,
-        Trophy,
-        Award,
-        Gift,
-        HelpCircle
-      } from "lucide-react";
+  Home,
+  Calendar,
+  ChefHat,
+  Search,
+  Heart,
+  Users,
+  MessageSquare,
+  TrendingUp,
+  ClipboardList,
+  BarChart3 as BarChart,
+  LayoutDashboard,
+  Filter,
+  DollarSign,
+  Megaphone,
+  BookOpen,
+  Utensils,
+  Scale,
+  UserPlus,
+  Sparkles,
+  Rocket,
+  Target,
+  FileText,
+  Upload,
+  LogOut,
+  Stethoscope,
+  Shield,
+  User,
+  CreditCard,
+  Crown,
+  Receipt,
+  Settings,
+  Globe,
+  Palette,
+  Loader2,
+  Tag,
+  Lock,
+  Share2,
+  Eye,
+  BarChart3,
+  Trophy,
+  Award,
+  Gift
+} from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
@@ -605,17 +604,9 @@ export default function Layout({ children, currentPageName }) {
   // Check if effective type is dietitian (used for sidebar rendering)
   const isEffectiveDietitian = ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(effectiveUserType);
   
-  const filteredDietitianNav = [
-    {
-      title: "Help & Guide",
-      url: createPageUrl("HelpGuide"),
-      icon: HelpCircle,
-      roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
-    },
-    ...dietitianNavigation
-  ].filter(item =>
-      !item.roles || item.roles.includes(effectiveUserType)
-    );
+  const filteredDietitianNav = dietitianNavigation.filter(item =>
+    !item.roles || item.roles.includes(effectiveUserType)
+  );
   
   const filteredPaymentNav = paymentNavigation.filter(item =>
     !item.roles || item.roles.includes(effectiveUserType)
@@ -789,18 +780,12 @@ export default function Layout({ children, currentPageName }) {
     const coachAccess = clientAccessControl || {};
     
     const baseNav = [
-          {
-            title: "My Dashboard",
-            url: createPageUrl("ClientDashboard"),
-            icon: Home,
-            show: (coachAccess.show_my_dashboard ?? true) && true,
-          },
-          {
-            title: "Help & Guide",
-            url: createPageUrl("HelpGuide"),
-            icon: HelpCircle,
-            show: true,
-          },
+      {
+        title: "My Dashboard",
+        url: createPageUrl("ClientDashboard"),
+        icon: Home,
+        show: (coachAccess.show_my_dashboard ?? true) && true,
+      },
       {
         title: "My Achievements",
         url: createPageUrl("ClientAchievements"),
