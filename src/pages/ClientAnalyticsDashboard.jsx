@@ -350,8 +350,8 @@ export default function ClientAnalyticsDashboard() {
       adherenceRanges,
       goalData,
       recentMessages: recentMessages.length,
-      totalProgressLogs: filteredProgressLogs.filter(log => log.date && !isNaN(new Date(log.date).getTime()) && new Date(log.date) >= cutoffDate).length,
-      totalFoodLogs: filteredFoodLogs.filter(log => log.date && !isNaN(new Date(log.date).getTime()) && new Date(log.date) >= cutoffDate).length,
+      totalProgressLogs: filteredProgressLogs.filter(log => log.date && !isNaN(new Date(log.date).getTime()) && new Date(log.date) >= cutoffDate && new Date(log.date) <= endDate).length,
+      totalFoodLogs: filteredFoodLogs.filter(log => log.date && !isNaN(new Date(log.date).getTime()) && new Date(log.date) >= cutoffDate && new Date(log.date) <= endDate).length,
       completedAssessments,
       pendingAssessments,
       assessmentCompletionRate,
@@ -365,7 +365,7 @@ export default function ClientAnalyticsDashboard() {
       avgStress,
       filteredClients,
     };
-  }, [clients, progressLogs, foodLogs, mealPlans, messages, assessments, progressGoals, mpessLogs, selectedPeriod, selectedClient]);
+  }, [clients, progressLogs, foodLogs, mealPlans, messages, assessments, progressGoals, mpessLogs, selectedPeriod, selectedClient, searchTerm, dateRange]);
 
   return (
     <div className="min-h-screen p-4 md:p-8">
