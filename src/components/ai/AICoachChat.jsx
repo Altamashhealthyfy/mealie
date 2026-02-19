@@ -182,6 +182,7 @@ export default function AICoachChat({ clientId, clientName }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [scanning, setScanning] = useState(false);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
