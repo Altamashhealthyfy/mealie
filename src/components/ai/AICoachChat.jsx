@@ -222,6 +222,29 @@ export default function AICoachChat({ clientId, clientName }) {
     inputRef.current?.focus();
   };
 
+  const runProactiveScan = async () => {
+    if (!clientId || scanning) return;
+    setScanning(true);
+    setMessages(prev => [...prev, { role: "user", content: "🔍 Run proactive status scan for this client" }]);
+    try {
+      const res = await base44.functions.invoke('aiCoachChat', {
+        clientId,
+        message: "proactive_scan",
+        mode: "proactive_scan",
+        history: [],
+      });
+      setMessages(prev => [...prev, { role: "scan", scan: res.data.scan }]);
+    } catch (e) {
+      setMessages(prev => [...prev, {
+        role: "ai",
+        reply: { answer: "Scan failed. Please try again.", suggested_actions: [], key_observations: [], escalation_required: false }
+      }]);
+    }
+    setScanning(false);
+  };
+
+  const summarizeClient = () => send("Give me a full status summary of this client — cover weight trend, adherence, goal progress, wellness metrics, and top 2 priorities for this week.");
+
   return (
     <div className="flex flex-col h-full min-h-[500px]">
       {/* Chat area */}
