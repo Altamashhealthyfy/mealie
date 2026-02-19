@@ -876,11 +876,11 @@ export default function MealPlansPro() {
               </div>
             ) : (
               /* Show Generated Plan */
-              <div className="space-y-6">
+              <div className="space-y-4 md:space-y-6">
                 {/* Decision Rules */}
                 <Card className="border-none shadow-lg">
-                  <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">
-                    <CardTitle>✅ Decision Rules Applied</CardTitle>
+                  <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-4 md:p-6">
+                    <CardTitle className="text-base md:text-lg">✅ Decision Rules Applied</CardTitle>
                   </CardHeader>
                   <CardContent className="p-6">
                     <ul className="space-y-2">
