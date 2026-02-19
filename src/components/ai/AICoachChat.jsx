@@ -536,7 +536,7 @@ export default function AICoachChat({ clientId, clientName, onClientChange }) {
       </div>
 
       {/* Quick action buttons (always visible when client selected) */}
-      {clientId && (
+      {selectedClientId && (
         <div className="px-4 pb-2 border-t pt-2 flex gap-2 overflow-x-auto bg-gray-50/80">
           <button
             onClick={summarizeClient}
