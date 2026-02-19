@@ -926,32 +926,32 @@ export default function MealPlansPro() {
 
                 {/* Meal Plan */}
                 <Card className="border-none shadow-lg">
-                  <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-                    <CardTitle>🍽️ {numberOfDays}-Day Meal Plan ({mealPattern.toUpperCase()} Pattern)</CardTitle>
-                    <CardDescription className="text-white/90">
+                  <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 md:p-6">
+                    <CardTitle className="text-base md:text-lg">🍽️ {numberOfDays}-Day Meal Plan ({mealPattern.toUpperCase()})</CardTitle>
+                    <CardDescription className="text-white/90 text-xs md:text-sm">
                       {mealPattern === '3-3-4' ? `Plan A: Days 1-3 | Plan B: Days 4-6 | Plan C: Days 7-${numberOfDays}` : `${numberOfDays} days of customized meals`}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="p-6">
+                  <CardContent className="p-3 md:p-6">
                     <Tabs defaultValue="1" className="space-y-4">
-                      <TabsList className="flex flex-wrap gap-2">
+                      <TabsList className="flex flex-wrap gap-1.5 h-auto bg-gray-100 p-1.5">
                         {Array.from({ length: numberOfDays }, (_, i) => i + 1).map(day => (
-                          <TabsTrigger key={day} value={day.toString()}>
-                            Day {day}
+                          <TabsTrigger key={day} value={day.toString()} className="text-xs px-2 py-1">
+                            D{day}
                           </TabsTrigger>
                         ))}
                       </TabsList>
 
                       {Array.from({ length: numberOfDays }, (_, i) => i + 1).map(day => (
-                        <TabsContent key={day} value={day.toString()} className="space-y-4">
+                        <TabsContent key={day} value={day.toString()} className="space-y-3">
                           {(editMode ? editedMeals : generatedPlan.meal_plan)
                             .filter(meal => meal.day === day)
                             .map((meal, index) => (
                               <Card key={index} className="bg-gradient-to-br from-gray-50 to-white">
-                                <CardHeader>
-                                  <div className="flex items-center justify-between">
-                                    <CardTitle className="text-lg capitalize">{meal.meal_type.replace('_', ' ')}</CardTitle>
-                                    <Badge>{meal.calories} kcal</Badge>
+                                <CardHeader className="p-3 md:p-4">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <CardTitle className="text-sm md:text-base capitalize">{meal.meal_type.replace(/_/g, ' ')}</CardTitle>
+                                    <Badge className="text-xs shrink-0">{meal.calories} kcal</Badge>
                                   </div>
                                   {editMode ? (
                                     <Input
@@ -962,77 +962,63 @@ export default function MealPlansPro() {
                                         updated[mealIndex].meal_name = e.target.value;
                                         setEditedMeals(updated);
                                       }}
-                                      className="text-xl font-bold"
+                                      className="font-bold text-sm md:text-base"
                                     />
                                   ) : (
-                                    <p className="text-xl font-bold text-gray-900">{meal.meal_name}</p>
+                                    <p className="text-sm md:text-base font-bold text-gray-900">{meal.meal_name}</p>
                                   )}
                                 </CardHeader>
-                                <CardContent className="space-y-3">
+                                <CardContent className="px-3 pb-3 md:px-4 md:pb-4 space-y-3">
                                   <div>
-                                    <p className="font-semibold text-gray-700 mb-2">Food Items:</p>
-                                    {meal.items.map((item, i) => (
-                                      <div key={i} className="flex justify-between text-sm gap-2">
-                                        {editMode ? (
-                                          <>
-                                            <Input
-                                              value={item}
-                                              onChange={(e) => {
+                                    <p className="font-semibold text-gray-700 mb-1.5 text-sm">Food Items:</p>
+                                    <div className="space-y-1.5">
+                                      {meal.items.map((item, i) => (
+                                        <div key={i} className="flex justify-between text-sm gap-2">
+                                          {editMode ? (
+                                            <>
+                                              <Input value={item} onChange={(e) => {
                                                 const updated = [...editedMeals];
-                                                const mealIndex = updated.findIndex(m => m.day === day && m.meal_type === meal.meal_type);
-                                                updated[mealIndex].items[i] = e.target.value;
+                                                const mi = updated.findIndex(m => m.day === day && m.meal_type === meal.meal_type);
+                                                updated[mi].items[i] = e.target.value;
                                                 setEditedMeals(updated);
-                                              }}
-                                              className="text-sm h-8"
-                                            />
-                                            <Input
-                                              value={meal.portion_sizes[i]}
-                                              onChange={(e) => {
+                                              }} className="text-xs h-8 flex-1" />
+                                              <Input value={meal.portion_sizes[i]} onChange={(e) => {
                                                 const updated = [...editedMeals];
-                                                const mealIndex = updated.findIndex(m => m.day === day && m.meal_type === meal.meal_type);
-                                                updated[mealIndex].portion_sizes[i] = e.target.value;
+                                                const mi = updated.findIndex(m => m.day === day && m.meal_type === meal.meal_type);
+                                                updated[mi].portion_sizes[i] = e.target.value;
                                                 setEditedMeals(updated);
-                                              }}
-                                              className="text-sm h-8 w-32"
-                                            />
-                                          </>
-                                        ) : (
-                                          <>
-                                            <span>{item}</span>
-                                            <span className="text-gray-600">{meal.portion_sizes[i]}</span>
-                                          </>
-                                        )}
+                                              }} className="text-xs h-8 w-24 md:w-32" />
+                                            </>
+                                          ) : (
+                                            <div className="flex justify-between w-full gap-2">
+                                              <span className="text-gray-800">{item}</span>
+                                              <span className="text-gray-500 text-xs shrink-0">{meal.portion_sizes[i]}</span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 pt-2 border-t">
+                                    {[
+                                      { label: 'Protein', value: `${meal.protein}g`, color: 'text-red-600' },
+                                      { label: 'Carbs', value: `${meal.carbs}g`, color: 'text-yellow-600' },
+                                      { label: 'Fats', value: `${meal.fats}g`, color: 'text-purple-600' },
+                                      { label: 'Sodium', value: `${meal.sodium}mg`, color: 'text-blue-600' },
+                                      { label: 'K+', value: `${meal.potassium}mg`, color: 'text-green-600' },
+                                    ].map(({ label, value, color }) => (
+                                      <div key={label} className="text-center bg-gray-50 rounded-lg p-1.5">
+                                        <p className="text-xs text-gray-500">{label}</p>
+                                        <p className={`text-xs md:text-sm font-bold ${color}`}>{value}</p>
                                       </div>
                                     ))}
                                   </div>
-                                  
-                                  <div className="grid grid-cols-2 md:grid-cols-6 gap-2 pt-2 border-t">
-                                    <div className="text-center">
-                                      <p className="text-xs text-gray-600">Protein</p>
-                                      <p className="font-bold text-red-600">{meal.protein}g</p>
-                                    </div>
-                                    <div className="text-center">
-                                      <p className="text-xs text-gray-600">Carbs</p>
-                                      <p className="font-bold text-yellow-600">{meal.carbs}g</p>
-                                    </div>
-                                    <div className="text-center">
-                                      <p className="text-xs text-gray-600">Fats</p>
-                                      <p className="font-bold text-purple-600">{meal.fats}g</p>
-                                    </div>
-                                    <div className="text-center">
-                                      <p className="text-xs text-gray-600">Sodium</p>
-                                      <p className="font-bold text-blue-600">{meal.sodium}mg</p>
-                                    </div>
-                                    <div className="text-center">
-                                      <p className="text-xs text-gray-600">Potassium</p>
-                                      <p className="font-bold text-green-600">{meal.potassium}mg</p>
-                                    </div>
-                                  </div>
 
                                   {meal.disease_rationale && (
-                                    <Alert className="bg-green-50 border-green-500">
-                                      <AlertDescription>
-                                        <strong>Why this meal?</strong> {meal.disease_rationale}
+                                    <Alert className="bg-green-50 border-green-200 py-2 px-3">
+                                      <AlertDescription className="text-xs md:text-sm">
+                                        <strong>💡 Why this?</strong> {meal.disease_rationale}
                                       </AlertDescription>
                                     </Alert>
                                   )}
