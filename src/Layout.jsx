@@ -206,7 +206,7 @@ const dietitianNavigation = [
   },
   {
     title: "Resource Library",
-    url: createPageUrl("ResourceLibraryEnhanced"),
+    url: createPageUrl("ResourceLibrary"),
     icon: BookOpen,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
