@@ -593,7 +593,7 @@ export default function AICoachChat({ clientId, clientName, onClientChange }) {
           )}
           <Button
             onClick={() => send()}
-            disabled={loading || !input.trim()}
+            disabled={loading || !input.trim() || !selectedClientId}
             className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 shrink-0 h-11 w-11 p-0"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
