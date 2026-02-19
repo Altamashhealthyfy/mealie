@@ -22,7 +22,7 @@ const TABS = [
 export default function AICoachInsights() {
   const [selectedClient, setSelectedClient] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("progress_report");
+  const [activeTab, setActiveTab] = useState("chat");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState({});
 
