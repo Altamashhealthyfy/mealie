@@ -62,7 +62,7 @@ const DEFAULT_FORM = {
   metric_key: "",
 };
 
-export default function ClientPersonalGoals() {
+export default function ClientPersonalGoals({ embedded = false, clientProfile: propClientProfile } = {}) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
   const [showTemplates, setShowTemplates] = useState(false);
@@ -71,16 +71,18 @@ export default function ClientPersonalGoals() {
   const [formData, setFormData] = useState(DEFAULT_FORM);
   const queryClient = useQueryClient();
 
-  const { data: user } = useQuery({ queryKey: ["currentUser"], queryFn: () => base44.auth.me() });
+  const { data: user } = useQuery({ queryKey: ["currentUser"], queryFn: () => base44.auth.me(), enabled: !propClientProfile });
 
-  const { data: clientProfile } = useQuery({
+  const { data: fetchedProfile } = useQuery({
     queryKey: ["myClientProfile", user?.email],
     queryFn: async () => {
       const clients = await base44.entities.Client.filter({ email: user?.email });
       return clients[0];
     },
-    enabled: !!user,
+    enabled: !!user && !propClientProfile,
   });
+
+  const clientProfile = propClientProfile || fetchedProfile;
 
   const { data: goals = [] } = useQuery({
     queryKey: ["myPersonalGoals", clientProfile?.id],
