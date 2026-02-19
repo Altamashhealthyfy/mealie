@@ -48,7 +48,7 @@ Avg Adherence (last 10): ${recentLogs.slice(0,10).filter(l=>l.meal_adherence!=nu
     let schema = {};
 
     if (type === 'progress_report') {
-      const { period = 'monthly' } = await req.json().catch(() => ({}));
+      const period = bodyPeriod;
       const periodDays = period === 'weekly' ? 7 : 30;
       const periodLabel = period === 'weekly' ? 'last 7 days' : 'last 30 days';
       const nextPeriodLabel = period === 'weekly' ? 'next week' : 'next month';
