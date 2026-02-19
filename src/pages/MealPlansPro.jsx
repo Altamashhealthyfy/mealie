@@ -659,16 +659,16 @@ export default function MealPlansPro() {
           </TabsContent>
 
           {/* AI GENERATE TAB */}
-          <TabsContent value="generate" className="space-y-6">
+          <TabsContent value="generate" className="space-y-4 md:space-y-6">
             {!generatedPlan ? (
-              <div className="border-none shadow-lg">
-                <div className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white p-6 rounded-t-lg">
-                  <h2 className="text-2xl font-bold">Generate Diamond Clinical Meal Plan</h2>
-                  <p className="text-white/90 mt-1">
+              <div className="border-none shadow-lg rounded-xl overflow-hidden">
+                <div className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white p-4 md:p-6">
+                  <h2 className="text-lg md:text-2xl font-bold">Generate Diamond Clinical Meal Plan</h2>
+                  <p className="text-white/90 mt-1 text-sm md:text-base">
                     Based on detailed clinical intake with disease-specific guidelines
                   </p>
                 </div>
-                <div className="p-6 space-y-6 bg-white rounded-b-lg">
+                <div className="p-4 md:p-6 space-y-5 bg-white">
                   {/* Client Selection */}
                   <div className="space-y-2">
                     <label className="text-base font-semibold flex items-center gap-2">
