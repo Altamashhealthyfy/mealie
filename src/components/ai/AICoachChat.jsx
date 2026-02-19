@@ -446,6 +446,8 @@ export default function AICoachChat({ clientId, clientName }) {
             ? <UserMessage key={i} content={msg.content} />
             : msg.role === "scan"
             ? <ProactiveScanResult key={i} scan={msg.scan} />
+            : msg.role === "feature_guide"
+            ? <FeatureGuideMessage key={i} />
             : <AIMessage key={i} msg={msg} />
         ))}
 
