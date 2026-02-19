@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { Award, Trophy, Target, Zap, Calendar, TrendingUp, CheckCircle, Sparkles, ShoppingBag } from "lucide-react";
+import { Award, Trophy, Target, Zap, Calendar, TrendingUp, CheckCircle, Sparkles } from "lucide-react";
 import { format, addDays, differenceInDays } from "date-fns";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,6 @@ import Leaderboard from "../components/gamification/Leaderboard";
 import StreakTracker from "../components/gamification/StreakTracker";
 import ChallengeCard from "../components/gamification/ChallengeCard";
 import ClientPersonalGoals from "./ClientPersonalGoals";
-import RewardsStore from "../components/gamification/RewardsStore";
 
 export default function ClientAchievements() {
   const queryClient = useQueryClient();
@@ -31,12 +30,6 @@ export default function ClientAchievements() {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
-  });
-
-  const { data: myPoints = [] } = useQuery({
-    queryKey: ['clientPoints', clientProfile?.id],
-    queryFn: async () => base44.entities.GamificationPoints.filter({ client_id: clientProfile?.id }),
-    enabled: !!clientProfile?.id,
   });
 
   const { data: clientProfile } = useQuery({
@@ -195,7 +188,7 @@ export default function ClientAchievements() {
 
         {/* Tabs */}
         <Tabs defaultValue="goals" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="goals" className="flex items-center gap-2">
               <Target className="w-4 h-4" />
               My Goals
@@ -207,10 +200,6 @@ export default function ClientAchievements() {
             <TabsTrigger value="badges" className="flex items-center gap-2">
               <Award className="w-4 h-4" />
               Badges
-            </TabsTrigger>
-            <TabsTrigger value="store" className="flex items-center gap-2">
-              <ShoppingBag className="w-4 h-4" />
-              Store
             </TabsTrigger>
           </TabsList>
 
@@ -289,15 +278,6 @@ export default function ClientAchievements() {
           {/* Badges Tab */}
           <TabsContent value="badges">
             <BadgeDisplay clientId={clientProfile.id} />
-          </TabsContent>
-
-          {/* Rewards Store Tab */}
-          <TabsContent value="store">
-            <RewardsStore
-              clientId={clientProfile.id}
-              clientName={clientProfile.full_name}
-              availablePoints={myPoints.reduce((sum, p) => sum + (p.points_earned || 0), 0)}
-            />
           </TabsContent>
         </Tabs>
 

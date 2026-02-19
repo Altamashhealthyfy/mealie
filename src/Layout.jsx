@@ -271,18 +271,6 @@ const gamificationNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
-    title: "Rewards Store",
-    url: createPageUrl("CoachRewardsManager"),
-    icon: ShoppingBag,
-    roles: ['super_admin', 'team_member', 'student_coach'],
-  },
-  {
-    title: "Client Referrals",
-    url: createPageUrl("CoachReferralDashboard"),
-    icon: Users,
-    roles: ['super_admin', 'team_member', 'student_coach'],
-  },
-  {
     title: "Gamification Settings",
     url: createPageUrl("GamificationSettings"),
     icon: Settings,
@@ -876,12 +864,6 @@ export default function Layout({ children, currentPageName }) {
         url: createPageUrl("ClientResourceTracker"),
         icon: BookOpen,
         show: (coachAccess.show_resources ?? true) && (permissions?.can_view_resources ?? true),
-      },
-      {
-        title: "Refer & Earn",
-        url: createPageUrl("ClientReferralHub"),
-        icon: Gift,
-        show: true,
       },
       {
         title: "Upload Reports",
