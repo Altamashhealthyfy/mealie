@@ -1,11 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle, Brain, Heart, Activity, Users, Sparkles } from "lucide-react";
+import { CheckCircle, Brain, Heart, Activity, Users, Sparkles, AlertTriangle } from "lucide-react";
+import MealPlanChatModifier from "../mealplanner/MealPlanChatModifier";
 
-export default function ProMealPlanView({ plan }) {
+export default function ProMealPlanView({ plan, onPlanUpdated }) {
+  const [localPlan, setLocalPlan] = useState(plan);
+
+  const handleChatUpdate = (updatedPlan) => {
+    setLocalPlan(prev => ({ ...prev, ...updatedPlan }));
+    if (onPlanUpdated) onPlanUpdated(updatedPlan);
+  };
+
   const groupMealsByDay = () => {
     const days = {};
     plan.meal_plan.forEach(meal => {
