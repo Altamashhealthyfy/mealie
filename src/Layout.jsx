@@ -866,7 +866,7 @@ export default function Layout({ children, currentPageName }) {
         show: (coachAccess.show_food_lookup ?? true) && (permissions?.can_use_food_lookup_ai ?? true),
       },
       {
-        title: "Resources",
+        title: "My Resources",
         url: createPageUrl("ClientResourceTracker"),
         icon: BookOpen,
         show: (coachAccess.show_resources ?? true) && (permissions?.can_view_resources ?? true),
