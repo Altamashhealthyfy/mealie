@@ -1195,6 +1195,15 @@ export default function MealPlansPro() {
                   </CardContent>
                 </Card>
 
+                {/* AI Chat Modifier */}
+                <ProMealPlanChatModifier
+                  plan={generatedPlan}
+                  onPlanUpdate={(updatedPlan) => {
+                    setGeneratedPlan(updatedPlan);
+                    setEditedMeals(updatedPlan.meal_plan);
+                  }}
+                />
+
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-4">
                   <Button
