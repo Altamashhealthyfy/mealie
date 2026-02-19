@@ -125,12 +125,24 @@ export default function ClientOnboardingWizard() {
     { number: 4, title: "Lifestyle", icon: Heart },
   ];
 
+  if (userLoading || profileLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="max-w-md">
+          <CardContent className="p-8 text-center">
+            <p className="text-gray-600">Loading...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (!clientProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="max-w-md">
           <CardContent className="p-8 text-center">
-            <p>Loading your profile...</p>
+            <p className="text-gray-600">No client profile found. Please contact your coach.</p>
           </CardContent>
         </Card>
       </div>
