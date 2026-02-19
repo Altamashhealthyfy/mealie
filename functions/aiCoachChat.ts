@@ -23,6 +23,7 @@ Deno.serve(async (req) => {
       ]);
 
       const client = clientArr[0];
+      clientObj = client;
       if (client) {
         const clinical = clinicalArr[0];
         const recentLogs = [...progressArr].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
