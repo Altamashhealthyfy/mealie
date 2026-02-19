@@ -34,7 +34,10 @@ export default function ClientDashboard() {
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
+    queryFn: async () => {
+      try { return await base44.auth.me(); } catch { return null; }
+    },
+    retry: false,
   });
 
   const { data: clientProfile } = useQuery({
