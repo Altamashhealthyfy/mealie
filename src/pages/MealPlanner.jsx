@@ -466,9 +466,7 @@ export default function MealPlanner() {
       base44.entities.MealPlanTemplate.update(template.id, {
         times_used: (template.times_used || 0) + 1
       }).then(() => {
-          // Invalidate and refetch to ensure template stays available for reuse
-       queryClient.invalidateQueries({ queryKey: ['mealPlanTemplates'] });
-       await queryClient.refetchQueries({ queryKey: ['mealPlanTemplates'] });
+          queryClient.invalidateQueries(['mealPlanTemplates']);
       }).catch(console.error);
 
       setActiveTab("generate");
