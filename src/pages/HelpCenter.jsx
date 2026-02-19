@@ -374,127 +374,109 @@ export default function HelpCenter() {
             </TabsTrigger>
           </TabsList>
 
-        {/* Guide Sections */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredGuides.map((guide, idx) => {
-            const Icon = guide.icon;
-            return (
-              <Card
-                key={idx}
-                className="hover:shadow-lg transition-all cursor-pointer overflow-hidden"
-                onClick={() => setSelectedSection(selectedSection === idx ? null : idx)}
-              >
-                <CardHeader className={`bg-gradient-to-r ${guide.color} text-white`}>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      <Icon className="w-6 h-6 flex-shrink-0 mt-1" />
+          {/* Guides Tab */}
+          <TabsContent value="guides" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {filteredGuides.map((guide, idx) => {
+                const Icon = guide.icon;
+                return (
+                  <Card
+                    key={idx}
+                    className="hover:shadow-xl transition-all duration-300 overflow-hidden border-0 group cursor-pointer"
+                  >
+                    <CardHeader className={`bg-gradient-to-r ${guide.color} text-white group-hover:shadow-lg transition-shadow`}>
+                      <div className="flex items-start gap-3">
+                        <Icon className="w-8 h-8 flex-shrink-0" />
+                        <div>
+                          <CardTitle className="text-xl">{guide.section}</CardTitle>
+                          <CardDescription className="text-white/85 mt-1 text-sm">{guide.description}</CardDescription>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-6 space-y-3">
+                      {guide.guides.map((item, itemIdx) => (
+                        <div key={itemIdx} className="pb-3 border-b border-gray-100 last:border-b-0">
+                          <h4 className="font-semibold text-gray-900 mb-1 flex items-center gap-2 text-sm">
+                            <span className="w-2 h-2 rounded-full bg-gradient-to-r from-orange-500 to-red-600" />
+                            {item.title}
+                          </h4>
+                          <p className="text-gray-600 text-xs leading-relaxed">{item.content}</p>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {filteredGuides.length === 0 && (
+              <div className="text-center py-16">
+                <Search className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                <p className="text-gray-600 font-medium text-lg">No guides found for "{searchTerm}"</p>
+                <p className="text-gray-400 text-sm mt-2">Try searching for a different feature or keyword</p>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Quick Tips Tab */}
+          <TabsContent value="tips" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[
+                { icon: '🎯', title: 'Start with Dashboard', desc: 'Review the main dashboard to understand your key metrics and action items.' },
+                { icon: '⚙️', title: 'Setup Your Profile First', desc: 'Complete your coach profile with credentials and branding before inviting clients.' },
+                { icon: '🍽️', title: 'Create Meal Plans', desc: 'Use the AI meal planner to quickly generate personalized plans for new clients.' },
+                { icon: '🏆', title: 'Use Gamification', desc: 'Enable challenges, points, and badges to keep clients motivated and engaged.' },
+                { icon: '📊', title: 'Regular Reviews', desc: 'Check Client Progress Review weekly to identify clients needing extra support.' },
+                { icon: '📚', title: 'Share Resources', desc: 'Build your resource library and use AI suggestions to assign relevant materials.' }
+              ].map((tip, idx) => (
+                <Card key={idx} className="border-0 shadow-sm hover:shadow-lg transition-all group">
+                  <CardContent className="p-6">
+                    <div className="flex gap-4">
+                      <div className="text-4xl flex-shrink-0">{tip.icon}</div>
                       <div>
-                        <CardTitle className="text-lg">{guide.section}</CardTitle>
-                        <CardDescription className="text-white/80 mt-1">{guide.description}</CardDescription>
+                        <h4 className="font-semibold text-gray-900 mb-2 group-hover:text-orange-600 transition">{tip.title}</h4>
+                        <p className="text-gray-600 text-sm leading-relaxed">{tip.desc}</p>
                       </div>
                     </div>
-                    <ChevronDown
-                      className={`w-5 h-5 flex-shrink-0 transition-transform ${
-                        selectedSection === idx ? 'rotate-180' : ''
-                      }`}
-                    />
-                  </div>
-                </CardHeader>
-
-                {selectedSection === idx && (
-                  <CardContent className="pt-6 space-y-4">
-                    {guide.guides.map((item, itemIdx) => (
-                      <div key={itemIdx} className="pb-4 border-b last:border-b-0 last:pb-0">
-                        <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-gradient-to-r from-orange-500 to-red-600" />
-                          {item.title}
-                        </h4>
-                        <p className="text-gray-600 text-sm leading-relaxed">{item.content}</p>
-                      </div>
-                    ))}
                   </CardContent>
-                )}
-              </Card>
-            );
-          })}
-        </div>
-
-        {filteredGuides.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500 font-medium">No guides found for "{searchTerm}"</p>
-            <p className="text-gray-400 text-sm">Try searching for a different feature</p>
-          </div>
-        )}
-
-        {/* Quick Tips */}
-        <Card className="bg-blue-50 border-blue-200">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              💡 Quick Tips
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-3 text-sm text-gray-700">
-              <li className="flex gap-3">
-                <span className="font-bold text-blue-600">1.</span>
-                <span><strong>Start with Dashboard:</strong> Review the main dashboard to understand your key metrics and action items.</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="font-bold text-blue-600">2.</span>
-                <span><strong>Setup Your Profile First:</strong> Complete your coach profile with credentials and branding before inviting clients.</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="font-bold text-blue-600">3.</span>
-                <span><strong>Create Meal Plans:</strong> Use the AI meal planner to quickly generate personalized plans for new clients.</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="font-bold text-blue-600">4.</span>
-                <span><strong>Use Gamification:</strong> Enable challenges, points, and badges to keep clients motivated and engaged.</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="font-bold text-blue-600">5.</span>
-                <span><strong>Regular Reviews:</strong> Check Client Progress Review weekly to identify clients needing extra support.</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="font-bold text-blue-600">6.</span>
-                <span><strong>Share Resources:</strong> Build your resource library and use AI suggestions to assign relevant materials to clients.</span>
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        {/* Feature Comparison */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">📊 Plan Tiers</CardTitle>
-            <CardDescription>Different plan tiers unlock additional features</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                <Badge className="bg-blue-600 flex-shrink-0">Basic</Badge>
-                <div>
-                  <p className="font-medium text-gray-900">Basic Plan</p>
-                  <p className="text-sm text-gray-600">Essential features: meal plans, client management, progress tracking, basic messaging</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                <Badge className="bg-orange-600 flex-shrink-0">Pro</Badge>
-                <div>
-                  <p className="font-medium text-gray-900">Pro Plan</p>
-                  <p className="text-sm text-gray-600">Everything in Basic + Pro meal plans (disease-reversal), advanced analytics, team management, payment processing</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
-                <Badge className="bg-purple-600 flex-shrink-0">Premium</Badge>
-                <div>
-                  <p className="font-medium text-gray-900">Premium Plan</p>
-                  <p className="text-sm text-gray-600">Everything in Pro + custom domain, white-label branding, unlimited team members, API access, priority support</p>
-                </div>
-              </div>
+                </Card>
+              ))}
             </div>
-          </CardContent>
-        </Card>
+          </TabsContent>
+
+          {/* Plans Tab */}
+          <TabsContent value="plans" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { icon: '⭐', name: 'Basic', color: 'blue', features: ['Essential features', 'Meal plans', 'Client management', 'Progress tracking', 'Basic messaging'] },
+                { icon: '💎', name: 'Pro', color: 'orange', features: ['Everything in Basic', 'Pro meal plans', 'Advanced analytics', 'Team management', 'Payment processing'], highlight: true },
+                { icon: '👑', name: 'Premium', color: 'purple', features: ['Everything in Pro', 'Custom domain', 'White-label branding', 'Unlimited team', 'API access', 'Priority support'] }
+              ].map((plan, idx) => (
+                <Card key={idx} className={`border-2 transition-all ${plan.highlight ? 'border-orange-500 shadow-lg' : 'border-gray-200'} overflow-hidden`}>
+                  <CardHeader className={`bg-gradient-to-r ${plan.color === 'blue' ? 'from-blue-50 to-blue-100' : plan.color === 'orange' ? 'from-orange-50 to-orange-100' : 'from-purple-50 to-purple-100'}`}>
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-3xl">{plan.icon}</span>
+                      <CardTitle className={plan.color === 'blue' ? 'text-blue-900' : plan.color === 'orange' ? 'text-orange-900' : 'text-purple-900'}>
+                        {plan.name}
+                      </CardTitle>
+                    </div>
+                    {plan.highlight && <Badge className="bg-orange-600 w-fit">Most Popular</Badge>}
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <ul className="space-y-3">
+                      {plan.features.map((feature, fidx) => (
+                        <li key={fidx} className="flex items-center gap-2 text-sm text-gray-700">
+                          <div className={`w-2 h-2 rounded-full ${plan.color === 'blue' ? 'bg-blue-600' : plan.color === 'orange' ? 'bg-orange-600' : 'bg-purple-600'}`} />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
