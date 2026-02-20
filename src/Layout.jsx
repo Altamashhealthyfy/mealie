@@ -45,7 +45,8 @@ import {
   BarChart3,
   Trophy,
   Award,
-  Gift
+  Gift,
+  Mail
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
