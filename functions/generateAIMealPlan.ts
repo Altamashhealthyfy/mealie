@@ -103,7 +103,15 @@ ${progressContext}
 ═══ STRICT MEAL RULES (NEVER VIOLATE) ═══
 RULE 1 - RICE vs ROTI BALANCE: All meals must be 100% Indian. If rice (chawal) is given at lunch, then dinner must NOT include rice — give roti, paratha, bajra roti, jowar roti, or any other grain/bread alternative instead. Never give rice in both lunch and dinner on the same day.
 RULE 2 - MID MORNING MEAL: If the meal plan includes 'mid_morning', skip it entirely for any client whose lunch time is at 12:00 PM or earlier. Mid morning is only relevant if there is a gap of at least 3 hours between breakfast and lunch.
-RULE 3 - POST DINNER / BED TIME DRINK: Never include milk (doodh), haldi doodh, or any milk-based drink at dinner or post-dinner or bedtime. ALWAYS give one of these herbal options as post-dinner drink: saunf (fennel) water, ajwain (carom seeds) water, ginger tea (adrak chai — no milk), chamomile tea, hing water, or jeera water. Rotate these options across days for variety.
+RULE 3 - POST DINNER / BED TIME DRINK: Never include milk (doodh), haldi doodh, or any milk-based drink at dinner or post-dinner or bedtime. ALWAYS give one of these herbal drinks as post-dinner drink and ALWAYS mention what it does in the meal name/description:
+  - Saunf (fennel) water — aids digestion, reduces bloating
+  - Ajwain (carom seeds) water — relieves gas, improves digestion
+  - Adrak (ginger) tea without milk — anti-inflammatory, aids digestion
+  - Haldi (turmeric) water / golden water (no milk) — anti-inflammatory, immunity boost
+  - Chamomile tea — calms nerves, improves sleep
+  - Hing (asafoetida) water — reduces gas and bloating
+  Always mention the benefit in the item name, e.g. "Saunf water (fennel) — for digestion & bloating". Rotate these options across days.
+RULE 8 - NO FRUITS AT NIGHT: Never include any fruits (kela, seb, papaya, orange, etc.) in evening snack, dinner, post-dinner, or bedtime. Fruits are only allowed in early morning, breakfast, or mid-morning meals.
 RULE 7 - BEDTIME MEAL FOR WEIGHT LOSS: If client goal is weight_loss, do NOT include any separate bedtime/post-dinner meal or snack section. The post-dinner herbal drink (per RULE 3) is sufficient. No bedtime snack, no milk, no food after dinner.
 RULE 4 - NON-VEG OPTIONS (only if food_preference is non_veg or eggetarian):
   - Dinner (weight loss goal): Prefer grilled or baked chicken with sautéed/steamed veggies. No fried items.
