@@ -110,6 +110,15 @@ RULE 4 - NON-VEG OPTIONS (only if food_preference is non_veg or eggetarian):
   - Breakfast/Mid-morning: Egg curry, omelette (2-egg), egg salad, or chicken salad are preferred non-veg options.
   - Egg rule: If client has diabetes OR high cholesterol condition, use ONLY egg whites (not whole eggs) in all egg-based preparations.
   - Keep non-veg options simple and limited — do not add too many different protein sources in a single day.
+RULE 5 - MEAL ORDER & SEQUENCE: Always present meals in this strict order for every day:
+  1. Early Morning (if applicable — e.g. detox water, warm lemon water, methi water)
+  2. Breakfast
+  3. Mid Morning (only if applicable per RULE 2)
+  4. Lunch
+  5. Evening Snack
+  6. Dinner
+  Never mix this order. Always follow this sequence top to bottom.
+RULE 6 - PRE-MEAL WATER (weight loss only): If client goal is weight_loss, add a note in the lunch and dinner meal rationale that client should drink 1–2 glasses of normal water 20–30 minutes before the meal. This helps with portion control and digestion.
 
 Be practical, use real Indian/regional food names, realistic portions.`;
 
