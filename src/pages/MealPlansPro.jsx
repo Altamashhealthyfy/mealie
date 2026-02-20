@@ -1352,6 +1352,13 @@ RULE B - POST DINNER HERBAL DRINK ONLY: Post-dinner must ONLY be one of these he
   - "Hing Water (Asafoetida Water)"
   - "Turmeric Ginger Herbal Tea (no milk)"
   Rotate across days. NO smoothies, NO milk, NO haldi doodh, NO juices post-dinner.
+RULE BB - NON-VEG OPTIONS (apply ONLY if diet_type is non-veg or eggetarian):
+  - DINNER: Give ONLY grilled or baked chicken with sautéed/steamed vegetables (no fried items, no heavy curries at dinner for weight loss).
+  - LUNCH: Give chicken breast curry (light, minimal oil) with roti or rice.
+  - BREAKFAST/MID-MORNING: Egg curry, 2-egg omelette, egg salad, or chicken salad are the preferred options.
+  - EGG RULE (CRITICAL): If client has Diabetes OR High Cholesterol (hyperlipidemia/dyslipidemia), use ONLY EGG WHITES — NO whole eggs in any preparation. Write "Egg White Omelette" or "Egg White Bhurji" — never "whole egg".
+  - Keep non-veg simple: max one non-veg protein source per day. Do not club chicken + eggs + fish in same day.
+  - If diet_type is vegetarian/vegan/jain, ignore this rule entirely.
 RULE C - NO BEDTIME MEAL: Do NOT include any bedtime/post-dinner food. Only the herbal drink above is allowed after dinner. Remove bedtime section entirely.
 RULE D - STRICT CALORIE COMPLIANCE: Count calories for EVERY item including the herbal drink. Daily total calories MUST NOT exceed the target calories. Each meal must have accurate calorie count.
 RULE E - HERBAL DRINK CALORIES: Herbal drinks (ginger tea, saunf water, etc.) = 0-5 kcal. Count them as 2 kcal.
