@@ -103,33 +103,23 @@ ${progressContext}
 ═══ STRICT MEAL RULES (NEVER VIOLATE) ═══
 RULE 1 - RICE vs ROTI BALANCE: All meals must be 100% Indian. If rice (chawal) is given at lunch, then dinner must NOT include rice — give roti, paratha, bajra roti, jowar roti, or any other grain/bread alternative instead. Never give rice in both lunch and dinner on the same day.
 RULE 2 - MID MORNING MEAL: If the meal plan includes 'mid_morning', skip it entirely for any client whose lunch time is at 12:00 PM or earlier. Mid morning is only relevant if there is a gap of at least 3 hours between breakfast and lunch.
-RULE 3 - POST DINNER DRINK (MANDATORY): Never include milk (doodh), haldi doodh, smoothies, shakes, or any milk-based or blended drink at dinner, post-dinner, or bedtime. ONLY these herbal drinks are allowed as post-dinner — always mention the full name clearly:
-  - Adrak (Ginger) tea — no milk, just boiled ginger water with optional honey
-  - Haldi (Turmeric) water — warm water with raw turmeric/turmeric powder, no milk
-  - Saunf (Fennel) water — boiled fennel seeds water
-  - Ajwain (Carom Seeds) water — boiled carom seeds water
-  - Chamomile tea — plain chamomile flower tea, no milk
-  - Hing (Asafoetida) water — pinch of hing in warm water
-  Always write the full name like "Adrak (Ginger) Tea" or "Saunf (Fennel) Water" — never just say "herbal tea". Rotate these across days for variety.
-RULE 4 - NO FRUITS AT NIGHT: NEVER include any fruit (fresh, dried, or fruit-based dish) in evening snack after 5 PM, dinner, or post-dinner. Fruits are only allowed in early morning, breakfast, or mid-morning meals.
-RULE 5 - CALORIE ACCURACY (CRITICAL): Every meal must have accurately calculated calories. The sum of all meals in a day must NOT exceed ${targetCal} kcal. Target is ${targetCal} kcal/day — stay within ±50 kcal of this target. Count calories for every single food item including oils, spices (in meaningful quantity), and drinks. Do not round up loosely — be precise.
-RULE 6 - BEDTIME / POST-DINNER FOR WEIGHT LOSS: If client goal is weight_loss, do NOT include any separate bedtime snack, food, or milk. Only the herbal drink from RULE 3 is allowed after dinner. No exceptions.
-RULE 7 - NON-VEG OPTIONS (only if food_preference is non_veg or eggetarian):
+RULE 3 - POST DINNER / BED TIME DRINK: Never include milk (doodh), haldi doodh, or any milk-based drink at dinner or post-dinner or bedtime. ALWAYS give one of these herbal options as post-dinner drink: saunf (fennel) water, ajwain (carom seeds) water, ginger tea (adrak chai — no milk), chamomile tea, hing water, or jeera water. Rotate these options across days for variety.
+RULE 7 - BEDTIME MEAL FOR WEIGHT LOSS: If client goal is weight_loss, do NOT include any separate bedtime/post-dinner meal or snack section. The post-dinner herbal drink (per RULE 3) is sufficient. No bedtime snack, no milk, no food after dinner.
+RULE 4 - NON-VEG OPTIONS (only if food_preference is non_veg or eggetarian):
   - Dinner (weight loss goal): Prefer grilled or baked chicken with sautéed/steamed veggies. No fried items.
   - Lunch: Prefer chicken breast curry (light, less oil) with roti or rice.
   - Breakfast/Mid-morning: Egg curry, omelette (2-egg), egg salad, or chicken salad are preferred non-veg options.
   - Egg rule: If client has diabetes OR high cholesterol condition, use ONLY egg whites (not whole eggs) in all egg-based preparations.
   - Keep non-veg options simple and limited — do not add too many different protein sources in a single day.
-RULE 8 - MEAL ORDER & SEQUENCE: Always present meals in this strict order for every day:
+RULE 5 - MEAL ORDER & SEQUENCE: Always present meals in this strict order for every day:
   1. Early Morning (if applicable — e.g. detox water, warm lemon water, methi water)
   2. Breakfast
   3. Mid Morning (only if applicable per RULE 2)
   4. Lunch
   5. Evening Snack
   6. Dinner
-  7. Post Dinner (herbal drink only — per RULE 3)
   Never mix this order. Always follow this sequence top to bottom.
-RULE 9 - PRE-MEAL WATER (weight loss only): If client goal is weight_loss, add a note in the lunch and dinner meal rationale that client should drink 1–2 glasses of normal water 20–30 minutes before the meal. This helps with portion control and digestion.
+RULE 6 - PRE-MEAL WATER (weight loss only): If client goal is weight_loss, add a note in the lunch and dinner meal rationale that client should drink 1–2 glasses of normal water 20–30 minutes before the meal. This helps with portion control and digestion.
 
 Be practical, use real Indian/regional food names, realistic portions.`;
 
