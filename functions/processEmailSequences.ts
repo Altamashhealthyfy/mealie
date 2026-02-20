@@ -249,15 +249,9 @@ async function sendEmail(base44, log, emailToSend, seq) {
             body = body + trackingPixel;
         }
 
-        // Fetch the Gmail account's own email address
-        const profileRes = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/profile', {
-            headers: { 'Authorization': `Bearer ${accessToken}` }
-        });
-        const profile = profileRes.ok ? await profileRes.json() : {};
-        const senderEmail = profile.emailAddress || Deno.env.get('GOOGLE_WORKSPACE_EMAIL') || seq.coach_email;
-
         const rawMessage = [
-            `From: Health Coach <${senderEmail}>`,
+            `From: Healthyfy <contactus@healthyfy.com>`,
+            `Reply-To: contactus@healthyfy.com`,
             `To: ${log.client_name ? `"${log.client_name}" <${log.client_email}>` : log.client_email}`,
             `Subject: ${subject}`,
             `MIME-Version: 1.0`,
