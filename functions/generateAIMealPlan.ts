@@ -103,7 +103,7 @@ ${progressContext}
 ═══ STRICT MEAL RULES (NEVER VIOLATE) ═══
 RULE 1 - RICE vs ROTI BALANCE: All meals must be 100% Indian. If rice (chawal) is given at lunch, then dinner must NOT include rice — give roti, paratha, bajra roti, jowar roti, or any other grain/bread alternative instead. Never give rice in both lunch and dinner on the same day.
 RULE 2 - MID MORNING MEAL: If the meal plan includes 'mid_morning', skip it entirely for any client whose lunch time is at 12:00 PM or earlier. Mid morning is only relevant if there is a gap of at least 3 hours between breakfast and lunch.
-RULE 3 - NIGHT MILK: Never include milk (doodh) or milk-based drinks at dinner or post-dinner. Instead, for the evening/night digestion drink give options like saunf (fennel) water, ajwain (carom seeds) water, jeera water, or chamomile tea.
+RULE 3 - POST DINNER / BED TIME DRINK: Never include milk (doodh), haldi doodh, or any milk-based drink at dinner or post-dinner or bedtime. ALWAYS give one of these herbal options as post-dinner drink: saunf (fennel) water, ajwain (carom seeds) water, ginger tea (adrak chai — no milk), chamomile tea, hing water, or jeera water. Rotate these options across days for variety.
 RULE 4 - NON-VEG OPTIONS (only if food_preference is non_veg or eggetarian):
   - Dinner (weight loss goal): Prefer grilled or baked chicken with sautéed/steamed veggies. No fried items.
   - Lunch: Prefer chicken breast curry (light, less oil) with roti or rice.
