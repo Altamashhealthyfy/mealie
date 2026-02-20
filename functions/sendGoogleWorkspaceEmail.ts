@@ -36,8 +36,9 @@ Deno.serve(async (req) => {
         // Create SMTP transporter using Google Workspace / Gmail App Password
         const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
+            port: 587,
+            secure: false,
+            requireTLS: true,
             auth: {
                 user: gmailUser,
                 pass: gmailPass,
