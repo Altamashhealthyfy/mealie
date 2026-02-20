@@ -104,6 +104,12 @@ ${progressContext}
 RULE 1 - RICE vs ROTI BALANCE: All meals must be 100% Indian. If rice (chawal) is given at lunch, then dinner must NOT include rice — give roti, paratha, bajra roti, jowar roti, or any other grain/bread alternative instead. Never give rice in both lunch and dinner on the same day.
 RULE 2 - MID MORNING MEAL: If the meal plan includes 'mid_morning', skip it entirely for any client whose lunch time is at 12:00 PM or earlier. Mid morning is only relevant if there is a gap of at least 3 hours between breakfast and lunch.
 RULE 3 - NIGHT MILK: Never include milk (doodh) or milk-based drinks at dinner or post-dinner. Instead, for the evening/night digestion drink give options like saunf (fennel) water, ajwain (carom seeds) water, jeera water, or chamomile tea.
+RULE 4 - NON-VEG OPTIONS (only if food_preference is non_veg or eggetarian):
+  - Dinner (weight loss goal): Prefer grilled or baked chicken with sautéed/steamed veggies. No fried items.
+  - Lunch: Prefer chicken breast curry (light, less oil) with roti or rice.
+  - Breakfast/Mid-morning: Egg curry, omelette (2-egg), egg salad, or chicken salad are preferred non-veg options.
+  - Egg rule: If client has diabetes OR high cholesterol condition, use ONLY egg whites (not whole eggs) in all egg-based preparations.
+  - Keep non-veg options simple and limited — do not add too many different protein sources in a single day.
 
 Be practical, use real Indian/regional food names, realistic portions.`;
 
