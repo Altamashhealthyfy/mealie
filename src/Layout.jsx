@@ -384,6 +384,12 @@ const businessNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
+    title: "Email Sequences",
+    url: createPageUrl("EmailSequenceManager"),
+    icon: Mail,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
     title: "Template Manager",
     url: createPageUrl("TemplateLibraryManager"),
     icon: Upload,
