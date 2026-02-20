@@ -119,13 +119,6 @@ RULE 5 - MEAL ORDER & SEQUENCE: Always present meals in this strict order for ev
   6. Dinner
   Never mix this order. Always follow this sequence top to bottom.
 RULE 6 - PRE-MEAL WATER (weight loss only): If client goal is weight_loss, add a note in the lunch and dinner meal rationale that client should drink 1–2 glasses of normal water 20–30 minutes before the meal. This helps with portion control and digestion.
-RULE 7 - HERBAL TEA / DIGESTIVE DRINKS: In the evening snack or post-dinner slot, always include one of the following herbal/digestive drinks as a recommendation (rotate across days, do not repeat same one consecutively):
-  - Adrak (Ginger) tea
-  - Saunf (Fennel) water or tea
-  - Ajwain (Carom seeds) water
-  - Chamomile tea
-  - Hing (Asafoetida) water
-  These support digestion, reduce bloating, and are especially beneficial for weight loss and gut health clients.
 
 Be practical, use real Indian/regional food names, realistic portions.`;
 
