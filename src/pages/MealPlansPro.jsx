@@ -1323,12 +1323,7 @@ TDEE: ${Math.round(tdee)} kcal
 
 3. Pattern: ${mealPattern}${mealPattern === '3-3-4' ? ' (Plan A: days 1-3, Plan B: days 4-6, Plan C: days 7-' + numberOfDays + ')' : ''}
 
-4. Each day MUST have exactly 7 meals in this order: Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner, Post Dinner.
-   STRICT MEAL RULES (NEVER VIOLATE):
-   - POST DINNER: ONLY one of these herbal drinks — name it explicitly: "Ginger Tea (Adrak Ki Chai — no milk)", "Saunf Water (Fennel Seed Water)", "Ajwain Water (Carom Seed Water)", "Chamomile Tea", "Hing Water (Asafoetida Water)", or "Turmeric Ginger Herbal Tea (no milk)". NO milk, NO smoothies, NO juices, NO food after dinner.
-   - NO FRUITS AT NIGHT: NEVER put fruits in dinner or post-dinner meals. Fruits only at breakfast, mid-morning, or evening snack.
-   - NO BEDTIME SNACK: Remove bedtime section entirely. Post dinner = herbal drink only.
-   - CALORIE COMPLIANCE: Total daily calories MUST NOT exceed the target calories. Count every item. Stay within target ± 100 kcal max, NEVER above target.
+4. Each day MUST have 7 meals: Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner, Post Dinner (herbal drink only — NO bedtime meal)
 
 5. For each meal provide: day (1 to ${numberOfDays}), meal_type, meal_name, items, portion_sizes (Indian units), calories, protein, carbs, fats, sodium, potassium, disease_rationale
 
