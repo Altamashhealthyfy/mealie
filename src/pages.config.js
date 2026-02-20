@@ -117,6 +117,7 @@ import CouponManagement from './pages/CouponManagement';
 import DailyProgressLogger from './pages/DailyProgressLogger';
 import DietitianDashboard from './pages/DietitianDashboard';
 import Documentation from './pages/Documentation';
+import EmailSequenceManager from './pages/EmailSequenceManager';
 import FeatureControl from './pages/FeatureControl';
 import FeedSettings from './pages/FeedSettings';
 import FoodLog from './pages/FoodLog';
@@ -152,8 +153,8 @@ import PlatformColorCustomization from './pages/PlatformColorCustomization';
 import PricingPlans from './pages/PricingPlans';
 import Profile from './pages/Profile';
 import ProgressTracking from './pages/ProgressTracking';
-import ProjectManagement from './pages/ProjectManagement';
 import Recipes from './pages/Recipes';
+import ProjectManagement from './pages/ProjectManagement';
 import PublicPlanPurchase from './pages/PublicPlanPurchase';
 import PurchaseAICredits from './pages/PurchaseAICredits';
 import PurchaseClientPlan from './pages/PurchaseClientPlan';
@@ -177,7 +178,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import EmailSequenceManager from './pages/EmailSequenceManager';
 import __Layout from './Layout.jsx';
 
 
@@ -252,6 +252,7 @@ export const PAGES = {
     "DailyProgressLogger": DailyProgressLogger,
     "DietitianDashboard": DietitianDashboard,
     "Documentation": Documentation,
+    "EmailSequenceManager": EmailSequenceManager,
     "FeatureControl": FeatureControl,
     "FeedSettings": FeedSettings,
     "FoodLog": FoodLog,
@@ -287,8 +288,8 @@ export const PAGES = {
     "PricingPlans": PricingPlans,
     "Profile": Profile,
     "ProgressTracking": ProgressTracking,
-    "ProjectManagement": ProjectManagement,
     "Recipes": Recipes,
+    "ProjectManagement": ProjectManagement,
     "PublicPlanPurchase": PublicPlanPurchase,
     "PurchaseAICredits": PurchaseAICredits,
     "PurchaseClientPlan": PurchaseClientPlan,
@@ -312,7 +313,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "EmailSequenceManager": EmailSequenceManager,
 }
 
 export const pagesConfig = {
