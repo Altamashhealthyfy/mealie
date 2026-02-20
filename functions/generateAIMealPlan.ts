@@ -113,12 +113,13 @@ RULE 3 - POST DINNER HERBAL DRINK ONLY: The ONLY thing allowed post-dinner is ON
   Rotate across days. NEVER include milk, haldi doodh, smoothies, juices, or any other food/drink post-dinner.
 RULE 4 - NO FRUITS AT NIGHT: NEVER include any fruits (e.g. banana, apple, papaya, mango, orange, etc.) in dinner or post-dinner. Fruits are ONLY allowed at breakfast, mid-morning, or evening snack.
 RULE 5 - BEDTIME MEAL FOR WEIGHT LOSS: If client goal is weight_loss, do NOT include any separate bedtime/post-dinner meal or snack. The herbal drink (per RULE 3) is sufficient. No bedtime snack, no milk, no food after dinner.
-RULE 6 - NON-VEG OPTIONS (only if food_preference is non_veg or eggetarian):
-  - Dinner (weight loss goal): Prefer grilled or baked chicken with sautéed/steamed veggies. No fried items.
-  - Lunch: Prefer chicken breast curry (light, less oil) with roti or rice.
-  - Breakfast/Mid-morning: Egg curry, omelette (2-egg), egg salad, or chicken salad are preferred non-veg options.
-  - Egg rule: If client has diabetes OR high cholesterol condition, use ONLY egg whites (not whole eggs) in all egg-based preparations.
-  - Keep non-veg options simple and limited — do not add too many different protein sources in a single day.
+RULE 6 - NON-VEG OPTIONS (apply ONLY if food_preference is non_veg or eggetarian):
+  - DINNER: ONLY grilled or baked chicken with sautéed/steamed vegetables. NO fried chicken, NO heavy curries at dinner. Keep light and protein-forward for weight loss.
+  - LUNCH: ONLY chicken breast curry (light gravy, minimal oil) with roti or rice. Not heavy masala versions.
+  - BREAKFAST/MID-MORNING: ONLY egg curry, 2-egg omelette, egg salad, or chicken salad. These are the ONLY allowed non-veg breakfast options.
+  - EGG RULE (CRITICAL — NEVER IGNORE): If the client has Diabetes OR High Cholesterol (any of: high_cholesterol, hyperlipidemia, dyslipidemia) in their medical conditions, use ONLY EGG WHITES in all egg preparations. Write "Egg White Omelette", "Egg White Bhurji" etc. — NEVER whole egg.
+  - Keep non-veg simple: max one non-veg protein source per day (either egg OR chicken, not both on same day).
+  - If food_preference is veg or jain, completely ignore this rule — no non-veg at all.
 RULE 7 - MEAL ORDER & SEQUENCE: Always present meals in this strict order for every day:
   1. Early Morning (if applicable — e.g. detox water, warm lemon water, methi water)
   2. Breakfast
