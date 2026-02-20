@@ -100,6 +100,11 @@ ${progressContext}
 8. Provide an overall plan overview explaining the nutritional strategy
 9. Include specific meal timing suggestions based on typical Indian daily routine
 
+═══ STRICT MEAL RULES (NEVER VIOLATE) ═══
+RULE 1 - RICE vs ROTI BALANCE: All meals must be 100% Indian. If rice (chawal) is given at lunch, then dinner must NOT include rice — give roti, paratha, bajra roti, jowar roti, or any other grain/bread alternative instead. Never give rice in both lunch and dinner on the same day.
+RULE 2 - MID MORNING MEAL: If the meal plan includes 'mid_morning', skip it entirely for any client whose lunch time is at 12:00 PM or earlier. Mid morning is only relevant if there is a gap of at least 3 hours between breakfast and lunch.
+RULE 3 - NIGHT MILK: Never include milk (doodh) or milk-based drinks at dinner or post-dinner. Instead, for the evening/night digestion drink give options like saunf (fennel) water, ajwain (carom seeds) water, jeera water, or chamomile tea.
+
 Be practical, use real Indian/regional food names, realistic portions.`;
 
     const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
