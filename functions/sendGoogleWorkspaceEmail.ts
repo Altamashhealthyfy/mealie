@@ -1,4 +1,5 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.4';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import nodemailer from 'npm:nodemailer@6.9.9';
 
 Deno.serve(async (req) => {
     try {
@@ -22,17 +23,38 @@ Deno.serve(async (req) => {
             }, { status: 400 });
         }
 
-        // Use the built-in SendEmail integration
-        const result = await base44.asServiceRole.integrations.Core.SendEmail({
-            from_name: user.full_name || 'Mealie Pro',
+        const gmailUser = Deno.env.get('GOOGLE_WORKSPACE_EMAIL');
+        const gmailPass = Deno.env.get('GOOGLE_WORKSPACE_APP_PASSWORD');
+
+        if (!gmailUser || !gmailPass) {
+            return Response.json({
+                success: false,
+                error: 'Google Workspace email credentials not configured'
+            }, { status: 500 });
+        }
+
+        // Create SMTP transporter using Google Workspace / Gmail App Password
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: gmailUser,
+                pass: gmailPass,
+            },
+        });
+
+        await transporter.sendMail({
+            from: `"${user.full_name || 'Health Coach'}" <${gmailUser}>`,
             to: to,
             subject: subject,
-            body: emailBody
+            html: emailBody.replace(/\n/g, '<br/>'),
+            text: emailBody,
         });
 
         return Response.json({ 
             success: true,
-            from: 'noreply@mealiepro.com',
+            from: gmailUser,
             to: to,
             sentAt: new Date().toISOString()
         });
