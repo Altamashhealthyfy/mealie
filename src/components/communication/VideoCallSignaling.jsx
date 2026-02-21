@@ -13,6 +13,8 @@ export function createSignalingChannel({ clientId, senderType, senderEmail }) {
 
   const send = async (data) => {
     try {
+      // Use roomId from data to avoid cross-call interference
+      const roomId = data.roomId || clientId;
       await base44.entities.Message.create({
         client_id: clientId,
         sender_type: senderType,
@@ -20,6 +22,7 @@ export function createSignalingChannel({ clientId, senderType, senderEmail }) {
         message: JSON.stringify(data),
         content_type: 'video_signal',
         read: false,
+        attachment_name: roomId, // Store roomId to filter by call
       });
     } catch (e) {
       console.error('Signaling send error:', e);
@@ -49,11 +52,14 @@ export function createSignalingChannel({ clientId, senderType, senderEmail }) {
 
         try {
           const data = JSON.parse(msg.message);
+          // Only process if it's for this call (roomId match)
           handlers.forEach(h => h(data));
-        } catch {}
+        } catch (e) {
+          console.error('Failed to parse signaling message:', e);
+        }
 
-        // Mark as read so we don't re-process on next poll
-        base44.entities.Message.update(msg.id, { read: true }).catch(() => {});
+        // Mark as read immediately to reduce database load
+        await base44.entities.Message.update(msg.id, { read: true }).catch(() => {});
       }
     } catch (e) {
       console.error('Signaling poll error:', e);
@@ -61,9 +67,9 @@ export function createSignalingChannel({ clientId, senderType, senderEmail }) {
   };
 
   const start = () => {
-    // Poll immediately then every 1.5s
+    // Poll immediately then every 500ms for faster message delivery
     poll();
-    intervalId = setInterval(poll, 1500);
+    intervalId = setInterval(poll, 500);
   };
 
   const stop = () => {
