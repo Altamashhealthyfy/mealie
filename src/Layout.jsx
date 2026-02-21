@@ -799,12 +799,7 @@ export default function Layout({ children, currentPageName }) {
         icon: Home,
         show: (coachAccess.show_my_dashboard ?? true) && true,
       },
-      {
-        title: "My Achievements",
-        url: createPageUrl("ClientAchievements"),
-        icon: Trophy,
-        show: (coachAccess.show_achievements ?? true) && (permissions?.show_achievements ?? true),
-      },
+
       {
         title: "My Plans",
         url: createPageUrl("ClientPlans"),
