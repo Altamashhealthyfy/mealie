@@ -134,9 +134,9 @@ export default function ClientCommunication() {
       const msgs = await base44.entities.Message.filter({ 
         client_id: clientProfile?.id 
       });
-      return msgs.sort((a, b) => 
-        new Date(a.created_date) - new Date(b.created_date)
-      );
+      return msgs
+        .filter(m => m.content_type !== 'video_signal')
+        .sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
     },
     enabled: !!clientProfile?.id,
     initialData: [],
