@@ -1690,7 +1690,7 @@ support@mealiepro.com`;
         </Dialog>
 
         {/* Assign to Health Coach Dialog */}
-        <Dialog open={showAssignCoachDialog} onOpenChange={setShowAssignCoachDialog}>
+        <Dialog open={showAssignCoachDialog} onOpenChange={(open) => { setShowAssignCoachDialog(open); if (!open) setCoachSearchQuery(""); }}>
           <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle className="text-2xl flex items-center gap-2">
