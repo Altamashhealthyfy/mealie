@@ -109,7 +109,12 @@ export default function EmailSender({ client, onClose, template = null }) {
           {sent && (
             <Alert className="bg-green-50 border-green-300">
               <CheckCircle className="w-4 h-4 text-green-600" />
-              <AlertDescription className="text-green-800">Email sent successfully!</AlertDescription>
+              <AlertDescription className="text-green-800">
+                Email sent successfully! ✅<br/>
+                <span className="text-xs text-green-700 mt-1 block">
+                  ⚠️ Ask the client to check their <strong>Spam / Junk</strong> folder if they don't see it in inbox. The email is sent from <strong>contactus@healthyfy.com</strong>.
+                </span>
+              </AlertDescription>
             </Alert>
           )}
 
