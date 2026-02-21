@@ -363,20 +363,20 @@ export default function PaymentHistory() {
   }, [clientPlanPurchases, messages]);
 
   return (
-    <div className="min-h-screen p-4 lg:p-8 bg-gray-50">
-      <div className="max-w-7xl mx-auto space-y-4 lg:space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+    <div className="min-h-screen p-4 lg:p-8 bg-gray-50 overflow-hidden">
+      <div className="max-w-7xl mx-auto space-y-3 lg:space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 lg:gap-2">
           <div>
-            <h1 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-1 lg:mb-2">Transactions</h1>
-            <p className="text-xs lg:text-sm text-gray-600">
+            <h1 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-0.5 lg:mb-2">Transactions</h1>
+            <p className="text-xs lg:text-sm text-gray-600 line-clamp-2">
               Showing transaction records from {dateFrom || 'all time'} to {dateTo || 'now'}
             </p>
           </div>
         </div>
 
         <Card className="border-none shadow-sm bg-white">
-          <CardContent className="p-4 lg:p-8">
-            <div className="flex flex-col lg:flex-row items-start lg:items-start justify-between gap-4 mb-6">
+          <CardContent className="p-3 lg:p-8">
+            <div className="flex flex-col lg:flex-row items-start lg:items-start justify-between gap-2 lg:gap-4 mb-4 lg:mb-6">
               <div>
                 <h2 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-2">
                   ₹{totalEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -400,7 +400,7 @@ export default function PaymentHistory() {
               </div>
             </div>
 
-            <div className="h-48 lg:h-64">
+            <div className="w-full" style={{ height: 'clamp(180px, 35vh, 280px)' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
                   <defs>
@@ -438,10 +438,10 @@ export default function PaymentHistory() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 lg:gap-6">
           <Card className="border-none shadow-sm bg-white">
-            <CardContent className="p-4 lg:p-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <CardContent className="p-3 lg:p-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 lg:gap-4 mb-4 lg:mb-6">
                 <div>
                   <h3 className="text-lg lg:text-xl font-bold text-gray-900">Services earnings</h3>
                   <p className="text-xs lg:text-sm text-gray-500">Last updated {format(new Date(), 'h')} hours ago</p>
@@ -460,14 +460,14 @@ export default function PaymentHistory() {
                 />
               </div>
 
-              <div className="space-y-3">
-                <div className="grid grid-cols-3 gap-2 lg:gap-4 pb-2 border-b text-xs lg:text-sm font-medium text-gray-600">
+              <div className="space-y-2 lg:space-y-3">
+                <div className="grid grid-cols-3 gap-2 lg:gap-4 pb-2 border-b text-xs font-medium text-gray-600">
                   <div>Service</div>
                   <div className="text-right">Earnings</div>
                   <div className="text-right">Action</div>
                 </div>
 
-                <div className="space-y-3 max-h-[300px] overflow-y-auto scrollbar-thin">
+                <div className="space-y-2 lg:space-y-3 max-h-[280px] overflow-y-auto scrollbar-thin">
                   {earningsByPlan.map(({ plan, earnings }) => (
                     <div key={plan} className="grid grid-cols-3 gap-2 lg:gap-4 items-center py-2 border-b last:border-0">
                       <div className="min-w-0">
@@ -504,8 +504,8 @@ export default function PaymentHistory() {
           </Card>
 
           <Card className="border-none shadow-sm bg-gradient-to-br from-purple-50 to-pink-50">
-            <CardContent className="p-4 lg:p-6">
-              <div className="flex items-center justify-between mb-6">
+            <CardContent className="p-3 lg:p-6">
+              <div className="flex items-center justify-between mb-4 lg:mb-6">
                 <div>
                   <h3 className="text-lg lg:text-xl font-bold text-gray-900 flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-purple-600" />
@@ -515,14 +515,14 @@ export default function PaymentHistory() {
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <div className="grid grid-cols-3 gap-2 lg:gap-4 pb-2 border-b text-xs lg:text-sm font-medium text-gray-600">
+              <div className="space-y-2 lg:space-y-3">
+                <div className="grid grid-cols-3 gap-2 lg:gap-4 pb-2 border-b text-xs font-medium text-gray-600">
                   <div>Coach</div>
                   <div className="text-right">Credits</div>
                   <div className="text-right">Spent</div>
                 </div>
 
-                <div className="space-y-3 max-h-[300px] overflow-y-auto scrollbar-thin">
+                <div className="space-y-2 lg:space-y-3 max-h-[280px] overflow-y-auto scrollbar-thin">
                   {creditsPurchasedByCoach.map(({ coach, credits, spent }) => (
                     <div key={coach} className="grid grid-cols-3 gap-2 lg:gap-4 items-center py-2 border-b border-purple-100 last:border-0">
                       <div className="min-w-0">
@@ -554,8 +554,8 @@ export default function PaymentHistory() {
 
           {user?.user_type === 'super_admin' && (
             <Card className="border-none shadow-sm bg-gradient-to-br from-green-50 to-emerald-50">
-              <CardContent className="p-4 lg:p-6">
-                <div className="flex items-center justify-between mb-6">
+              <CardContent className="p-3 lg:p-6">
+                <div className="flex items-center justify-between mb-4 lg:mb-6">
                   <div>
                     <h3 className="text-lg lg:text-xl font-bold text-gray-900 flex items-center gap-2">
                       <CreditCard className="w-5 h-5 text-green-600" />
@@ -565,14 +565,14 @@ export default function PaymentHistory() {
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <div className="grid grid-cols-3 gap-2 lg:gap-4 pb-2 border-b text-xs lg:text-sm font-medium text-gray-600">
+                <div className="space-y-2 lg:space-y-3">
+                  <div className="grid grid-cols-3 gap-2 lg:gap-4 pb-2 border-b text-xs font-medium text-gray-600">
                     <div>Coach</div>
                     <div className="text-right">Messages</div>
                     <div className="text-right">Revenue</div>
                   </div>
 
-                  <div className="space-y-3 max-h-[300px] overflow-y-auto scrollbar-thin">
+                  <div className="space-y-2 lg:space-y-3 max-h-[280px] overflow-y-auto scrollbar-thin">
                     {clientRevenueByCoach.map(({ coach, unreadMessages, revenue }) => (
                       <div key={coach} className="grid grid-cols-3 gap-2 lg:gap-4 items-center py-2 border-b border-green-100 last:border-0">
                         <div className="min-w-0">
@@ -609,8 +609,8 @@ export default function PaymentHistory() {
         </div>
 
         <Card className="border-none shadow-sm bg-white">
-          <CardContent className="p-6">
-            <div className="flex flex-col lg:flex-row gap-3 lg:gap-4 mb-6">
+          <CardContent className="p-4 lg:p-6">
+            <div className="flex flex-col lg:flex-row gap-2 lg:gap-3 mb-4 lg:mb-6">
               <div className="flex-1 min-w-0 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
@@ -645,63 +645,64 @@ export default function PaymentHistory() {
               </div>
             </div>
 
-            <div className="overflow-x-auto -mx-2 lg:mx-0">
-              <table className="w-full min-w-[900px]">
+            <div className="w-full overflow-hidden">
+              <table className="w-full">
                 <thead>
-                  <tr className="border-b text-xs lg:text-sm text-gray-600">
-                    <th className="text-left py-3 px-2 lg:px-4 whitespace-nowrap">Date</th>
-                    <th className="text-left py-3 px-2 lg:px-4 whitespace-nowrap">Customer</th>
-                    <th className="text-left py-3 px-2 lg:px-4 whitespace-nowrap">Amount</th>
-                    <th className="text-left py-3 px-2 lg:px-4 whitespace-nowrap">Contact</th>
-                    <th className="text-left py-3 px-2 lg:px-4 whitespace-nowrap">Service</th>
-                    <th className="text-center py-3 px-2 lg:px-4 whitespace-nowrap">Quantity</th>
-                    <th className="text-center py-3 px-2 lg:px-4 whitespace-nowrap">Payment Cycle</th>
-                    <th className="text-center py-3 px-2 lg:px-4 whitespace-nowrap">Status</th>
-                    <th className="text-center py-3 px-2 lg:px-4"></th>
+                  <tr className="border-b text-[10px] lg:text-sm text-gray-600">
+                    <th className="text-left py-2 lg:py-3 px-2 lg:px-4 whitespace-nowrap font-medium">Date</th>
+                    <th className="text-left py-2 lg:py-3 px-2 lg:px-4 whitespace-nowrap font-medium">Customer</th>
+                    <th className="text-left py-2 lg:py-3 px-2 lg:px-4 whitespace-nowrap font-medium">Amount</th>
+                    <th className="text-left py-2 lg:py-3 px-2 lg:px-4 whitespace-nowrap font-medium hidden md:table-cell">Contact</th>
+                    <th className="text-left py-2 lg:py-3 px-2 lg:px-4 whitespace-nowrap font-medium hidden xl:table-cell">Service</th>
+                    <th className="text-center py-2 lg:py-3 px-2 lg:px-4 whitespace-nowrap font-medium hidden lg:table-cell">Qty</th>
+                    <th className="text-center py-2 lg:py-3 px-2 lg:px-4 whitespace-nowrap font-medium hidden lg:table-cell">Cycle</th>
+                    <th className="text-center py-2 lg:py-3 px-2 lg:px-4 whitespace-nowrap font-medium">Status</th>
+                    <th className="text-center py-2 lg:py-3 px-2 lg:px-4 font-medium hidden sm:table-cell"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredRazorpayTransactions.map((sub) => (
                     <tr key={sub.id} className="border-b hover:bg-gray-50">
-                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-xs lg:text-sm whitespace-nowrap">
-                        {format(new Date(sub.created_date), 'dd MMM yyyy, h:mm a')}
+                      <td className="py-2 lg:py-3 px-2 lg:px-4 text-[10px] lg:text-sm whitespace-nowrap">
+                        <div className="hidden lg:block">{format(new Date(sub.created_date), 'dd MMM yyyy, h:mm a')}</div>
+                        <div className="lg:hidden">{format(new Date(sub.created_date), 'dd MMM')}</div>
                       </td>
-                      <td className="py-3 lg:py-4 px-2 lg:px-4">
-                        <p className="font-medium text-sm">{sub.coach_name}</p>
+                      <td className="py-2 lg:py-3 px-2 lg:px-4">
+                        <p className="font-medium text-xs lg:text-sm truncate">{sub.coach_name}</p>
                       </td>
-                      <td className="py-3 lg:py-4 px-2 lg:px-4">
-                        <p className="font-semibold text-sm">₹{sub.amount}</p>
+                      <td className="py-2 lg:py-3 px-2 lg:px-4">
+                        <p className="font-semibold text-xs lg:text-sm">₹{sub.amount}</p>
                       </td>
-                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-xs lg:text-sm">
-                        <p className="text-blue-600 truncate max-w-[150px]" title={sub.coach_email}>{sub.coach_email}</p>
+                      <td className="py-2 lg:py-3 px-2 lg:px-4 text-[10px] lg:text-sm hidden md:table-cell">
+                        <p className="text-blue-600 truncate max-w-[100px]" title={sub.coach_email}>{sub.coach_email.split('@')[0]}</p>
                       </td>
-                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-xs lg:text-sm">
-                        <p className="font-medium text-sm">{sub.plan_name}</p>
-                        <p className="text-xs text-gray-500">Health Coach Plan</p>
+                      <td className="py-2 lg:py-3 px-2 lg:px-4 text-[10px] lg:text-sm hidden xl:table-cell">
+                        <p className="font-medium text-xs truncate">{sub.plan_name}</p>
                       </td>
-                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-center text-sm">1</td>
-                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-center">
-                        <Badge className="bg-green-100 text-green-800 capitalize text-xs whitespace-nowrap">
+                      <td className="py-2 lg:py-3 px-2 lg:px-4 text-center text-xs hidden lg:table-cell">1</td>
+                      <td className="py-2 lg:py-3 px-2 lg:px-4 text-center hidden lg:table-cell">
+                        <Badge className="bg-green-100 text-green-800 capitalize text-[10px] whitespace-nowrap">
                           {sub.billing_cycle}
                         </Badge>
                       </td>
-                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-center">
+                      <td className="py-2 lg:py-3 px-2 lg:px-4 text-center">
                         <Badge className={`${
                           sub.status === 'active' ? 'bg-green-500' :
                           sub.status === 'failed' ? 'bg-red-500' :
                           sub.status === 'expired' ? 'bg-orange-500' :
                           sub.status === 'cancelled' ? 'bg-gray-500' :
                           'bg-yellow-500'
-                        } text-white inline-flex items-center gap-1 text-xs whitespace-nowrap`}>
-                          <CheckCircle2 className="w-3 h-3" />
-                          {sub.status === 'active' ? 'SUCCESS' : 
+                        } text-white inline-flex items-center gap-0.5 text-[10px] lg:text-xs whitespace-nowrap`}>
+                          <CheckCircle2 className="w-2.5 h-2.5 lg:w-3 lg:h-3" />
+                          <span className="hidden sm:inline">{sub.status === 'active' ? 'SUCCESS' : 
                            sub.status === 'failed' ? 'FAILED' :
-                           sub.status.toUpperCase()}
+                           sub.status.toUpperCase()}</span>
+                          <span className="sm:hidden">{sub.status === 'active' ? 'OK' : 'ERR'}</span>
                         </Badge>
                       </td>
-                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-center">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical className="w-4 h-4" />
+                      <td className="py-2 lg:py-3 px-2 lg:px-4 text-center hidden sm:table-cell">
+                        <Button variant="ghost" size="icon" className="h-7 w-7 lg:h-8 lg:w-8">
+                          <MoreVertical className="w-3 h-3 lg:w-4 lg:h-4" />
                         </Button>
                       </td>
                     </tr>
@@ -821,10 +822,10 @@ export default function PaymentHistory() {
             </div>
 
             {filteredRazorpayTransactions.length === 0 && filteredAICreditsTransactions.length === 0 && filteredClientPurchases.length === 0 && (
-              <div className="text-center py-12">
-                <DollarSign className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No Transactions Found</h3>
-                <p className="text-gray-600">Transaction history will appear here</p>
+              <div className="text-center py-8 lg:py-12">
+                <DollarSign className="w-12 lg:w-16 h-12 lg:h-16 mx-auto text-gray-300 mb-2 lg:mb-4" />
+                <h3 className="text-base lg:text-xl font-semibold text-gray-900 mb-1 lg:mb-2">No Transactions Found</h3>
+                <p className="text-xs lg:text-base text-gray-600">Transaction history will appear here</p>
               </div>
             )}
           </CardContent>
