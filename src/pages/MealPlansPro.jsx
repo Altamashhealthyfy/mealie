@@ -14,7 +14,6 @@ import ManualMealPlanBuilder from "@/components/mealplanner/ManualMealPlanBuilde
 import { Input } from "@/components/ui/input";
 import ProMealPlanChatModifier from "@/components/pro/ProMealPlanChatModifier";
 import RecipeScaler from "@/components/mealplanner/RecipeScaler";
-import { MEAL_OPTIONS } from "@/lib/mealOptions";
 
 export default function MealPlansPro() {
   const [searchParams] = useSearchParams();
@@ -1253,19 +1252,6 @@ export default function MealPlansPro() {
 
 // Helper function to construct Diamond GPT prompt
 function constructDiamondPrompt(client, intake, numberOfDays, mealPattern) {
-  const formatMealOptions = (options) => {
-    if (Array.isArray(options)) {
-      return options.map(opt => `- ${opt}`).join('\n');
-    } else if (typeof options === 'object') {
-      return Object.entries(options).map(([key, items]) => {
-        if (Array.isArray(items)) {
-          return `${key.toUpperCase()}:\n${items.map(item => `  - ${item}`).join('\n')}`;
-        }
-        return `${key}: ${items}`;
-      }).join('\n\n');
-    }
-    return '';
-  };
   const activityMultipliers = {
     sedentary: 1.2,
     lightly_active: 1.375,
@@ -1361,24 +1347,55 @@ TDEE: ${Math.round(tdee)} kcal
 9. Handle conflicts with hierarchy: Kidney > Diabetes > Heart > Thyroid
 
 ## APPROVED MEAL OPTIONS:
-Use ONLY the following meal options from the pre-approved list:
+Use ONLY the following meal options from the pre-approved clinical list:
 
 **BREAKFAST OPTIONS:**
-${formatMealOptions(MEAL_OPTIONS.breakfast)}
+- Boiled lobhia/kala chana/soybean/chhole sauté with veggies (30% legumes & 70% veggies)
+- Steam sprouts sauté with veggies
+- Stuffed rotis: Onion, Lauki, Palak, Gobhi, Methi, Kaddu, or Aalu Paratha
+- Paneer stuffed roti
+- Vegetable poha or Sprouts Poha
+- Veg Wheat/Sabudana daliya
+- Besan/Ragi/Moong dal cheela with veggies
+- Veg sandwich with 2 atta bread slices
+- Oats/Rava/Fermented Idli sauté with vegetables
+- Muesli or Cornflakes with low fat milk
+- Egg omelette/Boiled egg with veggies
+- Vegetable oats or Veg upma
+- Veg uttapam or Suji cheela veg mix
+- Toned milk, Double toned milk, Cow's milk, Chhach, or Curd
 
-**MID-MORNING OPTIONS:**
-${formatMealOptions(MEAL_OPTIONS.midMorning)}
+**MID-MORNING OPTIONS (FRUITS):**
+- Seasonal fruits, Apple, Pear, Orange, Mausmbi, Papaya (150gm), Kiwi, Custard apple, Banana, Mango, Chikoo, Watermelon, Muskmelon, Guava
+- Chia seeds water, Flax seeds water, Fresh coconut water, Chhach
 
-**LUNCH OPTIONS:**
-${formatMealOptions(MEAL_OPTIONS.lunch)}
+**LUNCH & DINNER GRAINS:**
+- Rotis: Jawar, Jowar, Bajra, Ragi, Wheat bran mix (30% wheat bran, 70% wheat flour), Black wheat roti
+- Rice: Boiled or Steamed white/brown rice
 
-**EVENING SNACKS OPTIONS:**
-${formatMealOptions(MEAL_OPTIONS.eveningSnacks)}
+**LUNCH & DINNER VEGETABLES (SUBJI):**
+- Beans, Palak paneer (50gm), Aalu gobhi, Gobhi tomato, Cabbage peas, Broccoli, Aalu tomato gravy, Lauki chana dal, Lauki tomato, Capsicum Aalu, Capsicum tomato onion, Mushroom capsicum, Tinda, Tori, Kundru, Kaddu, Bhindi, Spring onion, Palak curry, Mooli bhurji, Green banana, Arvi gravy, Mutter mushroom
 
-**DINNER OPTIONS:**
-${formatMealOptions(MEAL_OPTIONS.dinner)}
+**LUNCH & DINNER DALS:**
+- Arher, Moong, Chana, Masoor, Urad chana dal, Rajhma, Chhole, Kala chana gravy, Lobhia gravy
+- Kadhi/Palak kadhi/Spring onion kadhi (without pakori)
+- Gatte ki subji (without fried), Nutreela veg
+- Rava/Fermented/Oats idli with sambhar
+- Sambhar, Pav bhaji (wheat pav), Plain dosa with sambhar
 
-IMPORTANT: Select meals ONLY from the above approved list. Do NOT invent or suggest meals not in this list.
+**EVENING SNACKS:**
+- Bhels: Murmura, Corn, or Mix bhel (with tomato, kheera, onion, green chutney, lemon)
+- Veg sandwich with 2 atta bread slices
+- Handful options: Bhuna chana, Dry roasted makhane, Dry murmura, Plain corn flakes, Puffed bajra, Puffed jowar
+- Tea (less sugar, less milk), Green tea, Cold milk
+
+**DINNER SPECIAL OPTIONS:**
+- Vegetable oats, Veg upma, Veg daliya (Black wheat, barley, or millet with 70% veggies)
+- Ragi/Moong dal cheela veg, Vegetable poha, Stuffed rotis, Veg sandwich, Idli sauté
+
+**SALAD:** Cucumber, tomato, onion, carrot, lemon
+
+CRITICAL: Select meals ONLY from these pre-approved clinical options. Do NOT invent, suggest, or create any meals NOT in this list.
 
 ## STRICT MEAL RULES (NEVER VIOLATE):
 RULE A - NO FRUITS AT NIGHT: NEVER include any fruits (banana, apple, papaya, mango, orange, etc.) in dinner or post-dinner. Fruits only allowed at breakfast, mid-morning, or evening snack.
