@@ -27,6 +27,8 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import AIGoalSetter from "@/components/onboarding/AIGoalSetter";
+import AIWelcomeMessage from "@/components/onboarding/AIWelcomeMessage";
 
 export default function ClientOnboarding() {
   const navigate = useNavigate();
@@ -108,6 +110,9 @@ Provide a warm, personalized tip that's relevant to their situation.`,
     }
   });
 
+  const [createdClient, setCreatedClient] = useState(null);
+  const [showPostOnboarding, setShowPostOnboarding] = useState(false);
+
   const createClientMutation = useMutation({
     mutationFn: async (data) => {
       // Calculate BMR and TDEE
@@ -151,14 +156,13 @@ Provide a warm, personalized tip that's relevant to their situation.`,
       return await base44.entities.Client.create(clientData);
     },
     onSuccess: (client) => {
+      setCreatedClient(client);
+      setShowPostOnboarding(true);
       toast({
-        title: "Welcome aboard! 🎉",
-        description: "Your profile has been created successfully.",
+        title: "Profile Created! 🎉",
+        description: "Now let's set up your health goals and get a personalized welcome message.",
         duration: 3000,
       });
-      setTimeout(() => {
-        navigate(createPageUrl("ClientDashboard"));
-      }, 1500);
     },
     onError: (error) => {
       toast({
@@ -266,6 +270,34 @@ Provide a warm, personalized tip that's relevant to their situation.`,
   ];
 
   const progress = (currentStep / steps.length) * 100;
+
+  // Post-onboarding flow
+  if (showPostOnboarding && createdClient) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-4 md:p-8">
+        <div className="max-w-2xl mx-auto space-y-6">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Sparkles className="w-8 h-8 text-orange-500" />
+              <h1 className="text-3xl font-bold text-gray-900">Almost Done! 🎊</h1>
+            </div>
+            <p className="text-gray-600">Let's personalize your health journey with goals and a welcome message from your coach.</p>
+          </div>
+
+          <AIWelcomeMessage client={createdClient} coachEmail={user?.email} />
+
+          <AIGoalSetter 
+            client={createdClient} 
+            onGoalsSet={() => {
+              setTimeout(() => {
+                navigate(createPageUrl("ClientDashboard"));
+              }, 1500);
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-4 md:p-8">
