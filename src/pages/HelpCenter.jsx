@@ -12,46 +12,50 @@ import { Input } from '@/components/ui/input';
 
 const guideData = [
   {
-    section: 'Dashboard Overview',
+    section: 'Home Dashboard',
     icon: Home,
     color: 'from-blue-500 to-blue-600',
-    description: 'Your central hub for viewing all important metrics and updates',
+    description: 'Your personalized wellness hub with progress tracking',
     guides: [
       {
-        title: 'Dashboard Home',
-        content: 'View key statistics, recent activity, and quick action cards. See your progress at a glance with charts showing weight trends, wellness metrics, and adherence to meal plans.'
+        title: 'Welcome Section',
+        content: 'Get personalized welcome message about your Indian meal planning journey. Access Food Lookup and MPESS Tracker with one click.'
       },
       {
-        title: 'Action Items & Alerts',
-        content: 'Get notified about pending tasks, overdue resources, upcoming appointments, and important health metrics that need attention.'
+        title: 'Health Stats',
+        content: 'View your current weight, active goals count, target daily calories, and MPESS wellness days tracked this week all at a glance.'
       },
       {
-        title: 'Quick Stats Cards',
-        content: 'Monitor your current weight, BMI, daily progress percentage, streak achievements, and upcoming milestones in one place.'
+        title: 'Active Goals Overview',
+        content: 'See your top 3 active goals with progress bars showing how close you are to achieving them. Track progress by unit (kg, days, etc.).'
+      },
+      {
+        title: 'Quick Actions',
+        content: 'Instantly access My Progress tracking, direct messaging with your coach, and MPESS Wellness tracking from the dashboard.'
       }
     ]
   },
   {
-    section: 'Client Management',
-    icon: Users,
+    section: 'My Progress',
+    icon: TrendingUp,
     color: 'from-green-500 to-green-600',
-    description: 'Manage all your clients and their health journeys',
+    description: 'Track your weight, measurements, and wellness journey',
     guides: [
       {
-        title: 'Client List',
-        content: 'View all your clients with filters for status (active/inactive), plan tier (basic/advanced), and goals. See quick stats like weight change and plan status.'
+        title: 'Weight Tracking',
+        content: 'Log your current weight and track changes over time. View weight trend charts showing your progress towards your target weight.'
       },
       {
-        title: 'Client Profiles',
-        content: 'Access detailed client information including health metrics, dietary preferences, lifestyle data, family history, goals, and compliance notes.'
+        title: 'Measurements',
+        content: 'Record body measurements (chest, waist, hips, etc.) to track body composition changes alongside weight.'
       },
       {
-        title: 'Bulk Client Import',
-        content: 'Upload multiple clients at once using CSV file. Perfect for onboarding many clients quickly with their basic information.'
+        title: 'Wellness Metrics',
+        content: 'Log mood, energy levels, sleep quality, stress, digestion, and hunger patterns to track your overall wellness beyond just weight.'
       },
       {
-        title: 'Client Access Control',
-        content: 'Control what features each client can see in their portal - from meal plans to food logs, resources, and assessments.'
+        title: 'Coach Feedback',
+        content: 'Receive personalized feedback from your coach on your progress logs with suggestions and encouragement.'
       }
     ]
   },
@@ -59,51 +63,47 @@ const guideData = [
     section: 'Meal Planning & Nutrition',
     icon: ChefHat,
     color: 'from-orange-500 to-orange-600',
-    description: 'Create and manage personalized meal plans',
+    description: 'Create and manage personalized Indian meal plans',
     guides: [
       {
-        title: 'Meal Planner',
-        content: 'Create customized meal plans with AI assistance. Choose meal patterns (daily or 3-3-4), set calorie targets, and consider disease-specific requirements.'
+        title: 'Food Lookup Tool',
+        content: 'Use AI-powered search to find nutritional information for any Indian food. Get instant macros, calories, and dietary tags for informed meal planning.'
       },
       {
-        title: 'AI Meal Plan Generation',
-        content: 'Use AI to auto-generate meal plans based on client goals, health conditions, dietary preferences, and MPESS lifestyle integration.'
+        title: 'My Meal Plan',
+        content: 'View your assigned meal plan with daily breakdowns, recipes, and nutritional targets. Mark meals as completed to track adherence.'
       },
       {
         title: 'Recipe Library',
-        content: 'Browse and search recipes with complete nutritional information. Filter by meal type, cuisine, dietary tags (vegan, gluten-free, etc.), and difficulty level.'
+        content: 'Browse recipes tailored to Indian cuisine with complete nutritional info. Filter by meal type, dietary preference, and regional cuisine.'
       },
       {
-        title: 'Food Lookup Tool',
-        content: 'Use AI to search and analyze food items. Get instant nutritional data and track macros for meal planning and food logging.'
-      },
-      {
-        title: 'Pro Plans 💎',
-        content: 'Access disease-reversal focused meal plans for conditions like diabetes, hypertension, and PCOS with specialized macro ratios and meal strategies.'
+        title: 'Food Log',
+        content: 'Log your meals daily with photos or manual entry. Track calories, macros, and see how close you are to your daily targets.'
       }
     ]
   },
   {
-    section: 'Progress Tracking',
-    icon: TrendingUp,
+    section: 'MPESS Wellness',
+    icon: Heart,
     color: 'from-purple-500 to-purple-600',
-    description: 'Monitor client progress and health improvements',
+    description: 'Track holistic wellness beyond nutrition',
     guides: [
       {
-        title: 'Progress Logs',
-        content: 'Clients submit daily weight, measurements, wellness metrics (mood, energy, sleep), and symptoms. You can review, provide feedback, and rate progress.'
+        title: 'MPESS Framework',
+        content: 'Track Mind, Physical, Emotional, Social, and Spiritual wellness. Log affirmations, movement, journaling, social activities, and meditation.'
       },
       {
-        title: 'Wellness Metrics',
-        content: 'Track energy levels, sleep quality, stress, digestion, hunger patterns, menstrual cycles, and custom health markers defined by coaches.'
+        title: 'Wellness Tracker',
+        content: 'Record daily wellness practices across all 5 MPESS dimensions. Build streaks and celebrate consistency in holistic health.'
       },
       {
-        title: 'Analytics & Reports',
-        content: 'View detailed progress analytics including weight trends, macro adherence, wellness trends, compliance charts, and health metric improvements.'
+        title: 'MPESS Assessment',
+        content: 'Complete comprehensive wellness assessments to evaluate your current state in each MPESS dimension and get personalized recommendations.'
       },
       {
-        title: 'Client Progress Review',
-        content: 'Review all client progress logs with filtering options. Identify patterns, track compliance, and provide personalized coaching feedback.'
+        title: 'MPESS Analytics',
+        content: 'View detailed analytics showing your progress in each wellness dimension with trends and insights for improvement.'
       }
     ]
   },
@@ -132,178 +132,170 @@ const guideData = [
     ]
   },
   {
-    section: 'Appointments & Scheduling',
+    section: 'Appointments & Goals',
     icon: Calendar,
     color: 'from-red-500 to-red-600',
-    description: 'Manage consultations and follow-ups',
+    description: 'Schedule consultations and set wellness goals',
     guides: [
       {
-        title: 'Appointments Calendar',
-        content: 'View all scheduled appointments in a calendar view. Schedule new consultations, follow-ups, or assessments with clients.'
-      },
-      {
-        title: 'Google Calendar Sync',
-        content: 'Sync appointments with Google Calendar for seamless scheduling. Automatically create and update events with client details and video links.'
+        title: 'My Appointments',
+        content: 'View and schedule appointments with your health coach. Get reminders before your scheduled consultation calls.'
       },
       {
         title: 'Appointment Reminders',
-        content: 'Automatic reminders are sent to clients before appointments. Set custom reminder times and notification preferences.'
+        content: 'Receive automatic reminders before your coaching sessions. Never miss an important check-in with your coach.'
       },
       {
-        title: 'Recurring Appointments',
-        content: 'Set up weekly, bi-weekly, or monthly recurring appointments for regular client check-ins and consultations.'
+        title: 'My Goals',
+        content: 'Set SMART goals with your coach in areas like weight loss, fitness, wellness metrics, and behavioral changes.'
+      },
+      {
+        title: 'Goal Progress',
+        content: 'Track progress toward your set goals with visual indicators. Celebrate milestones and adjust strategies with coach guidance.'
       }
     ]
   },
   {
-    section: 'Resources & Education',
-    icon: BookOpen,
+    section: 'Messages & Support',
+    icon: MessageSquare,
     color: 'from-cyan-500 to-cyan-600',
-    description: 'Provide learning materials to clients',
+    description: 'Direct communication with your health coach',
     guides: [
       {
-        title: 'Resource Library',
-        content: 'Upload PDFs, videos, articles, guides, and worksheets. Organize by category (nutrition, fitness, mental health, etc.) and difficulty level.'
+        title: 'Direct Messaging',
+        content: 'Send and receive messages directly with your health coach. Share updates, ask questions, and get personalized guidance anytime.'
       },
       {
-        title: 'AI Resource Suggestions',
-        content: 'Get AI-powered suggestions for which resources are most relevant to each client based on their goals, health conditions, and progress.'
+        title: 'Chat Features',
+        content: 'Share files, photos, and receive coaching feedback. See when your coach has read your messages for peace of mind.'
       },
       {
-        title: 'Resource Assignments',
-        content: 'Assign resources to clients with due dates and assignment notes. Track which clients viewed and completed resources.'
+        title: 'Quick Response',
+        content: 'Get prompt replies from your coach during their working hours. Set communication preferences for message timing.'
       },
       {
-        title: 'Resource Tracking',
-        content: 'Monitor client interaction with resources - viewing, reading time, completion rates, and client feedback/ratings.'
+        title: 'Progress Sharing',
+        content: 'Share your progress logs, meal photos, and wellness updates directly in chat for coach feedback and motivation.'
       }
     ]
   },
   {
-    section: 'Assessments & Goals',
+    section: 'My Profile',
     icon: FileText,
     color: 'from-indigo-500 to-indigo-600',
-    description: 'Create and manage client assessments',
+    description: 'Manage your health information and preferences',
     guides: [
       {
-        title: 'Assessment Templates',
-        content: 'Create custom assessment forms with multiple question types. Use for health intake, progress reviews, or specific condition evaluations.'
+        title: 'Personal Information',
+        content: 'Complete your profile with age, height, weight, activity level, dietary preferences, and health goals for personalized recommendations.'
       },
       {
-        title: 'MPESS Assessment',
-        content: 'Use the Mind-Physical-Emotional-Social-Spiritual framework for holistic wellness assessment. Track all dimensions of client wellbeing.'
+        title: 'Health Metrics',
+        content: 'Store your health test results and medical data. Share this information with your coach for better personalized guidance.'
       },
       {
-        title: 'Client Goals',
-        content: 'Set SMART goals with milestones for clients. Track progress toward weight loss, fitness, health metrics, and behavioral goals.'
+        title: 'Dietary Preferences',
+        content: 'Set your food preferences (veg/non-veg), regional cuisine preferences, and any dietary restrictions or allergies.'
       },
       {
-        title: 'Goal Tracking',
-        content: 'Monitor goal progress with visual charts. Celebrate milestone completions and adjust strategies based on performance.'
+        title: 'Notification Settings',
+        content: 'Customize when and how you receive reminders for meals, progress check-ins, and messages from your coach.'
       }
     ]
   },
   {
-    section: 'Gamification & Motivation',
+    section: 'Motivation & Rewards',
     icon: Award,
     color: 'from-yellow-500 to-yellow-600',
-    description: 'Motivate clients through games and rewards',
+    description: 'Stay motivated through achievements and milestones',
     guides: [
       {
-        title: 'Points System',
-        content: 'Clients earn points for completing activities like logging meals, submitting progress, completing resources, and meeting goals.'
+        title: 'Points & Streaks',
+        content: 'Earn points for daily activities like logging meals, submitting progress, and completing wellness practices. Build streaks for consistency.'
       },
       {
         title: 'Badges & Achievements',
-        content: 'Award badges for milestones (First 100 logs, 30-day streak, Weight goal reached). Create custom badges for your coaching programs.'
+        content: 'Unlock badges for reaching milestones like your first 100 meal logs, 30-day streaks, or weight goals. Display your achievements proudly.'
       },
       {
         title: 'Leaderboard',
-        content: 'View client leaderboards showing top performers by points. Creates friendly competition and motivation.'
+        content: 'See how you compare with other community members on the leaderboard. Friendly competition keeps you motivated.'
       },
       {
-        title: 'Challenges',
-        content: 'Create time-based challenges (7-day water intake challenge, 30-day meal plan adherence). Set rewards and track participation.'
-      },
-      {
-        title: 'Bonus Awards',
-        content: 'Manually award points or badges to clients for special achievements or as motivation for consistent effort.'
+        title: 'Special Challenges',
+        content: 'Participate in time-limited challenges (water intake challenges, meal plan adherence contests). Earn special badges and recognition.'
       }
     ]
   },
   {
-    section: 'Analytics & Reports',
+    section: 'Reports & Insights',
     icon: BarChart3,
     color: 'from-teal-500 to-teal-600',
-    description: 'View detailed analytics and insights',
+    description: 'View your wellness journey analytics',
     guides: [
       {
-        title: 'Client Analytics Dashboard',
-        content: 'See aggregate statistics across all clients - average weight loss, program adherence, resource completion rates, and engagement metrics.'
+        title: 'Weight Progress Report',
+        content: 'See detailed charts showing your weight journey over time. Track your progress toward your target weight with visual trends.'
       },
       {
-        title: 'Individual Client Reports',
-        content: 'Generate detailed progress reports for individual clients showing weight trends, macro adherence, wellness improvements, and goal progress.'
+        title: 'Wellness Trends',
+        content: 'View analytics on your mood, energy, sleep quality, and other wellness metrics over time. Identify patterns and improvements.'
       },
       {
-        title: 'Segmentation & Analytics',
-        content: 'Analyze clients by segments (age, goal, health condition, plan tier). Compare performance across different client groups.'
+        title: 'Adherence Metrics',
+        content: 'Track how well you\'re following your meal plan, logging meals, and completing wellness activities. See your consistency percentage.'
       },
       {
-        title: 'Platform Analytics',
-        content: 'View platform-wide usage stats, feature adoption, client growth trends, and revenue analytics for your coaching business.'
+        title: 'Goal Performance',
+        content: 'Review detailed analytics on each of your active goals. See progress rate, upcoming milestones, and estimated completion dates.'
       }
     ]
   },
   {
-    section: 'Billing & Payments',
+    section: 'Plans & Subscriptions',
     icon: Lock,
     color: 'from-amber-500 to-amber-600',
-    description: 'Manage payments and subscriptions',
+    description: 'View your plan options and settings',
     guides: [
       {
-        title: 'Payment Gateway Setup',
-        content: 'Configure Razorpay or Stripe to accept payments. Enable clients to purchase plans and coaches to setup payment collections.'
+        title: 'My Plan',
+        content: 'View details of your current membership plan and what features are included in your subscription level.'
       },
       {
-        title: 'Client Plans',
-        content: 'Create paid meal plans or coaching packages. Set prices, features, and duration. Clients purchase and gain instant access.'
+        title: 'Available Plans',
+        content: 'Explore different plan tiers to see what additional features and benefits you can unlock for your wellness journey.'
       },
       {
-        title: 'Plan Management',
-        content: 'Manage active subscriptions, handle cancellations, and view payment history. Track revenue from paid plans.'
+        title: 'Subscription Management',
+        content: 'Manage your subscription, view renewal dates, and update payment information if needed.'
       },
       {
-        title: 'Payment History',
-        content: 'View all transactions, refunds, and payment attempts. Export reports for accounting and financial tracking.'
+        title: 'Plan Benefits',
+        content: 'Learn about unlimited access to meal plans, AI features, coach consultations, and premium resources included in your plan.'
       }
     ]
   },
   {
-    section: 'Settings & Admin',
+    section: 'Account & Settings',
     icon: Settings,
     color: 'from-slate-500 to-slate-600',
-    description: 'Configure your platform and team',
+    description: 'Manage your account preferences and settings',
     guides: [
       {
-        title: 'Coach Profile',
-        content: 'Set up your business details, credentials, specializations, social media links, and custom branding for your client portal.'
+        title: 'Account Settings',
+        content: 'Update your email, password, and basic account information. Manage your login credentials securely.'
       },
       {
-        title: 'Team Management',
-        content: 'Invite team members, assign roles (team member, student coach), and manage their access to clients and features.'
+        title: 'Communication Preferences',
+        content: 'Choose how often you want to receive reminders and notifications. Set your preferred contact times with your coach.'
       },
       {
-        title: 'Color Customization',
-        content: 'Customize the platform colors to match your brand. Set primary colors, sidebar styling, and button colors.'
+        title: 'Privacy & Security',
+        content: 'Review privacy settings, manage data sharing permissions, and see what information your coach can access.'
       },
       {
-        title: 'Subscription Plans',
-        content: 'Manage your own subscription to the Mealie platform. Upgrade plans for more clients, features, and API access.'
-      },
-      {
-        title: 'Security Settings',
-        content: 'Configure login requirements, two-factor authentication, data backup settings, and privacy policies for your platform.'
+        title: 'Help & Support',
+        content: 'Access the help center guides, contact support for issues, and provide feedback to help us improve your experience.'
       }
     ]
   }
