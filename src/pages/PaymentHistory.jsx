@@ -708,58 +708,54 @@ export default function PaymentHistory() {
                   ))}
                   {filteredAICreditsTransactions.map((txn) => (
                     <tr key={`ai-${txn.id}`} className="border-b hover:bg-purple-50 bg-purple-25">
-                      <td className="py-4 px-4 text-sm">
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-xs lg:text-sm whitespace-nowrap">
                         {format(new Date(txn.created_date), 'dd MMM yyyy, h:mm a')}
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-3 lg:py-4 px-2 lg:px-4">
                         <div className="flex items-center gap-2">
                           <Sparkles className="w-4 h-4 text-purple-600" />
-                          <p className="font-medium">{txn.coach_email?.split('@')[0]}</p>
+                          <p className="font-medium text-sm">{txn.coach_email?.split('@')[0]}</p>
                         </div>
                       </td>
-                      <td className="py-4 px-4">
-                        <p className="font-semibold">{txn.cost ? `₹${txn.cost}` : '-'}</p>
+                      <td className="py-3 lg:py-4 px-2 lg:px-4">
+                        <p className="font-semibold text-sm">{txn.cost ? `₹${txn.cost}` : '-'}</p>
                       </td>
-                      <td className="py-4 px-4 text-sm">
-                        <div className="space-y-1">
-                          <p className="text-blue-600">{txn.coach_email}</p>
-                        </div>
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-xs lg:text-sm">
+                        <p className="text-blue-600 truncate max-w-[150px]" title={txn.coach_email}>{txn.coach_email}</p>
                       </td>
-                      <td className="py-4 px-4 text-sm">
-                        <div>
-                          <p className="font-medium flex items-center gap-1">
-                            <Sparkles className="w-3 h-3 text-purple-600" />
-                            AI Credits
-                          </p>
-                          <p className="text-xs text-gray-500">{txn.description}</p>
-                        </div>
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-xs lg:text-sm">
+                        <p className="font-medium flex items-center gap-1 text-sm">
+                          <Sparkles className="w-3 h-3 text-purple-600" />
+                          AI Credits
+                        </p>
+                        <p className="text-xs text-gray-500 truncate max-w-[200px]">{txn.description}</p>
                       </td>
-                      <td className="py-4 px-4 text-center">
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-center text-sm">
                         {txn.credits_amount > 0 ? `+${txn.credits_amount}` : txn.credits_amount}
                       </td>
-                      <td className="py-4 px-4 text-center">
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-center">
                         <Badge className={`${
                           txn.transaction_type === 'purchase' ? 'bg-purple-100 text-purple-800' :
                           txn.transaction_type === 'usage' ? 'bg-orange-100 text-orange-800' :
                           'bg-blue-100 text-blue-800'
-                        } capitalize`}>
+                        } capitalize text-xs whitespace-nowrap`}>
                           {txn.transaction_type}
                         </Badge>
                       </td>
-                      <td className="py-4 px-4 text-center">
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-center">
                         <Badge className={`${
                           txn.payment_status === 'completed' ? 'bg-green-500' :
                           txn.payment_status === 'failed' ? 'bg-red-500' :
                           'bg-yellow-500'
-                        } text-white flex items-center gap-1 w-fit mx-auto`}>
+                        } text-white inline-flex items-center gap-1 text-xs whitespace-nowrap`}>
                           <CheckCircle2 className="w-3 h-3" />
                           {txn.payment_status === 'completed' ? 'SUCCESS' : 
                            txn.payment_status === 'failed' ? 'FAILED' :
                            txn.payment_status?.toUpperCase() || 'N/A'}
                         </Badge>
                       </td>
-                      <td className="py-4 px-4 text-center">
-                        <Button variant="ghost" size="icon">
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-center">
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </td>
@@ -767,55 +763,51 @@ export default function PaymentHistory() {
                   ))}
                   {filteredClientPurchases.map((purchase) => (
                     <tr key={`client-${purchase.id}`} className="border-b hover:bg-green-50 bg-green-25">
-                      <td className="py-4 px-4 text-sm">
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-xs lg:text-sm whitespace-nowrap">
                         {format(new Date(purchase.created_date), 'dd MMM yyyy, h:mm a')}
                       </td>
-                      <td className="py-4 px-4">
+                      <td className="py-3 lg:py-4 px-2 lg:px-4">
                         <div className="flex items-center gap-2">
                           <CreditCard className="w-4 h-4 text-green-600" />
-                          <p className="font-medium">{purchase.client_name}</p>
+                          <p className="font-medium text-sm">{purchase.client_name}</p>
                         </div>
                       </td>
-                      <td className="py-4 px-4">
-                        <p className="font-semibold">₹{purchase.amount}</p>
+                      <td className="py-3 lg:py-4 px-2 lg:px-4">
+                        <p className="font-semibold text-sm">₹{purchase.amount}</p>
                       </td>
-                      <td className="py-4 px-4 text-sm">
-                        <div className="space-y-1">
-                          <p className="text-blue-600">{purchase.client_email}</p>
-                          {user?.user_type === 'super_admin' && (
-                            <p className="text-xs text-gray-500">Coach: {purchase.coach_email}</p>
-                          )}
-                        </div>
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-xs lg:text-sm">
+                        <p className="text-blue-600 truncate max-w-[150px]" title={purchase.client_email}>{purchase.client_email}</p>
+                        {user?.user_type === 'super_admin' && (
+                          <p className="text-xs text-gray-500 truncate max-w-[150px]">Coach: {purchase.coach_email}</p>
+                        )}
                       </td>
-                      <td className="py-4 px-4 text-sm">
-                        <div>
-                          <p className="font-medium flex items-center gap-1">
-                            <CreditCard className="w-3 h-3 text-green-600" />
-                            {purchase.plan_name}
-                          </p>
-                          <p className="text-xs text-gray-500">Client Plan Purchase</p>
-                        </div>
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-xs lg:text-sm">
+                        <p className="font-medium flex items-center gap-1 text-sm">
+                          <CreditCard className="w-3 h-3 text-green-600" />
+                          {purchase.plan_name}
+                        </p>
+                        <p className="text-xs text-gray-500">Client Plan Purchase</p>
                       </td>
-                      <td className="py-4 px-4 text-center">1</td>
-                      <td className="py-4 px-4 text-center">
-                        <Badge className="bg-green-100 text-green-800 capitalize">
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-center text-sm">1</td>
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-center">
+                        <Badge className="bg-green-100 text-green-800 capitalize text-xs whitespace-nowrap">
                           {purchase.duration_months} months
                         </Badge>
                       </td>
-                      <td className="py-4 px-4 text-center">
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-center">
                         <Badge className={`${
                           purchase.payment_status === 'completed' ? 'bg-green-500' :
                           purchase.payment_status === 'failed' ? 'bg-red-500' :
                           'bg-yellow-500'
-                        } text-white flex items-center gap-1 w-fit mx-auto`}>
+                        } text-white inline-flex items-center gap-1 text-xs whitespace-nowrap`}>
                           <CheckCircle2 className="w-3 h-3" />
                           {purchase.payment_status === 'completed' ? 'SUCCESS' : 
                            purchase.payment_status === 'failed' ? 'FAILED' :
                            purchase.payment_status?.toUpperCase() || 'PENDING'}
                         </Badge>
                       </td>
-                      <td className="py-4 px-4 text-center">
-                        <Button variant="ghost" size="icon">
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-center">
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </td>
