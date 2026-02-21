@@ -14,6 +14,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import ResourceUploadForm from '@/components/resources/ResourceUploadForm';
+import AIResourceGenerator from '@/components/resources/AIResourceGenerator';
 import { toast } from 'sonner';
 
 const typeIcons = {
@@ -49,6 +50,15 @@ export default function ResourceLibrary() {
     queryKey: ['resources', user?.email],
     queryFn: async () => {
       const res = await base44.entities.Resource.filter({ coach_email: user?.email }, '-created_date', 100);
+      return res;
+    },
+    enabled: !!user?.email,
+  });
+
+  const { data: aiResources = [], refetch: refetchAI } = useQuery({
+    queryKey: ['aiResources', user?.email],
+    queryFn: async () => {
+      const res = await base44.entities.AIGeneratedResource.filter({ coach_email: user?.email }, '-created_date', 50);
       return res;
     },
     enabled: !!user?.email,
@@ -117,15 +127,17 @@ export default function ResourceLibrary() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">📚 Resource Library</h1>
-            <p className="text-gray-600 mt-1">Manage and organize educational materials for your clients</p>
+            <p className="text-gray-600 mt-1">Manage educational materials and AI-generated personalized content</p>
           </div>
-          <Button
-            onClick={() => setIsUploadOpen(true)}
-            className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            Upload Resource
-          </Button>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => setIsUploadOpen(true)}
+              className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Upload Resource
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -200,87 +212,142 @@ export default function ResourceLibrary() {
           </Select>
         </div>
 
-        {/* Resources Grid */}
-        {filteredResources.length === 0 ? (
-          <div className="text-center py-12">
-            <BookOpen className="w-12 h-12 mx-auto text-gray-300 mb-4" />
-            <p className="text-gray-500 font-medium">No resources found</p>
-            <p className="text-gray-400 text-sm">Create your first resource to get started</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredResources.map(resource => {
-              const Icon = typeIcons[resource.type] || FileText;
-              const stats = assignmentStats?.[resource.id] || { assigned: 0, completed: 0 };
-              
-              return (
-                <Card key={resource.id} className="hover:shadow-lg transition-shadow">
-                  {resource.thumbnail_url && (
-                    <img
-                      src={resource.thumbnail_url}
-                      alt={resource.title}
-                      className="w-full h-40 object-cover rounded-t-lg"
-                    />
-                  )}
+        {/* AI Resources Section */}
+        {aiResources.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-gray-900">✨ AI-Generated Resources</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {aiResources.slice(0, 6).map(resource => (
+                <Card key={resource.id} className="border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <Icon className="w-4 h-4 text-orange-600 flex-shrink-0" />
-                          <Badge variant="outline" className="text-xs">
-                            {resource.type}
+                          <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs">
+                            {resource.resource_type.replace('_', ' ')}
                           </Badge>
                         </div>
                         <CardTitle className="text-base line-clamp-2">{resource.title}</CardTitle>
                       </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="w-4 h-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleDownload(resource.file_url)}>
-                            <Download className="w-4 h-4 mr-2" />
-                            Download
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDelete(resource.id)} className="text-red-600">
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <CardDescription className="line-clamp-2 mb-3">
-                      {resource.description}
+                      {resource.summary}
                     </CardDescription>
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Users className="w-4 h-4" />
-                        <span>{stats.assigned} assigned</span>
-                      </div>
-                      {stats.assigned > 0 && (
-                        <div className="flex items-center gap-2 text-sm text-green-600">
-                          <BarChart3 className="w-4 h-4" />
-                          <span>{Math.round((stats.completed / stats.assigned) * 100)}% completed</span>
-                        </div>
-                      )}
-                      <div className="flex gap-1 flex-wrap pt-2">
-                        {resource.tags?.slice(0, 3).map(tag => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            {tag}
+                      <div className="text-xs text-purple-700 font-medium">📍 Personalized for goals:</div>
+                      <div className="flex gap-1 flex-wrap">
+                        {resource.client_goals?.slice(0, 2).map(goal => (
+                          <Badge key={goal} variant="secondary" className="text-xs bg-purple-100 text-purple-800">
+                            {goal.replace('_', ' ')}
                           </Badge>
                         ))}
                       </div>
+                      {resource.identified_gaps?.length > 0 && (
+                        <>
+                          <div className="text-xs text-red-700 font-medium mt-2">🎯 Addresses gaps:</div>
+                          <div className="flex gap-1 flex-wrap">
+                            {resource.identified_gaps?.slice(0, 2).map(gap => (
+                              <Badge key={gap} variant="secondary" className="text-xs bg-red-100 text-red-800">
+                                {gap.replace('_', ' ')}
+                              </Badge>
+                            ))}
+                          </div>
+                        </>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
-              );
-            })}
+              ))}
+            </div>
           </div>
         )}
+
+        {/* Uploaded Resources Section */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-gray-900">📚 Uploaded Resources</h2>
+          {filteredResources.length === 0 ? (
+            <div className="text-center py-12">
+              <BookOpen className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+              <p className="text-gray-500 font-medium">No resources found</p>
+              <p className="text-gray-400 text-sm">Create your first resource to get started</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredResources.map(resource => {
+                const Icon = typeIcons[resource.type] || FileText;
+                const stats = assignmentStats?.[resource.id] || { assigned: 0, completed: 0 };
+                
+                return (
+                  <Card key={resource.id} className="hover:shadow-lg transition-shadow">
+                    {resource.thumbnail_url && (
+                      <img
+                        src={resource.thumbnail_url}
+                        alt={resource.title}
+                        className="w-full h-40 object-cover rounded-t-lg"
+                      />
+                    )}
+                    <CardHeader>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Icon className="w-4 h-4 text-orange-600 flex-shrink-0" />
+                            <Badge variant="outline" className="text-xs">
+                              {resource.type}
+                            </Badge>
+                          </div>
+                          <CardTitle className="text-base line-clamp-2">{resource.title}</CardTitle>
+                        </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreVertical className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleDownload(resource.file_url)}>
+                              <Download className="w-4 h-4 mr-2" />
+                              Download
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDelete(resource.id)} className="text-red-600">
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription className="line-clamp-2 mb-3">
+                        {resource.description}
+                      </CardDescription>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Users className="w-4 h-4" />
+                          <span>{stats.assigned} assigned</span>
+                        </div>
+                        {stats.assigned > 0 && (
+                          <div className="flex items-center gap-2 text-sm text-green-600">
+                            <BarChart3 className="w-4 h-4" />
+                            <span>{Math.round((stats.completed / stats.assigned) * 100)}% completed</span>
+                          </div>
+                        )}
+                        <div className="flex gap-1 flex-wrap pt-2">
+                          {resource.tags?.slice(0, 3).map(tag => (
+                            <Badge key={tag} variant="secondary" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Upload Dialog */}
