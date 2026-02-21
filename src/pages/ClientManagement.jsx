@@ -82,6 +82,7 @@ export default function ClientManagement() {
   const [showAssignCoachDialog, setShowAssignCoachDialog] = useState(false);
   const [clientToAssignCoach, setClientToAssignCoach] = useState(null);
   const [selectedCoaches, setSelectedCoaches] = useState([]);
+  const [coachSearchQuery, setCoachSearchQuery] = useState("");
   const [showProgressDashboard, setShowProgressDashboard] = useState(false);
   const [selectedClientForProgress, setSelectedClientForProgress] = useState(null);
   const [showCreatePasswordDialog, setShowCreatePasswordDialog] = useState(false);
