@@ -1786,8 +1786,8 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
   const isNoClientsMode = clients.length === 0;
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen p-4 lg:p-8 bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
+      <div className="max-w-7xl mx-auto space-y-4 lg:space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">Meal Planner</h1>
@@ -1851,25 +1851,25 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
           <UsageLimitWarning usage={usage} limits={usage?.plan_limits} type="meal_plan" />
         )}
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4 h-auto">
-            <TabsTrigger value="templates" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-4 py-2">
-              <Star className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Templates</span>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 lg:space-y-6">
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4 h-auto gap-1 w-full">
+            <TabsTrigger value="templates" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-[11px] sm:text-xs px-1 sm:px-2 py-2 rounded-lg">
+              <Star className="w-3 h-3 mr-0.5 sm:mr-1" />
+              <span className="hidden sm:inline text-xs">Templates</span>
             </TabsTrigger>
-            <TabsTrigger value="manual" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-4 py-2">
-              <Edit className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Manual</span>
+            <TabsTrigger value="manual" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-[11px] sm:text-xs px-1 sm:px-2 py-2 rounded-lg">
+              <Edit className="w-3 h-3 mr-0.5 sm:mr-1" />
+              <span className="hidden sm:inline text-xs">Manual</span>
             </TabsTrigger>
-            <TabsTrigger value="generate" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-4 py-2">
-              <Plus className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-              <span className="hidden sm:inline">AI Generate</span>
+            <TabsTrigger value="generate" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-[11px] sm:text-xs px-1 sm:px-2 py-2 rounded-lg">
+              <Zap className="w-3 h-3 mr-0.5 sm:mr-1" />
+              <span className="hidden sm:inline text-xs">AI Generate</span>
             </TabsTrigger>
-            <TabsTrigger value="saved" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-4 py-2">
-              <Calendar className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Plans</span>
+            <TabsTrigger value="saved" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-[11px] sm:text-xs px-1 sm:px-2 py-2 rounded-lg">
+              <Calendar className="w-3 h-3 mr-0.5 sm:mr-1" />
+              <span className="hidden sm:inline text-xs">Plans</span>
               <span className="sm:hidden">({mealPlans.length})</span>
-              <span className="hidden sm:inline"> ({mealPlans.length})</span>
+              <span className="hidden sm:inline">({mealPlans.length})</span>
             </TabsTrigger>
           </TabsList>
 
@@ -1950,43 +1950,43 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                 </Card>
 
                 {(user?.user_type === 'super_admin' || user?.user_type === 'team_member' || coachPlan?.can_generate_ai_templates) && (
-                  <div className="space-y-3">
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <Button
-                        onClick={() => setShowAITemplateDialog(true)}
-                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-12 w-full sm:w-auto"
-                      >
-                        <Sparkles className="w-5 h-5 mr-2" />
-                        <span className="text-sm sm:text-base">AI Generate Template</span>
-                      </Button>
-                      <Button
-                        onClick={() => setShowManualTemplateDialog(true)}
-                        variant="outline"
-                        className="h-12 border-2 border-indigo-500 text-indigo-600 hover:bg-indigo-50 w-full sm:w-auto"
-                      >
-                        <Edit className="w-5 h-5 mr-2" />
-                        <span className="text-sm sm:text-base">Create Manual Template</span>
-                      </Button>
-                    </div>
+                   <div className="space-y-3">
+                     <div className="flex flex-col lg:flex-row gap-2 lg:gap-3">
+                       <Button
+                         onClick={() => setShowAITemplateDialog(true)}
+                         className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-11 lg:h-12 w-full lg:flex-1 text-sm lg:text-base"
+                       >
+                         <Sparkles className="w-4 lg:w-5 h-4 lg:h-5 mr-1 lg:mr-2" />
+                         <span>AI Generate Template</span>
+                       </Button>
+                       <Button
+                         onClick={() => setShowManualTemplateDialog(true)}
+                         variant="outline"
+                         className="h-11 lg:h-12 border-2 border-indigo-500 text-indigo-600 hover:bg-indigo-50 w-full lg:flex-1 text-sm lg:text-base"
+                       >
+                         <Edit className="w-4 lg:w-5 h-4 lg:h-5 mr-1 lg:mr-2" />
+                         <span>Create Manual Template</span>
+                       </Button>
+                     </div>
                     
                     <Card className="border-2 border-dashed border-green-300 bg-green-50/50">
-                      <CardContent className="p-4">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                          <div className="flex-1">
-                            <p className="font-semibold text-green-900 mb-1 text-sm sm:text-base">Import Meal Plan Template</p>
-                            <p className="text-xs sm:text-sm text-green-700">Upload JSON, Excel (.xlsx), or Word/Text (.txt, .doc) file</p>
-                          </div>
-                          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                            <div className="relative">
-                              <Button
-                                onClick={() => setShowDownloadOptions(!showDownloadOptions)}
-                                variant="outline"
-                                size="sm"
-                                className="border-green-600 text-green-700 hover:bg-green-100 w-full sm:w-auto text-xs sm:text-sm"
-                              >
-                                <Download className="w-4 h-4 mr-2" />
-                                Download Sample
-                              </Button>
+                       <CardContent className="p-3 lg:p-4">
+                         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2 lg:gap-4">
+                           <div className="flex-1 min-w-0">
+                             <p className="font-semibold text-green-900 mb-1 text-sm lg:text-base">Import Meal Plan Template</p>
+                             <p className="text-xs lg:text-sm text-green-700">Upload JSON, Excel (.xlsx), or Word/Text (.txt, .doc) file</p>
+                           </div>
+                           <div className="flex flex-col sm:flex-row gap-1.5 lg:gap-2 w-full lg:w-auto">
+                            <div className="relative w-full lg:w-auto">
+                               <Button
+                                 onClick={() => setShowDownloadOptions(!showDownloadOptions)}
+                                 variant="outline"
+                                 size="sm"
+                                 className="border-green-600 text-green-700 hover:bg-green-100 w-full text-xs"
+                               >
+                                 <Download className="w-3 h-3 mr-1" />
+                                 Sample
+                               </Button>
                               {showDownloadOptions && (
                                 <div className="absolute top-full mt-1 right-0 bg-white border-2 border-green-500 rounded-lg shadow-lg z-10 w-48">
                                   <button
@@ -2023,13 +2023,13 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                               )}
                             </div>
                             <Button
-                              onClick={() => document.getElementById('import-template-file').click()}
-                              size="sm"
-                              className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto text-xs sm:text-sm"
-                            >
-                              <Download className="w-4 h-4 mr-2" />
-                              Import Template
-                            </Button>
+                               onClick={() => document.getElementById('import-template-file').click()}
+                               size="sm"
+                               className="bg-green-600 hover:bg-green-700 text-white w-full lg:w-auto text-xs"
+                             >
+                               <Download className="w-3 h-3 mr-1" />
+                               Import
+                             </Button>
                           </div>
                         </div>
                       </CardContent>
@@ -2089,7 +2089,7 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">Disease Focus</Label>
                         <Select
@@ -2242,66 +2242,66 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredTemplates.map((template) => (
                     <Card key={template.id} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all">
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
+                      <CardHeader className="p-4 lg:p-6">
+                        <div className="flex items-start justify-between gap-2">
                           <div className="flex-1 min-w-0">
-                            <CardTitle className="text-base sm:text-lg truncate">{template.name}</CardTitle>
-                            <p className="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">{template.description}</p>
+                            <CardTitle className="text-sm lg:text-lg truncate">{template.name}</CardTitle>
+                            <p className="text-xs lg:text-sm text-gray-600 mt-1 line-clamp-2">{template.description}</p>
                           </div>
-                          <div className="flex gap-1">
+                          <div className="flex gap-1 flex-shrink-0">
                             {template.is_public && (
-                              <Badge className="bg-purple-100 text-purple-700">Public</Badge>
+                              <Badge className="bg-purple-100 text-purple-700 text-xs">Public</Badge>
                             )}
                             {template.created_by === user?.email && (
-                              <Badge className="bg-blue-100 text-blue-700">My Template</Badge>
+                              <Badge className="bg-blue-100 text-blue-700 text-xs">Mine</Badge>
                             )}
                           </div>
                         </div>
                       </CardHeader>
-                      <CardContent className="space-y-3">
+                      <CardContent className="p-4 lg:p-6 space-y-3">
                         <div className="flex flex-wrap gap-2">
-                          <Badge className="bg-orange-100 text-orange-700 capitalize">
+                          <Badge className="bg-orange-100 text-orange-700 capitalize text-xs">
                             {template.food_preference}
                           </Badge>
-                          <Badge className="bg-blue-100 text-blue-700">
+                          <Badge className="bg-blue-100 text-blue-700 text-xs">
                             {template.target_calories} kcal
                           </Badge>
-                          <Badge className="bg-green-100 text-green-700">
-                            {template.duration} days
+                          <Badge className="bg-green-100 text-green-700 text-xs">
+                            {template.duration}d
                           </Badge>
                         </div>
 
-                        <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                          <p className="text-sm font-semibold text-green-900">
-                            ✅ Used {template.times_used || 0} times
+                        <div className="p-2 lg:p-3 bg-green-50 border border-green-200 rounded-lg">
+                          <p className="text-xs lg:text-sm font-semibold text-green-900">
+                            ✅ Used {template.times_used || 0}x
                           </p>
-                          <p className="text-xs text-green-700">FREE - Unlimited uses!</p>
+                          <p className="text-xs text-green-700">FREE!</p>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row gap-2">
+                        <div className="flex flex-col gap-2">
                          <Button
                            onClick={() => openAssignDialog(template)}
                            disabled={!selectedClient}
-                           className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm"
+                           className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed text-xs h-9"
                            title={!selectedClient ? "Please select a client first" : "Assign template directly to client"}
                          >
-                           <CheckCircle className="w-4 h-4 mr-1 sm:mr-2" />
+                           <CheckCircle className="w-3 h-3 mr-1" />
                            Assign Now
                          </Button>
                          <Button
                            onClick={() => cloneTemplate(template)}
                            disabled={!selectedClient}
                            variant="outline"
-                           className="flex-1 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm"
+                           className="w-full disabled:opacity-50 disabled:cursor-not-allowed text-xs h-9"
                            title={!selectedClient ? "Please select a client first" : "Customize template before assigning"}
                          >
-                           <Copy className="w-4 h-4 mr-1 sm:mr-2" />
+                           <Copy className="w-3 h-3 mr-1" />
                            Customize
                          </Button>
                         </div>
                       </CardContent>
                     </Card>
-                    ))}
+                   ))}
                     </div>
                     )}
                     </div>
