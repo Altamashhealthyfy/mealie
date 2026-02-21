@@ -23,6 +23,19 @@ export default function UnifiedClientHub({
   const [filterGoal, setFilterGoal] = useState("all");
   const [viewMode, setViewMode] = useState("grid");
 
+  const defaultActions = [
+    "progress",
+    "progressReview",
+    "analytics",
+    "reports",
+    "tracker",
+    "message",
+    "view",
+    "edit",
+    "assignCoach",
+    "assignTeam",
+  ];
+
   // Get unique values for filters
   const statuses = [...new Set(clients.map((c) => c.status).filter(Boolean))];
   const goals = [...new Set(clients.map((c) => c.goal).filter(Boolean))];
