@@ -88,16 +88,7 @@ export default function ClientOnboardingWizard() {
           </div>
         </div>
 
-        <AnimatePresence>
-          {celebrateStep && (
-            <motion.div initial={{ opacity: 0, y: -50, scale: 0 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -50 }} className="text-center mb-4">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-4 py-2 rounded-full font-bold">
-                <Sparkles className="w-5 h-5" />
-                +{50 + currentStep * 10} Points!
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+
 
         <AnimatePresence mode="wait">
           <motion.div key={currentStep} initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} transition={{ duration: 0.3 }}>
