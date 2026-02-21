@@ -13,6 +13,7 @@ import { createPageUrl } from "@/utils";
 import ManualMealPlanBuilder from "@/components/mealplanner/ManualMealPlanBuilder";
 import { Input } from "@/components/ui/input";
 import ProMealPlanChatModifier from "@/components/pro/ProMealPlanChatModifier";
+import RecipeScaler from "@/components/mealplanner/RecipeScaler";
 
 export default function MealPlansPro() {
   const [searchParams] = useSearchParams();
