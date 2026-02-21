@@ -62,6 +62,10 @@ export default function Communication() {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [contentType, setContentType] = useState('file');
   const [showPollCreator, setShowPollCreator] = useState(false);
+  const [activeVideoCall, setActiveVideoCall] = useState(null); // { clientId, clientName, channel }
+  const [showScheduler, setShowScheduler] = useState(false);
+  const [showCallHistory, setShowCallHistory] = useState(false);
+  const signalingRef = useRef(null);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
