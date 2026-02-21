@@ -1396,11 +1396,11 @@ TDEE: ${Math.round(tdee)} kcal
    
    Assign these practices according to: ${Object.entries(intake.mpess_preferences).filter(([k,v]) => v).map(([k]) => k).join(', ')}
 
-7. Provide audit snapshot with compliance tracking
+   8. Provide audit snapshot with compliance tracking
 
-8. List decision rules applied
+   9. List decision rules applied
 
-9. Handle conflicts with hierarchy: Kidney > Diabetes > Heart > Thyroid
+   10. Handle conflicts with hierarchy: Kidney > Diabetes > Heart > Thyroid
 
 ## APPROVED MEAL OPTIONS (USE ONLY THESE - FROM COMPREHENSIVE LIST):
 
