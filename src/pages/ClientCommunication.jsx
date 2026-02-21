@@ -24,9 +24,15 @@ import {
   Download,
   Users,
   Bell,
-  BellOff
+  BellOff,
+  Phone,
+  CalendarClock,
+  History
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import VideoCallRoom from "@/components/communication/VideoCallRoom";
+import VideoCallHistory from "@/components/communication/VideoCallHistory";
+import { createSignalingChannel } from "@/components/communication/VideoCallSignaling";
 
 export default function ClientCommunication() {
   const queryClient = useQueryClient();
