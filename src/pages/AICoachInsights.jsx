@@ -89,10 +89,10 @@ export default function AICoachInsights() {
 
         {/* Client Selector */}
         <Card className="border-none shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-t-xl p-4 md:p-5">
-            <CardTitle className="text-base md:text-lg">Select Client</CardTitle>
+          <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-t-xl p-3 sm:p-4 md:p-5">
+            <CardTitle className="text-sm sm:text-base md:text-lg">Select Client</CardTitle>
           </CardHeader>
-          <CardContent className="p-4 md:p-5 space-y-3">
+          <CardContent className="p-3 sm:p-4 md:p-5 space-y-3">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
