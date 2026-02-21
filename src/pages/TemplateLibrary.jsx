@@ -768,7 +768,7 @@ export default function TemplateLibrary() {
                 </Select>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                   <SelectTrigger>
                     <SelectValue placeholder="Category" />
@@ -892,6 +892,32 @@ export default function TemplateLibrary() {
                 )}
               </div>
 
+              <div className="flex flex-wrap gap-3 items-center">
+                <Button
+                  onClick={() => setSortByRating(!sortByRating)}
+                  variant={sortByRating ? "default" : "outline"}
+                  className="gap-2"
+                >
+                  <Zap className="w-4 h-4" />
+                  {sortByRating ? "Sorted by Effectiveness" : "Sort by Effectiveness"}
+                </Button>
+
+                {(categoryFilter !== "all" || diseaseFilter !== "all" || clientTypeFilter !== "all" || ratingFilter !== "all") && (
+                  <Button
+                    onClick={() => {
+                      setCategoryFilter("all");
+                      setDiseaseFilter("all");
+                      setClientTypeFilter("all");
+                      setRatingFilter("all");
+                    }}
+                    variant="outline"
+                    className="text-red-600 hover:bg-red-50"
+                  >
+                    Clear Filters
+                  </Button>
+                )}
+              </div>
+
               {/* Active Filters Display */}
               {uploaderFilter !== "all" && (
                 <div className="flex items-center gap-2 flex-wrap">
@@ -910,9 +936,9 @@ export default function TemplateLibrary() {
                   </Badge>
                 </div>
               )}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+              </CardContent>
+              </Card>
 
         {/* Results Summary */}
         <Card className="border-none shadow-lg bg-gradient-to-r from-blue-50 to-cyan-50">
@@ -921,17 +947,17 @@ export default function TemplateLibrary() {
               <div className="flex items-center gap-2">
                 <Filter className="w-5 h-5 text-blue-600" />
                 <span className="text-lg font-semibold text-gray-900">
-                  Showing {filteredTemplates.length} of {templates.length} templates
+                  Showing {sortedTemplates.length} of {templates.length} templates
                 </span>
               </div>
-              {/* Display active sort order */}
               <Badge className="bg-blue-600 text-white text-sm">
-                {sortOrder === '-created_date' && '🆕 Newest First'}
-                {sortOrder === 'created_date' && '🗓️ Oldest First'}
-                {sortOrder === '-download_count' && '🔥 Most Downloaded'}
-                {sortOrder === 'download_count' && '📥 Least Downloaded'}
-                {sortOrder === 'name' && '🔤 A-Z'}
-                {sortOrder === '-name' && '🔤 Z-A'}
+                {sortByRating ? '⚡ By Effectiveness' : 
+                 (sortOrder === '-created_date' && '🆕 Newest First') ||
+                 (sortOrder === 'created_date' && '🗓️ Oldest First') ||
+                 (sortOrder === '-download_count' && '🔥 Most Downloaded') ||
+                 (sortOrder === 'download_count' && '📥 Least Downloaded') ||
+                 (sortOrder === 'name' && '🔤 A-Z') ||
+                 (sortOrder === '-name' && '🔤 Z-A')}
               </Badge>
             </div>
           </CardContent>
