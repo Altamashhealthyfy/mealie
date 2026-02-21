@@ -105,6 +105,7 @@ import CoachMilestoneGoals from './pages/CoachMilestoneGoals';
 import CoachOnboarding from './pages/CoachOnboarding';
 import CoachPaymentSetup from './pages/CoachPaymentSetup';
 import CoachPerformanceAnalytics from './pages/CoachPerformanceAnalytics';
+import CoachPerformanceDashboard from './pages/CoachPerformanceDashboard';
 import CoachProfileManager from './pages/CoachProfileManager';
 import CoachProgramManagement from './pages/CoachProgramManagement';
 import CoachProgressReports from './pages/CoachProgressReports';
@@ -140,6 +141,7 @@ import LeadsPipeline from './pages/LeadsPipeline';
 import MPESSTracker from './pages/MPESSTracker';
 import MarketingHub from './pages/MarketingHub';
 import MealPhotoAnalysis from './pages/MealPhotoAnalysis';
+import MealPlanConstraints from './pages/MealPlanConstraints';
 import MealPlanner from './pages/MealPlanner';
 import MealPlansPro from './pages/MealPlansPro';
 import MyAssessment from './pages/MyAssessment';
@@ -180,8 +182,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import MealPlanConstraints from './pages/MealPlanConstraints';
-import CoachPerformanceDashboard from './pages/CoachPerformanceDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -244,6 +244,7 @@ export const PAGES = {
     "CoachOnboarding": CoachOnboarding,
     "CoachPaymentSetup": CoachPaymentSetup,
     "CoachPerformanceAnalytics": CoachPerformanceAnalytics,
+    "CoachPerformanceDashboard": CoachPerformanceDashboard,
     "CoachProfileManager": CoachProfileManager,
     "CoachProgramManagement": CoachProgramManagement,
     "CoachProgressReports": CoachProgressReports,
@@ -279,6 +280,7 @@ export const PAGES = {
     "MPESSTracker": MPESSTracker,
     "MarketingHub": MarketingHub,
     "MealPhotoAnalysis": MealPhotoAnalysis,
+    "MealPlanConstraints": MealPlanConstraints,
     "MealPlanner": MealPlanner,
     "MealPlansPro": MealPlansPro,
     "MyAssessment": MyAssessment,
@@ -319,8 +321,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "MealPlanConstraints": MealPlanConstraints,
-    "CoachPerformanceDashboard": CoachPerformanceDashboard,
 }
 
 export const pagesConfig = {
