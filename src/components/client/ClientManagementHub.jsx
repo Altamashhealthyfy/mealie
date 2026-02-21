@@ -62,10 +62,6 @@ export default function ClientManagementHub({ ClientListComponent }) {
             <TabsContent value="reports" className="mt-0">
               <ClientReports />
             </TabsContent>
-
-            <TabsContent value="clinical" className="mt-0">
-              <CoachReportTracker />
-            </TabsContent>
           </Tabs>
         </div>
       </div>
