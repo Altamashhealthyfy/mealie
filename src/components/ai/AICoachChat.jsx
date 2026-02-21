@@ -469,12 +469,12 @@ export default function AICoachChat({ clientId, clientName, onClientChange }) {
             >
               <HelpCircle className="w-3.5 h-3.5" /> How does each feature work?
             </button>
-            <div className="flex flex-wrap gap-2 justify-center max-w-lg mx-auto">
+            <div className="flex flex-wrap gap-1.5 justify-center max-w-lg mx-auto px-2">
               {QUICK_PROMPTS.slice(0, selectedClientName ? 8 : 4).map((p, i) => (
                 <button
                   key={i}
                   onClick={() => send(p)}
-                  className="text-xs bg-white border border-gray-200 hover:border-purple-300 hover:bg-purple-50 text-gray-600 hover:text-purple-700 rounded-full px-3 py-1.5 transition-colors shadow-sm"
+                  className="text-xs bg-white border border-gray-200 hover:border-purple-300 hover:bg-purple-50 text-gray-600 hover:text-purple-700 rounded-full px-2.5 py-1.5 transition-colors shadow-sm text-left"
                   disabled={!selectedClientId}
                 >
                   {p}
