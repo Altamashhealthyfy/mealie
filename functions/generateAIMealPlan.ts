@@ -44,11 +44,14 @@ Deno.serve(async (req) => {
     const allConditions = [...(clinical?.medical_conditions || []), ...additionalConditions];
     const allMeds = clinical?.current_medications || [];
 
-    const mealTypes = mealFrequency === 3
-      ? ['breakfast', 'lunch', 'dinner']
-      : mealFrequency === 4
-        ? ['breakfast', 'lunch', 'evening_snack', 'dinner']
-        : ['breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner'];
+    // Always use full pattern for weight loss
+    const mealTypes = goal === 'weight_loss' 
+      ? ['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner', 'post_dinner']
+      : mealFrequency === 3
+        ? ['breakfast', 'lunch', 'dinner', 'post_dinner']
+        : mealFrequency === 4
+          ? ['breakfast', 'lunch', 'evening_snack', 'dinner', 'post_dinner']
+          : ['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner', 'post_dinner'];
 
     const progressContext = adaptFromFeedback && recentLogs.length > 0
       ? `RECENT PROGRESS (last ${recentLogs.length} logs):
@@ -90,46 +93,83 @@ ${allConditions.includes('kidney_disease') ? '→ Strict phosphorus/potassium/so
 ${progressContext}
 
 ═══ INSTRUCTIONS ═══
-1. Generate exactly ${duration} days × ${mealTypes.length} meals (${mealTypes.join(', ')})
-2. Each meal must include: name, items array, portion_sizes array (same length as items), calories, protein_g, carbs_g, fats_g, fiber_g, rationale (1-2 sentences explaining WHY this food choice benefits THIS client)
-3. Never repeat the same main dish within 3 consecutive days
-4. Ensure daily totals stay within ±100 kcal of ${targetCal}
-5. Macro distribution should match targets (±15%)
-6. Include traditional/regional foods appropriate to preference
-7. Provide day-level summaries with total macros
-8. Provide an overall plan overview explaining the nutritional strategy
-9. Include specific meal timing suggestions based on typical Indian daily routine
+1. Generate exactly ${duration} days × 7 meals/sections (early_morning, breakfast, mid_morning, lunch, evening_snack, dinner, post_dinner)
+2. Each meal MUST include: name, items array, portion_sizes array (same length as items), calories, protein, carbs, fats, fiber, rationale (explain WHY this benefits this client specifically)
+3. Never repeat same main dish within 3 consecutive days
+4. Daily total calories = ${targetCal} kcal (±80 kcal max) across ALL meals including herbal drink
+5. Macro targets: Protein=${targetProtein}g, Carbs=${targetCarbs}g, Fats=${targetFats}g (±15%)
+6. 100% Indian meals only. Use authentic Indian food names
+7. Post-dinner: SAME herbal beverage for all ${duration} days if duration ≤ 10 days
+8. Day summaries with total macros for each day
+9. Nutritional strategy explaining adaptation for client's specific goal & conditions
 
 ═══ STRICT MEAL RULES (NEVER VIOLATE) ═══
-RULE 1 - RICE vs ROTI BALANCE: All meals must be 100% Indian. If rice (chawal) is given at lunch, then dinner must NOT include rice — give roti, paratha, bajra roti, jowar roti, or any other grain/bread alternative instead. Never give rice in both lunch and dinner on the same day.
-RULE 2 - MID MORNING MEAL: If the meal plan includes 'mid_morning', skip it entirely for any client whose lunch time is at 12:00 PM or earlier. Mid morning is only relevant if there is a gap of at least 3 hours between breakfast and lunch.
-RULE 3 - POST DINNER — ONE HERBAL DRINK ONLY: After dinner, include EXACTLY ONE herbal drink. Pick only ONE per day (do not list multiple). Choose from:
-  - "Saunf Water (Fennel Seed Water)"
-  - "Ginger Tea (Adrak Ki Chai — no milk)"
-  - "Ajwain Water (Carom Seed Water)"
-  - "Hing Water (Asafoetida Water)"
-  - "Chamomile Tea"
-  Rotate which one you pick across days. NEVER include milk, haldi doodh, smoothies, juices, or any food after dinner. NO BEDTIME MEAL — remove it entirely. The herbal drink is the final item of the day.
-RULE 4 - NO FRUITS AT NIGHT: NEVER include any fruits (e.g. banana, apple, papaya, mango, orange, etc.) in dinner or post-dinner. Fruits are ONLY allowed at breakfast, mid-morning, or evening snack.
-RULE 5 - NO BEDTIME MEAL (ABSOLUTE): There is NO bedtime section. Do NOT create a "bedtime" meal type. Do NOT include milk at night. The day ends with Post Dinner herbal drink (RULE 3) — nothing after that.
-RULE 6 - NON-VEG OPTIONS (apply ONLY if food_preference is non_veg or eggetarian):
-  - DINNER: ONLY grilled or baked chicken with sautéed/steamed vegetables. NO fried chicken, NO heavy curries at dinner. Keep light and protein-forward for weight loss.
-  - LUNCH: ONLY chicken breast curry (light gravy, minimal oil) with roti or rice. Not heavy masala versions.
-  - BREAKFAST/MID-MORNING: ONLY egg curry, 2-egg omelette, egg salad, or chicken salad. These are the ONLY allowed non-veg breakfast options.
-  - EGG RULE (CRITICAL — NEVER IGNORE): If the client has Diabetes OR High Cholesterol (any of: high_cholesterol, hyperlipidemia, dyslipidemia) in their medical conditions, use ONLY EGG WHITES in all egg preparations. Write "Egg White Omelette", "Egg White Bhurji" etc. — NEVER whole egg.
-  - Keep non-veg simple: max one non-veg protein source per day (either egg OR chicken, not both on same day).
-  - If food_preference is veg or jain, completely ignore this rule — no non-veg at all.
-RULE 7 - MEAL ORDER & SEQUENCE (STRICT — NEVER REORDER): Present meals in this EXACT sequence every day:
-  1. Early Morning (e.g. warm lemon water, methi water, detox water)
+RULE 1 - 100% INDIAN MEALS ONLY: All meals must be 100% traditional Indian cuisine. NO continental, fusion, or non-Indian dishes. Use only Indian ingredients and cooking styles.
+
+RULE 2 - MEAL SEQUENCE (STRICT — EXACT ORDER EVERY DAY):
+  1. Early Morning: Detox drink (warm lemon water, methi water, ajwain water, etc.)
   2. Breakfast
-  3. Mid Morning (only if applicable per RULE 2)
+  3. Mid Morning (snack - only if ≥3 hour gap between breakfast & lunch)
   4. Lunch
   5. Evening Snack
   6. Dinner
-  7. Post Dinner (ONE herbal drink only — per RULE 3)
-  Never reverse, never skip the sequence. Always top-to-bottom in this order.
-RULE 8 - PRE-MEAL WATER FOR WEIGHT LOSS: If client goal is weight_loss, add this note explicitly in the lunch AND dinner meal_name or disease_rationale: "Drink 1 glass of plain water 30 minutes before this meal." This helps with portion control and satiety.
-RULE 9 - STRICT CALORIE COMPLIANCE: The total calories for ALL meals in a single day MUST NOT exceed the target of ${targetCal} kcal. Count every item's calories accurately including the herbal drink (which is ~0-5 kcal). Daily total must stay within ${targetCal - 100} to ${targetCal} kcal. Never go above ${targetCal} kcal.
+  7. Post Dinner: ONE herbal drink ONLY (rotated across days)
+  Present in this exact sequence. NEVER reorder.
+
+RULE 3 - POST DINNER BEVERAGES (WEIGHT LOSS & GENERAL):
+  ALLOWED post-dinner options ONLY:
+  - Saunf Water (Fennel Seed Water)
+  - Ajwain Water (Carom Seed Water)
+  - Turmeric Water (Haldi Water)
+  - Hing Water (Asafoetida Water)
+  - Ginger Water/Tea (no milk, no sugar)
+  - Chamomile Tea (unsweetened)
+  FORBIDDEN: NO green juice, NO milk-based drinks, NO smoothies, NO fruits, NO food.
+  Pick ONE per day and ROTATE across the ${duration} days. Same post-dinner option for ALL 10 days if duration ≤ 10.
+  This is the ONLY item after dinner — nothing more.
+
+RULE 4 - NO BEDTIME MEAL (ABSOLUTE): 
+  Do NOT create "bedtime" meal type. Day ends with post-dinner herbal drink.
+  NO night milk for ANY client, especially weight loss clients.
+  NO milk-based beverages after dinner.
+
+RULE 5 - WEIGHT LOSS DIET MODIFICATIONS (goal = weight_loss):
+  a) PRE-MEAL WATER: Add explicitly in lunch & dinner: "Drink 1 glass plain water 30 min before this meal"
+  b) NO PALAK PANEER: Never include palak paneer in dinner for weight loss clients
+  c) NO NIGHT MILK: Strictly no milk products after 7 PM
+  d) ALCOHOL-FREE: No wines, beers, or alcohol
+  e) Light, high-protein dinners only
+
+RULE 6 - NON-VEG OPTIONS (ONLY if food_preference is non_veg or eggetarian):
+  DINNER (2-3 days/week max): Grilled chicken with vegetables (light, not curry). NO fried chicken, NO heavy masala.
+  LUNCH (2-3 days/week): Chicken breast curry (light gravy, minimal oil) with roti/rice OR grilled fish with vegetables
+  BREAKFAST/EARLY MORNING: Boiled eggs, egg white omelette, egg salad with vegetables, egg white bhurji
+  
+  EGG WHITE RULE (CRITICAL): If medical conditions include "diabetes" OR "high_cholesterol" OR "hyperlipidemia" OR "dyslipidemia":
+    → Use ONLY egg whites in ALL egg preparations
+    → Write "Egg White Omelette", "Boiled Egg Whites", "Egg White Bhurji", NEVER whole egg
+  
+  GRILLED FISH OPTION: Include grilled fish (2-3 days) in lunch/dinner for non-veg clients as healthy protein
+  
+  Keep non-veg simple: Max one non-veg protein source per day (egg OR chicken OR fish, not multiple)
+
+RULE 7 - NO FRUITS AT NIGHT: 
+  Fruits ONLY at breakfast, mid-morning, or evening snack.
+  NEVER in dinner or post-dinner. No fruit juices either.
+
+RULE 8 - RICE vs ROTI BALANCE:
+  If rice (chawal) is at lunch, dinner must be roti/paratha/bajra/jowar based.
+  Never rice in both lunch and dinner same day.
+
+RULE 9 - POST DINNER CONSISTENCY (IMPORTANT):
+  If plan duration ≤ 10 days: Use the SAME post-dinner beverage for ALL days
+  If plan duration > 10 days: Rotate post-dinner beverage every 2-3 days
+
+RULE 10 - STRICT CALORIE COMPLIANCE: 
+  Total daily calories (all meals + herbal drink) MUST NOT exceed ${targetCal} kcal
+  Daily range: ${targetCal - 100} to ${targetCal} kcal
+  Herbal drink = ~0-5 kcal
+  Count accurately, never exceed.
 
 Be practical, use real Indian/regional food names, realistic portions.`;
 
