@@ -9,12 +9,12 @@ import {
 /**
  * VideoCallRoom
  * Props:
- *  - roomId: string (unique call room identifier)
+ *  - roomId: string
  *  - localName: string
  *  - remoteName: string
  *  - onEnd: () => void
- *  - isInitiator: boolean (true = coach/caller, false = client/callee)
- *  - signalingChannel: { send(msg), onMessage(cb) } – caller must provide
+ *  - isInitiator: boolean
+ *  - signalingChannel: { send(msg), onMessage(cb), start(), stop() }
  */
 export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, isInitiator, signalingChannel }) {
   const localVideoRef = useRef(null);
@@ -22,6 +22,8 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
   const pcRef = useRef(null);
   const localStreamRef = useRef(null);
   const screenStreamRef = useRef(null);
+  const pendingCandidates = useRef([]);
+  const remoteDescSet = useRef(false);
 
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(true);
@@ -29,16 +31,39 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
   const [remoteConnected, setRemoteConnected] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
+  const [error, setError] = useState(null);
   const containerRef = useRef(null);
   const timerRef = useRef(null);
+  const mountedRef = useRef(true);
 
-  const createPeerConnection = useCallback(() => {
+  const cleanup = useCallback(() => {
+    clearInterval(timerRef.current);
+    localStreamRef.current?.getTracks().forEach(t => t.stop());
+    screenStreamRef.current?.getTracks().forEach(t => t.stop());
+    if (pcRef.current) {
+      pcRef.current.close();
+      pcRef.current = null;
+    }
+  }, []);
+
+  const addPendingCandidates = async (pc) => {
+    for (const candidate of pendingCandidates.current) {
+      try { await pc.addIceCandidate(new RTCIceCandidate(candidate)); } catch {}
+    }
+    pendingCandidates.current = [];
+  };
+
+  useEffect(() => {
+    mountedRef.current = true;
+
     const pc = new RTCPeerConnection({
       iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
       ]
     });
+    pcRef.current = pc;
 
     pc.onicecandidate = (e) => {
       if (e.candidate) {
@@ -49,32 +74,65 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
     pc.ontrack = (e) => {
       if (remoteVideoRef.current && e.streams[0]) {
         remoteVideoRef.current.srcObject = e.streams[0];
+      }
+      if (!remoteConnected) {
         setRemoteConnected(true);
         timerRef.current = setInterval(() => setCallDuration(d => d + 1), 1000);
       }
     };
 
     pc.onconnectionstatechange = () => {
+      if (!mountedRef.current) return;
       if (['disconnected', 'failed', 'closed'].includes(pc.connectionState)) {
         setRemoteConnected(false);
       }
     };
 
-    return pc;
-  }, [signalingChannel, roomId]);
+    // Handle incoming signaling messages
+    const handleMessage = async (msg) => {
+      if (!mountedRef.current || !pcRef.current) return;
+      const peer = pcRef.current;
 
-  useEffect(() => {
-    let mounted = true;
+      try {
+        if (msg.type === 'offer' && !isInitiator) {
+          await peer.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+          remoteDescSet.current = true;
+          await addPendingCandidates(peer);
+          const answer = await peer.createAnswer();
+          await peer.setLocalDescription(answer);
+          signalingChannel.send({ type: 'answer', sdp: answer, roomId });
 
+        } else if (msg.type === 'answer' && isInitiator) {
+          await peer.setRemoteDescription(new RTCSessionDescription(msg.sdp));
+          remoteDescSet.current = true;
+          await addPendingCandidates(peer);
+
+        } else if (msg.type === 'ice-candidate') {
+          if (remoteDescSet.current) {
+            try { await peer.addIceCandidate(new RTCIceCandidate(msg.candidate)); } catch {}
+          } else {
+            // Queue until remote description is set
+            pendingCandidates.current.push(msg.candidate);
+          }
+
+        } else if (msg.type === 'end-call') {
+          cleanup();
+          onEnd?.();
+        }
+      } catch (err) {
+        console.error('Signal handling error:', err);
+      }
+    };
+
+    signalingChannel.onMessage(handleMessage);
+
+    // Get local media then start
     const start = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        if (!mounted) return;
+        if (!mountedRef.current) { stream.getTracks().forEach(t => t.stop()); return; }
         localStreamRef.current = stream;
         if (localVideoRef.current) localVideoRef.current.srcObject = stream;
-
-        const pc = createPeerConnection();
-        pcRef.current = pc;
         stream.getTracks().forEach(t => pc.addTrack(t, stream));
 
         if (isInitiator) {
@@ -84,46 +142,19 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
         }
       } catch (err) {
         console.error('Media error:', err);
-        alert('Could not access camera/microphone. Please check permissions.');
-        onEnd?.();
+        if (mountedRef.current) {
+          setError('Could not access camera/microphone. Please check browser permissions and try again.');
+        }
       }
     };
 
     start();
 
-    const handleMessage = async (msg) => {
-      if (!mounted || msg.roomId !== roomId) return;
-      const pc = pcRef.current;
-
-      if (msg.type === 'offer' && !isInitiator) {
-        await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-        signalingChannel.send({ type: 'answer', sdp: answer, roomId });
-      } else if (msg.type === 'answer' && isInitiator) {
-        await pc.setRemoteDescription(new RTCSessionDescription(msg.sdp));
-      } else if (msg.type === 'ice-candidate') {
-        try { await pc.addIceCandidate(new RTCIceCandidate(msg.candidate)); } catch {}
-      } else if (msg.type === 'end-call') {
-        cleanup();
-        onEnd?.();
-      }
-    };
-
-    signalingChannel.onMessage(handleMessage);
-
     return () => {
-      mounted = false;
+      mountedRef.current = false;
       cleanup();
     };
   }, []);
-
-  const cleanup = () => {
-    clearInterval(timerRef.current);
-    localStreamRef.current?.getTracks().forEach(t => t.stop());
-    screenStreamRef.current?.getTracks().forEach(t => t.stop());
-    pcRef.current?.close();
-  };
 
   const handleEndCall = () => {
     signalingChannel.send({ type: 'end-call', roomId });
@@ -150,13 +181,10 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
         const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
         screenStreamRef.current = screenStream;
         const screenTrack = screenStream.getVideoTracks()[0];
-
         const sender = pc.getSenders().find(s => s.track?.kind === 'video');
         if (sender) await sender.replaceTrack(screenTrack);
-
         if (localVideoRef.current) localVideoRef.current.srcObject = screenStream;
         setScreenSharing(true);
-
         screenTrack.onended = () => stopScreenShare();
       } catch (err) {
         console.error('Screen share error:', err);
@@ -193,11 +221,25 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
     return `${m}:${sec.toString().padStart(2, '0')}`;
   };
 
+  if (error) {
+    return (
+      <div className="fixed inset-0 bg-gray-900 z-50 flex items-center justify-center">
+        <div className="text-center p-8 max-w-md">
+          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <VideoOff className="w-8 h-8 text-red-400" />
+          </div>
+          <p className="text-white text-lg font-semibold mb-2">Camera/Mic Error</p>
+          <p className="text-gray-400 text-sm mb-6">{error}</p>
+          <Button onClick={onEnd} className="bg-red-600 hover:bg-red-700 text-white">
+            Close
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div
-      ref={containerRef}
-      className="fixed inset-0 bg-gray-900 z-50 flex flex-col"
-    >
+    <div ref={containerRef} className="fixed inset-0 bg-gray-900 z-50 flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-gray-800 border-b border-gray-700">
         <div className="flex items-center gap-3">
@@ -217,39 +259,24 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
                 </Badge>
               )}
               {screenSharing && (
-                <Badge className="bg-blue-500 text-white text-xs px-2 py-0">
-                  Sharing screen
-                </Badge>
+                <Badge className="bg-blue-500 text-white text-xs px-2 py-0">Sharing screen</Badge>
               )}
             </div>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleFullscreen}
-          className="text-gray-400 hover:text-white"
-        >
+        <Button variant="ghost" size="icon" onClick={toggleFullscreen} className="text-gray-400 hover:text-white">
           {fullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
         </Button>
       </div>
 
       {/* Video area */}
       <div className="flex-1 relative bg-gray-900 overflow-hidden">
-        {/* Remote video (large) */}
-        <video
-          ref={remoteVideoRef}
-          autoPlay
-          playsInline
-          className="w-full h-full object-cover"
-        />
+        <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover" />
         {!remoteConnected && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
               <div className="w-20 h-20 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl text-white font-bold">
-                  {remoteName?.charAt(0)?.toUpperCase() || '?'}
-                </span>
+                <span className="text-3xl text-white font-bold">{remoteName?.charAt(0)?.toUpperCase() || '?'}</span>
               </div>
               <p className="text-white text-lg font-medium">{remoteName}</p>
               <p className="text-gray-400 text-sm mt-1 animate-pulse">Waiting to connect…</p>
@@ -257,15 +284,9 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
           </div>
         )}
 
-        {/* Local video (picture-in-picture) */}
+        {/* Local PiP */}
         <div className="absolute top-4 right-4 w-36 h-24 sm:w-48 sm:h-32 rounded-xl overflow-hidden border-2 border-gray-600 shadow-2xl bg-gray-800">
-          <video
-            ref={localVideoRef}
-            autoPlay
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-          />
+          <video ref={localVideoRef} autoPlay muted playsInline className="w-full h-full object-cover" />
           {!camOn && (
             <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
               <VideoOff className="w-6 h-6 text-gray-400" />
@@ -281,27 +302,21 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
       <div className="flex items-center justify-center gap-3 sm:gap-6 py-4 sm:py-6 bg-gray-800 border-t border-gray-700">
         <button
           onClick={toggleMic}
-          className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-            micOn ? 'bg-gray-600 hover:bg-gray-500' : 'bg-red-500 hover:bg-red-600'
-          }`}
+          className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${micOn ? 'bg-gray-600 hover:bg-gray-500' : 'bg-red-500 hover:bg-red-600'}`}
         >
           {micOn ? <Mic className="w-5 h-5 text-white" /> : <MicOff className="w-5 h-5 text-white" />}
         </button>
 
         <button
           onClick={toggleCam}
-          className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-            camOn ? 'bg-gray-600 hover:bg-gray-500' : 'bg-red-500 hover:bg-red-600'
-          }`}
+          className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${camOn ? 'bg-gray-600 hover:bg-gray-500' : 'bg-red-500 hover:bg-red-600'}`}
         >
           {camOn ? <Video className="w-5 h-5 text-white" /> : <VideoOff className="w-5 h-5 text-white" />}
         </button>
 
         <button
           onClick={toggleScreenShare}
-          className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-            screenSharing ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-600 hover:bg-gray-500'
-          }`}
+          className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${screenSharing ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-600 hover:bg-gray-500'}`}
         >
           {screenSharing ? <MonitorOff className="w-5 h-5 text-white" /> : <Monitor className="w-5 h-5 text-white" />}
         </button>
