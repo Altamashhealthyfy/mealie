@@ -50,6 +50,7 @@ import { createPageUrl } from "@/utils";
 
 export default function ClientProgressDashboard({ client, onClose }) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [showGoalDialog, setShowGoalDialog] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
   const [goalFormData, setGoalFormData] = useState({
