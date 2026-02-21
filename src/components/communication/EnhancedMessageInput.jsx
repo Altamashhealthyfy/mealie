@@ -85,7 +85,25 @@ export default function EnhancedMessageInput({
         </div>
       )}
 
-      <div className="flex gap-2 w-full items-end">
+      <div className="flex gap-3 w-full items-end">
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          onChange={handleFileSelect}
+          className="hidden"
+          accept="image/*,application/pdf,.doc,.docx"
+        />
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={disabled}
+          title="Attach file"
+          className="flex-shrink-0 h-10 w-10"
+        >
+          <Paperclip className="w-4 h-4" />
+        </Button>
         <div className="flex-1 min-w-0">
           <Textarea
             value={value}
@@ -97,38 +115,18 @@ export default function EnhancedMessageInput({
             className="resize-none w-full"
           />
         </div>
-        <div className="flex gap-2 flex-shrink-0">
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            onChange={handleFileSelect}
-            className="hidden"
-            accept="image/*,application/pdf,.doc,.docx"
-          />
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={disabled}
-            title="Attach file"
-            className="flex-shrink-0"
-          >
-            <Paperclip className="w-4 h-4" />
-          </Button>
-          <Button
-            onClick={onSend}
-            disabled={disabled || isLoading || !value.trim()}
-            className="bg-blue-600 hover:bg-blue-700 flex-shrink-0"
-            size="icon"
-          >
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
-          </Button>
-        </div>
+        <Button
+          onClick={onSend}
+          disabled={disabled || isLoading || !value.trim()}
+          className="bg-blue-600 hover:bg-blue-700 flex-shrink-0 h-10 w-10"
+          size="icon"
+        >
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Send className="w-4 h-4" />
+          )}
+        </Button>
       </div>
     </div>
   );
