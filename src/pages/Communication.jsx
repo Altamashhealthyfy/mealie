@@ -253,7 +253,7 @@ export default function Communication() {
     }
 
     const messageData = {
-      message: messageText.trim() || '(File attachment)',
+      message: (messageText || '').trim() || '(File attachment)',
       is_scheduled: true,
       scheduled_time: scheduledDateTime.toISOString(),
       is_important: isImportant,
@@ -489,7 +489,7 @@ export default function Communication() {
       return;
     }
 
-    if (!messageText.trim() && !attachedFile) {
+    if (!(messageText || '').trim() && !attachedFile) {
       toast({
         title: "Empty message",
         description: "Please enter a message or attach a file.",
@@ -501,7 +501,7 @@ export default function Communication() {
 
     let messageData = {
       sender_type: 'dietitian',
-      message: messageText.trim() || '(File attachment)',
+      message: (messageText || '').trim() || '(File attachment)',
       read: false,
       is_important: isImportant,
       content_type: attachedFile ? contentType : 'text',
@@ -771,22 +771,22 @@ export default function Communication() {
                                   )}
                                 </div>
                                 {lastMessage && (
-                                  <p className={`text-sm truncate ${
-                                    isSelected ? 'text-white/80' : 'text-gray-600'
-                                  }`}>
-                                    {lastMessage.sender_type === 'dietitian' ? 'You: ' : ''}
-                                    {lastMessage.attachment_url ? '📎 ' + (lastMessage.attachment_name || 'Attachment') : 
-                                      (() => {
-                                        try {
-                                          const parsed = JSON.parse(lastMessage.message);
-                                          if (parsed?.type === 'end-call' || parsed?.type === 'offer' || parsed?.type === 'answer' || parsed?.type === 'ice-candidate') {
-                                            return '📹 Video call';
-                                          }
-                                        } catch {}
-                                        return lastMessage.message;
-                                      })()
-                                    }
-                                  </p>
+                                <p className={`text-sm truncate ${
+                                  isSelected ? 'text-white/80' : 'text-gray-600'
+                                }`}>
+                                  {lastMessage.sender_type === 'dietitian' ? 'You: ' : ''}
+                                  {lastMessage.attachment_url ? '📎 ' + (lastMessage.attachment_name || 'Attachment') : 
+                                    (() => {
+                                      try {
+                                        const parsed = JSON.parse(lastMessage.message || '{}');
+                                        if (parsed?.type === 'end-call' || parsed?.type === 'offer' || parsed?.type === 'answer' || parsed?.type === 'ice-candidate') {
+                                          return '📹 Video call';
+                                        }
+                                      } catch {}
+                                      return lastMessage.message || '(No text)';
+                                    })()
+                                  }
+                                </p>
                                 )}
                                 {lastMessage && (
                                   <p className={`text-xs mt-1 ${
