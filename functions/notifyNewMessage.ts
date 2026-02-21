@@ -6,89 +6,68 @@ Deno.serve(async (req) => {
     const { message_id, client_id, group_id, sender_type, sender_name, message_preview } = await req.json();
 
     if (!client_id && !group_id) {
-      return Response.json({ error: 'client_id or group_id required' }, { status: 400 });
+      return Response.json({ error: 'Missing client_id or group_id' }, { status: 400 });
     }
 
-    const notifications = [];
-
-    if (client_id) {
-      // Get client info
-      const clients = await base44.asServiceRole.entities.Client.filter({ id: client_id });
-      const client = clients[0];
-      if (!client) return Response.json({ error: 'Client not found' }, { status: 404 });
-
-      if (sender_type === 'client') {
-        // Notify the coach(es)
-        const coachEmails = [];
-        if (Array.isArray(client.assigned_coach)) {
-          coachEmails.push(...client.assigned_coach);
-        } else if (client.assigned_coach) {
-          coachEmails.push(client.assigned_coach);
-        }
-        if (client.created_by && !coachEmails.includes(client.created_by)) {
-          coachEmails.push(client.created_by);
-        }
-
-        for (const email of coachEmails) {
-          const notif = await base44.asServiceRole.entities.Notification.create({
-            user_email: email,
-            type: 'new_message',
-            title: `New message from ${client.full_name}`,
-            message: message_preview || '(attachment)',
-            priority: 'high',
-            link: `/Communication?client=${client_id}`,
-            read: false,
-            metadata: { client_id, sender_type }
-          });
-          notifications.push(notif);
-        }
-      } else {
-        // Notify the client
-        if (client.email) {
-          const notif = await base44.asServiceRole.entities.Notification.create({
-            user_email: client.email,
-            type: 'new_message',
-            title: `New message from ${sender_name || 'your coach'}`,
-            message: message_preview || '(attachment)',
-            priority: 'high',
-            link: `/ClientCommunication`,
-            read: false,
-            metadata: { client_id, sender_type }
-          });
-          notifications.push(notif);
-        }
+    // Get client info if this is a client message
+    let recipientEmail = null;
+    if (client_id && sender_type === 'client') {
+      const clients = await base44.entities.Client.filter({ id: client_id });
+      if (clients.length > 0) {
+        const coachEmails = clients[0].assigned_coach;
+        recipientEmail = Array.isArray(coachEmails) ? coachEmails[0] : coachEmails;
       }
     }
 
+    if (recipientEmail) {
+      // Create notification for coach
+      const notification = await base44.entities.Notification.create({
+        user_email: recipientEmail,
+        title: `New message from ${sender_name}`,
+        message: message_preview || 'You have a new message',
+        type: 'new_message',
+        priority: 'high',
+        read: false,
+        link: '/messages',
+      });
+
+      // Send push notification
+      try {
+        await base44.functions.invoke('sendPushNotification', {
+          user_id: recipientEmail,
+          title: `New message from ${sender_name}`,
+          body: message_preview || 'Click to read message',
+          data: { link: '/messages' },
+        });
+      } catch (error) {
+        console.error('Error sending push notification:', error);
+      }
+    }
+
+    // Notify group members if group message
     if (group_id) {
-      // Get group and notify all members
-      const groups = await base44.asServiceRole.entities.ClientGroup.filter({ id: group_id });
-      const group = groups[0];
-      if (group && group.client_ids?.length > 0) {
-        const groupClients = await Promise.all(
-          group.client_ids.map(cid => base44.asServiceRole.entities.Client.filter({ id: cid }))
-        );
-        for (const clientArr of groupClients) {
-          const c = clientArr[0];
-          if (c?.email && sender_type !== 'client') {
-            await base44.asServiceRole.entities.Notification.create({
-              user_email: c.email,
-              type: 'new_message',
+      const groups = await base44.entities.ClientGroup.filter({ id: group_id });
+      if (groups.length > 0) {
+        const group = groups[0];
+        for (const memberId of (group.client_ids || [])) {
+          if (memberId !== client_id) {
+            const notification = await base44.entities.Notification.create({
+              user_email: memberId,
               title: `New group message in ${group.name}`,
-              message: message_preview || '(attachment)',
+              message: message_preview || 'You have a new group message',
+              type: 'new_message',
               priority: 'normal',
-              link: `/ClientCommunication`,
               read: false,
-              metadata: { group_id, sender_type }
+              link: '/messages',
             });
           }
         }
       }
     }
 
-    return Response.json({ success: true, notifications_created: notifications.length });
+    return Response.json({ success: true });
   } catch (error) {
-    console.error('Error sending message notification:', error);
+    console.error('Error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
