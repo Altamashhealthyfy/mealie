@@ -1214,6 +1214,18 @@ export default function MealPlansPro() {
                   </CardContent>
                 </Card>
 
+                {/* Extra Meals Adder */}
+                <ExtraMealAdder
+                  meals={editMode ? editedMeals : generatedPlan.meal_plan}
+                  numberOfDays={numberOfDays}
+                  onAddMeals={(newMeals) => {
+                    const updated = editMode ? [...editedMeals] : [...generatedPlan.meal_plan];
+                    updated.push(...newMeals);
+                    setEditedMeals(updated);
+                    alert('✅ Extra meal(s) added! Remember to save the plan when done.');
+                  }}
+                />
+
                 {/* AI Chat Modifier */}
                 <ProMealPlanChatModifier
                   plan={generatedPlan}
