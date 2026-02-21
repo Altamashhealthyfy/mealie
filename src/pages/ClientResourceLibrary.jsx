@@ -1,358 +1,366 @@
-import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  FileText,
-  Video,
-  ChefHat,
-  Dumbbell,
-  BookOpen,
-  Search,
-  Heart,
-  Eye,
-  ExternalLink,
-  Image as ImageIcon,
-  Loader2,
-} from "lucide-react";
-import { toast } from "sonner";
+import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Star, Loader2, BookOpen, Search, Filter, ExternalLink } from 'lucide-react';
+import ResourceRatingDialog from '@/components/resources/ResourceRatingDialog';
+import { toast } from 'sonner';
 
-const categoryIcons = {
-  article: FileText,
-  video: Video,
-  recipe: ChefHat,
-  workout: Dumbbell,
-  guide: BookOpen,
-  infographic: ImageIcon,
-  other: FileText,
-};
+const CATEGORIES = [
+  'All Categories',
+  'nutrition', 'fitness', 'mental_health', 'disease_management',
+  'meal_planning', 'cooking', 'lifestyle', 'supplements', 'sleep', 'stress_management'
+];
 
 export default function ClientResourceLibrary() {
-  const queryClient = useQueryClient();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [activeTab, setActiveTab] = useState("browse");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All Categories');
+  const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
+  const [selectedResource, setSelectedResource] = useState(null);
 
   const { data: user } = useQuery({
-    queryKey: ["currentUser"],
+    queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+    staleTime: 5 * 60 * 1000,
   });
 
   const { data: clientProfile } = useQuery({
-    queryKey: ["myClientProfile", user?.email],
+    queryKey: ['clientProfile', user?.email],
     queryFn: async () => {
-      if (!user?.email) return null;
-      const clients = await base44.entities.Client.filter({
-        email: user.email,
-      });
+      const clients = await base44.entities.Client.filter({ email: user?.email });
       return clients[0] || null;
     },
     enabled: !!user?.email,
   });
 
-  const { data: resources = [] } = useQuery({
-    queryKey: ["publishedResources"],
+  const { data: resources = [], isLoading, refetch } = useQuery({
+    queryKey: ['clientResources', user?.email],
     queryFn: async () => {
-      const res = await base44.entities.Resource.filter({
-        is_published: true,
-      });
-      return res;
+      if (!clientProfile?.assigned_coach) return [];
+      const coachRes = await base44.entities.Resource.filter(
+        { coach_email: clientProfile.assigned_coach, is_public: true },
+        '-created_date',
+        100
+      );
+      return coachRes;
     },
+    enabled: !!clientProfile?.assigned_coach,
   });
 
-  const { data: favorites = [] } = useQuery({
-    queryKey: ["myFavorites", clientProfile?.id],
+  const { data: aiResources = [] } = useQuery({
+    queryKey: ['clientAIResources', clientProfile?.id],
     queryFn: async () => {
       if (!clientProfile?.id) return [];
-      const favs = await base44.entities.FavoriteResource.filter({
-        client_id: clientProfile.id,
-      });
-      return favs;
+      return await base44.entities.AIGeneratedResource.filter(
+        { client_id: clientProfile.id },
+        '-created_date',
+        50
+      );
     },
     enabled: !!clientProfile?.id,
   });
 
-  const addFavoriteMutation = useMutation({
-    mutationFn: async (resource) => {
-      return base44.entities.FavoriteResource.create({
-        client_id: clientProfile.id,
-        resource_id: resource.id,
-        resource_title: resource.title,
-      });
+  const { data: ratings = [] } = useQuery({
+    queryKey: ['resourceRatings', clientProfile?.id],
+    queryFn: async () => {
+      if (!clientProfile?.id) return [];
+      return await base44.entities.ResourceRating.filter(
+        { client_id: clientProfile.id }
+      );
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["myFavorites", clientProfile?.id],
-      });
-      toast.success("Added to favorites!");
-    },
+    enabled: !!clientProfile?.id,
   });
 
-  const removeFavoriteMutation = useMutation({
-    mutationFn: async (favoriteId) => {
-      return base44.entities.FavoriteResource.delete(favoriteId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["myFavorites", clientProfile?.id],
-      });
-      toast.success("Removed from favorites");
-    },
-  });
+  const allResources = [
+    ...resources.map(r => ({ ...r, isAI: false })),
+    ...aiResources.map(r => ({ ...r, isAI: true, type: r.resource_type }))
+  ];
 
-  const isFavorited = (resourceId) => {
-    return favorites.some((fav) => fav.resource_id === resourceId);
-  };
-
-  const filteredResources = resources.filter((resource) => {
-    const matchesSearch =
-      resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      resource.description
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "all" || resource.category === selectedCategory;
+  const filteredResources = allResources.filter(resource => {
+    const matchesSearch = resource.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      resource.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      resource.summary?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      resource.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesCategory = selectedCategory === 'All Categories' ||
+      resource.category === selectedCategory ||
+      resource.client_goals?.includes(selectedCategory);
+    
     return matchesSearch && matchesCategory;
   });
 
-  const favoriteResources = resources.filter((resource) =>
-    favorites.some((fav) => fav.resource_id === resource.id)
-  );
+  const getRating = (resourceId) => {
+    return ratings.find(r => r.resource_id === resourceId);
+  };
 
-  const ResourceCard = ({ resource, showFavoriteButton = true }) => {
-    const Icon = categoryIcons[resource.category];
-    const isFav = isFavorited(resource.id);
+  const handleOpenRatingDialog = (resource) => {
+    setSelectedResource(resource);
+    setRatingDialogOpen(true);
+  };
+
+  const renderRating = (resourceId) => {
+    const rating = getRating(resourceId);
+    if (!rating) return null;
 
     return (
-      <Card className="flex flex-col overflow-hidden hover:shadow-lg transition h-full">
-        {resource.thumbnail_url && (
-          <img
-            src={resource.thumbnail_url}
-            alt={resource.title}
-            className="w-full h-40 object-cover"
+      <div className="flex items-center gap-1">
+        {[...Array(5)].map((_, i) => (
+          <Star
+            key={i}
+            className={`w-4 h-4 ${
+              i < rating.rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+            }`}
           />
-        )}
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between gap-2">
-            <Icon className="w-5 h-5 text-orange-500 flex-shrink-0 mt-1" />
-            {resource.difficulty_level && (
-              <Badge
-                variant="outline"
-                className="text-xs capitalize"
-              >
-                {resource.difficulty_level}
-              </Badge>
-            )}
-          </div>
-          <CardTitle className="text-base line-clamp-2">
-            {resource.title}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex-1 pb-3">
-          {resource.description && (
-            <p className="text-sm text-gray-600 line-clamp-3 mb-3">
-              {resource.description}
-            </p>
-          )}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <Eye className="w-4 h-4" />
-              {resource.view_count || 0} views
-            </div>
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <Heart className="w-4 h-4" />
-              {resource.favorite_count || 0} favorited
-            </div>
-            {resource.duration_minutes && (
-              <div className="text-xs text-gray-500">
-                ⏱️ {resource.duration_minutes} min
-              </div>
-            )}
-          </div>
-          {resource.tags && resource.tags.length > 0 && (
-            <div className="flex gap-1 flex-wrap mt-3">
-              {resource.tags.slice(0, 3).map((tag, idx) => (
-                <Badge key={idx} variant="secondary" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
-        </CardContent>
-        <div className="border-t p-3 space-y-2">
-          <a
-            href={resource.content_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block"
-          >
-            <Button variant="outline" size="sm" className="w-full">
-              <ExternalLink className="w-4 h-4 mr-2" />
-              View Resource
-            </Button>
-          </a>
-          {showFavoriteButton && (
-            <Button
-              variant={isFav ? "default" : "outline"}
-              size="sm"
-              className={`w-full ${
-                isFav
-                  ? "bg-red-500 hover:bg-red-600 border-red-500"
-                  : "border-red-300 text-red-600"
-              }`}
-              onClick={() => {
-                if (isFav) {
-                  const favorite = favorites.find(
-                    (f) => f.resource_id === resource.id
-                  );
-                  if (favorite) {
-                    removeFavoriteMutation.mutate(favorite.id);
-                  }
-                } else {
-                  addFavoriteMutation.mutate(resource);
-                }
-              }}
-              disabled={
-                addFavoriteMutation.isPending ||
-                removeFavoriteMutation.isPending
-              }
-            >
-              {addFavoriteMutation.isPending ||
-              removeFavoriteMutation.isPending ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Heart
-                  className={`w-4 h-4 mr-2 ${isFav ? "fill-current" : ""}`}
-                />
-              )}
-              {isFav ? "Favorited" : "Favorite"}
-            </Button>
-          )}
-        </div>
-      </Card>
+        ))}
+        <span className="text-xs text-gray-600 ml-1">({rating.rating})</span>
+      </div>
     );
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Resource Library
-          </h1>
-          <p className="text-gray-600">
-            Explore articles, videos, recipes, and more curated for your health journey
-          </p>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">📚 Resource Library</h1>
+          <p className="text-gray-600 mt-1">Explore personalized resources and educational materials tailored to your goals</p>
         </div>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-          <TabsList className="bg-white border-b w-full rounded-none">
-            <TabsTrigger value="browse">Browse All</TabsTrigger>
-            <TabsTrigger value="favorites">
-              My Favorites {favorites.length > 0 && `(${favorites.length})`}
-            </TabsTrigger>
-          </TabsList>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Total Resources</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-gray-900">{allResources.length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Personalized for You</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-purple-600">{aiResources.length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Your Ratings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-bold text-orange-600">{ratings.length}</p>
+            </CardContent>
+          </Card>
+        </div>
 
-          <TabsContent value="browse" className="mt-6">
-            {/* Search and Filter */}
-            <div className="flex flex-col gap-4 mb-6">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <Input
-                    placeholder="Search resources..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search resources..."
+              className="pl-10"
+            />
+          </div>
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {CATEGORIES.map(cat => (
+                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-              {/* Category Tabs */}
-              <div className="flex gap-2 overflow-x-auto pb-2">
-                {[
-                  { value: "all", label: "All Resources" },
-                  { value: "article", label: "📄 Articles" },
-                  { value: "video", label: "🎥 Videos" },
-                  { value: "recipe", label: "🍳 Recipes" },
-                  { value: "workout", label: "💪 Workouts" },
-                  { value: "guide", label: "📖 Guides" },
-                ].map((cat) => (
-                  <Button
-                    key={cat.value}
-                    variant={
-                      selectedCategory === cat.value ? "default" : "outline"
-                    }
-                    onClick={() => setSelectedCategory(cat.value)}
-                    className="whitespace-nowrap"
-                  >
-                    {cat.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
+        {/* Personalized AI Resources */}
+        {aiResources.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-gray-900">✨ Personalized for You</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {aiResources.map(resource => (
+                <Card key={resource.id} className="border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50 hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs">
+                        AI Generated
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {resource.difficulty_level}
+                      </Badge>
+                    </div>
+                    <CardTitle className="text-base line-clamp-2">{resource.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <CardDescription className="line-clamp-2">
+                      {resource.summary}
+                    </CardDescription>
 
-            {/* Resources Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredResources.length === 0 ? (
-                <Card className="col-span-full p-12 text-center border-dashed">
-                  <BookOpen className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                  <p className="text-xl font-semibold text-gray-900 mb-2">
-                    No resources found
-                  </p>
-                  <p className="text-gray-600">
-                    Try adjusting your search or filters
-                  </p>
+                    {/* Goals */}
+                    {resource.client_goals?.length > 0 && (
+                      <div>
+                        <div className="text-xs font-semibold text-gray-700 mb-1">🎯 Targets:</div>
+                        <div className="flex gap-1 flex-wrap">
+                          {resource.client_goals.slice(0, 2).map(goal => (
+                            <Badge key={goal} variant="secondary" className="text-xs">
+                              {goal.replace('_', ' ')}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Gaps */}
+                    {resource.identified_gaps?.length > 0 && (
+                      <div>
+                        <div className="text-xs font-semibold text-red-700 mb-1">🔍 Addresses:</div>
+                        <div className="flex gap-1 flex-wrap">
+                          {resource.identified_gaps.slice(0, 2).map(gap => (
+                            <Badge key={gap} variant="secondary" className="text-xs bg-red-100 text-red-800">
+                              {gap.replace('_', ' ')}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Rating */}
+                    <div>
+                      {renderRating(resource.id)}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = '#';
+                          link.textContent = 'View';
+                        }}
+                      >
+                        <ExternalLink className="w-3 h-3 mr-1" />
+                        View
+                      </Button>
+                      <Button
+                        size="sm"
+                        className="flex-1 bg-gradient-to-r from-orange-500 to-red-600"
+                        onClick={() => handleOpenRatingDialog(resource)}
+                      >
+                        <Star className="w-3 h-3 mr-1" />
+                        Rate
+                      </Button>
+                    </div>
+                  </CardContent>
                 </Card>
-              ) : (
-                filteredResources.map((resource) => (
-                  <ResourceCard
-                    key={resource.id}
-                    resource={resource}
-                    showFavoriteButton={true}
-                  />
-                ))
-              )}
+              ))}
             </div>
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="favorites" className="mt-6">
-            {favoriteResources.length === 0 ? (
-              <Card className="p-12 text-center border-dashed">
-                <Heart className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                <p className="text-xl font-semibold text-gray-900 mb-2">
-                  No favorites yet
-                </p>
-                <p className="text-gray-600 mb-6">
-                  Start favoriting resources to save them for later
-                </p>
-                <Button
-                  onClick={() => setActiveTab("browse")}
-                  className="bg-orange-500 hover:bg-orange-600"
-                >
-                  Browse Resources
-                </Button>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {favoriteResources.map((resource) => (
-                  <ResourceCard
-                    key={resource.id}
-                    resource={resource}
-                    showFavoriteButton={true}
-                  />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+        {/* All Resources */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-gray-900">📖 All Resources</h2>
+          {filteredResources.length === 0 ? (
+            <div className="text-center py-12">
+              <BookOpen className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+              <p className="text-gray-500 font-medium">No resources found</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredResources.map(resource => (
+                <Card key={resource.id} className={`hover:shadow-lg transition-shadow ${
+                  resource.isAI ? 'border-purple-100' : ''
+                }`}>
+                  {resource.thumbnail_url && (
+                    <img
+                      src={resource.thumbnail_url}
+                      alt={resource.title}
+                      className="w-full h-40 object-cover rounded-t-lg"
+                    />
+                  )}
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="flex gap-1">
+                        {resource.isAI && (
+                          <Badge className="bg-purple-600 text-white text-xs">AI</Badge>
+                        )}
+                        <Badge variant="outline" className="text-xs">
+                          {resource.type}
+                        </Badge>
+                      </div>
+                    </div>
+                    <CardTitle className="text-base line-clamp-2">{resource.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <CardDescription className="line-clamp-2">
+                      {resource.description || resource.summary}
+                    </CardDescription>
+
+                    {/* Rating */}
+                    <div>
+                      {renderRating(resource.id)}
+                    </div>
+
+                    {/* Tags */}
+                    <div className="flex gap-1 flex-wrap">
+                      {resource.tags?.slice(0, 3).map(tag => (
+                        <Badge key={tag} variant="secondary" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+
+                    {/* Action */}
+                    <Button
+                      size="sm"
+                      className="w-full bg-gradient-to-r from-orange-500 to-red-600"
+                      onClick={() => handleOpenRatingDialog(resource)}
+                    >
+                      <Star className="w-3 h-3 mr-1" />
+                      {getRating(resource.id) ? 'Update Rating' : 'Rate Resource'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Rating Dialog */}
+      {selectedResource && (
+        <ResourceRatingDialog
+          resource={selectedResource}
+          client={clientProfile}
+          isOpen={ratingDialogOpen}
+          onClose={() => {
+            setRatingDialogOpen(false);
+            setSelectedResource(null);
+          }}
+          onRatingSubmitted={() => {
+            refetch();
+          }}
+        />
+      )}
     </div>
   );
 }
