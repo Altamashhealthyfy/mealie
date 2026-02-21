@@ -194,8 +194,8 @@ export default function MealPlansPro() {
       }
 
       setGenerating(true);
-      
-      const prompt = constructDiamondPrompt(selectedClient, intake, numberOfDays, mealPattern);
+
+      const prompt = constructDiamondPrompt(selectedClient, intake, numberOfDays, mealPattern, preferences);
       
       console.log('Sending prompt to AI with numberOfDays:', numberOfDays);
       
