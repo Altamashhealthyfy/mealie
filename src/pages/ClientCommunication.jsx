@@ -235,6 +235,56 @@ export default function ClientCommunication() {
     setShowScrollButton(false);
   }, [messages.length]);
 
+  // Real-time subscription
+  useEffect(() => {
+    if (!clientProfile?.id) return;
+    const unsubscribe = base44.entities.Message.subscribe((event) => {
+      if (
+        (event.data?.client_id === clientProfile.id || clientGroups.some(g => g.id === event.data?.group_id)) &&
+        (event.type === 'create' || event.type === 'update')
+      ) {
+        queryClient.invalidateQueries(['myMessages']);
+        queryClient.invalidateQueries(['myGroupMessages']);
+      }
+    });
+    return () => unsubscribe();
+  }, [clientProfile?.id, clientGroups]);
+
+  // New message notification
+  useEffect(() => {
+    const coachMessages = messages.filter(m => m.sender_type === 'dietitian');
+    const count = coachMessages.length;
+    if (prevMessageCountRef.current > 0 && count > prevMessageCountRef.current && activeTab === 'direct') {
+      const latest = coachMessages[coachMessages.length - 1];
+      setNewMessageAlert(latest?.message || 'New message from your coach');
+      if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
+        new Notification('New message from your coach', {
+          body: latest?.message?.slice(0, 100) || '',
+          icon: '/favicon.ico',
+        });
+      }
+      setTimeout(() => setNewMessageAlert(null), 4000);
+    }
+    prevMessageCountRef.current = count;
+  }, [messages.length]);
+
+  const requestNotificationPermission = async () => {
+    if (!('Notification' in window)) return;
+    const permission = await Notification.requestPermission();
+    const enabled = permission === 'granted';
+    setNotificationsEnabled(enabled);
+    localStorage.setItem('chat_notifications', enabled ? 'true' : 'false');
+  };
+
+  const toggleNotifications = () => {
+    if (!notificationsEnabled) {
+      requestNotificationPermission();
+    } else {
+      setNotificationsEnabled(false);
+      localStorage.setItem('chat_notifications', 'false');
+    }
+  };
+
   const handleFileSelect = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
