@@ -177,6 +177,11 @@ export default function BroadcastMessagePanel() {
     }
   };
 
+  const filteredClients = clients.filter(client =>
+    client.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    client.email?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <>
       <Button
