@@ -148,12 +148,20 @@ export default function MealPlansPro() {
     console.log('==================');
   }, [selectedClientId, selectedClient, clinicalIntakes, latestIntake, hasCompletedIntake]);
 
-  const generateProPlan = async () => {
+  const handleFoodPreferencesSubmit = (preferences) => {
+    setFoodPreferences(preferences);
+    setShowFoodPreferences(false);
+    // Now proceed with meal plan generation
+    generateProPlan(preferences);
+  };
+
+  const generateProPlan = async (preferences = foodPreferences) => {
     try {
       console.log('🚀 GENERATE PRO PLAN CALLED');
       console.log('selectedClientId:', selectedClientId);
       console.log('selectedClient:', selectedClient);
       console.log('clinicalIntakes:', clinicalIntakes);
+      console.log('foodPreferences:', preferences);
 
       if (!selectedClientId || !selectedClient) {
         alert('❌ Please select a client first');
