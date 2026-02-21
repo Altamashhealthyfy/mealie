@@ -1177,12 +1177,10 @@ export default function MealPlansPro() {
                   >
                     New Plan
                   </Button>
-                  {!generatedPlan.from_template && (
-                    <Button variant="outline" className="col-span-1 sm:flex-1" onClick={() => handleSaveAsProTemplate(generatedPlan)}>
-                      <Star className="w-4 h-4 mr-1" />
-                      Save Template
-                    </Button>
-                  )}
+                  <Button variant="outline" className="col-span-1 sm:flex-1" onClick={() => handleSaveAsProTemplate(generatedPlan)}>
+                    <Star className="w-4 h-4 mr-1" />
+                    Save as Template
+                  </Button>
                   <Button
                     variant={editMode ? "default" : "outline"}
                     className={`col-span-1 sm:flex-1 ${editMode ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
