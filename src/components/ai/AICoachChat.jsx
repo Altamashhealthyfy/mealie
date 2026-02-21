@@ -513,7 +513,7 @@ export default function AICoachChat({ clientId, clientName, onClientChange }) {
 
       {/* Quick action buttons */}
       {selectedClientId && (
-        <div className="px-3 pb-2 border-t pt-2 flex gap-1.5 overflow-x-auto bg-gray-50/80 scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
+        <div className="px-2 sm:px-3 pb-2 border-t pt-2 flex gap-1.5 overflow-x-auto bg-gray-50/80" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
           <button
             onClick={summarizeClient}
             disabled={loading || scanning}
