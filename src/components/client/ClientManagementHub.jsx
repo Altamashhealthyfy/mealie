@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, TrendingUp, FileText, BarChart3, ClipboardList } from "lucide-react";
+import { Users, TrendingUp, FileText, BarChart3 } from "lucide-react";
 
 // Lazy-load the heavy pages as components
 import ClientProgressReview from "@/pages/ClientProgressReview";
 import ClientReports from "@/pages/ClientReports";
 import ClientAnalyticsDashboard from "@/pages/ClientAnalyticsDashboard";
-import CoachReportTracker from "@/pages/CoachReportTracker";
 
 export default function ClientManagementHub({ ClientListComponent }) {
   const [activeTab, setActiveTab] = useState("clients");
