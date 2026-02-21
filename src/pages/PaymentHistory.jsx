@@ -363,44 +363,44 @@ export default function PaymentHistory() {
   }, [clientPlanPurchases, messages]);
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gray-50">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen p-4 lg:p-8 bg-gray-50">
+      <div className="max-w-7xl mx-auto space-y-4 lg:space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Transactions</h1>
-            <p className="text-sm text-gray-600">
+            <h1 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-1 lg:mb-2">Transactions</h1>
+            <p className="text-xs lg:text-sm text-gray-600">
               Showing transaction records from {dateFrom || 'all time'} to {dateTo || 'now'}
             </p>
           </div>
         </div>
 
         <Card className="border-none shadow-sm bg-white">
-          <CardContent className="p-8">
-            <div className="flex items-start justify-between mb-6">
+          <CardContent className="p-4 lg:p-8">
+            <div className="flex flex-col lg:flex-row items-start lg:items-start justify-between gap-4 mb-6">
               <div>
-                <h2 className="text-4xl font-bold text-gray-900 mb-2">
+                <h2 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-2">
                   ₹{totalEarnings.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </h2>
-                <p className="text-sm text-gray-600">
+                <p className="text-xs lg:text-sm text-gray-600">
                   Total earnings as on {format(new Date(), 'MMM dd, yyyy')}
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 w-full lg:w-auto">
                 <Input
                   type="month"
                   placeholder="Start month"
-                  className="w-40"
+                  className="flex-1 lg:w-36 h-10"
                 />
                 <span className="flex items-center px-2 text-gray-400">→</span>
                 <Input
                   type="month"
                   placeholder="End month"
-                  className="w-40"
+                  className="flex-1 lg:w-36 h-10"
                 />
               </div>
             </div>
 
-            <div className="h-64">
+            <div className="h-48 lg:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>
                   <defs>
@@ -412,11 +412,11 @@ export default function PaymentHistory() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis 
                     dataKey="month" 
-                    tick={{ fontSize: 12 }}
+                    tick={{ fontSize: 11 }}
                     stroke="#9ca3af"
                   />
                   <YAxis 
-                    tick={{ fontSize: 12 }}
+                    tick={{ fontSize: 11 }}
                     stroke="#9ca3af"
                     tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
                   />
@@ -438,13 +438,13 @@ export default function PaymentHistory() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
           <Card className="border-none shadow-sm bg-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-6">
+            <CardContent className="p-4 lg:p-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">Services earnings</h3>
-                  <p className="text-sm text-gray-500">Last updated {format(new Date(), 'h')} hours ago</p>
+                  <h3 className="text-lg lg:text-xl font-bold text-gray-900">Services earnings</h3>
+                  <p className="text-xs lg:text-sm text-gray-500">Last updated {format(new Date(), 'h')} hours ago</p>
                 </div>
                 <Button variant="outline" size="sm">
                   <RefreshCw className="w-4 h-4 mr-2" />
@@ -456,145 +456,152 @@ export default function PaymentHistory() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   placeholder="Search by service"
-                  className="pl-10"
+                  className="pl-10 h-10"
                 />
               </div>
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-3 gap-4 pb-2 border-b text-sm font-medium text-gray-600">
+              <div className="space-y-3">
+                <div className="grid grid-cols-3 gap-2 lg:gap-4 pb-2 border-b text-xs lg:text-sm font-medium text-gray-600">
                   <div>Service</div>
                   <div className="text-right">Earnings</div>
                   <div className="text-right">Action</div>
                 </div>
 
-                {earningsByPlan.map(({ plan, earnings }) => (
-                  <div key={plan} className="grid grid-cols-3 gap-4 items-center py-3 border-b">
-                    <div>
-                      <p className="font-medium text-gray-900">{plan}</p>
-                      <div className="flex gap-2 mt-1">
-                        <Badge className="bg-blue-100 text-blue-800 text-xs">ACTIVE</Badge>
-                        <Badge className="bg-green-100 text-green-800 text-xs">ONETIME</Badge>
+                <div className="space-y-3 max-h-[300px] overflow-y-auto scrollbar-thin">
+                  {earningsByPlan.map(({ plan, earnings }) => (
+                    <div key={plan} className="grid grid-cols-3 gap-2 lg:gap-4 items-center py-2 border-b last:border-0">
+                      <div className="min-w-0">
+                        <p className="font-medium text-gray-900 text-sm truncate" title={plan}>{plan}</p>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          <Badge className="bg-blue-100 text-blue-800 text-[10px]">ACTIVE</Badge>
+                          <Badge className="bg-green-100 text-green-800 text-[10px]">ONETIME</Badge>
+                        </div>
+                      </div>
+                      <div className="text-right font-semibold text-gray-900 text-sm">
+                        ₹{earnings.toLocaleString()}
+                      </div>
+                      <div className="text-right">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setSelectedPlan(plan)}
+                          className="text-xs px-2 py-1 h-8"
+                        >
+                          View
+                        </Button>
                       </div>
                     </div>
-                    <div className="text-right font-semibold text-gray-900">
-                      ₹{earnings.toLocaleString()}
-                    </div>
-                    <div className="text-right">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => setSelectedPlan(plan)}
-                      >
-                        View invoices
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+                  ))}
 
-                {earningsByPlan.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    No earnings data available
-                  </div>
-                )}
+                  {earningsByPlan.length === 0 && (
+                    <div className="text-center py-8 text-gray-500 text-sm">
+                      No earnings data available
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-none shadow-sm bg-gradient-to-br from-purple-50 to-pink-50">
-            <CardContent className="p-6">
+            <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <h3 className="text-lg lg:text-xl font-bold text-gray-900 flex items-center gap-2">
                     <Sparkles className="w-5 h-5 text-purple-600" />
                     AI Credits Purchased
                   </h3>
-                  <p className="text-sm text-gray-500">Total credits bought by coaches</p>
+                  <p className="text-xs lg:text-sm text-gray-500">Total credits bought by coaches</p>
                 </div>
               </div>
 
-              <div className="space-y-4 max-h-[400px] overflow-y-auto">
-                <div className="grid grid-cols-3 gap-4 pb-2 border-b text-sm font-medium text-gray-600 sticky top-0 bg-gradient-to-br from-purple-50 to-pink-50">
+              <div className="space-y-3">
+                <div className="grid grid-cols-3 gap-2 lg:gap-4 pb-2 border-b text-xs lg:text-sm font-medium text-gray-600">
                   <div>Coach</div>
                   <div className="text-right">Credits</div>
                   <div className="text-right">Spent</div>
                 </div>
 
-                {creditsPurchasedByCoach.map(({ coach, credits, spent }) => (
-                  <div key={coach} className="grid grid-cols-3 gap-4 items-center py-3 border-b border-purple-100">
-                    <div>
-                      <p className="font-medium text-gray-900 text-sm truncate" title={coach}>
-                        {coach.split('@')[0]}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">{coach}</p>
-                    </div>
-                    <div className="text-right">
-                      <Badge className="bg-purple-600 text-white">
-                        {credits} credits
-                      </Badge>
-                    </div>
-                    <div className="text-right font-semibold text-gray-900">
-                      ₹{spent.toLocaleString()}
-                    </div>
-                  </div>
-                ))}
-
-                {creditsPurchasedByCoach.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    No AI credits purchased yet
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {user?.user_type === 'super_admin' && (
-            <Card className="border-none shadow-sm bg-gradient-to-br from-green-50 to-emerald-50">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                      <CreditCard className="w-5 h-5 text-green-600" />
-                      Client Revenue
-                    </h3>
-                    <p className="text-sm text-gray-500">Revenue from client purchases</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4 max-h-[400px] overflow-y-auto">
-                  <div className="grid grid-cols-3 gap-4 pb-2 border-b text-sm font-medium text-gray-600 sticky top-0 bg-gradient-to-br from-green-50 to-emerald-50">
-                    <div>Coach</div>
-                    <div className="text-right">Messages</div>
-                    <div className="text-right">Revenue</div>
-                  </div>
-
-                  {clientRevenueByCoach.map(({ coach, unreadMessages, revenue }) => (
-                    <div key={coach} className="grid grid-cols-3 gap-4 items-center py-3 border-b border-green-100">
-                      <div>
+                <div className="space-y-3 max-h-[300px] overflow-y-auto scrollbar-thin">
+                  {creditsPurchasedByCoach.map(({ coach, credits, spent }) => (
+                    <div key={coach} className="grid grid-cols-3 gap-2 lg:gap-4 items-center py-2 border-b border-purple-100 last:border-0">
+                      <div className="min-w-0">
                         <p className="font-medium text-gray-900 text-sm truncate" title={coach}>
                           {coach.split('@')[0]}
                         </p>
                         <p className="text-xs text-gray-500 truncate">{coach}</p>
                       </div>
                       <div className="text-right">
-                        {unreadMessages > 0 ? (
-                          <Badge className="bg-red-600 text-white">
-                            {unreadMessages} unread
-                          </Badge>
-                        ) : (
-                          <span className="text-gray-400 text-sm">-</span>
-                        )}
+                        <Badge className="bg-purple-600 text-white text-xs">
+                          {credits} credits
+                        </Badge>
                       </div>
-                      <div className="text-right font-semibold text-gray-900">
-                        ₹{revenue.toLocaleString()}
+                      <div className="text-right font-semibold text-gray-900 text-sm">
+                        ₹{spent.toLocaleString()}
                       </div>
                     </div>
                   ))}
 
-                  {clientRevenueByCoach.length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
-                      No client purchases yet
+                  {creditsPurchasedByCoach.length === 0 && (
+                    <div className="text-center py-8 text-gray-500 text-sm">
+                      No AI credits purchased yet
                     </div>
                   )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {user?.user_type === 'super_admin' && (
+            <Card className="border-none shadow-sm bg-gradient-to-br from-green-50 to-emerald-50">
+              <CardContent className="p-4 lg:p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-lg lg:text-xl font-bold text-gray-900 flex items-center gap-2">
+                      <CreditCard className="w-5 h-5 text-green-600" />
+                      Client Revenue
+                    </h3>
+                    <p className="text-xs lg:text-sm text-gray-500">Revenue from client purchases</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="grid grid-cols-3 gap-2 lg:gap-4 pb-2 border-b text-xs lg:text-sm font-medium text-gray-600">
+                    <div>Coach</div>
+                    <div className="text-right">Messages</div>
+                    <div className="text-right">Revenue</div>
+                  </div>
+
+                  <div className="space-y-3 max-h-[300px] overflow-y-auto scrollbar-thin">
+                    {clientRevenueByCoach.map(({ coach, unreadMessages, revenue }) => (
+                      <div key={coach} className="grid grid-cols-3 gap-2 lg:gap-4 items-center py-2 border-b border-green-100 last:border-0">
+                        <div className="min-w-0">
+                          <p className="font-medium text-gray-900 text-sm truncate" title={coach}>
+                            {coach.split('@')[0]}
+                          </p>
+                          <p className="text-xs text-gray-500 truncate">{coach}</p>
+                        </div>
+                        <div className="text-right">
+                          {unreadMessages > 0 ? (
+                            <Badge className="bg-red-600 text-white text-xs">
+                              {unreadMessages}
+                            </Badge>
+                          ) : (
+                            <span className="text-gray-400 text-sm">-</span>
+                          )}
+                        </div>
+                        <div className="text-right font-semibold text-gray-900 text-sm">
+                          ₹{revenue.toLocaleString()}
+                        </div>
+                      </div>
+                    ))}
+
+                    {clientRevenueByCoach.length === 0 && (
+                      <div className="text-center py-8 text-gray-500 text-sm">
+                        No client purchases yet
+                      </div>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -603,102 +610,97 @@ export default function PaymentHistory() {
 
         <Card className="border-none shadow-sm bg-white">
           <CardContent className="p-6">
-            <div className="flex flex-wrap gap-4 mb-6">
-              <div className="flex-1 min-w-[250px] relative">
+            <div className="flex flex-col lg:flex-row gap-3 lg:gap-4 mb-6">
+              <div className="flex-1 min-w-0 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
                   placeholder="Search by name, phone or email"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-10"
                 />
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2 lg:gap-3">
                 <Input
                   type="date"
                   value={dateFrom}
                   onChange={(e) => setDateFrom(e.target.value)}
-                  className="w-40"
+                  className="w-36 lg:w-40 h-10"
                 />
                 <span className="flex items-center px-2">→</span>
                 <Input
                   type="date"
                   value={dateTo}
                   onChange={(e) => setDateTo(e.target.value)}
-                  className="w-40"
+                  className="w-36 lg:w-40 h-10"
                 />
+                <Button variant="outline" size="icon" className="h-10 w-10">
+                  <Filter className="w-4 h-4" />
+                </Button>
+                <Button variant="outline" onClick={exportToCSV} className="h-10">
+                  <Download className="w-4 h-4 mr-2" />
+                  <span className="hidden sm:inline">Export CSV</span>
+                  <span className="sm:hidden">Export</span>
+                </Button>
               </div>
-              <Button variant="outline" size="icon">
-                <Filter className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" onClick={exportToCSV}>
-                <Download className="w-4 h-4 mr-2" />
-                Export CSV
-              </Button>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <div className="overflow-x-auto -mx-2 lg:mx-0">
+              <table className="w-full min-w-[900px]">
                 <thead>
-                  <tr className="border-b text-sm text-gray-600">
-                    <th className="text-left py-3 px-4">Date</th>
-                    <th className="text-left py-3 px-4">Customer</th>
-                    <th className="text-left py-3 px-4">Amount</th>
-                    <th className="text-left py-3 px-4">Contact</th>
-                    <th className="text-left py-3 px-4">Service</th>
-                    <th className="text-center py-3 px-4">Quantity</th>
-                    <th className="text-center py-3 px-4">Payment Cycle</th>
-                    <th className="text-center py-3 px-4">Status</th>
-                    <th className="text-center py-3 px-4"></th>
+                  <tr className="border-b text-xs lg:text-sm text-gray-600">
+                    <th className="text-left py-3 px-2 lg:px-4 whitespace-nowrap">Date</th>
+                    <th className="text-left py-3 px-2 lg:px-4 whitespace-nowrap">Customer</th>
+                    <th className="text-left py-3 px-2 lg:px-4 whitespace-nowrap">Amount</th>
+                    <th className="text-left py-3 px-2 lg:px-4 whitespace-nowrap">Contact</th>
+                    <th className="text-left py-3 px-2 lg:px-4 whitespace-nowrap">Service</th>
+                    <th className="text-center py-3 px-2 lg:px-4 whitespace-nowrap">Quantity</th>
+                    <th className="text-center py-3 px-2 lg:px-4 whitespace-nowrap">Payment Cycle</th>
+                    <th className="text-center py-3 px-2 lg:px-4 whitespace-nowrap">Status</th>
+                    <th className="text-center py-3 px-2 lg:px-4"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredRazorpayTransactions.map((sub) => (
                     <tr key={sub.id} className="border-b hover:bg-gray-50">
-                      <td className="py-4 px-4 text-sm">
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-xs lg:text-sm whitespace-nowrap">
                         {format(new Date(sub.created_date), 'dd MMM yyyy, h:mm a')}
                       </td>
-                      <td className="py-4 px-4">
-                        <div>
-                          <p className="font-medium">{sub.coach_name}</p>
-                        </div>
+                      <td className="py-3 lg:py-4 px-2 lg:px-4">
+                        <p className="font-medium text-sm">{sub.coach_name}</p>
                       </td>
-                      <td className="py-4 px-4">
-                        <p className="font-semibold">₹{sub.amount}</p>
+                      <td className="py-3 lg:py-4 px-2 lg:px-4">
+                        <p className="font-semibold text-sm">₹{sub.amount}</p>
                       </td>
-                      <td className="py-4 px-4 text-sm">
-                        <div className="space-y-1">
-                          <p className="text-blue-600">{sub.coach_email}</p>
-                        </div>
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-xs lg:text-sm">
+                        <p className="text-blue-600 truncate max-w-[150px]" title={sub.coach_email}>{sub.coach_email}</p>
                       </td>
-                      <td className="py-4 px-4 text-sm">
-                        <div>
-                          <p className="font-medium">{sub.plan_name}</p>
-                          <p className="text-xs text-gray-500">Health Coach Plan</p>
-                        </div>
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-xs lg:text-sm">
+                        <p className="font-medium text-sm">{sub.plan_name}</p>
+                        <p className="text-xs text-gray-500">Health Coach Plan</p>
                       </td>
-                      <td className="py-4 px-4 text-center">1</td>
-                      <td className="py-4 px-4 text-center">
-                        <Badge className="bg-green-100 text-green-800 capitalize">
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-center text-sm">1</td>
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-center">
+                        <Badge className="bg-green-100 text-green-800 capitalize text-xs whitespace-nowrap">
                           {sub.billing_cycle}
                         </Badge>
                       </td>
-                      <td className="py-4 px-4 text-center">
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-center">
                         <Badge className={`${
                           sub.status === 'active' ? 'bg-green-500' :
                           sub.status === 'failed' ? 'bg-red-500' :
                           sub.status === 'expired' ? 'bg-orange-500' :
                           sub.status === 'cancelled' ? 'bg-gray-500' :
                           'bg-yellow-500'
-                        } text-white flex items-center gap-1 w-fit mx-auto`}>
+                        } text-white inline-flex items-center gap-1 text-xs whitespace-nowrap`}>
                           <CheckCircle2 className="w-3 h-3" />
                           {sub.status === 'active' ? 'SUCCESS' : 
                            sub.status === 'failed' ? 'FAILED' :
                            sub.status.toUpperCase()}
                         </Badge>
                       </td>
-                      <td className="py-4 px-4 text-center">
-                        <Button variant="ghost" size="icon">
+                      <td className="py-3 lg:py-4 px-2 lg:px-4 text-center">
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </td>
