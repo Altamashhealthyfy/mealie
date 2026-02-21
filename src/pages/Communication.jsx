@@ -614,6 +614,16 @@ export default function Communication() {
 
   return (
     <div className="min-h-screen p-2 sm:p-4 md:p-8">
+      {activeVideoCall && (
+        <VideoCallRoom
+          roomId={activeVideoCall.clientId}
+          localName={user?.full_name || 'Coach'}
+          remoteName={activeVideoCall.clientName}
+          isInitiator={true}
+          signalingChannel={activeVideoCall.channel}
+          onEnd={endVideoCall}
+        />
+      )}
       
       <div className="max-w-7xl mx-auto">
         <div className="mb-4 md:mb-6 flex justify-between items-start">
