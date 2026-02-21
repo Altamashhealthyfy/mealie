@@ -362,14 +362,21 @@ export default function ClientSegmentationReports() {
           </div>
         </div>
 
+        {/* Advanced Segmentation Filter */}
+         <SegmentationFilterPanel
+           segments={segments}
+           selectedSegments={selectedSegments}
+           onSegmentChange={setSelectedSegments}
+         />
+
         {/* Filters */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-orange-500" />
-              Filters & Segmentation
-            </CardTitle>
-          </CardHeader>
+         <Card>
+           <CardHeader>
+             <CardTitle className="flex items-center gap-2">
+               <Filter className="w-5 h-5 text-orange-500" />
+               Additional Filters
+             </CardTitle>
+           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
               <div className="space-y-2">
@@ -478,6 +485,13 @@ export default function ClientSegmentationReports() {
 
           {/* Segment Analysis */}
           <TabsContent value="segments" className="space-y-4">
+            {/* Segment Analytics Overview */}
+            <SegmentAnalytics
+              filteredClients={filteredClients}
+              segments={segments}
+              progressLogs={progressLogs}
+            />
+
             <div className="flex justify-end">
               <Button onClick={handleExport} variant="outline">
                 <Download className="w-4 h-4 mr-2" />
@@ -730,8 +744,16 @@ export default function ClientSegmentationReports() {
               </CardContent>
             </Card>
           </TabsContent>
-        </Tabs>
-      </div>
-    </div>
-  );
-}
+          </Tabs>
+
+          {/* Segmented Client List */}
+          <div className="mt-8">
+          <SegmentedClientList
+            clients={filteredClients}
+            progressLogs={progressLogs}
+          />
+          </div>
+          </div>
+          </div>
+          );
+          }
