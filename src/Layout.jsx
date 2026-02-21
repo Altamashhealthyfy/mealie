@@ -75,6 +75,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import PWAInstallPrompt from "@/components/common/PWAInstallPrompt";
+import VoiceCommandControl from "@/components/common/VoiceCommandControl";
 
 const dietitianNavigation = [
   {
@@ -1505,6 +1506,7 @@ export default function Layout({ children, currentPageName }) {
           </div>
 
           <PWAInstallPrompt />
+          <VoiceCommandControl />
           </div>
           </SidebarProvider>
           );
