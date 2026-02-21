@@ -600,8 +600,8 @@ export default function Communication() {
 
   // Filter clients by search query only (no message-based filtering)
   const filteredClients = clients.filter(client =>
-    client.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    (client.full_name || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
+    (client.email || '').toLowerCase().includes((searchQuery || '').toLowerCase())
   );
 
   // Sort clients by last message, but show all clients (even without messages)
