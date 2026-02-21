@@ -1366,7 +1366,13 @@ TDEE: ${Math.round(tdee)} kcal
 
 ## REQUIREMENTS:
 
-1. Apply disease-specific rules for: ${intake.health_conditions.join(', ')}
+1. **PERSONALIZE WITH FOOD PREFERENCES:**
+   - Incorporate client's RECOMMENDED FOODS whenever possible in the meal plan (these support their health condition)
+   - Include client's LIKED FOODS to make the plan enjoyable and sustainable
+   - AVOID all DISLIKED FOODS completely - never include them in any meal
+   - Balance health requirements with client preferences
+
+2. Apply disease-specific rules for: ${intake.health_conditions.join(', ')}
 
 2. **MANDATORY - DO NOT SKIP ANY DAYS**: 
    - You MUST generate ALL ${numberOfDays} days of meal plans
