@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
     });
 
     // Send email notification
-    await base44.integrations.Core.SendEmail({
+    await base44.asServiceRole.functions.invoke('sendEmail', {
       to: clientEmail,
       subject: 'Your Medical Report Has Been Reviewed',
       body: `Hello,\n\nYour health coach has reviewed your medical report:\n\nReport: ${report.report_title}\nDate: ${report.report_date || 'Not specified'}\n\nCoach Notes:\n${report.coach_notes || 'No additional notes'}\n\nPlease log in to view the complete review and feedback.\n\nBest regards,\nMealie Pro Team`

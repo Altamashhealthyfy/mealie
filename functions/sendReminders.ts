@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
       // Send email
       if (reminder.notification_method === 'email' || reminder.notification_method === 'both') {
         try {
-          await base44.asServiceRole.functions.invoke('sendGoogleWorkspaceEmail', {
+          await base44.asServiceRole.functions.invoke('sendEmail', {
             to: client.email,
             subject: `Reminder: ${reminder.title}`,
             body: `
