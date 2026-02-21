@@ -25,7 +25,10 @@ import {
   File,
   Download,
   Users,
-  Star
+  Star,
+  Phone,
+  CalendarClock,
+  History
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
