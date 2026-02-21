@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell } from "recharts";
 import SMARTGoalBuilder from "../components/progress/SMARTGoalBuilder";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import UnifiedClientHub from "../components/client/UnifiedClientHub";
 
 export default function ClientProgressReview() {
   const queryClient = useQueryClient();
