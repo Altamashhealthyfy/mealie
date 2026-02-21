@@ -73,18 +73,18 @@ export default function AICoachInsights() {
   const currentTab = TABS.find(t => t.id === activeTab);
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <div className="min-h-screen p-3 sm:p-4 md:p-8">
+      <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-              <Sparkles className="w-8 h-8 text-purple-500" />
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-2 sm:gap-3">
+              <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500 shrink-0" />
               AI Coach Insights
             </h1>
-            <p className="text-gray-500 mt-1">AI-powered tools to support better client outcomes</p>
+            <p className="text-gray-500 mt-1 text-sm sm:text-base">AI-powered tools to support better client outcomes</p>
           </div>
-          <Badge className="bg-purple-100 text-purple-700 border border-purple-300 text-xs px-3 py-1.5">Beta</Badge>
+          <Badge className="bg-purple-100 text-purple-700 border border-purple-300 text-xs px-2 sm:px-3 py-1 sm:py-1.5 shrink-0">Beta</Badge>
         </div>
 
         {/* Client Selector */}
