@@ -1346,56 +1346,57 @@ TDEE: ${Math.round(tdee)} kcal
 
 9. Handle conflicts with hierarchy: Kidney > Diabetes > Heart > Thyroid
 
-## APPROVED MEAL OPTIONS:
-Use ONLY the following meal options from the pre-approved clinical list:
+## APPROVED MEAL OPTIONS (USE ONLY THESE):
 
-**BREAKFAST OPTIONS:**
-- Boiled lobhia/kala chana/soybean/chhole sauté with veggies (30% legumes & 70% veggies)
-- Steam sprouts sauté with veggies
-- Stuffed rotis: Onion, Lauki, Palak, Gobhi, Methi, Kaddu, or Aalu Paratha
-- Paneer stuffed roti
-- Vegetable poha or Sprouts Poha
-- Veg Wheat/Sabudana daliya
-- Besan/Ragi/Moong dal cheela with veggies
-- Veg sandwich with 2 atta bread slices
-- Oats/Rava/Fermented Idli sauté with vegetables
-- Muesli or Cornflakes with low fat milk
-- Egg omelette/Boiled egg with veggies
-- Vegetable oats or Veg upma
-- Veg uttapam or Suji cheela veg mix
-- Toned milk, Double toned milk, Cow's milk, Chhach, or Curd
+**BREAKFAST:**
+- Boiled lobhia sauté with veggies [30% Lobhia & 70% veggies: Onion, tomato, capsicum, lemon]
+- Boiled kala chana sauté with veggies [30% kalachana & 70% veggies: Onion, tomato, capsicum, lemon]
+- Boiled soybean sauté with veggies [30% soybean & 70% veggies: Onion, tomato, capsicum, lemon]
+- Boiled chhole sauté with veggies [30% chhole & 70% veggies: Onion, tomato, capsicum, lemon]
+- Steam sprouts sauté with veggies [30% moong sprouts & 70% veggies: Onion, tomato, capsicum, lemon]
+- Onion stuffed roti, Lauki stuffed roti, Palak stuffed roti, Gobhi stuffed roti, Methi stuffed roti, Kaddu stuffed roti
+- Aalu Paratha, Paneer stuffed roti [30gm homemade paneer]
+- Vegetable poha [30% rice flakes, 70% veggies], Sprouts Poha [with 30gm steam moong]
+- Veg Wheat daliya, Vegetable sabudana
+- Besan cheela veg, Ragi cheela veg, Moong dal cheela veg, Suji cheela veg mix
+- Veg sandwich [green chutney on 2 atta bread slices with veggies]
+- 2 Oats/Rava/Fermented Idli sauté with vegetables
+- 1 Veg uttapam
+- 30gm muesli without nuts with 200ml low fat milk, 30gm plain cornflakes with 200ml low fat milk
+- Egg omelette [3 egg whites with veggies], Boiled egg [3 egg whites with veggies]
+- Vegetable oats [70% veggies, 30% oats], Veg upma [30% suji, 70% veggies]
+- Toned milk, Double toned milk, Cow's milk, Chhach, Curd
 
-**MID-MORNING OPTIONS (FRUITS):**
-- Seasonal fruits, Apple, Pear, Orange, Mausmbi, Papaya (150gm), Kiwi, Custard apple, Banana, Mango, Chikoo, Watermelon, Muskmelon, Guava
-- Chia seeds water, Flax seeds water, Fresh coconut water, Chhach
+**MID-MORNING:**
+- Fruits: Apple, Pear, Orange, Mausmbi, 150gm Papaya, Kiwi, Custard apple, Banana, Mango, Chikoo, Watermelon, Muskmelon, Guava, Seasonal fruit
+- Drinks: 200ml Chhach, Chia seeds water, Flax seeds water, Fresh coconut water
 
-**LUNCH & DINNER GRAINS:**
-- Rotis: Jawar, Jowar, Bajra, Ragi, Wheat bran mix (30% wheat bran, 70% wheat flour), Black wheat roti
-- Rice: Boiled or Steamed white/brown rice
+**LUNCH - ROTI/RICE:**
+Jawar roti, Jowar roti, Bajra roti, Ragi roti, Wheat bran mix [30% wheat bran, 70% wheat flour], Black wheat roti, Boiled white rice, Steamed white rice, Boiled brown rice, Steamed brown rice
 
-**LUNCH & DINNER VEGETABLES (SUBJI):**
-- Beans, Palak paneer (50gm), Aalu gobhi, Gobhi tomato, Cabbage peas, Broccoli, Aalu tomato gravy, Lauki chana dal, Lauki tomato, Capsicum Aalu, Capsicum tomato onion, Mushroom capsicum, Tinda, Tori, Kundru, Kaddu, Bhindi, Spring onion, Palak curry, Mooli bhurji, Green banana, Arvi gravy, Mutter mushroom
+**LUNCH - VEGETABLES (SUBJI):**
+Beans veg, Palak paneer [50gm], Aalu gobhi, Gobhi tomato, Cabbage peas, Broccoli, Aalu tomato gravy, Lauki chana dal, Lauki tomato, Capsicum Aalu, Capsicum tomato onion, Mushroom capsicum, Tinda, Tori, Kundru, Kaddu, Bhindi, Spring onion, Palak curry, Mooli bhurji, Green banana, Arvi gravy, Mutter mushroom
 
-**LUNCH & DINNER DALS:**
-- Arher, Moong, Chana, Masoor, Urad chana dal, Rajhma, Chhole, Kala chana gravy, Lobhia gravy
-- Kadhi/Palak kadhi/Spring onion kadhi (without pakori)
-- Gatte ki subji (without fried), Nutreela veg
-- Rava/Fermented/Oats idli with sambhar
-- Sambhar, Pav bhaji (wheat pav), Plain dosa with sambhar
+**LUNCH - DAL:**
+Arher dal, Moong dal, Chana dal, Masoor dal, Urad chana dal, Rajhma, Chhole, Kala chana gravy, Lobhia gravy, Kadhi without pakori, Palak kadhi without pakori, Spring onion kadhi without pakori, Gatte ki subji (no fried), Nutreela veg, 2 Rava/Oats/Fermented idli with sambhar, Sambhar, Pav bhaji [wheat pav], 2 Plain dosa with sambhar
+
+**LUNCH - SALAD & YOGURT:**
+Salad: Cucumber, tomato, onion, carrot, lemon
+Yogurt: Chhach or Curd
 
 **EVENING SNACKS:**
-- Bhels: Murmura, Corn, or Mix bhel (with tomato, kheera, onion, green chutney, lemon)
-- Veg sandwich with 2 atta bread slices
-- Handful options: Bhuna chana, Dry roasted makhane, Dry murmura, Plain corn flakes, Puffed bajra, Puffed jowar
+- Murmura bhel, Corn bhel, Mix bhel [murmura + bhuna chana + cornflakes + veggies]
+- Veg sandwich [2 atta bread slices]
+- Handful: Bhuna chana, Dry roasted makhane, Dry murmura, Plain corn flakes, Puffed bajra, Puffed jowar
 - Tea (less sugar, less milk), Green tea, Cold milk
 
-**DINNER SPECIAL OPTIONS:**
-- Vegetable oats, Veg upma, Veg daliya (Black wheat, barley, or millet with 70% veggies)
-- Ragi/Moong dal cheela veg, Vegetable poha, Stuffed rotis, Veg sandwich, Idli sauté
+**DINNER - MAIN OPTIONS:**
+Vegetable oats [70% veggies, 30% oats], Veg upma [30% suji, 70% veggies], Veg Black Wheat/Barley/Millet daliya [30% grain, 70% veggies], Ragi cheela veg, Moong dal cheela veg, Vegetable poha, Stuffed rotis (same as breakfast), Veg sandwich, 2 Oats/Rava/Fermented Idli sauté with vegetables
 
-**SALAD:** Cucumber, tomato, onion, carrot, lemon
+**DINNER - ROTI/SUBJI/DAL (SAME AS LUNCH):**
+Same roti, subji, and dal options as listed for Lunch
 
-CRITICAL: Select meals ONLY from these pre-approved clinical options. Do NOT invent, suggest, or create any meals NOT in this list.
+CRITICAL: Use ONLY these pre-approved options. Do NOT create or suggest meals outside this list.
 
 ## STRICT MEAL RULES (NEVER VIOLATE):
 RULE A - NO FRUITS AT NIGHT: NEVER include any fruits (banana, apple, papaya, mango, orange, etc.) in dinner or post-dinner. Fruits only allowed at breakfast, mid-morning, or evening snack.
