@@ -198,4 +198,16 @@ export default function PantryManager({ clientEmail, recipes = [] }) {
                         }
                         className="text-red-600 hover:bg-red-50 ml-2"
                       >
-                        <Trash2 className="w-4 h-4"
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
