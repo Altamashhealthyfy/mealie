@@ -116,7 +116,7 @@ export default function VoiceCommandControl() {
       {/* Floating Voice Button */}
       <button
         onClick={toggleListening}
-        className={`fixed bottom-6 right-6 lg:bottom-8 lg:right-8 w-14 h-14 lg:w-16 lg:h-16 rounded-full shadow-lg hover:shadow-xl transition-all z-40 flex items-center justify-center ${
+        className={`fixed w-14 h-14 lg:w-16 lg:h-16 rounded-full shadow-lg hover:shadow-xl transition-all z-40 flex items-center justify-center md:bottom-8 md:right-8 bottom-24 right-6 ${
           isListening
             ? 'bg-gradient-to-r from-red-500 to-red-600 animate-pulse'
             : 'bg-gradient-to-r from-orange-500 to-red-500 hover:scale-110'
@@ -132,7 +132,7 @@ export default function VoiceCommandControl() {
 
       {/* Transcript Display */}
       {showTranscript && (
-        <div className="fixed bottom-24 lg:bottom-28 right-6 lg:right-8 max-w-xs bg-white rounded-xl shadow-xl border-2 border-orange-200 p-4 z-40 animate-in fade-in slide-in-from-bottom-4">
+        <div className="fixed max-w-xs bg-white rounded-xl shadow-xl border-2 border-orange-200 p-4 z-40 animate-in fade-in slide-in-from-bottom-4 md:bottom-28 md:right-8 bottom-40 right-6">
           <div className="flex items-start justify-between gap-3 mb-2">
             <div className="flex items-center gap-2">
               <Volume2 className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
