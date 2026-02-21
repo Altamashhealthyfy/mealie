@@ -129,11 +129,14 @@ export default function HealthCoachesManagement() {
     queryFn: async () => {
       const users = await base44.entities.User.list();
       return users.filter(u => {
-        const userType = u.user_type || u.data?.user_type;
+        // Handle various storage formats for user_type
+        const userType = u.user_type || u.role || u.data?.user_type;
         const isDeleted = u.is_deleted || u.data?.is_deleted;
         return userType === 'student_coach' && !isDeleted;
       });
     },
+    enabled: !!user && user?.user_type === 'super_admin',
+    initialData: [],
   });
 
   // Fetch all subscriptions
