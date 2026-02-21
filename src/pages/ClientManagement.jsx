@@ -54,9 +54,17 @@ import AdvancedFilters from "@/components/client/AdvancedFilters";
 import BulkActionsPanel from "@/components/client/BulkActionsPanel";
 import WelcomeMessageManager from "@/components/common/WelcomeMessageManager";
 import BulkClientImport from "@/components/client/BulkClientImport";
+import ClientManagementHub from "@/components/client/ClientManagementHub";
 
+function ClientList() {
+  return <ClientManagementInner />;
+}
 
 export default function ClientManagement() {
+  return <ClientManagementHub ClientListComponent={ClientList} />;
+}
+
+function ClientManagementInner() {
   // Tour button import already added at top
   const queryClient = useQueryClient();
   const navigate = useNavigate();
