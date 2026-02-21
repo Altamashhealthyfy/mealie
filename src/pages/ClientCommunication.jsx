@@ -292,7 +292,7 @@ export default function ClientCommunication() {
     });
     channel.start();
     signalingRef.current = channel;
-    const coachName = coachUser?.full_name || clientProfile?.assigned_coach?.split('@')[0] || 'Your Coach';
+    const coachName = coachUser?.full_name || coachEmail?.split('@')[0] || 'Your Coach';
     setActiveVideoCall({ clientId: clientProfile.id, coachName, channel });
   };
 
