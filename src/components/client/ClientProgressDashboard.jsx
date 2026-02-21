@@ -409,6 +409,57 @@ export default function ClientProgressDashboard({ client, onClose }) {
             </CardContent>
           </Card>
 
+          {/* Quick Navigation to Other Views */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Button
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-auto py-4 text-red-600 hover:bg-red-50 border-red-200"
+              onClick={() => {
+                onClose();
+                navigate(createPageUrl("ClientProgressReview"));
+              }}
+            >
+              <LineChartIcon className="w-5 h-5" />
+              <span className="text-xs font-semibold">Progress Review</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-auto py-4 text-cyan-600 hover:bg-cyan-50 border-cyan-200"
+              onClick={() => {
+                onClose();
+                navigate(createPageUrl("ClientAnalyticsDashboard"));
+              }}
+            >
+              <BarChart3 className="w-5 h-5" />
+              <span className="text-xs font-semibold">Analytics</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-auto py-4 text-emerald-600 hover:bg-emerald-50 border-emerald-200"
+              onClick={() => {
+                onClose();
+                navigate(createPageUrl("ClientReports"));
+              }}
+            >
+              <FileText className="w-5 h-5" />
+              <span className="text-xs font-semibold">Reports</span>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="flex flex-col items-center gap-2 h-auto py-4 text-amber-600 hover:bg-amber-50 border-amber-200"
+              onClick={() => {
+                onClose();
+                navigate(createPageUrl("CoachReportTracker"));
+              }}
+            >
+              <ClipboardList className="w-5 h-5" />
+              <span className="text-xs font-semibold">Report Tracker</span>
+            </Button>
+          </div>
+
           {/* Charts Tabs */}
           <Tabs defaultValue="weight" className="space-y-4">
             <TabsList className="grid grid-cols-3 md:grid-cols-6 bg-white/80 backdrop-blur">
