@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import ProMealPlanChatModifier from "@/components/pro/ProMealPlanChatModifier";
 import RecipeScaler from "@/components/mealplanner/RecipeScaler";
 import FoodPreferenceForm from "@/components/mealplanner/FoodPreferenceForm";
+import ExtraMealAdder from "@/components/pro/ExtraMealAdder";
 
 export default function MealPlansPro() {
   const [searchParams] = useSearchParams();
