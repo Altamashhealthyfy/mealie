@@ -85,9 +85,9 @@ export default function Communication() {
 
   const formatToIST = (dateString) => {
     if (!dateString) return '';
-    // Ensure proper UTC parsing by appending 'Z' if not present
     const utcString = dateString.includes('Z') ? dateString : dateString + 'Z';
     const date = new Date(utcString);
+    if (isNaN(date.getTime())) return '';
     return new Intl.DateTimeFormat('en-IN', {
       timeZone: 'Asia/Kolkata',
       hour: 'numeric',
