@@ -1739,9 +1739,25 @@ support@mealiepro.com`;
                       </div>
                     )}
 
+                    {/* Coach Search */}
+                    <div className="relative mb-2">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        placeholder="Search health coaches..."
+                        value={coachSearchQuery}
+                        onChange={e => setCoachSearchQuery(e.target.value)}
+                        className="pl-9 h-9 text-sm"
+                      />
+                    </div>
+
                     {/* Coaches List with Checkboxes */}
-                    <div className="border rounded-lg p-3 max-h-80 overflow-y-auto space-y-2">
-                      {healthCoaches.map(coach => (
+                    <div className="border rounded-lg p-3 max-h-64 overflow-y-auto space-y-2">
+                      {healthCoaches
+                        .filter(coach =>
+                          coach.full_name?.toLowerCase().includes(coachSearchQuery.toLowerCase()) ||
+                          coach.email?.toLowerCase().includes(coachSearchQuery.toLowerCase())
+                        )
+                        .map(coach => (
                         <div key={coach.id} className="flex items-center space-x-3 p-3 hover:bg-green-50 rounded-lg transition-colors">
                           <Checkbox
                             id={`coach-${coach.id}`}
