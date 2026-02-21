@@ -284,9 +284,11 @@ export default function BroadcastMessagePanel() {
                 <ScrollArea className="h-48 border rounded p-3">
                   {clients.length === 0 ? (
                     <p className="text-sm text-gray-500">No clients assigned</p>
+                  ) : filteredClients.length === 0 ? (
+                    <p className="text-sm text-gray-500">No clients match your search</p>
                   ) : (
                     <div className="space-y-2">
-                      {clients.map((client) => (
+                      {filteredClients.map((client) => (
                         <div key={client.id} className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded">
                           <Checkbox
                             checked={selectedClients.includes(client.id)}
