@@ -511,59 +511,59 @@ export default function AICoachChat({ clientId, clientName, onClientChange }) {
         <div ref={bottomRef} />
       </div>
 
-      {/* Quick action buttons (always visible when client selected) */}
+      {/* Quick action buttons */}
       {selectedClientId && (
-        <div className="px-4 pb-2 border-t pt-2 flex gap-2 overflow-x-auto bg-gray-50/80">
+        <div className="px-3 pb-2 border-t pt-2 flex gap-1.5 overflow-x-auto bg-gray-50/80 scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
           <button
             onClick={summarizeClient}
             disabled={loading || scanning}
-            className="flex items-center gap-1.5 text-xs bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 rounded-full px-3 py-1.5 transition-colors whitespace-nowrap shrink-0 disabled:opacity-50"
+            className="flex items-center gap-1 text-xs bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 rounded-full px-2.5 py-1.5 transition-colors whitespace-nowrap shrink-0 disabled:opacity-50"
           >
-            <ClipboardList className="w-3.5 h-3.5" /> Summarize Client Status
+            <ClipboardList className="w-3 h-3" /> <span className="hidden sm:inline">Summarize</span><span className="sm:hidden">Sum</span>
           </button>
           <button
             onClick={runProactiveScan}
             disabled={loading || scanning}
-            className="flex items-center gap-1.5 text-xs bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-700 rounded-full px-3 py-1.5 transition-colors whitespace-nowrap shrink-0 disabled:opacity-50"
+            className="flex items-center gap-1 text-xs bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-700 rounded-full px-2.5 py-1.5 transition-colors whitespace-nowrap shrink-0 disabled:opacity-50"
           >
-            {scanning ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Bell className="w-3.5 h-3.5" />}
-            Proactive Scan
+            {scanning ? <Loader2 className="w-3 h-3 animate-spin" /> : <Bell className="w-3 h-3" />}
+            Scan
           </button>
           <button
             onClick={showFeatureGuide}
             disabled={loading || scanning}
-            className="flex items-center gap-1.5 text-xs bg-teal-50 border border-teal-200 hover:bg-teal-100 text-teal-700 rounded-full px-3 py-1.5 transition-colors whitespace-nowrap shrink-0 disabled:opacity-50"
+            className="flex items-center gap-1 text-xs bg-teal-50 border border-teal-200 hover:bg-teal-100 text-teal-700 rounded-full px-2.5 py-1.5 transition-colors whitespace-nowrap shrink-0 disabled:opacity-50"
           >
-            <HelpCircle className="w-3.5 h-3.5" /> Feature Guide
+            <HelpCircle className="w-3 h-3" /> Guide
           </button>
-          {!loading && !scanning && QUICK_PROMPTS.slice(0, 3).map((p, i) => (
+          {!loading && !scanning && QUICK_PROMPTS.slice(0, 4).map((p, i) => (
             <button
               key={i}
               onClick={() => send(p)}
               className="text-xs bg-white border border-gray-200 hover:border-purple-300 hover:bg-purple-50 text-gray-500 hover:text-purple-700 rounded-full px-2.5 py-1.5 transition-colors whitespace-nowrap shrink-0"
             >
-              {p}
+              {p.length > 28 ? p.slice(0, 28) + '…' : p}
             </button>
           ))}
         </div>
       )}
 
       {/* Input */}
-      <div className="p-4 border-t bg-white/80 backdrop-blur-sm">
+      <div className="p-3 sm:p-4 border-t bg-white/80 backdrop-blur-sm">
         <div className="flex gap-2 items-end">
           <textarea
             ref={inputRef}
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
-            placeholder={selectedClientName ? `Ask about ${selectedClientName}... (Enter to send)` : "Select a client and ask a question..."}
+            placeholder={selectedClientName ? `Ask about ${selectedClientName}...` : "Select a client and ask a question..."}
             rows={1}
             disabled={!selectedClientId}
-            className="flex-1 resize-none border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent max-h-32 overflow-y-auto disabled:bg-gray-100 disabled:text-gray-400"
+            className="flex-1 min-w-0 resize-none border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent max-h-32 overflow-y-auto disabled:bg-gray-100 disabled:text-gray-400"
             style={{ minHeight: '44px' }}
           />
           {messages.length > 0 && (
-            <Button variant="ghost" size="icon" onClick={() => setMessages([])} className="text-gray-400 hover:text-red-500 shrink-0 h-11 w-9">
+            <Button variant="ghost" size="icon" onClick={() => setMessages([])} className="text-gray-400 hover:text-red-500 shrink-0 h-11 w-9 p-0">
               <Trash2 className="w-4 h-4" />
             </Button>
           )}
@@ -575,7 +575,7 @@ export default function AICoachChat({ clientId, clientName, onClientChange }) {
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </Button>
         </div>
-        <p className="text-xs text-gray-400 mt-1.5 text-center">AI responses are advisory only. Always apply clinical judgment.</p>
+        <p className="text-xs text-gray-400 mt-1.5 text-center hidden sm:block">AI responses are advisory only. Always apply clinical judgment.</p>
       </div>
     </div>
   );
