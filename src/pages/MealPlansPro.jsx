@@ -1346,63 +1346,97 @@ TDEE: ${Math.round(tdee)} kcal
 
 9. Handle conflicts with hierarchy: Kidney > Diabetes > Heart > Thyroid
 
-## APPROVED MEAL OPTIONS (USE ONLY THESE):
+## APPROVED MEAL OPTIONS (USE ONLY THESE - FROM COMPREHENSIVE LIST):
 
-**BREAKFAST:**
-- Boiled lobhia sauté with veggies [30% Lobhia & 70% veggies: Onion, tomato, capsicum, lemon]
-- Boiled kala chana sauté with veggies [30% kalachana & 70% veggies: Onion, tomato, capsicum, lemon]
-- Boiled soybean sauté with veggies [30% soybean & 70% veggies: Onion, tomato, capsicum, lemon]
-- Boiled chhole sauté with veggies [30% chhole & 70% veggies: Onion, tomato, capsicum, lemon]
-- Steam sprouts sauté with veggies [30% moong sprouts & 70% veggies: Onion, tomato, capsicum, lemon]
-- Onion stuffed roti, Lauki stuffed roti, Palak stuffed roti, Gobhi stuffed roti, Methi stuffed roti, Kaddu stuffed roti
-- Aalu Paratha, Paneer stuffed roti [30gm homemade paneer]
-- Vegetable poha [30% rice flakes, 70% veggies], Sprouts Poha [with 30gm steam moong]
-- Veg Wheat daliya, Vegetable sabudana
-- Besan cheela veg, Ragi cheela veg, Moong dal cheela veg, Suji cheela veg mix
-- Veg sandwich [green chutney on 2 atta bread slices with veggies]
-- 2 Oats/Rava/Fermented Idli sauté with vegetables
-- 1 Veg uttapam
-- 30gm muesli without nuts with 200ml low fat milk, 30gm plain cornflakes with 200ml low fat milk
-- Egg omelette [3 egg whites with veggies], Boiled egg [3 egg whites with veggies]
-- Vegetable oats [70% veggies, 30% oats], Veg upma [30% suji, 70% veggies]
-- Toned milk, Double toned milk, Cow's milk, Chhach, Curd
+**EARLY MORNING (Choose 1):**
+- 1Liter water + 2 small lemon slices + 1 inch ginger grated + 10-12 mint leaves + 1 small cucumber slice
+- 1Glass zeera water [1spoon zeera seeds overnight soaked in 1glass boiled water, consume luke warm]
+- 1Glass tulsi water [10-12 tulsi leaves boiled in 1 glass water, may add lemon for taste]
+- 30ml aloe Vera juice with 70 ml water
+- 1Glass methi water [1spoon methi seeds + 2glasses of water boiled till 1glass, consume luke warm]
+- 1Glass Haldi water [½ Teaspoon haldi powder + ½ inch grated ginger + 1Glass Luke warm water]
+- 1Tablespoon chia seeds overnight soaked in 1glass water, consume next morning
+- 1Glass dhaniya pudina water [1tea spoon dhaniya seeds + 10-12 mint leaves, boiled, consume luke warm]
+- 1Glass Haldi water [½ Teaspoon haldi powder + pinch of black pepper + ½ 1Glass water boiled, consume]
+- 1Glass cinnamon ginger water [pinch of cinnamon + 1Glass Luke warm water] [NOT for low BP & hyperglycaemic]
+- 1Glass saunf water [1spoon saunf seeds + 2glasses of water boiled till 1glass, consume luke warm]
+- 1Glass A.C.V. [20ml apple cider vinegar + 1glass water]
 
-**MID-MORNING:**
-- Fruits: Apple, Pear, Orange, Mausmbi, 150gm Papaya, Kiwi, Custard apple, Banana, Mango, Chikoo, Watermelon, Muskmelon, Guava, Seasonal fruit
-- Drinks: 200ml Chhach, Chia seeds water, Flax seeds water, Fresh coconut water
+**BREAKFAST (Choose 1 category):**
+CEREALS: 3 Table spoons muesli without nuts with milk | 3 tablespoon wheat flakes with milk without sugar | Oats with milk | Wheat daliya with milk
+POHA: 1Small bowl vegetable poha mix 1ice cube size paneer homemade + veggies | 1Small bowl vegetable poha mix 2 spoons of steam sprouts | 1Small bowl vegetable poha mix nutreela | 1medium bowl vegetable bread Poha (3:1) + green chutney
+NON VEG: 3 Eggs white mix veggies omelette or scrambled with 1whole wheat toast | 2-3 boiled egg white with veggies | Chicken salami sandwich with g. chutney
+DALIYA: 1bowl veg oats [3:1] with green chutney | 1bowl vegetable wheat daliya [3:1]+ g. chutney | 1bowl vegetable ragi daliya [3:1] + g. chutney | 1bowl vegetable bajra daliya [3:1] + g. chutney | 1bowl vegetable barley daliya [3:1] + g. chutney | 1bowl vegetable upma[3:1]+ g.chutney
+SANDWICHES: 1-2 Aata bread veg sandwich with green chutney | 1-2 Paneer sandwiches with green chutney | 1Spoon Peanut butter with chia seeds sandwich [2spoon peanut butter spread on 2slices of whole wheat bread, add strawberries/banana/apple slices + sprinkle 1spoon chia seeds] | 1-2 Soya veg sandwich with g. chutney | 1-2 Aalu veg sandwich with g. chutney
+STUFFED ROTI: 1-2 Veg stuffed roti [lauki + green chilli + coriander leaves] | 1-2 Veg stuffed roti [Spinach/methi + green chilli + onion] | 1-2 Veg stuffed roti [onion + green chilli + coriander leaves] | 1-2 Veg stuffed roti [Paneer + onion + green chilli + coriander leaves] | 1-2 Veg stuffed roti [Radish + coriander leaves] | 1-2 Veg stuffed roti [soya bean/nutreela + onion + green chilli + coriander leaves] | 1-2 Veg stuffed roti [carrot + onion + green chilli + coriander leaves]
+CHEELA: 1-2 besan cheela veg mix with g. chutney | 1-2 Suji cheela veg mix with g. chutney | 1-2 Veg uttapam with g. chutney | 1-2 Ragi cheela veg mix with g. chutney | 1-2 Moong dal cheela veg mix with g. chutney | 1-2 Chana dal cheela veg mix with g. chutney
+CHHOLES: 1bowl steam moong sprouts mix green salad | 1Bowl soya bean sprouts with green salad | 1Bowl boiled black chana saute with lots of veggies | 1Bowl lobhia saute with lots of veggies
+SMOOTHIES: 1 bowl fruit yogurt [yogurt + apple + 1spoon chia seeds] | 1 bowl of plain yogurt with fruit [no mango] banana once a week add 1 spoon roasted flax seeds | 1Bowl smoothies [1Glass milk + 2spoon oats+ 1table spoon chia seeds + ½ apple Or ½ banana > grind] | 1 glass APPLE shake /BANANA shake [Once a week]
+IDLIS: 2-3Rava idli veg stuffed with g. chutney | 2-3Moong dal idli veg stuffed with g. chutney | 2-3Besan idli veg stuffed with g. chutney | 2-3Oats mix rava mix veggies idli with g. chutney | 2-3 Fermented idli veg stuffed with g. chutney
 
-**LUNCH - ROTI/RICE:**
-Jawar roti, Jowar roti, Bajra roti, Ragi roti, Wheat bran mix [30% wheat bran, 70% wheat flour], Black wheat roti, Boiled white rice, Steamed white rice, Boiled brown rice, Steamed brown rice
+**MID-MORNING (Choose 1):**
+- 1 Seasonal fruit allow [150gm] > AFTER 1HOUR > 1 glass lemon shikanji
+- 1 Glass low fat buttermilk mix roasted zeera powder + 1 spoon roasted chia / flax seeds
+- 1SEASONAL FRUIT [1Apple /1Orange / Mausambi /1Bowl papaya /1pear/ 1guava/ 1 pomegranate with 2-3 drops of lemon]
+- 2 slices cucumber + 1 apple
+- 2 slices cucumber + 1 pear
+- 1 bowl papaya [2 slices of papaya with black pepper]
+- 1Pomegranate with 2-3 drops of lemon
 
-**LUNCH - VEGETABLES (SUBJI):**
-Beans veg, Palak paneer [50gm], Aalu gobhi, Gobhi tomato, Cabbage peas, Broccoli, Aalu tomato gravy, Lauki chana dal, Lauki tomato, Capsicum Aalu, Capsicum tomato onion, Mushroom capsicum, Tinda, Tori, Kundru, Kaddu, Bhindi, Spring onion, Palak curry, Mooli bhurji, Green banana, Arvi gravy, Mutter mushroom
+**LUNCH - DAILY BASE (MANDATORY):**
+1Full plate/bowl green salad (steamed / Grated Raw) + 1medium bowl of low fat buttermilk
+CHOOSE 1 OPTION FROM BELOW:
 
-**LUNCH - DAL:**
-Arher dal, Moong dal, Chana dal, Masoor dal, Urad chana dal, Rajhma, Chhole, Kala chana gravy, Lobhia gravy, Kadhi without pakori, Palak kadhi without pakori, Spring onion kadhi without pakori, Gatte ki subji (no fried), Nutreela veg, 2 Rava/Oats/Fermented idli with sambhar, Sambhar, Pav bhaji [wheat pav], 2 Plain dosa with sambhar
+ROTI + VEGETABLES:
+1-2 roti bran mix / jawar + 1bowl: lauki veg | tori veg | parwar veg | bhindi veg | kaddu veg | Spinach veg | brinjal bharta | capsicum potato veg | beans potato veg | nutreela capsicum veg | Methi aalu veg | cauliflower aalu veg | matter mushroom veg | saag veg | paneer veg bhurji[homemade paneer] | spring onion aalu veg | beans yellow moong dal veg | carrot peas veg | mix veg | mooli bhurji | Capsicum paneer veg | brinjal potato veg | cabbage peas veg
 
-**LUNCH - SALAD & YOGURT:**
-Salad: Cucumber, tomato, onion, carrot, lemon
-Yogurt: Chhach or Curd
+ROTI + DAL:
+1-2 Roti bran mix / jawar + 1bowl: yellow moong dal | arher dal | masoor dal | chana dal | gatte veg without fried
 
-**CRITICAL RICE LIMITATION RULE (10-DAY PLANS ONLY):**
-In a 10-day meal plan, include rice-based meals (rice + dal/rajma/chhole/kadhi/veg/paneer pulao) for MAXIMUM 4-5 days ONLY.
-The remaining 5-6 days MUST use roti-based meals (roti + vegetable curry or roti + dal WITHOUT rice).
-Example: Days 1, 3, 5, 7, 9 can have rice combinations. Days 2, 4, 6, 8, 10 MUST have only roti-based meals.
-This ensures variety and prevents excessive carb intake from daily rice consumption.
+RICE + LEGUMES (MAXIMUM 4-5 DAYS IN 10-DAY PLAN):
+1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl: chhole | black chana | rajhma | lobhia | soyabean | kadhi without pakrori
 
-**EVENING SNACKS:**
-- Murmura bhel, Corn bhel, Mix bhel [murmura + bhuna chana + cornflakes + veggies]
-- Veg sandwich [2 atta bread slices]
-- Handful: Bhuna chana, Dry roasted makhane, Dry murmura, Plain corn flakes, Puffed bajra, Puffed jowar
-- Tea (less sugar, less milk), Green tea, Cold milk
+NON VEG OPTIONS (2-3 days/week max):
+1medium bowl chicken biryani [no leg pieces] homemade with low fat buttermilk | 1bowl fish curry with steam rice | 4-5 pieces of fish[steam/grilled]with grilled veggies /1-2 roti wheat /tandoori roti /buttermilk | 2Pieces of grilled chicken [100gm][no leg pieces] with g. chutney + buttermilk | 2Egg white curry with steam rice /1-2 roti bran mix
 
-**DINNER - MAIN OPTIONS:**
-Vegetable oats [70% veggies, 30% oats], Veg upma [30% suji, 70% veggies], Veg Black Wheat/Barley/Millet daliya [30% grain, 70% veggies], Ragi cheela veg, Moong dal cheela veg, Vegetable poha, Stuffed rotis (same as breakfast), Veg sandwich, 2 Oats/Rava/Fermented Idli sauté with vegetables
+**EVENING SNACK (Choose 1):**
+- 1Cup tea /1Cup black coffee/ Black tea /Green tea /1Cup low fat milk /1cup low fat buttermilk
+[Optional snack with tea]:
+- One handful of Roasted chana or roasted chana mix green salad [twice-thrice a week]
+- Dry roasted bajra puffs unsalted [twice a week]
+- Dry roasted popcorn [twice-thrice a week]
+- Dry roasted makhane [twice-thrice a week]
+- 1Smal bowl steam moong sprouts mix green salad [once -twice a week]
+- Roasted wheat puffs unsalted [twice-thrice a week]
+- 1Small bowl murmura bhel with lots of vegetables [once a week]
+- 1Small bowl boiled black chana saute with veggies [once -twice a week]
+- 1Veg grilled sandwich with g. chutney [once a week]
 
-**DINNER - ROTI/SUBJI/DAL (SAME AS LUNCH):**
-Same roti, subji, and dal options as listed for Lunch
+**DINNER - MANDATORY BASE:**
+1BOWL SOUP[250ml] + Full bowl of green salad chopped or grated[raw/steam]
+SOUP OPTIONS: 1Bowl mix veg soup | Tomato soup[250ml] | Cabbage soup | Mushroom soup | French beans tomato soup | Broccoli peas soup | Spinach soup | Chicken soup/ chicken broth
 
-CRITICAL: Use ONLY these pre-approved options. Do NOT create or suggest meals outside this list.
+THEN CHOOSE 1 SAME OPTION FROM LUNCH (ROTI+VEG, ROTI+DAL, OR NON-VEG - SAME AS LUNCH OPTIONS)
+
+**POST DINNER - HERBAL DRINK (SAME FOR ALL 10 DAYS - CHOOSE 1 ONLY):**
+Select ONE herbal drink and use it for ALL 10 days consistently (NO rotation, NO variation):
+- Saunf Water [1spoon saunf seeds + 2glasses of water > boiled till 1glass, consume luke warm]
+- Ajwain Water [1 teaspoon ajwain seeds + hot water, consume luke warm]
+- Turmeric Water [½ Teaspoon haldi powder + pinch of black pepper + ½ inch ginger + 1Glass water boiled, consume luke warm]
+- Hing Water [½ pinch hing + 1Glass warm water]
+- Ginger Tea [Adrak Ki Chai — NO milk, fresh ginger + hot water, consume warm]
+- Chamomile Tea [NO milk, brew chamomile in hot water, consume warm]
+
+CRITICAL RULES: 
+✓ Use ONLY these pre-approved options
+✓ NO meals outside this list
+✓ NO green juice in post-dinner
+✓ NO fruits in dinner or post-dinner
+✓ Post-dinner herbal drink must be IDENTICAL for all 10 days
+✓ For weight loss: Include "Drink 1 glass plain water 30 minutes before lunch & dinner" + "Drink 1 glass plain water 10 minutes after post-dinner herbal drink"
+✓ NO palak paneer for weight loss clients
+✓ For non-vegetarian preference: Include grilled chicken/fish 2-3 days in dinner
+✓ For diabetes/hyperlipidemia: Use ONLY egg white options (no whole eggs)
 
 ## STRICT MEAL RULES (NEVER VIOLATE):
 RULE A - MEAL SEQUENCE (MANDATORY FOR ALL CLIENTS): Present meals in this EXACT sequence EVERY day. NO variations, NO bedtime section:
