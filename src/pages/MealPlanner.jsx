@@ -1756,9 +1756,14 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
     const client = clients.find(c => c.id === plan.client_id);
     setViewingPlan({
       ...plan,
-      plan_name: plan.name,
-      client_name: client?.full_name || 'Unknown Client',
+      plan_name: plan.name || plan.plan_name,
+      client_name: client?.full_name || plan.client_name || 'Unknown Client',
       client_id: plan.client_id,
+    });
+    setViewingPlan(prev => {
+      // Ensure meals array is present for viewing
+      if (!prev) return null;
+      return { ...prev, meals: prev.meals || [] };
     });
     setActiveTab("generate");
   };
