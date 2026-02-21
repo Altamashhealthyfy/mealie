@@ -229,7 +229,7 @@ function PreferencesStep({ formData, setFormData }) {
   );
 }
 
-function CompletionStep({ pointsEarned }) {
+function CompletionStep() {
   return (
     <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center space-y-6 py-8">
       <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity }} className="inline-block">
@@ -237,7 +237,7 @@ function CompletionStep({ pointsEarned }) {
       </motion.div>
       <div>
         <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">You're All Set!</p>
-        <p className="text-lg text-gray-600">You've earned <span className="font-bold text-yellow-500">{pointsEarned} bonus points</span> for completing onboarding!</p>
+        <p className="text-lg text-gray-600">Your health journey is about to begin!</p>
       </div>
       <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-lg border-2 border-purple-200">
         <p className="text-gray-700 mb-4">What happens next:</p>
@@ -245,7 +245,6 @@ function CompletionStep({ pointsEarned }) {
           <li>✅ Your profile is being reviewed by your coach</li>
           <li>✅ Personalized meal plans will be created for you</li>
           <li>✅ Daily challenges and goals are ready to explore</li>
-          <li>✅ Start earning points and badges immediately</li>
         </ul>
       </div>
       <p className="text-sm text-gray-500">Ready to begin? Click "Start Journey" to see your dashboard!</p>
