@@ -1805,16 +1805,16 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Meal Planner</h1>
-            <p className="text-gray-600">Generate, use templates, or create manually</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">Meal Planner</h1>
+            <p className="text-sm sm:text-base text-gray-600">Generate, use templates, or create manually</p>
           </div>
           <div className="text-right">
             <div className="flex items-center gap-2">
-              <Calendar className="w-10 h-10 text-orange-500" />
+              <Calendar className="w-8 h-8 sm:w-10 sm:h-10 text-orange-500" />
               <div>
-                <p className="text-2xl font-bold text-gray-900">{mealPlans.length}</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{mealPlans.length}</p>
                 <p className="text-xs text-gray-600">My Plans</p>
               </div>
             </div>
@@ -1823,22 +1823,22 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
 
         {user?.user_type === 'student_coach' && coachPlan && (
           <Card className="border-none shadow-lg bg-gradient-to-r from-purple-50 to-pink-50">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                    <Sparkles className="w-6 h-6 text-white" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">AI Credits Available</p>
-                    <p className="text-3xl font-bold text-gray-900">
+                    <p className="text-xs sm:text-sm text-gray-600">AI Credits Available</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-gray-900">
                       {availableAICredits === Infinity ? '∞' : availableAICredits}
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-600">Plan Includes</p>
-                  <p className="text-lg font-semibold text-gray-900">
+                <div className="text-left sm:text-right">
+                  <p className="text-xs sm:text-sm text-gray-600">Plan Includes</p>
+                  <p className="text-base sm:text-lg font-semibold text-gray-900">
                     {coachPlan.ai_credits_included === -1 ? 'Unlimited' : coachPlan.ai_credits_included === 0 ? 'None' : `${coachPlan.ai_credits_included} credits/month`}
                   </p>
                   <p className="text-xs text-gray-500">₹{coachPlan.ai_credit_price || 10} per extra credit</p>
@@ -1869,22 +1869,24 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
         )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4">
-            <TabsTrigger value="templates" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white">
-              <Star className="w-4 h-4 mr-2" />
-              Templates
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4 h-auto">
+            <TabsTrigger value="templates" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-4 py-2">
+              <Star className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Templates</span>
             </TabsTrigger>
-            <TabsTrigger value="manual" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white">
-              <Edit className="w-4 h-4 mr-2" />
-              Manual
+            <TabsTrigger value="manual" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-4 py-2">
+              <Edit className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Manual</span>
             </TabsTrigger>
-            <TabsTrigger value="generate" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white">
-              <Plus className="w-4 h-4 mr-2" />
-              AI Generate
+            <TabsTrigger value="generate" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-4 py-2">
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">AI Generate</span>
             </TabsTrigger>
-            <TabsTrigger value="saved" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white">
-              <Calendar className="w-4 h-4 mr-2" />
-              My Plans ({mealPlans.length})
+            <TabsTrigger value="saved" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-xs sm:text-sm px-2 sm:px-4 py-2">
+              <Calendar className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Plans</span>
+              <span className="sm:hidden">({mealPlans.length})</span>
+              <span className="hidden sm:inline"> ({mealPlans.length})</span>
             </TabsTrigger>
           </TabsList>
 
@@ -1966,38 +1968,38 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
 
                 {(user?.user_type === 'super_admin' || user?.user_type === 'team_member' || coachPlan?.can_generate_ai_templates) && (
                   <div className="space-y-3">
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <Button
                         onClick={() => setShowAITemplateDialog(true)}
-                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-12"
+                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-12 w-full sm:w-auto"
                       >
                         <Sparkles className="w-5 h-5 mr-2" />
-                        AI Generate Template
+                        <span className="text-sm sm:text-base">AI Generate Template</span>
                       </Button>
                       <Button
                         onClick={() => setShowManualTemplateDialog(true)}
                         variant="outline"
-                        className="h-12 border-2 border-indigo-500 text-indigo-600 hover:bg-indigo-50"
+                        className="h-12 border-2 border-indigo-500 text-indigo-600 hover:bg-indigo-50 w-full sm:w-auto"
                       >
                         <Edit className="w-5 h-5 mr-2" />
-                        Create Manual Template
+                        <span className="text-sm sm:text-base">Create Manual Template</span>
                       </Button>
                     </div>
                     
                     <Card className="border-2 border-dashed border-green-300 bg-green-50/50">
                       <CardContent className="p-4">
-                        <div className="flex items-center justify-between gap-4">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                           <div className="flex-1">
-                            <p className="font-semibold text-green-900 mb-1">Import Meal Plan Template</p>
-                            <p className="text-sm text-green-700">Upload JSON, Excel (.xlsx), or Word/Text (.txt, .doc) file</p>
+                            <p className="font-semibold text-green-900 mb-1 text-sm sm:text-base">Import Meal Plan Template</p>
+                            <p className="text-xs sm:text-sm text-green-700">Upload JSON, Excel (.xlsx), or Word/Text (.txt, .doc) file</p>
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                             <div className="relative">
                               <Button
                                 onClick={() => setShowDownloadOptions(!showDownloadOptions)}
                                 variant="outline"
                                 size="sm"
-                                className="border-green-600 text-green-700 hover:bg-green-100"
+                                className="border-green-600 text-green-700 hover:bg-green-100 w-full sm:w-auto text-xs sm:text-sm"
                               >
                                 <Download className="w-4 h-4 mr-2" />
                                 Download Sample
@@ -2040,7 +2042,7 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                             <Button
                               onClick={() => document.getElementById('import-template-file').click()}
                               size="sm"
-                              className="bg-green-600 hover:bg-green-700 text-white"
+                              className="bg-green-600 hover:bg-green-700 text-white w-full sm:w-auto text-xs sm:text-sm"
                             >
                               <Download className="w-4 h-4 mr-2" />
                               Import Template
@@ -2104,7 +2106,7 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">Disease Focus</Label>
                         <Select
@@ -2259,9 +2261,9 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                     <Card key={template.id} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all">
                       <CardHeader>
                         <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <CardTitle className="text-lg">{template.name}</CardTitle>
-                            <p className="text-sm text-gray-600 mt-1">{template.description}</p>
+                          <div className="flex-1 min-w-0">
+                            <CardTitle className="text-base sm:text-lg truncate">{template.name}</CardTitle>
+                            <p className="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2">{template.description}</p>
                           </div>
                           <div className="flex gap-1">
                             {template.is_public && (
@@ -2293,26 +2295,26 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                           <p className="text-xs text-green-700">FREE - Unlimited uses!</p>
                         </div>
 
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={() => openAssignDialog(template)}
-                            disabled={!selectedClient}
-                            className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                            title={!selectedClient ? "Please select a client first" : "Assign template directly to client"}
-                          >
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Assign Now
-                          </Button>
-                          <Button
-                            onClick={() => cloneTemplate(template)}
-                            disabled={!selectedClient}
-                            variant="outline"
-                            className="flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                            title={!selectedClient ? "Please select a client first" : "Customize template before assigning"}
-                          >
-                            <Copy className="w-4 h-4 mr-2" />
-                            Customize
-                          </Button>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                         <Button
+                           onClick={() => openAssignDialog(template)}
+                           disabled={!selectedClient}
+                           className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm"
+                           title={!selectedClient ? "Please select a client first" : "Assign template directly to client"}
+                         >
+                           <CheckCircle className="w-4 h-4 mr-1 sm:mr-2" />
+                           Assign Now
+                         </Button>
+                         <Button
+                           onClick={() => cloneTemplate(template)}
+                           disabled={!selectedClient}
+                           variant="outline"
+                           className="flex-1 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm"
+                           title={!selectedClient ? "Please select a client first" : "Customize template before assigning"}
+                         >
+                           <Copy className="w-4 h-4 mr-1 sm:mr-2" />
+                           Customize
+                         </Button>
                         </div>
                       </CardContent>
                     </Card>
@@ -2538,24 +2540,38 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                     </Alert>
                   )}
 
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <Button
                       onClick={generateMealPlan}
                       disabled={generating || !selectedClientId}
-                      className="flex-1 h-14 text-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg"
+                      className="flex-1 h-12 sm:h-14 text-sm sm:text-base md:text-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg"
                     >
                       {generating ? (
                         <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Generating Meal Plan...
+                          <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
+                          <span className="hidden sm:inline">Generating Meal Plan...</span>
+                          <span className="sm:hidden">Generating...</span>
                         </>
                       ) : (
                         <>
-                          <Zap className="w-5 h-5 mr-2" />
+                          <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                           {user?.user_type === 'student_coach' && coachPlan ? (
-                            availableAICredits > 0 ? 'Generate Meal Plan (FREE with credits)' : `Generate Meal Plan (₹${coachPlan.ai_credit_price || 10})`
+                            availableAICredits > 0 ? (
+                              <>
+                                <span className="hidden md:inline">Generate Meal Plan (FREE with credits)</span>
+                                <span className="md:hidden">Generate (FREE)</span>
+                              </>
+                            ) : (
+                              <>
+                                <span className="hidden md:inline">Generate Meal Plan (₹{coachPlan.ai_credit_price || 10})</span>
+                                <span className="md:hidden">Generate (₹{coachPlan.ai_credit_price || 10})</span>
+                              </>
+                            )
                           ) : (
-                            `Generate with AI (₹${coachPlan?.ai_credit_price || 10})`
+                            <>
+                              <span className="hidden md:inline">Generate with AI (₹{coachPlan?.ai_credit_price || 10})</span>
+                              <span className="md:hidden">Generate AI (₹{coachPlan?.ai_credit_price || 10})</span>
+                            </>
                           )}
                         </>
                       )}
@@ -2608,11 +2624,11 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                       <Card key={plan.id} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-shadow">
                         <CardHeader>
                           <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start sm:items-center gap-2 mb-2 flex-wrap">
+                                <CardTitle className="text-lg sm:text-xl md:text-2xl break-words">{plan.name}</CardTitle>
                                 {plan.active && (
-                                  <Badge className="bg-green-500 text-white">
+                                  <Badge className="bg-green-500 text-white flex-shrink-0">
                                     <CheckCircle className="w-3 h-3 mr-1" />
                                     Active
                                   </Badge>
@@ -2640,9 +2656,9 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                                 <Badge className="bg-gray-100 text-gray-700">{plan.target_calories} kcal</Badge>
                               </div>
                             </div>
-                            <div className="text-right ml-4">
-                              <p className="text-sm text-gray-600">Created</p>
-                              <p className="text-sm font-semibold">{format(new Date(plan.created_date), 'MMM d, yyyy')}</p>
+                            <div className="text-left sm:text-right ml-0 sm:ml-4">
+                              <p className="text-xs sm:text-sm text-gray-600">Created</p>
+                              <p className="text-xs sm:text-sm font-semibold">{format(new Date(plan.created_date), 'MMM d, yyyy')}</p>
                             </div>
                           </div>
                         </CardHeader>
