@@ -41,6 +41,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import ContentTypePicker from "@/components/communication/ContentTypePicker";
 import PollCreator from "@/components/communication/PollCreator";
 import PollDisplay from "@/components/communication/PollDisplay";
+import VideoCallRoom from "@/components/communication/VideoCallRoom";
+import VideoCallScheduler from "@/components/communication/VideoCallScheduler";
+import VideoCallHistory from "@/components/communication/VideoCallHistory";
+import { createSignalingChannel } from "@/components/communication/VideoCallSignaling";
 
 export default function Communication() {
   const queryClient = useQueryClient();
