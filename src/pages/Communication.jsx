@@ -770,7 +770,58 @@ export default function Communication() {
                         )}
                       </div>
                     </div>
+                    {/* Video call actions */}
+                    <div className="flex items-center gap-2 ml-auto flex-shrink-0">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => { setShowCallHistory(!showCallHistory); }}
+                        className="hidden sm:flex items-center gap-1 border-purple-300 text-purple-700 hover:bg-purple-50"
+                      >
+                        <History className="w-4 h-4" />
+                        <span className="hidden md:inline">History</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowScheduler(true)}
+                        className="hidden sm:flex items-center gap-1 border-orange-300 text-orange-700 hover:bg-orange-50"
+                      >
+                        <CalendarClock className="w-4 h-4" />
+                        <span className="hidden md:inline">Schedule</span>
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => startVideoCall(selectedClient)}
+                        className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1"
+                      >
+                        <Phone className="w-4 h-4" />
+                        <span className="hidden sm:inline">Video Call</span>
+                      </Button>
+                    </div>
                   </CardHeader>
+
+                  {/* Call history panel */}
+                  {showCallHistory && (
+                    <div className="border-b border-gray-200 bg-purple-50 p-4 max-h-64 overflow-y-auto flex-shrink-0">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-semibold text-purple-800 text-sm">Call History</h4>
+                        <Button variant="ghost" size="sm" onClick={() => setShowCallHistory(false)} className="h-6 w-6 p-0">
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <VideoCallHistory clientId={selectedClient.id} />
+                    </div>
+                  )}
+
+                  {/* Scheduler dialog */}
+                  <VideoCallScheduler
+                    clientId={selectedClient.id}
+                    clientName={selectedClient.full_name}
+                    coachEmail={user?.email}
+                    open={showScheduler}
+                    onOpenChange={setShowScheduler}
+                  />
 
                   {/* Messages */}
                   <div className="flex-1 overflow-hidden relative">
