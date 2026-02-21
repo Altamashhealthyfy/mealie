@@ -1046,15 +1046,29 @@ export default function MealPlansPro() {
                                   
                                   <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5 pt-2 border-t">
                                     {[
-                                      { label: 'Protein', value: `${meal.protein}g`, color: 'text-red-600' },
-                                      { label: 'Carbs', value: `${meal.carbs}g`, color: 'text-yellow-600' },
-                                      { label: 'Fats', value: `${meal.fats}g`, color: 'text-purple-600' },
-                                      { label: 'Sodium', value: `${meal.sodium}mg`, color: 'text-blue-600' },
-                                      { label: 'K+', value: `${meal.potassium}mg`, color: 'text-green-600' },
-                                    ].map(({ label, value, color }) => (
+                                      { label: 'Protein', key: 'protein', value: `${meal.protein}g`, color: 'text-red-600' },
+                                      { label: 'Carbs', key: 'carbs', value: `${meal.carbs}g`, color: 'text-yellow-600' },
+                                      { label: 'Fats', key: 'fats', value: `${meal.fats}g`, color: 'text-purple-600' },
+                                      { label: 'Sodium', key: 'sodium', value: `${meal.sodium}mg`, color: 'text-blue-600' },
+                                      { label: 'K+', key: 'potassium', value: `${meal.potassium}mg`, color: 'text-green-600' },
+                                    ].map(({ label, key, value, color }) => (
                                       <div key={label} className="text-center bg-gray-50 rounded-lg p-1.5">
                                         <p className="text-xs text-gray-500">{label}</p>
-                                        <p className={`text-xs md:text-sm font-bold ${color}`}>{value}</p>
+                                        {editMode ? (
+                                          <Input
+                                            type="number"
+                                            value={meal[key] || 0}
+                                            onChange={(e) => {
+                                              const updated = [...editedMeals];
+                                              const mealIndex = updated.findIndex(m => m.day === day && m.meal_type === meal.meal_type);
+                                              updated[mealIndex][key] = parseFloat(e.target.value) || 0;
+                                              setEditedMeals(updated);
+                                            }}
+                                            className="text-xs h-7 text-center"
+                                          />
+                                        ) : (
+                                          <p className={`text-xs md:text-sm font-bold ${color}`}>{value}</p>
+                                        )}
                                       </div>
                                     ))}
                                   </div>
