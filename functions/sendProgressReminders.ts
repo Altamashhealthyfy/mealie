@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
 
         // Send email
         if (setting.reminder_method === 'email' || setting.reminder_method === 'both') {
-          await base44.asServiceRole.integrations.Core.SendEmail({
+          await base44.asServiceRole.functions.invoke('sendEmail', {
             to: setting.client_email,
             subject: 'Time to Log Your Progress! 📊',
             body: message

@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
 
           // Send email
           if (reminderMethod === 'email' || reminderMethod === 'both') {
-            await base44.asServiceRole.integrations.Core.SendEmail({
+            await base44.asServiceRole.functions.invoke('sendEmail', {
               to: appointment.client_email,
               subject: `Reminder: Appointment Tomorrow - ${appointment.title}`,
               body: message

@@ -230,30 +230,27 @@ Deno.serve(async (req) => {
 async function sendEmail(base44, log, emailToSend, seq) {
     try {
         const accessToken = await base44.asServiceRole.connectors.getAccessToken('gmail');
+        const senderEmail = Deno.env.get('GOOGLE_WORKSPACE_EMAIL') || 'contactus@healthyfy.com';
 
         const subject = (emailToSend.subject || '')
             .replace(/\{\{client_name\}\}/g, log.client_name || 'there')
             .replace(/\{\{coach_name\}\}/g, seq.coach_email || '');
 
-        // Add a 1x1 tracking pixel
-        const trackingPixel = `<img src="https://app.base44.app/api/track/open/${log.id}" width="1" height="1" style="display:none" alt="" />`;
-
         let body = (emailToSend.body || '')
             .replace(/\{\{client_name\}\}/g, log.client_name || 'there')
             .replace(/\{\{coach_name\}\}/g, seq.coach_email || '');
 
-        // Append tracking pixel before closing body tag, or at end
-        if (body.includes('</body>')) {
-            body = body.replace('</body>', `${trackingPixel}</body>`);
-        } else {
-            body = body + trackingPixel;
-        }
+        const toField = log.client_name
+            ? `"${log.client_name}" <${log.client_email}>`
+            : log.client_email;
+
+        const encodedSubject = `=?UTF-8?B?${btoa(unescape(encodeURIComponent(subject)))}?=`;
 
         const rawMessage = [
-            `From: Healthyfy <contactus@healthyfy.com>`,
-            `Reply-To: contactus@healthyfy.com`,
-            `To: ${log.client_name ? `"${log.client_name}" <${log.client_email}>` : log.client_email}`,
-            `Subject: ${subject}`,
+            `From: "Healthyfy" <${senderEmail}>`,
+            `Reply-To: ${senderEmail}`,
+            `To: ${toField}`,
+            `Subject: ${encodedSubject}`,
             `MIME-Version: 1.0`,
             `Content-Type: text/html; charset=UTF-8`,
             ``,
