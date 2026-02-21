@@ -9,8 +9,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Send, Users, AlertCircle, CheckCircle } from "lucide-react";
+import { Send, Users, AlertCircle, CheckCircle, Search } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
 
 export default function BroadcastMessagePanel() {
   const queryClient = useQueryClient();
