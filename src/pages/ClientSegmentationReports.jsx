@@ -36,8 +36,13 @@ import {
   Zap
 } from "lucide-react";
 import { toast } from "sonner";
+import { useClientSegmentation } from "@/components/client/ClientSegmentationEngine";
+import SegmentationFilterPanel from "@/components/client/SegmentationFilterPanel";
+import SegmentAnalytics from "@/components/client/SegmentAnalytics";
+import SegmentedClientList from "@/components/client/SegmentedClientList";
 
 export default function ClientSegmentationReports() {
+  const [selectedSegments, setSelectedSegments] = useState([]);
   const [segmentBy, setSegmentBy] = useState("goal");
   const [filterGoal, setFilterGoal] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -81,16 +86,45 @@ export default function ClientSegmentationReports() {
     initialData: [],
   });
 
+  // Generate advanced segments
+  const segments = useClientSegmentation(clients, progressLogs);
+
   // Apply filters
   const filteredClients = useMemo(() => {
-    return clients.filter(client => {
+    let result = clients.filter(client => {
       if (filterGoal !== "all" && client.goal !== filterGoal) return false;
       if (filterStatus !== "all" && client.status !== filterStatus) return false;
       if (filterCoach !== "all" && (!client.assigned_coach || !client.assigned_coach.includes(filterCoach))) return false;
       if (filterHealthCondition !== "all" && (!client.health_conditions || !client.health_conditions.includes(filterHealthCondition))) return false;
       return true;
     });
-  }, [clients, filterGoal, filterStatus, filterCoach, filterHealthCondition]);
+
+    // Apply advanced segmentation filters
+    if (selectedSegments.length > 0) {
+      const segmentsByCategory = {};
+      selectedSegments.forEach(segment => {
+        const [categoryKey, segmentKey] = segment.split('-');
+        if (!segmentsByCategory[categoryKey]) {
+          segmentsByCategory[categoryKey] = [];
+        }
+        const segmentData = segments[categoryKey] || {};
+        segmentData[segmentKey]?.forEach(client => {
+          if (!segmentsByCategory[categoryKey].find(c => c.id === client.id)) {
+            segmentsByCategory[categoryKey].push(client);
+          }
+        });
+      });
+
+      const categories = Object.keys(segmentsByCategory);
+      if (categories.length > 0) {
+        result = result.filter(client =>
+          categories.every(cat => segmentsByCategory[cat].find(c => c.id === client.id))
+        );
+      }
+    }
+
+    return result;
+  }, [clients, filterGoal, filterStatus, filterCoach, filterHealthCondition, selectedSegments, segments]);
 
   // Segmentation logic
   const segments = useMemo(() => {
