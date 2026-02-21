@@ -309,7 +309,6 @@ export default function MealPlanner() {
   // REDIRECT CLIENTS AWAY - After all hooks are defined
   React.useEffect(() => {
     if (user && user.user_type === 'client') {
-      alert('⛔ This page is only for dietitians and team members.\n\nClients cannot create meal plans.');
       window.location.href = createPageUrl('MyAssignedMealPlan');
     }
   }, [user]);
@@ -1783,24 +1782,8 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
     }
   };
 
-  if (clients.length === 0) {
-    return (
-      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
-        <Card className="max-w-md border-none shadow-xl">
-          <CardHeader>
-            <CardTitle>No Clients Yet</CardTitle>
-            <CardDescription>Add clients before generating meal plans or using templates</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button className="w-full" onClick={() => window.location.href = createPageUrl('ClientManagement')}>
-              <Users className="w-4 h-4 mr-2" />
-              Add Your First Client
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  // Show limited UI if no clients yet
+  const isNoClientsMode = clients.length === 0;
 
   return (
     <div className="min-h-screen p-4 md:p-8">
@@ -1891,7 +1874,7 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
           </TabsList>
 
           <TabsContent value="templates" className="space-y-6">
-            {templates.length === 0 ? (
+            {templates.length === 0 && !isNoClientsMode ? (
               <Card className="border-none shadow-xl bg-gradient-to-br from-green-50 to-emerald-50">
                 <CardContent className="p-12 text-center">
                   <Star className="w-16 h-16 mx-auto text-green-500 mb-4" />
@@ -2326,7 +2309,19 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                     </TabsContent>
 
           <TabsContent value="manual" className="space-y-6">
-            {!selectedClientId ? (
+            {isNoClientsMode ? (
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <Users className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Clients Yet</h3>
+                  <p className="text-gray-600 mb-4">Add clients before creating meal plans</p>
+                  <Button onClick={() => window.location.href = createPageUrl('ClientManagement')}>
+                    <Users className="w-4 h-4 mr-2" />
+                    Manage Clients
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : !selectedClientId ? (
               <Card className="border-none shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-lg">Select Client to Build Manual Plan</CardTitle>
@@ -2373,7 +2368,19 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
           </TabsContent>
 
           <TabsContent value="generate" className="space-y-6">
-            {generatedPlan === null && viewingPlan === null ? (
+            {isNoClientsMode ? (
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <Users className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Clients Yet</h3>
+                  <p className="text-gray-600 mb-4">Add clients before generating meal plans</p>
+                  <Button onClick={() => window.location.href = createPageUrl('ClientManagement')}>
+                    <Users className="w-4 h-4 mr-2" />
+                    Manage Clients
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : generatedPlan === null && viewingPlan === null ? (
               <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
