@@ -723,7 +723,17 @@ export default function Communication() {
                                     isSelected ? 'text-white/80' : 'text-gray-600'
                                   }`}>
                                     {lastMessage.sender_type === 'dietitian' ? 'You: ' : ''}
-                                    {lastMessage.attachment_url ? '📎 ' + (lastMessage.attachment_name || 'Attachment') : lastMessage.message}
+                                    {lastMessage.attachment_url ? '📎 ' + (lastMessage.attachment_name || 'Attachment') : 
+                                      (() => {
+                                        try {
+                                          const parsed = JSON.parse(lastMessage.message);
+                                          if (parsed?.type === 'end-call' || parsed?.type === 'offer' || parsed?.type === 'answer' || parsed?.type === 'ice-candidate') {
+                                            return '📹 Video call';
+                                          }
+                                        } catch {}
+                                        return lastMessage.message;
+                                      })()
+                                    }
                                   </p>
                                 )}
                                 {lastMessage && (
