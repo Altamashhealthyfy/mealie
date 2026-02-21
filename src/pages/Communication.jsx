@@ -502,10 +502,27 @@ export default function Communication() {
   };
 
   const clientMessages = selectedClient 
-    ? allMessages.filter(m => m.client_id === selectedClient.id).sort((a, b) => 
+    ? allMessages.filter(m => m.client_id === selectedClient.id && m.content_type !== 'video_signal').sort((a, b) => 
         new Date(a.created_date) - new Date(b.created_date)
       )
     : [];
+
+  const startVideoCall = (client) => {
+    const channel = createSignalingChannel({
+      clientId: client.id,
+      senderType: 'dietitian',
+      senderEmail: user?.email,
+    });
+    channel.start();
+    signalingRef.current = channel;
+    setActiveVideoCall({ clientId: client.id, clientName: client.full_name, channel });
+  };
+
+  const endVideoCall = () => {
+    signalingRef.current?.stop();
+    signalingRef.current = null;
+    setActiveVideoCall(null);
+  };
 
   // Auto-select client from URL parameter
   useEffect(() => {
