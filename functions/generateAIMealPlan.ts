@@ -44,8 +44,8 @@ Deno.serve(async (req) => {
     const allConditions = [...(clinical?.medical_conditions || []), ...additionalConditions];
     const allMeds = clinical?.current_medications || [];
 
-    // Always use full pattern for all clients now
-    const mealTypes = ['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner', 'post_dinner'];
+    // Standard meal pattern for all clients
+    const mealTypes = ['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner'];
 
     const progressContext = adaptFromFeedback && recentLogs.length > 0
       ? `RECENT PROGRESS (last ${recentLogs.length} logs):
@@ -249,7 +249,7 @@ ${allConditions.includes('kidney_disease') ? '→ Strict phosphorus/potassium/so
 ${progressContext}
 
 ═══ INSTRUCTIONS ═══
-1. Generate exactly ${duration} days × 7 meals/sections (early_morning, breakfast, mid_morning, lunch, evening_snack, dinner, post_dinner)
+1. Generate exactly ${duration} days × 6 meals/sections (early_morning, breakfast, mid_morning, lunch, evening_snack, dinner)
 2. Each meal MUST include: name, items array, portion_sizes array (same length as items), calories, protein, carbs, fats, fiber, rationale (explain WHY this benefits this client specifically)
 3. SELECT MEALS ONLY FROM THE APPROVED OPTIONS LIST provided above
 4. Never repeat same main dish within 3 consecutive days
@@ -272,9 +272,8 @@ APPROVED MEAL CATEGORIES:
     - Roti with dal (yellow moong, arher, masoor, chana dal, gatte veg)
     - Rice with legumes (chhole, black chana, rajhma, lobhia, soyabean, kadhi)
     - Non-veg (chicken biryani, fish curry, grilled fish, grilled chicken, egg white curry)
-  • Evening (10 options): Tea/Coffee + optional snacks (roasted chana, bajra puffs, popcorn, makhane, moong sprouts, wheat puffs, murmura bhel, black chana saute, grilled sandwich)
+  • Evening Snack (10 options): Tea/Coffee + optional snacks (roasted chana, bajra puffs, popcorn, makhane, moong sprouts, wheat puffs, murmura bhel, black chana saute, grilled sandwich)
   • Dinner (Daily base): Soup [250ml] + green salad + SAME OPTIONS AS LUNCH above
-  • Post Dinner (6 options ONLY): Saunf water, Ajwain water, Turmeric water, Hing water, Ginger water, Chamomile tea
 
 RULE 2 - MEAL SEQUENCE (STRICT — EXACT ORDER EVERY DAY):
   1. Early Morning: Choose 1 water/drink from early_morning options list
@@ -286,20 +285,10 @@ RULE 2 - MEAL SEQUENCE (STRICT — EXACT ORDER EVERY DAY):
   7. Post Dinner: Choose 1 herbal water option (saunf/ajwain/turmeric/hing/ginger/chamomile)
   Present in this exact sequence. NEVER add bedtime meal. NO variations from this order.
 
-RULE 3 - POST DINNER BEVERAGES (WEIGHT LOSS & ALL CLIENTS):
-  ALLOWED post-dinner options ONLY:
-  - Saunf Water (Fennel Seed Water)
-  - Ajwain Water (Carom Seed Water)
-  - Turmeric Water (Haldi Water)
-  - Hing Water (Asafoetida Water)
-  - Ginger Water (no milk, no sugar)
-  - Chamomile Tea (unsweetened)
-  FORBIDDEN: NO green juice, NO milk-based drinks, NO smoothies, NO fruits, NO food.
-  CRITICAL: Use the SAME post-dinner option for ALL ${duration} days. NO rotation or variation.
-  This is the ONLY item after dinner — nothing more.
+RULE 3 - NO POST-DINNER MEAL: Day ends with dinner. Do NOT include post-dinner as a separate meal section. Herbal drinks can be part of evening snack or after dinner as per client preference, but NOT as a separate tracked meal.
 
-RULE 4 - NO BEDTIME MEAL (ABSOLUTE): 
-  Do NOT create "bedtime" meal type. Day ends with post-dinner herbal drink.
+RULE 4 - NO BEDTIME OR POST-DINNER MEAL (ABSOLUTE): 
+  Day ends with dinner meal. Do NOT create "bedtime" or "post-dinner" meal sections.
   NO night milk for ANY client, especially weight loss clients.
   NO milk-based beverages after dinner.
 
@@ -307,9 +296,8 @@ RULE 5 - WEIGHT LOSS DIET MODIFICATIONS (goal = weight_loss):
   a) PRE-MEAL WATER: Add explicitly in lunch & dinner meals: "Drink 1 glass plain water 30 minutes before this meal"
   b) NO PALAK PANEER: Never include "palak paneer" in ANY meal for weight loss clients (from lunch_roti_veg options)
   c) NO NIGHT MILK: Strictly no milk, yogurt, or dairy after dinner for weight loss clients
-  d) NO MILK POST-DINNER: Only herbal water drinks post-dinner (saunf/ajwain/turmeric/hing/ginger/chamomile)
-  e) ALCOHOL-FREE: No wines, beers, or alcohol
-  f) Light, high-protein dinners: Prefer fish curry, grilled chicken, egg white curry options
+  d) ALCOHOL-FREE: No wines, beers, or alcohol
+  e) Light, high-protein dinners: Prefer fish curry, grilled chicken, egg white curry options
 
 RULE 6 - NON-VEG OPTIONS (ONLY if food_preference is non_veg or eggetarian):
   DINNER (2-3 days/week max): Grilled chicken with vegetables (no masala curry). NO fried, NO heavy gravy.
@@ -333,9 +321,9 @@ RULE 8 - RICE vs ROTI BALANCE:
   If rice (chawal) is at lunch, dinner must be roti/paratha/bajra/jowar based.
   Never rice in both lunch and dinner same day.
 
-RULE 9 - POST DINNER CONSISTENCY (CRITICAL):
-  ALWAYS use the SAME post-dinner beverage for ALL ${duration} days without any variation or rotation.
-  This consistency helps clients build habit and maintain adherence.
+RULE 9 - MEAL PATTERN CONSISTENCY (CRITICAL):
+  Maintain the exact sequence for all clients: Early Morning → Breakfast → Mid Morning → Lunch → Evening Snack → Dinner.
+  No variations, no bedtime/post-dinner sections. This consistency helps clients build habit and maintain adherence.
 
 RULE 10 - STRICT CALORIE COMPLIANCE: 
   Total daily calories (all meals + herbal drink) MUST NOT exceed ${targetCal} kcal
