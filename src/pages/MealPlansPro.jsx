@@ -30,6 +30,8 @@ export default function MealPlansPro() {
   const [editedMeals, setEditedMeals] = useState([]);
   const [mealPattern, setMealPattern] = useState("3-3-4");
   const [numberOfDays, setNumberOfDays] = useState(10);
+  const [showFoodPreferences, setShowFoodPreferences] = useState(false);
+  const [foodPreferences, setFoodPreferences] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
