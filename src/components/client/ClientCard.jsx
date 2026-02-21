@@ -22,6 +22,10 @@ export default function ClientCard({
   client,
   visibleActions = [
     "progress",
+    "progressReview",
+    "analytics",
+    "reports",
+    "tracker",
     "message",
     "view",
     "edit",
