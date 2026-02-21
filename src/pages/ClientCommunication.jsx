@@ -515,9 +515,14 @@ export default function ClientCommunication() {
         <Card className="border-none shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 200px)' }}>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
             <TabsList className="rounded-none border-b w-full grid grid-cols-2 flex-shrink-0 mb-4">
-              <TabsTrigger value="direct" className="flex gap-2">
+              <TabsTrigger value="direct" className="flex gap-2 items-center">
                 <MessageSquare className="w-4 h-4" />
                 Direct
+                {messages.filter(m => !m.read && m.sender_type === 'dietitian').length > 0 && (
+                  <Badge className="ml-1 bg-red-500 text-white text-xs h-5 min-w-5 flex items-center justify-center rounded-full px-1">
+                    {messages.filter(m => !m.read && m.sender_type === 'dietitian').length}
+                  </Badge>
+                )}
               </TabsTrigger>
               <TabsTrigger value="groups" className="flex gap-2">
                 <Users className="w-4 h-4" />
