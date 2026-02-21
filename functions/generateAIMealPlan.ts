@@ -44,14 +44,8 @@ Deno.serve(async (req) => {
     const allConditions = [...(clinical?.medical_conditions || []), ...additionalConditions];
     const allMeds = clinical?.current_medications || [];
 
-    // Always use full pattern for weight loss
-    const mealTypes = goal === 'weight_loss' 
-      ? ['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner', 'post_dinner']
-      : mealFrequency === 3
-        ? ['breakfast', 'lunch', 'dinner', 'post_dinner']
-        : mealFrequency === 4
-          ? ['breakfast', 'lunch', 'evening_snack', 'dinner', 'post_dinner']
-          : ['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner', 'post_dinner'];
+    // Always use full pattern for all clients now
+    const mealTypes = ['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner', 'post_dinner'];
 
     const progressContext = adaptFromFeedback && recentLogs.length > 0
       ? `RECENT PROGRESS (last ${recentLogs.length} logs):
@@ -99,7 +93,7 @@ ${progressContext}
 4. Daily total calories = ${targetCal} kcal (±80 kcal max) across ALL meals including herbal drink
 5. Macro targets: Protein=${targetProtein}g, Carbs=${targetCarbs}g, Fats=${targetFats}g (±15%)
 6. 100% Indian meals only. Use authentic Indian food names
-7. Post-dinner: SAME herbal beverage for all ${duration} days if duration ≤ 10 days
+7. Post-dinner: SAME herbal beverage for all ${duration} days (important for consistency)
 8. Day summaries with total macros for each day
 9. Nutritional strategy explaining adaptation for client's specific goal & conditions
 
@@ -109,23 +103,23 @@ RULE 1 - 100% INDIAN MEALS ONLY: All meals must be 100% traditional Indian cuisi
 RULE 2 - MEAL SEQUENCE (STRICT — EXACT ORDER EVERY DAY):
   1. Early Morning: Detox drink (warm lemon water, methi water, ajwain water, etc.)
   2. Breakfast
-  3. Mid Morning (snack - only if ≥3 hour gap between breakfast & lunch)
+  3. Mid Morning (light snack)
   4. Lunch
   5. Evening Snack
   6. Dinner
-  7. Post Dinner: ONE herbal drink ONLY (rotated across days)
-  Present in this exact sequence. NEVER reorder.
+  7. Post Dinner: ONE herbal drink ONLY
+  Present in this exact sequence. NEVER reorder or add bedtime meal.
 
-RULE 3 - POST DINNER BEVERAGES (WEIGHT LOSS & GENERAL):
+RULE 3 - POST DINNER BEVERAGES (WEIGHT LOSS & ALL CLIENTS):
   ALLOWED post-dinner options ONLY:
   - Saunf Water (Fennel Seed Water)
   - Ajwain Water (Carom Seed Water)
   - Turmeric Water (Haldi Water)
   - Hing Water (Asafoetida Water)
-  - Ginger Water/Tea (no milk, no sugar)
+  - Ginger Water (no milk, no sugar)
   - Chamomile Tea (unsweetened)
   FORBIDDEN: NO green juice, NO milk-based drinks, NO smoothies, NO fruits, NO food.
-  Pick ONE per day and ROTATE across the ${duration} days. Same post-dinner option for ALL 10 days if duration ≤ 10.
+  CRITICAL: Use the SAME post-dinner option for ALL ${duration} days. NO rotation or variation.
   This is the ONLY item after dinner — nothing more.
 
 RULE 4 - NO BEDTIME MEAL (ABSOLUTE): 
@@ -134,22 +128,24 @@ RULE 4 - NO BEDTIME MEAL (ABSOLUTE):
   NO milk-based beverages after dinner.
 
 RULE 5 - WEIGHT LOSS DIET MODIFICATIONS (goal = weight_loss):
-  a) PRE-MEAL WATER: Add explicitly in lunch & dinner: "Drink 1 glass plain water 30 min before this meal"
-  b) NO PALAK PANEER: Never include palak paneer in dinner for weight loss clients
-  c) NO NIGHT MILK: Strictly no milk products after 7 PM
-  d) ALCOHOL-FREE: No wines, beers, or alcohol
-  e) Light, high-protein dinners only
+  a) PRE-MEAL WATER: Add explicitly in lunch & dinner meals: "Drink 1 glass plain water 30 minutes before this meal"
+  b) NO PALAK PANEER: Never include palak paneer in ANY meal for weight loss clients (dinner especially)
+  c) NO NIGHT MILK: Strictly no milk, yogurt, or dairy after dinner for weight loss clients
+  d) NO MILK POST-DINNER: Only herbal water drinks post-dinner (saunf/ajwain/turmeric/hing/ginger/chamomile)
+  e) ALCOHOL-FREE: No wines, beers, or alcohol
+  f) Light, high-protein dinners only
 
 RULE 6 - NON-VEG OPTIONS (ONLY if food_preference is non_veg or eggetarian):
-  DINNER (2-3 days/week max): Grilled chicken with vegetables (light, not curry). NO fried chicken, NO heavy masala.
-  LUNCH (2-3 days/week): Chicken breast curry (light gravy, minimal oil) with roti/rice OR grilled fish with vegetables
-  BREAKFAST/EARLY MORNING: Boiled eggs, egg white omelette, egg salad with vegetables, egg white bhurji
+  DINNER (2-3 days/week max): Grilled chicken with vegetables (no masala curry). NO fried, NO heavy gravy.
+  LUNCH (2-3 days/week): Chicken breast curry (light gravy, minimal oil) with roti OR grilled fish with vegetables
+  BREAKFAST/EARLY MORNING: Boiled eggs, egg omelette, egg salad with vegetables, egg bhurji
   
-  EGG WHITE RULE (CRITICAL): If medical conditions include "diabetes" OR "high_cholesterol" OR "hyperlipidemia" OR "dyslipidemia":
-    → Use ONLY egg whites in ALL egg preparations
-    → Write "Egg White Omelette", "Boiled Egg Whites", "Egg White Bhurji", NEVER whole egg
+  EGG WHITE RULE (MANDATORY): If medical conditions include "diabetes" OR "hyperlipidemia" OR "dyslipidemia" OR "high_cholesterol":
+    → Use ONLY egg whites in ALL egg preparations (omelette, boiled, bhurji, curry)
+    → Write "Egg White Omelette", "Boiled Egg Whites", "Egg White Bhurji with Veggies", NEVER whole egg
+    → Egg whites are higher protein, lower cholesterol
   
-  GRILLED FISH OPTION: Include grilled fish (2-3 days) in lunch/dinner for non-veg clients as healthy protein
+  GRILLED FISH OPTION: Include grilled fish (2-3 days/week) in lunch/dinner for non-veg clients
   
   Keep non-veg simple: Max one non-veg protein source per day (egg OR chicken OR fish, not multiple)
 
@@ -161,9 +157,9 @@ RULE 8 - RICE vs ROTI BALANCE:
   If rice (chawal) is at lunch, dinner must be roti/paratha/bajra/jowar based.
   Never rice in both lunch and dinner same day.
 
-RULE 9 - POST DINNER CONSISTENCY (IMPORTANT):
-  If plan duration ≤ 10 days: Use the SAME post-dinner beverage for ALL days
-  If plan duration > 10 days: Rotate post-dinner beverage every 2-3 days
+RULE 9 - POST DINNER CONSISTENCY (CRITICAL):
+  ALWAYS use the SAME post-dinner beverage for ALL ${duration} days without any variation or rotation.
+  This consistency helps clients build habit and maintain adherence.
 
 RULE 10 - STRICT CALORIE COMPLIANCE: 
   Total daily calories (all meals + herbal drink) MUST NOT exceed ${targetCal} kcal
