@@ -1291,7 +1291,7 @@ export default function MealPlansPro() {
 }
 
 // Helper function to construct Diamond GPT prompt
-function constructDiamondPrompt(client, intake, numberOfDays, mealPattern) {
+function constructDiamondPrompt(client, intake, numberOfDays, mealPattern, preferences) {
   const activityMultipliers = {
     sedentary: 1.2,
     lightly_active: 1.375,
@@ -1314,6 +1314,11 @@ function constructDiamondPrompt(client, intake, numberOfDays, mealPattern) {
   const labValuesText = Object.entries(intake.lab_values)
     .map(([key, val]) => '- ' + key + ': ' + val)
     .join('\n');
+
+  // Format food preferences
+  const recommendedFoodsText = preferences?.recommendedFoods?.join(', ') || 'Not specified';
+  const likedFoodsText = preferences?.likedFoods?.join(', ') || 'Not specified';
+  const dislikedFoodsText = preferences?.dislikedFoods?.join(', ') || 'Not specified';
 
   return `# Diamond Clinical Meal Plan GPT
 
@@ -1340,6 +1345,11 @@ Likes: ${intake.likes_dislikes_allergies.likes.join(', ')}
 Dislikes: ${intake.likes_dislikes_allergies.dislikes.join(', ')}
 Allergies: ${intake.likes_dislikes_allergies.allergies.join(', ')}
 No-Go Foods: ${intake.likes_dislikes_allergies.no_go_foods.join(', ')}
+
+## CLIENT FOOD PREFERENCES (FROM FORM):
+Recommended Foods (Health-promoting): ${recommendedFoodsText}
+Foods They Like: ${likedFoodsText}
+Foods They Dislike: ${dislikedFoodsText}
 
 Daily Routine:
 - Breakfast: ${intake.daily_routine.breakfast_time}
