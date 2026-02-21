@@ -611,7 +611,7 @@ export default function Communication() {
     
     // Both have no messages - sort alphabetically by name
     if (!lastMsgA && !lastMsgB) {
-      return a.full_name.localeCompare(b.full_name);
+      return (a.full_name || '').localeCompare(b.full_name || '');
     }
     // Only A has no message - push to bottom
     if (!lastMsgA) return 1;
