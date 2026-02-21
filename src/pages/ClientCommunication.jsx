@@ -33,6 +33,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import VideoCallRoom from "@/components/communication/VideoCallRoom";
 import VideoCallHistory from "@/components/communication/VideoCallHistory";
 import { createSignalingChannel } from "@/components/communication/VideoCallSignaling";
+import InitiateConversation from "@/components/communication/InitiateConversation";
+import PushNotificationManager from "@/components/notifications/PushNotificationManager";
 
 export default function ClientCommunication() {
   const queryClient = useQueryClient();
@@ -574,6 +576,7 @@ export default function ClientCommunication() {
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+            {isClient && <InitiateConversation />}
             <Button
               variant="outline"
               size="sm"
@@ -591,15 +594,7 @@ export default function ClientCommunication() {
               <Phone className="w-4 h-4" />
               <span className="hidden sm:inline">Start Video Call</span>
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleNotifications}
-              className={`flex-shrink-0 flex items-center gap-2 ${notificationsEnabled ? 'border-green-400 text-green-700' : 'text-gray-500'}`}
-            >
-              {notificationsEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-              <span className="hidden sm:inline">{notificationsEnabled ? 'Notifications On' : 'Notifications Off'}</span>
-            </Button>
+            <PushNotificationManager userEmail={user?.email} />
           </div>
         </div>
 
