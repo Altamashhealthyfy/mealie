@@ -278,6 +278,56 @@ export default function ClientCommunication() {
     prevMessageCountRef.current = count;
   }, [messages.length]);
 
+  const startVideoCall = () => {
+    if (!clientProfile?.id) return;
+    const channel = createSignalingChannel({
+      clientId: clientProfile.id,
+      senderType: 'client',
+      senderEmail: user?.email,
+    });
+    channel.start();
+    signalingRef.current = channel;
+    const coachName = coachUser?.full_name || clientProfile?.assigned_coach?.split('@')[0] || 'Your Coach';
+    setActiveVideoCall({ clientId: clientProfile.id, coachName, channel });
+  };
+
+  const endVideoCall = () => {
+    signalingRef.current?.stop();
+    signalingRef.current = null;
+    setActiveVideoCall(null);
+  };
+
+  // Listen for incoming call signal
+  useEffect(() => {
+    if (!clientProfile?.id || activeVideoCall) return;
+    const channel = createSignalingChannel({
+      clientId: clientProfile.id,
+      senderType: 'client',
+      senderEmail: user?.email,
+    });
+    channel.start();
+    channel.onMessage((msg) => {
+      if (msg.type === 'offer') {
+        const accept = window.confirm(`📹 Incoming video call from your coach. Accept?`);
+        if (accept) {
+          channel.stop();
+          const callChannel = createSignalingChannel({
+            clientId: clientProfile.id,
+            senderType: 'client',
+            senderEmail: user?.email,
+          });
+          callChannel.start();
+          signalingRef.current = callChannel;
+          const coachName = coachUser?.full_name || 'Your Coach';
+          setActiveVideoCall({ clientId: clientProfile.id, coachName, channel: callChannel });
+        } else {
+          channel.send({ type: 'end-call', roomId: clientProfile.id });
+        }
+      }
+    });
+    return () => channel.stop();
+  }, [clientProfile?.id, coachUser]);
+
   const requestNotificationPermission = async () => {
     if (!('Notification' in window)) return;
     const permission = await Notification.requestPermission();
