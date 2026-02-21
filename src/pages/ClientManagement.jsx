@@ -294,7 +294,7 @@ Best regards,
 Mealie Pro Team
 support@mealiepro.com`;
 
-          await base44.functions.invoke('sendGoogleWorkspaceEmail', {
+          await base44.functions.invoke('sendEmail', {
             to: newClient.email,
             subject: welcomeSubject,
             body: welcomeBody
