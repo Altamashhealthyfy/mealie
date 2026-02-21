@@ -1416,37 +1416,7 @@ export default function Layout({ children, currentPageName }) {
                       })}
                     </div>
 
-                    {/* Gamification Section */}
-                    {isEffectiveDietitian && filteredGamificationNav.length > 0 && (
-                      <div className="pt-3">
-                        <div className="px-5 py-2">
-                          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">🏆 Gamification</p>
-                        </div>
-                        <div className="space-y-1">
-                          {filteredGamificationNav.map((item, index) => {
-                            const isActive = location.pathname === item.url;
-                            return (
-                              <Link
-                                key={index}
-                                to={item.url}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="flex items-center gap-4 px-5 py-4 rounded-xl transition-all active:scale-98"
-                                style={isActive ? {
-                                  background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
-                                  color: '#ffffff'
-                                } : {
-                                  color: themeColors.menu_text_color,
-                                  backgroundColor: 'rgba(0,0,0,0.02)'
-                                }}
-                              >
-                                <item.icon className="w-6 h-6 flex-shrink-0" />
-                                <span className="font-semibold text-base">{item.title}</span>
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
+
 
                     {/* Payment & Plans Section */}
                     {isEffectiveDietitian && filteredPaymentNav.length > 0 && (
