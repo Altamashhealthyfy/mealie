@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle2, Sparkles, Target, Heart, Zap, Award, ArrowRight, Lightbulb, TrendingUp } from 'lucide-react';
+import { CheckCircle2, Sparkles, Target, Heart, Zap, Award, ArrowRight, Lightbulb } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPageUrl } from '@/utils';
 
