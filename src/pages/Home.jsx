@@ -118,129 +118,135 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Tour Guide Button */}
-         
-
-        {/* Hero Section */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-3xl p-8 md:p-12 shadow-2xl">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30"></div>
-          
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-6 h-6 text-yellow-300" />
-              <Badge className="bg-white/20 text-white border-white/30">MPESS Framework</Badge>
-            </div>
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4">
-              Welcome to Mealie
-            </h1>
-            <p className="text-base sm:text-lg md:text-2xl text-white/90 mb-6 sm:mb-8 max-w-2xl">
-              Your personalized Indian meal planning assistant for a balanced, healthy lifestyle
-            </p>
-            {!userProfile ? (
-              <Link to={createPageUrl("Profile")} className="w-full sm:w-auto">
-                <Button size="lg" className="bg-white text-orange-600 hover:bg-orange-50 shadow-xl w-full sm:w-auto">
-                  <User className="w-5 h-5 mr-2" />
-                  Complete Your Profile
-                </Button>
-              </Link>
-            ) : (
-              <div className="flex flex-wrap gap-4">
-                <Link to={createPageUrl("FoodLookup")} className="w-full sm:w-auto">
-                  <Button size="lg" className="bg-white text-orange-600 hover:bg-orange-50 shadow-xl w-full sm:w-auto">
-                    <Search className="w-5 h-5 mr-2" />
-                    Food Lookup
-                  </Button>
-                </Link>
-                <Link to={createPageUrl("MPESSTracker")}>
-                  <Button size="lg" variant="outline" className="bg-white/10 text-white border-white/30 hover:bg-white/20">
-                    <Heart className="w-5 h-5 mr-2" />
-                    MPESS Tracker
-                  </Button>
-                </Link>
-              </div>
-            )}
-          </div>
+    <div className="min-h-screen p-4 md:p-6 bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Tab Navigation */}
+        <div className="flex gap-3 mb-6">
+          <Button className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 rounded-2xl shadow-lg hover:shadow-xl px-6 py-2">
+            <BookOpen className="w-4 h-4 mr-2" />
+            Guides
+          </Button>
+          <Button variant="outline" className="bg-white border-gray-200 rounded-2xl shadow-sm hover:shadow-md px-6 py-2">
+            <Sparkles className="w-4 h-4 mr-2" />
+            Quick Tips
+          </Button>
         </div>
 
-        {/* Stats Cards - Enhanced for Clients */}
+        {/* Feature Cards - Large CTAs */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Home Dashboard Card */}
+          <Link to={createPageUrl("ClientDashboard")}>
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden h-40 cursor-pointer">
+              <CardContent className="p-8 h-full flex flex-col justify-center">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                        <ChefHat className="w-6 h-6" />
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold mb-2">Home Dashboard</h3>
+                    <p className="text-blue-50 text-sm max-w-xs">Your personalized wellness hub with progress tracking</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* My Progress Card */}
+          <Link to={createPageUrl("ProgressTracking")}>
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-green-500 to-emerald-600 text-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden h-40 cursor-pointer">
+              <CardContent className="p-8 h-full flex flex-col justify-center">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                        <TrendingUp className="w-6 h-6" />
+                      </div>
+                    </div>
+                    <h3 className="text-2xl font-bold mb-2">My Progress</h3>
+                    <p className="text-green-50 text-sm max-w-xs">Track your weight, measurements, and wellness journey</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+
+        {/* Weight Tracking Section - For Clients */}
         {clientProfile && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                    <Scale className="w-6 h-6 text-white" />
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-red-500"></span>
+              Weight Tracking
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="border-none shadow-md bg-white/80 backdrop-blur hover:shadow-lg transition-all">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                      <Scale className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 font-medium">Current Weight</p>
+                      <p className="text-2xl font-bold text-gray-900">{recentProgress[0]?.weight || clientProfile.weight || 0} <span className="text-xs font-normal">kg</span></p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Current Weight</p>
-                    <p className="text-2xl font-bold text-gray-900">{recentProgress[0]?.weight || clientProfile.weight || 0}</p>
-                    <p className="text-xs text-gray-500">kg</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                    <Target className="w-6 h-6 text-white" />
+              <Card className="border-none shadow-md bg-white/80 backdrop-blur hover:shadow-lg transition-all">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                      <Target className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 font-medium">Target Weight</p>
+                      <p className="text-2xl font-bold text-gray-900">{clientProfile.target_weight || 0} <span className="text-xs font-normal">kg</span></p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Active Goals</p>
-                    <p className="text-2xl font-bold text-gray-900">{myGoals.length}</p>
-                    <p className="text-xs text-gray-500">in progress</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-white" />
+              <Card className="border-none shadow-md bg-white/80 backdrop-blur hover:shadow-lg transition-all">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
+                      <TrendingUp className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 font-medium">Goals Achieved</p>
+                      <p className="text-2xl font-bold text-gray-900">{myGoals.length}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Target Calories</p>
-                    <p className="text-2xl font-bold text-gray-900">{clientProfile.target_calories || 0}</p>
-                    <p className="text-xs text-gray-500">per day</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
-                    <Heart className="w-6 h-6 text-white" />
+              <Card className="border-none shadow-md bg-white/80 backdrop-blur hover:shadow-lg transition-all">
+                <CardContent className="p-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                      <Heart className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500 font-medium">MPESS Days</p>
+                      <p className="text-2xl font-bold text-gray-900">{recentTracking.length}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-600">MPESS Days</p>
-                    <p className="text-2xl font-bold text-gray-900">{recentTracking.length}</p>
-                    <p className="text-xs text-gray-500">this week</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
 
         {/* Active Goals Preview */}
-        {clientProfile && myGoals.length > 0 && (
+         {clientProfile && myGoals.length > 0 && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <Target className="w-6 h-6 text-purple-600" />
-                Your Active Goals
-              </h2>
-              <Link to={createPageUrl("ProgressTracking")}>
-                <Button variant="outline">View All</Button>
-              </Link>
-            </div>
+            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-red-500"></span>
+              Your Active Goals
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {myGoals.map(goal => {
                 const progress = goal.start_value && goal.target_value 
@@ -248,23 +254,23 @@ export default function Home() {
                   : 0;
 
                 return (
-                  <Card key={goal.id} className="border-none shadow-lg">
-                    <CardContent className="p-4">
+                  <Card key={goal.id} className="border-none shadow-md hover:shadow-lg transition-all bg-white/80 backdrop-blur">
+                    <CardContent className="p-5">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h3 className="font-semibold text-gray-900">{goal.title}</h3>
-                          <p className="text-sm text-gray-600">{goal.description}</p>
+                          <h3 className="font-semibold text-gray-900 text-sm">{goal.title}</h3>
+                          <p className="text-xs text-gray-600 mt-1">{goal.description}</p>
                         </div>
-                        <Badge className={
+                        <Badge className={`text-xs ${
                           goal.priority === 'high' ? 'bg-red-500' :
                           goal.priority === 'medium' ? 'bg-yellow-500' :
                           'bg-blue-500'
-                        }>{goal.priority}</Badge>
+                        }`}>{goal.priority}</Badge>
                       </div>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
+                      <div className="space-y-2 mt-4">
+                        <div className="flex justify-between text-xs">
                           <span className="text-gray-600">Progress</span>
-                          <span className="font-semibold">{progress.toFixed(0)}%</span>
+                          <span className="font-semibold text-gray-900">{progress.toFixed(0)}%</span>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div 
@@ -272,7 +278,7 @@ export default function Home() {
                             style={{ width: `${progress}%` }}
                           />
                         </div>
-                        <div className="flex justify-between text-xs text-gray-600">
+                        <div className="flex justify-between text-xs text-gray-500">
                           <span>{goal.current_value} {goal.unit}</span>
                           <span>Target: {goal.target_value} {goal.unit}</span>
                         </div>
@@ -286,26 +292,29 @@ export default function Home() {
         )}
 
         {/* Client Guide Panel */}
-        <ClientGuidePanel />
+         <ClientGuidePanel />
 
-        {/* Quick Actions */}
+        {/* Quick Navigation Section */}
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 md:mb-6">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-red-500"></span>
+            Essential Tools
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {features.map((feature) => (
               <Link key={feature.title} to={feature.link}>
-                <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-white/80 backdrop-blur overflow-hidden group">
-                  <div className={`h-2 bg-gradient-to-r ${feature.color}`}></div>
-                  <CardHeader>
-                    <div className="flex flex-col items-center text-center gap-3">
-                      <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                        <feature.icon className="w-7 h-7 text-white" />
+                <Card className="border-none shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 bg-white/80 backdrop-blur overflow-hidden group">
+                  <div className={`h-1 bg-gradient-to-r ${feature.color}`}></div>
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
+                        <feature.icon className="w-6 h-6 text-white" />
                       </div>
-                      <CardTitle className="text-xl font-bold text-gray-900">{feature.title}</CardTitle>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 mb-1">{feature.title}</h3>
+                        <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
+                      </div>
                     </div>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <p className="text-gray-600 leading-relaxed text-sm">{feature.description}</p>
                   </CardContent>
                 </Card>
               </Link>
@@ -314,31 +323,29 @@ export default function Home() {
         </div>
 
         {/* MPESS Framework Info */}
-        <Card className="border-none shadow-xl bg-gradient-to-br from-purple-50 to-pink-50">
+         <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-purple-500" />
-              What is MPESS?
+            <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-red-500"></span>
+              Holistic Wellness Framework
             </CardTitle>
+            <p className="text-sm text-gray-600 mt-2">MPESS goes beyond nutrition to help you achieve complete wellbeing</p>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-700 mb-6 leading-relaxed">
-              MPESS is a holistic wellness framework that goes beyond just nutrition to help you achieve complete wellbeing.
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
               {[
-                { letter: "M", word: "Mind", desc: "Mental wellness & affirmations", color: "from-blue-500 to-cyan-500" },
+                { letter: "M", word: "Mind", desc: "Mental wellness", color: "from-blue-500 to-cyan-500" },
                 { letter: "P", word: "Physical", desc: "Movement & hydration", color: "from-green-500 to-emerald-500" },
                 { letter: "E", word: "Emotional", desc: "Journaling & breathwork", color: "from-yellow-500 to-orange-500" },
                 { letter: "S", word: "Social", desc: "Connection & bonding", color: "from-pink-500 to-rose-500" },
                 { letter: "S", word: "Spiritual", desc: "Meditation & gratitude", color: "from-purple-500 to-indigo-500" },
               ].map((item) => (
-                <div key={item.letter + item.word} className="text-center">
-                  <div className={`w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg`}>
-                    <span className="text-2xl font-bold text-white">{item.letter}</span>
+                <div key={item.letter + item.word} className="text-center p-3 rounded-lg bg-white/50 hover:bg-white/80 transition-all">
+                  <div className={`w-14 h-14 mx-auto mb-2 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-md`}>
+                    <span className="text-xl font-bold text-white">{item.letter}</span>
                   </div>
-                  <h4 className="font-bold text-gray-900 mb-1">{item.word}</h4>
-                  <p className="text-sm text-gray-600">{item.desc}</p>
+                  <h4 className="font-semibold text-gray-900 text-sm mb-1">{item.word}</h4>
+                  <p className="text-xs text-gray-600">{item.desc}</p>
                 </div>
               ))}
             </div>
