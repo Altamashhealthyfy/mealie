@@ -73,8 +73,8 @@ export default function AICoachInsights() {
   const currentTab = TABS.find(t => t.id === activeTab);
 
   return (
-    <div className="min-h-screen p-3 sm:p-4 md:p-8">
-      <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6">
+    <div className="min-h-screen p-2 sm:p-4 md:p-8 overflow-x-hidden">
+      <div className="w-full max-w-5xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>
