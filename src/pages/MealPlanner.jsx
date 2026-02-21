@@ -1112,6 +1112,25 @@ Return structured meal plan with:
     });
   };
 
+  const handleSaveAsTemplate = (plan) => {
+    const templateName = prompt("Enter template name:", `${plan.food_preference} ${plan.target_calories} cal - ${plan.duration} days`);
+    if (!templateName) return;
+
+    saveTemplateMutation.mutate({
+      name: templateName,
+      description: `Template for ${plan.food_preference}, ${plan.target_calories} kcal, ${plan.duration} days`,
+      category: "general",
+      duration: plan.duration,
+      target_calories: plan.target_calories,
+      food_preference: plan.food_preference,
+      regional_preference: plan.regional_preference,
+      meals: plan.meals,
+      is_public: false,
+      times_used: 0,
+      created_by: user?.email
+    });
+  };
+
   const handleEditTemplate = (template) => {
     setEditingTemplate(template);
     setShowEditTemplateDialog(true);
@@ -2550,50 +2569,50 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                   )}
 
                   <div className="flex flex-col sm:flex-row gap-3">
-                    <Button
-                      onClick={generateMealPlan}
-                      disabled={generating || !selectedClientId}
-                      className="flex-1 h-12 sm:h-14 text-sm sm:text-base md:text-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg"
-                    >
-                      {generating ? (
-                        <>
-                          <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
-                          <span className="hidden sm:inline">Generating Meal Plan...</span>
-                          <span className="sm:hidden">Generating...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                          {user?.user_type === 'student_coach' && coachPlan ? (
-                            availableAICredits > 0 ? (
-                              <>
-                                <span className="hidden md:inline">Generate Meal Plan (FREE with credits)</span>
-                                <span className="md:hidden">Generate (FREE)</span>
-                              </>
-                            ) : (
-                              <>
-                                <span className="hidden md:inline">Generate Meal Plan (₹{coachPlan.ai_credit_price || 10})</span>
-                                <span className="md:hidden">Generate (₹{coachPlan.ai_credit_price || 10})</span>
-                              </>
-                            )
-                          ) : (
-                            <>
-                              <span className="hidden md:inline">Generate with AI (₹{coachPlan?.ai_credit_price || 10})</span>
-                              <span className="md:hidden">Generate AI (₹{coachPlan?.ai_credit_price || 10})</span>
-                            </>
-                          )}
-                        </>
-                      )}
-                    </Button>
-                    {selectedClient && (
-                      <AIMealPlanGenerator 
-                        client={selectedClient}
-                        onPlanGenerated={(plan) => {
-                          setGeneratedPlan(plan);
-                          setViewingPlan(plan);
-                        }}
-                      />
-                    )}
+                   <Button
+                     onClick={generateMealPlan}
+                     disabled={generating || !selectedClientId}
+                     className="flex-1 h-12 sm:h-14 text-sm sm:text-base md:text-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg"
+                   >
+                     {generating ? (
+                       <>
+                         <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
+                         <span className="hidden sm:inline">Generating Meal Plan...</span>
+                         <span className="sm:hidden">Generating...</span>
+                       </>
+                     ) : (
+                       <>
+                         <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                         {user?.user_type === 'student_coach' && coachPlan ? (
+                           availableAICredits > 0 ? (
+                             <>
+                               <span className="hidden md:inline">Generate Meal Plan (FREE with credits)</span>
+                               <span className="md:hidden">Generate (FREE)</span>
+                             </>
+                           ) : (
+                             <>
+                               <span className="hidden md:inline">Generate Meal Plan (₹{coachPlan.ai_credit_price || 10})</span>
+                               <span className="md:hidden">Generate (₹{coachPlan.ai_credit_price || 10})</span>
+                             </>
+                           )
+                         ) : (
+                           <>
+                             <span className="hidden md:inline">Generate with AI (₹{coachPlan?.ai_credit_price || 10})</span>
+                             <span className="md:hidden">Generate AI (₹{coachPlan?.ai_credit_price || 10})</span>
+                           </>
+                         )}
+                       </>
+                     )}
+                   </Button>
+                   {selectedClient && (
+                     <AIMealPlanGenerator 
+                       client={selectedClient}
+                       onPlanGenerated={(plan) => {
+                         setGeneratedPlan(plan);
+                         setViewingPlan(null);
+                       }}
+                     />
+                   )}
                   </div>
                 </CardContent>
               </Card>
