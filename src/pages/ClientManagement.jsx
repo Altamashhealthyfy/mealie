@@ -1779,6 +1779,12 @@ support@mealiepro.com`;
                           </label>
                         </div>
                       ))}
+                      {healthCoaches.filter(coach =>
+                        coach.full_name?.toLowerCase().includes(coachSearchQuery.toLowerCase()) ||
+                        coach.email?.toLowerCase().includes(coachSearchQuery.toLowerCase())
+                      ).length === 0 && (
+                        <p className="text-center text-sm text-gray-400 py-4">No coaches found</p>
+                      )}
                     </div>
                   </div>
 
