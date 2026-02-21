@@ -96,7 +96,7 @@ const dietitianNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
-    title: "Client Reports",
+    title: "Client Progress",
     url: createPageUrl("ClientReports"),
     icon: FileText,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
@@ -108,7 +108,7 @@ const dietitianNavigation = [
     roles: ['super_admin', 'team_member'],
   },
   {
-    title: "Progress Review",
+    title: "Clients Feedback",
     url: createPageUrl("ClientProgressReview"),
     icon: ClipboardList,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
