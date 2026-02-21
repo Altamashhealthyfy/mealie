@@ -1099,16 +1099,34 @@ export default function Communication() {
                   </div>
                 </div>
               )}
-              </div>
-              </div>
-            </TabsContent>
 
-            <TabsContent value="groups" className="flex-1 mt-0 p-6 overflow-y-auto">
+                 {/* Message Thread Modal */}
+                 <MessageThread
+                   message={selectedThread}
+                   onClose={() => setSelectedThread(null)}
+                   onReply={async (data) => {
+                     const replyData = {
+                       sender_type: 'dietitian',
+                       message: data.replyText,
+                       parent_message_id: data.parentMessageId,
+                       client_id: selectedClient.id,
+                       read: false,
+                     };
+                     sendMessageMutation.mutate(replyData);
+                   }}
+                   formatTime={formatToIST}
+                   currentUserEmail={user?.email}
+                 />
+              </div>
+              </div>
+              </TabsContent>
+
+              <TabsContent value="groups" className="flex-1 mt-0 p-6 overflow-y-auto">
               <GroupMessaging userEmail={user?.email} />
-            </TabsContent>
-          </Tabs>
-        </Card>
-      </div>
-    </div>
-  );
-}
+              </TabsContent>
+              </Tabs>
+              </Card>
+              </div>
+              </div>
+              );
+              }
