@@ -760,42 +760,60 @@ export default function MealPlansPro() {
 
                   {/* Meal Plan Options */}
                   {selectedClient && hasCompletedIntake && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-700">
-                          Meal Pattern *
-                        </label>
-                        <Select value={mealPattern} onValueChange={setMealPattern}>
-                          <SelectTrigger className="h-12">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="3-3-4">3-3-4 Rotation (Recommended)</SelectItem>
-                            <SelectItem value="daily">Daily Variation</SelectItem>
-                            <SelectItem value="weekly">Weekly Pattern</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <p className="text-xs text-gray-500">
-                          3-3-4: Plan A (days 1-3), Plan B (days 4-6), Plan C (days 7-10)
-                        </p>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-semibold text-gray-700">
+                            Meal Pattern *
+                          </label>
+                          <Select value={mealPattern} onValueChange={setMealPattern}>
+                            <SelectTrigger className="h-12">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="3-3-4">3-3-4 Rotation (Recommended)</SelectItem>
+                              <SelectItem value="daily">Daily Variation</SelectItem>
+                              <SelectItem value="weekly">Weekly Pattern</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-gray-500">
+                            3-3-4: Plan A (days 1-3), Plan B (days 4-6), Plan C (days 7-10)
+                          </p>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-sm font-semibold text-gray-700">
+                            Number of Days *
+                          </label>
+                          <Input
+                            type="number"
+                            min="3"
+                            max="30"
+                            value={numberOfDays}
+                            onChange={(e) => setNumberOfDays(Math.max(3, Math.min(30, parseInt(e.target.value) || 10)))}
+                            className="h-12"
+                          />
+                          <p className="text-xs text-gray-500">
+                            Choose between 3-30 days
+                          </p>
+                        </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-700">
-                          Number of Days *
-                        </label>
-                        <Input
-                          type="number"
-                          min="3"
-                          max="30"
-                          value={numberOfDays}
-                          onChange={(e) => setNumberOfDays(Math.max(3, Math.min(30, parseInt(e.target.value) || 10)))}
-                          className="h-12"
-                        />
-                        <p className="text-xs text-gray-500">
-                          Choose between 3-30 days
-                        </p>
-                      </div>
+                      {!showFoodPreferences && !foodPreferences && (
+                        <Alert className="bg-purple-50 border-purple-300">
+                          <AlertDescription className="text-sm">
+                            <strong>ℹ️</strong> Before generating, you'll be asked about your food preferences (recommended, liked, and disliked foods) to personalize your meal plan.
+                          </AlertDescription>
+                        </Alert>
+                      )}
+
+                      {foodPreferences && (
+                        <Alert className="bg-green-50 border-green-300">
+                          <AlertDescription className="text-sm">
+                            <strong>✅ Food preferences collected!</strong> Ready to generate your personalized meal plan.
+                          </AlertDescription>
+                        </Alert>
+                      )}
                     </div>
                   )}
 
