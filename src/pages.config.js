@@ -51,6 +51,7 @@ import AICoachInsights from './pages/AICoachInsights';
 import AddTeamAppointment from './pages/AddTeamAppointment';
 import AdminPlatformAnalytics from './pages/AdminPlatformAnalytics';
 import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
+import AnalyticsDashboard from './pages/AnalyticsDashboard';
 import Appointments from './pages/Appointments';
 import AssessmentTemplates from './pages/AssessmentTemplates';
 import AutoAwardRules from './pages/AutoAwardRules';
@@ -153,13 +154,13 @@ import PlatformColorCustomization from './pages/PlatformColorCustomization';
 import PricingPlans from './pages/PricingPlans';
 import Profile from './pages/Profile';
 import ProgressTracking from './pages/ProgressTracking';
-import Recipes from './pages/Recipes';
 import ProjectManagement from './pages/ProjectManagement';
 import PublicPlanPurchase from './pages/PublicPlanPurchase';
 import PurchaseAICredits from './pages/PurchaseAICredits';
 import PurchaseClientPlan from './pages/PurchaseClientPlan';
 import PurchaseCoachPlan from './pages/PurchaseCoachPlan';
 import RecipeManagement from './pages/RecipeManagement';
+import Recipes from './pages/Recipes';
 import ReminderManagement from './pages/ReminderManagement';
 import ResourceLibrary from './pages/ResourceLibrary';
 import ResourceLibraryEnhanced from './pages/ResourceLibraryEnhanced';
@@ -178,7 +179,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import AnalyticsDashboard from './pages/AnalyticsDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -187,6 +187,7 @@ export const PAGES = {
     "AddTeamAppointment": AddTeamAppointment,
     "AdminPlatformAnalytics": AdminPlatformAnalytics,
     "AdminSubscriptionManager": AdminSubscriptionManager,
+    "AnalyticsDashboard": AnalyticsDashboard,
     "Appointments": Appointments,
     "AssessmentTemplates": AssessmentTemplates,
     "AutoAwardRules": AutoAwardRules,
@@ -289,13 +290,13 @@ export const PAGES = {
     "PricingPlans": PricingPlans,
     "Profile": Profile,
     "ProgressTracking": ProgressTracking,
-    "Recipes": Recipes,
     "ProjectManagement": ProjectManagement,
     "PublicPlanPurchase": PublicPlanPurchase,
     "PurchaseAICredits": PurchaseAICredits,
     "PurchaseClientPlan": PurchaseClientPlan,
     "PurchaseCoachPlan": PurchaseCoachPlan,
     "RecipeManagement": RecipeManagement,
+    "Recipes": Recipes,
     "ReminderManagement": ReminderManagement,
     "ResourceLibrary": ResourceLibrary,
     "ResourceLibraryEnhanced": ResourceLibraryEnhanced,
@@ -314,7 +315,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "AnalyticsDashboard": AnalyticsDashboard,
 }
 
 export const pagesConfig = {

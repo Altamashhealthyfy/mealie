@@ -25,7 +25,9 @@ import {
   Edit,
   Users,
   TrendingUp,
-  ArrowUpDown
+  ArrowUpDown,
+  Copy,
+  Zap
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
@@ -46,6 +48,12 @@ export default function TemplateLibrary() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [sortByRating, setSortByRating] = useState(false);
+  const [clientTypeFilter, setClientTypeFilter] = useState("all");
+  const [ratingFilter, setRatingFilter] = useState("all");
+  const [showRatingDialog, setShowRatingDialog] = useState(false);
+  const [templateToRate, setTemplateToRate] = useState(null);
+  const [userRating, setUserRating] = useState(0);
   const [uploadFormData, setUploadFormData] = useState({
     name: "",
     description: "",
@@ -208,6 +216,52 @@ export default function TemplateLibrary() {
     }
   });
 
+  const ratingMutation = useMutation({
+    mutationFn: async ({ templateId, rating }) => {
+      const template = templates.find(t => t.id === templateId);
+      const newRatingCount = (template.rating_count || 0) + 1;
+      const newAverageRating = (((template.average_rating || 0) * (template.rating_count || 0)) + rating) / newRatingCount;
+      const effectivenessScore = Math.round((newAverageRating * 20) + (template.download_count || 0) * 0.5);
+      
+      return await base44.entities.DownloadableTemplate.update(templateId, {
+        average_rating: parseFloat(newAverageRating.toFixed(1)),
+        rating_count: newRatingCount,
+        effectiveness_score: effectivenessScore
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['downloadableTemplates']);
+      setShowRatingDialog(false);
+      setTemplateToRate(null);
+      setUserRating(0);
+      alert("✅ Thank you for rating this template!");
+    }
+  });
+
+  const duplicateTemplateMutation = useMutation({
+    mutationFn: async (templateId) => {
+      const template = templates.find(t => t.id === templateId);
+      const duplicatedName = `${template.name} (Copy)`;
+      
+      return await base44.entities.DownloadableTemplate.create({
+        ...template,
+        id: undefined,
+        name: duplicatedName,
+        rating_count: 0,
+        average_rating: 0,
+        download_count: 0
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['downloadableTemplates']);
+      alert("✅ Template duplicated successfully! You can now edit it.");
+    },
+    onError: (error) => {
+      console.error(error);
+      alert("❌ Failed to duplicate template. Please try again.");
+    }
+  });
+
   const handleUpload = async () => {
     if (!selectedFile) {
       alert("Please select a file first");
@@ -297,16 +351,14 @@ export default function TemplateLibrary() {
     // Calorie filtering: preset dropdown OR custom search
     const matchesCalories = (() => {
       if (customCalorieSearch) {
-        // Custom calorie search with ±100 range
         const customCalories = parseInt(customCalorieSearch);
         return template.target_calories && 
                Math.abs(template.target_calories - customCalories) <= 100;
       } else if (calorieFilter !== "all") {
-        // Preset dropdown filter
         return template.target_calories && 
                Math.abs(template.target_calories - parseInt(calorieFilter)) <= 100;
       }
-      return true; // No filter applied
+      return true;
     })();
     
     const matchesFoodPref = foodPrefFilter === "all" || 
@@ -318,8 +370,36 @@ export default function TemplateLibrary() {
     const matchesDisease = diseaseFilter === "all" || template.subcategory === diseaseFilter;
     const matchesUploader = uploaderFilter === "all" || template.created_by === uploaderFilter;
     
-    return matchesSearch && matchesCategory && matchesCalories && matchesFoodPref && matchesRegion && matchesDisease && matchesUploader;
+    // Rating filter
+    const matchesRating = (() => {
+      if (ratingFilter === "all") return true;
+      if (ratingFilter === "4plus") return (template.average_rating || 0) >= 4;
+      if (ratingFilter === "3plus") return (template.average_rating || 0) >= 3;
+      if (ratingFilter === "highly_rated") return (template.average_rating || 0) >= 4.5;
+      return true;
+    })();
+
+    // Client type filter
+    const matchesClientType = (() => {
+      if (clientTypeFilter === "all") return true;
+      return (template.client_types || []).includes(clientTypeFilter);
+    })();
+    
+    return matchesSearch && matchesCategory && matchesCalories && matchesFoodPref && 
+           matchesRegion && matchesDisease && matchesUploader && matchesRating && matchesClientType;
   });
+
+  const sortedTemplates = useMemo(() => {
+    const sorted = [...filteredTemplates];
+    if (sortByRating) {
+      sorted.sort((a, b) => {
+        const scoreB = (b.effectiveness_score || 0) || (b.average_rating || 0);
+        const scoreA = (a.effectiveness_score || 0) || (a.average_rating || 0);
+        return scoreB - scoreA;
+      });
+    }
+    return sorted;
+  }, [filteredTemplates, sortByRating]);
 
   const handleDownload = (template) => {
     downloadMutation.mutate(template);
@@ -858,15 +938,15 @@ export default function TemplateLibrary() {
         </Card>
 
         {/* Templates Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTemplates.length === 0 ? (
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+           {sortedTemplates.length === 0 ? (
             <div className="col-span-full text-center py-12">
               <FileText className="w-16 h-16 mx-auto text-gray-300 mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No templates found</h3>
               <p className="text-gray-600">Try adjusting your filters</p>
             </div>
           ) : (
-            filteredTemplates.map((template) => (
+            sortedTemplates.map((template) => (
               <Card 
                 key={template.id} 
                 className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all group"
@@ -876,23 +956,40 @@ export default function TemplateLibrary() {
                     <Badge className="bg-blue-100 text-blue-700 uppercase">
                       {template.file_type}
                     </Badge>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap justify-end">
                       {template.is_premium && (
                         <Badge className="bg-purple-500 text-white">
                           <Star className="w-3 h-3 mr-1" />
                           Premium
                         </Badge>
                       )}
+                      {template.average_rating && template.average_rating >= 4 && (
+                        <Badge className="bg-green-100 text-green-700 flex items-center gap-1">
+                          ⭐ {template.average_rating.toFixed(1)}
+                        </Badge>
+                      )}
                       {canEdit(template) && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(template)}
-                          className="text-blue-600 hover:bg-blue-50 h-6 w-6 p-0"
-                          title="Edit Template"
-                        >
-                          <Edit className="w-3 h-3" />
-                        </Button>
+                        <>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => duplicateTemplateMutation.mutate(template.id)}
+                            className="text-green-600 hover:bg-green-50 h-6 w-6 p-0"
+                            title="Duplicate Template"
+                            disabled={duplicateTemplateMutation.isPending}
+                          >
+                            <Copy className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(template)}
+                            className="text-blue-600 hover:bg-blue-50 h-6 w-6 p-0"
+                            title="Edit Template"
+                          >
+                            <Edit className="w-3 h-3" />
+                          </Button>
+                        </>
                       )}
                       {canDelete && (
                         <Button
@@ -942,7 +1039,6 @@ export default function TemplateLibrary() {
                     )}
                   </div>
 
-                  {/* ✅ UPDATED: View Template First, Then Download */}
                   <div className="space-y-2">
                     <Button
                       onClick={() => setViewingTemplate(template)}
@@ -951,14 +1047,28 @@ export default function TemplateLibrary() {
                       <Eye className="w-4 h-4 mr-2" />
                       View Template Details
                     </Button>
-                    <Button
-                      onClick={() => handleDownload(template)}
-                      variant="outline"
-                      className="w-full h-11 border-2 border-green-500 text-green-700 hover:bg-green-50"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Download Template
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => handleDownload(template)}
+                        variant="outline"
+                        className="flex-1 h-11 border-2 border-green-500 text-green-700 hover:bg-green-50"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setTemplateToRate(template);
+                          setShowRatingDialog(true);
+                          setUserRating(0);
+                        }}
+                        variant="outline"
+                        className="flex-1 h-11 border-2 border-orange-500 text-orange-700 hover:bg-orange-50"
+                      >
+                        <Star className="w-4 h-4 mr-1" />
+                        Rate
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -1308,15 +1418,86 @@ export default function TemplateLibrary() {
           </DialogContent>
         </Dialog>
 
+        {/* Rating Dialog */}
+         <Dialog open={showRatingDialog} onOpenChange={setShowRatingDialog}>
+           <DialogContent className="max-w-md">
+             <DialogHeader>
+               <DialogTitle className="flex items-center gap-2">
+                 <Star className="w-6 h-6 text-yellow-500" />
+                 Rate This Template
+               </DialogTitle>
+             </DialogHeader>
+
+             {templateToRate && (
+               <div className="space-y-6">
+                 <div className="p-4 bg-gray-50 rounded-lg">
+                   <p className="font-semibold text-gray-900">{templateToRate.name}</p>
+                   <p className="text-sm text-gray-600 mt-1">{templateToRate.description}</p>
+                 </div>
+
+                 <div className="space-y-3">
+                   <Label className="text-sm text-gray-600">How would you rate this template?</Label>
+                   <div className="flex gap-3 justify-center">
+                     {[1, 2, 3, 4, 5].map((star) => (
+                       <button
+                         key={star}
+                         onClick={() => setUserRating(star)}
+                         className="transition-transform hover:scale-125"
+                       >
+                         <Star
+                           className={`w-10 h-10 ${
+                             star <= userRating 
+                               ? "fill-yellow-400 text-yellow-400" 
+                               : "text-gray-300"
+                           }`}
+                         />
+                       </button>
+                     ))}
+                   </div>
+                   <p className="text-center text-sm text-gray-600">
+                     {userRating > 0 ? `You rated: ${userRating} star${userRating !== 1 ? 's' : ''}` : 'Click to rate'}
+                   </p>
+                 </div>
+
+                 <div className="flex gap-3">
+                   <Button
+                     variant="outline"
+                     onClick={() => setShowRatingDialog(false)}
+                     className="flex-1"
+                   >
+                     Cancel
+                   </Button>
+                   <Button
+                     onClick={() => ratingMutation.mutate({ templateId: templateToRate.id, rating: userRating })}
+                     disabled={userRating === 0 || ratingMutation.isPending}
+                     className="flex-1 bg-yellow-500 hover:bg-yellow-600"
+                   >
+                     {ratingMutation.isPending ? (
+                       <>
+                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                         Submitting...
+                       </>
+                     ) : (
+                       <>
+                         <Star className="w-4 h-4 mr-2" />
+                         Submit Rating
+                       </>
+                     )}
+                   </Button>
+                 </div>
+               </div>
+             )}
+           </DialogContent>
+         </Dialog>
+
         {/* Info Alert */}
-        <Alert className="border-green-500 bg-green-50">
-          <CheckCircle className="w-5 h-5 text-green-600" />
-          <AlertDescription className="ml-2">
-            <strong>💡 How to use:</strong> Download templates, customize in Microsoft Word for your clients, 
-            and use unlimited times - completely FREE! No AI generation needed, save ₹10 per plan.
-          </AlertDescription>
-        </Alert>
-      </div>
-    </div>
-  );
-}
+         <Alert className="border-green-500 bg-green-50">
+           <CheckCircle className="w-5 h-5 text-green-600" />
+           <AlertDescription className="ml-2">
+             <strong>💡 New Features:</strong> Rate templates to help identify the most effective ones, filter by client type, and duplicate templates for quick customization!
+           </AlertDescription>
+         </Alert>
+        </div>
+        </div>
+        );
+        }
