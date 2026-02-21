@@ -1393,7 +1393,9 @@ ROTI + VEGETABLES:
 ROTI + DAL:
 1-2 Roti bran mix / jawar + 1bowl: yellow moong dal | arher dal | masoor dal | chana dal | gatte veg without fried
 
-RICE + LEGUMES (MAXIMUM 4-5 DAYS IN 10-DAY PLAN):
+RICE + LEGUMES (MAXIMUM 4-5 DAYS IN 10-DAY PLAN - LIMIT TO 4-5 DAYS ONLY):
+IMPORTANT: Use rice with dal/rajma/chhole/kadhi/veg paneer pulao on EXACTLY 4-5 days ONLY in the 10-day plan.
+For remaining days (5-6 days), use ROTI + VEGETABLES or ROTI + DAL instead.
 1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl: chhole | black chana | rajhma | lobhia | soyabean | kadhi without pakrori
 
 NON VEG OPTIONS (2-3 days/week max):
@@ -1481,6 +1483,14 @@ RULE G - NON-VEG OPTIONS (APPLY ONLY IF diet_type is non_veg or eggetarian):
 
 RULE H - STRICT CALORIE COMPLIANCE: Count calories for EVERY item including post-dinner herbal drink (= 0-2 kcal). Daily total MUST NOT exceed target calories. NO exceptions. NO night milk for weight loss clients.
 
+RULE I - RICE LIMITATION (CRITICAL): 
+For 10-day meal plans, rice with dal/rajma/chhole/kadhi/veg paneer pulao MUST appear on EXACTLY 4-5 days ONLY.
+- Days with rice: Use "1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl: chhole | black chana | rajhma | lobhia | soyabean | kadhi without pakrori"
+- Remaining 5-6 days: MUST use roti-based meals instead (ROTI + VEGETABLES or ROTI + DAL options)
+- Distribute rice days evenly (e.g., Days 2, 4, 6, 7, 9 for a 5-day rice rotation OR Days 2, 3, 5, 7, 9, 10 for a 6-day rotation)
+- Do NOT use rice on all/most days
+- Rationale: Reduces glycemic load, provides variety, better for weight management
+
 ****CRITICAL VALIDATION**: 
 - The meal_plan array must contain EXACTLY ${numberOfDays * 7} meals total
 - That is ${numberOfDays} days × 7 meals per day = ${numberOfDays * 7} meals
@@ -1488,6 +1498,7 @@ RULE H - STRICT CALORIE COMPLIANCE: Count calories for EVERY item including post
 - Daily calorie total must NOT exceed the calculated target calories
 - Post dinner herbal drink MUST be IDENTICAL for all ${numberOfDays} days (NO rotation, NO variation)
 - Meal sequence MUST be: Early Morning → Breakfast → Mid Morning → Lunch → Evening Snack → Dinner → Post Dinner (EVERY day, NO exceptions)
+- RICE USAGE: Count rice meals in lunch/dinner - MUST be 4-5 days ONLY (not more)
 - For weight loss clients: Include "Drink 1 glass plain water 30 minutes before" in lunch AND dinner disease_rationale
 - For weight loss clients: Add "Drink 1 glass plain water 10 minutes after post-dinner herbal drink" in post-dinner section
 - NO green juice, NO fruit juice, NO milk in post-dinner section for ANY client
