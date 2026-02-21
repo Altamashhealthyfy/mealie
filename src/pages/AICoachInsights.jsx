@@ -156,10 +156,10 @@ export default function AICoachInsights() {
             </TabsContent>
 
             {TABS.filter(t => t.id !== 'chat').map(tab => (
-              <TabsContent key={tab.id} value={tab.id} className="space-y-4 mt-4">
+              <TabsContent key={tab.id} value={tab.id} className="space-y-3 sm:space-y-4 mt-3 sm:mt-4">
                 {/* Feature description + generate button */}
                 <Card className="border-none shadow-md bg-gradient-to-r from-gray-50 to-slate-50">
-                  <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <CardContent className="p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div className="flex items-start gap-3">
                       <tab.icon className={`w-5 h-5 ${tab.color} shrink-0 mt-0.5`} />
                       <p className="text-sm text-gray-600">{tab.desc}</p>
