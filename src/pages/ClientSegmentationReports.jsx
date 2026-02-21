@@ -126,51 +126,6 @@ export default function ClientSegmentationReports() {
     return result;
   }, [clients, filterGoal, filterStatus, filterCoach, filterHealthCondition, selectedSegments, segments]);
 
-  // Segmentation logic
-  const segments = useMemo(() => {
-    const segmentMap = {};
-    
-    filteredClients.forEach(client => {
-      let key;
-      switch (segmentBy) {
-        case "goal":
-          key = client.goal || "unspecified";
-          break;
-        case "status":
-          key = client.status || "unspecified";
-          break;
-        case "coach":
-          key = client.assigned_coach?.[0] || "unassigned";
-          break;
-        case "health_condition":
-          if (client.health_conditions && client.health_conditions.length > 0) {
-            client.health_conditions.forEach(condition => {
-              if (!segmentMap[condition]) {
-                segmentMap[condition] = [];
-              }
-              segmentMap[condition].push(client);
-            });
-            return;
-          } else {
-            key = "none";
-          }
-          break;
-        case "activity_level":
-          key = client.activity_level || "unspecified";
-          break;
-        default:
-          key = "all";
-      }
-      
-      if (!segmentMap[key]) {
-        segmentMap[key] = [];
-      }
-      segmentMap[key].push(client);
-    });
-    
-    return segmentMap;
-  }, [filteredClients, segmentBy]);
-
   // Calculate metrics for each segment
   const segmentMetrics = useMemo(() => {
     return Object.entries(segments).map(([key, segmentClients]) => {
