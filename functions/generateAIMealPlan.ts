@@ -280,10 +280,9 @@ RULE 2 - MEAL SEQUENCE (STRICT — EXACT ORDER EVERY DAY):
   2. Breakfast: Choose 1 option from breakfast categories (cereal, poha, non-veg, daliya, sandwich, stuffed roti, cheela, chholes, smoothies, idli)
   3. Mid Morning: Choose 1 option from midmorning options list
   4. Lunch: Green salad + low fat buttermilk (daily base) + 1 roti/dal OR 1 roti/veg OR 1 non-veg option
-  5. Evening: Tea/coffee + optional snack if needed
+  5. Evening Snack: Tea/coffee + optional snack if needed (roasted chana, bajra puffs, popcorn, makhane, moong sprouts, wheat puffs, murmura bhel, black chana saute, grilled sandwich)
   6. Dinner: Soup [250ml] + green salad (daily base) + 1 roti/dal OR 1 roti/veg OR 1 non-veg option
-  7. Post Dinner: Choose 1 herbal water option (saunf/ajwain/turmeric/hing/ginger/chamomile)
-  Present in this exact sequence. NEVER add bedtime meal. NO variations from this order.
+  Present in this exact sequence. NEVER add bedtime or post-dinner meal. NO variations from this order.
 
 RULE 3 - NO POST-DINNER MEAL: Day ends with dinner. Do NOT include post-dinner as a separate meal section. Herbal drinks can be part of evening snack or after dinner as per client preference, but NOT as a separate tracked meal.
 
