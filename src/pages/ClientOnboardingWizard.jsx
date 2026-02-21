@@ -24,7 +24,6 @@ export default function ClientOnboardingWizard() {
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({ age: '', weight: '', height: '', foodPreference: '', primaryGoal: '', notificationFrequency: 'daily', healthConcerns: '' });
-  const [pointsEarned, setPointsEarned] = useState(0);
   const [celebrateStep, setCelebrateStep] = useState(false);
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: async () => await base44.auth.me() });
