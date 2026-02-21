@@ -38,9 +38,15 @@ import {
   CheckCircle2,
   X,
   Heart,
-  Image as ImageIcon
+  Image as ImageIcon,
+  BarChart3,
+  FileText,
+  ClipboardList,
+  LineChart as LineChartIcon
 } from "lucide-react";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 
 export default function ClientProgressDashboard({ client, onClose }) {
   const queryClient = useQueryClient();
