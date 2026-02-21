@@ -54,6 +54,168 @@ Food patterns: ${recentFoodLogs.slice(0, 6).map(f => f.meal_name || f.meal_type)
 → If adherence < 70%, simplify portions and prefer quicker meals. Avoid foods linked to reported symptoms.`
       : '';
 
+    const mealOptions = {
+      early_morning: [
+        "1Liter water + 2 small lemon slices + 1 inch ginger grated + 10-12 mint leaves + 1 small cucumber slice [Mix night before]",
+        "1Glass zeera water [1spoon zeera seeds overnight soaked in 1glass boiled water next morning consume, Luke warm]",
+        "1Glass tulsi water [10-12 tulsi leaves boiled in 1 glass water till 1 cup consume, may add lemon for taste]",
+        "30ml aloe Vera juice with 70 ml water",
+        "1Glass methi water [1spoon methi seeds + 2glasses of water > boiled till 1glass overnight soaked next morning consume luke warm]",
+        "1Glass Haldi water [½ Teaspoon haldi powder + ½ inch grated ginger + 1Glass Luke warm water]",
+        "1Tablespoon chia seeds overnight soaked in 1glass water next morning consume",
+        "1Glass dhaniya pudina water [1tea spoon dhaniya seeds + 10-12 mint leaves 2glasses of water > boiled till 1glass consume luke warm]",
+        "1Glass cinnamon ginger water [pinch of cinnamon + 1Glass Luke warm water]",
+        "1Glass saunf water [1spoon saunf seeds + 2glasses of water > boiled till 1glass overnight soaked next morning consume luke warm]",
+        "1Glass A.C.V. [20ml apple cider vinegar + 1glass water]"
+      ],
+      breakfast_cereal: [
+        "3 Table spoons muesli without nuts with milk",
+        "3 tablespoon wheat flakes with milk without sugar",
+        "Oats with milk",
+        "Wheat daliya with milk"
+      ],
+      breakfast_poha: [
+        "1Small bowl vegetable poha mix 1ice cube size paneer homemade + veggies",
+        "1Small bowl vegetable poha mix 2 spoons of steam sprouts",
+        "1Small bowl vegetable poha mix nutreela",
+        "1medium bowl vegetable bread Poha [3:1] + green chutney"
+      ],
+      breakfast_nonveg: [
+        "3 Eggs white mix veggies omelette or scrambled with 1whole wheat toast",
+        "2-3 boiled egg white with veggies",
+        "Chicken salami sandwich with g. chutney"
+      ],
+      breakfast_daliya: [
+        "1bowl veg oats [3:1] with green chutney",
+        "1bowl vegetable wheat daliya [3:1]+ g. chutney",
+        "1bowl vegetable ragi daliya [3:1] + g. chutney",
+        "1bowl vegetable bajra daliya [3:1] + g. chutney",
+        "1bowl vegetable barley daliya [3:1] + g. chutney",
+        "1bowl vegetable upma[3:1]+ g.chutney"
+      ],
+      breakfast_sandwich: [
+        "1-2 Aata bread veg sandwich with green chutney",
+        "1-2 Paneer sandwiches with green chutney",
+        "1Spoon Peanut butter with chia seeds sandwich [2spoon peanut butter spread on 2slices of whole wheat bread, add strawberries slices banana slices /apple slices + sprinkle 1spoon chia seeds]",
+        "1-2 Soya veg sandwich with g. chutney",
+        "1-2 Aalu veg sandwich with g. chutney"
+      ],
+      breakfast_stuffed_roti: [
+        "1-2 Veg stuffed roti [lauki + green chilli + coriander leaves]",
+        "1-2 Veg stuffed roti [Spinach /methi + green chilli + onion]",
+        "1-2 Veg stuffed roti [onion + green chilli + coriander leaves]",
+        "1-2 Veg stuffed roti [Paneer + onion + green chilli + coriander leaves]",
+        "1-2 Veg stuffed roti [Radish + coriander leaves]",
+        "1-2 Veg stuffed roti [soya bean /nutreela + onion + green chilli + coriander leaves]",
+        "1-2 Veg stuffed roti [carrot +onion + green chilli + coriander leaves]"
+      ],
+      breakfast_cheela: [
+        "1-2 besan cheela veg mix with g. chutney",
+        "1-2 Suji cheela veg mix with g. chutney",
+        "1-2 Veg uttapam with g. chutney",
+        "1-2 Ragi cheela veg mix with g. chutney",
+        "1-2 Moong dal cheela veg mix with g. chutney",
+        "1-2 Chana dal cheela veg mix with g. chutney"
+      ],
+      breakfast_chholes: [
+        "1bowl steam moong sprouts mix green salad",
+        "1Bowl soya bean sprouts with green salad",
+        "1Bowl boiled black chana saute with lots of veggies",
+        "1Bowl lobhia saute with lots of veggies"
+      ],
+      breakfast_smoothies: [
+        "1 bowl fruit yogurt [yogurt + apple + 1spoon chia seeds]",
+        "1 bowl of plain yogurt with fruit [no mango] banana once a week add 1 spoon roasted flax seeds",
+        "1Bowl smoothies [1Glass milk + 2spoon oats+ 1table spoon chia seeds + ½ apple Or ½ banana > grind]",
+        "1 glass APPLE shake /BANANA shake [Once a week]"
+      ],
+      breakfast_idli: [
+        "2-3Rava idli veg stuffed with g. chutney",
+        "2-3Moong dal idli veg stuffed with g. chutney",
+        "2-3Besan idli veg stuffed with g. chutney",
+        "2-3Oats mix rava mix veggies idli with g. chutney",
+        "2-3 Fermented idli veg stuffed with g. chutney"
+      ],
+      midmorning: [
+        "1 Seasonal fruit [150gm] > AFTER 1HOUR > 1 glass lemon shikanji",
+        "1 Glass low fat buttermilk mix roasted zeera powder + 1 spoon roasted chia / flax seeds",
+        "1SEASONAL FRUIT [1Apple /1Orange / Mausambi /1Bowl papaya /1pear/ 1guava/ 1 pomegranate with 2-3 drops of lemon]",
+        "2 slices cucumber + 1 apple",
+        "2 slices cucumber + 1 pear",
+        "1 bowl papaya [2 slices of papaya with black pepper]",
+        "1Pomegranate with 2-3 drops of lemon"
+      ],
+      lunch_base: "Daily: 1Full plate/bowl green salad (steamed / Grated Raw) + 1medium bowl of low fat buttermilk",
+      lunch_roti_veg: [
+        "1-2 roti bran mix / jawar + 1bowl lauki veg",
+        "1-2 roti bran mix / jawar + 1bowl tori veg",
+        "1-2 roti bran mix / jawar + 1bowl parwar veg",
+        "1-2 roti bran mix / jawar + 1bowl bhindi veg",
+        "1-2 roti bran mix / jawar + 1bowl kaddu veg",
+        "1-2 roti bran mix / jawar + 1bowl Spinach veg",
+        "1-2 roti bran mix / jawar + 1bowl brinjal bharta",
+        "1-2 roti bran mix / jawar + 1bowl capsicum potato veg",
+        "1-2 roti bran mix / jawar + 1bowl beans potato veg",
+        "1-2 roti bran mix / jawar + 1bowl nutreela capsicum veg",
+        "1-2 Roti bran mix / jawar + 1bowl Methi aalu veg",
+        "1-2 Roti bran mix / jawar + 1bowl cauliflower aalu veg",
+        "1-2 Roti bran mix / jawar + 1bowl matter mushroom veg",
+        "1-2 Roti bran mix / jawar + 1bowl saag veg",
+        "1-2 Roti bran mix / jawar + 1bowl paneer veg bhurji [homemade paneer]",
+        "1-2 Roti bran mix / jawar + 1bowl spring onion aalu veg",
+        "1-2 Roti bran mix / jawar + 1bowl beans yellow moong dal veg",
+        "1-2 Roti bran mix / jawar + 1bowl carrot peas veg",
+        "1-2 Roti bran mix / jawar + 1bowl mix veg",
+        "1-2 Roti bran mix / jawar + 1bowl mooli bhurji",
+        "1-2 Roti bran mix / jawar + 1bowl Capsicum paneer veg",
+        "1-2 Roti bran mix / jawar + 1bowl brinjal potato veg",
+        "1-2 Roti bran mix / jawar + 1bowl cabbage peas veg"
+      ],
+      lunch_dal: [
+        "1-2 Roti bran mix / jawar + 1bowl yellow moong dal",
+        "1-2 Roti bran mix/ jawar + 1bowl arher dal",
+        "1-2 Roti bran mix / jawar + 1bowl masoor dal",
+        "1-2 Roti bran mix/ jawar + 1bowl chana dal",
+        "1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl chhole",
+        "1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl black chana",
+        "1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl rajhma",
+        "1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl lobhia",
+        "1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl soyabean",
+        "1-2 Roti bran mix / jawar /small bowl steam rice + 1bowl kadhi without pakrori",
+        "1-2Roti bran mix / jawar + 1bowl gatte veg without fried"
+      ],
+      lunch_nonveg: [
+        "1medium bowl chicken biryani [no leg pieces] homemade with low fat buttermilk",
+        "1bowl fish curry with steam rice",
+        "4-5 pieces of fish[steam/grilled]with grilled veggies /1-2 roti wheat /tandoori roti /buttermilk",
+        "2Pieces of grilled chicken [100gm][no leg pieces] with g. chutney + buttermilk",
+        "2Egg white curry with steam rice /1-2 roti bran mix"
+      ],
+      evening: [
+        "1Cup tea / 1Cup black coffee / Black tea / Green tea / 1Cup low fat milk / 1cup low fat buttermilk",
+        "One handful of Roasted chana or roasted chana mix green salad [twice-thrice a week]",
+        "Dry roasted bajra puffs unsalted [twice a week]",
+        "Dry roasted popcorn [twice-thrice a week]",
+        "Dry roasted makhane [twice-thrice a week]",
+        "1Smal bowl steam moong sprouts mix green salad [once -twice a week]",
+        "Roasted wheat puffs unsalted [twice-thrice a week]",
+        "1Small bowl murmura bhel with lots of vegetables [once a week]",
+        "1Small bowl boiled black chana saute with veggies [once -twice a week]",
+        "1Veg grilled sandwich with g. chutney [once a week]"
+      ],
+      dinner_soup: [
+        "1Bowl mix veg soup [250ml]",
+        "Tomato soup [250ml]",
+        "Cabbage soup [250ml]",
+        "Mushroom soup [250ml]",
+        "French beans tomato soup [250ml]",
+        "Broccoli peas soup [250ml]",
+        "Spinach soup [250ml]",
+        "Chicken soup / chicken broth [250ml]"
+      ],
+      dinner_base: "1BOWL SOUP[250ml] + Full bowl of green salad chopped or grated[raw/steam]"
+    };
+
     const prompt = `You are a senior clinical dietitian creating a personalized ${duration}-day meal plan. Be thorough, specific, and clinically sound.
 
 ═══ CLIENT PROFILE ═══
@@ -97,18 +259,27 @@ ${progressContext}
 8. Day summaries with total macros for each day
 9. Nutritional strategy explaining adaptation for client's specific goal & conditions
 
-═══ STRICT MEAL RULES (NEVER VIOLATE) ═══
-RULE 1 - 100% INDIAN MEALS ONLY: All meals must be 100% traditional Indian cuisine. NO continental, fusion, or non-Indian dishes. Use only Indian ingredients and cooking styles.
+═══ APPROVED MEAL OPTIONS (USE THESE EXCLUSIVELY) ═══
+RULE 1 - USE ONLY FROM APPROVED OPTIONS LIST: All meals MUST be selected from the meal options provided below. NEVER create custom meals not in this list. Reference the mealOptions by category when generating each meal.
+
+APPROVED MEAL CATEGORIES:
+  • Early Morning: Choose from 11 water/drink options provided
+  • Breakfast: Choose from cereal, poha, non-veg, daliya, sandwich, stuffed roti, cheela, chholes, smoothies, or idli options (18+ options)
+  • Midmorning: Choose from fruits, buttermilk, or salad combinations (7 options)
+  • Lunch: Always include green salad + buttermilk base, then add 1 roti/dal option OR 1 roti/veg option OR 1 non-veg option
+  • Evening: Tea/coffee + optional snacks (10 options)
+  • Dinner: Always include soup [250ml] + green salad, then add same options as lunch (roti/dal, roti/veg, or non-veg)
+  • Post Dinner: Only herbal water drinks (saunf, ajwain, turmeric, hing, ginger, chamomile)
 
 RULE 2 - MEAL SEQUENCE (STRICT — EXACT ORDER EVERY DAY):
-  1. Early Morning: Detox drink (warm lemon water, methi water, ajwain water, etc.)
-  2. Breakfast
-  3. Mid Morning (light snack)
-  4. Lunch
-  5. Evening Snack
-  6. Dinner
-  7. Post Dinner: ONE herbal drink ONLY
-  Present in this exact sequence. NEVER reorder or add bedtime meal.
+  1. Early Morning: Choose 1 water/drink from early_morning options list
+  2. Breakfast: Choose 1 option from breakfast categories (cereal, poha, non-veg, daliya, sandwich, stuffed roti, cheela, chholes, smoothies, idli)
+  3. Mid Morning: Choose 1 option from midmorning options list
+  4. Lunch: Green salad + low fat buttermilk (daily base) + 1 roti/dal OR 1 roti/veg OR 1 non-veg option
+  5. Evening: Tea/coffee + optional snack if needed
+  6. Dinner: Soup [250ml] + green salad (daily base) + 1 roti/dal OR 1 roti/veg OR 1 non-veg option
+  7. Post Dinner: Choose 1 herbal water option (saunf/ajwain/turmeric/hing/ginger/chamomile)
+  Present in this exact sequence. NEVER add bedtime meal. NO variations from this order.
 
 RULE 3 - POST DINNER BEVERAGES (WEIGHT LOSS & ALL CLIENTS):
   ALLOWED post-dinner options ONLY:
@@ -129,11 +300,11 @@ RULE 4 - NO BEDTIME MEAL (ABSOLUTE):
 
 RULE 5 - WEIGHT LOSS DIET MODIFICATIONS (goal = weight_loss):
   a) PRE-MEAL WATER: Add explicitly in lunch & dinner meals: "Drink 1 glass plain water 30 minutes before this meal"
-  b) NO PALAK PANEER: Never include palak paneer in ANY meal for weight loss clients (dinner especially)
+  b) NO PALAK PANEER: Never include "palak paneer" in ANY meal for weight loss clients (from lunch_roti_veg options)
   c) NO NIGHT MILK: Strictly no milk, yogurt, or dairy after dinner for weight loss clients
   d) NO MILK POST-DINNER: Only herbal water drinks post-dinner (saunf/ajwain/turmeric/hing/ginger/chamomile)
   e) ALCOHOL-FREE: No wines, beers, or alcohol
-  f) Light, high-protein dinners only
+  f) Light, high-protein dinners: Prefer fish curry, grilled chicken, egg white curry options
 
 RULE 6 - NON-VEG OPTIONS (ONLY if food_preference is non_veg or eggetarian):
   DINNER (2-3 days/week max): Grilled chicken with vegetables (no masala curry). NO fried, NO heavy gravy.
