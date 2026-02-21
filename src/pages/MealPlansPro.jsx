@@ -14,6 +14,7 @@ import ManualMealPlanBuilder from "@/components/mealplanner/ManualMealPlanBuilde
 import { Input } from "@/components/ui/input";
 import ProMealPlanChatModifier from "@/components/pro/ProMealPlanChatModifier";
 import RecipeScaler from "@/components/mealplanner/RecipeScaler";
+import { MEAL_OPTIONS } from "@/lib/mealOptions";
 
 export default function MealPlansPro() {
   const [searchParams] = useSearchParams();
@@ -1252,6 +1253,19 @@ export default function MealPlansPro() {
 
 // Helper function to construct Diamond GPT prompt
 function constructDiamondPrompt(client, intake, numberOfDays, mealPattern) {
+  const formatMealOptions = (options) => {
+    if (Array.isArray(options)) {
+      return options.map(opt => `- ${opt}`).join('\n');
+    } else if (typeof options === 'object') {
+      return Object.entries(options).map(([key, items]) => {
+        if (Array.isArray(items)) {
+          return `${key.toUpperCase()}:\n${items.map(item => `  - ${item}`).join('\n')}`;
+        }
+        return `${key}: ${items}`;
+      }).join('\n\n');
+    }
+    return '';
+  };
   const activityMultipliers = {
     sedentary: 1.2,
     lightly_active: 1.375,
@@ -1345,6 +1359,26 @@ TDEE: ${Math.round(tdee)} kcal
 8. List decision rules applied
 
 9. Handle conflicts with hierarchy: Kidney > Diabetes > Heart > Thyroid
+
+## APPROVED MEAL OPTIONS:
+Use ONLY the following meal options from the pre-approved list:
+
+**BREAKFAST OPTIONS:**
+${formatMealOptions(MEAL_OPTIONS.breakfast)}
+
+**MID-MORNING OPTIONS:**
+${formatMealOptions(MEAL_OPTIONS.midMorning)}
+
+**LUNCH OPTIONS:**
+${formatMealOptions(MEAL_OPTIONS.lunch)}
+
+**EVENING SNACKS OPTIONS:**
+${formatMealOptions(MEAL_OPTIONS.eveningSnacks)}
+
+**DINNER OPTIONS:**
+${formatMealOptions(MEAL_OPTIONS.dinner)}
+
+IMPORTANT: Select meals ONLY from the above approved list. Do NOT invent or suggest meals not in this list.
 
 ## STRICT MEAL RULES (NEVER VIOLATE):
 RULE A - NO FRUITS AT NIGHT: NEVER include any fruits (banana, apple, papaya, mango, orange, etc.) in dinner or post-dinner. Fruits only allowed at breakfast, mid-morning, or evening snack.
