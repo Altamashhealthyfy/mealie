@@ -73,7 +73,7 @@ export default function AICoachInsights() {
   const currentTab = TABS.find(t => t.id === activeTab);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-2 sm:p-4 md:p-6 lg:p-8 overflow-x-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-2 sm:p-4 md:p-6 lg:p-8 overflow-hidden">
       <div className="w-full max-w-7xl mx-auto space-y-3 sm:space-y-4 md:space-y-6">
         {/* Header - Mobile optimized */}
         <div className="flex items-start justify-between gap-2 sm:gap-4 flex-wrap">
@@ -213,7 +213,7 @@ export default function AICoachInsights() {
 
                 {/* Results */}
                 {!loading && results[tab.id] && (
-                  <div className="overflow-x-auto">
+                  <div className="w-full overflow-hidden">
                     {tab.id === 'progress_report' && <AIProgressReport data={results[tab.id]} />}
                     {tab.id === 'risk_assessment' && <AIRiskAssessment data={results[tab.id]} />}
                     {tab.id === 'education_material' && <AIEducationMaterial data={results[tab.id]} />}
