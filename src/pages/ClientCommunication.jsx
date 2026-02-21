@@ -43,6 +43,12 @@ export default function ClientCommunication() {
   const fileInputRef = useRef(null);
   const groupFileInputRefs = useRef({});
 
+  const [newMessageAlert, setNewMessageAlert] = useState(null);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(
+    localStorage.getItem('chat_notifications') !== 'false'
+  );
+  const prevMessageCountRef = useRef(0);
+
   const [isTyping, setIsTyping] = React.useState(false);
   const typingTimeoutRef = React.useRef(null);
 
