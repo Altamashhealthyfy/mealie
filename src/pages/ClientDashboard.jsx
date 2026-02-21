@@ -594,17 +594,6 @@ export default function ClientDashboard() {
           <TourButton pageName="ClientDashboard" />
         </div>
 
-        {/* Gamification Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <PointsTracker clientId={clientProfile?.id} compact={false} />
-          <StreakTracker clientId={clientProfile?.id} />
-        </div>
-
-        {/* Leaderboard */}
-        <div className="mb-6">
-          <Leaderboard type="all" limit={10} showCurrentUser={true} />
-        </div>
-
         {/* Wearables Section */}
         <div id="wearables-section" className="mb-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
