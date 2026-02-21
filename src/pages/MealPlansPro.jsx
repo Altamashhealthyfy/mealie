@@ -828,27 +828,38 @@ export default function MealPlansPro() {
                     </Button>
                   )}
 
-                  <Button
-                    onClick={generateProPlan}
-                    disabled={generating || !selectedClient || !hasCompletedIntake}
-                    className={`w-full h-14 text-lg font-semibold ${
-                      (!selectedClient || !hasCompletedIntake) 
-                        ? 'bg-gray-300 cursor-not-allowed' 
-                        : 'bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90'
-                    }`}
-                  >
-                    {generating ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Generating Diamond Plan...
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle className="w-5 h-5 mr-2" />
-                        Submit & Generate Pro Plan
-                      </>
-                    )}
-                  </Button>
+                  {showFoodPreferences && selectedClient && hasCompletedIntake ? (
+                    <FoodPreferenceForm 
+                      onSubmit={handleFoodPreferencesSubmit}
+                      isLoading={generating}
+                    />
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        if (selectedClient && hasCompletedIntake) {
+                          setShowFoodPreferences(true);
+                        }
+                      }}
+                      disabled={generating || !selectedClient || !hasCompletedIntake}
+                      className={`w-full h-14 text-lg font-semibold ${
+                        (!selectedClient || !hasCompletedIntake) 
+                          ? 'bg-gray-300 cursor-not-allowed' 
+                          : 'bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90'
+                      }`}
+                    >
+                      {generating ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Generating Diamond Plan...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-5 h-5 mr-2" />
+                          Next: Share Your Food Preferences →
+                        </>
+                      )}
+                    </Button>
+                  )}
 
                   {!selectedClient && (
                     <Alert className="bg-red-50 border-red-500 mt-4">
