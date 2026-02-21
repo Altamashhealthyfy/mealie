@@ -167,14 +167,19 @@ export default function ClientCommunication() {
     refetchInterval: 5000,
   });
 
+  // assigned_coach can be array or string
+  const coachEmail = Array.isArray(clientProfile?.assigned_coach)
+    ? clientProfile?.assigned_coach[0]
+    : clientProfile?.assigned_coach;
+
   const { data: coachUser } = useQuery({
-    queryKey: ['coachUser', clientProfile?.assigned_coach],
+    queryKey: ['coachUser', coachEmail],
     queryFn: async () => {
-      if (!clientProfile?.assigned_coach) return null;
-      const users = await base44.entities.User.filter({ email: clientProfile.assigned_coach });
+      if (!coachEmail) return null;
+      const users = await base44.entities.User.filter({ email: coachEmail });
       return users[0] || null;
     },
-    enabled: !!clientProfile?.assigned_coach,
+    enabled: !!coachEmail,
   });
 
   const sendMessageMutation = useMutation({
