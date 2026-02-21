@@ -1112,25 +1112,6 @@ Return structured meal plan with:
     });
   };
 
-  const handleSaveAsTemplate = (plan) => {
-    const templateName = prompt("Enter template name:", `${plan.food_preference} ${plan.target_calories} cal - ${plan.duration} days`);
-    if (!templateName) return;
-
-    saveTemplateMutation.mutate({
-      name: templateName,
-      description: `Template for ${plan.food_preference}, ${plan.target_calories} kcal, ${plan.duration} days`,
-      category: "general",
-      duration: plan.duration,
-      target_calories: plan.target_calories,
-      food_preference: plan.food_preference,
-      regional_preference: plan.regional_preference,
-      meals: plan.meals,
-      is_public: false,
-      times_used: 0,
-      created_by: user?.email
-    });
-  };
-
   const handleEditTemplate = (template) => {
     setEditingTemplate(template);
     setShowEditTemplateDialog(true);
@@ -2620,7 +2601,7 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
               <GeneratedMealPlan 
                 plan={viewingPlan || generatedPlan} 
                 onSave={viewingPlan ? null : handleSavePlan}
-                onSaveAsTemplate={!viewingPlan && generatedPlan?.from_template !== true ? () => handleSaveAsTemplate(generatedPlan) : null}
+                onSaveAsTemplate={!viewingPlan ? handleSaveAsTemplate : null}
                 onGenerateNew={handleGenerateNew}
                 isSaving={savePlanMutation.isPending || updatePlanMutation.isPending}
               />
