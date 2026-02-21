@@ -754,7 +754,7 @@ export default function Communication() {
                                   : 'bg-gradient-to-br from-orange-500 to-red-500'
                               }`}>
                                 <span className={`font-medium ${isSelected ? 'text-white' : 'text-white'}`}>
-                                  {client.full_name.charAt(0)}
+                                  {(client.full_name || 'C').charAt(0)}
                                 </span>
                               </div>
                               <div className="flex-1 min-w-0">
@@ -830,7 +830,7 @@ export default function Communication() {
                       </Button>
                       <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="text-white font-medium text-sm md:text-base">
-                          {selectedClient.full_name.charAt(0)}
+                          {(selectedClient.full_name || 'C').charAt(0)}
                         </span>
                       </div>
                       <div className="min-w-0">
