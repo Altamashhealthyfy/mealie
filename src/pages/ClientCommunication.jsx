@@ -484,12 +484,33 @@ export default function ClientCommunication() {
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-5xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Messages</h1>
-          <p className="text-gray-600">
-            Chat with {coachUser?.full_name || clientProfile?.assigned_coach?.split('@')[0] || 'your health coach'}
-          </p>
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Messages</h1>
+            <p className="text-gray-600">
+              Chat with {coachUser?.full_name || clientProfile?.assigned_coach?.split('@')[0] || 'your health coach'}
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleNotifications}
+            className={`flex-shrink-0 flex items-center gap-2 ${notificationsEnabled ? 'border-green-400 text-green-700' : 'text-gray-500'}`}
+          >
+            {notificationsEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+            <span className="hidden sm:inline">{notificationsEnabled ? 'Notifications On' : 'Notifications Off'}</span>
+          </Button>
         </div>
+
+        {newMessageAlert && (
+          <div className="mb-4 p-3 bg-green-50 border border-green-300 rounded-xl flex items-center gap-3 animate-in slide-in-from-top-2">
+            <Bell className="w-5 h-5 text-green-600 flex-shrink-0" />
+            <p className="text-sm text-green-800 font-medium">New message: <span className="font-normal">{newMessageAlert}</span></p>
+            <Button variant="ghost" size="sm" className="ml-auto p-1 h-auto" onClick={() => setNewMessageAlert(null)}>
+              <X className="w-4 h-4 text-green-700" />
+            </Button>
+          </div>
+        )}
 
         <Card className="border-none shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 200px)' }}>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
