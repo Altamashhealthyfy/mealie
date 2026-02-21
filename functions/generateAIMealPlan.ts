@@ -251,25 +251,30 @@ ${progressContext}
 ═══ INSTRUCTIONS ═══
 1. Generate exactly ${duration} days × 7 meals/sections (early_morning, breakfast, mid_morning, lunch, evening_snack, dinner, post_dinner)
 2. Each meal MUST include: name, items array, portion_sizes array (same length as items), calories, protein, carbs, fats, fiber, rationale (explain WHY this benefits this client specifically)
-3. Never repeat same main dish within 3 consecutive days
-4. Daily total calories = ${targetCal} kcal (±80 kcal max) across ALL meals including herbal drink
-5. Macro targets: Protein=${targetProtein}g, Carbs=${targetCarbs}g, Fats=${targetFats}g (±15%)
-6. 100% Indian meals only. Use authentic Indian food names
-7. Post-dinner: SAME herbal beverage for all ${duration} days (important for consistency)
-8. Day summaries with total macros for each day
-9. Nutritional strategy explaining adaptation for client's specific goal & conditions
+3. SELECT MEALS ONLY FROM THE APPROVED OPTIONS LIST provided above
+4. Never repeat same main dish within 3 consecutive days
+5. Daily total calories = ${targetCal} kcal (±80 kcal max) across ALL meals including herbal drink
+6. Macro targets: Protein=${targetProtein}g, Carbs=${targetCarbs}g, Fats=${targetFats}g (±15%)
+7. 100% Indian meals only - all options are authentic Indian cuisine
+8. Post-dinner: SAME herbal beverage for all ${duration} days (no rotation)
+9. Day summaries with total macros for each day
+10. Nutritional strategy explaining adaptation for client's specific goal & conditions
 
 ═══ APPROVED MEAL OPTIONS (USE THESE EXCLUSIVELY) ═══
 RULE 1 - USE ONLY FROM APPROVED OPTIONS LIST: All meals MUST be selected from the meal options provided below. NEVER create custom meals not in this list. Reference the mealOptions by category when generating each meal.
 
 APPROVED MEAL CATEGORIES:
-  • Early Morning: Choose from 11 water/drink options provided
-  • Breakfast: Choose from cereal, poha, non-veg, daliya, sandwich, stuffed roti, cheela, chholes, smoothies, or idli options (18+ options)
-  • Midmorning: Choose from fruits, buttermilk, or salad combinations (7 options)
-  • Lunch: Always include green salad + buttermilk base, then add 1 roti/dal option OR 1 roti/veg option OR 1 non-veg option
-  • Evening: Tea/coffee + optional snacks (10 options)
-  • Dinner: Always include soup [250ml] + green salad, then add same options as lunch (roti/dal, roti/veg, or non-veg)
-  • Post Dinner: Only herbal water drinks (saunf, ajwain, turmeric, hing, ginger, chamomile)
+  • Early Morning (11 options): Lemon-ginger-mint water, Zeera water, Tulsi water, Aloe vera juice, Methi water, Haldi water, Chia seeds, Dhaniya pudina water, Cinnamon ginger water, Saunf water, Apple cider vinegar water
+  • Breakfast (6+ categories): Cereals, Poha, Non-veg (egg white options), Daliya, Sandwich, Stuffed roti, Cheela, Chholes, Smoothies, Idli
+  • Midmorning (7 options): Seasonal fruits, Buttermilk with zeera/seeds, Fruit combinations with cucumber/lemon
+  • Lunch (Daily base): Green salad + low fat buttermilk + CHOOSE 1 BELOW:
+    - Roti with vegetable curry (lauki, tori, bhindi, kaddu, spinach, brinjal, capsicum-potato, beans-potato, methi-aalu, cauliflower-aalu, matter-mushroom, saag, paneer bhurji, spring onion-aalu, mooli bhurji, brinjal-potato, cabbage-peas)
+    - Roti with dal (yellow moong, arher, masoor, chana dal, gatte veg)
+    - Rice with legumes (chhole, black chana, rajhma, lobhia, soyabean, kadhi)
+    - Non-veg (chicken biryani, fish curry, grilled fish, grilled chicken, egg white curry)
+  • Evening (10 options): Tea/Coffee + optional snacks (roasted chana, bajra puffs, popcorn, makhane, moong sprouts, wheat puffs, murmura bhel, black chana saute, grilled sandwich)
+  • Dinner (Daily base): Soup [250ml] + green salad + SAME OPTIONS AS LUNCH above
+  • Post Dinner (6 options ONLY): Saunf water, Ajwain water, Turmeric water, Hing water, Ginger water, Chamomile tea
 
 RULE 2 - MEAL SEQUENCE (STRICT — EXACT ORDER EVERY DAY):
   1. Early Morning: Choose 1 water/drink from early_morning options list
