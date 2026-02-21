@@ -1811,6 +1811,7 @@ support@mealiepro.com`;
                     setShowAssignCoachDialog(false);
                     setClientToAssignCoach(null);
                     setSelectedCoaches([]);
+                    setCoachSearchQuery("");
                   }}
                   className="flex-1"
                 >
