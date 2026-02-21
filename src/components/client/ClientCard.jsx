@@ -37,6 +37,10 @@ export default function ClientCard({
     edit: { icon: Edit2, label: "Edit", color: "text-orange-600" },
     assignCoach: { icon: UserPlus, label: "Assign to Coach", color: "text-green-600" },
     assignTeam: { icon: Users, label: "Assign to Team", color: "text-indigo-600" },
+    progressReview: { icon: LineChart, label: "Progress Review", color: "text-red-600" },
+    analytics: { icon: BarChart3, label: "Analytics", color: "text-cyan-600" },
+    reports: { icon: FileText, label: "Reports", color: "text-emerald-600" },
+    tracker: { icon: ClipboardList, label: "Report Tracker", color: "text-amber-600" },
   };
 
   const initials = client.full_name
