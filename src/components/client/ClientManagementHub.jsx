@@ -45,13 +45,6 @@ export default function ClientManagementHub({ ClientListComponent }) {
                 <FileText className="w-4 h-4" />
                 <span>Reports</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="clinical"
-                className="flex items-center gap-1.5 px-3 sm:px-5 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:text-orange-600 data-[state=active]:bg-orange-50 text-gray-600 font-semibold text-xs sm:text-sm whitespace-nowrap"
-              >
-                <ClipboardList className="w-4 h-4" />
-                <span>Clinical Reports</span>
-              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="clients" className="mt-0">
