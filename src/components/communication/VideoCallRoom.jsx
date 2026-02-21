@@ -240,26 +240,55 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
 
   const startRecording = async () => {
     try {
+      // Create canvas to composite both video streams
+      const canvas = document.createElement('canvas');
+      canvas.width = 1280;
+      canvas.height = 720;
+      const ctx = canvas.getContext('2d');
+
       const audioTrack = localStreamRef.current?.getAudioTracks()[0];
-      const videoTrack = localStreamRef.current?.getVideoTracks()[0];
-      
-      if (!audioTrack || !videoTrack) {
-        setError('Cannot start recording: No audio/video tracks');
+      if (!audioTrack) {
+        setError('Cannot start recording: No audio track');
         return;
       }
 
       const recordingStream = new MediaStream();
       recordingStream.addTrack(audioTrack);
-      recordingStream.addTrack(videoTrack);
 
-      const mediaRecorder = new MediaRecorder(recordingStream, {
-        mimeType: 'video/webm;codecs=vp9,opus'
-      });
+      // Add local video track or canvas stream
+      const localVideoTrack = localStreamRef.current?.getVideoTracks()[0];
+      if (localVideoTrack) {
+        recordingStream.addTrack(localVideoTrack.clone());
+      }
 
+      // Add remote video if available
+      const remoteStream = remoteVideoRef.current?.srcObject;
+      if (remoteStream) {
+        const remoteTracks = remoteStream.getVideoTracks();
+        if (remoteTracks[0]) {
+          recordingStream.addTrack(remoteTracks[0].clone());
+        }
+      }
+
+      // Try with vp9, fallback to vp8 or h264
+      let mimeType = 'video/webm;codecs=vp9,opus';
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'video/webm;codecs=vp8,opus';
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+          mimeType = 'video/webm';
+        }
+      }
+
+      const mediaRecorder = new MediaRecorder(recordingStream, { mimeType });
       recordedChunksRef.current = [];
 
       mediaRecorder.ondataavailable = (e) => {
         if (e.data.size > 0) recordedChunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.onerror = (e) => {
+        console.error('Recording error:', e);
+        setError('Recording failed');
       };
 
       mediaRecorder.start();
