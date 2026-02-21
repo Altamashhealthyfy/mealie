@@ -93,7 +93,7 @@ export default function Communication() {
   );
 
   const formatToIST = (dateString) => {
-    if (!dateString) return '';
+    if (!dateString || typeof dateString !== 'string') return '';
     const utcString = dateString.includes('Z') ? dateString : dateString + 'Z';
     const date = new Date(utcString);
     if (isNaN(date.getTime())) return '';
@@ -106,7 +106,7 @@ export default function Communication() {
   };
 
   const formatDateTimeIST = (dateString) => {
-    if (!dateString) return '';
+    if (!dateString || typeof dateString !== 'string') return '';
     const utcString = dateString.includes('Z') ? dateString : dateString + 'Z';
     const date = new Date(utcString);
     if (isNaN(date.getTime())) return '';
@@ -788,7 +788,7 @@ export default function Communication() {
                                   }
                                 </p>
                                 )}
-                                {lastMessage && (
+                                {lastMessage && lastMessage.created_date && (
                                   <p className={`text-xs mt-1 ${
                                     isSelected ? 'text-white/60' : 'text-gray-500'
                                   }`}>
