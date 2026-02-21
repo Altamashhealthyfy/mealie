@@ -25,12 +25,34 @@ export default function BroadcastMessagePanel() {
   });
 
   const { data: clients = [] } = useQuery({
-    queryKey: ['coachClients', user?.email],
+    queryKey: ['coachClients', user?.email, user?.user_type],
     queryFn: async () => {
       if (!user?.email) return [];
-      return await base44.entities.Client.filter({
-        assigned_coach: user.email
-      });
+      
+      // Get all clients
+      const allClients = await base44.entities.Client.list();
+      
+      // Filter based on user type
+      if (user?.user_type === 'super_admin') {
+        return allClients;
+      }
+      
+      if (user?.user_type === 'student_coach') {
+        return allClients.filter(client => {
+          const assignedCoaches = Array.isArray(client.assigned_coach) 
+            ? client.assigned_coach 
+            : client.assigned_coach 
+              ? [client.assigned_coach] 
+              : [];
+          return client.created_by === user?.email || assignedCoaches.includes(user?.email);
+        });
+      }
+      
+      if (['team_member', 'student_team_member'].includes(user?.user_type)) {
+        return allClients.filter(client => client.created_by === user?.email);
+      }
+      
+      return [];
     },
     enabled: !!user?.email,
   });
