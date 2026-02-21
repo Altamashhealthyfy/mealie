@@ -447,7 +447,7 @@ export default function AICoachChat({ clientId, clientName, onClientChange }) {
   };
 
   return (
-    <div className="flex flex-col h-full min-h-[500px]">
+    <div className="flex flex-col h-full min-h-[420px] overflow-hidden w-full">
       {/* Chat area */}
       <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
         {messages.length === 0 && (
