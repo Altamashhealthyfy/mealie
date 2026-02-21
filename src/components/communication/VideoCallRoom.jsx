@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Mic, MicOff, Video, VideoOff, PhoneOff, Monitor, MonitorOff,
-  Maximize2, Minimize2, Users
+  Maximize2, Minimize2, Users, Circle
 } from "lucide-react";
 
 /**
@@ -32,19 +32,26 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
   const [callDuration, setCallDuration] = useState(0);
   const [fullscreen, setFullscreen] = useState(false);
   const [error, setError] = useState(null);
+  const [recording, setRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
   const containerRef = useRef(null);
   const timerRef = useRef(null);
+  const recordingTimerRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const recordedChunksRef = useRef([]);
   const mountedRef = useRef(true);
 
   const cleanup = useCallback(() => {
     clearInterval(timerRef.current);
+    clearInterval(recordingTimerRef.current);
+    if (recording) stopRecording();
     localStreamRef.current?.getTracks().forEach(t => t.stop());
     screenStreamRef.current?.getTracks().forEach(t => t.stop());
     if (pcRef.current) {
       pcRef.current.close();
       pcRef.current = null;
     }
-  }, []);
+  }, [recording]);
 
   const addPendingCandidates = async (pc) => {
     for (const candidate of pendingCandidates.current) {
@@ -125,11 +132,12 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
     };
 
     signalingChannel.onMessage(handleMessage);
+    signalingChannel.start();
 
     // Get local media then start
     const start = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: true });
         if (!mountedRef.current) { stream.getTracks().forEach(t => t.stop()); return; }
         localStreamRef.current = stream;
         if (localVideoRef.current) localVideoRef.current.srcObject = stream;
@@ -152,6 +160,7 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
 
     return () => {
       mountedRef.current = false;
+      signalingChannel.stop();
       cleanup();
     };
   }, []);
@@ -219,6 +228,68 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
     const m = Math.floor(s / 60);
     const sec = s % 60;
     return `${m}:${sec.toString().padStart(2, '0')}`;
+  };
+
+  const startRecording = async () => {
+    try {
+      const audioTrack = localStreamRef.current?.getAudioTracks()[0];
+      const videoTrack = localStreamRef.current?.getVideoTracks()[0];
+      
+      if (!audioTrack || !videoTrack) {
+        setError('Cannot start recording: No audio/video tracks');
+        return;
+      }
+
+      const recordingStream = new MediaStream();
+      recordingStream.addTrack(audioTrack);
+      recordingStream.addTrack(videoTrack);
+
+      const mediaRecorder = new MediaRecorder(recordingStream, {
+        mimeType: 'video/webm;codecs=vp9,opus'
+      });
+
+      recordedChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) recordedChunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.start();
+      mediaRecorderRef.current = mediaRecorder;
+      setRecording(true);
+      setRecordingTime(0);
+      recordingTimerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
+    } catch (err) {
+      console.error('Recording error:', err);
+      setError('Failed to start recording');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && recording) {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.onstop = () => {
+        const blob = new Blob(recordedChunksRef.current, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `call-recording-${new Date().getTime()}.webm`;
+        a.click();
+        URL.revokeObjectURL(url);
+        recordedChunksRef.current = [];
+      };
+      clearInterval(recordingTimerRef.current);
+      setRecording(false);
+      setRecordingTime(0);
+    }
+  };
+
+  const toggleRecording = () => {
+    if (recording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
   };
 
   if (error) {
@@ -319,6 +390,14 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
           className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${screenSharing ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-600 hover:bg-gray-500'}`}
         >
           {screenSharing ? <MonitorOff className="w-5 h-5 text-white" /> : <Monitor className="w-5 h-5 text-white" />}
+        </button>
+
+        <button
+          onClick={toggleRecording}
+          className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${recording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : 'bg-gray-600 hover:bg-gray-500'}`}
+          title={recording ? `Recording... ${formatDuration(recordingTime)}` : 'Start recording'}
+        >
+          <Circle className={`w-5 h-5 text-white ${recording ? 'fill-white' : ''}`} />
         </button>
 
         <button
