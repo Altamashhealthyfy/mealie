@@ -190,25 +190,28 @@ export default function WearableDeviceManager({ clientId, clientEmail, compact =
                   <DialogHeader>
                     <DialogTitle>Connect Wearable Device</DialogTitle>
                   </DialogHeader>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
-                    {Object.entries(WEARABLE_CONFIGS).map(([deviceType, config]) => (
-                      <Card
-                        key={deviceType}
-                        className="cursor-pointer hover:shadow-lg transition-all border-2 hover:border-blue-500"
-                        onClick={() => {
-                          setSelectedDevice(deviceType);
-                          // Trigger OAuth flow
-                          handleOAuthConnection(deviceType);
-                          setShowConnectDialog(false);
-                        }}
-                      >
-                        <CardContent className="p-6 text-center">
-                          <p className="text-4xl mb-3">{config.icon}</p>
-                          <h3 className="font-bold text-lg mb-2">{config.name}</h3>
-                          <p className="text-xs text-gray-600">{config.description}</p>
-                        </CardContent>
-                      </Card>
-                    ))}
+                  <div className="space-y-4 pt-2">
+                    <Alert className="bg-blue-50 border-blue-200">
+                      <AlertCircle className="w-4 h-4 text-blue-600" />
+                      <AlertDescription className="text-blue-800 text-sm">
+                        Wearable device integration requires a native mobile app. You can manually log your health data using the Progress Tracking section.
+                      </AlertDescription>
+                    </Alert>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {Object.entries(WEARABLE_CONFIGS).map(([deviceType, config]) => (
+                        <Card key={deviceType} className="border-2 border-gray-200 opacity-75">
+                          <CardContent className="p-6 text-center">
+                            <p className="text-4xl mb-3">{config.icon}</p>
+                            <h3 className="font-bold text-lg mb-2">{config.name}</h3>
+                            <p className="text-xs text-gray-600 mb-3">{config.description}</p>
+                            <Badge variant="secondary" className="text-xs">Coming Soon</Badge>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                    <p className="text-xs text-gray-500 text-center">
+                      Contact your coach to manually record device data in your progress log.
+                    </p>
                   </div>
                 </DialogContent>
               </Dialog>
