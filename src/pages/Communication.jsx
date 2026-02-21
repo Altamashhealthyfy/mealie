@@ -645,6 +645,25 @@ export default function Communication() {
     );
   }
 
+  // Ensure Health Coaches (student_coach) and other authorized roles can access
+  const authorizedRoles = ['super_admin', 'team_member', 'student_coach', 'student_team_member'];
+  if (!authorizedRoles.includes(user?.user_type)) {
+    return (
+      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+        <Card className="max-w-md border-none shadow-xl">
+          <CardHeader>
+            <CardTitle>Access Denied</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600">
+              You don't have permission to access this page. Please contact your administrator.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen p-2 sm:p-4 md:p-8">
       {activeVideoCall && (
