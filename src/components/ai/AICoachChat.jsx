@@ -549,33 +549,32 @@ export default function AICoachChat({ clientId, clientName, onClientChange }) {
       )}
 
       {/* Input */}
-      <div className="p-3 sm:p-4 border-t bg-white/80 backdrop-blur-sm">
-        <div className="flex gap-2 items-end">
+      <div className="p-2 sm:p-3 border-t bg-white/80 backdrop-blur-sm shrink-0">
+        <div className="flex gap-1.5 sm:gap-2 items-end">
           <textarea
             ref={inputRef}
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
-            placeholder={selectedClientName ? `Ask about ${selectedClientName}...` : "Select a client and ask a question..."}
+            placeholder={selectedClientName ? `Ask about ${selectedClientName}...` : "Select a client..."}
             rows={1}
             disabled={!selectedClientId}
-            className="flex-1 min-w-0 resize-none border border-gray-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent max-h-32 overflow-y-auto disabled:bg-gray-100 disabled:text-gray-400"
-            style={{ minHeight: '44px' }}
+            className="flex-1 min-w-0 resize-none border border-gray-300 rounded-xl px-2.5 sm:px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent max-h-24 overflow-y-auto disabled:bg-gray-100 disabled:text-gray-400"
+            style={{ minHeight: '40px' }}
           />
           {messages.length > 0 && (
-            <Button variant="ghost" size="icon" onClick={() => setMessages([])} className="text-gray-400 hover:text-red-500 shrink-0 h-11 w-9 p-0">
+            <Button variant="ghost" size="icon" onClick={() => setMessages([])} className="text-gray-400 hover:text-red-500 shrink-0 h-10 w-8 p-0">
               <Trash2 className="w-4 h-4" />
             </Button>
           )}
           <Button
             onClick={() => send()}
             disabled={loading || !input.trim() || !selectedClientId}
-            className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 shrink-0 h-11 w-11 p-0"
+            className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 shrink-0 h-10 w-10 p-0"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </Button>
         </div>
-        <p className="text-xs text-gray-400 mt-1.5 text-center hidden sm:block">AI responses are advisory only. Always apply clinical judgment.</p>
       </div>
     </div>
   );
