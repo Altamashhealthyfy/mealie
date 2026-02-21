@@ -1023,6 +1023,9 @@ export default function MealPlansPro() {
                                       </AlertDescription>
                                     </Alert>
                                   )}
+                                  <div className="pt-2">
+                                    <RecipeScaler meal={meal} />
+                                  </div>
                                 </CardContent>
                               </Card>
                             ))}
