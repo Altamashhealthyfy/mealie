@@ -282,7 +282,7 @@ Use ICMR data and standard Indian portion sizes. Be precise.`;
 
             {onSaveAsTemplate && (
               <Button
-                onClick={onSaveAsTemplate}
+                onClick={() => onSaveAsTemplate(editablePlan)}
                 variant="outline"
                 className="flex-1 min-w-[200px] h-12 border-2 border-purple-500 text-purple-700 hover:bg-purple-50"
               >
