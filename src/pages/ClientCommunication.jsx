@@ -521,12 +521,6 @@ export default function ClientCommunication() {
     );
   }
 
-  // Redirect non-client users to the coach communication page
-  if (user && user.user_type !== 'client') {
-    window.location.href = '/Communication';
-    return null;
-  }
-
   if (!user || (user.user_type === 'client' && !clientProfile && !profileLoading)) {
     return (
       <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
