@@ -315,28 +315,30 @@ export default function HelpCenter() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 overflow-hidden">
       {/* Hero Header */}
-      <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-green-500 text-white py-8 lg:py-12 px-4 lg:px-6">
-        <div className="max-w-6xl mx-auto text-center space-y-2 lg:space-y-4">
-          <div className="inline-block mb-2 lg:mb-4">
-            <span className="text-3xl lg:text-5xl">📚</span>
+      <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-green-500 text-white py-12 lg:py-16 px-4 lg:px-6">
+        <div className="max-w-6xl mx-auto text-center space-y-4 lg:space-y-6">
+          <div className="inline-block mb-4 lg:mb-6 animate-bounce">
+            <span className="text-5xl lg:text-6xl">📚</span>
           </div>
-          <h1 className="text-2xl lg:text-5xl xl:text-6xl font-bold">Mealie Pro Help Center</h1>
-          <p className="text-sm lg:text-lg xl:text-xl text-white/90 max-w-2xl mx-auto px-2">
-            Your complete guide to mastering the platform. Learn features, best practices, and get answers
-          </p>
+          <div className="space-y-3 lg:space-y-4">
+            <h1 className="text-3xl lg:text-6xl xl:text-7xl font-black tracking-tight">Mealie Pro Help Center</h1>
+            <p className="text-base lg:text-xl text-white/95 max-w-3xl mx-auto leading-relaxed">
+              Your complete guide to mastering the platform. Learn features, best practices, and get answers
+            </p>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 lg:px-6 py-6 lg:py-12 space-y-4 lg:space-y-8">
+      <div className="max-w-6xl mx-auto px-4 lg:px-6 py-8 lg:py-16 space-y-6 lg:space-y-10">
         {/* Enhanced Search */}
         <div className="max-w-3xl mx-auto">
           <div className="relative group">
-            <Search className="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 w-4 lg:w-5 h-4 lg:h-5 text-gray-400 group-focus-within:text-orange-500 transition flex-shrink-0" />
+            <Search className="absolute left-4 lg:left-5 top-1/2 transform -translate-y-1/2 w-5 lg:w-6 h-5 lg:h-6 text-gray-400 group-focus-within:text-orange-500 transition flex-shrink-0" />
             <Input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search features, guides, and tips..."
-              className="pl-10 lg:pl-12 pr-10 lg:pr-4 py-3 lg:py-4 text-sm lg:text-base border-2 border-gray-200 focus:border-orange-500 rounded-xl shadow-sm focus:shadow-md transition"
+              className="pl-12 lg:pl-14 pr-4 py-3.5 lg:py-4 text-sm lg:text-base border-2 border-gray-200 focus:border-orange-500 rounded-xl shadow-md focus:shadow-lg transition"
             />
             {searchTerm && (
               <button
@@ -350,23 +352,23 @@ export default function HelpCenter() {
         </div>
 
         {/* Tabs Navigation */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-white/80 backdrop-blur border border-gray-200 rounded-xl p-1">
-            <TabsTrigger value="guides" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-xs lg:text-sm py-2 lg:py-2.5">
-              <BookOpen className="w-3 lg:w-4 h-3 lg:h-4 mr-1 lg:mr-2" />
+         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+           <TabsList className="grid w-full grid-cols-2 bg-white/90 backdrop-blur-md border border-gray-200 rounded-xl p-1.5 shadow-sm">
+            <TabsTrigger value="guides" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-sm lg:text-base font-semibold py-2.5 lg:py-3 transition-all">
+              <BookOpen className="w-4 lg:w-5 h-4 lg:h-5 mr-2 lg:mr-2.5" />
               <span className="hidden sm:inline">Guides</span>
               <span className="sm:hidden">Guides</span>
             </TabsTrigger>
-            <TabsTrigger value="tips" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-xs lg:text-sm py-2 lg:py-2.5">
-              <Zap className="w-3 lg:w-4 h-3 lg:h-4 mr-1 lg:mr-2" />
+            <TabsTrigger value="tips" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-sm lg:text-base font-semibold py-2.5 lg:py-3 transition-all">
+              <Zap className="w-4 lg:w-5 h-4 lg:h-5 mr-2 lg:mr-2.5" />
               <span className="hidden sm:inline">Quick Tips</span>
               <span className="sm:hidden">Tips</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Guides Tab */}
-          <TabsContent value="guides" className="space-y-4 lg:space-y-6 mt-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7">
+          <TabsContent value="guides" className="space-y-6 lg:space-y-8 mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
               {filteredGuides.map((guide, idx) => {
                 const Icon = guide.icon;
                 return (
@@ -374,23 +376,23 @@ export default function HelpCenter() {
                     key={idx}
                     className="hover:shadow-xl transition-all duration-300 overflow-hidden border-0 group cursor-pointer h-full"
                   >
-                    <CardHeader className={`bg-gradient-to-r ${guide.color} text-white group-hover:shadow-lg transition-shadow p-5 lg:p-7`}>
-                      <div className="flex items-start gap-3 lg:gap-4">
-                        <Icon className="w-7 lg:w-9 h-7 lg:h-9 flex-shrink-0 mt-0.5" />
+                    <CardHeader className={`bg-gradient-to-r ${guide.color} text-white group-hover:shadow-lg transition-shadow p-6 lg:p-8`}>
+                      <div className="flex items-start gap-4 lg:gap-5">
+                        <Icon className="w-8 lg:w-10 h-8 lg:h-10 flex-shrink-0 mt-1" />
                         <div className="min-w-0">
-                          <CardTitle className="text-lg lg:text-2xl font-bold">{guide.section}</CardTitle>
-                          <CardDescription className="text-white/80 mt-2 text-xs lg:text-sm leading-relaxed">{guide.description}</CardDescription>
+                          <CardTitle className="text-xl lg:text-3xl font-black tracking-tight">{guide.section}</CardTitle>
+                          <CardDescription className="text-white/85 mt-2.5 text-sm lg:text-base leading-relaxed">{guide.description}</CardDescription>
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent className="pt-6 lg:pt-8 p-5 lg:p-7 space-y-4 lg:space-y-5">
+                    <CardContent className="pt-7 lg:pt-9 p-6 lg:p-8 space-y-5 lg:space-y-6">
                       {guide.guides.map((item, itemIdx) => (
-                        <div key={itemIdx} className="pb-4 lg:pb-5 border-b border-gray-200 last:border-b-0 last:pb-0">
-                          <h4 className="font-bold text-gray-900 mb-2 flex items-center gap-2.5 text-sm lg:text-base">
-                            <span className="w-2 lg:w-2.5 h-2 lg:h-2.5 rounded-full bg-gradient-to-r from-orange-500 to-red-600 flex-shrink-0" />
+                        <div key={itemIdx} className="pb-5 lg:pb-6 border-b border-gray-200 last:border-b-0 last:pb-0">
+                          <h4 className="font-bold text-gray-900 mb-2.5 flex items-center gap-3 text-base lg:text-lg">
+                            <span className="w-2.5 lg:w-3 h-2.5 lg:h-3 rounded-full bg-gradient-to-r from-orange-500 to-red-600 flex-shrink-0" />
                             {item.title}
                           </h4>
-                          <p className="text-gray-600 text-xs lg:text-sm leading-relaxed pl-4 lg:pl-5">{item.content}</p>
+                          <p className="text-gray-600 text-sm lg:text-base leading-relaxed pl-5 lg:pl-6">{item.content}</p>
                         </div>
                       ))}
                     </CardContent>
@@ -409,8 +411,8 @@ export default function HelpCenter() {
           </TabsContent>
 
           {/* Quick Tips Tab */}
-          <TabsContent value="tips" className="space-y-4 lg:space-y-6 mt-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7">
+          <TabsContent value="tips" className="space-y-6 lg:space-y-8 mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
               {[
                 { icon: '📱', title: 'Start with Home Dashboard', desc: 'Check your home dashboard daily to see health stats, active goals, and quick action buttons for easy navigation.' },
                 { icon: '⚖️', title: 'Log Your Weight Regularly', desc: 'Track weight at least 2-3 times per week for accurate trend charts. Consistency helps you see real progress.' },
@@ -419,13 +421,13 @@ export default function HelpCenter() {
                 { icon: '🧘', title: 'Track MPESS Wellness', desc: 'Log daily practices in Mind, Physical, Emotional, Social & Spiritual wellness to build holistic health habits.' },
                 { icon: '🎯', title: 'Review Your Goals Weekly', desc: 'Check your progress toward set goals each week and celebrate small wins to stay motivated.' }
               ].map((tip, idx) => (
-                <Card key={idx} className="border-0 shadow-sm hover:shadow-lg transition-all group h-full">
-                  <CardContent className="p-5 lg:p-7">
-                    <div className="flex gap-4 lg:gap-5">
-                      <div className="text-4xl lg:text-5xl flex-shrink-0">{tip.icon}</div>
+                <Card key={idx} className="border-0 shadow-md hover:shadow-xl transition-all group h-full">
+                  <CardContent className="p-6 lg:p-8">
+                    <div className="flex gap-5 lg:gap-6">
+                      <div className="text-5xl lg:text-6xl flex-shrink-0">{tip.icon}</div>
                       <div className="min-w-0">
-                        <h4 className="font-bold text-gray-900 mb-2 lg:mb-3 group-hover:text-orange-600 transition text-base lg:text-lg">{tip.title}</h4>
-                        <p className="text-gray-600 text-xs lg:text-sm leading-relaxed">{tip.desc}</p>
+                        <h4 className="font-bold text-gray-900 mb-3 lg:mb-4 group-hover:text-orange-600 transition text-lg lg:text-xl">{tip.title}</h4>
+                        <p className="text-gray-600 text-sm lg:text-base leading-relaxed">{tip.desc}</p>
                       </div>
                     </div>
                   </CardContent>
