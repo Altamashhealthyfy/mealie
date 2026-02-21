@@ -371,31 +371,31 @@ export default function HelpCenter() {
 
           {/* Guides Tab */}
           <TabsContent value="guides" className="space-y-4 lg:space-y-6 mt-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7">
               {filteredGuides.map((guide, idx) => {
                 const Icon = guide.icon;
                 return (
                   <Card
                     key={idx}
-                    className="hover:shadow-xl transition-all duration-300 overflow-hidden border-0 group cursor-pointer"
+                    className="hover:shadow-xl transition-all duration-300 overflow-hidden border-0 group cursor-pointer h-full"
                   >
-                    <CardHeader className={`bg-gradient-to-r ${guide.color} text-white group-hover:shadow-lg transition-shadow p-4 lg:p-6`}>
-                      <div className="flex items-start gap-2 lg:gap-3">
-                        <Icon className="w-6 lg:w-8 h-6 lg:h-8 flex-shrink-0" />
+                    <CardHeader className={`bg-gradient-to-r ${guide.color} text-white group-hover:shadow-lg transition-shadow p-5 lg:p-7`}>
+                      <div className="flex items-start gap-3 lg:gap-4">
+                        <Icon className="w-7 lg:w-9 h-7 lg:h-9 flex-shrink-0 mt-0.5" />
                         <div className="min-w-0">
-                          <CardTitle className="text-base lg:text-xl">{guide.section}</CardTitle>
-                          <CardDescription className="text-white/85 mt-1 text-xs lg:text-sm line-clamp-2">{guide.description}</CardDescription>
+                          <CardTitle className="text-lg lg:text-2xl font-bold">{guide.section}</CardTitle>
+                          <CardDescription className="text-white/80 mt-2 text-xs lg:text-sm leading-relaxed">{guide.description}</CardDescription>
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent className="pt-4 lg:pt-6 p-4 lg:p-6 space-y-2 lg:space-y-3">
+                    <CardContent className="pt-6 lg:pt-8 p-5 lg:p-7 space-y-4 lg:space-y-5">
                       {guide.guides.map((item, itemIdx) => (
-                        <div key={itemIdx} className="pb-2 lg:pb-3 border-b border-gray-100 last:border-b-0">
-                          <h4 className="font-semibold text-gray-900 mb-1 flex items-center gap-2 text-xs lg:text-sm">
-                            <span className="w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-gradient-to-r from-orange-500 to-red-600 flex-shrink-0" />
+                        <div key={itemIdx} className="pb-4 lg:pb-5 border-b border-gray-200 last:border-b-0 last:pb-0">
+                          <h4 className="font-bold text-gray-900 mb-2 flex items-center gap-2.5 text-sm lg:text-base">
+                            <span className="w-2 lg:w-2.5 h-2 lg:h-2.5 rounded-full bg-gradient-to-r from-orange-500 to-red-600 flex-shrink-0" />
                             {item.title}
                           </h4>
-                          <p className="text-gray-600 text-xs leading-relaxed">{item.content}</p>
+                          <p className="text-gray-600 text-xs lg:text-sm leading-relaxed pl-4 lg:pl-5">{item.content}</p>
                         </div>
                       ))}
                     </CardContent>
@@ -415,7 +415,7 @@ export default function HelpCenter() {
 
           {/* Quick Tips Tab */}
           <TabsContent value="tips" className="space-y-4 lg:space-y-6 mt-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7">
               {[
                 { icon: '🎯', title: 'Start with Dashboard', desc: 'Review the main dashboard to understand your key metrics and action items.' },
                 { icon: '⚙️', title: 'Setup Your Profile First', desc: 'Complete your coach profile with credentials and branding before inviting clients.' },
@@ -424,12 +424,12 @@ export default function HelpCenter() {
                 { icon: '📊', title: 'Regular Reviews', desc: 'Check Client Progress Review weekly to identify clients needing extra support.' },
                 { icon: '📚', title: 'Share Resources', desc: 'Build your resource library and use AI suggestions to assign relevant materials.' }
               ].map((tip, idx) => (
-                <Card key={idx} className="border-0 shadow-sm hover:shadow-lg transition-all group">
-                  <CardContent className="p-4 lg:p-6">
-                    <div className="flex gap-3 lg:gap-4">
-                      <div className="text-3xl lg:text-4xl flex-shrink-0">{tip.icon}</div>
+                <Card key={idx} className="border-0 shadow-sm hover:shadow-lg transition-all group h-full">
+                  <CardContent className="p-5 lg:p-7">
+                    <div className="flex gap-4 lg:gap-5">
+                      <div className="text-4xl lg:text-5xl flex-shrink-0">{tip.icon}</div>
                       <div className="min-w-0">
-                        <h4 className="font-semibold text-gray-900 mb-1 lg:mb-2 group-hover:text-orange-600 transition text-sm lg:text-base">{tip.title}</h4>
+                        <h4 className="font-bold text-gray-900 mb-2 lg:mb-3 group-hover:text-orange-600 transition text-base lg:text-lg">{tip.title}</h4>
                         <p className="text-gray-600 text-xs lg:text-sm leading-relaxed">{tip.desc}</p>
                       </div>
                     </div>
@@ -441,28 +441,28 @@ export default function HelpCenter() {
 
           {/* Plans Tab */}
           <TabsContent value="plans" className="space-y-4 lg:space-y-6 mt-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-7">
               {[
                 { icon: '⭐', name: 'Basic', color: 'blue', features: ['Essential features', 'Meal plans', 'Client management', 'Progress tracking', 'Basic messaging'] },
                 { icon: '💎', name: 'Pro', color: 'orange', features: ['Everything in Basic', 'Pro meal plans', 'Advanced analytics', 'Team management', 'Payment processing'], highlight: true },
                 { icon: '👑', name: 'Premium', color: 'purple', features: ['Everything in Pro', 'Custom domain', 'White-label branding', 'Unlimited team', 'API access', 'Priority support'] }
               ].map((plan, idx) => (
-                <Card key={idx} className={`border-2 transition-all ${plan.highlight ? 'border-orange-500 shadow-lg' : 'border-gray-200'} overflow-hidden`}>
-                  <CardHeader className={`bg-gradient-to-r ${plan.color === 'blue' ? 'from-blue-50 to-blue-100' : plan.color === 'orange' ? 'from-orange-50 to-orange-100' : 'from-purple-50 to-purple-100'} p-4 lg:p-6`}>
-                    <div className="flex items-center gap-2 lg:gap-3 mb-2">
-                      <span className="text-2xl lg:text-3xl">{plan.icon}</span>
-                      <CardTitle className={`text-base lg:text-xl ${plan.color === 'blue' ? 'text-blue-900' : plan.color === 'orange' ? 'text-orange-900' : 'text-purple-900'}`}>
+                <Card key={idx} className={`border-2 transition-all h-full ${plan.highlight ? 'border-orange-500 shadow-lg scale-105' : 'border-gray-200'} overflow-hidden`}>
+                  <CardHeader className={`bg-gradient-to-r ${plan.color === 'blue' ? 'from-blue-50 to-blue-100' : plan.color === 'orange' ? 'from-orange-50 to-orange-100' : 'from-purple-50 to-purple-100'} p-5 lg:p-7`}>
+                    <div className="flex items-center gap-3 lg:gap-4 mb-3">
+                      <span className="text-3xl lg:text-4xl">{plan.icon}</span>
+                      <CardTitle className={`text-lg lg:text-2xl font-bold ${plan.color === 'blue' ? 'text-blue-900' : plan.color === 'orange' ? 'text-orange-900' : 'text-purple-900'}`}>
                         {plan.name}
                       </CardTitle>
                     </div>
-                    {plan.highlight && <Badge className="bg-orange-600 w-fit text-xs">Most Popular</Badge>}
+                    {plan.highlight && <Badge className="bg-orange-600 w-fit text-xs font-bold">Most Popular</Badge>}
                   </CardHeader>
-                  <CardContent className="pt-4 lg:pt-6 p-4 lg:p-6">
-                    <ul className="space-y-2 lg:space-y-3">
+                  <CardContent className="pt-6 lg:pt-8 p-5 lg:p-7">
+                    <ul className="space-y-3 lg:space-y-4">
                       {plan.features.map((feature, fidx) => (
-                        <li key={fidx} className="flex items-center gap-2 text-xs lg:text-sm text-gray-700">
-                          <div className={`w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full flex-shrink-0 ${plan.color === 'blue' ? 'bg-blue-600' : plan.color === 'orange' ? 'bg-orange-600' : 'bg-purple-600'}`} />
-                          <span className="leading-tight">{feature}</span>
+                        <li key={fidx} className="flex items-start gap-3 text-xs lg:text-sm text-gray-700">
+                          <div className={`w-2 lg:w-2.5 h-2 lg:h-2.5 rounded-full flex-shrink-0 mt-1.5 ${plan.color === 'blue' ? 'bg-blue-600' : plan.color === 'orange' ? 'bg-orange-600' : 'bg-purple-600'}`} />
+                          <span className="leading-relaxed">{feature}</span>
                         </li>
                       ))}
                     </ul>
