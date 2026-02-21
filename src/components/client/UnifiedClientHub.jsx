@@ -11,6 +11,10 @@ export default function UnifiedClientHub({
   onClientAction = () => {},
   visibleActions = [
     "progress",
+    "progressReview",
+    "analytics",
+    "reports",
+    "tracker",
     "message",
     "view",
     "edit",
