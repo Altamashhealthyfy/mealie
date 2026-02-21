@@ -115,6 +115,9 @@ function DaySummaryView({ day, meals, summary }) {
               {(meal.rationale || meal.disease_rationale) && (
                 <p className="text-xs text-gray-500 italic mt-2 border-t pt-2">💡 {meal.rationale || meal.disease_rationale}</p>
               )}
+              <div className="mt-2 pt-2 border-t">
+                <RecipeScaler meal={meal} />
+              </div>
             </div>
           ))}
           {summary?.notes && <p className="text-xs text-gray-500 text-center pt-1 italic">{summary.notes}</p>}
