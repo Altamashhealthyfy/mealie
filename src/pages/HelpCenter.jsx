@@ -321,37 +321,37 @@ export default function HelpCenter() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 overflow-hidden">
       {/* Hero Header */}
-      <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-green-500 text-white py-12 px-6">
-        <div className="max-w-6xl mx-auto text-center space-y-4">
-          <div className="inline-block mb-4">
-            <span className="text-5xl">📚</span>
+      <div className="bg-gradient-to-r from-orange-500 via-amber-500 to-green-500 text-white py-8 lg:py-12 px-4 lg:px-6">
+        <div className="max-w-6xl mx-auto text-center space-y-2 lg:space-y-4">
+          <div className="inline-block mb-2 lg:mb-4">
+            <span className="text-3xl lg:text-5xl">📚</span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold">Mealie Pro Help Center</h1>
-          <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
+          <h1 className="text-2xl lg:text-5xl xl:text-6xl font-bold">Mealie Pro Help Center</h1>
+          <p className="text-sm lg:text-lg xl:text-xl text-white/90 max-w-2xl mx-auto px-2">
             Your complete guide to mastering the platform. Learn features, best practices, and get answers
           </p>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-12 space-y-8">
+      <div className="max-w-6xl mx-auto px-4 lg:px-6 py-6 lg:py-12 space-y-4 lg:space-y-8">
         {/* Enhanced Search */}
         <div className="max-w-3xl mx-auto">
           <div className="relative group">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-orange-500 transition" />
+            <Search className="absolute left-3 lg:left-4 top-1/2 transform -translate-y-1/2 w-4 lg:w-5 h-4 lg:h-5 text-gray-400 group-focus-within:text-orange-500 transition flex-shrink-0" />
             <Input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search features, guides, and tips..."
-              className="pl-12 pr-4 py-4 text-base border-2 border-gray-200 focus:border-orange-500 rounded-xl shadow-sm focus:shadow-md transition"
+              className="pl-10 lg:pl-12 pr-10 lg:pr-4 py-3 lg:py-4 text-sm lg:text-base border-2 border-gray-200 focus:border-orange-500 rounded-xl shadow-sm focus:shadow-md transition"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 lg:right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 lg:w-5 h-4 lg:h-5" />
               </button>
             )}
           </div>
@@ -360,23 +360,26 @@ export default function HelpCenter() {
         {/* Tabs Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 bg-white/80 backdrop-blur border border-gray-200 rounded-xl p-1">
-            <TabsTrigger value="guides" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white">
-              <BookOpen className="w-4 h-4 mr-2" />
+            <TabsTrigger value="guides" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-xs lg:text-sm py-2 lg:py-2.5">
+              <BookOpen className="w-3 lg:w-4 h-3 lg:h-4 mr-1 lg:mr-2" />
               <span className="hidden sm:inline">Guides</span>
+              <span className="sm:hidden">Guides</span>
             </TabsTrigger>
-            <TabsTrigger value="tips" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white">
-              <Zap className="w-4 h-4 mr-2" />
+            <TabsTrigger value="tips" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-xs lg:text-sm py-2 lg:py-2.5">
+              <Zap className="w-3 lg:w-4 h-3 lg:h-4 mr-1 lg:mr-2" />
               <span className="hidden sm:inline">Quick Tips</span>
+              <span className="sm:hidden">Tips</span>
             </TabsTrigger>
-            <TabsTrigger value="plans" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white">
-              <Eye className="w-4 h-4 mr-2" />
+            <TabsTrigger value="plans" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-xs lg:text-sm py-2 lg:py-2.5">
+              <Eye className="w-3 lg:w-4 h-3 lg:h-4 mr-1 lg:mr-2" />
               <span className="hidden sm:inline">Plans</span>
+              <span className="sm:hidden">Plans</span>
             </TabsTrigger>
           </TabsList>
 
           {/* Guides Tab */}
-          <TabsContent value="guides" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <TabsContent value="guides" className="space-y-4 lg:space-y-6 mt-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               {filteredGuides.map((guide, idx) => {
                 const Icon = guide.icon;
                 return (
@@ -384,20 +387,20 @@ export default function HelpCenter() {
                     key={idx}
                     className="hover:shadow-xl transition-all duration-300 overflow-hidden border-0 group cursor-pointer"
                   >
-                    <CardHeader className={`bg-gradient-to-r ${guide.color} text-white group-hover:shadow-lg transition-shadow`}>
-                      <div className="flex items-start gap-3">
-                        <Icon className="w-8 h-8 flex-shrink-0" />
-                        <div>
-                          <CardTitle className="text-xl">{guide.section}</CardTitle>
-                          <CardDescription className="text-white/85 mt-1 text-sm">{guide.description}</CardDescription>
+                    <CardHeader className={`bg-gradient-to-r ${guide.color} text-white group-hover:shadow-lg transition-shadow p-4 lg:p-6`}>
+                      <div className="flex items-start gap-2 lg:gap-3">
+                        <Icon className="w-6 lg:w-8 h-6 lg:h-8 flex-shrink-0" />
+                        <div className="min-w-0">
+                          <CardTitle className="text-base lg:text-xl">{guide.section}</CardTitle>
+                          <CardDescription className="text-white/85 mt-1 text-xs lg:text-sm line-clamp-2">{guide.description}</CardDescription>
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent className="pt-6 space-y-3">
+                    <CardContent className="pt-4 lg:pt-6 p-4 lg:p-6 space-y-2 lg:space-y-3">
                       {guide.guides.map((item, itemIdx) => (
-                        <div key={itemIdx} className="pb-3 border-b border-gray-100 last:border-b-0">
-                          <h4 className="font-semibold text-gray-900 mb-1 flex items-center gap-2 text-sm">
-                            <span className="w-2 h-2 rounded-full bg-gradient-to-r from-orange-500 to-red-600" />
+                        <div key={itemIdx} className="pb-2 lg:pb-3 border-b border-gray-100 last:border-b-0">
+                          <h4 className="font-semibold text-gray-900 mb-1 flex items-center gap-2 text-xs lg:text-sm">
+                            <span className="w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full bg-gradient-to-r from-orange-500 to-red-600 flex-shrink-0" />
                             {item.title}
                           </h4>
                           <p className="text-gray-600 text-xs leading-relaxed">{item.content}</p>
@@ -410,17 +413,17 @@ export default function HelpCenter() {
             </div>
 
             {filteredGuides.length === 0 && (
-              <div className="text-center py-16">
-                <Search className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                <p className="text-gray-600 font-medium text-lg">No guides found for "{searchTerm}"</p>
-                <p className="text-gray-400 text-sm mt-2">Try searching for a different feature or keyword</p>
+              <div className="text-center py-12 lg:py-16">
+                <Search className="w-12 lg:w-16 h-12 lg:h-16 mx-auto text-gray-300 mb-3 lg:mb-4" />
+                <p className="text-gray-600 font-medium text-base lg:text-lg">No guides found for "{searchTerm}"</p>
+                <p className="text-gray-400 text-xs lg:text-sm mt-2">Try searching for a different feature or keyword</p>
               </div>
             )}
           </TabsContent>
 
           {/* Quick Tips Tab */}
-          <TabsContent value="tips" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <TabsContent value="tips" className="space-y-4 lg:space-y-6 mt-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
               {[
                 { icon: '🎯', title: 'Start with Dashboard', desc: 'Review the main dashboard to understand your key metrics and action items.' },
                 { icon: '⚙️', title: 'Setup Your Profile First', desc: 'Complete your coach profile with credentials and branding before inviting clients.' },
@@ -430,12 +433,12 @@ export default function HelpCenter() {
                 { icon: '📚', title: 'Share Resources', desc: 'Build your resource library and use AI suggestions to assign relevant materials.' }
               ].map((tip, idx) => (
                 <Card key={idx} className="border-0 shadow-sm hover:shadow-lg transition-all group">
-                  <CardContent className="p-6">
-                    <div className="flex gap-4">
-                      <div className="text-4xl flex-shrink-0">{tip.icon}</div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-2 group-hover:text-orange-600 transition">{tip.title}</h4>
-                        <p className="text-gray-600 text-sm leading-relaxed">{tip.desc}</p>
+                  <CardContent className="p-4 lg:p-6">
+                    <div className="flex gap-3 lg:gap-4">
+                      <div className="text-3xl lg:text-4xl flex-shrink-0">{tip.icon}</div>
+                      <div className="min-w-0">
+                        <h4 className="font-semibold text-gray-900 mb-1 lg:mb-2 group-hover:text-orange-600 transition text-sm lg:text-base">{tip.title}</h4>
+                        <p className="text-gray-600 text-xs lg:text-sm leading-relaxed">{tip.desc}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -445,29 +448,29 @@ export default function HelpCenter() {
           </TabsContent>
 
           {/* Plans Tab */}
-          <TabsContent value="plans" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <TabsContent value="plans" className="space-y-4 lg:space-y-6 mt-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
               {[
                 { icon: '⭐', name: 'Basic', color: 'blue', features: ['Essential features', 'Meal plans', 'Client management', 'Progress tracking', 'Basic messaging'] },
                 { icon: '💎', name: 'Pro', color: 'orange', features: ['Everything in Basic', 'Pro meal plans', 'Advanced analytics', 'Team management', 'Payment processing'], highlight: true },
                 { icon: '👑', name: 'Premium', color: 'purple', features: ['Everything in Pro', 'Custom domain', 'White-label branding', 'Unlimited team', 'API access', 'Priority support'] }
               ].map((plan, idx) => (
                 <Card key={idx} className={`border-2 transition-all ${plan.highlight ? 'border-orange-500 shadow-lg' : 'border-gray-200'} overflow-hidden`}>
-                  <CardHeader className={`bg-gradient-to-r ${plan.color === 'blue' ? 'from-blue-50 to-blue-100' : plan.color === 'orange' ? 'from-orange-50 to-orange-100' : 'from-purple-50 to-purple-100'}`}>
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-3xl">{plan.icon}</span>
-                      <CardTitle className={plan.color === 'blue' ? 'text-blue-900' : plan.color === 'orange' ? 'text-orange-900' : 'text-purple-900'}>
+                  <CardHeader className={`bg-gradient-to-r ${plan.color === 'blue' ? 'from-blue-50 to-blue-100' : plan.color === 'orange' ? 'from-orange-50 to-orange-100' : 'from-purple-50 to-purple-100'} p-4 lg:p-6`}>
+                    <div className="flex items-center gap-2 lg:gap-3 mb-2">
+                      <span className="text-2xl lg:text-3xl">{plan.icon}</span>
+                      <CardTitle className={`text-base lg:text-xl ${plan.color === 'blue' ? 'text-blue-900' : plan.color === 'orange' ? 'text-orange-900' : 'text-purple-900'}`}>
                         {plan.name}
                       </CardTitle>
                     </div>
-                    {plan.highlight && <Badge className="bg-orange-600 w-fit">Most Popular</Badge>}
+                    {plan.highlight && <Badge className="bg-orange-600 w-fit text-xs">Most Popular</Badge>}
                   </CardHeader>
-                  <CardContent className="pt-6">
-                    <ul className="space-y-3">
+                  <CardContent className="pt-4 lg:pt-6 p-4 lg:p-6">
+                    <ul className="space-y-2 lg:space-y-3">
                       {plan.features.map((feature, fidx) => (
-                        <li key={fidx} className="flex items-center gap-2 text-sm text-gray-700">
-                          <div className={`w-2 h-2 rounded-full ${plan.color === 'blue' ? 'bg-blue-600' : plan.color === 'orange' ? 'bg-orange-600' : 'bg-purple-600'}`} />
-                          {feature}
+                        <li key={fidx} className="flex items-center gap-2 text-xs lg:text-sm text-gray-700">
+                          <div className={`w-1.5 lg:w-2 h-1.5 lg:h-2 rounded-full flex-shrink-0 ${plan.color === 'blue' ? 'bg-blue-600' : plan.color === 'orange' ? 'bg-orange-600' : 'bg-purple-600'}`} />
+                          <span className="leading-tight">{feature}</span>
                         </li>
                       ))}
                     </ul>
