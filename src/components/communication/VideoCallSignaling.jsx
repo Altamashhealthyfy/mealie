@@ -67,9 +67,9 @@ export function createSignalingChannel({ clientId, senderType, senderEmail }) {
   };
 
   const start = () => {
-    // Poll immediately then every 500ms for faster message delivery
+    // Poll immediately then every 200ms for faster WebRTC connection
     poll();
-    intervalId = setInterval(poll, 500);
+    intervalId = setInterval(poll, 200);
   };
 
   const stop = () => {
