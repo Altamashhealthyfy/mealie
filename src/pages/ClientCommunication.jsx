@@ -508,7 +508,9 @@ export default function ClientCommunication() {
     sendMessageMutation.mutate(messageData);
   };
 
-  if (userLoading || profileLoading) {
+  const isClient = user?.user_type === 'client';
+
+  if (userLoading || (isClient && profileLoading)) {
     return (
       <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-md border-none shadow-xl">
@@ -521,7 +523,12 @@ export default function ClientCommunication() {
     );
   }
 
-  if (!user || (user.user_type === 'client' && !clientProfile && !profileLoading)) {
+  if (!user) {
+    return null;
+  }
+
+  // Only block access if the user is a client with no client profile
+  if (isClient && !clientProfile) {
     return (
       <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
         <Card className="max-w-md border-none shadow-xl">
