@@ -48,6 +48,10 @@ import VideoCallRoom from "@/components/communication/VideoCallRoom";
 import VideoCallScheduler from "@/components/communication/VideoCallScheduler";
 import VideoCallHistory from "@/components/communication/VideoCallHistory";
 import { createSignalingChannel } from "@/components/communication/VideoCallSignaling";
+import QuickReplyPanel from "@/components/communication/QuickReplyPanel";
+import ProgressUpdateShare from "@/components/communication/ProgressUpdateShare";
+import MessageThread from "@/components/communication/MessageThread";
+import AutomatedCheckInScheduler from "@/components/communication/AutomatedCheckInScheduler";
 
 export default function Communication() {
   const queryClient = useQueryClient();
@@ -65,6 +69,7 @@ export default function Communication() {
   const [activeVideoCall, setActiveVideoCall] = useState(null); // { clientId, clientName, channel }
   const [showScheduler, setShowScheduler] = useState(false);
   const [showCallHistory, setShowCallHistory] = useState(false);
+  const [selectedThread, setSelectedThread] = useState(null);
   const signalingRef = useRef(null);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
@@ -904,6 +909,18 @@ export default function Communication() {
                                         <Check className="w-4 h-4 text-white/70" />
                                       )
                                     )}
+                                    {message.thread_count > 0 && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => setSelectedThread(message)}
+                                        className={`h-5 px-1.5 text-xs ${
+                                          isFromDietitian ? 'text-blue-200 hover:bg-white/10' : 'text-blue-600 hover:bg-blue-50'
+                                        }`}
+                                      >
+                                        💬 {message.thread_count}
+                                      </Button>
+                                    )}
                                   </div>
                                   <ReadReceiptIndicator
                                     isImportant={message.is_important}
@@ -933,6 +950,28 @@ export default function Communication() {
                         <ArrowDown className="w-6 h-6 text-white animate-bounce" />
                       </Button>
                     )}
+                  </div>
+
+                  {/* Toolbar with Quick Actions */}
+                  <div className="p-3 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-white flex-shrink-0 flex-wrap gap-2">
+                    <QuickReplyPanel
+                      selectedClient={selectedClient}
+                      onSelectTemplate={(text) => setMessageText(prev => prev + '\n' + text)}
+                      disabled={uploading || sendMessageMutation.isPending}
+                    />
+                    <ProgressUpdateShare
+                      onShare={(data) => {
+                        const progressMsg = `📊 Progress Update: ${data.type === 'metrics' ? 'Metrics logged' : data.type === 'photo' ? 'Photo shared' : 'Note shared'}`;
+                        setMessageText(progressMsg);
+                      }}
+                      disabled={uploading || sendMessageMutation.isPending}
+                    />
+                    <AutomatedCheckInScheduler
+                      clientId={selectedClient?.id}
+                      clientEmail={selectedClient?.email}
+                      onSchedule={() => toast.success('Check-in scheduled for this client!')}
+                      disabled={uploading || sendMessageMutation.isPending}
+                    />
                   </div>
 
                   {/* Send Message Box */}
