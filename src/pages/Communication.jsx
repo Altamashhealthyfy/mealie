@@ -52,6 +52,7 @@ import QuickReplyPanel from "@/components/communication/QuickReplyPanel";
 import ProgressUpdateShare from "@/components/communication/ProgressUpdateShare";
 import MessageThread from "@/components/communication/MessageThread";
 import AutomatedCheckInScheduler from "@/components/communication/AutomatedCheckInScheduler";
+import EnhancedMessageInput from "@/components/communication/EnhancedMessageInput";
 
 export default function Communication() {
   const queryClient = useQueryClient();
@@ -952,134 +953,39 @@ export default function Communication() {
                     )}
                   </div>
 
-                  {/* Toolbar with Quick Actions */}
-                  <div className="p-3 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-white flex-shrink-0 flex-wrap gap-2">
-                    <QuickReplyPanel
-                      selectedClient={selectedClient}
-                      onSelectTemplate={(text) => setMessageText(prev => prev + '\n' + text)}
-                      disabled={uploading || sendMessageMutation.isPending}
-                    />
-                    <ProgressUpdateShare
-                      onShare={(data) => {
-                        const progressMsg = `📊 Progress Update: ${data.type === 'metrics' ? 'Metrics logged' : data.type === 'photo' ? 'Photo shared' : 'Note shared'}`;
-                        setMessageText(progressMsg);
-                      }}
-                      disabled={uploading || sendMessageMutation.isPending}
-                    />
-                    <AutomatedCheckInScheduler
-                      clientId={selectedClient?.id}
-                      clientEmail={selectedClient?.email}
-                      onSchedule={() => toast.success('Check-in scheduled for this client!')}
-                      disabled={uploading || sendMessageMutation.isPending}
-                    />
-                  </div>
+                  {/* Enhanced Message Input */}
+                  <EnhancedMessageInput
+                    messageText={messageText}
+                    onMessageChange={(text) => {
+                      setMessageText(text);
+                      handleTyping();
+                    }}
+                    onSend={() => {
+                      stopTyping();
+                      handleSendMessage();
+                    }}
+                    onFileSelect={handleFileSelect}
+                    onSchedule={() => {}}
+                    onTypeSelect={handleContentTypeSelect}
+                    attachedFile={attachedFile}
+                    onRemoveFile={removeAttachment}
+                    isLoading={sendMessageMutation.isPending || uploading}
+                    disabled={uploading || sendMessageMutation.isPending}
+                    isImportant={isImportant}
+                    onImportantChange={setIsImportant}
+                    contentType={contentType}
+                    fileInputRef={fileInputRef}
+                    textareaRef={textareaRef}
+                    showQuickReply={true}
+                    showProgressShare={true}
+                    showAutoCheckIn={true}
+                  />
 
-                  {/* Send Message Box */}
-                  <div className="p-2 sm:p-3 md:p-4 border-t-2 border-orange-500 bg-white flex-shrink-0" id="message-send-box">
-                    {attachedFile && (
-                      <div className="mb-2 md:mb-3 p-2 md:p-3 bg-blue-50 rounded-lg border border-blue-200">
-                        <div className="flex items-center gap-2">
-                          {getFileIcon(attachedFile.type)}
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                              {attachedFile.name}
-                            </p>
-                            <p className="text-xs text-gray-600">
-                              {formatFileSize(attachedFile.size)}
-                            </p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={removeAttachment}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex items-end gap-2 md:gap-3">
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        onChange={handleFileSelect}
-                        className="hidden"
-                        accept="*/*"
-                      />
-                      <ContentTypePicker
-                        selectedType={contentType}
-                        onTypeSelect={handleContentTypeSelect}
-                        disabled={uploading || sendMessageMutation.isPending}
-                      />
-                      <div className="flex items-center gap-2 bg-white p-2 rounded border border-orange-200">
-                        <Checkbox
-                          checked={isImportant}
-                          onCheckedChange={setIsImportant}
-                          className="h-4 w-4"
-                        />
-                        <Star className="w-3 h-3 text-yellow-500" />
-                      </div>
-                      <ScheduleMessageDialog onSchedule={handleScheduledMessage}>
-                        <Button variant="outline" size="sm" className="h-[50px] md:h-[60px] flex-shrink-0">
-                          <Clock className="w-4 h-4 mr-2" />
-                          <span className="hidden sm:inline">Schedule</span>
-                        </Button>
-                      </ScheduleMessageDialog>
-                      <div className="flex-1">
-                        <Textarea
-                          ref={textareaRef}
-                          placeholder="Type your message..."
-                          value={messageText}
-                          onChange={(e) => {
-                            setMessageText(e.target.value);
-                            handleTyping();
-                          }}
-                          onKeyPress={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                              e.preventDefault();
-                              stopTyping();
-                              handleSendMessage();
-                            }
-                          }}
-                          onBlur={stopTyping}
-                          className="resize-none min-h-[50px] md:min-h-[60px] text-sm border-2 border-orange-300 focus:border-orange-500"
-                          rows={2}
-                          disabled={uploading}
-                          autoFocus
-                        />
-                      </div>
-                      <Button
-                        onClick={handleSendMessage}
-                        disabled={sendMessageMutation.isPending || uploading}
-                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-[50px] md:h-[60px] px-3 md:px-6 font-semibold shadow-lg text-sm md:text-base"
-                      >
-                        {(sendMessageMutation.isPending || uploading) ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            {uploading ? 'Uploading...' : 'Sending...'}
-                          </>
-                        ) : (
-                          <>
-                            <Send className="w-4 h-4 mr-2" />
-                            Send
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                    
-                    <p className="text-xs text-gray-500 text-center mt-2">
-                      Select content type • Attach files up to 1 GB • 
-                      <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono ml-1">Enter</kbd> to send
-                    </p>
-
-                    <PollCreator
-                      open={showPollCreator}
-                      onClose={() => setShowPollCreator(false)}
-                      onCreatePoll={handlePollCreate}
-                    />
-                  </div>
+                  <PollCreator
+                    open={showPollCreator}
+                    onClose={() => setShowPollCreator(false)}
+                    onCreatePoll={handlePollCreate}
+                  />
                 </>
               ) : (
                 <div className="flex items-center justify-center h-full">
