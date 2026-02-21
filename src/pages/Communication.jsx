@@ -42,6 +42,7 @@ import { useTypingIndicator } from "@/components/communication/useTypingIndicato
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import ContentTypePicker from "@/components/communication/ContentTypePicker";
+import BroadcastMessagePanel from "@/components/communication/BroadcastMessagePanel";
 import PollCreator from "@/components/communication/PollCreator";
 import PollDisplay from "@/components/communication/PollDisplay";
 import VideoCallRoom from "@/components/communication/VideoCallRoom";
@@ -659,12 +660,12 @@ export default function Communication() {
       
       <div className="max-w-7xl mx-auto">
         <div className="mb-4 md:mb-6 flex justify-between items-start">
-          <div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 md:mb-2">Messages</h1>
-            <p className="text-sm md:text-base text-gray-600">Communicate with your clients</p>
-          </div>
-          
-        </div>
+           <div>
+             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 md:mb-2">Messages</h1>
+             <p className="text-sm md:text-base text-gray-600">Communicate with your clients</p>
+           </div>
+           <BroadcastMessagePanel />
+         </div>
 
         <Card className="border-none shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 160px)' }}>
           <Tabs defaultValue="direct" className="h-full flex flex-col">
