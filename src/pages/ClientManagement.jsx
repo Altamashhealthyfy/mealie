@@ -38,6 +38,7 @@ import {
   Copy,
   Sparkles,
   X,
+  Download,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
@@ -55,6 +56,7 @@ import BulkActionsPanel from "@/components/client/BulkActionsPanel";
 import WelcomeMessageManager from "@/components/common/WelcomeMessageManager";
 import BulkClientImport from "@/components/client/BulkClientImport";
 import ClientManagementHub from "@/components/client/ClientManagementHub";
+import BulkExport from "@/components/client/BulkExport";
 
 function ClientList() {
   return <ClientManagementInner />;
@@ -100,6 +102,7 @@ function ClientManagementInner() {
   const [showWelcomeMessageDialog, setShowWelcomeMessageDialog] = useState(false);
   const [clientForWelcome, setClientForWelcome] = useState(null);
   const [showBulkImport, setShowBulkImport] = useState(false);
+  const [showBulkExport, setShowBulkExport] = useState(false);
 
   const [formData, setFormData] = useState({
     full_name: "",
@@ -1081,6 +1084,15 @@ support@mealiepro.com`;
             >
             <Plus className="w-4 h-4 mr-2" />
             Bulk Import
+            </Button>
+
+            <Button
+            variant="outline"
+            onClick={() => setShowBulkExport(true)}
+            className="text-blue-600 hover:bg-blue-50 border-blue-300 flex-1 sm:flex-none"
+            >
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
             </Button>
             </div>
             </div>
@@ -2098,6 +2110,13 @@ support@mealiepro.com`;
 
         {/* Bulk Import Dialog */}
         <BulkClientImport open={showBulkImport} onOpenChange={setShowBulkImport} />
+
+        {/* Bulk Export Dialog */}
+        <BulkExport
+          clients={filteredAndSortedClients}
+          open={showBulkExport}
+          onOpenChange={setShowBulkExport}
+        />
 
         {/* Help Card for User Invitation */}
         <Card className="border-2 border-orange-500 bg-gradient-to-br from-orange-50 to-red-50">
