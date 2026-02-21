@@ -117,6 +117,7 @@ import ComprehensiveAnalyticsDashboard from './pages/ComprehensiveAnalyticsDashb
 import CouponManagement from './pages/CouponManagement';
 import DailyProgressLogger from './pages/DailyProgressLogger';
 import DietitianDashboard from './pages/DietitianDashboard';
+import DirectChat from './pages/DirectChat';
 import Documentation from './pages/Documentation';
 import EmailSequenceManager from './pages/EmailSequenceManager';
 import FeatureControl from './pages/FeatureControl';
@@ -179,7 +180,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import DirectChat from './pages/DirectChat';
 import __Layout from './Layout.jsx';
 
 
@@ -254,6 +254,7 @@ export const PAGES = {
     "CouponManagement": CouponManagement,
     "DailyProgressLogger": DailyProgressLogger,
     "DietitianDashboard": DietitianDashboard,
+    "DirectChat": DirectChat,
     "Documentation": Documentation,
     "EmailSequenceManager": EmailSequenceManager,
     "FeatureControl": FeatureControl,
@@ -316,7 +317,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "DirectChat": DirectChat,
 }
 
 export const pagesConfig = {

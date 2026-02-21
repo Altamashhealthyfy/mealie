@@ -1384,6 +1384,12 @@ Arher dal, Moong dal, Chana dal, Masoor dal, Urad chana dal, Rajhma, Chhole, Kal
 Salad: Cucumber, tomato, onion, carrot, lemon
 Yogurt: Chhach or Curd
 
+**CRITICAL RICE LIMITATION RULE (10-DAY PLANS ONLY):**
+In a 10-day meal plan, include rice-based meals (rice + dal/rajma/chhole/kadhi/veg/paneer pulao) for MAXIMUM 4-5 days ONLY.
+The remaining 5-6 days MUST use roti-based meals (roti + vegetable curry or roti + dal WITHOUT rice).
+Example: Days 1, 3, 5, 7, 9 can have rice combinations. Days 2, 4, 6, 8, 10 MUST have only roti-based meals.
+This ensures variety and prevents excessive carb intake from daily rice consumption.
+
 **EVENING SNACKS:**
 - Murmura bhel, Corn bhel, Mix bhel [murmura + bhuna chana + cornflakes + veggies]
 - Veg sandwich [2 atta bread slices]
