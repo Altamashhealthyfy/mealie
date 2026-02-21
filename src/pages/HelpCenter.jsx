@@ -351,7 +351,7 @@ export default function HelpCenter() {
 
         {/* Tabs Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-white/80 backdrop-blur border border-gray-200 rounded-xl p-1">
+          <TabsList className="grid w-full grid-cols-2 bg-white/80 backdrop-blur border border-gray-200 rounded-xl p-1">
             <TabsTrigger value="guides" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-xs lg:text-sm py-2 lg:py-2.5">
               <BookOpen className="w-3 lg:w-4 h-3 lg:h-4 mr-1 lg:mr-2" />
               <span className="hidden sm:inline">Guides</span>
@@ -361,11 +361,6 @@ export default function HelpCenter() {
               <Zap className="w-3 lg:w-4 h-3 lg:h-4 mr-1 lg:mr-2" />
               <span className="hidden sm:inline">Quick Tips</span>
               <span className="sm:hidden">Tips</span>
-            </TabsTrigger>
-            <TabsTrigger value="plans" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-xs lg:text-sm py-2 lg:py-2.5">
-              <Eye className="w-3 lg:w-4 h-3 lg:h-4 mr-1 lg:mr-2" />
-              <span className="hidden sm:inline">Plans</span>
-              <span className="sm:hidden">Plans</span>
             </TabsTrigger>
           </TabsList>
 
@@ -417,12 +412,12 @@ export default function HelpCenter() {
           <TabsContent value="tips" className="space-y-4 lg:space-y-6 mt-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7">
               {[
-                { icon: '🎯', title: 'Start with Dashboard', desc: 'Review the main dashboard to understand your key metrics and action items.' },
-                { icon: '⚙️', title: 'Setup Your Profile First', desc: 'Complete your coach profile with credentials and branding before inviting clients.' },
-                { icon: '🍽️', title: 'Create Meal Plans', desc: 'Use the AI meal planner to quickly generate personalized plans for new clients.' },
-                { icon: '🏆', title: 'Use Gamification', desc: 'Enable challenges, points, and badges to keep clients motivated and engaged.' },
-                { icon: '📊', title: 'Regular Reviews', desc: 'Check Client Progress Review weekly to identify clients needing extra support.' },
-                { icon: '📚', title: 'Share Resources', desc: 'Build your resource library and use AI suggestions to assign relevant materials.' }
+                { icon: '📱', title: 'Start with Home Dashboard', desc: 'Check your home dashboard daily to see health stats, active goals, and quick action buttons for easy navigation.' },
+                { icon: '⚖️', title: 'Log Your Weight Regularly', desc: 'Track weight at least 2-3 times per week for accurate trend charts. Consistency helps you see real progress.' },
+                { icon: '🍽️', title: 'Use Food Lookup Tool', desc: 'Search Indian foods in the Food Lookup tool to get accurate nutritional info before logging meals.' },
+                { icon: '💬', title: 'Message Your Coach', desc: 'Share your progress updates, meal photos, and questions with your coach directly in the Messages section.' },
+                { icon: '🧘', title: 'Track MPESS Wellness', desc: 'Log daily practices in Mind, Physical, Emotional, Social & Spiritual wellness to build holistic health habits.' },
+                { icon: '🎯', title: 'Review Your Goals Weekly', desc: 'Check your progress toward set goals each week and celebrate small wins to stay motivated.' }
               ].map((tip, idx) => (
                 <Card key={idx} className="border-0 shadow-sm hover:shadow-lg transition-all group h-full">
                   <CardContent className="p-5 lg:p-7">
@@ -439,38 +434,7 @@ export default function HelpCenter() {
             </div>
           </TabsContent>
 
-          {/* Plans Tab */}
-          <TabsContent value="plans" className="space-y-4 lg:space-y-6 mt-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-7">
-              {[
-                { icon: '⭐', name: 'Basic', color: 'blue', features: ['Essential features', 'Meal plans', 'Client management', 'Progress tracking', 'Basic messaging'] },
-                { icon: '💎', name: 'Pro', color: 'orange', features: ['Everything in Basic', 'Pro meal plans', 'Advanced analytics', 'Team management', 'Payment processing'], highlight: true },
-                { icon: '👑', name: 'Premium', color: 'purple', features: ['Everything in Pro', 'Custom domain', 'White-label branding', 'Unlimited team', 'API access', 'Priority support'] }
-              ].map((plan, idx) => (
-                <Card key={idx} className={`border-2 transition-all h-full ${plan.highlight ? 'border-orange-500 shadow-lg scale-105' : 'border-gray-200'} overflow-hidden`}>
-                  <CardHeader className={`bg-gradient-to-r ${plan.color === 'blue' ? 'from-blue-50 to-blue-100' : plan.color === 'orange' ? 'from-orange-50 to-orange-100' : 'from-purple-50 to-purple-100'} p-5 lg:p-7`}>
-                    <div className="flex items-center gap-3 lg:gap-4 mb-3">
-                      <span className="text-3xl lg:text-4xl">{plan.icon}</span>
-                      <CardTitle className={`text-lg lg:text-2xl font-bold ${plan.color === 'blue' ? 'text-blue-900' : plan.color === 'orange' ? 'text-orange-900' : 'text-purple-900'}`}>
-                        {plan.name}
-                      </CardTitle>
-                    </div>
-                    {plan.highlight && <Badge className="bg-orange-600 w-fit text-xs font-bold">Most Popular</Badge>}
-                  </CardHeader>
-                  <CardContent className="pt-6 lg:pt-8 p-5 lg:p-7">
-                    <ul className="space-y-3 lg:space-y-4">
-                      {plan.features.map((feature, fidx) => (
-                        <li key={fidx} className="flex items-start gap-3 text-xs lg:text-sm text-gray-700">
-                          <div className={`w-2 lg:w-2.5 h-2 lg:h-2.5 rounded-full flex-shrink-0 mt-1.5 ${plan.color === 'blue' ? 'bg-blue-600' : plan.color === 'orange' ? 'bg-orange-600' : 'bg-purple-600'}`} />
-                          <span className="leading-relaxed">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
+
           </Tabs>
           </div>
           </div>
