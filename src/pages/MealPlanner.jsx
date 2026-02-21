@@ -242,7 +242,9 @@ export default function MealPlanner() {
     onSuccess: async () => {
       await queryClient.invalidateQueries(['mealPlans']);
       setGeneratedPlan(null);
+      setViewingPlan(null);
       setSelectedClientId(null);
+      setActiveTab("templates");
       alert(`✅ Meal plan assigned successfully!\n\nClient will see it in their "My Meal Plan" page`);
     },
   });

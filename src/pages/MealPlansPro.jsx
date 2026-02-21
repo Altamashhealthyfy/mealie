@@ -116,6 +116,8 @@ export default function MealPlansPro() {
     onSuccess: () => {
       queryClient.invalidateQueries(['proMealPlans']);
       setGeneratedPlan(null);
+      setSelectedClientId(null);
+      setActiveTab("templates");
       alert('✅ Pro meal plan saved and assigned successfully!');
     },
   });
