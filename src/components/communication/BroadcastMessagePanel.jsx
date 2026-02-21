@@ -18,6 +18,7 @@ export default function BroadcastMessagePanel() {
   const [message, setMessage] = useState("");
   const [selectedClients, setSelectedClients] = useState([]);
   const [sendingStatus, setSendingStatus] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
