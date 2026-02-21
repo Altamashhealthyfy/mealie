@@ -1,13 +1,13 @@
 /**
  * VideoCallSignaling
- * Implements a simple signaling channel using base44 Message entity
+ * Implements a signaling channel using base44 Message entity
  * with content_type='video_signal' to relay WebRTC SDP/ICE messages.
  */
 import { base44 } from "@/api/base44Client";
 
-export function createSignalingChannel({ clientId, senderType, senderEmail, onMessage }) {
+export function createSignalingChannel({ clientId, senderType, senderEmail }) {
   let stopped = false;
-  let lastSeenId = null;
+  let processedIds = new Set();
   let intervalId = null;
   const handlers = [];
 
@@ -26,7 +26,7 @@ export function createSignalingChannel({ clientId, senderType, senderEmail, onMe
     }
   };
 
-  const registerHandler = (cb) => {
+  const onMessage = (cb) => {
     handlers.push(cb);
   };
 
@@ -36,20 +36,23 @@ export function createSignalingChannel({ clientId, senderType, senderEmail, onMe
       const msgs = await base44.entities.Message.filter({
         client_id: clientId,
         content_type: 'video_signal',
+        read: false,
       });
-      const newMsgs = msgs
+
+      const incoming = msgs
         .filter(m => m.sender_type !== senderType)
         .sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
 
-      for (const msg of newMsgs) {
-        if (lastSeenId && msg.id <= lastSeenId) continue;
-        lastSeenId = msg.id;
+      for (const msg of incoming) {
+        if (processedIds.has(msg.id)) continue;
+        processedIds.add(msg.id);
+
         try {
           const data = JSON.parse(msg.message);
           handlers.forEach(h => h(data));
-          if (onMessage) onMessage(data);
         } catch {}
-        // Mark as read so we don't re-process
+
+        // Mark as read so we don't re-process on next poll
         base44.entities.Message.update(msg.id, { read: true }).catch(() => {});
       }
     } catch (e) {
@@ -58,6 +61,8 @@ export function createSignalingChannel({ clientId, senderType, senderEmail, onMe
   };
 
   const start = () => {
+    // Poll immediately then every 1.5s
+    poll();
     intervalId = setInterval(poll, 1500);
   };
 
@@ -66,5 +71,5 @@ export function createSignalingChannel({ clientId, senderType, senderEmail, onMe
     clearInterval(intervalId);
   };
 
-  return { send, onMessage: registerHandler, start, stop };
+  return { send, onMessage, start, stop };
 }
