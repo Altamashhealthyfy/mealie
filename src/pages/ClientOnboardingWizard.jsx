@@ -56,11 +56,14 @@ export default function ClientOnboardingWizard() {
 
   const handleCompleteOnboarding = async () => {
     try {
-      await updateClientMutation.mutateAsync({ onboarding_completed: true, tutorial_completed: true });
-      await completeOnboardingMutation.mutateAsync();
-      setTimeout(() => { window.location.href = createPageUrl('ClientDashboard'); }, 800);
+      if (clientProfile?.id) {
+        await updateClientMutation.mutateAsync({ onboarding_completed: true, tutorial_completed: true });
+        await completeOnboardingMutation.mutateAsync();
+      }
     } catch (error) {
       console.error('Onboarding error:', error);
+    } finally {
+      window.location.href = createPageUrl('ClientDashboard');
     }
   };
 
