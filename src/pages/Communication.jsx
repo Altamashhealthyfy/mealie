@@ -1042,8 +1042,8 @@ export default function Communication() {
                     </div>
                   ) : (
                     <EnhancedMessageInput
-                      messageText={messageText}
-                      onMessageChange={(text) => {
+                      value={messageText}
+                      onChange={(text) => {
                         setMessageText(text);
                         handleTyping();
                       }}
@@ -1051,22 +1051,10 @@ export default function Communication() {
                         stopTyping();
                         handleSendMessage();
                       }}
-                      onFileSelect={handleFileSelect}
-                      onSchedule={() => {}}
-                      onTypeSelect={handleContentTypeSelect}
-                      attachedFile={attachedFile}
+                      attachedFiles={attachedFile ? [attachedFile] : []}
                       onRemoveFile={removeAttachment}
                       isLoading={sendMessageMutation.isPending || uploading}
                       disabled={uploading || sendMessageMutation.isPending}
-                      isImportant={isImportant}
-                      onImportantChange={setIsImportant}
-                      contentType={contentType}
-                      fileInputRef={fileInputRef}
-                      textareaRef={textareaRef}
-                      showQuickReply={true}
-                      showProgressShare={true}
-                      showAutoCheckIn={true}
-                      onVoiceRecordStart={() => setShowVoiceRecorder(true)}
                     />
                   )}
 
