@@ -817,7 +817,7 @@ export default function Communication() {
             </div>
 
                 {/* Chat Area */}
-                <div className="flex md:col-span-8 flex-col h-full md:h-auto overflow-hidden">
+                <div className="flex md:col-span-8 flex-col h-full overflow-hidden">
               {selectedClient ? (
                 <>
                   {/* Chat Header */}
