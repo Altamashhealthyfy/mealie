@@ -59,7 +59,7 @@ export default function EnhancedMessageInput({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 w-full">
       {attachedFiles.length > 0 && (
         <div className="space-y-2">
           {attachedFiles.map((file, idx) => (
@@ -85,8 +85,8 @@ export default function EnhancedMessageInput({
         </div>
       )}
 
-      <div className="flex gap-2">
-        <div className="flex-1">
+      <div className="flex gap-2 w-full items-end">
+        <div className="flex-1 min-w-0">
           <Textarea
             value={value}
             onChange={(e) => onChange(e.target.value)}
@@ -94,10 +94,10 @@ export default function EnhancedMessageInput({
             placeholder="Type a message... (Shift+Enter for new line)"
             disabled={disabled}
             rows={3}
-            className="resize-none"
+            className="resize-none w-full"
           />
         </div>
-        <div className="flex flex-col gap-2">
+        <div className="flex gap-2 flex-shrink-0">
           <input
             ref={fileInputRef}
             type="file"
@@ -112,13 +112,14 @@ export default function EnhancedMessageInput({
             onClick={() => fileInputRef.current?.click()}
             disabled={disabled}
             title="Attach file"
+            className="flex-shrink-0"
           >
             <Paperclip className="w-4 h-4" />
           </Button>
           <Button
             onClick={onSend}
             disabled={disabled || isLoading || !value.trim()}
-            className="bg-blue-600 hover:bg-blue-700"
+            className="bg-blue-600 hover:bg-blue-700 flex-shrink-0"
             size="icon"
           >
             {isLoading ? (
