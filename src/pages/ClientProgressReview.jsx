@@ -203,6 +203,10 @@ export default function ClientProgressReview() {
 
   const activeGoals = clientGoals.filter(g => g.status === 'active');
 
+  const handleClientAction = (action, client) => {
+    setSelectedClient(client);
+  };
+
   return (
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -212,49 +216,11 @@ export default function ClientProgressReview() {
         </div>
 
         {!selectedClient ? (
-          <div>
-            <div className="mb-6">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <Input
-                  placeholder="Search clients by name or email..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredClients.map(client => (
-                <Card key={client.id} className="hover:shadow-lg transition-shadow cursor-pointer border-none"
-                  onClick={() => setSelectedClient(client)}>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center justify-between">
-                      <span>{client.full_name}</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    <p className="text-sm text-gray-600">{client.email}</p>
-                    {client.weight && (
-                      <Badge variant="outline" className="text-xs">
-                        <Scale className="w-3 h-3 mr-1" />
-                        {client.weight} kg
-                      </Badge>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {filteredClients.length === 0 && (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <p className="text-gray-600">No clients found</p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+          <UnifiedClientHub
+            clients={clients}
+            onClientAction={handleClientAction}
+            visibleActions={["progress", "message", "edit"]}
+          />
         ) : (
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
