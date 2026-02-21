@@ -543,24 +543,67 @@ export default function ClientCommunication() {
 
   return (
     <div className="min-h-screen p-4 md:p-8">
+      {activeVideoCall && (
+        <VideoCallRoom
+          roomId={activeVideoCall.clientId}
+          localName={user?.full_name || 'Me'}
+          remoteName={activeVideoCall.coachName}
+          isInitiator={false}
+          signalingChannel={activeVideoCall.channel}
+          onEnd={endVideoCall}
+        />
+      )}
       <div className="max-w-5xl mx-auto">
-        <div className="mb-6 flex items-start justify-between gap-4">
+        <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Messages</h1>
             <p className="text-gray-600">
               Chat with {coachUser?.full_name || clientProfile?.assigned_coach?.split('@')[0] || 'your health coach'}
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleNotifications}
-            className={`flex-shrink-0 flex items-center gap-2 ${notificationsEnabled ? 'border-green-400 text-green-700' : 'text-gray-500'}`}
-          >
-            {notificationsEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
-            <span className="hidden sm:inline">{notificationsEnabled ? 'Notifications On' : 'Notifications Off'}</span>
-          </Button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowCallHistory(!showCallHistory)}
+              className="flex items-center gap-1 border-purple-300 text-purple-700 hover:bg-purple-50"
+            >
+              <History className="w-4 h-4" />
+              <span className="hidden sm:inline">Call History</span>
+            </Button>
+            <Button
+              size="sm"
+              onClick={startVideoCall}
+              className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1"
+            >
+              <Phone className="w-4 h-4" />
+              <span className="hidden sm:inline">Start Video Call</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleNotifications}
+              className={`flex-shrink-0 flex items-center gap-2 ${notificationsEnabled ? 'border-green-400 text-green-700' : 'text-gray-500'}`}
+            >
+              {notificationsEnabled ? <Bell className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+              <span className="hidden sm:inline">{notificationsEnabled ? 'Notifications On' : 'Notifications Off'}</span>
+            </Button>
+          </div>
         </div>
+
+        {showCallHistory && (
+          <div className="mb-4 border border-purple-200 rounded-xl bg-purple-50 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-purple-800 flex items-center gap-2">
+                <History className="w-4 h-4" /> Scheduled & Past Calls
+              </h4>
+              <Button variant="ghost" size="sm" onClick={() => setShowCallHistory(false)} className="h-6 w-6 p-0">
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <VideoCallHistory clientId={clientProfile?.id} />
+          </div>
+        )}
 
         {newMessageAlert && (
           <div className="mb-4 p-3 bg-green-50 border border-green-300 rounded-xl flex items-center gap-3 animate-in slide-in-from-top-2">
