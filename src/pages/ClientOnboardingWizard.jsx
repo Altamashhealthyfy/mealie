@@ -45,9 +45,6 @@ export default function ClientOnboardingWizard() {
 
   const handleNextStep = async () => {
     setCelebrateStep(true);
-    const newPoints = 50 + (currentStep * 10);
-    setPointsEarned(prev => prev + newPoints);
-
     setTimeout(() => {
       if (currentStep < 5) {
         setCurrentStep(currentStep + 1);
