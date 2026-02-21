@@ -1010,7 +1010,7 @@ export default function Communication() {
                           setShowVoiceRecorder(false);
                           setAttachedFile(audioFile);
                           setContentType('audio');
-                          
+
                           // Auto-send voice note
                           setUploading(true);
                           try {
@@ -1041,21 +1041,23 @@ export default function Communication() {
                       />
                     </div>
                   ) : (
-                    <EnhancedMessageInput
-                      value={messageText}
-                      onChange={(text) => {
-                        setMessageText(text);
-                        handleTyping();
-                      }}
-                      onSend={() => {
-                        stopTyping();
-                        handleSendMessage();
-                      }}
-                      attachedFiles={attachedFile ? [attachedFile] : []}
-                      onRemoveFile={removeAttachment}
-                      isLoading={sendMessageMutation.isPending || uploading}
-                      disabled={uploading || sendMessageMutation.isPending}
-                    />
+                    <div className="border-t border-gray-200 p-4 flex-shrink-0">
+                      <EnhancedMessageInput
+                        value={messageText}
+                        onChange={(text) => {
+                          setMessageText(text);
+                          handleTyping();
+                        }}
+                        onSend={() => {
+                          stopTyping();
+                          handleSendMessage();
+                        }}
+                        attachedFiles={attachedFile ? [attachedFile] : []}
+                        onRemoveFile={removeAttachment}
+                        isLoading={sendMessageMutation.isPending || uploading}
+                        disabled={uploading || sendMessageMutation.isPending}
+                      />
+                    </div>
                   )}
 
                   <PollCreator
