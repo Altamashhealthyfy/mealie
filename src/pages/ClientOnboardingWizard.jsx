@@ -108,7 +108,7 @@ export default function ClientOnboardingWizard() {
                 {currentStep === 2 && <ProfileStep formData={formData} setFormData={setFormData} />}
                 {currentStep === 3 && <GoalsStep formData={formData} setFormData={setFormData} />}
                 {currentStep === 4 && <PreferencesStep formData={formData} setFormData={setFormData} />}
-                {currentStep === 5 && <CompletionStep pointsEarned={pointsEarned} />}
+                {currentStep === 5 && <CompletionStep />}
               </CardContent>
             </Card>
           </motion.div>
