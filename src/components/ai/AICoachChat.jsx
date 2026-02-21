@@ -448,30 +448,6 @@ export default function AICoachChat({ clientId, clientName, onClientChange }) {
 
   return (
     <div className="flex flex-col h-full min-h-[500px]">
-      {/* Client Selector */}
-      <div className="px-4 pt-4 border-b bg-white/80">
-        <div className="flex items-center gap-2 mb-3">
-          <Users className="w-4 h-4 text-gray-600" />
-          <label className="text-xs font-semibold text-gray-700">Select Client</label>
-        </div>
-        <Select value={selectedClientId || ""} onValueChange={handleClientChange}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Choose a client..." />
-          </SelectTrigger>
-          <SelectContent>
-            {clients.length === 0 ? (
-              <div className="p-2 text-xs text-gray-500 text-center">No clients found</div>
-            ) : (
-              clients.map(client => (
-                <SelectItem key={client.id} value={client.id}>
-                  {client.full_name}
-                </SelectItem>
-              ))
-            )}
-          </SelectContent>
-        </Select>
-      </div>
-
       {/* Chat area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
