@@ -138,12 +138,12 @@ export default function AICoachInsights() {
           </Card>
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="w-full h-auto grid grid-cols-4 gap-1 p-1 bg-gray-100">
+            <TabsList className="w-full h-auto grid grid-cols-4 gap-0.5 sm:gap-1 p-0.5 sm:p-1 bg-gray-100">
               {TABS.map(tab => (
-                <TabsTrigger key={tab.id} value={tab.id} className="flex flex-col items-center gap-1 py-2.5 text-xs data-[state=active]:shadow-md">
-                  <tab.icon className={`w-4 h-4 ${tab.color}`} />
-                  <span className="hidden sm:inline font-medium">{tab.label}</span>
-                  <span className="sm:hidden font-medium">{tab.label.split(' ')[0]}</span>
+                <TabsTrigger key={tab.id} value={tab.id} className="flex flex-col items-center gap-0.5 sm:gap-1 py-2 sm:py-2.5 text-[10px] sm:text-xs data-[state=active]:shadow-md px-1">
+                  <tab.icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${tab.color}`} />
+                  <span className="hidden sm:inline font-medium leading-tight">{tab.label}</span>
+                  <span className="sm:hidden font-medium leading-tight text-center">{tab.label.split(' ')[0]}</span>
                 </TabsTrigger>
               ))}
             </TabsList>
