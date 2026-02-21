@@ -116,12 +116,7 @@ export default function ClientOnboardingWizard() {
 
         <div className="flex gap-4 justify-between">
           <Button onClick={() => currentStep > 1 && setCurrentStep(currentStep - 1)} variant="outline" disabled={currentStep === 1} className="px-8 py-6 text-base">← Back</Button>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="px-4 py-2">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              {pointsEarned} Points
-            </Badge>
-          </div>
+
           <Button onClick={handleNextStep} disabled={updateClientMutation.isPending || completeOnboardingMutation.isPending} className="px-8 py-6 text-base bg-gradient-to-r from-purple-600 to-blue-600 hover:shadow-lg">
             {currentStep === 5 ? 'Start Journey' : 'Next'}
             <ArrowRight className="w-5 h-5 ml-2" />
