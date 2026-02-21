@@ -150,8 +150,8 @@ export default function AICoachInsights() {
             </TabsList>
 
             {/* Chat tab */}
-            <TabsContent value="chat" className="mt-3 sm:mt-4">
-              <Card className="border-none shadow-lg overflow-hidden" style={{ minHeight: 480 }}>
+            <TabsContent value="chat" className="mt-2 sm:mt-4">
+              <Card className="border-none shadow-lg overflow-hidden" style={{ minHeight: 420 }}>
                 <AICoachChat clientId={selectedClient} clientName={client?.full_name} />
               </Card>
             </TabsContent>
