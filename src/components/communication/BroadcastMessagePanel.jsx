@@ -271,6 +271,16 @@ export default function BroadcastMessagePanel() {
                   )}
                 </div>
 
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                  <Input
+                    placeholder="Search clients by name or email..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 text-sm"
+                  />
+                </div>
+
                 <ScrollArea className="h-48 border rounded p-3">
                   {clients.length === 0 ? (
                     <p className="text-sm text-gray-500">No clients assigned</p>
