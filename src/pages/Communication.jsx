@@ -776,15 +776,18 @@ export default function Communication() {
                                 }`}>
                                   {lastMessage.sender_type === 'dietitian' ? 'You: ' : ''}
                                   {lastMessage.attachment_url ? '📎 ' + (lastMessage.attachment_name || 'Attachment') : 
-                                    (() => {
-                                      try {
-                                        const parsed = JSON.parse(lastMessage.message || '{}');
-                                        if (parsed?.type === 'end-call' || parsed?.type === 'offer' || parsed?.type === 'answer' || parsed?.type === 'ice-candidate') {
-                                          return '📹 Video call';
-                                        }
-                                      } catch {}
-                                      return lastMessage.message || '(No text)';
-                                    })()
+                                   (() => {
+                                     try {
+                                       const msg = lastMessage.message || '{}';
+                                       if (typeof msg === 'string') {
+                                         const parsed = JSON.parse(msg);
+                                         if (parsed?.type === 'end-call' || parsed?.type === 'offer' || parsed?.type === 'answer' || parsed?.type === 'ice-candidate') {
+                                           return '📹 Video call';
+                                         }
+                                       }
+                                     } catch {}
+                                     return (typeof lastMessage.message === 'string' ? lastMessage.message : '') || '(No text)';
+                                   })()
                                   }
                                 </p>
                                 )}
