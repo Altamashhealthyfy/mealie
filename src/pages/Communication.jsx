@@ -53,6 +53,7 @@ import ProgressUpdateShare from "@/components/communication/ProgressUpdateShare"
 import MessageThread from "@/components/communication/MessageThread";
 import AutomatedCheckInScheduler from "@/components/communication/AutomatedCheckInScheduler";
 import EnhancedMessageInput from "@/components/communication/EnhancedMessageInput";
+import VoiceRecorder from "@/components/communication/VoiceRecorder";
 
 export default function Communication() {
   const queryClient = useQueryClient();
@@ -71,6 +72,7 @@ export default function Communication() {
   const [showScheduler, setShowScheduler] = useState(false);
   const [showCallHistory, setShowCallHistory] = useState(false);
   const [selectedThread, setSelectedThread] = useState(null);
+  const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
   const signalingRef = useRef(null);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
@@ -178,13 +180,38 @@ export default function Communication() {
     refetchOnWindowFocus: true,
   });
 
-  const { data: allMessages, isLoading: messagesLoading } = useQuery({
-    queryKey: ['allMessages'],
-    queryFn: () => base44.entities.Message.list('-created_date', 200),
-    initialData: [],
-    refetchInterval: 10000,
-    staleTime: 5000,
-  });
+  const [allMessages, setAllMessages] = useState([]);
+  const [messagesLoading, setMessagesLoading] = useState(true);
+
+  // Real-time message subscription
+  useEffect(() => {
+    const loadInitialMessages = async () => {
+      setMessagesLoading(true);
+      const messages = await base44.entities.Message.list('-created_date', 200);
+      setAllMessages(messages);
+      setMessagesLoading(false);
+    };
+
+    loadInitialMessages();
+
+    // Subscribe to real-time updates
+    const unsubscribe = base44.entities.Message.subscribe((event) => {
+      if (event.type === 'create') {
+        setAllMessages(prev => [...prev, event.data]);
+        // Show notification for new messages
+        if (event.data.sender_type === 'client') {
+          const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE=');
+          audio.play().catch(() => {});
+        }
+      } else if (event.type === 'update') {
+        setAllMessages(prev => prev.map(m => m.id === event.id ? event.data : m));
+      } else if (event.type === 'delete') {
+        setAllMessages(prev => prev.filter(m => m.id !== event.id));
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const sendMessageMutation = useMutation({
     mutationFn: async (data) => {
@@ -201,7 +228,6 @@ export default function Communication() {
       return result;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['allMessages']);
       setMessageText("");
       setAttachedFile(null);
       setIsImportant(false);
@@ -953,33 +979,73 @@ export default function Communication() {
                     )}
                   </div>
 
-                  {/* Enhanced Message Input */}
-                  <EnhancedMessageInput
-                    messageText={messageText}
-                    onMessageChange={(text) => {
-                      setMessageText(text);
-                      handleTyping();
-                    }}
-                    onSend={() => {
-                      stopTyping();
-                      handleSendMessage();
-                    }}
-                    onFileSelect={handleFileSelect}
-                    onSchedule={() => {}}
-                    onTypeSelect={handleContentTypeSelect}
-                    attachedFile={attachedFile}
-                    onRemoveFile={removeAttachment}
-                    isLoading={sendMessageMutation.isPending || uploading}
-                    disabled={uploading || sendMessageMutation.isPending}
-                    isImportant={isImportant}
-                    onImportantChange={setIsImportant}
-                    contentType={contentType}
-                    fileInputRef={fileInputRef}
-                    textareaRef={textareaRef}
-                    showQuickReply={true}
-                    showProgressShare={true}
-                    showAutoCheckIn={true}
-                  />
+                  {/* Voice Recorder */}
+                  {showVoiceRecorder ? (
+                    <div className="border-t border-gray-200 p-4 flex-shrink-0">
+                      <VoiceRecorder
+                        onRecordComplete={async (audioFile) => {
+                          setShowVoiceRecorder(false);
+                          setAttachedFile(audioFile);
+                          setContentType('audio');
+                          
+                          // Auto-send voice note
+                          setUploading(true);
+                          try {
+                            const { file_url } = await base44.integrations.Core.UploadFile({ file: audioFile });
+                            const messageData = {
+                              sender_type: 'dietitian',
+                              message: '🎤 Voice note',
+                              content_type: 'audio',
+                              attachment_url: file_url,
+                              attachment_name: audioFile.name,
+                              attachment_type: audioFile.type,
+                              attachment_size: audioFile.size,
+                              read: false,
+                              is_important: isImportant,
+                            };
+
+                            if (selectedClient) messageData.client_id = selectedClient.id;
+                            if (selectedGroup) messageData.group_id = selectedGroup.id;
+
+                            sendMessageMutation.mutate(messageData);
+                          } catch (error) {
+                            console.error("Voice upload failed:", error);
+                            toast.error("Failed to upload voice note");
+                          }
+                          setUploading(false);
+                        }}
+                        onCancel={() => setShowVoiceRecorder(false)}
+                      />
+                    </div>
+                  ) : (
+                    <EnhancedMessageInput
+                      messageText={messageText}
+                      onMessageChange={(text) => {
+                        setMessageText(text);
+                        handleTyping();
+                      }}
+                      onSend={() => {
+                        stopTyping();
+                        handleSendMessage();
+                      }}
+                      onFileSelect={handleFileSelect}
+                      onSchedule={() => {}}
+                      onTypeSelect={handleContentTypeSelect}
+                      attachedFile={attachedFile}
+                      onRemoveFile={removeAttachment}
+                      isLoading={sendMessageMutation.isPending || uploading}
+                      disabled={uploading || sendMessageMutation.isPending}
+                      isImportant={isImportant}
+                      onImportantChange={setIsImportant}
+                      contentType={contentType}
+                      fileInputRef={fileInputRef}
+                      textareaRef={textareaRef}
+                      showQuickReply={true}
+                      showProgressShare={true}
+                      showAutoCheckIn={true}
+                      onVoiceRecordStart={() => setShowVoiceRecorder(true)}
+                    />
+                  )}
 
                   <PollCreator
                     open={showPollCreator}
