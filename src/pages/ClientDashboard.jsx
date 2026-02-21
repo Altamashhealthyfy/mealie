@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import ClientTutorial from "@/components/common/ClientTutorial";
 import { Textarea } from "@/components/ui/textarea";
+import OnboardingChecklist from "@/components/onboarding/OnboardingChecklist";
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { TrendingDown, TrendingUp, Calendar, CheckCircle, Target, Activity, Heart, Scale, Flame, Award, AlertCircle, Download, FileText, ChefHat, MessageSquare, Send, Eye, Star, Clock, CreditCard, ArrowRight, Zap } from "lucide-react";
 import { format, differenceInDays, parseISO } from "date-fns";
@@ -129,6 +130,20 @@ export default function ClientDashboard() {
     queryKey: ['mpessLogs', user?.email],
     queryFn: () => base44.entities.MPESSTracker.filter({ created_by: user?.email }),
     enabled: !!user,
+    initialData: [],
+  });
+
+  const { data: messages } = useQuery({
+    queryKey: ['messages', clientProfile?.id],
+    queryFn: () => base44.entities.Message.filter({ client_id: clientProfile?.id }),
+    enabled: !!clientProfile?.id,
+    initialData: [],
+  });
+
+  const { data: healthReports } = useQuery({
+    queryKey: ['healthReports', clientProfile?.id],
+    queryFn: () => base44.entities.HealthReport.filter({ client_id: clientProfile?.id }),
+    enabled: !!clientProfile?.id,
     initialData: [],
   });
 
@@ -516,7 +531,7 @@ export default function ClientDashboard() {
   // Redirect to onboarding if not completed
   React.useEffect(() => {
     if (clientProfile && !clientProfile.onboarding_completed) {
-      navigate(createPageUrl("ClientOnboardingWizard"));
+      navigate(createPageUrl("ClientOnboarding"));
     }
   }, [clientProfile, navigate]);
 
@@ -620,6 +635,16 @@ export default function ClientDashboard() {
           </div>
           <TourButton pageName="ClientDashboard" />
         </div>
+
+        {/* Onboarding Checklist */}
+        <OnboardingChecklist
+          client={clientProfile}
+          mealPlan={mealPlan}
+          foodLogs={foodLogs}
+          progressLogs={progressLogs}
+          messages={messages}
+          healthReports={healthReports}
+        />
 
         {/* Wearables Section */}
         <div id="wearables-section" className="mb-6">
@@ -1418,7 +1443,7 @@ export default function ClientDashboard() {
         </Dialog>
 
         {/* Quick Navigation Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div id="resources-section" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link to={createPageUrl("ProgressTracking")}>
             <Card className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer group bg-gradient-to-br from-orange-50 to-red-50">
               <CardContent className="p-6">
