@@ -1145,38 +1145,7 @@ export default function Layout({ children, currentPageName }) {
               </SidebarGroupContent>
             </SidebarGroup>
 
-            {isEffectiveDietitian && filteredGamificationNav.length > 0 && (
-              <SidebarGroup id="gamification-nav">
-                <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
-                  🏆 Gamification
-                </SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    {filteredGamificationNav.map((item) => (
-                      <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton
-                           asChild
-                           className={`hover:bg-orange-50 transition-all duration-200 rounded-xl mb-1 ${
-                             location.pathname === item.url ? 'text-white hover:text-white shadow-md' : ''
-                           }`}
-                           style={location.pathname === item.url ? {
-                             background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`,
-                             color: '#ffffff'
-                           } : {
-                             color: themeColors.menu_text_color
-                           }}
-                         >
-                           <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
-                             <item.icon className="w-5 h-5" />
-                             <span className="font-medium">{item.title}</span>
-                           </Link>
-                         </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </SidebarGroup>
-            )}
+
 
             {isEffectiveDietitian && filteredPaymentNav.length > 0 && (
                                 <SidebarGroup id="payment-plans-nav">
