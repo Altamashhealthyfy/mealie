@@ -88,7 +88,14 @@ export default function MyAssignedMealPlan() {
     ? assignedPlan 
     : (selectedPlanId ? allMealPlans?.find(p => p.id === selectedPlanId) : filteredPlans?.[0]);
 
-  const mealTypes = ["Early Morning", "Breakfast", "Mid-Morning", "Lunch", "Evening Snack", "Dinner"];
+  const mealTypeOrder = {
+    "early_morning": 0,
+    "breakfast": 1,
+    "mid_morning": 2,
+    "lunch": 3,
+    "evening_snack": 4,
+    "dinner": 5
+  };
 
   const groupedMeals = {};
   displayedPlan?.meals?.forEach(meal => {
@@ -343,7 +350,7 @@ export default function MyAssignedMealPlan() {
           {Object.keys(groupedMeals).sort((a, b) => a - b).map(day => (
             <TabsContent key={day} value={`day-${day}`} className="space-y-4">
               {groupedMeals[day]
-                .sort((a, b) => mealTypes.indexOf(a.meal_type) - mealTypes.indexOf(b.meal_type))
+                .sort((a, b) => (mealTypeOrder[a.meal_type] || 999) - (mealTypeOrder[b.meal_type] || 999))
                 .map((meal, idx) => {
                   const mealKey = `${day}-${meal.meal_type}`;
                   const isCompleted = completedMeals[mealKey];
