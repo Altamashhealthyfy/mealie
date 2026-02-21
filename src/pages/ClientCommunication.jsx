@@ -785,9 +785,7 @@ export default function ClientCommunication() {
                 <div className="flex-1">
                   <Textarea
                     ref={textareaRef}
-                    placeholder={`Type your message to ${clientProfile?.assigned_coach ? 
-                      clientProfile.assigned_coach.split('@')[0] : 
-                      'your coach'}...`}
+                    placeholder={`Type your message to ${coachEmail ? coachEmail.split('@')[0] : 'your coach'}...`}
                     value={messageText}
                     onChange={(e) => {
                       setMessageText(e.target.value);
