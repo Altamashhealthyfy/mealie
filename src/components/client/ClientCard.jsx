@@ -10,6 +10,10 @@ import {
   UserPlus,
   Users,
   Mail,
+  BarChart3,
+  LineChart,
+  FileText,
+  ClipboardList,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
