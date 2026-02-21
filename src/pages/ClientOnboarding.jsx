@@ -29,6 +29,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import AIGoalSetter from "@/components/onboarding/AIGoalSetter";
 import AIWelcomeMessage from "@/components/onboarding/AIWelcomeMessage";
+import { useEffect } from "react";
 
 export default function ClientOnboarding() {
   const navigate = useNavigate();
@@ -82,6 +83,22 @@ export default function ClientOnboarding() {
     queryFn: () => base44.auth.me(),
   });
 
+  const { data: clientProfile } = useQuery({
+    queryKey: ['clientProfile', user?.email],
+    queryFn: async () => {
+      const clients = await base44.entities.Client.filter({ email: user?.email });
+      return clients[0] || null;
+    },
+    enabled: !!user?.email,
+  });
+
+  // Redirect if already onboarded
+  useEffect(() => {
+    if (clientProfile?.onboarding_completed) {
+      navigate(createPageUrl("ClientDashboard"));
+    }
+  }, [clientProfile, navigate]);
+
   const getAiTipMutation = useMutation({
     mutationFn: async (context) => {
       const response = await base44.integrations.Core.InvokeLLM({
@@ -132,13 +149,26 @@ Provide a warm, personalized tip that's relevant to their situation.`,
       };
       const tdee = bmr * (activityMultipliers[data.activity_level] || 1.2);
 
+      // Calculate target calories based on goal
+      let targetCalories = Math.round(tdee);
+      if (data.goal === 'weight_loss') {
+        targetCalories = Math.round(tdee * 0.85); // 15% deficit
+      } else if (data.goal === 'weight_gain' || data.goal === 'muscle_gain') {
+        targetCalories = Math.round(tdee * 1.15); // 15% surplus
+      }
+
       const clientData = {
         ...data,
         bmr: Math.round(bmr),
         tdee: Math.round(tdee),
-        target_calories: Math.round(tdee * 0.85), // 15% deficit for weight loss
+        target_calories: targetCalories,
+        target_protein: Math.round((targetCalories * 0.30) / 4), // 30% of calories from protein
+        target_carbs: Math.round((targetCalories * 0.40) / 4), // 40% from carbs
+        target_fats: Math.round((targetCalories * 0.30) / 9), // 30% from fats
         status: 'active',
         join_date: new Date().toISOString().split('T')[0],
+        onboarding_completed: true,
+        tutorial_completed: false,
         daily_routine: {
           wake_up_time: data.wake_up_time,
           breakfast_time: data.breakfast_time,
