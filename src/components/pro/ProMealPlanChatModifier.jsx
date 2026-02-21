@@ -41,7 +41,6 @@ export default function ProMealPlanChatModifier({ plan, onPlanUpdate }) {
     setIsLoading(true);
 
     const mealSummary = (plan.meal_plan || [])
-      .slice(0, 24) // limit context size
       .map((m) => `Day ${m.day} ${m.meal_type}: ${m.meal_name} (${m.items?.join(", ")})`)
       .join("\n");
 
@@ -98,10 +97,10 @@ Respond ONLY with valid JSON: { "summary": "...", "updated_meals": [...] }`;
         const newMealPlan = [...(plan.meal_plan || [])];
         updated_meals.forEach((updatedMeal) => {
           const idx = newMealPlan.findIndex(
-            (m) => m.day === updatedMeal.day && m.meal_type === updatedMeal.meal_type
+            (m) => m.day === updatedMeal.day && m.meal_type?.toLowerCase() === updatedMeal.meal_type?.toLowerCase()
           );
           if (idx !== -1) {
-            newMealPlan[idx] = updatedMeal;
+            newMealPlan[idx] = { ...updatedMeal };
           } else {
             newMealPlan.push(updatedMeal);
           }
