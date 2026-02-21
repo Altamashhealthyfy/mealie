@@ -1374,7 +1374,7 @@ TDEE: ${Math.round(tdee)} kcal
 
 2. Apply disease-specific rules for: ${intake.health_conditions.join(', ')}
 
-2. **MANDATORY - DO NOT SKIP ANY DAYS**: 
+3. **MANDATORY - DO NOT SKIP ANY DAYS**: 
    - You MUST generate ALL ${numberOfDays} days of meal plans
    - Generate day 1, day 2, day 3, day 4, day 5, day 6, day 7, day 8, day 9, day 10
    - Continue until you reach day ${numberOfDays}
