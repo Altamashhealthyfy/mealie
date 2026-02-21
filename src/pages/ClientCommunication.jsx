@@ -713,7 +713,7 @@ export default function ClientCommunication() {
               </div>
               
               <p className="text-xs text-gray-500 text-center mt-2">
-                <Paperclip className="w-3 h-3 inline" /> Attach files up to 1 GB • 
+                <Paperclip className="w-3 h-3 inline" /> Attach images, documents, or any file • 
                 <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono ml-1">Enter</kbd> to send
               </p>
             </div>
