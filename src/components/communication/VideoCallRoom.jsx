@@ -110,8 +110,10 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
       if (!mountedRef.current) return;
       console.log('Connection state:', pc.connectionState);
       if (['disconnected', 'failed', 'closed'].includes(pc.connectionState)) {
+        remoteConnectedRef.current = false;
         setRemoteConnected(false);
       } else if (pc.connectionState === 'connected') {
+        remoteConnectedRef.current = true;
         setRemoteConnected(true);
       }
     };
