@@ -469,8 +469,10 @@ Provide a warm, personalized tip that's relevant to their situation.`,
                       type="number"
                       placeholder="170"
                       value={formData.height}
-                      onChange={(e) => updateFormData('height', e.target.value)}
+                      onChange={(e) => { updateFormData('height', e.target.value); setErrors(p => ({...p, height: ''})); }}
+                      className={errors.height ? 'border-red-500' : ''}
                     />
+                    {errors.height && <p className="text-red-500 text-xs mt-1">{errors.height}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>Current Weight (kg) *</Label>
@@ -478,8 +480,10 @@ Provide a warm, personalized tip that's relevant to their situation.`,
                       type="number"
                       placeholder="75"
                       value={formData.weight}
-                      onChange={(e) => updateFormData('weight', e.target.value)}
+                      onChange={(e) => { updateFormData('weight', e.target.value); setErrors(p => ({...p, weight: ''})); }}
+                      className={errors.weight ? 'border-red-500' : ''}
                     />
+                    {errors.weight && <p className="text-red-500 text-xs mt-1">{errors.weight}</p>}
                   </div>
                 </div>
 
@@ -489,8 +493,10 @@ Provide a warm, personalized tip that's relevant to their situation.`,
                     type="number"
                     placeholder="65"
                     value={formData.target_weight}
-                    onChange={(e) => updateFormData('target_weight', e.target.value)}
+                    onChange={(e) => { updateFormData('target_weight', e.target.value); setErrors(p => ({...p, target_weight: ''})); }}
+                    className={errors.target_weight ? 'border-red-500' : ''}
                   />
+                  {errors.target_weight && <p className="text-red-500 text-xs mt-1">{errors.target_weight}</p>}
                 </div>
 
                 {formData.height && formData.weight && (
