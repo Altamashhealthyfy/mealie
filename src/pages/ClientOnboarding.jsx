@@ -563,8 +563,8 @@ Provide a warm, personalized tip that's relevant to their situation.`,
               <div className="space-y-6">
                 <div className="space-y-2">
                   <Label>Primary Health Goal *</Label>
-                  <Select value={formData.goal} onValueChange={(val) => updateFormData('goal', val)}>
-                    <SelectTrigger>
+                  <Select value={formData.goal} onValueChange={(val) => { updateFormData('goal', val); setErrors(p => ({...p, goal: ''})); }}>
+                    <SelectTrigger className={errors.goal ? 'border-red-500' : ''}>
                       <SelectValue placeholder="Select your goal" />
                     </SelectTrigger>
                     <SelectContent>
