@@ -401,9 +401,10 @@ Provide a warm, personalized tip that's relevant to their situation.`,
                   <Input
                     placeholder="Enter your full name"
                     value={formData.full_name}
-                    onChange={(e) => updateFormData('full_name', e.target.value)}
-                    className="text-lg"
+                    onChange={(e) => { updateFormData('full_name', e.target.value); setErrors(p => ({...p, full_name: ''})); }}
+                    className={`text-lg ${errors.full_name ? 'border-red-500' : ''}`}
                   />
+                  {errors.full_name && <p className="text-red-500 text-xs mt-1">{errors.full_name}</p>}
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
@@ -413,8 +414,10 @@ Provide a warm, personalized tip that's relevant to their situation.`,
                       type="email"
                       placeholder="your.email@example.com"
                       value={formData.email}
-                      onChange={(e) => updateFormData('email', e.target.value)}
+                      onChange={(e) => { updateFormData('email', e.target.value); setErrors(p => ({...p, email: ''})); }}
+                      className={errors.email ? 'border-red-500' : ''}
                     />
+                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>Phone</Label>
@@ -433,13 +436,15 @@ Provide a warm, personalized tip that's relevant to their situation.`,
                       type="number"
                       placeholder="25"
                       value={formData.age}
-                      onChange={(e) => updateFormData('age', e.target.value)}
+                      onChange={(e) => { updateFormData('age', e.target.value); setErrors(p => ({...p, age: ''})); }}
+                      className={errors.age ? 'border-red-500' : ''}
                     />
+                    {errors.age && <p className="text-red-500 text-xs mt-1">{errors.age}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label>Gender *</Label>
-                    <Select value={formData.gender} onValueChange={(val) => updateFormData('gender', val)}>
-                      <SelectTrigger>
+                    <Select value={formData.gender} onValueChange={(val) => { updateFormData('gender', val); setErrors(p => ({...p, gender: ''})); }}>
+                      <SelectTrigger className={errors.gender ? 'border-red-500' : ''}>
                         <SelectValue placeholder="Select gender" />
                       </SelectTrigger>
                       <SelectContent>
@@ -448,6 +453,7 @@ Provide a warm, personalized tip that's relevant to their situation.`,
                         <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>
+                    {errors.gender && <p className="text-red-500 text-xs mt-1">{errors.gender}</p>}
                   </div>
                 </div>
               </div>
