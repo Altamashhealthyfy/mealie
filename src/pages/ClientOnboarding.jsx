@@ -640,8 +640,8 @@ Provide a warm, personalized tip that's relevant to their situation.`,
               <div className="space-y-6">
                 <div className="space-y-2">
                   <Label>Activity Level *</Label>
-                  <Select value={formData.activity_level} onValueChange={(val) => updateFormData('activity_level', val)}>
-                    <SelectTrigger>
+                  <Select value={formData.activity_level} onValueChange={(val) => { updateFormData('activity_level', val); setErrors(p => ({...p, activity_level: ''})); }}>
+                    <SelectTrigger className={errors.activity_level ? 'border-red-500' : ''}>
                       <SelectValue placeholder="Select activity level" />
                     </SelectTrigger>
                     <SelectContent>
