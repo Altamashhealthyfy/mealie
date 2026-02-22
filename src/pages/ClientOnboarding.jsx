@@ -129,7 +129,6 @@ Provide a warm, personalized tip that's relevant to their situation.`,
   });
 
   const [createdClient, setCreatedClient] = useState(null);
-  const [showPostOnboarding, setShowPostOnboarding] = useState(false);
 
   const createClientMutation = useMutation({
     mutationFn: async (data) => {
