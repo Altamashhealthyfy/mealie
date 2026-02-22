@@ -45,14 +45,16 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
   const cleanup = useCallback(() => {
     clearInterval(timerRef.current);
     clearInterval(recordingTimerRef.current);
-    if (recording) stopRecording();
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
     localStreamRef.current?.getTracks().forEach(t => t.stop());
     screenStreamRef.current?.getTracks().forEach(t => t.stop());
     if (pcRef.current) {
       pcRef.current.close();
       pcRef.current = null;
     }
-  }, [recording]);
+  }, []);
 
   const addPendingCandidates = async (pc) => {
     for (const candidate of pendingCandidates.current) {
