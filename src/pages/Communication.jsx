@@ -665,7 +665,7 @@ export default function Communication() {
   }
 
   return (
-    <div className="h-screen flex flex-col p-2 sm:p-3 md:p-4 overflow-hidden">
+    <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 60px)' }}>
       {activeVideoCall && (
         <VideoCallRoom
           roomId={activeVideoCall.clientId}
@@ -677,416 +677,334 @@ export default function Communication() {
         />
       )}
       
-      <div className="max-w-7xl mx-auto w-full flex flex-col flex-1 overflow-hidden">
-        <div className="mb-3 flex justify-between items-center flex-shrink-0">
+      <div className="w-full flex flex-col flex-1 overflow-hidden p-2 sm:p-3">
+        <div className="mb-2 flex justify-between items-center flex-shrink-0">
           <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Messages</h1>
-            <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">Communicate with your clients</p>
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">Messages</h1>
+            <p className="text-xs text-gray-500 hidden sm:block">Communicate with your clients</p>
           </div>
           <BroadcastMessagePanel />
         </div>
 
         <Card className="border-none shadow-xl overflow-hidden flex-1 flex flex-col min-h-0">
           <Tabs defaultValue="direct" className="flex-1 flex flex-col min-h-0">
-            <TabsList className="rounded-none border-b w-full grid grid-cols-2 flex-shrink-0">
-              <TabsTrigger value="direct" className="flex gap-1 sm:gap-2 text-xs sm:text-sm">
-                <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4" />
-                Direct Messages
+            <TabsList className="rounded-none border-b w-full grid grid-cols-2 flex-shrink-0 h-10">
+              <TabsTrigger value="direct" className="flex gap-1 text-xs sm:text-sm">
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>Direct</span>
               </TabsTrigger>
-              <TabsTrigger value="groups" className="flex gap-1 sm:gap-2 text-xs sm:text-sm">
-                <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                Groups
+              <TabsTrigger value="groups" className="flex gap-1 text-xs sm:text-sm">
+                <Users className="w-3.5 h-3.5" />
+                <span>Groups</span>
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0">
               <div className="flex h-full min-h-0">
                 {/* Client List Sidebar — hidden on mobile when a client is selected */}
-                <div className={`${selectedClient ? 'hidden md:flex' : 'flex'} md:w-80 lg:w-96 w-full border-r border-gray-200 flex-col min-h-0`}>
-              <div className="p-3 border-b border-gray-200 flex-shrink-0" id="message-clients-list">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <Input
-                    placeholder="Search clients..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 h-9 text-sm"
-                  />
-                </div>
-              </div>
+                <div className={`${selectedClient ? 'hidden md:flex' : 'flex'} md:w-72 lg:w-80 w-full border-r border-gray-200 flex-col min-h-0 flex-shrink-0`}>
+                  <div className="p-2 border-b border-gray-200 flex-shrink-0" id="message-clients-list">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        placeholder="Search clients..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9 h-9 text-sm"
+                      />
+                    </div>
+                  </div>
 
-              <div className="flex-1 overflow-y-auto">
-                <div className="p-2">
-                    {messagesLoading ? (
-                      <div className="text-center py-12">
-                        <Loader2 className="w-8 h-8 mx-auto text-orange-500 animate-spin mb-3" />
-                        <p className="text-gray-600">Loading messages...</p>
-                      </div>
-                    ) : sortedClients.length === 0 ? (
-                      <div className="text-center py-12">
-                        <MessageSquare className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                        <p className="text-gray-600">{searchQuery ? 'No clients found' : 'No clients yet'}</p>
-                        {!searchQuery && (
-                          <p className="text-sm text-gray-500 mt-2">Add clients to start messaging</p>
-                        )}
-                      </div>
-                    ) : (
-                      sortedClients.map((client) => {
-                        const lastMessage = getLastMessage(client.id);
-                        const unreadCount = getUnreadCount(client.id);
-                        const isSelected = selectedClient?.id === client.id;
+                  <div className="flex-1 overflow-y-auto">
+                    <div className="p-1.5">
+                      {messagesLoading ? (
+                        <div className="text-center py-8">
+                          <Loader2 className="w-7 h-7 mx-auto text-orange-500 animate-spin mb-2" />
+                          <p className="text-sm text-gray-500">Loading...</p>
+                        </div>
+                      ) : sortedClients.length === 0 ? (
+                        <div className="text-center py-8">
+                          <MessageSquare className="w-10 h-10 mx-auto text-gray-300 mb-2" />
+                          <p className="text-sm text-gray-500">{searchQuery ? 'No clients found' : 'No clients yet'}</p>
+                        </div>
+                      ) : (
+                        sortedClients.map((client) => {
+                          const lastMessage = getLastMessage(client.id);
+                          const unreadCount = getUnreadCount(client.id);
+                          const isSelected = selectedClient?.id === client.id;
 
-                        return (
-                          <div
-                            key={client.id}
-                            onClick={() => setSelectedClient(client)}
-                            className={`p-3 mb-1 rounded-xl cursor-pointer transition-all ${
-                              isSelected
-                                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
-                                : 'bg-gray-50 hover:bg-gray-100'
-                            }`}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                isSelected ? 'bg-white/20' : 'bg-gradient-to-br from-orange-500 to-red-500'
-                              }`}>
-                                <span className="text-white font-medium text-sm">
-                                  {(client.full_name || 'C').charAt(0)}
-                                </span>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between mb-0.5">
-                                  <h3 className={`font-semibold truncate text-sm ${isSelected ? 'text-white' : 'text-gray-900'}`}>
-                                    {client.full_name}
-                                  </h3>
-                                  {unreadCount > 0 && (
-                                    <Badge className="bg-red-500 text-white ml-1 text-xs px-1.5 py-0">
-                                      {unreadCount}
-                                    </Badge>
+                          return (
+                            <div
+                              key={client.id}
+                              onClick={() => setSelectedClient(client)}
+                              className={`p-2.5 mb-1 rounded-xl cursor-pointer transition-all ${
+                                isSelected
+                                  ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
+                                  : 'bg-gray-50 hover:bg-gray-100'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                  isSelected ? 'bg-white/20' : 'bg-gradient-to-br from-orange-500 to-red-500'
+                                }`}>
+                                  <span className="text-white font-medium text-sm">
+                                    {(client.full_name || 'C').charAt(0)}
+                                  </span>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between">
+                                    <h3 className={`font-semibold truncate text-sm ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                                      {client.full_name}
+                                    </h3>
+                                    {unreadCount > 0 && (
+                                      <Badge className="bg-red-500 text-white ml-1 text-xs px-1.5 py-0 flex-shrink-0">
+                                        {unreadCount}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  {lastMessage && (
+                                    <p className={`text-xs truncate ${isSelected ? 'text-white/80' : 'text-gray-500'}`}>
+                                      {lastMessage.sender_type === 'dietitian' ? 'You: ' : ''}
+                                      {lastMessage.attachment_url ? '📎 Attachment' : 
+                                       (() => {
+                                         try {
+                                           const msg = lastMessage.message || '{}';
+                                           if (typeof msg === 'string') {
+                                             const parsed = JSON.parse(msg);
+                                             if (parsed?.type === 'end-call' || parsed?.type === 'offer' || parsed?.type === 'answer' || parsed?.type === 'ice-candidate') {
+                                               return '📹 Video call';
+                                             }
+                                           }
+                                         } catch {}
+                                         return (typeof lastMessage.message === 'string' ? lastMessage.message : '') || '(No text)';
+                                       })()
+                                      }
+                                    </p>
+                                  )}
+                                  {lastMessage && lastMessage.created_date && (
+                                    <p className={`text-xs ${isSelected ? 'text-white/60' : 'text-gray-400'}`}>
+                                      {formatDateTimeIST(lastMessage.created_date)}
+                                    </p>
                                   )}
                                 </div>
-                                {lastMessage && (
-                                <p className={`text-xs truncate ${isSelected ? 'text-white/80' : 'text-gray-600'}`}>
-                                  {lastMessage.sender_type === 'dietitian' ? 'You: ' : ''}
-                                  {lastMessage.attachment_url ? '📎 ' + (lastMessage.attachment_name || 'Attachment') : 
-                                   (() => {
-                                     try {
-                                       const msg = lastMessage.message || '{}';
-                                       if (typeof msg === 'string') {
-                                         const parsed = JSON.parse(msg);
-                                         if (parsed?.type === 'end-call' || parsed?.type === 'offer' || parsed?.type === 'answer' || parsed?.type === 'ice-candidate') {
-                                           return '📹 Video call';
-                                         }
-                                       }
-                                     } catch {}
-                                     return (typeof lastMessage.message === 'string' ? lastMessage.message : '') || '(No text)';
-                                   })()
-                                  }
-                                </p>
-                                )}
-                                {lastMessage && lastMessage.created_date && (
-                                  <p className={`text-xs mt-0.5 ${isSelected ? 'text-white/60' : 'text-gray-500'}`}>
-                                    {formatDateTimeIST(lastMessage.created_date)}
-                                  </p>
-                                )}
                               </div>
                             </div>
-                          </div>
-                        );
-                      })
-                    )}
+                          );
+                        })
+                      )}
+                    </div>
                   </div>
-              </div>
-            </div>
+                </div>
 
                 {/* Chat Area — full width on mobile */}
                 <div className={`${selectedClient ? 'flex' : 'hidden md:flex'} flex-1 flex-col min-h-0 overflow-hidden`}>
-              {selectedClient ? (
-                <>
-                  {/* Chat Header */}
-                  <div className="border-b border-gray-200 flex-shrink-0 p-2 sm:p-3 flex items-center gap-2" id="message-chat-area">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedClient(null)}
-                      className="md:hidden flex-shrink-0 h-8 w-8 p-0"
-                    >
-                      ←
-                    </Button>
-                    <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-medium text-sm">
-                        {(selectedClient.full_name || 'C').charAt(0)}
-                      </span>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-sm sm:text-base truncate">{selectedClient.full_name}</p>
-                      <p className="text-xs text-gray-500 truncate hidden sm:block">{selectedClient.email}</p>
-                    </div>
-                    {/* Video call actions */}
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => { setShowCallHistory(!showCallHistory); }}
-                        className="hidden sm:flex items-center gap-1 border-purple-300 text-purple-700 hover:bg-purple-50 h-8 px-2"
-                      >
-                        <History className="w-3.5 h-3.5" />
-                        <span className="hidden lg:inline text-xs">History</span>
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowScheduler(true)}
-                        className="hidden sm:flex items-center gap-1 border-orange-300 text-orange-700 hover:bg-orange-50 h-8 px-2"
-                      >
-                        <CalendarClock className="w-3.5 h-3.5" />
-                        <span className="hidden lg:inline text-xs">Schedule</span>
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => startVideoCall(selectedClient)}
-                        className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1 h-8 px-2 sm:px-3"
-                      >
-                        <Phone className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline text-xs">Video Call</span>
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Call history panel */}
-                  {showCallHistory && (
-                    <div className="border-b border-gray-200 bg-purple-50 p-3 max-h-48 overflow-y-auto flex-shrink-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-semibold text-purple-800 text-sm">Call History</h4>
-                        <Button variant="ghost" size="sm" onClick={() => setShowCallHistory(false)} className="h-6 w-6 p-0">
-                          <X className="w-4 h-4" />
+                  {selectedClient ? (
+                    <>
+                      {/* Chat Header */}
+                      <div className="border-b border-gray-200 flex-shrink-0 px-2 py-2 flex items-center gap-2 bg-white" id="message-chat-area">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedClient(null)}
+                          className="md:hidden flex-shrink-0 h-8 w-8 p-0 text-gray-600"
+                        >
+                          ←
                         </Button>
-                      </div>
-                      <VideoCallHistory clientId={selectedClient.id} />
-                    </div>
-                  )}
-
-                  {/* Scheduler dialog */}
-                  <VideoCallScheduler
-                    clientId={selectedClient.id}
-                    clientName={selectedClient.full_name}
-                    coachEmail={user?.email}
-                    open={showScheduler}
-                    onOpenChange={setShowScheduler}
-                  />
-
-                  {/* Messages */}
-                  <div className="flex-1 overflow-hidden relative min-h-0">
-                    <ScrollArea 
-                      className="h-full"
-                      onScrollCapture={handleScroll}
-                    >
-                      <div className="p-3 sm:p-4 space-y-3">
-                        {clientMessages.length === 0 ? (
-                          <div className="text-center py-12">
-                            <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                              No messages yet
-                            </h3>
-                            <p className="text-gray-600 mb-4">
-                              Start the conversation with {selectedClient.full_name}
-                            </p>
-                            <Alert className="max-w-md mx-auto bg-blue-50 border-blue-300">
-                              <AlertDescription className="text-sm text-blue-900">
-                                👇 Use the message box below to send your first message!
-                              </AlertDescription>
-                            </Alert>
-                          </div>
-                        ) : (
-                          clientMessages.map((message) => {
-                            const isFromDietitian = message.sender_type === 'dietitian';
-
-                            return (
-                              <div
-                                key={message.id}
-                                className={`flex ${isFromDietitian ? 'justify-end' : 'justify-start'}`}
-                              >
-                                <div
-                                  className={`max-w-[88%] sm:max-w-[75%] md:max-w-[70%] rounded-2xl p-2.5 sm:p-3 md:p-4 shadow-md ${
-                                    isFromDietitian
-                                      ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
-                                      : 'bg-gray-100 text-gray-900'
-                                  }`}
-                                >
-                                  {message.message && (
-                                    <p className="text-sm leading-relaxed whitespace-pre-wrap mb-2">{message.message}</p>
-                                  )}
-                                  
-                                  {renderAttachment(message, isFromDietitian)}
-
-                                  {message.content_type === 'poll' && (
-                                   <PollDisplay message={message} currentUserId={user?.id} />
-                                  )}
-
-                                  <div className={`flex items-center gap-2 mt-2 text-xs ${
-                                   isFromDietitian ? 'text-white/70' : 'text-gray-500'
-                                  }`}>
-                                    <span>{formatToIST(message.created_date)}</span>
-                                    {isFromDietitian && (
-                                      message.read ? (
-                                        <CheckCheck className="w-4 h-4 text-blue-300" />
-                                      ) : (
-                                        <Check className="w-4 h-4 text-white/70" />
-                                      )
-                                    )}
-                                    {message.thread_count > 0 && (
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => setSelectedThread(message)}
-                                        className={`h-5 px-1.5 text-xs ${
-                                          isFromDietitian ? 'text-blue-200 hover:bg-white/10' : 'text-blue-600 hover:bg-blue-50'
-                                        }`}
-                                      >
-                                        💬 {message.thread_count}
-                                      </Button>
-                                    )}
-                                  </div>
-                                  <ReadReceiptIndicator
-                                    isImportant={message.is_important}
-                                    readBy={message.read_by}
-                                    createdDate={message.created_date}
-                                  />
-                                </div>
-                              </div>
-                            );
-                          })
-                        )}
-                        <div ref={messagesEndRef} />
+                        <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-white font-medium text-sm">
+                            {(selectedClient.full_name || 'C').charAt(0)}
+                          </span>
                         </div>
-                        <TypingIndicator 
-                        clientId={selectedClient?.id} 
-                        groupId={null}
-                        currentUserEmail={user?.email}
-                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-sm truncate">{selectedClient.full_name}</p>
+                          <p className="text-xs text-gray-400 truncate hidden sm:block">{selectedClient.email}</p>
+                        </div>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowCallHistory(!showCallHistory)}
+                            className="hidden sm:flex items-center gap-1 border-purple-300 text-purple-700 hover:bg-purple-50 h-7 px-2 text-xs"
+                          >
+                            <History className="w-3 h-3" />
+                            <span className="hidden lg:inline">History</span>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowScheduler(true)}
+                            className="hidden sm:flex items-center gap-1 border-orange-300 text-orange-700 hover:bg-orange-50 h-7 px-2 text-xs"
+                          >
+                            <CalendarClock className="w-3 h-3" />
+                            <span className="hidden lg:inline">Schedule</span>
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={() => startVideoCall(selectedClient)}
+                            className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1 h-7 px-2 text-xs"
+                          >
+                            <Phone className="w-3 h-3" />
+                            <span className="hidden sm:inline">Video</span>
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Call history panel */}
+                      {showCallHistory && (
+                        <div className="border-b border-gray-200 bg-purple-50 p-3 max-h-40 overflow-y-auto flex-shrink-0">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-semibold text-purple-800 text-sm">Call History</h4>
+                            <Button variant="ghost" size="sm" onClick={() => setShowCallHistory(false)} className="h-6 w-6 p-0">
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <VideoCallHistory clientId={selectedClient.id} />
+                        </div>
+                      )}
+
+                      <VideoCallScheduler
+                        clientId={selectedClient.id}
+                        clientName={selectedClient.full_name}
+                        coachEmail={user?.email}
+                        open={showScheduler}
+                        onOpenChange={setShowScheduler}
+                      />
+
+                      {/* Messages */}
+                      <div className="flex-1 overflow-hidden relative min-h-0 bg-gray-50">
+                        <ScrollArea className="h-full" onScrollCapture={handleScroll}>
+                          <div className="p-3 space-y-2.5">
+                            {clientMessages.length === 0 ? (
+                              <div className="text-center py-10">
+                                <MessageSquare className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                                <h3 className="text-base font-semibold text-gray-900 mb-1">No messages yet</h3>
+                                <p className="text-sm text-gray-500">Start the conversation with {selectedClient.full_name}</p>
+                              </div>
+                            ) : (
+                              clientMessages.map((message) => {
+                                const isFromDietitian = message.sender_type === 'dietitian';
+                                return (
+                                  <div key={message.id} className={`flex ${isFromDietitian ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-2.5 sm:p-3 shadow-sm ${
+                                      isFromDietitian
+                                        ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
+                                        : 'bg-white text-gray-900 border border-gray-200'
+                                    }`}>
+                                      {message.message && (
+                                        <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap mb-1.5">{message.message}</p>
+                                      )}
+                                      {renderAttachment(message, isFromDietitian)}
+                                      {message.content_type === 'poll' && (
+                                        <PollDisplay message={message} currentUserId={user?.id} />
+                                      )}
+                                      <div className={`flex items-center gap-1.5 mt-1 text-xs ${isFromDietitian ? 'text-white/70' : 'text-gray-400'}`}>
+                                        <span>{formatToIST(message.created_date)}</span>
+                                        {isFromDietitian && (
+                                          message.read
+                                            ? <CheckCheck className="w-3.5 h-3.5 text-blue-300" />
+                                            : <Check className="w-3.5 h-3.5 text-white/70" />
+                                        )}
+                                        {message.thread_count > 0 && (
+                                          <Button variant="ghost" size="sm" onClick={() => setSelectedThread(message)}
+                                            className={`h-4 px-1 text-xs ${isFromDietitian ? 'text-blue-200 hover:bg-white/10' : 'text-blue-600 hover:bg-blue-50'}`}>
+                                            💬 {message.thread_count}
+                                          </Button>
+                                        )}
+                                      </div>
+                                      <ReadReceiptIndicator isImportant={message.is_important} readBy={message.read_by} createdDate={message.created_date} />
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            )}
+                            <div ref={messagesEndRef} />
+                          </div>
+                          <TypingIndicator clientId={selectedClient?.id} groupId={null} currentUserEmail={user?.email} />
                         </ScrollArea>
+                        {showScrollButton && (
+                          <Button onClick={() => scrollToBottom("smooth")} className="absolute bottom-3 right-3 rounded-full w-10 h-10 bg-orange-500 hover:bg-orange-600 shadow-xl z-10" size="icon">
+                            <ArrowDown className="w-5 h-5 text-white animate-bounce" />
+                          </Button>
+                        )}
+                      </div>
 
-                    {showScrollButton && (
-                      <Button
-                        onClick={() => scrollToBottom("smooth")}
-                        className="absolute bottom-4 right-4 rounded-full w-12 h-12 bg-orange-500 hover:bg-orange-600 shadow-xl z-10"
-                        size="icon"
-                      >
-                        <ArrowDown className="w-6 h-6 text-white animate-bounce" />
-                      </Button>
-                    )}
-                  </div>
+                      {/* Input area */}
+                      {showVoiceRecorder ? (
+                        <div className="border-t border-gray-200 p-3 flex-shrink-0 bg-white">
+                          <VoiceRecorder
+                            onRecordComplete={async (audioFile) => {
+                              setShowVoiceRecorder(false);
+                              setAttachedFile(audioFile);
+                              setContentType('audio');
+                              setUploading(true);
+                              try {
+                                const { file_url } = await base44.integrations.Core.UploadFile({ file: audioFile });
+                                const messageData = {
+                                  sender_type: 'dietitian', message: '🎤 Voice note', content_type: 'audio',
+                                  attachment_url: file_url, attachment_name: audioFile.name,
+                                  attachment_type: audioFile.type, attachment_size: audioFile.size,
+                                  read: false, is_important: isImportant,
+                                };
+                                if (selectedClient) messageData.client_id = selectedClient.id;
+                                if (selectedGroup) messageData.group_id = selectedGroup.id;
+                                sendMessageMutation.mutate(messageData);
+                              } catch (error) {
+                                toast.error("Failed to upload voice note");
+                              }
+                              setUploading(false);
+                            }}
+                            onCancel={() => setShowVoiceRecorder(false)}
+                          />
+                        </div>
+                      ) : (
+                        <div className="border-t border-gray-200 p-2 sm:p-3 flex-shrink-0 bg-white">
+                          <EnhancedMessageInput
+                            value={messageText}
+                            onChange={(text) => { setMessageText(text); handleTyping(); }}
+                            onSend={() => { stopTyping(); handleSendMessage(); }}
+                            attachedFiles={attachedFile ? [attachedFile] : []}
+                            onRemoveFile={removeAttachment}
+                            isLoading={sendMessageMutation.isPending || uploading}
+                            disabled={uploading || sendMessageMutation.isPending}
+                          />
+                        </div>
+                      )}
 
-                  {/* Voice Recorder */}
-                  {showVoiceRecorder ? (
-                    <div className="border-t border-gray-200 p-4 flex-shrink-0">
-                      <VoiceRecorder
-                        onRecordComplete={async (audioFile) => {
-                          setShowVoiceRecorder(false);
-                          setAttachedFile(audioFile);
-                          setContentType('audio');
-
-                          // Auto-send voice note
-                          setUploading(true);
-                          try {
-                            const { file_url } = await base44.integrations.Core.UploadFile({ file: audioFile });
-                            const messageData = {
-                              sender_type: 'dietitian',
-                              message: '🎤 Voice note',
-                              content_type: 'audio',
-                              attachment_url: file_url,
-                              attachment_name: audioFile.name,
-                              attachment_type: audioFile.type,
-                              attachment_size: audioFile.size,
-                              read: false,
-                              is_important: isImportant,
-                            };
-
-                            if (selectedClient) messageData.client_id = selectedClient.id;
-                            if (selectedGroup) messageData.group_id = selectedGroup.id;
-
-                            sendMessageMutation.mutate(messageData);
-                          } catch (error) {
-                            console.error("Voice upload failed:", error);
-                            toast.error("Failed to upload voice note");
-                          }
-                          setUploading(false);
-                        }}
-                        onCancel={() => setShowVoiceRecorder(false)}
-                      />
-                    </div>
+                      <PollCreator open={showPollCreator} onClose={() => setShowPollCreator(false)} onCreatePoll={handlePollCreate} />
+                    </>
                   ) : (
-                    <div className="border-t border-gray-200 p-4 flex-shrink-0">
-                      <EnhancedMessageInput
-                        value={messageText}
-                        onChange={(text) => {
-                          setMessageText(text);
-                          handleTyping();
-                        }}
-                        onSend={() => {
-                          stopTyping();
-                          handleSendMessage();
-                        }}
-                        attachedFiles={attachedFile ? [attachedFile] : []}
-                        onRemoveFile={removeAttachment}
-                        isLoading={sendMessageMutation.isPending || uploading}
-                        disabled={uploading || sendMessageMutation.isPending}
-                      />
+                    <div className="flex items-center justify-center h-full bg-gray-50">
+                      <div className="text-center px-4">
+                        <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-3" />
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">Select a client to start messaging</h3>
+                        <p className="text-sm text-gray-500">Choose a client from the list on the left</p>
+                      </div>
                     </div>
                   )}
 
-                  <PollCreator
-                    open={showPollCreator}
-                    onClose={() => setShowPollCreator(false)}
-                    onCreatePoll={handlePollCreate}
+                  <MessageThread
+                    message={selectedThread}
+                    onClose={() => setSelectedThread(null)}
+                    onReply={async (data) => {
+                      sendMessageMutation.mutate({
+                        sender_type: 'dietitian', message: data.replyText,
+                        parent_message_id: data.parentMessageId,
+                        client_id: selectedClient.id, read: false,
+                      });
+                    }}
+                    formatTime={formatToIST}
+                    currentUserEmail={user?.email}
                   />
-                </>
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <MessageSquare className="w-20 h-20 mx-auto text-gray-300 mb-4" />
-                    <h3 className="text-2xl font-semibold text-gray-900 mb-2">
-                      Select a client to start messaging
-                    </h3>
-                    <p className="text-gray-600 mb-4">
-                      Choose a client from the list on the left
-                    </p>
-                    <Alert className="max-w-md mx-auto bg-blue-50 border-blue-300">
-                      <AlertDescription className="text-sm text-blue-900">
-                        👈 Click on any client name to open the chat and send messages
-                      </AlertDescription>
-                    </Alert>
-                  </div>
                 </div>
-              )}
-
-                 {/* Message Thread Modal */}
-                 <MessageThread
-                   message={selectedThread}
-                   onClose={() => setSelectedThread(null)}
-                   onReply={async (data) => {
-                     const replyData = {
-                       sender_type: 'dietitian',
-                       message: data.replyText,
-                       parent_message_id: data.parentMessageId,
-                       client_id: selectedClient.id,
-                       read: false,
-                     };
-                     sendMessageMutation.mutate(replyData);
-                   }}
-                   formatTime={formatToIST}
-                   currentUserEmail={user?.email}
-                 />
               </div>
-              </div>
-              </TabsContent>
+            </TabsContent>
 
-              <TabsContent value="groups" className="flex-1 mt-0 p-6 overflow-y-auto">
+            <TabsContent value="groups" className="flex-1 mt-0 overflow-y-auto p-3 sm:p-4">
               <GroupMessaging userEmail={user?.email} />
-              </TabsContent>
-              </Tabs>
-              </Card>
-              </div>
-              </div>
-              );
+            </TabsContent>
+          </Tabs>
+        </Card>
+      </div>
+    </div>
+  );
               }
