@@ -58,8 +58,10 @@ export default function ClientCommunication() {
   const prevMessageCountRef = useRef(0);
 
   const [activeVideoCall, setActiveVideoCall] = useState(null);
+  const [incomingCall, setIncomingCall] = useState(null);
   const [showCallHistory, setShowCallHistory] = useState(false);
   const signalingRef = useRef(null);
+  const incomingChannelRef = useRef(null);
 
   const [isTyping, setIsTyping] = React.useState(false);
   const typingTimeoutRef = React.useRef(null);
