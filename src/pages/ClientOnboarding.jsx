@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,7 +15,6 @@ import {
   Scale,
   Heart,
   Target,
-  Calendar,
   CheckCircle,
   ArrowRight,
   ArrowLeft,
@@ -29,7 +28,8 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import AIGoalSetter from "@/components/onboarding/AIGoalSetter";
 import AIWelcomeMessage from "@/components/onboarding/AIWelcomeMessage";
-import { useEffect } from "react";
+import WelcomeScreen from "@/components/onboarding/WelcomeScreen";
+import AppTutorial from "@/components/onboarding/AppTutorial";
 
 export default function ClientOnboarding() {
   const navigate = useNavigate();
