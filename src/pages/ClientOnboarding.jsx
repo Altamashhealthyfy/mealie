@@ -33,6 +33,7 @@ import AppTutorial from "@/components/onboarding/AppTutorial";
 
 export default function ClientOnboarding() {
   const navigate = useNavigate();
+  const [phase, setPhase] = useState("welcome"); // "welcome" | "form" | "goals" | "tutorial"
   const [currentStep, setCurrentStep] = useState(1);
   const [aiTip, setAiTip] = useState("");
   const [loadingTip, setLoadingTip] = useState(false);
