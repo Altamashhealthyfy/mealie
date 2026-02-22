@@ -296,8 +296,13 @@ Provide a warm, personalized tip that's relevant to their situation.`,
 
   const progress = (currentStep / steps.length) * 100;
 
-  // Post-onboarding flow
-  if (showPostOnboarding && createdClient) {
+  // Phase: Welcome screen
+  if (phase === "welcome") {
+    return <WelcomeScreen user={user} onStart={() => setPhase("form")} />;
+  }
+
+  // Phase: Goal-setting + welcome message
+  if (phase === "goals" && createdClient) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-4 md:p-8">
         <div className="max-w-2xl mx-auto space-y-6">
@@ -308,19 +313,20 @@ Provide a warm, personalized tip that's relevant to their situation.`,
             </div>
             <p className="text-gray-600">Let's personalize your health journey with goals and a welcome message from your coach.</p>
           </div>
-
           <AIWelcomeMessage client={createdClient} coachEmail={user?.email} />
-
           <AIGoalSetter 
             client={createdClient} 
-            onGoalsSet={() => {
-              setTimeout(() => {
-                navigate(createPageUrl("ClientDashboard"));
-              }, 1500);
-            }}
+            onGoalsSet={() => setPhase("tutorial")}
           />
         </div>
       </div>
+    );
+  }
+
+  // Phase: App tutorial
+  if (phase === "tutorial") {
+    return (
+      <AppTutorial onComplete={() => navigate(createPageUrl("ClientDashboard"))} />
     );
   }
 
