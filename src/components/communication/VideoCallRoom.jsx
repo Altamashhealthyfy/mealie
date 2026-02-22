@@ -80,11 +80,28 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
     };
 
     pc.ontrack = (e) => {
-      if (remoteVideoRef.current && e.streams[0]) {
-        remoteVideoRef.current.srcObject = e.streams[0];
+      console.log('ontrack fired, streams:', e.streams, 'track:', e.track);
+      if (e.streams && e.streams[0]) {
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = e.streams[0];
+          remoteVideoRef.current.play().catch(err => console.warn('Remote play error:', err));
+        }
+      } else if (e.track) {
+        // fallback: build stream manually
+        if (remoteVideoRef.current) {
+          let stream = remoteVideoRef.current.srcObject;
+          if (!stream || !(stream instanceof MediaStream)) {
+            stream = new MediaStream();
+            remoteVideoRef.current.srcObject = stream;
+          }
+          stream.addTrack(e.track);
+          remoteVideoRef.current.play().catch(err => console.warn('Remote play error:', err));
+        }
       }
-      if (!remoteConnected) {
+      if (!remoteConnectedRef.current) {
+        remoteConnectedRef.current = true;
         setRemoteConnected(true);
+        clearInterval(timerRef.current);
         timerRef.current = setInterval(() => setCallDuration(d => d + 1), 1000);
       }
     };
