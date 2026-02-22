@@ -625,6 +625,35 @@ export default function ClientCommunication() {
           </div>
         )}
 
+        {/* Incoming Call Banner */}
+        {incomingCall && (
+          <div className="mb-4 p-4 bg-green-500 rounded-2xl shadow-2xl flex items-center gap-4 animate-pulse border-4 border-green-300">
+            <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+              <Phone className="w-7 h-7 text-green-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-white font-bold text-lg">📹 Incoming Video Call</p>
+              <p className="text-green-100 text-sm">{incomingCall.coachName} is calling you...</p>
+            </div>
+            <div className="flex gap-3 flex-shrink-0">
+              <Button
+                onClick={acceptCall}
+                className="bg-white text-green-600 hover:bg-green-50 font-bold px-5 py-2 rounded-xl shadow-md flex items-center gap-2"
+              >
+                <Phone className="w-5 h-5" />
+                Answer
+              </Button>
+              <Button
+                onClick={rejectCall}
+                className="bg-red-500 hover:bg-red-600 text-white font-bold px-5 py-2 rounded-xl shadow-md flex items-center gap-2"
+              >
+                <X className="w-5 h-5" />
+                Decline
+              </Button>
+            </div>
+          </div>
+        )}
+
         {newMessageAlert && (
           <div className="mb-4 p-3 bg-green-50 border border-green-300 rounded-xl flex items-center gap-3 animate-in slide-in-from-top-2">
             <Bell className="w-5 h-5 text-green-600 flex-shrink-0" />
