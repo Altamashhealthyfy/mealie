@@ -40,6 +40,7 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
   const mediaRecorderRef = useRef(null);
   const recordedChunksRef = useRef([]);
   const mountedRef = useRef(true);
+  const remoteConnectedRef = useRef(false);
 
   const cleanup = useCallback(() => {
     clearInterval(timerRef.current);
