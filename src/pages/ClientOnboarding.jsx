@@ -211,51 +211,55 @@ Provide a warm, personalized tip that's relevant to their situation.`,
   };
 
   const handleNext = () => {
-    // Validation for each step
+    const newErrors = {};
+
     if (currentStep === 1) {
-      if (!formData.full_name || !formData.email || !formData.age || !formData.gender) {
-        toast({
-          title: "Missing information",
-          description: "Please fill in all required fields.",
-          variant: "destructive",
-        });
+      if (!formData.full_name) newErrors.full_name = "Full name is required";
+      if (!formData.email) newErrors.email = "Email is required";
+      if (!formData.age) newErrors.age = "Age is required";
+      if (!formData.gender) newErrors.gender = "Gender is required";
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
         return;
       }
+      setErrors({});
       loadAiTip(`Client just provided basic info: ${formData.full_name}, age ${formData.age}, ${formData.gender}. Give them encouragement about starting their health journey.`);
     } else if (currentStep === 2) {
-      if (!formData.height || !formData.weight || !formData.target_weight) {
-        toast({
-          title: "Missing information",
-          description: "Please provide your body metrics.",
-          variant: "destructive",
-        });
+      if (!formData.height) newErrors.height = "Height is required";
+      if (!formData.weight) newErrors.weight = "Current weight is required";
+      if (!formData.target_weight) newErrors.target_weight = "Target weight is required";
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
         return;
       }
+      setErrors({});
       const bmi = (formData.weight / ((formData.height / 100) ** 2)).toFixed(1);
       loadAiTip(`Client's BMI is ${bmi}, current weight ${formData.weight}kg, target ${formData.target_weight}kg. Provide encouraging insight about their goal.`);
     } else if (currentStep === 3) {
+      setErrors({});
       if (formData.health_conditions.length > 0) {
         loadAiTip(`Client has these health conditions: ${formData.health_conditions.join(', ')}. Give supportive advice about managing these through nutrition.`);
       }
     } else if (currentStep === 4) {
-      if (!formData.goal || !formData.food_preference) {
-        toast({
-          title: "Missing information",
-          description: "Please select your goal and food preferences.",
-          variant: "destructive",
-        });
+      if (!formData.goal) newErrors.goal = "Please select your goal";
+      if (!formData.food_preference) newErrors.food_preference = "Please select your food preference";
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
         return;
       }
+      setErrors({});
       loadAiTip(`Client's goal is ${formData.goal}, prefers ${formData.food_preference} food. Give tips about achieving this goal with their preferences.`);
     } else if (currentStep === 5) {
-      if (!formData.activity_level) {
-        toast({
-          title: "Missing information",
-          description: "Please select your activity level.",
-          variant: "destructive",
-        });
+      if (!formData.activity_level) newErrors.activity_level = "Please select your activity level";
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
         return;
       }
+      setErrors({});
     }
 
     setCurrentStep(prev => Math.min(prev + 1, 6));
