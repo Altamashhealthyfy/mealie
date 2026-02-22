@@ -907,7 +907,7 @@ export default function Communication() {
                                 className={`flex ${isFromDietitian ? 'justify-end' : 'justify-start'}`}
                               >
                                 <div
-                                  className={`max-w-[85%] sm:max-w-[75%] md:max-w-[70%] rounded-2xl p-3 md:p-4 shadow-md ${
+                                  className={`max-w-[88%] sm:max-w-[75%] md:max-w-[70%] rounded-2xl p-2.5 sm:p-3 md:p-4 shadow-md ${
                                     isFromDietitian
                                       ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
                                       : 'bg-gray-100 text-gray-900'
