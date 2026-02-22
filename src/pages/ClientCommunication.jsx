@@ -569,7 +569,7 @@ export default function ClientCommunication() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8">
+    <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 60px)' }}>
       {activeVideoCall && (
         <VideoCallRoom
           roomId={activeVideoCall.clientId}
@@ -580,42 +580,37 @@ export default function ClientCommunication() {
           onEnd={endVideoCall}
         />
       )}
-      <div className="max-w-5xl mx-auto">
-        <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+
+      <div className="flex flex-col flex-1 overflow-hidden p-2 sm:p-3">
+        {/* Header */}
+        <div className="mb-2 flex items-center justify-between gap-2 flex-shrink-0">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Messages</h1>
-            <p className="text-gray-600">
+            <h1 className="text-lg sm:text-xl font-bold text-gray-900">Messages</h1>
+            <p className="text-xs text-gray-500 hidden sm:block">
               Chat with {coachUser?.full_name || coachEmail?.split('@')[0] || 'your health coach'}
             </p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 flex-wrap">
             {isClient && <InitiateConversation />}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowCallHistory(!showCallHistory)}
-              className="flex items-center gap-1 border-purple-300 text-purple-700 hover:bg-purple-50"
-            >
-              <History className="w-4 h-4" />
-              <span className="hidden sm:inline">Call History</span>
+            <Button variant="outline" size="sm" onClick={() => setShowCallHistory(!showCallHistory)}
+              className="flex items-center gap-1 border-purple-300 text-purple-700 hover:bg-purple-50 h-8 px-2 text-xs">
+              <History className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">History</span>
             </Button>
-            <Button
-              size="sm"
-              onClick={startVideoCall}
-              className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1"
-            >
-              <Phone className="w-4 h-4" />
-              <span className="hidden sm:inline">Start Video Call</span>
+            <Button size="sm" onClick={startVideoCall}
+              className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1 h-8 px-2 text-xs">
+              <Phone className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Video Call</span>
             </Button>
             <PushNotificationManager userEmail={user?.email} />
           </div>
         </div>
 
         {showCallHistory && (
-          <div className="mb-4 border border-purple-200 rounded-xl bg-purple-50 p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-semibold text-purple-800 flex items-center gap-2">
-                <History className="w-4 h-4" /> Scheduled & Past Calls
+          <div className="mb-2 border border-purple-200 rounded-xl bg-purple-50 p-3 flex-shrink-0">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-semibold text-purple-800 text-sm flex items-center gap-1">
+                <History className="w-3.5 h-3.5" /> Past Calls
               </h4>
               <Button variant="ghost" size="sm" onClick={() => setShowCallHistory(false)} className="h-6 w-6 p-0">
                 <X className="w-4 h-4" />
@@ -625,261 +620,180 @@ export default function ClientCommunication() {
           </div>
         )}
 
-        {/* Incoming Call Banner */}
         {incomingCall && (
-          <div className="mb-4 p-4 bg-green-500 rounded-2xl shadow-2xl flex items-center gap-4 animate-pulse border-4 border-green-300">
-            <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
-              <Phone className="w-7 h-7 text-green-500" />
+          <div className="mb-2 p-3 bg-green-500 rounded-2xl shadow-xl flex items-center gap-3 animate-pulse border-2 border-green-300 flex-shrink-0">
+            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+              <Phone className="w-5 h-5 text-green-500" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white font-bold text-lg">📹 Incoming Video Call</p>
-              <p className="text-green-100 text-sm">{incomingCall.coachName} is calling you...</p>
+              <p className="text-white font-bold text-sm">📹 Incoming Video Call</p>
+              <p className="text-green-100 text-xs">{incomingCall.coachName} is calling...</p>
             </div>
-            <div className="flex gap-3 flex-shrink-0">
-              <Button
-                onClick={acceptCall}
-                className="bg-white text-green-600 hover:bg-green-50 font-bold px-5 py-2 rounded-xl shadow-md flex items-center gap-2"
-              >
-                <Phone className="w-5 h-5" />
-                Answer
+            <div className="flex gap-2 flex-shrink-0">
+              <Button onClick={acceptCall} className="bg-white text-green-600 hover:bg-green-50 font-bold px-3 py-1.5 rounded-xl text-xs h-8">
+                <Phone className="w-3.5 h-3.5 mr-1" /> Answer
               </Button>
-              <Button
-                onClick={rejectCall}
-                className="bg-red-500 hover:bg-red-600 text-white font-bold px-5 py-2 rounded-xl shadow-md flex items-center gap-2"
-              >
-                <X className="w-5 h-5" />
-                Decline
+              <Button onClick={rejectCall} className="bg-red-500 hover:bg-red-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs h-8">
+                <X className="w-3.5 h-3.5 mr-1" /> Decline
               </Button>
             </div>
           </div>
         )}
 
         {newMessageAlert && (
-          <div className="mb-4 p-3 bg-green-50 border border-green-300 rounded-xl flex items-center gap-3 animate-in slide-in-from-top-2">
-            <Bell className="w-5 h-5 text-green-600 flex-shrink-0" />
-            <p className="text-sm text-green-800 font-medium">New message: <span className="font-normal">{newMessageAlert}</span></p>
-            <Button variant="ghost" size="sm" className="ml-auto p-1 h-auto" onClick={() => setNewMessageAlert(null)}>
-              <X className="w-4 h-4 text-green-700" />
+          <div className="mb-2 p-2.5 bg-green-50 border border-green-300 rounded-xl flex items-center gap-2 flex-shrink-0">
+            <Bell className="w-4 h-4 text-green-600 flex-shrink-0" />
+            <p className="text-xs text-green-800 font-medium flex-1 truncate">New: {newMessageAlert}</p>
+            <Button variant="ghost" size="sm" className="p-0.5 h-auto" onClick={() => setNewMessageAlert(null)}>
+              <X className="w-3.5 h-3.5 text-green-700" />
             </Button>
           </div>
         )}
 
-        <Card className="border-none shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 200px)' }}>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-            <TabsList className="rounded-none border-b w-full grid grid-cols-2 flex-shrink-0 mb-4">
-              <TabsTrigger value="direct" className="flex gap-2 items-center">
-                <MessageSquare className="w-4 h-4" />
+        <Card className="border-none shadow-xl overflow-hidden flex-1 flex flex-col min-h-0">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+            <TabsList className="rounded-none border-b w-full grid grid-cols-2 flex-shrink-0 h-10">
+              <TabsTrigger value="direct" className="flex gap-1 items-center text-xs sm:text-sm">
+                <MessageSquare className="w-3.5 h-3.5" />
                 Direct
                 {messages.filter(m => !m.read && m.sender_type === 'dietitian').length > 0 && (
-                  <Badge className="ml-1 bg-red-500 text-white text-xs h-5 min-w-5 flex items-center justify-center rounded-full px-1">
+                  <Badge className="ml-1 bg-red-500 text-white text-xs h-4 min-w-4 flex items-center justify-center rounded-full px-1">
                     {messages.filter(m => !m.read && m.sender_type === 'dietitian').length}
                   </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="groups" className="flex gap-2">
-                <Users className="w-4 h-4" />
+              <TabsTrigger value="groups" className="flex gap-1 text-xs sm:text-sm">
+                <Users className="w-3.5 h-3.5" />
                 Groups {clientGroups.length > 0 && `(${clientGroups.length})`}
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden">
-            <div className="flex flex-col h-full">
-            {/* Chat Header */}
-            <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50 flex-shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
-                  <MessageSquare className="w-6 h-6 text-white" />
-                </div>
-                <div className="min-w-0">
-                  <CardTitle className="text-base sm:text-lg md:text-xl break-words">
-                    {coachUser?.full_name || (coachEmail ? coachEmail.split('@')[0].charAt(0).toUpperCase() + coachEmail.split('@')[0].slice(1) : 'Your Health Coach')}
-                  </CardTitle>
-                  <p className="text-xs sm:text-sm text-gray-600">Always here to help you 💚</p>
-                </div>
-              </div>
-            </CardHeader>
-
-            {/* Messages */}
-            <div className="flex-1 overflow-hidden bg-gray-50 relative">
-              <ScrollArea 
-                className="h-full" 
-                style={{ height: 'calc(100vh - 380px)' }}
-                onScrollCapture={handleScroll}
-              >
-                <div className="p-2 sm:p-4 md:p-6 space-y-3 sm:space-y-4">
-                  {messages.length === 0 ? (
-                    <div className="text-center py-12">
-                      <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                        No messages yet
-                      </h3>
-                      <p className="text-gray-600 mb-4">
-                        Start a conversation with your dietitian
-                      </p>
-                      <Alert className="max-w-md mx-auto bg-blue-50 border-blue-300">
-                        <AlertDescription className="text-sm text-blue-900">
-                          👇 Use the message box below to send your first message!
-                        </AlertDescription>
-                      </Alert>
-                    </div>
-                  ) : (
-                    messages.map((message) => {
-                      const isFromClient = message.sender_type === 'client';
-
-                      return (
-                        <div
-                          key={message.id}
-                          className={`flex ${isFromClient ? 'justify-end' : 'justify-start'}`}
-                        >
-                          <div
-                            className={`max-w-[95%] sm:max-w-[80%] md:max-w-[70%] rounded-2xl p-3 sm:p-4 shadow-md ${
-                              isFromClient
-                                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
-                                : 'bg-white text-gray-900 border border-gray-200'
-                            }`}
-                          >
-                            {message.message && (
-                              <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap mb-2">{message.message}</p>
-                            )}
-                            
-                            {renderAttachment(message, isFromClient)}
-
-                            <div className={`flex items-center gap-2 mt-2 text-xs ${
-                              isFromClient ? 'text-white/70' : 'text-gray-500'
-                            }`}>
-                              <span>{formatToIST(message.created_date)}</span>
-                              {isFromClient && (
-                                message.read ? (
-                                  <CheckCheck className="w-4 h-4 text-blue-300" />
-                                ) : (
-                                  <Check className="w-4 h-4 text-white/70" />
-                                )
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                  <div ref={messagesEndRef} />
+            <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0">
+              <div className="flex flex-col h-full min-h-0">
+                {/* Chat Header */}
+                <div className="border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50 flex-shrink-0 px-3 py-2 flex items-center gap-3">
+                  <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <MessageSquare className="w-4 h-4 text-white" />
                   </div>
-                  </ScrollArea>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-sm sm:text-base truncate">
+                      {coachUser?.full_name || (coachEmail ? coachEmail.split('@')[0] : 'Your Health Coach')}
+                    </p>
+                    <p className="text-xs text-gray-500">Always here to help you 💚</p>
+                  </div>
+                </div>
 
-              {showScrollButton && (
-                <Button
-                  onClick={() => scrollToBottom("smooth")}
-                  className="absolute bottom-4 right-4 rounded-full w-12 h-12 bg-orange-500 hover:bg-orange-600 shadow-xl z-10"
-                  size="icon"
-                >
-                  <ArrowDown className="w-6 h-6 text-white animate-bounce" />
-                </Button>
-              )}
-            </div>
-
-            {/* Send Message Box */}
-            <div className="p-4 border-t-2 border-orange-500 bg-white flex-shrink-0">
-              {attachedFile && (
-                <div className="mb-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="flex items-center gap-2">
-                    {getFileIcon(attachedFile.type)}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {attachedFile.name}
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        {formatFileSize(attachedFile.size)}
-                      </p>
+                {/* Messages */}
+                <div className="flex-1 overflow-hidden bg-gray-50 relative min-h-0">
+                  <ScrollArea className="h-full" onScrollCapture={handleScroll}>
+                    <div className="p-3 space-y-2.5">
+                      {messages.length === 0 ? (
+                        <div className="text-center py-10">
+                          <MessageSquare className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                          <h3 className="text-base font-semibold text-gray-900 mb-1">No messages yet</h3>
+                          <p className="text-sm text-gray-500">Send your first message below</p>
+                        </div>
+                      ) : (
+                        messages.map((message) => {
+                          const isFromClient = message.sender_type === 'client';
+                          return (
+                            <div key={message.id} className={`flex ${isFromClient ? 'justify-end' : 'justify-start'}`}>
+                              <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-2.5 sm:p-3 shadow-sm ${
+                                isFromClient
+                                  ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
+                                  : 'bg-white text-gray-900 border border-gray-200'
+                              }`}>
+                                {message.message && (
+                                  <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap mb-1.5">{message.message}</p>
+                                )}
+                                {renderAttachment(message, isFromClient)}
+                                <div className={`flex items-center gap-1.5 mt-1 text-xs ${isFromClient ? 'text-white/70' : 'text-gray-400'}`}>
+                                  <span>{formatToIST(message.created_date)}</span>
+                                  {isFromClient && (
+                                    message.read
+                                      ? <CheckCheck className="w-3.5 h-3.5 text-blue-300" />
+                                      : <Check className="w-3.5 h-3.5 text-white/70" />
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                      <div ref={messagesEndRef} />
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={removeAttachment}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <X className="w-4 h-4" />
+                  </ScrollArea>
+                  {showScrollButton && (
+                    <Button onClick={() => scrollToBottom("smooth")}
+                      className="absolute bottom-3 right-3 rounded-full w-10 h-10 bg-orange-500 hover:bg-orange-600 shadow-xl z-10" size="icon">
+                      <ArrowDown className="w-5 h-5 text-white animate-bounce" />
+                    </Button>
+                  )}
+                </div>
+
+                {/* Send Message Box */}
+                <div className="p-2 sm:p-3 border-t-2 border-orange-500 bg-white flex-shrink-0">
+                  {attachedFile && (
+                    <div className="mb-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="flex items-center gap-2">
+                        {getFileIcon(attachedFile.type)}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-gray-900 truncate">{attachedFile.name}</p>
+                          <p className="text-xs text-gray-500">{formatFileSize(attachedFile.size)}</p>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={removeAttachment} className="text-red-600 hover:bg-red-50 h-7 w-7 p-0">
+                          <X className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex items-end gap-2">
+                    <input ref={fileInputRef} type="file" onChange={handleFileSelect} className="hidden" accept="*/*" />
+                    <Button variant="outline" size="icon"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="h-10 w-10 flex-shrink-0 border-2 border-orange-300 hover:bg-orange-50"
+                      disabled={uploading || sendMessageMutation.isPending}>
+                      <Paperclip className="w-4 h-4 text-orange-600" />
+                    </Button>
+                    <Textarea
+                      ref={textareaRef}
+                      placeholder={`Message ${coachEmail ? coachEmail.split('@')[0] : 'your coach'}...`}
+                      value={messageText}
+                      onChange={(e) => { setMessageText(e.target.value); handleTyping(); }}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault(); stopTyping(); handleSendMessage();
+                        }
+                      }}
+                      onBlur={stopTyping}
+                      className="resize-none min-h-[40px] text-sm border-2 border-orange-300 focus:border-orange-500 flex-1"
+                      rows={1}
+                      disabled={uploading}
+                    />
+                    <Button onClick={handleSendMessage} disabled={sendMessageMutation.isPending || uploading}
+                      className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-10 px-3 sm:px-4 font-semibold shadow-md flex-shrink-0">
+                      {(sendMessageMutation.isPending || uploading) ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
-              )}
-
-              <div className="flex items-end gap-3">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                  accept="*/*"
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="h-[60px] w-[60px] flex-shrink-0 border-2 border-orange-300 hover:bg-orange-50"
-                  disabled={uploading || sendMessageMutation.isPending}
-                >
-                  <Paperclip className="w-5 h-5 text-orange-600" />
-                </Button>
-                <div className="flex-1">
-                  <Textarea
-                    ref={textareaRef}
-                    placeholder={`Type your message to ${coachEmail ? coachEmail.split('@')[0] : 'your coach'}...`}
-                    value={messageText}
-                    onChange={(e) => {
-                      setMessageText(e.target.value);
-                      handleTyping();
-                    }}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        stopTyping();
-                        handleSendMessage();
-                      }
-                    }}
-                    onBlur={stopTyping}
-                    className="resize-none min-h-[60px] text-sm border-2 border-orange-300 focus:border-orange-500"
-                    rows={2}
-                    disabled={uploading}
-                    autoFocus
-                  />
-                </div>
-                <Button
-                  onClick={handleSendMessage}
-                  disabled={sendMessageMutation.isPending || uploading}
-                  className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-[60px] px-6 font-semibold shadow-lg"
-                >
-                  {(sendMessageMutation.isPending || uploading) ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      {uploading ? 'Uploading...' : 'Sending...'}
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4 mr-2" />
-                      Send
-                    </>
-                  )}
-                </Button>
               </div>
-              
-              <p className="text-xs text-gray-500 text-center mt-2">
-                <Paperclip className="w-3 h-3 inline" /> Attach images, documents, or any file • 
-                <kbd className="px-1.5 py-0.5 bg-gray-200 rounded text-xs font-mono ml-1">Enter</kbd> to send
-              </p>
-            </div>
-            </div>
             </TabsContent>
 
             <TabsContent value="groups" className="flex-1 mt-0 overflow-y-auto">
               {clientGroups.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <Users className="w-20 h-20 mx-auto text-gray-300 mb-4" />
-                    <h3 className="text-2xl font-semibold text-gray-900 mb-2">No group messages</h3>
-                    <p className="text-gray-600">Your coach hasn't added you to any groups yet</p>
+                  <div className="text-center px-4">
+                    <Users className="w-16 h-16 mx-auto text-gray-300 mb-3" />
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">No group messages</h3>
+                    <p className="text-sm text-gray-500">Your coach hasn't added you to any groups yet</p>
                   </div>
                 </div>
               ) : (
-                <div className="p-4 md:p-6 space-y-6">
+                <div className="p-3 space-y-4">
                   {clientGroups.map(group => {
                     const groupMsgs = groupMessages.filter(m => m.group_id === group.id).sort((a, b) =>
                       new Date(a.created_date) - new Date(b.created_date)
@@ -888,54 +802,36 @@ export default function ClientCommunication() {
                     const handleGroupFileSelect = async (e) => {
                       const file = e.target.files[0];
                       if (!file) return;
-
-                      if (file.size > 1073741824) {
-                        alert("⚠️ File size must be less than 1 GB");
-                        return;
-                      }
-
+                      if (file.size > 1073741824) { alert("⚠️ File size must be less than 1 GB"); return; }
                       setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: file });
                     };
 
                     const removeGroupAttachment = () => {
                       setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: null });
-                      if (groupFileInputRefs.current[group.id]) {
-                        groupFileInputRefs.current[group.id].value = '';
-                      }
+                      if (groupFileInputRefs.current[group.id]) groupFileInputRefs.current[group.id].value = '';
                     };
 
                     const handleSendGroupMessage = async () => {
                       const message = groupMessageInputs[group.id] || "";
                       const attachedFile = groupAttachedFiles[group.id];
-
                       if (!message.trim() && !attachedFile) return;
-
                       let msgData = {
-                        group_id: group.id,
-                        sender_type: 'client',
-                        sender_id: user?.id,
+                        group_id: group.id, sender_type: 'client', sender_id: user?.id,
                         sender_name: user?.full_name || clientProfile?.full_name,
-                        message: message.trim() || '(File attachment)',
-                        read: false,
+                        message: message.trim() || '(File attachment)', read: false,
                       };
-
                       if (attachedFile) {
                         setGroupUploading({ ...groupUploading, [group.id]: true });
                         try {
                           const { file_url } = await base44.integrations.Core.UploadFile({ file: attachedFile });
-                          msgData.attachment_url = file_url;
-                          msgData.attachment_name = attachedFile.name;
-                          msgData.attachment_type = attachedFile.type;
-                          msgData.attachment_size = attachedFile.size;
+                          msgData.attachment_url = file_url; msgData.attachment_name = attachedFile.name;
+                          msgData.attachment_type = attachedFile.type; msgData.attachment_size = attachedFile.size;
                         } catch (error) {
-                          console.error("File upload failed:", error);
-                          alert("❌ File upload failed. Please try again.");
-                          setGroupUploading({ ...groupUploading, [group.id]: false });
-                          return;
+                          alert("❌ File upload failed.");
+                          setGroupUploading({ ...groupUploading, [group.id]: false }); return;
                         }
                         setGroupUploading({ ...groupUploading, [group.id]: false });
                       }
-
                       await sendMessageMutation.mutateAsync(msgData);
                       setGroupMessageInputs({ ...groupMessageInputs, [group.id]: "" });
                       setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: null });
@@ -944,39 +840,28 @@ export default function ClientCommunication() {
 
                     return (
                       <Card key={group.id} className="border-l-4 border-l-blue-500">
-                        <CardHeader className="pb-3 bg-blue-50">
-                          <CardTitle className="text-base md:text-lg flex items-center gap-2">
-                            <Users className="w-5 h-5 text-blue-500" />
+                        <CardHeader className="pb-2 pt-3 px-3 bg-blue-50">
+                          <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+                            <Users className="w-4 h-4 text-blue-500" />
                             {group.name}
                           </CardTitle>
-                          {group.description && (
-                            <p className="text-xs md:text-sm text-gray-600 mt-1">{group.description}</p>
-                          )}
+                          {group.description && <p className="text-xs text-gray-500 mt-0.5">{group.description}</p>}
                         </CardHeader>
-                        <CardContent className="p-3 md:p-4">
-                          <div className="space-y-3 max-h-96 overflow-y-auto mb-4 p-2">
+                        <CardContent className="p-2 sm:p-3">
+                          <div className="space-y-2 max-h-72 overflow-y-auto mb-3 p-1">
                             {groupMsgs.length === 0 ? (
-                              <p className="text-sm text-gray-500 text-center py-4">No messages yet</p>
+                              <p className="text-xs text-gray-500 text-center py-3">No messages yet</p>
                             ) : (
                               groupMsgs.map(msg => {
                                 const isFromClient = msg.sender_type === 'client';
                                 return (
-                                  <div
-                                    key={msg.id}
-                                    className={`flex ${isFromClient ? 'justify-end' : 'justify-start'}`}
-                                  >
-                                    <div
-                                      className={`max-w-[85%] rounded-2xl p-2 md:p-3 ${
-                                        isFromClient
-                                          ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
-                                          : 'bg-gray-100 text-gray-900'
-                                      }`}
-                                    >
-                                      {msg.message && (
-                                        <p className="text-xs md:text-sm mb-2">{msg.message}</p>
-                                      )}
+                                  <div key={msg.id} className={`flex ${isFromClient ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`max-w-[85%] rounded-xl p-2 text-xs sm:text-sm ${
+                                      isFromClient ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' : 'bg-gray-100 text-gray-900'
+                                    }`}>
+                                      {msg.message && <p className="mb-1">{msg.message}</p>}
                                       {renderAttachment(msg, isFromClient)}
-                                      <p className={`text-xs mt-1 ${isFromClient ? 'text-white/70' : 'text-gray-500'}`}>
+                                      <p className={`text-xs mt-0.5 ${isFromClient ? 'text-white/70' : 'text-gray-400'}`}>
                                         {formatToIST(msg.created_date)}
                                       </p>
                                     </div>
@@ -985,75 +870,39 @@ export default function ClientCommunication() {
                               })
                             )}
                           </div>
-
-                          <div className="space-y-2">
-                            {groupAttachedFiles[group.id] && (
-                              <div className="mb-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                                <div className="flex items-center gap-2">
-                                  {getFileIcon(groupAttachedFiles[group.id].type)}
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-gray-900 truncate">
-                                      {groupAttachedFiles[group.id].name}
-                                    </p>
-                                    <p className="text-xs text-gray-600">
-                                      {formatFileSize(groupAttachedFiles[group.id].size)}
-                                    </p>
-                                  </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={removeGroupAttachment}
-                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </Button>
-                                </div>
+                          {groupAttachedFiles[group.id] && (
+                            <div className="mb-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
+                              <div className="flex items-center gap-2">
+                                {getFileIcon(groupAttachedFiles[group.id].type)}
+                                <p className="text-xs font-medium text-gray-900 truncate flex-1">{groupAttachedFiles[group.id].name}</p>
+                                <Button variant="ghost" size="sm" onClick={removeGroupAttachment} className="text-red-600 h-6 w-6 p-0">
+                                  <X className="w-3.5 h-3.5" />
+                                </Button>
                               </div>
-                            )}
-
-                            <div className="flex gap-2 border-t pt-3">
-                              <input
-                                ref={(el) => groupFileInputRefs.current[group.id] = el}
-                                type="file"
-                                onChange={handleGroupFileSelect}
-                                className="hidden"
-                                accept="*/*"
-                              />
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => groupFileInputRefs.current[group.id]?.click()}
-                                disabled={groupUploading[group.id] || sendMessageMutation.isPending}
-                                className="flex-shrink-0"
-                              >
-                                <Paperclip className="w-4 h-4" />
-                              </Button>
-                              <Textarea
-                                placeholder="Type your message to the group..."
-                                value={groupMessageInputs[group.id] || ""}
-                                onChange={(e) => setGroupMessageInputs({ ...groupMessageInputs, [group.id]: e.target.value })}
-                                onKeyPress={(e) => {
-                                  if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleSendGroupMessage();
-                                  }
-                                }}
-                                className="resize-none min-h-[50px] text-sm flex-1"
-                                rows={2}
-                                disabled={groupUploading[group.id]}
-                              />
-                              <Button
-                                onClick={handleSendGroupMessage}
-                                disabled={!(groupMessageInputs[group.id] || "").trim() && !groupAttachedFiles[group.id] || sendMessageMutation.isPending || groupUploading[group.id]}
-                                className="bg-blue-500 hover:bg-blue-600 px-4 flex-shrink-0"
-                              >
-                                {(sendMessageMutation.isPending || groupUploading[group.id]) ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <Send className="w-4 h-4" />
-                                )}
-                              </Button>
                             </div>
+                          )}
+                          <div className="flex gap-2 border-t pt-2">
+                            <input ref={(el) => groupFileInputRefs.current[group.id] = el} type="file"
+                              onChange={handleGroupFileSelect} className="hidden" accept="*/*" />
+                            <Button variant="outline" size="icon" className="h-9 w-9 flex-shrink-0"
+                              onClick={() => groupFileInputRefs.current[group.id]?.click()}
+                              disabled={groupUploading[group.id] || sendMessageMutation.isPending}>
+                              <Paperclip className="w-3.5 h-3.5" />
+                            </Button>
+                            <Textarea
+                              placeholder="Message the group..."
+                              value={groupMessageInputs[group.id] || ""}
+                              onChange={(e) => setGroupMessageInputs({ ...groupMessageInputs, [group.id]: e.target.value })}
+                              onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendGroupMessage(); } }}
+                              className="resize-none min-h-[36px] text-sm flex-1" rows={1}
+                              disabled={groupUploading[group.id]}
+                            />
+                            <Button onClick={handleSendGroupMessage} className="bg-blue-500 hover:bg-blue-600 h-9 px-3 flex-shrink-0"
+                              disabled={!(groupMessageInputs[group.id] || "").trim() && !groupAttachedFiles[group.id] || sendMessageMutation.isPending || groupUploading[group.id]}>
+                              {(sendMessageMutation.isPending || groupUploading[group.id])
+                                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                : <Send className="w-3.5 h-3.5" />}
+                            </Button>
                           </div>
                         </CardContent>
                       </Card>
