@@ -665,7 +665,7 @@ export default function Communication() {
   }
 
   return (
-    <div className="min-h-screen p-2 sm:p-4 md:p-8">
+    <div className="h-screen flex flex-col p-2 sm:p-3 md:p-4 overflow-hidden">
       {activeVideoCall && (
         <VideoCallRoom
           roomId={activeVideoCall.clientId}
@@ -677,47 +677,46 @@ export default function Communication() {
         />
       )}
       
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-4 md:mb-6 flex justify-between items-start">
-           <div>
-             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 md:mb-2">Messages</h1>
-             <p className="text-sm md:text-base text-gray-600">Communicate with your clients</p>
-           </div>
-           <BroadcastMessagePanel />
-         </div>
+      <div className="max-w-7xl mx-auto w-full flex flex-col flex-1 overflow-hidden">
+        <div className="mb-3 flex justify-between items-center flex-shrink-0">
+          <div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Messages</h1>
+            <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">Communicate with your clients</p>
+          </div>
+          <BroadcastMessagePanel />
+        </div>
 
-        <Card className="border-none shadow-xl overflow-hidden" style={{ height: 'calc(100vh - 160px)' }}>
-          <Tabs defaultValue="direct" className="h-full flex flex-col">
-            <TabsList className="rounded-none border-b w-full grid grid-cols-2 flex-shrink-0 mb-4">
-              <TabsTrigger value="direct" className="flex gap-2">
-                <MessageSquare className="w-4 h-4" />
+        <Card className="border-none shadow-xl overflow-hidden flex-1 flex flex-col min-h-0">
+          <Tabs defaultValue="direct" className="flex-1 flex flex-col min-h-0">
+            <TabsList className="rounded-none border-b w-full grid grid-cols-2 flex-shrink-0">
+              <TabsTrigger value="direct" className="flex gap-1 sm:gap-2 text-xs sm:text-sm">
+                <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4" />
                 Direct Messages
               </TabsTrigger>
-              <TabsTrigger value="groups" className="flex gap-2">
-                <Users className="w-4 h-4" />
+              <TabsTrigger value="groups" className="flex gap-1 sm:gap-2 text-xs sm:text-sm">
+                <Users className="w-3 h-3 sm:w-4 sm:h-4" />
                 Groups
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden">
-              <div className="flex flex-col md:grid md:grid-cols-12 h-full">
-                {/* Client List Sidebar */}
-                <div className="flex md:col-span-4 border-r border-gray-200 flex-col h-full md:h-auto overflow-hidden">
-              <CardHeader className="border-b border-gray-200 flex-shrink-0" id="message-clients-list">
+            <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0">
+              <div className="flex h-full min-h-0">
+                {/* Client List Sidebar — hidden on mobile when a client is selected */}
+                <div className={`${selectedClient ? 'hidden md:flex' : 'flex'} md:w-80 lg:w-96 w-full border-r border-gray-200 flex-col min-h-0`}>
+              <div className="p-3 border-b border-gray-200 flex-shrink-0" id="message-clients-list">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <Input
                     placeholder="Search clients..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
+                    className="pl-9 h-9 text-sm"
                   />
                 </div>
-              </CardHeader>
+              </div>
 
-              <div className="flex-1 overflow-hidden relative">
-                <ScrollArea className="h-full" style={{ height: 'calc(100vh - 330px)' }}>
-                  <div className="p-2">
+              <div className="flex-1 overflow-y-auto">
+                <div className="p-2">
                     {messagesLoading ? (
                       <div className="text-center py-12">
                         <Loader2 className="w-8 h-8 mx-auto text-orange-500 animate-spin mb-3" />
@@ -741,39 +740,33 @@ export default function Communication() {
                           <div
                             key={client.id}
                             onClick={() => setSelectedClient(client)}
-                            className={`p-4 mb-2 rounded-xl cursor-pointer transition-all ${
+                            className={`p-3 mb-1 rounded-xl cursor-pointer transition-all ${
                               isSelected
                                 ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
                                 : 'bg-gray-50 hover:bg-gray-100'
                             }`}
                           >
                             <div className="flex items-start gap-3">
-                              <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                isSelected
-                                  ? 'bg-white/20'
-                                  : 'bg-gradient-to-br from-orange-500 to-red-500'
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                isSelected ? 'bg-white/20' : 'bg-gradient-to-br from-orange-500 to-red-500'
                               }`}>
-                                <span className={`font-medium ${isSelected ? 'text-white' : 'text-white'}`}>
+                                <span className="text-white font-medium text-sm">
                                   {(client.full_name || 'C').charAt(0)}
                                 </span>
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between mb-1">
-                                  <h3 className={`font-semibold truncate ${
-                                    isSelected ? 'text-white' : 'text-gray-900'
-                                  }`}>
+                                <div className="flex items-center justify-between mb-0.5">
+                                  <h3 className={`font-semibold truncate text-sm ${isSelected ? 'text-white' : 'text-gray-900'}`}>
                                     {client.full_name}
                                   </h3>
                                   {unreadCount > 0 && (
-                                    <Badge className="bg-red-500 text-white ml-2">
+                                    <Badge className="bg-red-500 text-white ml-1 text-xs px-1.5 py-0">
                                       {unreadCount}
                                     </Badge>
                                   )}
                                 </div>
                                 {lastMessage && (
-                                <p className={`text-sm truncate ${
-                                  isSelected ? 'text-white/80' : 'text-gray-600'
-                                }`}>
+                                <p className={`text-xs truncate ${isSelected ? 'text-white/80' : 'text-gray-600'}`}>
                                   {lastMessage.sender_type === 'dietitian' ? 'You: ' : ''}
                                   {lastMessage.attachment_url ? '📎 ' + (lastMessage.attachment_name || 'Attachment') : 
                                    (() => {
@@ -792,17 +785,8 @@ export default function Communication() {
                                 </p>
                                 )}
                                 {lastMessage && lastMessage.created_date && (
-                                  <p className={`text-xs mt-1 ${
-                                    isSelected ? 'text-white/60' : 'text-gray-500'
-                                  }`}>
+                                  <p className={`text-xs mt-0.5 ${isSelected ? 'text-white/60' : 'text-gray-500'}`}>
                                     {formatDateTimeIST(lastMessage.created_date)}
-                                  </p>
-                                )}
-                                {client.assigned_coach && (
-                                  <p className={`text-xs mt-1 ${
-                                    isSelected ? 'text-white/80' : 'text-green-600'
-                                  }`}>
-                                    🎓 Coach: {coaches.find(c => c.email === client.assigned_coach)?.full_name || client.assigned_coach}
                                   </p>
                                 )}
                               </div>
@@ -812,75 +796,67 @@ export default function Communication() {
                       })
                     )}
                   </div>
-                </ScrollArea>
               </div>
             </div>
 
-                {/* Chat Area */}
-                <div className="flex md:col-span-8 flex-col h-full overflow-hidden">
+                {/* Chat Area — full width on mobile */}
+                <div className={`${selectedClient ? 'flex' : 'hidden md:flex'} flex-1 flex-col min-h-0 overflow-hidden`}>
               {selectedClient ? (
                 <>
                   {/* Chat Header */}
-                  <CardHeader className="border-b border-gray-200 flex-shrink-0 p-3 md:p-6" id="message-chat-area">
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedClient(null)}
-                        className="md:hidden mr-1"
-                      >
-                        ← Back
-                      </Button>
-                      <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-white font-medium text-sm md:text-base">
-                          {(selectedClient.full_name || 'C').charAt(0)}
-                        </span>
-                      </div>
-                      <div className="min-w-0">
-                        <CardTitle className="text-base md:text-xl truncate">{selectedClient.full_name}</CardTitle>
-                        <p className="text-xs md:text-sm text-gray-600 truncate">{selectedClient.email}</p>
-                        {selectedClient.assigned_coach && (
-                          <p className="text-sm text-green-600 font-medium mt-1">
-                            🎓 Coach: {coaches.find(c => c.email === selectedClient.assigned_coach)?.full_name || selectedClient.assigned_coach}
-                          </p>
-                        )}
-                      </div>
+                  <div className="border-b border-gray-200 flex-shrink-0 p-2 sm:p-3 flex items-center gap-2" id="message-chat-area">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedClient(null)}
+                      className="md:hidden flex-shrink-0 h-8 w-8 p-0"
+                    >
+                      ←
+                    </Button>
+                    <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-medium text-sm">
+                        {(selectedClient.full_name || 'C').charAt(0)}
+                      </span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-sm sm:text-base truncate">{selectedClient.full_name}</p>
+                      <p className="text-xs text-gray-500 truncate hidden sm:block">{selectedClient.email}</p>
                     </div>
                     {/* Video call actions */}
-                    <div className="flex items-center gap-2 ml-auto flex-shrink-0">
+                    <div className="flex items-center gap-1 flex-shrink-0">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => { setShowCallHistory(!showCallHistory); }}
-                        className="hidden sm:flex items-center gap-1 border-purple-300 text-purple-700 hover:bg-purple-50"
+                        className="hidden sm:flex items-center gap-1 border-purple-300 text-purple-700 hover:bg-purple-50 h-8 px-2"
                       >
-                        <History className="w-4 h-4" />
-                        <span className="hidden md:inline">History</span>
+                        <History className="w-3.5 h-3.5" />
+                        <span className="hidden lg:inline text-xs">History</span>
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setShowScheduler(true)}
-                        className="hidden sm:flex items-center gap-1 border-orange-300 text-orange-700 hover:bg-orange-50"
+                        className="hidden sm:flex items-center gap-1 border-orange-300 text-orange-700 hover:bg-orange-50 h-8 px-2"
                       >
-                        <CalendarClock className="w-4 h-4" />
-                        <span className="hidden md:inline">Schedule</span>
+                        <CalendarClock className="w-3.5 h-3.5" />
+                        <span className="hidden lg:inline text-xs">Schedule</span>
                       </Button>
                       <Button
                         size="sm"
                         onClick={() => startVideoCall(selectedClient)}
-                        className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1"
+                        className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1 h-8 px-2 sm:px-3"
                       >
-                        <Phone className="w-4 h-4" />
-                        <span className="hidden sm:inline">Video Call</span>
+                        <Phone className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline text-xs">Video Call</span>
                       </Button>
                     </div>
-                  </CardHeader>
+                  </div>
 
                   {/* Call history panel */}
                   {showCallHistory && (
-                    <div className="border-b border-gray-200 bg-purple-50 p-4 max-h-64 overflow-y-auto flex-shrink-0">
-                      <div className="flex items-center justify-between mb-3">
+                    <div className="border-b border-gray-200 bg-purple-50 p-3 max-h-48 overflow-y-auto flex-shrink-0">
+                      <div className="flex items-center justify-between mb-2">
                         <h4 className="font-semibold text-purple-800 text-sm">Call History</h4>
                         <Button variant="ghost" size="sm" onClick={() => setShowCallHistory(false)} className="h-6 w-6 p-0">
                           <X className="w-4 h-4" />
@@ -900,10 +876,9 @@ export default function Communication() {
                   />
 
                   {/* Messages */}
-                  <div className="flex-1 overflow-hidden relative">
+                  <div className="flex-1 overflow-hidden relative min-h-0">
                     <ScrollArea 
-                      className="h-full" 
-                      style={{ height: 'calc(100vh - 400px)' }}
+                      className="h-full"
                       onScrollCapture={handleScroll}
                     >
                       <div className="p-3 md:p-6 space-y-3 md:space-y-4">
