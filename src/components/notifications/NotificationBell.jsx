@@ -27,8 +27,19 @@ export default function NotificationBell({ userEmail }) {
       );
     },
     enabled: !!userEmail,
-    refetchInterval: 15000, // Refetch every 15 seconds for near-real-time notifications
+    refetchInterval: 8000,
   });
+
+  // Real-time subscription for instant notification updates
+  React.useEffect(() => {
+    if (!userEmail) return;
+    const unsubscribe = base44.entities.Notification.subscribe((event) => {
+      if (event.data?.user_email === userEmail) {
+        queryClient.invalidateQueries(['notifications', userEmail]);
+      }
+    });
+    return () => unsubscribe();
+  }, [userEmail, queryClient]);
 
   const markAsReadMutation = useMutation({
     mutationFn: (id) => base44.entities.Notification.update(id, { read: true }),
