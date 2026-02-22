@@ -581,8 +581,8 @@ Provide a warm, personalized tip that's relevant to their situation.`,
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Food Preference *</Label>
-                    <Select value={formData.food_preference} onValueChange={(val) => updateFormData('food_preference', val)}>
-                      <SelectTrigger>
+                    <Select value={formData.food_preference} onValueChange={(val) => { updateFormData('food_preference', val); setErrors(p => ({...p, food_preference: ''})); }}>
+                      <SelectTrigger className={errors.food_preference ? 'border-red-500' : ''}>
                         <SelectValue placeholder="Select preference" />
                       </SelectTrigger>
                       <SelectContent>
