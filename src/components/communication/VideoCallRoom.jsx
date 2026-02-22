@@ -333,7 +333,7 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && recording) {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current.onstop = () => {
         const blob = new Blob(recordedChunksRef.current, { type: 'video/webm' });
