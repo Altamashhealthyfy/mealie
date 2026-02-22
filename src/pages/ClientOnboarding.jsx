@@ -593,6 +593,7 @@ Provide a warm, personalized tip that's relevant to their situation.`,
                         <SelectItem value="mixed">Mixed</SelectItem>
                       </SelectContent>
                     </Select>
+                  {errors.food_preference && <p className="text-red-500 text-xs mt-1">{errors.food_preference}</p>}
                   </div>
 
                   <div className="space-y-2">
