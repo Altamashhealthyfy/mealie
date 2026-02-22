@@ -33,7 +33,6 @@ import { useEffect } from "react";
 
 export default function ClientOnboarding() {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [aiTip, setAiTip] = useState("");
   const [loadingTip, setLoadingTip] = useState(false);
