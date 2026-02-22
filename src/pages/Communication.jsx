@@ -881,7 +881,7 @@ export default function Communication() {
                       className="h-full"
                       onScrollCapture={handleScroll}
                     >
-                      <div className="p-3 md:p-6 space-y-3 md:space-y-4">
+                      <div className="p-3 sm:p-4 space-y-3">
                         {clientMessages.length === 0 ? (
                           <div className="text-center py-12">
                             <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
