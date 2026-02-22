@@ -37,6 +37,7 @@ export default function ClientOnboarding() {
   const [currentStep, setCurrentStep] = useState(1);
   const [aiTip, setAiTip] = useState("");
   const [loadingTip, setLoadingTip] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const [formData, setFormData] = useState({
     // Basic Info
