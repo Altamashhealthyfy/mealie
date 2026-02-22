@@ -187,7 +187,7 @@ Provide a warm, personalized tip that's relevant to their situation.`,
     },
     onSuccess: (client) => {
       setCreatedClient(client);
-      setShowPostOnboarding(true);
+      setPhase("goals");
       toast.success("Profile Created! 🎉 Now let's set up your health goals.");
     },
     onError: (error) => {
