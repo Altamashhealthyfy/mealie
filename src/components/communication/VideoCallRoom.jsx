@@ -260,44 +260,52 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
 
   const startRecording = async () => {
     try {
-      // Create canvas to composite both video streams
+      // Canvas-based composite: remote (main) + local PiP
       const canvas = document.createElement('canvas');
       canvas.width = 1280;
       canvas.height = 720;
       const ctx = canvas.getContext('2d');
 
-      const audioTrack = localStreamRef.current?.getAudioTracks()[0];
-      if (!audioTrack) {
-        setError('Cannot start recording: No audio track');
-        return;
-      }
+      const remoteVideo = remoteVideoRef.current;
+      const localVideo = localVideoRef.current;
 
-      const recordingStream = new MediaStream();
-      recordingStream.addTrack(audioTrack);
+      const drawFrame = () => {
+        if (!recording && mediaRecorderRef.current?.state !== 'recording') return;
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(0, 0, 1280, 720);
 
-      // Add local video track or canvas stream
-      const localVideoTrack = localStreamRef.current?.getVideoTracks()[0];
-      if (localVideoTrack) {
-        recordingStream.addTrack(localVideoTrack.clone());
-      }
-
-      // Add remote video if available
-      const remoteStream = remoteVideoRef.current?.srcObject;
-      if (remoteStream) {
-        const remoteTracks = remoteStream.getVideoTracks();
-        if (remoteTracks[0]) {
-          recordingStream.addTrack(remoteTracks[0].clone());
+        // Draw remote video (main area)
+        if (remoteVideo && remoteVideo.readyState >= 2) {
+          ctx.drawImage(remoteVideo, 0, 0, 1280, 720);
         }
+        // Draw local PiP (bottom-right)
+        if (localVideo && localVideo.readyState >= 2) {
+          ctx.drawImage(localVideo, 1280 - 260, 720 - 160, 240, 145);
+          ctx.strokeStyle = '#4a5568';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(1280 - 260, 720 - 160, 240, 145);
+        }
+        requestAnimationFrame(drawFrame);
+      };
+
+      const canvasStream = canvas.captureStream(30);
+
+      // Add audio tracks
+      const audioTracks = [];
+      localStreamRef.current?.getAudioTracks().forEach(t => audioTracks.push(t));
+      const remoteStream = remoteVideo?.srcObject;
+      if (remoteStream instanceof MediaStream) {
+        remoteStream.getAudioTracks().forEach(t => audioTracks.push(t));
       }
 
-      // Try with vp9, fallback to vp8 or h264
+      const recordingStream = new MediaStream([
+        ...canvasStream.getVideoTracks(),
+        ...audioTracks
+      ]);
+
       let mimeType = 'video/webm;codecs=vp9,opus';
-      if (!MediaRecorder.isTypeSupported(mimeType)) {
-        mimeType = 'video/webm;codecs=vp8,opus';
-        if (!MediaRecorder.isTypeSupported(mimeType)) {
-          mimeType = 'video/webm';
-        }
-      }
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp8,opus';
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
 
       const mediaRecorder = new MediaRecorder(recordingStream, { mimeType });
       recordedChunksRef.current = [];
@@ -308,17 +316,19 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
 
       mediaRecorder.onerror = (e) => {
         console.error('Recording error:', e);
-        setError('Recording failed');
       };
 
-      mediaRecorder.start();
+      mediaRecorder.start(100);
       mediaRecorderRef.current = mediaRecorder;
       setRecording(true);
       setRecordingTime(0);
       recordingTimerRef.current = setInterval(() => setRecordingTime(t => t + 1), 1000);
+
+      // Kick off canvas rendering
+      requestAnimationFrame(drawFrame);
     } catch (err) {
       console.error('Recording error:', err);
-      setError('Failed to start recording');
+      setError('Failed to start recording: ' + err.message);
     }
   };
 
