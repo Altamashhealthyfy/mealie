@@ -24,7 +24,7 @@ import {
   Brain,
   Activity
 } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import AIGoalSetter from "@/components/onboarding/AIGoalSetter";
