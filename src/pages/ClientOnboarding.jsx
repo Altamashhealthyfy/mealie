@@ -652,6 +652,7 @@ Provide a warm, personalized tip that's relevant to their situation.`,
                       <SelectItem value="extremely_active">Extremely Active (Athlete)</SelectItem>
                     </SelectContent>
                   </Select>
+                  {errors.activity_level && <p className="text-red-500 text-xs mt-1">{errors.activity_level}</p>}
                 </div>
 
                 <div className="space-y-3">
