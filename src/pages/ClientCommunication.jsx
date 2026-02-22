@@ -315,27 +315,38 @@ export default function ClientCommunication() {
       senderEmail: user?.email,
     });
     channel.start();
+    incomingChannelRef.current = channel;
     channel.onMessage((msg) => {
       if (msg.type === 'offer') {
-        const accept = window.confirm(`📹 Incoming video call from your coach. Accept?`);
-        if (accept) {
-          channel.stop();
-          const callChannel = createSignalingChannel({
-            clientId: clientProfile.id,
-            senderType: 'client',
-            senderEmail: user?.email,
-          });
-          callChannel.start();
-          signalingRef.current = callChannel;
-          const coachName = coachUser?.full_name || 'Your Coach';
-          setActiveVideoCall({ clientId: clientProfile.id, coachName, channel: callChannel });
-        } else {
-          channel.send({ type: 'end-call', roomId: clientProfile.id });
-        }
+        setIncomingCall({ coachName: coachUser?.full_name || 'Your Coach', channel });
       }
     });
-    return () => channel.stop();
+    return () => {
+      channel.stop();
+      incomingChannelRef.current = null;
+    };
   }, [clientProfile?.id, coachUser]);
+
+  const acceptCall = () => {
+    if (!incomingCall) return;
+    incomingCall.channel.stop();
+    const callChannel = createSignalingChannel({
+      clientId: clientProfile.id,
+      senderType: 'client',
+      senderEmail: user?.email,
+    });
+    callChannel.start();
+    signalingRef.current = callChannel;
+    setActiveVideoCall({ clientId: clientProfile.id, coachName: incomingCall.coachName, channel: callChannel });
+    setIncomingCall(null);
+  };
+
+  const rejectCall = () => {
+    if (!incomingCall) return;
+    incomingCall.channel.send({ type: 'end-call', roomId: clientProfile.id });
+    incomingCall.channel.stop();
+    setIncomingCall(null);
+  };
 
   const requestNotificationPermission = async () => {
     if (!('Notification' in window)) return;
