@@ -188,19 +188,10 @@ Provide a warm, personalized tip that's relevant to their situation.`,
     onSuccess: (client) => {
       setCreatedClient(client);
       setShowPostOnboarding(true);
-      toast({
-        title: "Profile Created! 🎉",
-        description: "Now let's set up your health goals and get a personalized welcome message.",
-        duration: 3000,
-      });
+      toast.success("Profile Created! 🎉 Now let's set up your health goals.");
     },
     onError: (error) => {
-      toast({
-        title: "Oops! Something went wrong",
-        description: error.message || "Please try again.",
-        variant: "destructive",
-        duration: 4000,
-      });
+      toast.error(error.message || "Something went wrong. Please try again.");
     }
   });
 
