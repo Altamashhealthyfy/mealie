@@ -9,32 +9,39 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing client_id or group_id' }, { status: 400 });
     }
 
-    // Get client info if this is a client message
-    let recipientEmail = null;
-    if (client_id && sender_type === 'client') {
-      const clients = await base44.entities.Client.filter({ id: client_id });
+    // Determine who to notify
+    let recipientEmails = [];
+
+    if (client_id) {
+      const clients = await base44.asServiceRole.entities.Client.filter({ id: client_id });
       if (clients.length > 0) {
-        const coachEmails = clients[0].assigned_coach;
-        recipientEmail = Array.isArray(coachEmails) ? coachEmails[0] : coachEmails;
+        const client = clients[0];
+        if (sender_type === 'client') {
+          // Notify coach(es)
+          const coachEmails = client.assigned_coach;
+          const coaches = Array.isArray(coachEmails) ? coachEmails : (coachEmails ? [coachEmails] : []);
+          recipientEmails = coaches.filter(Boolean);
+        } else {
+          // Notify client
+          if (client.email) recipientEmails = [client.email];
+        }
       }
     }
 
-    if (recipientEmail) {
-      // Create notification for coach
-      const notification = await base44.entities.Notification.create({
-        user_email: recipientEmail,
+    for (const email of recipientEmails) {
+      await base44.asServiceRole.entities.Notification.create({
+        user_email: email,
         title: `New message from ${sender_name}`,
         message: message_preview || 'You have a new message',
         type: 'new_message',
         priority: 'high',
         read: false,
-        link: '/messages',
+        link: sender_type === 'client' ? '/Communication' : '/ClientCommunication',
       });
 
-      // Send push notification
       try {
         await base44.functions.invoke('sendPushNotification', {
-          user_id: recipientEmail,
+          user_id: email,
           title: `New message from ${sender_name}`,
           body: message_preview || 'Click to read message',
           data: { link: '/messages' },
