@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useQueryClient } from "react";
 import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
