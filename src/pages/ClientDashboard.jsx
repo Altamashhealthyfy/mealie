@@ -43,8 +43,11 @@ export default function ClientDashboard() {
     queryFn: async () => {
       return await base44.auth.me();
     },
-    retry: 1,
-    staleTime: 5 * 60 * 1000,
+    retry: false,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
   });
 
   const { data: clientProfile, isLoading: clientLoading, error: clientError } = useQuery({
