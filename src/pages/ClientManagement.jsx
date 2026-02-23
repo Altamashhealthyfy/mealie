@@ -766,7 +766,7 @@ support@mealiepro.com`;
          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">Client Management</h1>
-            <p className="text-sm md:text-base text-gray-600">Manage your clients and their health journeys</p>
+            <p className="text-sm md:text-base text-gray-600">View and edit client details, track progress, set goals, and manage all client health information in one place.</p>
           </div>
           
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
