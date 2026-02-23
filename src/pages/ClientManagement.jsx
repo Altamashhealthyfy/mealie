@@ -1273,6 +1273,15 @@ support@mealiepro.com`;
                     <Button
                       variant="outline"
                       size="sm"
+                      onClick={() => { setClientForVideoCall(client); setShowVideoScheduler(true); }}
+                      className="text-green-600 hover:bg-green-50 border-green-200 h-9 md:h-auto text-xs md:text-sm"
+                      title="Schedule Video Call"
+                    >
+                      <Calendar className="w-3 h-3 md:w-4 md:h-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleOpenEmail(client)}
                       className="text-blue-600 hover:bg-blue-50 h-9 md:h-auto text-xs md:text-sm"
                       title="Send Email"
