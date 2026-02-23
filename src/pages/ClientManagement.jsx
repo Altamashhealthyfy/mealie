@@ -57,7 +57,7 @@ import WelcomeMessageManager from "@/components/common/WelcomeMessageManager";
 import BulkClientImport from "@/components/client/BulkClientImport";
 import ClientManagementHub from "@/components/client/ClientManagementHub";
 import BulkExport from "@/components/client/BulkExport";
-import CoachAIAssistantPanel from "@/components/ai/CoachAIAssistantPanel";
+
 
 function ClientList() {
   return <ClientManagementInner />;
