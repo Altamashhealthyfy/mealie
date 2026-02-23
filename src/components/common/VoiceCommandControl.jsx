@@ -109,7 +109,10 @@ export default function VoiceCommandControl() {
     }
   };
 
-  if (!isSupported) return null;
+  const location = useLocation();
+  const isCommunicationPage = location.pathname.includes('Communication');
+
+  if (!isSupported || isCommunicationPage) return null;
 
   return (
     <>
