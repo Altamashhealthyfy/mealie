@@ -60,7 +60,9 @@ export default function ClientDashboard() {
       return clientByCreator || null;
     },
     enabled: !!user?.email,
-    retry: 1,
+    retry: 3,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 15 * 60 * 1000,
   });
 
   const { data: progressLogs } = useQuery({
