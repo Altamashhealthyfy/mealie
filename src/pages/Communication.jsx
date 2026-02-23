@@ -55,6 +55,7 @@ import MessageThread from "@/components/communication/MessageThread";
 import AutomatedCheckInScheduler from "@/components/communication/AutomatedCheckInScheduler";
 import EnhancedMessageInput from "@/components/communication/EnhancedMessageInput";
 import VoiceRecorder from "@/components/communication/VoiceRecorder";
+import ConversationSummary from "@/components/communication/ConversationSummary";
 
 export default function Communication() {
   const queryClient = useQueryClient();
