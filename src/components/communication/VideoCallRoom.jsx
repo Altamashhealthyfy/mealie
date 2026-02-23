@@ -165,8 +165,9 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
           await addPendingCandidates(peer);
           const answer = await peer.createAnswer();
           await peer.setLocalDescription(answer);
+          console.log('Answer created and set locally, sending to peer');
           signalingChannel.send({ type: 'answer', sdp: answer, roomId });
-          console.log('Answer sent');
+          console.log('Answer sent - signaling stable, waiting for remote media');
 
         } else if (msg.type === 'answer' && isInitiator) {
           console.log('Received answer, setting remote description');
