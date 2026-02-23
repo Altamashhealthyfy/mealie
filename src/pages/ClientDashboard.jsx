@@ -64,15 +64,12 @@ export default function ClientDashboard() {
       return clientByCreator || null;
     },
     enabled: !!user?.email,
-    retry: (failureCount, error) => {
-      // Always retry on network/server errors, but don't retry if data is explicitly not found after a successful query
-      return failureCount < 5;
-    },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
+    retry: false,
+    staleTime: Infinity,
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
   });
 
   const { data: progressLogs } = useQuery({
