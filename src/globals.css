@@ -58,6 +58,17 @@
   }
 }
 
+/* Chat page height: full viewport minus header, and minus mobile bottom nav on small screens */
+.communication-page-height {
+  height: calc(100vh - 60px);
+}
+
+@media (max-width: 768px) {
+  .communication-page-height {
+    height: calc(100vh - 60px - 80px - env(safe-area-inset-bottom));
+  }
+}
+
 /* Driver.js custom styling */
 .dashboard-tour-popover {
   background: white !important;
