@@ -56,6 +56,7 @@ import AutomatedCheckInScheduler from "@/components/communication/AutomatedCheck
 import EnhancedMessageInput from "@/components/communication/EnhancedMessageInput";
 import VoiceRecorder from "@/components/communication/VoiceRecorder";
 import ConversationSummary from "@/components/communication/ConversationSummary";
+import CoachAIAssistantPanel from "@/components/ai/CoachAIAssistantPanel";
 
 export default function Communication() {
   const queryClient = useQueryClient();
