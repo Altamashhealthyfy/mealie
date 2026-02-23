@@ -175,7 +175,6 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
     };
 
     signalingChannel.onMessage(handleMessage);
-    signalingChannel.start();
 
     // Get local media then start
     const start = async () => {
