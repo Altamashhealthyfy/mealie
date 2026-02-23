@@ -145,9 +145,19 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
     // Monitor signalingState to detect when answer is received
     const handleSignalingStateChange = () => {
       if (!mountedRef.current || !pcRef.current) return;
-      console.log('Signaling state:', pcRef.current.signalingState);
-      if (pcRef.current.signalingState === 'stable' && !remoteConnectedRef.current) {
-        console.log('Signaling stable - answer may have been received');
+      const sigState = pcRef.current.signalingState;
+      const connState = pcRef.current.connectionState;
+      console.log('Signaling state:', sigState, 'Connection state:', connState);
+      
+      // Mark as connected when signaling is stable and connection is established
+      if (sigState === 'stable' && ['connected', 'completed'].includes(connState)) {
+        if (!remoteConnectedRef.current) {
+          remoteConnectedRef.current = true;
+          setRemoteConnected(true);
+          clearInterval(timerRef.current);
+          timerRef.current = setInterval(() => setCallDuration(d => d + 1), 1000);
+          console.log('Connection established via signaling stable state');
+        }
       }
     };
     pc.onsignalingstatechange = handleSignalingStateChange;
@@ -167,7 +177,18 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
           await peer.setLocalDescription(answer);
           console.log('Answer created and set locally, sending to peer');
           signalingChannel.send({ type: 'answer', sdp: answer, roomId });
-          console.log('Answer sent - signaling stable, waiting for remote media');
+          console.log('Answer sent');
+          
+          // Set a timeout to check connection status and force-mark as connected if needed
+          setTimeout(() => {
+            if (mountedRef.current && peer.connectionState === 'connected' && !remoteConnectedRef.current) {
+              remoteConnectedRef.current = true;
+              setRemoteConnected(true);
+              clearInterval(timerRef.current);
+              timerRef.current = setInterval(() => setCallDuration(d => d + 1), 1000);
+              console.log('Connection timeout: marked as connected');
+            }
+          }, 3000);
 
         } else if (msg.type === 'answer' && isInitiator) {
           console.log('Received answer, setting remote description');
