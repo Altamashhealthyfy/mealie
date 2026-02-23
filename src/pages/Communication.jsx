@@ -696,7 +696,7 @@ export default function Communication() {
 
                   <div className="flex-1 overflow-y-auto">
                     <div className="p-1.5">
-                      {messagesLoading ? (
+                      {messagesLoading || clientsLoading ? (
                         <div className="text-center py-8">
                           <Loader2 className="w-7 h-7 mx-auto text-orange-500 animate-spin mb-2" />
                           <p className="text-sm text-gray-500">Loading...</p>
