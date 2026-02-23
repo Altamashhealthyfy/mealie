@@ -702,7 +702,7 @@ export default function Communication() {
             <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0">
               <div className="flex h-full min-h-0">
                 {/* Client List Sidebar — hidden on mobile when a client is selected */}
-                <div className={`${selectedClient ? 'hidden md:flex' : 'flex'} md:w-72 lg:w-80 w-full border-r border-gray-200 flex-col min-h-0 flex-shrink-0`}>
+                <div className={`${selectedClient ? 'hidden md:flex' : 'flex'} md:w-56 lg:w-64 w-full border-r border-gray-200 flex-col min-h-0 flex-shrink-0`}>
                   <div className="p-2 border-b border-gray-200 flex-shrink-0" id="message-clients-list">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
