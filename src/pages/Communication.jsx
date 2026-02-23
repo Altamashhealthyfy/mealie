@@ -963,7 +963,15 @@ export default function Communication() {
                     </div>
                   )}
 
-                  <MessageThread
+                  {/* AI Assistant Panel */}
+                  {selectedClient && (
+                    <CoachAIAssistantPanel
+                      client={selectedClient}
+                      messages={clientMessages}
+                    />
+                  )}
+
+                   <MessageThread
                     message={selectedThread}
                     onClose={() => setSelectedThread(null)}
                     onReply={async (data) => {
