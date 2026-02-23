@@ -271,24 +271,21 @@ export default function Communication() {
     mutationFn: async (message) => {
       const updates = { read: true };
       
-      // Add read receipt for important messages
       if (message.is_important) {
         const readBy = message.read_by || [];
         const alreadyRead = readBy.find(r => r.user_id === user?.email);
-        
         if (!alreadyRead) {
-          readBy.push({
-            user_id: user?.email,
-            read_at: new Date().toISOString()
-          });
+          readBy.push({ user_id: user?.email, read_at: new Date().toISOString() });
           updates.read_by = readBy;
         }
       }
       
       await base44.entities.Message.update(message.id, updates);
+      return message.id;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['allMessages']);
+    onSuccess: (messageId) => {
+      // Update local state immediately so badge disappears right away
+      setAllMessages(prev => prev.map(m => m.id === messageId ? { ...m, read: true } : m));
     },
   });
 
