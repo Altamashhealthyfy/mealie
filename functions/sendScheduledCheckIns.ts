@@ -65,13 +65,19 @@ Deno.serve(async (req) => {
 
         const messageText = messages[schedule.message_type];
 
+        // Build quick replies suffix if present
+        const quickReplies = schedule.quick_replies || [];
+        const quickReplyText = quickReplies.length > 0
+          ? '\n\nQuick replies: ' + quickReplies.map((r, i) => `${i + 1}. ${r}`).join('  |  ')
+          : '';
+
         // Create message in app
         await base44.asServiceRole.entities.Message.create({
           client_id: schedule.client_id,
           sender_type: 'dietitian',
           sender_id: schedule.coach_email,
           sender_name: 'Coach',
-          message: messageText,
+          message: messageText + quickReplyText,
           content_type: 'text',
           read: false,
           is_important: false
