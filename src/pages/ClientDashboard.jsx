@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import ClientTutorial from "@/components/common/ClientTutorial";
 import { Textarea } from "@/components/ui/textarea";
 import OnboardingChecklist from "@/components/onboarding/OnboardingChecklist";
+import OnboardingProgressTracker from "@/components/onboarding/OnboardingProgressTracker";
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { TrendingDown, TrendingUp, Calendar, CheckCircle, Target, Activity, Heart, Scale, Flame, Award, AlertCircle, Download, FileText, ChefHat, MessageSquare, Send, Eye, Star, Clock, CreditCard, ArrowRight, Zap } from "lucide-react";
 import { format, differenceInDays, parseISO } from "date-fns";
@@ -644,6 +645,27 @@ export default function ClientDashboard() {
           </div>
           <TourButton pageName="ClientDashboard" />
         </div>
+
+        {/* Onboarding Progress Tracker */}
+        {!clientProfile?.tutorial_completed && (
+          <div className="mb-6">
+            <OnboardingProgressTracker 
+              currentPhase={clientProfile?.onboarding_completed ? 4 : 1}
+              completedPhases={clientProfile?.onboarding_completed ? ['profile', 'goals', 'session'] : []}
+              completedSubsteps={{
+                'profile_basic': true,
+                'profile_metrics': true,
+                'profile_health': true,
+                'goals_set': clientProfile?.goal ? true : false,
+                'goals_confirm': clientProfile?.goal ? true : false,
+                'session_select': !!messages?.some(m => m.sender_type === 'dietitian'),
+                'session_confirm': !!messages?.some(m => m.sender_type === 'dietitian'),
+              }}
+              variant="sidebar"
+              showDetails={false}
+            />
+          </div>
+        )}
 
         {/* Onboarding Checklist */}
         <OnboardingChecklist
