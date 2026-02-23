@@ -238,11 +238,10 @@ export default function ClientCommunication() {
 
   const acceptCall = () => {
     if (!incomingCall) return;
-    incomingCall.channel.stop();
-    const callChannel = createSignalingChannel({ clientId: clientProfile.id, senderType: 'client', senderEmail: user?.email });
-    callChannel.start();
-    signalingRef.current = callChannel;
-    setActiveVideoCall({ clientId: clientProfile.id, coachName: incomingCall.coachName, channel: callChannel });
+    // Stop the incoming listener; reuse its channel as the call channel (it already has the offer buffered)
+    incomingChannelRef.current = null;
+    signalingRef.current = incomingCall.channel;
+    setActiveVideoCall({ clientId: clientProfile.id, coachName: incomingCall.coachName, channel: incomingCall.channel });
     setIncomingCall(null);
   };
 
