@@ -948,6 +948,7 @@ export default function Communication() {
                             onRemoveFile={removeAttachment}
                             isLoading={sendMessageMutation.isPending || uploading}
                             disabled={uploading || sendMessageMutation.isPending}
+                            hideVoice={true}
                           />
                         </div>
                       )}
