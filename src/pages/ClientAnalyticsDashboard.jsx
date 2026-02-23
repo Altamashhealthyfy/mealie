@@ -469,7 +469,20 @@ export default function ClientAnalyticsDashboard() {
               </div>
 
               {/* Other Filters */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium flex items-center gap-1"><Layers className="w-3.5 h-3.5" /> Filter by Group</Label>
+                  <select
+                    value={selectedGroup}
+                    onChange={(e) => { setSelectedGroup(e.target.value); setSelectedClient("all"); }}
+                    className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  >
+                    <option value="all">All Groups</option>
+                    {clientGroups.map(group => (
+                      <option key={group.id} value={group.id}>{group.name} ({group.client_ids?.length || 0})</option>
+                    ))}
+                  </select>
+                </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Filter by Client</Label>
                   <select
@@ -484,7 +497,7 @@ export default function ClientAnalyticsDashboard() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Focus Metric</Label>
+                  <Label className="text-sm font-medium flex items-center gap-1"><Zap className="w-3.5 h-3.5" /> Focus Metric</Label>
                   <select
                     value={selectedMetric}
                     onChange={(e) => setSelectedMetric(e.target.value)}
