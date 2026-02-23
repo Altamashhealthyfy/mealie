@@ -260,16 +260,36 @@ Format as JSON.`,
 
     // Save report to database
     if (client_id) {
+      const reportTypeMap = {
+        'Blood Work': 'blood_test',
+        'Thyroid Panel': 'thyroid_panel',
+        'Lipid Panel': 'lipid_panel',
+        'Liver Function': 'liver_function',
+        'Kidney Function': 'kidney_function',
+        'Glucose Testing': 'hba1c'
+      };
+
       await base44.asServiceRole.entities.HealthReport.create({
         client_id,
-        report_type: report_type || 'Blood Work',
-        test_date: extractionResponse.test_date,
-        lab_name: extractionResponse.lab_name,
-        file_url: file_url,
-        ai_analysis: JSON.stringify(report),
-        indicators_count: indicators.length,
-        status: 'reviewed',
-        created_by: user.email
+        report_type: reportTypeMap[report_type] || 'other',
+        report_name: `${report_type} - ${new Date().toLocaleDateString()}`,
+        report_date: extractionResponse.test_date || new Date().toISOString().split('T')[0],
+        file_url,
+        file_type: 'image/jpeg',
+        ai_analysis: {
+          summary: reportResponse.clinical_summary,
+          key_findings: analysis.detailed_analysis.concerning_indicators.concat(analysis.detailed_analysis.normal_indicators).map(ind => ({
+            parameter: ind.name,
+            value: ind.value,
+            normal_range: ind.range,
+            status: ind.status?.toLowerCase() || 'normal',
+            interpretation: ind.recommendation || 'Within normal parameters'
+          })),
+          recommendations: reportResponse.coaching_recommendations,
+          red_flags: reportResponse.concerns
+        },
+        action_items: reportResponse.coaching_recommendations,
+        analyzed_by: user.email
       });
     }
 
