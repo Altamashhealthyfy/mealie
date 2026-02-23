@@ -385,6 +385,105 @@ Provide a warm, personalized tip that's relevant to their situation.`,
     );
   }
 
+  // Phase: Schedule first session
+  if (phase === "schedule") {
+    const today = new Date();
+    const slots = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i + 1);
+      return [9, 11, 14, 16, 18].map(h => {
+        const slot = new Date(d);
+        slot.setHours(h, 0, 0, 0);
+        return slot;
+      });
+    }).flat();
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-4 md:p-8">
+        <div className="max-w-2xl mx-auto space-y-6">
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <Calendar className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Schedule Your First Session</h1>
+            <p className="text-gray-500 mt-2 text-sm">Book a 30-minute intro call with your coach to kickstart your journey</p>
+          </div>
+
+          <Card className="border-none shadow-xl">
+            <CardContent className="p-6 space-y-6">
+              {scheduleSaved ? (
+                <div className="text-center py-8 space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto">
+                    <CheckCircle className="w-9 h-9 text-green-500" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900">Session Booked! 🎉</h3>
+                  <p className="text-sm text-gray-500">
+                    Your first coaching session is scheduled for <strong>{selectedSlot ? new Date(selectedSlot).toLocaleString('en-IN', { weekday:'long', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) : ''}</strong>
+                  </p>
+                  <Button
+                    className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 px-8"
+                    onClick={() => setPhase("goals")}
+                  >
+                    Continue to Goal Setting <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-3">
+                    <Label className="font-semibold flex items-center gap-2"><Clock className="w-4 h-4 text-orange-500" /> Pick a time slot</Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-64 overflow-y-auto pr-1">
+                      {slots.map((slot, i) => {
+                        const label = slot.toLocaleString('en-IN', { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                        const isSelected = selectedSlot === slot.toISOString();
+                        return (
+                          <button
+                            key={i}
+                            onClick={() => setSelectedSlot(slot.toISOString())}
+                            className={`p-3 rounded-xl border text-xs font-medium transition-all text-left ${
+                              isSelected
+                                ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white border-transparent shadow-md'
+                                : 'bg-white border-gray-200 text-gray-700 hover:border-orange-300 hover:bg-orange-50'
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Any notes for your coach? (optional)</Label>
+                    <Textarea
+                      placeholder="e.g. I'd like to discuss my diet plan and get guidance on meal timings..."
+                      value={scheduleNote}
+                      onChange={e => setScheduleNote(e.target.value)}
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button
+                      className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                      disabled={!selectedSlot || scheduleSessionMutation.isPending}
+                      onClick={() => scheduleSessionMutation.mutate({ slot: selectedSlot, note: scheduleNote })}
+                    >
+                      {scheduleSessionMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Calendar className="w-4 h-4 mr-2" />}
+                      Confirm Session
+                    </Button>
+                    <Button variant="outline" className="flex-1 text-gray-500" onClick={() => setPhase("goals")}>
+                      Skip for Now
+                    </Button>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   // Phase: Goal-setting + welcome message
   if (phase === "goals" && createdClient) {
     return (
