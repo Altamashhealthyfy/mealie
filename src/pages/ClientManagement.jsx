@@ -39,6 +39,7 @@ import {
   Sparkles,
   X,
   Download,
+  Calendar,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
@@ -2123,6 +2124,17 @@ support@mealiepro.com`;
 
         {/* Bulk Import Dialog */}
         <BulkClientImport open={showBulkImport} onOpenChange={setShowBulkImport} />
+
+        {/* Video Call Scheduler */}
+        {showVideoScheduler && clientForVideoCall && (
+          <VideoCallScheduler
+            clientId={clientForVideoCall.id}
+            clientName={clientForVideoCall.full_name}
+            clientEmail={clientForVideoCall.email}
+            open={showVideoScheduler}
+            onOpenChange={(open) => { setShowVideoScheduler(open); if (!open) setClientForVideoCall(null); }}
+          />
+        )}
 
         {/* Bulk Export Dialog */}
         <BulkExport
