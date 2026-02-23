@@ -513,8 +513,24 @@ export default function ClientAnalyticsDashboard() {
               </div>
 
               {/* Active Filters Display */}
-              {(searchTerm || dateRange.start || dateRange.end) && (
+              {(searchTerm || dateRange.start || dateRange.end || selectedGroup !== "all" || selectedClient !== "all") && (
                 <div className="flex flex-wrap gap-2 pt-2">
+                  {selectedGroup !== "all" && (
+                    <Badge variant="secondary" className="flex items-center gap-2 bg-blue-100 text-blue-800">
+                      Group: {clientGroups.find(g => g.id === selectedGroup)?.name}
+                      <button onClick={() => setSelectedGroup("all")} className="ml-1">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  )}
+                  {selectedClient !== "all" && (
+                    <Badge variant="secondary" className="flex items-center gap-2 bg-purple-100 text-purple-800">
+                      Client: {clients.find(c => c.id === selectedClient)?.full_name}
+                      <button onClick={() => setSelectedClient("all")} className="ml-1">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  )}
                   {searchTerm && (
                     <Badge variant="secondary" className="flex items-center gap-2">
                       Search: {searchTerm}
