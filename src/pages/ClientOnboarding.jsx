@@ -249,8 +249,9 @@ Provide a warm, personalized tip that's relevant to their situation.`,
     },
     onSuccess: (client) => {
       setCreatedClient(client);
-      setPhase("goals");
-      toast.success("Profile Created! 🎉 Now let's set up your health goals.");
+      clearSavedProgress();
+      setPhase("schedule");
+      toast.success("Profile Created! 🎉 Let's schedule your first coaching session.");
     },
     onError: (error) => {
       toast.error(error.message || "Something went wrong. Please try again.");
