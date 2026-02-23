@@ -125,6 +125,12 @@ export default function ClientAnalyticsDashboard() {
     initialData: [],
   });
 
+  const { data: clientGroups } = useQuery({
+    queryKey: ['clientGroups'],
+    queryFn: () => base44.entities.ClientGroup.list('-created_date'),
+    initialData: [],
+  });
+
   // Calculate analytics
   const analytics = useMemo(() => {
     // Apply date range if specified
