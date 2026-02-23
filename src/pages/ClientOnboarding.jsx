@@ -21,7 +21,10 @@ import {
   Sparkles,
   Loader2,
   Brain,
-  Activity
+  Activity,
+  Calendar,
+  Save,
+  Clock
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +33,8 @@ import AIGoalSetter from "@/components/onboarding/AIGoalSetter";
 import AIWelcomeMessage from "@/components/onboarding/AIWelcomeMessage";
 import WelcomeScreen from "@/components/onboarding/WelcomeScreen";
 import AppTutorial from "@/components/onboarding/AppTutorial";
+
+const STORAGE_KEY = "client_onboarding_progress";
 
 export default function ClientOnboarding() {
   const navigate = useNavigate();
