@@ -110,7 +110,7 @@ export default function VoiceCommandControl() {
     }
   };
 
-  const isCommunicationPage = location.pathname.includes('Communication');
+  const isCommunicationPage = location.pathname.toLowerCase().includes('communication');
 
   if (!isSupported || isCommunicationPage) return null;
 
