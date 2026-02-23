@@ -1083,7 +1083,7 @@ export default function Layout({ children, currentPageName }) {
             display: flex !important;
           }
           .main-content-mobile {
-            padding-bottom: 80px !important;
+            padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
           }
         }
 
