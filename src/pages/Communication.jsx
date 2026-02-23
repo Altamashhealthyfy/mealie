@@ -736,7 +736,7 @@ export default function Communication() {
                                     <h3 className={`font-semibold truncate text-sm ${isSelected ? 'text-white' : 'text-gray-900'}`}>
                                       {client.full_name}
                                     </h3>
-                                    {unreadCount > 0 && !isSelected && (
+                                    {unreadCount > 0 && selectedClient?.id !== client.id && (
                                       <Badge className="bg-red-500 text-white ml-1 text-xs px-1.5 py-0 flex-shrink-0">
                                         {unreadCount}
                                       </Badge>
