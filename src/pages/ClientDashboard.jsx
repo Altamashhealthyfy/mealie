@@ -14,6 +14,9 @@ import { format, differenceInDays, parseISO } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import DailyProgressLogger from "../components/progress/DailyProgressLogger";
 import MacroAdherenceDashboard from "../components/progress/MacroAdherenceDashboard";
+import WeeklySummaryInsights from "../components/dashboard/WeeklySummaryInsights";
+import GoalPredictions from "../components/dashboard/GoalPredictions";
+import HealthMetricsTimeline from "../components/dashboard/HealthMetricsTimeline";
 
 import WearableDeviceManager from "../components/wearables/WearableDeviceManager";
 import WearableDataDashboard from "../components/wearables/WearableDataDashboard";
