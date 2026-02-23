@@ -167,6 +167,31 @@ Provide a warm, personalized tip that's relevant to their situation.`,
 
   const [createdClient, setCreatedClient] = useState(null);
 
+  const scheduleSessionMutation = useMutation({
+    mutationFn: async ({ slot, note }) => {
+      return await base44.entities.Appointment.create({
+        coach_email: user?.email || '',
+        client_id: createdClient?.id || '',
+        client_name: createdClient?.full_name || formData.full_name,
+        client_email: createdClient?.email || formData.email,
+        title: "First Coaching Session",
+        description: note || "Initial coaching session scheduled during onboarding.",
+        appointment_date: slot,
+        duration_minutes: 30,
+        appointment_type: "consultation",
+        status: "scheduled",
+        is_virtual: true,
+      });
+    },
+    onSuccess: () => {
+      setScheduleSaved(true);
+      toast.success("First session scheduled! 🎉");
+    },
+    onError: () => {
+      toast.error("Could not schedule session. You can do it later from Appointments.");
+    }
+  });
+
   const createClientMutation = useMutation({
     mutationFn: async (data) => {
       // Calculate BMR and TDEE
