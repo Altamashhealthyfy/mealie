@@ -693,7 +693,7 @@ export default function ClientCommunication() {
 
                 {/* Messages */}
                 <div className="flex-1 overflow-hidden bg-gray-50 relative min-h-0">
-                  <ScrollArea className="h-full" onScrollCapture={handleScroll}>
+                  <ScrollArea className="h-full scrollbar-thin" onScrollCapture={handleScroll} style={{ overflowY: 'scroll' }}>
                     <div className="p-3 space-y-2.5">
                       {messages.length === 0 ? (
                         <div className="text-center py-10">
