@@ -361,7 +361,28 @@ Provide a warm, personalized tip that's relevant to their situation.`,
 
   // Phase: Welcome screen
   if (phase === "welcome") {
-    return <WelcomeScreen user={user} onStart={() => setPhase("form")} />;
+    return (
+      <div className="relative">
+        {hasSavedProgress && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-white border border-orange-300 shadow-xl rounded-2xl px-5 py-3 flex items-center gap-3 max-w-sm w-full mx-4">
+            <Save className="w-5 h-5 text-orange-500 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-800">Resume where you left off?</p>
+              <p className="text-xs text-gray-500">You have saved onboarding progress</p>
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+              <Button size="sm" className="h-7 text-xs bg-orange-500 hover:bg-orange-600" onClick={() => { setHasSavedProgress(false); setPhase("form"); }}>
+                Resume
+              </Button>
+              <Button size="sm" variant="ghost" className="h-7 text-xs text-gray-500" onClick={() => { clearSavedProgress(); setHasSavedProgress(false); setCurrentStep(1); setFormData({ full_name:"",email:"",phone:"",age:"",gender:"",height:"",weight:"",initial_weight:"",target_weight:"",health_conditions:[],current_medications:[],allergies:[],disease_stage_severity:"",goal:"",food_preference:"",regional_preference:"",activity_level:"",wake_up_time:"",breakfast_time:"",lunch_time:"",dinner_time:"",sleep_time:"",notes:"",likes:[],dislikes:[],symptom_goals:[] }); }}>
+                Start Over
+              </Button>
+            </div>
+          </div>
+        )}
+        <WelcomeScreen user={user} onStart={() => setPhase("form")} />
+      </div>
+    );
   }
 
   // Phase: Goal-setting + welcome message
