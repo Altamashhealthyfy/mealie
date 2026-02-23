@@ -116,7 +116,7 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
       if (['disconnected', 'failed', 'closed'].includes(pc.connectionState)) {
         remoteConnectedRef.current = false;
         setRemoteConnected(false);
-      } else if (pc.connectionState === 'connected') {
+      } else if (pc.connectionState === 'connected' || pc.connectionState === 'completed') {
         remoteConnectedRef.current = true;
         setRemoteConnected(true);
         clearInterval(timerRef.current);
