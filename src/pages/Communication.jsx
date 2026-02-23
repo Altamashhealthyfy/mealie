@@ -171,7 +171,7 @@ export default function Communication() {
   useEffect(() => {
     const loadInitialMessages = async () => {
       setMessagesLoading(true);
-      const messages = await base44.entities.Message.list('-created_date', 200);
+      const messages = await base44.entities.Message.list('-created_date', 1000);
       setAllMessages(messages);
       setMessagesLoading(false);
     };
