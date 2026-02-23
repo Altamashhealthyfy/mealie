@@ -1239,6 +1239,23 @@ export default function ClientDashboard() {
           </Alert>
         )}
 
+        {/* Goal Predictions */}
+        <div id="goal-predictions-section" className="mb-6">
+          <GoalPredictions
+            goals={goals}
+            progressLogs={sortedProgressLogs}
+            clientProfile={clientProfile}
+          />
+        </div>
+
+        {/* Health Metrics Timeline */}
+        <div id="health-timeline-section" className="mb-6">
+          <HealthMetricsTimeline
+            progressLogs={sortedProgressLogs}
+            clientProfile={clientProfile}
+          />
+        </div>
+
         {/* Weight Trend Chart */}
         <Card id="progress-section" className="border-none shadow-lg mb-6">
           <CardHeader>
