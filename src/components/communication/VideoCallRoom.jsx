@@ -189,8 +189,13 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
           }
 
         } else if (msg.type === 'end-call') {
-          cleanup();
-          onEnd?.();
+          console.log('Received end-call message from remote peer');
+          // Schedule cleanup to ensure proper teardown
+          setTimeout(() => {
+            cleanup();
+            onEnd?.();
+          }, 100);
+          return; // Stop processing after end-call
         }
       } catch (err) {
         console.error('Signal handling error:', err);
@@ -232,9 +237,12 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
   }, []);
 
   const handleEndCall = () => {
+    console.log('Ending call...');
     signalingChannel.send({ type: 'end-call', roomId });
-    cleanup();
-    onEnd?.();
+    setTimeout(() => {
+      cleanup();
+      onEnd?.();
+    }, 100); // Brief delay to ensure message is sent
   };
 
   const toggleMic = () => {

@@ -54,13 +54,16 @@ export function createSignalingChannel({ clientId, senderType, senderEmail, room
 
         try {
           const data = JSON.parse(msg.message);
+          console.log('Signaling message received:', data);
+          
+          // Mark as read BEFORE processing to ensure it's not reprocessed
+          await base44.entities.Message.update(msg.id, { read: true }).catch(() => {});
+          
+          // Process message after marking read
           handlers.forEach(h => h(data));
         } catch (e) {
           console.error('Failed to parse signaling message:', e);
         }
-
-        // Mark as read immediately
-        await base44.entities.Message.update(msg.id, { read: true }).catch(() => {});
       }
     } catch (e) {
       console.error('Signaling poll error:', e);
