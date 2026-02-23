@@ -856,17 +856,48 @@ export default function Communication() {
 
                       {/* Input area */}
                       {false ? null : (
-                        <div className="border-t border-gray-200 p-2 sm:p-3 flex-shrink-0 bg-white">
-                          <EnhancedMessageInput
-                            value={messageText}
-                            onChange={(text) => { setMessageText(text); handleTyping(); }}
-                            onSend={() => { stopTyping(); handleSendMessage(); }}
-                            attachedFiles={attachedFile ? [attachedFile] : []}
-                            onRemoveFile={removeAttachment}
-                            isLoading={sendMessageMutation.isPending || uploading}
-                            disabled={uploading || sendMessageMutation.isPending}
-                            hideVoice={true}
-                          />
+                        <div className="border-t border-gray-200 flex flex-col flex-shrink-0 bg-white">
+                          {isImportant && (
+                            <div className="px-3 py-2 bg-red-50 border-b border-red-200 flex items-center gap-2 text-red-700 text-xs">
+                              <span className="font-semibold">⭐ Marked as Important</span>
+                              <button onClick={() => setIsImportant(false)} className="ml-auto text-red-600 hover:text-red-800 font-semibold">✕</button>
+                            </div>
+                          )}
+                          <div className="p-2 sm:p-3 flex items-end gap-2">
+                            <div className="flex-1">
+                              <EnhancedMessageInput
+                                value={messageText}
+                                onChange={(text) => { setMessageText(text); handleTyping(); }}
+                                onSend={() => { stopTyping(); handleSendMessage(); }}
+                                attachedFiles={attachedFile ? [attachedFile] : []}
+                                onRemoveFile={removeAttachment}
+                                isLoading={sendMessageMutation.isPending || uploading}
+                                disabled={uploading || sendMessageMutation.isPending}
+                                hideVoice={true}
+                              />
+                            </div>
+                            <div className="flex gap-1 flex-shrink-0 pb-2">
+                              <Button
+                                variant={isImportant ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setIsImportant(!isImportant)}
+                                title="Mark as important (read receipts enabled)"
+                                className={isImportant ? "bg-red-500 hover:bg-red-600" : ""}
+                              >
+                                ⭐
+                              </Button>
+                              <ScheduleMessageDialog onSchedule={handleScheduledMessage}>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  title="Schedule message for later"
+                                  className="flex items-center gap-1"
+                                >
+                                  <Clock className="w-3.5 h-3.5" />
+                                </Button>
+                              </ScheduleMessageDialog>
+                            </div>
+                          </div>
                         </div>
                       )}
 
