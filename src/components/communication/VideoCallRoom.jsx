@@ -137,8 +137,20 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
       } else if (['disconnected', 'failed', 'closed'].includes(pc.iceConnectionState)) {
         remoteConnectedRef.current = false;
         setRemoteConnected(false);
+      } else if (pc.iceConnectionState === 'checking') {
+        console.log('ICE checking - connection in progress');
       }
     };
+
+    // Monitor signalingState to detect when answer is received
+    const handleSignalingStateChange = () => {
+      if (!mountedRef.current || !pcRef.current) return;
+      console.log('Signaling state:', pcRef.current.signalingState);
+      if (pcRef.current.signalingState === 'stable' && !remoteConnectedRef.current) {
+        console.log('Signaling stable - answer may have been received');
+      }
+    };
+    pc.onsignalingstatechange = handleSignalingStateChange;
 
     // Handle incoming signaling messages
     const handleMessage = async (msg) => {
@@ -147,24 +159,33 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
 
       try {
         if (msg.type === 'offer' && !isInitiator) {
+          console.log('Received offer, setting remote description');
           await peer.setRemoteDescription(new RTCSessionDescription(msg.sdp));
           remoteDescSet.current = true;
           await addPendingCandidates(peer);
           const answer = await peer.createAnswer();
           await peer.setLocalDescription(answer);
           signalingChannel.send({ type: 'answer', sdp: answer, roomId });
+          console.log('Answer sent');
 
         } else if (msg.type === 'answer' && isInitiator) {
+          console.log('Received answer, setting remote description');
           await peer.setRemoteDescription(new RTCSessionDescription(msg.sdp));
           remoteDescSet.current = true;
           await addPendingCandidates(peer);
+          console.log('Answer set, waiting for ICE connection');
 
         } else if (msg.type === 'ice-candidate') {
           if (remoteDescSet.current) {
-            try { await peer.addIceCandidate(new RTCIceCandidate(msg.candidate)); } catch {}
+            try { 
+              await peer.addIceCandidate(new RTCIceCandidate(msg.candidate));
+              console.log('ICE candidate added');
+            } catch (e) {
+              console.warn('Failed to add ICE candidate:', e);
+            }
           } else {
-            // Queue until remote description is set
             pendingCandidates.current.push(msg.candidate);
+            console.log('ICE candidate queued, waiting for remote description');
           }
 
         } else if (msg.type === 'end-call') {
