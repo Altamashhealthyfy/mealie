@@ -176,8 +176,9 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
     };
 
     signalingChannel.onMessage(handleMessage);
+    signalingChannel.start();
 
-    // Get local media then start
+    // Get local media
     const start = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: true });
