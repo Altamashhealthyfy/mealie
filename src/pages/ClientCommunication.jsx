@@ -704,15 +704,25 @@ export default function ClientCommunication() {
                       ) : (
                         messages.map((message) => {
                           const isFromClient = message.sender_type === 'client';
+
+                          // Parse quick replies from check-in messages
+                          const msgText = message.message || '';
+                          const qrSplit = msgText.split('\n\nQuick replies: ');
+                          const mainText = qrSplit[0];
+                          const quickRepliesRaw = qrSplit[1];
+                          const quickReplies = quickRepliesRaw
+                            ? quickRepliesRaw.split('  |  ').map(r => r.replace(/^\d+\.\s*/, '').trim()).filter(Boolean)
+                            : [];
+
                           return (
-                            <div key={message.id} className={`flex ${isFromClient ? 'justify-end' : 'justify-start'}`}>
+                            <div key={message.id} className={`flex ${isFromClient ? 'justify-end' : 'justify-start'} flex-col ${!isFromClient ? 'items-start' : 'items-end'}`}>
                               <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-2.5 sm:p-3 shadow-sm ${
                                 isFromClient
                                   ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
                                   : 'bg-white text-gray-900 border border-gray-200'
                               }`}>
-                                {message.message && (
-                                  <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap mb-1.5">{message.message}</p>
+                                {mainText && (
+                                  <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap mb-1.5">{mainText}</p>
                                 )}
                                 {renderAttachment(message, isFromClient)}
                                 <div className={`flex items-center gap-1.5 mt-1 text-xs ${isFromClient ? 'text-white/70' : 'text-gray-400'}`}>
@@ -724,6 +734,23 @@ export default function ClientCommunication() {
                                   )}
                                 </div>
                               </div>
+                              {/* Quick reply buttons — only show for coach messages with quick replies */}
+                              {!isFromClient && quickReplies.length > 0 && (
+                                <div className="flex flex-wrap gap-1.5 mt-1.5 max-w-[85%]">
+                                  {quickReplies.map((reply, ri) => (
+                                    <button
+                                      key={ri}
+                                      onClick={() => {
+                                        setMessageText(reply);
+                                        setTimeout(() => textareaRef.current?.focus(), 50);
+                                      }}
+                                      className="text-xs px-3 py-1 rounded-full border border-orange-300 text-orange-700 bg-orange-50 hover:bg-orange-100 transition-colors"
+                                    >
+                                      {reply}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           );
                         })
