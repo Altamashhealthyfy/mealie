@@ -520,14 +520,15 @@ export default function Communication() {
     : [];
 
   const startVideoCall = (client) => {
+    const roomId = `${user?.email}-${client.id}-${Date.now()}`;
     const channel = createSignalingChannel({
       clientId: client.id,
+      roomId,
       senderType: 'dietitian',
       senderEmail: user?.email,
     });
-    // Do NOT call channel.start() here — VideoCallRoom will call it
     signalingRef.current = channel;
-    setActiveVideoCall({ clientId: client.id, clientName: client.full_name, channel });
+    setActiveVideoCall({ clientId: client.id, clientName: client.full_name, channel, roomId });
   };
 
   const endVideoCall = () => {
