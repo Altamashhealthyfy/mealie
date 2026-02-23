@@ -911,34 +911,7 @@ export default function Communication() {
                       </div>
 
                       {/* Input area */}
-                      {showVoiceRecorder ? (
-                        <div className="border-t border-gray-200 p-3 flex-shrink-0 bg-white">
-                          <VoiceRecorder
-                            onRecordComplete={async (audioFile) => {
-                              setShowVoiceRecorder(false);
-                              setAttachedFile(audioFile);
-                              setContentType('audio');
-                              setUploading(true);
-                              try {
-                                const { file_url } = await base44.integrations.Core.UploadFile({ file: audioFile });
-                                const messageData = {
-                                  sender_type: 'dietitian', message: '🎤 Voice note', content_type: 'audio',
-                                  attachment_url: file_url, attachment_name: audioFile.name,
-                                  attachment_type: audioFile.type, attachment_size: audioFile.size,
-                                  read: false, is_important: isImportant,
-                                };
-                                if (selectedClient) messageData.client_id = selectedClient.id;
-                                if (selectedGroup) messageData.group_id = selectedGroup.id;
-                                sendMessageMutation.mutate(messageData);
-                              } catch (error) {
-                                toast.error("Failed to upload voice note");
-                              }
-                              setUploading(false);
-                            }}
-                            onCancel={() => setShowVoiceRecorder(false)}
-                          />
-                        </div>
-                      ) : (
+                      {false ? null : (
                         <div className="border-t border-gray-200 p-2 sm:p-3 flex-shrink-0 bg-white">
                           <EnhancedMessageInput
                             value={messageText}
