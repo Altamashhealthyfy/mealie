@@ -216,8 +216,11 @@ export default function ClientCommunication() {
 
   const startVideoCall = () => {
     if (!clientProfile?.id) return;
+    // Stop incoming listener before creating outgoing channel to avoid conflicts
+    incomingChannelRef.current?.stop();
+    incomingChannelRef.current = null;
     const channel = createSignalingChannel({ clientId: clientProfile.id, senderType: 'client', senderEmail: user?.email });
-    channel.start();
+    // Do NOT call channel.start() here — VideoCallRoom will call it
     signalingRef.current = channel;
     setActiveVideoCall({ clientId: clientProfile.id, coachName: coachUser?.full_name || 'Your Coach', channel });
   };
