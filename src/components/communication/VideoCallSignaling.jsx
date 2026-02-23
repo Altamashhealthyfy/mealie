@@ -66,9 +66,9 @@ export function createSignalingChannel({ clientId, senderType, senderEmail, room
 
   const start = () => {
     if (intervalId) return; // prevent double-start
-    // Poll immediately then every 300ms for WebRTC signaling
+    // Poll immediately then every 50ms for faster WebRTC signaling
     poll();
-    intervalId = setInterval(poll, 300);
+    intervalId = setInterval(poll, 50);
   };
 
   const stop = () => {
