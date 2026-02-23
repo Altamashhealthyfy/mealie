@@ -714,7 +714,7 @@ export default function Communication() {
                 </div>
 
                 {/* Chat Area — full width on mobile */}
-                <div className={`${selectedClient ? 'flex' : 'hidden md:flex'} flex-1 flex-col min-h-0 overflow-hidden`}>
+                <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
                   {selectedClient ? (
                     <>
                       {/* Chat Header */}
@@ -722,10 +722,11 @@ export default function Communication() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setSelectedClient(null)}
+                        onClick={() => setMobileClientPanelOpen(true)}
                         className="md:hidden flex-shrink-0 h-8 w-8 p-0 text-gray-600"
+                        title="Show clients"
                       >
-                        ←
+                        ☰
                       </Button>
                       <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
                         <span className="text-white font-medium text-sm">
