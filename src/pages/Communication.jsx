@@ -683,96 +683,34 @@ export default function Communication() {
             </TabsList>
 
             <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0">
-              <div className="flex h-full min-h-0">
-                {/* Client List Sidebar — hidden on mobile when a client is selected */}
-                <div className={`${selectedClient ? 'hidden md:flex' : 'flex'} md:w-56 lg:w-64 w-full border-r border-gray-200 flex-col min-h-0 flex-shrink-0`}>
-                  <div className="p-2 border-b border-gray-200 flex-shrink-0" id="message-clients-list">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        placeholder="Search clients..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9 h-9 text-sm"
-                      />
-                    </div>
-                  </div>
+              <div className="flex h-full min-h-0 relative">
+                {/* Mobile Sidebar Overlay */}
+                {mobileClientPanelOpen && (
+                  <div 
+                    className="absolute inset-0 md:hidden bg-black/30 z-40"
+                    onClick={() => setMobileClientPanelOpen(false)}
+                  />
+                )}
 
-                  <div className="flex-1 overflow-y-auto">
-                    <div className="p-1.5">
-                      {messagesLoading || clientsLoading ? (
-                        <div className="text-center py-8">
-                          <Loader2 className="w-7 h-7 mx-auto text-orange-500 animate-spin mb-2" />
-                          <p className="text-sm text-gray-500">Loading...</p>
-                        </div>
-                      ) : sortedClients.length === 0 ? (
-                        <div className="text-center py-8">
-                          <MessageSquare className="w-10 h-10 mx-auto text-gray-300 mb-2" />
-                          <p className="text-sm text-gray-500">{searchQuery ? 'No clients found' : 'No clients yet'}</p>
-                        </div>
-                      ) : (
-                        sortedClients.map((client) => {
-                          const lastMessage = getLastMessage(client.id);
-                          const unreadCount = getUnreadCount(client.id);
-                          const isSelected = selectedClient?.id === client.id;
-
-                          return (
-                            <div
-                              key={client.id}
-                              onClick={() => setSelectedClient(client)}
-                              className={`p-2.5 mb-1 rounded-xl cursor-pointer transition-all ${
-                                isSelected
-                                  ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
-                                  : 'bg-gray-50 hover:bg-gray-100'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2.5">
-                                <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                  isSelected ? 'bg-white/20' : 'bg-gradient-to-br from-orange-500 to-red-500'
-                                }`}>
-                                  <span className="text-white font-medium text-sm">
-                                    {(client.full_name || 'C').charAt(0)}
-                                  </span>
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between">
-                                    <h3 className={`font-semibold truncate text-sm ${isSelected ? 'text-white' : 'text-gray-900'}`}>
-                                      {client.full_name}
-                                    </h3>
-
-                                  </div>
-                                  {lastMessage && (
-                                    <p className={`text-xs truncate ${isSelected ? 'text-white/80' : 'text-gray-500'}`}>
-                                      {lastMessage.sender_type === 'dietitian' ? 'You: ' : ''}
-                                      {lastMessage.attachment_url ? '📎 Attachment' : 
-                                       (() => {
-                                         try {
-                                           const msg = lastMessage.message || '{}';
-                                           if (typeof msg === 'string') {
-                                             const parsed = JSON.parse(msg);
-                                             if (parsed?.type === 'end-call' || parsed?.type === 'offer' || parsed?.type === 'answer' || parsed?.type === 'ice-candidate') {
-                                               return '📹 Video call';
-                                             }
-                                           }
-                                         } catch {}
-                                         return (typeof lastMessage.message === 'string' ? lastMessage.message : '') || '(No text)';
-                                       })()
-                                      }
-                                    </p>
-                                  )}
-                                  {lastMessage && lastMessage.created_date && (
-                                    <p className={`text-xs ${isSelected ? 'text-white/60' : 'text-gray-400'}`}>
-                                      {formatDateTimeIST(lastMessage.created_date)}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  </div>
+                {/* Client List Sidebar — slide in on mobile, fixed on desktop */}
+                <div className={`fixed md:relative md:flex h-full w-64 md:w-56 lg:w-64 border-r border-gray-200 bg-white flex-col min-h-0 flex-shrink-0 transition-transform duration-300 z-50 md:z-0 ${
+                  mobileClientPanelOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+                }`}>
+                  <ClientListSidebar
+                    clients={sortedClients}
+                    selectedClient={selectedClient}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    onClientSelect={(client) => {
+                      setSelectedClient(client);
+                      setMobileClientPanelOpen(false);
+                    }}
+                    onClose={() => setMobileClientPanelOpen(false)}
+                    getLastMessage={getLastMessage}
+                    getUnreadCount={getUnreadCount}
+                    isLoading={messagesLoading || clientsLoading}
+                    formatDateTimeIST={formatDateTimeIST}
+                  />
                 </div>
 
                 {/* Chat Area — full width on mobile */}
