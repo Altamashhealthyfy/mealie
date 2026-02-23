@@ -49,8 +49,14 @@ export default function ClientDashboard() {
     queryKey: ['clientProfile', user?.email],
     queryFn: async () => {
       if (!user?.email) return null;
+      // Try to find client by exact email match
       const clients = await base44.entities.Client.filter({ email: user?.email });
-      return clients[0] || null;
+      if (clients.length > 0) return clients[0];
+      
+      // If no match, try to find by user created by relationship
+      const allClients = await base44.entities.Client.list();
+      const clientByCreator = allClients.find(c => c.created_by === user?.email);
+      return clientByCreator || null;
     },
     enabled: !!user?.email,
     retry: 1,
