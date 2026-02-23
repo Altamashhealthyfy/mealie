@@ -1016,10 +1016,11 @@ Provide a warm, personalized tip that's relevant to their situation.`,
           </CardContent>
         </Card>
 
-        {/* Help Text */}
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Need help? Your coach will be available to answer any questions after setup.
-        </p>
+        {/* Auto-save indicator + Help Text */}
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <Save className="w-3.5 h-3.5 text-gray-400" />
+          <p className="text-center text-sm text-gray-400">Progress auto-saved · you can safely close and resume later</p>
+        </div>
       </div>
     </div>
   );
