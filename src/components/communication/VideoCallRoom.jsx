@@ -65,6 +65,7 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
 
   useEffect(() => {
     mountedRef.current = true;
+    setError(null);
 
     const pc = new RTCPeerConnection({
       iceServers: [
