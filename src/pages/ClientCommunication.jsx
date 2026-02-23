@@ -144,7 +144,7 @@ export default function ClientCommunication() {
     },
     enabled: !!clientProfile?.id,
     initialData: [],
-    refetchInterval: 5000,
+    refetchInterval: 15000,
   });
 
   const { data: clientGroups = [] } = useQuery({
@@ -156,7 +156,7 @@ export default function ClientCommunication() {
     },
     enabled: !!clientProfile?.id,
     initialData: [],
-    refetchInterval: 5000,
+    refetchInterval: 30000,
   });
 
   const { data: groupMessages = [] } = useQuery({
@@ -168,7 +168,7 @@ export default function ClientCommunication() {
     },
     enabled: clientGroups.length > 0,
     initialData: [],
-    refetchInterval: 5000,
+    refetchInterval: 15000,
   });
 
   // assigned_coach can be array or string
