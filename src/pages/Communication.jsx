@@ -665,7 +665,7 @@ export default function Communication() {
   }
 
   return (
-    <div className="flex flex-col overflow-hidden communication-page-height">
+    <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 57px)' }}>
       {activeVideoCall && (
         <VideoCallRoom
           roomId={activeVideoCall.clientId}
@@ -680,7 +680,7 @@ export default function Communication() {
       <div className="w-full flex flex-col flex-1 overflow-hidden p-2 sm:p-3">
         <div className="mb-2 flex justify-between items-center flex-shrink-0">
           <div className="min-w-0 mr-2">
-            <h1 className="text-base sm:text-xl md:text-2xl font-bold text-gray-900 truncate">Messages</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900">Messages</h1>
             <p className="text-xs text-gray-500">Communicate with your clients</p>
           </div>
           <div className="flex-shrink-0">
