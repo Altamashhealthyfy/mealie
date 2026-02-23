@@ -649,6 +649,16 @@ export default function ClientDashboard() {
           healthReports={healthReports}
         />
 
+        {/* AI-Powered Insights */}
+        <div id="insights-section" className="mb-6">
+          <WeeklySummaryInsights
+            progressLogs={sortedProgressLogs}
+            foodLogs={foodLogs}
+            clientProfile={clientProfile}
+            mpessLogs={mpessLogs}
+          />
+        </div>
+
         {/* Wearables Section */}
         <div id="wearables-section" className="mb-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
