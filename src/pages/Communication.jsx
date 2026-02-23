@@ -841,6 +841,7 @@ export default function Communication() {
                           <CalendarClock className="w-3 h-3" />
                           <span className="hidden lg:inline">Schedule</span>
                         </Button>
+                        <ConversationSummary messages={clientMessages} clientName={selectedClient.full_name} />
                         <Button
                           size="sm"
                           onClick={() => startVideoCall(selectedClient)}
