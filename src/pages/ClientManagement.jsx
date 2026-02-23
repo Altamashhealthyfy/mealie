@@ -30,6 +30,7 @@ import {
   Stethoscope,
   Phone,
   TrendingUp,
+  CalendarClock,
   Send,
   CheckSquare,
   Square,
