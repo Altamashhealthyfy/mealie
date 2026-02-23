@@ -21,6 +21,7 @@ import HealthMetricsTimeline from "../components/dashboard/HealthMetricsTimeline
 
 import WearableDeviceManager from "../components/wearables/WearableDeviceManager";
 import WearableDataDashboard from "../components/wearables/WearableDataDashboard";
+import QuickChatPanel from "../components/communication/QuickChatPanel";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { createPageUrl } from "@/utils";
@@ -1501,6 +1502,52 @@ export default function ClientDashboard() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Quick Communication */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div className="lg:col-span-2">
+            <div className="h-[500px]">
+              <QuickChatPanel
+                clientId={clientProfile.id}
+                clientName={clientProfile.full_name}
+                coachEmail={user?.email}
+                onVideoCall={() => navigate(createPageUrl("Communication"))}
+                isClient={true}
+              />
+            </div>
+          </div>
+          
+          {/* Coach Quick Info */}
+          <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <User className="w-5 h-5 text-purple-600" />
+                Your Coach
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {clientProfile?.assigned_coach && (
+                <>
+                  <div className="p-4 bg-white rounded-lg border border-purple-200">
+                    <p className="text-sm text-gray-600 mb-2">Primary Coach</p>
+                    <p className="font-semibold text-gray-900">
+                      {Array.isArray(clientProfile.assigned_coach) 
+                        ? clientProfile.assigned_coach[0]?.split('@')[0]
+                        : clientProfile.assigned_coach?.split('@')[0]}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={() => navigate(createPageUrl("ClientCommunication"))}
+                    className="w-full bg-purple-600 hover:bg-purple-700 gap-2"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Send Message
+                  </Button>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Quick Navigation Cards */}
         <div id="resources-section" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
