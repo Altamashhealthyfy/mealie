@@ -131,44 +131,24 @@ export default function Communication() {
     setShowScrollButton(!isNearBottom);
   };
 
-  const { data: coaches } = useQuery({
-    queryKey: ['coaches'],
-    queryFn: async () => {
-      const allUsers = await base44.entities.User.list();
-      return allUsers.filter(u => ['super_admin', 'team_member', 'student_coach'].includes(u.user_type));
-    },
-    initialData: [],
-  });
-
   const { data: clients } = useQuery({
     queryKey: ['clients', user?.email, user?.user_type],
     queryFn: async () => {
-      // Don't load clients if user is a client themselves
-      if (user?.user_type === 'client') {
-        return [];
-      }
+      if (user?.user_type === 'client') return [];
 
-      // Fetch all clients
       const allClients = await base44.entities.Client.list('-created_date', 100);
 
-      // Super admin sees all clients
-      if (user?.user_type === 'super_admin') {
-        return allClients;
-      }
+      if (user?.user_type === 'super_admin') return allClients;
 
-      // Student coaches see clients they created OR clients assigned to them
       if (user?.user_type === 'student_coach') {
         return allClients.filter(client => {
           const assignedCoaches = Array.isArray(client.assigned_coach) 
             ? client.assigned_coach 
-            : client.assigned_coach 
-              ? [client.assigned_coach] 
-              : [];
+            : client.assigned_coach ? [client.assigned_coach] : [];
           return client.created_by === user?.email || assignedCoaches.includes(user?.email);
         });
       }
 
-      // Team members, student team members - only see clients they created
       if (['team_member', 'student_team_member'].includes(user?.user_type)) {
         return allClients.filter(client => client.created_by === user?.email);
       }
@@ -177,9 +157,9 @@ export default function Communication() {
     },
     enabled: !!user && user?.user_type !== 'client',
     initialData: [],
-    staleTime: 0,
+    staleTime: 60 * 1000,
     refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
   });
 
   const [allMessages, setAllMessages] = useState([]);
