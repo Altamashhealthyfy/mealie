@@ -835,6 +835,141 @@ export default function ClientAnalyticsDashboard() {
             </div>
           </TabsContent>
 
+          {/* Trends Tab */}
+          <TabsContent value="trends" className="space-y-6">
+            {/* Wellness Trends Over Time */}
+            <Card className="border-none shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Heart className="w-5 h-5 text-pink-500" />
+                  Wellness Trends Over Time
+                </CardTitle>
+                <CardDescription>Average energy, sleep quality, and stress across {selectedGroup !== "all" ? clientGroups.find(g=>g.id===selectedGroup)?.name : "all clients"}</CardDescription>
+              </CardHeader>
+              <CardContent className="p-3 sm:p-6">
+                {(() => {
+                  const days = parseInt(selectedPeriod);
+                  const trendData = [];
+                  for (let i = days - 1; i >= 0; i--) {
+                    const date = subDays(new Date(), i);
+                    const dateStr = format(date, 'MMM dd');
+                    const logsOnDate = progressLogs.filter(log => {
+                      if (!log.date || !log.wellness_metrics) return false;
+                      const clientIds = analytics.filteredClients.map(c => c.id);
+                      return clientIds.includes(log.client_id) && format(new Date(log.date), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd');
+                    });
+                    const energy = logsOnDate.filter(l => l.wellness_metrics?.energy_level);
+                    const sleep = logsOnDate.filter(l => l.wellness_metrics?.sleep_quality);
+                    const stress = logsOnDate.filter(l => l.wellness_metrics?.stress_level);
+                    trendData.push({
+                      date: dateStr,
+                      energy: energy.length ? (energy.reduce((s, l) => s + l.wellness_metrics.energy_level, 0) / energy.length).toFixed(1) : null,
+                      sleep: sleep.length ? (sleep.reduce((s, l) => s + l.wellness_metrics.sleep_quality, 0) / sleep.length).toFixed(1) : null,
+                      stress: stress.length ? (stress.reduce((s, l) => s + l.wellness_metrics.stress_level, 0) / stress.length).toFixed(1) : null,
+                    });
+                  }
+                  const hasData = trendData.some(d => d.energy || d.sleep || d.stress);
+                  return hasData ? (
+                    <ResponsiveContainer width="100%" height={320}>
+                      <LineChart data={trendData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                        <YAxis domain={[0, 10]} />
+                        <Tooltip />
+                        <Legend />
+                        <Line type="monotone" dataKey="energy" stroke="#f97316" strokeWidth={2} name="Energy (/10)" connectNulls dot={false} />
+                        <Line type="monotone" dataKey="sleep" stroke="#3b82f6" strokeWidth={2} name="Sleep Quality (/10)" connectNulls dot={false} />
+                        <Line type="monotone" dataKey="stress" stroke="#ef4444" strokeWidth={2} name="Stress (/10)" connectNulls dot={false} strokeDasharray="4 2" />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="h-[320px] flex items-center justify-center text-gray-500">No wellness data in selected period</div>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+
+            {/* Activity Level Trend */}
+            <Card className="border-none shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-green-500" />
+                  Logging Activity Trend
+                </CardTitle>
+                <CardDescription>Number of clients actively logging per day</CardDescription>
+              </CardHeader>
+              <CardContent className="p-3 sm:p-6">
+                {(() => {
+                  const days = parseInt(selectedPeriod);
+                  const activityData = [];
+                  const clientIds = analytics.filteredClients.map(c => c.id);
+                  for (let i = days - 1; i >= 0; i--) {
+                    const date = subDays(new Date(), i);
+                    const dateStr = format(date, 'MMM dd');
+                    const activeOnDate = new Set([
+                      ...progressLogs.filter(l => clientIds.includes(l.client_id) && l.date && format(new Date(l.date),'yyyy-MM-dd') === format(date,'yyyy-MM-dd')).map(l => l.client_id),
+                      ...foodLogs.filter(l => clientIds.includes(l.client_id) && l.date && format(new Date(l.date),'yyyy-MM-dd') === format(date,'yyyy-MM-dd')).map(l => l.client_id),
+                    ]);
+                    activityData.push({ date: dateStr, activeClients: activeOnDate.size });
+                  }
+                  return (
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={activityData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                        <YAxis allowDecimals={false} />
+                        <Tooltip />
+                        <Bar dataKey="activeClients" fill="#10b981" name="Active Clients" radius={[4,4,0,0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+
+            {/* Adherence Trend */}
+            <Card className="border-none shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-orange-500" />
+                  Meal Adherence Trend
+                </CardTitle>
+                <CardDescription>Average meal plan adherence % over time</CardDescription>
+              </CardHeader>
+              <CardContent className="p-3 sm:p-6">
+                {(() => {
+                  const days = parseInt(selectedPeriod);
+                  const adherenceTrend = [];
+                  const clientIds = analytics.filteredClients.map(c => c.id);
+                  for (let i = days - 1; i >= 0; i--) {
+                    const date = subDays(new Date(), i);
+                    const dateStr = format(date, 'MMM dd');
+                    const logsOnDate = progressLogs.filter(l =>
+                      clientIds.includes(l.client_id) && l.date && l.meal_adherence != null &&
+                      format(new Date(l.date),'yyyy-MM-dd') === format(date,'yyyy-MM-dd')
+                    );
+                    const avg = logsOnDate.length ? (logsOnDate.reduce((s,l) => s + l.meal_adherence, 0) / logsOnDate.length) : null;
+                    adherenceTrend.push({ date: dateStr, adherence: avg ? parseFloat(avg.toFixed(1)) : null });
+                  }
+                  const hasData = adherenceTrend.some(d => d.adherence !== null);
+                  return hasData ? (
+                    <ResponsiveContainer width="100%" height={280}>
+                      <LineChart data={adherenceTrend}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                        <YAxis domain={[0, 100]} unit="%" />
+                        <Tooltip formatter={(v) => v ? `${v}%` : 'No data'} />
+                        <Line type="monotone" dataKey="adherence" stroke="#f97316" strokeWidth={2} name="Avg Adherence" connectNulls dot={false} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="h-[280px] flex items-center justify-center text-gray-500">No adherence data in selected period</div>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Progress Tracking Tab */}
           <TabsContent value="progress" className="space-y-6">
             {/* Consolidated Progress Dashboard */}
