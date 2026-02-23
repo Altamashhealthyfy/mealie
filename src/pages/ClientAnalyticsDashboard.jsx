@@ -374,7 +374,7 @@ export default function ClientAnalyticsDashboard() {
       avgStress,
       filteredClients,
     };
-  }, [clients, progressLogs, foodLogs, mealPlans, messages, assessments, progressGoals, mpessLogs, selectedPeriod, selectedClient, searchTerm, dateRange]);
+  }, [clients, progressLogs, foodLogs, mealPlans, messages, assessments, progressGoals, mpessLogs, selectedPeriod, selectedClient, selectedGroup, searchTerm, dateRange]);
 
   return (
     <div className="min-h-screen p-4 md:p-8">
