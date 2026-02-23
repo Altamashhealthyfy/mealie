@@ -2112,6 +2112,14 @@ support@mealiepro.com`;
         {/* Bulk Import Dialog */}
         <BulkClientImport open={showBulkImport} onOpenChange={setShowBulkImport} />
 
+        {/* AI Assistant Panel - shown when viewing a client */}
+        {viewingClient && (
+          <CoachAIAssistantPanel
+            client={viewingClient}
+            progressLogs={progressLogs.filter(l => l.client_id === viewingClient.id)}
+          />
+        )}
+
         {/* Bulk Export Dialog */}
         <BulkExport
           clients={filteredAndSortedClients}
