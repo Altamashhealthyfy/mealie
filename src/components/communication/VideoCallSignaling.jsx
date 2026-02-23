@@ -5,7 +5,7 @@
  */
 import { base44 } from "@/api/base44Client";
 
-export function createSignalingChannel({ clientId, senderType, senderEmail }) {
+export function createSignalingChannel({ clientId, senderType, senderEmail, roomId }) {
   let stopped = false;
   let processedIds = new Set();
   let intervalId = null;
@@ -13,8 +13,6 @@ export function createSignalingChannel({ clientId, senderType, senderEmail }) {
 
   const send = async (data) => {
     try {
-      // Use roomId from data to avoid cross-call interference
-      const roomId = data.roomId || clientId;
       await base44.entities.Message.create({
         client_id: clientId,
         sender_type: senderType,
