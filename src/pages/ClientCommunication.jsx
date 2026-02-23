@@ -577,7 +577,7 @@ export default function ClientCommunication() {
   }
 
   return (
-    <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 60px)' }}>
+    <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 60px)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
       {activeVideoCall && (
         <VideoCallRoom
           roomId={activeVideoCall.clientId}
