@@ -131,12 +131,12 @@ export default function Communication() {
     setShowScrollButton(!isNearBottom);
   };
 
-  const { data: clients } = useQuery({
+  const { data: clients = [], isLoading: clientsLoading } = useQuery({
     queryKey: ['clients', user?.email, user?.user_type],
     queryFn: async () => {
       if (user?.user_type === 'client') return [];
 
-      const allClients = await base44.entities.Client.list('-created_date', 100);
+      const allClients = await base44.entities.Client.list('-created_date', 200);
 
       if (user?.user_type === 'super_admin') return allClients;
 
@@ -156,10 +156,9 @@ export default function Communication() {
       return [];
     },
     enabled: !!user && user?.user_type !== 'client',
-    initialData: [],
-    staleTime: 60 * 1000,
+    staleTime: 30 * 1000,
     refetchOnMount: true,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 
   const [allMessages, setAllMessages] = useState([]);
