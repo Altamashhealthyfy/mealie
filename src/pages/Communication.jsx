@@ -801,18 +801,24 @@ export default function Communication() {
                                 <p className="text-sm text-gray-500">Start the conversation with {selectedClient.full_name}</p>
                               </div>
                             ) : (
-                              clientMessages.map((message) => {
-                                const isFromDietitian = message.sender_type === 'dietitian';
-                                return (
-                                  <div key={message.id} className={`flex ${isFromDietitian ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-2.5 sm:p-3 shadow-sm ${
-                                      isFromDietitian
-                                        ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
-                                        : 'bg-white text-gray-900 border border-gray-200'
-                                    }`}>
-                                      {message.message && (
-                                        <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap mb-1.5">{message.message}</p>
-                                      )}
+                               clientMessages.map((message) => {
+                                 const isFromDietitian = message.sender_type === 'dietitian';
+                                 // Hide JSON metadata from video call messages
+                                 let displayMessage = message.message || '';
+                                 if (typeof displayMessage === 'string' && displayMessage.startsWith('"type"')) {
+                                   displayMessage = '';
+                                 }
+
+                                 return (
+                                   <div key={message.id} className={`flex ${isFromDietitian ? 'justify-end' : 'justify-start'}`}>
+                                     <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-2.5 sm:p-3 shadow-sm ${
+                                       isFromDietitian
+                                         ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
+                                         : 'bg-white text-gray-900 border border-gray-200'
+                                     }`}>
+                                       {displayMessage && (
+                                         <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap mb-1.5">{displayMessage}</p>
+                                       )}
                                       {renderAttachment(message, isFromDietitian)}
                                       {message.content_type === 'poll' && (
                                         <PollDisplay message={message} currentUserId={user?.id} />
