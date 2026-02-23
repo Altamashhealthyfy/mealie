@@ -147,6 +147,14 @@ export default function ClientAnalyticsDashboard() {
     
     // Filter data by selected client and search term
     let filteredClients = selectedClient === "all" ? clients : clients.filter(c => c.id === selectedClient);
+
+    // Apply group filter
+    if (selectedGroup !== "all") {
+      const group = clientGroups.find(g => g.id === selectedGroup);
+      if (group?.client_ids?.length) {
+        filteredClients = filteredClients.filter(c => group.client_ids.includes(c.id));
+      }
+    }
     
     // Apply search filter to clients
     if (searchTerm.trim()) {
