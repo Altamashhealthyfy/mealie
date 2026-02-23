@@ -27,6 +27,8 @@ import {
   Utensils,
   Search,
   X,
+  Layers,
+  Zap,
 } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { format, subDays, differenceInDays } from "date-fns";
