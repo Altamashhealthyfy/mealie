@@ -846,6 +846,7 @@ export default function Communication() {
                       <VideoCallScheduler
                         clientId={selectedClient.id}
                         clientName={selectedClient.full_name}
+                        clientEmail={selectedClient.email}
                         coachEmail={user?.email}
                         open={showScheduler}
                         onOpenChange={setShowScheduler}
