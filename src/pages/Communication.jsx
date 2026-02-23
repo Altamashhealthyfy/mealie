@@ -525,7 +525,7 @@ export default function Communication() {
       senderType: 'dietitian',
       senderEmail: user?.email,
     });
-    channel.start();
+    // Do NOT call channel.start() here — VideoCallRoom will call it
     signalingRef.current = channel;
     setActiveVideoCall({ clientId: client.id, clientName: client.full_name, channel });
   };
