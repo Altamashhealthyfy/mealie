@@ -189,7 +189,6 @@ export default function ClientCommunication() {
   const sendMessageMutation = useMutation({
     mutationFn: async (data) => {
       const result = await base44.entities.Message.create(data);
-      // Fire push notification to coach (non-blocking)
       if (data.client_id) {
         base44.functions.invoke('notifyNewMessage', {
           message_id: result.id,
@@ -199,6 +198,15 @@ export default function ClientCommunication() {
           sender_name: user?.full_name || clientProfile?.full_name || 'Client',
           message_preview: data.message?.slice(0, 80) || null,
         }).catch(() => {});
+
+        // Fire trigger processor for automated follow-ups
+        if (data.sender_type === 'client' && data.message) {
+          base44.functions.invoke('processCheckInTriggers', {
+            client_id: data.client_id,
+            message_text: data.message,
+            coach_email: coachEmail || '',
+          }).catch(() => {});
+        }
       }
       return result;
     },

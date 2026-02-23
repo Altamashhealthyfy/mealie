@@ -51,6 +51,7 @@ import AICoachInsights from './pages/AICoachInsights';
 import AddTeamAppointment from './pages/AddTeamAppointment';
 import AdminPlatformAnalytics from './pages/AdminPlatformAnalytics';
 import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
+import AdvancedCoachAnalytics from './pages/AdvancedCoachAnalytics';
 import AnalyticsDashboard from './pages/AnalyticsDashboard';
 import Appointments from './pages/Appointments';
 import AssessmentTemplates from './pages/AssessmentTemplates';
@@ -182,7 +183,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import AdvancedCoachAnalytics from './pages/AdvancedCoachAnalytics';
 import __Layout from './Layout.jsx';
 
 
@@ -191,6 +191,7 @@ export const PAGES = {
     "AddTeamAppointment": AddTeamAppointment,
     "AdminPlatformAnalytics": AdminPlatformAnalytics,
     "AdminSubscriptionManager": AdminSubscriptionManager,
+    "AdvancedCoachAnalytics": AdvancedCoachAnalytics,
     "AnalyticsDashboard": AnalyticsDashboard,
     "Appointments": Appointments,
     "AssessmentTemplates": AssessmentTemplates,
@@ -322,7 +323,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "AdvancedCoachAnalytics": AdvancedCoachAnalytics,
 }
 
 export const pagesConfig = {
