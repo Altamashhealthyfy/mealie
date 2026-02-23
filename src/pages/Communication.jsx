@@ -647,7 +647,7 @@ export default function Communication() {
     <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 57px)' }}>
       {activeVideoCall && (
         <VideoCallRoom
-          roomId={activeVideoCall.clientId}
+          roomId={activeVideoCall.roomId}
           localName={user?.full_name || 'Coach'}
           remoteName={activeVideoCall.clientName}
           isInitiator={true}
