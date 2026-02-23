@@ -11,6 +11,7 @@ export default function VoiceCommandControl() {
   const [showTranscript, setShowTranscript] = useState(false);
   const recognitionRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
