@@ -39,7 +39,6 @@ import {
   Sparkles,
   X,
   Download,
-  Calendar,
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
