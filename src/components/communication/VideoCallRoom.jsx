@@ -349,17 +349,40 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
     }
   };
 
-  const stopRecording = () => {
+  const stopRecording = async () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.onstop = () => {
-        const blob = new Blob(recordedChunksRef.current, { type: 'video/webm' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `call-recording-${new Date().getTime()}.webm`;
-        a.click();
-        URL.revokeObjectURL(url);
+      mediaRecorderRef.current.onstop = async () => {
+        try {
+          const blob = new Blob(recordedChunksRef.current, { type: 'video/webm' });
+          const fileName = `call-recording-${new Date().getTime()}.webm`;
+          
+          // Upload to client files
+          const { file_url } = await base44.integrations.Core.UploadFile({ file: new File([blob], fileName, { type: 'video/webm' }) });
+          
+          // Log call to database
+          const clientId = roomId?.split('-')[1];
+          if (clientId) {
+            await base44.entities.CallLog?.create?.({
+              client_id: clientId,
+              call_date: new Date().toISOString(),
+              duration_seconds: recordingTime,
+              call_type: 'video',
+              recording_url: file_url,
+              recording_filename: fileName,
+            }).catch(() => {});
+          }
+          
+          // Also trigger local download
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = fileName;
+          a.click();
+          URL.revokeObjectURL(url);
+        } catch (err) {
+          console.error('Failed to save recording:', err);
+        }
         recordedChunksRef.current = [];
       };
       clearInterval(recordingTimerRef.current);
