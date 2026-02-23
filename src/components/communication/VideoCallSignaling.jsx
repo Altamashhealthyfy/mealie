@@ -20,7 +20,7 @@ export function createSignalingChannel({ clientId, senderType, senderEmail, room
         message: JSON.stringify(data),
         content_type: 'video_signal',
         read: false,
-        attachment_name: roomId, // Store roomId to filter by call
+        attachment_name: roomId,
       });
     } catch (e) {
       console.error('Signaling send error:', e);
@@ -34,15 +34,18 @@ export function createSignalingChannel({ clientId, senderType, senderEmail, room
   const poll = async () => {
     if (stopped) return;
     try {
+      // Get all video_signal messages for this client, then filter client-side
       const msgs = await base44.entities.Message.filter({
         client_id: clientId,
         content_type: 'video_signal',
-        read: false,
-        attachment_name: roomId,
       });
 
       const incoming = msgs
-        .filter(m => m.sender_type !== senderType)
+        .filter(m => 
+          m.sender_type !== senderType && 
+          m.read === false && 
+          m.attachment_name === roomId
+        )
         .sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
 
       for (const msg of incoming) {
@@ -65,8 +68,7 @@ export function createSignalingChannel({ clientId, senderType, senderEmail, room
   };
 
   const start = () => {
-    if (intervalId) return; // prevent double-start
-    // Poll immediately then every 50ms for faster WebRTC signaling
+    if (intervalId) return;
     poll();
     intervalId = setInterval(poll, 50);
   };
