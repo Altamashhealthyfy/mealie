@@ -117,12 +117,25 @@ export default function VideoCallRoom({ roomId, localName, remoteName, onEnd, is
       } else if (pc.connectionState === 'connected') {
         remoteConnectedRef.current = true;
         setRemoteConnected(true);
+        clearInterval(timerRef.current);
+        timerRef.current = setInterval(() => setCallDuration(d => d + 1), 1000);
       }
     };
 
     pc.oniceconnectionstatechange = () => {
       if (!mountedRef.current) return;
       console.log('ICE connection state:', pc.iceConnectionState);
+      if (['connected', 'completed'].includes(pc.iceConnectionState)) {
+        if (!remoteConnectedRef.current) {
+          remoteConnectedRef.current = true;
+          setRemoteConnected(true);
+          clearInterval(timerRef.current);
+          timerRef.current = setInterval(() => setCallDuration(d => d + 1), 1000);
+        }
+      } else if (['disconnected', 'failed', 'closed'].includes(pc.iceConnectionState)) {
+        remoteConnectedRef.current = false;
+        setRemoteConnected(false);
+      }
     };
 
     // Handle incoming signaling messages
