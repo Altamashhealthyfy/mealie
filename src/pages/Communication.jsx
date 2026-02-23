@@ -56,6 +56,7 @@ import AutomatedCheckInScheduler from "@/components/communication/AutomatedCheck
 import EnhancedMessageInput from "@/components/communication/EnhancedMessageInput";
 import VoiceRecorder from "@/components/communication/VoiceRecorder";
 import ConversationSummary from "@/components/communication/ConversationSummary";
+import ClientListSidebar from "@/components/communication/ClientListSidebar";
 
 
 export default function Communication() {
@@ -76,6 +77,7 @@ export default function Communication() {
   const [showCallHistory, setShowCallHistory] = useState(false);
   const [selectedThread, setSelectedThread] = useState(null);
   const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
+  const [mobileClientPanelOpen, setMobileClientPanelOpen] = useState(false);
   const signalingRef = useRef(null);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
