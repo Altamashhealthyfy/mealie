@@ -38,11 +38,16 @@ const STORAGE_KEY = "client_onboarding_progress";
 
 export default function ClientOnboarding() {
   const navigate = useNavigate();
-  const [phase, setPhase] = useState("welcome"); // "welcome" | "form" | "goals" | "tutorial"
+  const [phase, setPhase] = useState("welcome"); // "welcome" | "form" | "schedule" | "goals" | "tutorial"
   const [currentStep, setCurrentStep] = useState(1);
   const [aiTip, setAiTip] = useState("");
   const [loadingTip, setLoadingTip] = useState(false);
   const [errors, setErrors] = useState({});
+  const [hasSavedProgress, setHasSavedProgress] = useState(false);
+  const [scheduleChoice, setScheduleChoice] = useState(null); // "now" | "later" | "skip"
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [scheduleNote, setScheduleNote] = useState("");
+  const [scheduleSaved, setScheduleSaved] = useState(false);
 
   const [formData, setFormData] = useState({
     // Basic Info
@@ -83,6 +88,33 @@ export default function ClientOnboarding() {
     dislikes: [],
     symptom_goals: []
   });
+
+  // Load saved progress on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.formData) setFormData(parsed.formData);
+        if (parsed.currentStep) setCurrentStep(parsed.currentStep);
+        if (parsed.phase && parsed.phase !== "welcome") setPhase(parsed.phase);
+        setHasSavedProgress(true);
+      }
+    } catch {}
+  }, []);
+
+  // Auto-save progress whenever form changes
+  useEffect(() => {
+    if (phase === "form") {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ formData, currentStep, phase }));
+      } catch {}
+    }
+  }, [formData, currentStep, phase]);
+
+  const clearSavedProgress = () => {
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+  };
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
