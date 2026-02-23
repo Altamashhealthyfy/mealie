@@ -38,6 +38,7 @@ export function createSignalingChannel({ clientId, senderType, senderEmail, room
         client_id: clientId,
         content_type: 'video_signal',
         read: false,
+        attachment_name: roomId,
       });
 
       const incoming = msgs
@@ -50,13 +51,12 @@ export function createSignalingChannel({ clientId, senderType, senderEmail, room
 
         try {
           const data = JSON.parse(msg.message);
-          // Only process if it's for this call (roomId match)
           handlers.forEach(h => h(data));
         } catch (e) {
           console.error('Failed to parse signaling message:', e);
         }
 
-        // Mark as read immediately to reduce database load
+        // Mark as read immediately
         await base44.entities.Message.update(msg.id, { read: true }).catch(() => {});
       }
     } catch (e) {
