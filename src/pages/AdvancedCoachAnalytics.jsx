@@ -365,7 +365,7 @@ export default function AdvancedCoachAnalytics() {
         </div>
 
         {/* Top KPI Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
           <StatCard icon={Users} label="Active Clients" value={analytics.activeClients} sub={`of ${analytics.totalClients} total`} color="blue" trend={analytics.activeTrend} />
           <StatCard icon={Flame} label="On Track" value={analytics.onTrack} sub="≥70% adherence" color="green" />
           <StatCard icon={MessageSquare} label="Coach Response Rate" value={`${analytics.responseRate}%`} sub={`${analytics.totalMessages} replies sent`} color="purple" />
