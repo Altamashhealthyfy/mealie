@@ -435,6 +435,9 @@ const FAQS = [
   { q: 'Where can I see my revenue and payments?', a: 'Go to Finance Manager under Business Tools to track all client payments, outstanding dues, and revenue summaries. Payment Gateway Settings lets you configure Razorpay for accepting online payments.' },
   { q: 'How does the gamification system work?', a: 'Enable gamification in Gamification Settings. Clients earn points for daily actions (logging meals, weight, MPESS). Badges are awarded at milestones. You can run group challenges via Challenge Manager.' },
   { q: 'Can I send bulk messages to all clients?', a: 'Yes. Use Broadcast Notification under Business Tools to send a single message to all clients or a specific group at once. Great for announcements, challenges, or weekly motivation.' },
+  { q: 'How do automated email reminders work?', a: 'Go to Reminder Management in Business Tools. Create reminders for clients with a custom message, frequency, and notification method (email, in-app, or both). Reminders are processed automatically every hour via Gmail. You can also click "Send Now" to trigger them immediately.' },
+  { q: 'Can I customize the email content in reminders?', a: 'Yes. When creating a reminder, fill in the "Custom Message / Email Template" field. This text will be used as the email body. Leave it blank to send a default reminder message. Basic HTML is supported.' },
+  { q: 'What types of automated reminders are available?', a: 'Three automated reminder types are built-in: Appointment Reminders (sent 24h before the appointment), Missed Progress Reminders (sent if client has not logged today), and Check-in Schedule Reminders. You can also create custom reminders with any message and frequency.' },
 ];
 
 export default function HelpCenter() {
