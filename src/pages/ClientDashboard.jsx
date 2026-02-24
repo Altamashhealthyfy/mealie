@@ -569,13 +569,33 @@ export default function ClientDashboard() {
   }, [clientProfile, navigate]);
 
   // Early return AFTER all hooks are defined
-  if (userLoading || clientLoading || (user && !clientProfile && clientProfile === undefined)) {
+  if (userLoading || clientLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 mx-auto text-gray-400 mb-4 animate-pulse" />
           <p className="text-gray-600">Loading your dashboard...</p>
         </div>
+      </div>
+    );
+  }
+
+  // If user is not a client, show admin preview message
+  if (user && user.user_type !== 'client') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="w-full max-w-md border-blue-300 bg-blue-50">
+          <CardHeader>
+            <CardTitle className="text-blue-800 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              Admin / Coach View
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-blue-800 space-y-3">
+            <p className="text-sm">You are logged in as <strong>{user.user_type?.replace(/_/g, ' ')}</strong>. This page is the Client Dashboard.</p>
+            <p className="text-sm text-blue-700">To preview this as a client, switch to "Client View" using the view mode selector in the top bar.</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
