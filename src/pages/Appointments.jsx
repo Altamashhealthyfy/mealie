@@ -289,17 +289,28 @@ export default function Appointments() {
             </div>
           </div>
 
-          {appointment.meeting_link && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full mt-3"
-              onClick={() => window.open(appointment.meeting_link, '_blank')}
-            >
-              <Video className="w-4 h-4 mr-2" />
-              Join Meeting
-            </Button>
-          )}
+          <div className="flex gap-2 mt-3">
+            {appointment.appointment_mode === 'online' && appointment.status !== 'cancelled' && (
+              <Button
+                size="sm"
+                className="flex-1 bg-green-500 hover:bg-green-600 text-white"
+                onClick={() => startVideoCall(appointment)}
+              >
+                <Video className="w-4 h-4 mr-2" />
+                Start Video Call
+              </Button>
+            )}
+            {appointment.meeting_link && (
+              <Button
+                variant="outline"
+                size="sm"
+                className={appointment.appointment_mode === 'online' ? 'flex-1' : 'w-full'}
+                onClick={() => window.open(appointment.meeting_link, '_blank')}
+              >
+                Join External
+              </Button>
+            )}
+          </div>
 
           {appointment.notes && (
             <div className="mt-3 p-3 bg-gray-50 rounded-lg">
