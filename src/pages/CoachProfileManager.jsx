@@ -109,12 +109,17 @@ export default function CoachProfileManager() {
 
   const handleAccountSave = async () => {
     setAccountSaving(true);
-    await base44.auth.updateMe({ full_name: accountData.full_name, phone: accountData.phone });
-    if (accountData.email !== user?.email) {
-      await base44.functions.invoke('updateUserEmail', { new_email: accountData.email });
+    try {
+      await base44.auth.updateMe({ full_name: accountData.full_name, phone: accountData.phone });
+      if (accountData.email !== user?.email) {
+        const res = await base44.functions.invoke('updateUserEmail', { email: accountData.email });
+        if (res.data?.error) throw new Error(res.data.error);
+      }
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      toast.success("Account details updated!");
+    } catch (err) {
+      toast.error(err.message || "Failed to update account details.");
     }
-    queryClient.invalidateQueries({ queryKey: ['currentUser'] });
-    toast.success("Account details updated!");
     setAccountSaving(false);
   };
 
