@@ -757,9 +757,9 @@ export default function ClientDashboard() {
                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">{currentWeight || '--'}</p>
                    <p className="text-xs text-gray-500">kg</p>
                 </div>
-                <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
-                  <Scale className="w-6 h-6 text-white" />
-                </div>
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                   <Scale className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                 </div>
               </div>
               {weightLost !== 0 && (
                 <div className="mt-3 flex items-center gap-1">
