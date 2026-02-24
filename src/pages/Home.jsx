@@ -111,6 +111,15 @@ export default function Home() {
     },
   ];
 
+  useEffect(() => {
+    if (!userLoading && user) {
+      const dietitianRoles = ['super_admin', 'team_member', 'student_coach', 'student_team_member'];
+      if (dietitianRoles.includes(user.user_type)) {
+        navigate(createPageUrl('DietitianDashboard'), { replace: true });
+      }
+    }
+  }, [user, userLoading, navigate]);
+
   if (userLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
