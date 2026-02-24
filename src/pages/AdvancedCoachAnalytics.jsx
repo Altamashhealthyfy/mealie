@@ -724,12 +724,12 @@ export default function AdvancedCoachAnalytics() {
             </Card>
 
             {/* Client Status Overview */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
               <Card className="border-none shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><Users className="w-5 h-5 text-blue-500" /> Client Status Breakdown</CardTitle>
+                <CardHeader className="pb-2 md:pb-4">
+                  <CardTitle className="text-sm md:text-base flex items-center gap-1.5 md:gap-2"><Users className="w-4 md:w-5 h-4 md:h-5 text-blue-500" /> Client Status Breakdown</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 md:p-6">
                   {(() => {
                     const statusGroups = { active: 0, inactive: 0, completed: 0, on_hold: 0 };
                     clients.forEach(c => { statusGroups[c.status || 'active'] = (statusGroups[c.status || 'active'] || 0) + 1; });
