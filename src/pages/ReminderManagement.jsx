@@ -269,13 +269,14 @@ export default function ReminderManagement() {
                 </div>
 
                 <div>
-                  <Label>Custom Message (Optional)</Label>
+                  <Label>Custom Message / Email Template</Label>
                   <Textarea
-                    placeholder="Add a custom message..."
+                    placeholder="Add a custom message (used in email and in-app notification). Leave blank for default."
                     value={reminderData.message || ''}
                     onChange={(e) => setReminderData({...reminderData, message: e.target.value})}
-                    rows={3}
+                    rows={4}
                   />
+                  <p className="text-xs text-gray-500 mt-1">This message will be sent as the email body. Supports basic HTML.</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
