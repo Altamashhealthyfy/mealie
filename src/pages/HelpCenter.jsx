@@ -574,14 +574,14 @@ export default function HelpCenter() {
                         </button>
 
                         {isOpen && (
-                          <div className={`px-5 pb-5 ${section.bgLight} border-t border-gray-100`}>
-                            <div className="pt-4 space-y-2.5">
+                          <div className={`px-3 md:px-5 pb-3 md:pb-5 ${section.bgLight} border-t border-gray-100`}>
+                            <div className="pt-3 md:pt-4 space-y-2 md:space-y-2.5">
                               {step.details.map((detail, dIdx) => (
-                                <div key={dIdx} className="flex items-start gap-3">
-                                  <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${section.color} text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5`}>
+                                <div key={dIdx} className="flex items-start gap-2 md:gap-3">
+                                  <div className={`w-5 md:w-6 h-5 md:h-6 rounded-full bg-gradient-to-br ${section.color} text-white flex items-center justify-center text-[10px] md:text-xs font-bold shrink-0 mt-0.5`}>
                                     {dIdx + 1}
                                   </div>
-                                  <p className="text-sm text-gray-700 leading-relaxed">{detail}</p>
+                                  <p className="text-xs md:text-sm text-gray-700 leading-relaxed">{detail}</p>
                                 </div>
                               ))}
                             </div>
