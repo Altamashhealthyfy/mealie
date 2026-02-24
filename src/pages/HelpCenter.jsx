@@ -625,33 +625,33 @@ export default function HelpCenter() {
 
         {/* FAQs */}
         {activeSection === 'faq' && (
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             <div className="text-center">
-              <h2 className="text-2xl font-black text-gray-900 mb-2">Frequently Asked Questions</h2>
-              <p className="text-gray-500">Common questions from health coaches on using the platform</p>
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 mb-1 md:mb-2">Frequently Asked Questions</h2>
+              <p className="text-xs md:text-sm text-gray-500">Common questions from health coaches on using the platform</p>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-2 md:space-y-3">
               {filteredFaqs.map((faq, idx) => (
-                <div key={idx} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <div key={idx} className="bg-white rounded-lg md:rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                   <button
                     onClick={() => setExpandedFaq(expandedFaq === idx ? null : idx)}
-                    className="w-full flex items-center justify-between gap-4 p-4 md:p-5 text-left hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center justify-between gap-2 md:gap-4 p-3 md:p-5 text-left hover:bg-gray-50 transition-colors"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center shrink-0">
-                        <span className="text-orange-600 font-bold text-sm">Q</span>
+                    <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                      <div className="w-7 md:w-8 h-7 md:h-8 bg-orange-100 rounded-full flex items-center justify-center shrink-0">
+                        <span className="text-orange-600 font-bold text-[10px] md:text-sm">Q</span>
                       </div>
-                      <p className="font-semibold text-gray-900 text-sm md:text-base">{faq.q}</p>
+                      <p className="font-semibold text-gray-900 text-xs md:text-base">{faq.q}</p>
                     </div>
-                    <ChevronRight className={`w-5 h-5 text-gray-400 shrink-0 transition-transform duration-200 ${expandedFaq === idx ? 'rotate-90' : ''}`} />
+                    <ChevronRight className={`w-4 md:w-5 h-4 md:h-5 text-gray-400 shrink-0 transition-transform duration-200 ${expandedFaq === idx ? 'rotate-90' : ''}`} />
                   </button>
                   {expandedFaq === idx && (
-                    <div className="px-5 pb-4 bg-orange-50 border-t border-orange-100">
-                      <div className="flex items-start gap-3 pt-3">
-                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center shrink-0">
-                          <span className="text-green-600 font-bold text-sm">A</span>
+                    <div className="px-3 md:px-5 pb-3 md:pb-4 bg-orange-50 border-t border-orange-100">
+                      <div className="flex items-start gap-2 md:gap-3 pt-2 md:pt-3">
+                        <div className="w-7 md:w-8 h-7 md:h-8 bg-green-100 rounded-full flex items-center justify-center shrink-0">
+                          <span className="text-green-600 font-bold text-[10px] md:text-sm">A</span>
                         </div>
-                        <p className="text-sm text-gray-700 leading-relaxed">{faq.a}</p>
+                        <p className="text-xs md:text-sm text-gray-700 leading-relaxed">{faq.a}</p>
                       </div>
                     </div>
                   )}
