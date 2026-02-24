@@ -605,18 +605,18 @@ export default function HelpCenter() {
 
         {/* Quick Tips */}
         {activeSection === 'tips' && (
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             <div className="text-center">
-              <h2 className="text-2xl font-black text-gray-900 mb-2">Quick Tips & Best Practices</h2>
-              <p className="text-gray-500">Pro tips for health coaches to save time and get better client outcomes</p>
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 mb-1 md:mb-2">Quick Tips & Best Practices</h2>
+              <p className="text-xs md:text-sm text-gray-500">Pro tips for health coaches to save time and get better client outcomes</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
               {QUICK_TIPS.filter(t =>
                 !searchTerm || t.tip.toLowerCase().includes(searchTerm.toLowerCase())
               ).map((item, idx) => (
-                <div key={idx} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all flex items-start gap-4">
-                  <span className="text-3xl shrink-0">{item.icon}</span>
-                  <p className="text-sm text-gray-700 leading-relaxed">{item.tip}</p>
+                <div key={idx} className="bg-white rounded-lg md:rounded-xl border border-gray-200 p-3 md:p-4 shadow-sm hover:shadow-md transition-all flex items-start gap-3 md:gap-4">
+                  <span className="text-2xl md:text-3xl shrink-0">{item.icon}</span>
+                  <p className="text-xs md:text-sm text-gray-700 leading-relaxed">{item.tip}</p>
                 </div>
               ))}
             </div>
