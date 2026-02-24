@@ -596,17 +596,17 @@ export default function HelpCenter() {
           </div>
         )}
 
-        {/* Contact Coach Card */}
+        {/* Support Card */}
         <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-6 text-white text-center shadow-lg">
           <div className="text-4xl mb-3">🙋</div>
-          <h3 className="text-xl font-black mb-2">Still need help?</h3>
-          <p className="text-white/90 text-sm mb-4">Message your health coach directly for personalized support and guidance</p>
+          <h3 className="text-xl font-black mb-2">Need more support?</h3>
+          <p className="text-white/90 text-sm mb-4">Use the AI Coach Insights feature for smart client analysis, or reach out to your platform admin for technical help.</p>
           <a
-            href="/clientcommunication"
+            href="/aicoachinsights"
             className="inline-flex items-center gap-2 bg-white text-orange-600 font-bold px-6 py-3 rounded-xl hover:bg-orange-50 transition-colors text-sm"
           >
-            <MessageSquare className="w-4 h-4" />
-            Message My Coach
+            <Sparkles className="w-4 h-4" />
+            Open AI Coach Insights
           </a>
         </div>
 
