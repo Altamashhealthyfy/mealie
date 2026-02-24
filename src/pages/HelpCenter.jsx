@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { Badge } from '@/components/ui/badge';
 import {
   Search, Home, MessageSquare, Calendar, ChefHat,
@@ -672,13 +674,13 @@ export default function HelpCenter() {
           <div className="text-3xl md:text-4xl mb-2 md:mb-3">🙋</div>
           <h3 className="text-lg md:text-xl font-black mb-1 md:mb-2">Need more support?</h3>
           <p className="text-white/90 text-xs md:text-sm mb-3 md:mb-4">Use the AI Coach Insights feature for smart client analysis, or reach out to your platform admin for technical help.</p>
-          <a
-            href="/aicoachinsights"
+          <Link
+            to={createPageUrl('AICoachInsights')}
             className="inline-flex items-center gap-1.5 md:gap-2 bg-white text-orange-600 font-bold px-4 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl hover:bg-orange-50 transition-colors text-xs md:text-sm"
           >
             <Sparkles className="w-3.5 md:w-4 h-3.5 md:h-4" />
             Open AI Coach Insights
-          </a>
+          </Link>
         </div>
 
       </div>
