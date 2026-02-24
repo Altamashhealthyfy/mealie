@@ -723,7 +723,7 @@ export default function Communication() {
                         variant="ghost"
                         size="sm"
                         onClick={() => setMobileClientPanelOpen(true)}
-                        className="md:hidden flex-shrink-0 h-8 w-8 p-0 text-gray-600"
+                        className="md:hidden flex-shrink-0 h-6 w-6 p-0 text-gray-600 text-lg"
                         title="Show clients"
                       >
                         ☰
