@@ -316,14 +316,14 @@ export default function Home() {
               <Link key={feature.title} to={feature.link}>
                 <Card className="border-none shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 bg-white/80 backdrop-blur overflow-hidden group">
                   <div className={`h-1 bg-gradient-to-r ${feature.color}`}></div>
-                  <CardContent className="p-6">
-                    <div className="flex items-start gap-4">
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
-                        <feature.icon className="w-6 h-6 text-white" />
+                  <CardContent className="p-3 md:p-6">
+                    <div className="flex items-start gap-3 md:gap-4">
+                      <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
+                        <feature.icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 mb-1">{feature.title}</h3>
-                        <p className="text-gray-600 text-sm leading-relaxed">{feature.description}</p>
+                        <h3 className="font-semibold text-gray-900 mb-1 text-sm md:text-base">{feature.title}</h3>
+                        <p className="text-gray-600 text-xs md:text-sm leading-relaxed">{feature.description}</p>
                       </div>
                     </div>
                   </CardContent>
