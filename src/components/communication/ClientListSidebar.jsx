@@ -93,7 +93,11 @@ export default function ClientListSidebar({
                       {lastMessage && (
                         <p className={`text-xs truncate mt-0.5 ${isSelected ? 'text-white/80' : 'text-gray-500'}`}>
                           {lastMessage.sender_type === 'dietitian' ? 'You: ' : ''}
-                          {lastMessage.attachment_url ? '📎 Attachment' : (lastMessage.message && !lastMessage.message.startsWith('"type"') ? lastMessage.message : '(No text)')}
+                          {lastMessage.attachment_url
+                            ? '📎 Attachment'
+                            : lastMessage.content_type === 'video_signal' || (lastMessage.message && lastMessage.message.startsWith('{"type"'))
+                              ? '📹 Video call'
+                              : lastMessage.message || '(No text)'}
                         </p>
                       )}
                       {lastMessage?.created_date && (
