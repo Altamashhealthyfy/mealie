@@ -14,21 +14,14 @@ import {
 import { format } from "date-fns";
 import PantryManager from "@/components/recipes/PantryManager";
 import RecipeMatcher from "@/components/recipes/RecipeMatcher";
-import RecipeRecommendationEngine from "@/components/recipes/RecipeRecommendationEngine";
-import RecipeFilterPanel from "@/components/recipes/RecipeFilterPanel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function ClientRecipes() {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [activeTab, setActiveTab] = useState("recommendations");
+  const [activeTab, setActiveTab] = useState("pantry");
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [personalNotes, setPersonalNotes] = useState("");
-  const [filters, setFilters] = useState({
-    cuisines: [],
-    dietaryTags: [],
-    mealTypes: [],
-  });
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["currentUser"],
@@ -45,13 +38,8 @@ export default function ClientRecipes() {
   });
 
   const { data: recipes, isLoading: recipesLoading } = useQuery({
-    queryKey: ["recipes", clientProfile?.id],
-    queryFn: async () => {
-      // Get published recipes and coach-assigned recipes
-      const allRecipes = await base44.entities.Recipe.list();
-      return allRecipes.filter(r => r.is_published === true || r.is_published !== false);
-    },
-    enabled: !!clientProfile?.id,
+    queryKey: ["recipes"],
+    queryFn: () => base44.entities.Recipe.filter({ is_published: true }),
     initialData: [],
   });
 
@@ -80,30 +68,6 @@ export default function ClientRecipes() {
     const fav = favoriteRecipes.find(f => f.recipe_id === recipe.id);
     return fav?.user_rating || 0;
   };
-
-  // Apply filters to recipes
-  const filteredRecipes = recipes.filter(recipe => {
-    // Cuisine filter
-    if (filters.cuisines.length > 0 && !filters.cuisines.includes(recipe.regional_cuisine)) {
-      return false;
-    }
-
-    // Meal type filter
-    if (filters.mealTypes.length > 0 && !filters.mealTypes.includes(recipe.meal_type)) {
-      return false;
-    }
-
-    // Dietary tags filter - recipe must match ALL selected dietary tags
-    if (filters.dietaryTags.length > 0) {
-      const recipeTags = recipe.dietary_tags || [];
-      const hasAllTags = filters.dietaryTags.every(tag =>
-        recipeTags.includes(tag)
-      );
-      if (!hasAllTags) return false;
-    }
-
-    return true;
-  });
 
   const downloadRecipe = (recipe) => {
     const content = `
@@ -209,54 +173,29 @@ Enjoy your cooking! 🍽️✨
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-5 w-full md:w-auto">
-            <TabsTrigger
-              value="recommendations"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              AI Picks
-            </TabsTrigger>
+          <TabsList className="grid grid-cols-3 w-full md:w-auto">
             <TabsTrigger
               value="pantry"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white"
             >
               <ShoppingCart className="w-4 h-4 mr-2" />
-              Pantry
+              My Pantry ({pantryIngredients.length})
             </TabsTrigger>
             <TabsTrigger
               value="suggestions"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white"
             >
-              <Search className="w-4 h-4 mr-2" />
-              Browse
-            </TabsTrigger>
-            <TabsTrigger
-              value="library"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
-            >
-              <ChefHat className="w-4 h-4 mr-2" />
-              Library ({recipes.length})
+              <Sparkles className="w-4 h-4 mr-2" />
+              Suggestions
             </TabsTrigger>
             <TabsTrigger
               value="favorites"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
             >
               <Heart className="w-4 h-4 mr-2" />
-              Favorites
+              Favorites ({favoriteRecipes.length})
             </TabsTrigger>
           </TabsList>
-
-          {/* AI Recommendations Tab */}
-          <TabsContent value="recommendations" className="space-y-6 mt-6">
-            <RecipeRecommendationEngine
-              userEmail={user?.email}
-              recipes={recipes}
-              pantryIngredients={pantryIngredients}
-              onSelectRecipe={setSelectedRecipe}
-              favoriteRecipeIds={favoriteRecipeIds}
-            />
-          </TabsContent>
 
           {/* Pantry Tab */}
           <TabsContent value="pantry" className="space-y-6 mt-6">
@@ -265,133 +204,11 @@ Enjoy your cooking! 🍽️✨
 
           {/* Recipe Suggestions Tab */}
           <TabsContent value="suggestions" className="space-y-6 mt-6">
-            <div className="space-y-6">
-              <RecipeFilterPanel
-                recipes={filteredRecipes}
-                selectedCuisines={filters.cuisines}
-                selectedDietaryTags={filters.dietaryTags}
-                selectedMealTypes={filters.mealTypes}
-                onFiltersChange={setFilters}
-              />
-              <RecipeMatcher
-                recipes={filteredRecipes}
-                pantryIngredients={pantryIngredients}
-                onViewRecipe={setSelectedRecipe}
-              />
-            </div>
-          </TabsContent>
-
-          {/* Recipe Library Tab */}
-          <TabsContent value="library" className="space-y-6 mt-6">
-            {recipes.length === 0 ? (
-              <Card className="border-none shadow-lg">
-                <CardContent className="p-12 text-center">
-                  <ChefHat className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    No recipes available
-                  </h3>
-                  <p className="text-gray-600">
-                    Recipe library is currently empty. Check back soon!
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recipes.map((recipe) => {
-                  const rating = getUserRating(recipe);
-                  const isFav = isFavorited(recipe);
-
-                  return (
-                    <Card
-                      key={recipe.id}
-                      className="border-none shadow-lg hover:shadow-xl transition-all overflow-hidden"
-                    >
-                      {recipe.image_url && (
-                        <div className="h-48 overflow-hidden bg-gray-100">
-                          <img
-                            src={recipe.image_url}
-                            alt={recipe.name}
-                            className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                          />
-                        </div>
-                      )}
-
-                      <CardHeader>
-                        <CardTitle className="text-lg line-clamp-2">
-                          {recipe.name}
-                        </CardTitle>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          <Badge variant="outline" className="text-xs capitalize">
-                            {recipe.meal_type}
-                          </Badge>
-                          <Badge className="text-xs bg-green-100 text-green-800 capitalize">
-                            {recipe.food_preference}
-                          </Badge>
-                          {isFav && (
-                            <Badge className="text-xs bg-red-100 text-red-800">
-                              ❤️ Favorite
-                            </Badge>
-                          )}
-                        </div>
-                      </CardHeader>
-
-                      <CardContent className="space-y-4">
-                        {/* Recipe Stats */}
-                        <div className="flex items-center justify-between text-sm text-gray-600">
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {(recipe.prep_time || 0) + (recipe.cook_time || 0)} min
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Flame className="w-4 h-4" />
-                            {recipe.calories} kcal
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Users className="w-4 h-4" />
-                            {recipe.servings}
-                          </div>
-                        </div>
-
-                        {/* Dietary Tags */}
-                        {recipe.dietary_tags && recipe.dietary_tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {recipe.dietary_tags.slice(0, 2).map((tag) => (
-                              <Badge key={tag} variant="secondary" className="text-xs">
-                                {tag}
-                              </Badge>
-                            ))}
-                            {recipe.dietary_tags.length > 2 && (
-                              <Badge variant="secondary" className="text-xs">
-                                +{recipe.dietary_tags.length - 2}
-                              </Badge>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Action Buttons */}
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={() => setSelectedRecipe(recipe)}
-                            className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
-                          >
-                            <Eye className="w-4 h-4 mr-2" />
-                            View
-                          </Button>
-                          <Button
-                            onClick={() => downloadRecipe(recipe)}
-                            variant="outline"
-                            className="flex-1"
-                          >
-                            <Download className="w-4 h-4 mr-2" />
-                            Download
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
+            <RecipeMatcher
+              recipes={recipes}
+              pantryIngredients={pantryIngredients}
+              onViewRecipe={setSelectedRecipe}
+            />
           </TabsContent>
 
           {/* Favorites Tab */}
@@ -615,7 +432,7 @@ Enjoy your cooking! 🍽️✨
                     {selectedRecipe.ingredients?.map((ing, i) => (
                       <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <span className="text-gray-700">{ing.item}</span>
-                        <Badge variant="secondary">{String(ing.quantity || '')} {ing.unit || ''}</Badge>
+                        <Badge variant="secondary">{ing.quantity}</Badge>
                       </div>
                     ))}
                   </div>

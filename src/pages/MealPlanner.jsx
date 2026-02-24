@@ -1788,19 +1788,19 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
   const isNoClientsMode = clients.length === 0;
 
   return (
-    <div className="min-h-screen p-3 md:p-6 lg:p-8 bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 pb-[calc(2rem+env(safe-area-inset-bottom))]">
-      <div className="max-w-7xl mx-auto space-y-3 md:space-y-4 lg:space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-4">
+    <div className="min-h-screen p-4 lg:p-8 bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
+      <div className="max-w-7xl mx-auto space-y-4 lg:space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-gray-900 mb-0.5 sm:mb-2">Meal Planner</h1>
-            <p className="text-xs md:text-base text-gray-600">Generate, use templates, or create manually</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">Meal Planner</h1>
+            <p className="text-sm sm:text-base text-gray-600">Generate, use templates, or create manually</p>
           </div>
           <div className="text-right">
-            <div className="flex items-center gap-1.5 md:gap-2">
-              <Calendar className="w-6 md:w-8 h-6 md:h-8 text-orange-500" />
+            <div className="flex items-center gap-2">
+              <Calendar className="w-8 h-8 sm:w-10 sm:h-10 text-orange-500" />
               <div>
-                <p className="text-lg md:text-2xl font-bold text-gray-900">{mealPlans.length}</p>
-                <p className="text-xs text-gray-600">Plans</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{mealPlans.length}</p>
+                <p className="text-xs text-gray-600">My Plans</p>
               </div>
             </div>
           </div>
@@ -1808,8 +1808,8 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
 
         {user?.user_type === 'student_coach' && coachPlan && (
           <Card className="border-none shadow-lg bg-gradient-to-r from-purple-50 to-pink-50">
-            <CardContent className="p-3 md:p-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-4">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
                     <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
@@ -1853,23 +1853,25 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
           <UsageLimitWarning usage={usage} limits={usage?.plan_limits} type="meal_plan" />
         )}
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3 md:space-y-4 lg:space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4 h-auto gap-0.5 w-full">
-            <TabsTrigger value="templates" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-[10px] md:text-xs px-0.5 md:px-2 py-1.5 md:py-2 rounded-lg">
-              <Star className="w-2.5 md:w-3 h-2.5 md:h-3 mr-0 md:mr-1" />
-              <span className="hidden md:inline text-xs">Templates</span>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 lg:space-y-6">
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4 h-auto gap-1 w-full">
+            <TabsTrigger value="templates" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-[11px] sm:text-xs px-1 sm:px-2 py-2 rounded-lg">
+              <Star className="w-3 h-3 mr-0.5 sm:mr-1" />
+              <span className="hidden sm:inline text-xs">Templates</span>
             </TabsTrigger>
-            <TabsTrigger value="manual" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-[10px] md:text-xs px-0.5 md:px-2 py-1.5 md:py-2 rounded-lg">
-              <Edit className="w-2.5 md:w-3 h-2.5 md:h-3 mr-0 md:mr-1" />
-              <span className="hidden md:inline text-xs">Manual</span>
+            <TabsTrigger value="manual" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-[11px] sm:text-xs px-1 sm:px-2 py-2 rounded-lg">
+              <Edit className="w-3 h-3 mr-0.5 sm:mr-1" />
+              <span className="hidden sm:inline text-xs">Manual</span>
             </TabsTrigger>
-            <TabsTrigger value="generate" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-[10px] md:text-xs px-0.5 md:px-2 py-1.5 md:py-2 rounded-lg">
-              <Zap className="w-2.5 md:w-3 h-2.5 md:h-3 mr-0 md:mr-1" />
-              <span className="hidden md:inline text-xs">AI Gen</span>
+            <TabsTrigger value="generate" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-[11px] sm:text-xs px-1 sm:px-2 py-2 rounded-lg">
+              <Zap className="w-3 h-3 mr-0.5 sm:mr-1" />
+              <span className="hidden sm:inline text-xs">AI Generate</span>
             </TabsTrigger>
-            <TabsTrigger value="saved" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-[10px] md:text-xs px-0.5 md:px-2 py-1.5 md:py-2 rounded-lg">
-              <Calendar className="w-2.5 md:w-3 h-2.5 md:h-3 mr-0 md:mr-1" />
-              <span className="text-[10px] md:text-xs">({mealPlans.length})</span>
+            <TabsTrigger value="saved" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-[11px] sm:text-xs px-1 sm:px-2 py-2 rounded-lg">
+              <Calendar className="w-3 h-3 mr-0.5 sm:mr-1" />
+              <span className="hidden sm:inline text-xs">Plans</span>
+              <span className="sm:hidden">({mealPlans.length})</span>
+              <span className="hidden sm:inline">({mealPlans.length})</span>
             </TabsTrigger>
           </TabsList>
 

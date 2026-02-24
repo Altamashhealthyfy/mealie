@@ -17,39 +17,28 @@ export default function ClientListSidebar({
   formatDateTimeIST 
 }) {
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-white to-gray-50">
-      {/* Modern Header */}
-      <div className="px-4 pt-4 pb-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
-        <div>
-          <h3 className="font-bold text-lg text-gray-900">Clients</h3>
-          <p className="text-xs text-gray-500 mt-0.5">{clients.length} clients</p>
-        </div>
+    <div className="flex flex-col h-full bg-white">
+      {/* Header with close button for mobile */}
+      <div className="p-3 sm:p-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+        <h3 className="font-semibold text-gray-900 text-sm sm:text-base">Clients</h3>
         <button
           onClick={onClose}
-          className="md:hidden flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors p-1.5 hover:bg-gray-100 rounded-lg"
+          className="md:hidden flex-shrink-0 text-gray-400 hover:text-gray-600"
         >
           <X className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Enhanced Search */}
-      <div className="px-3 py-3 border-b border-gray-100 flex-shrink-0">
-        <div className="relative group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400 group-focus-within:text-orange-500 transition-colors" />
+      {/* Search */}
+      <div className="p-2 sm:p-3 border-b border-gray-200 flex-shrink-0">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input
-            placeholder="Search by name or email..."
+            placeholder="Search clients..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 h-10 text-sm bg-white border-gray-200 rounded-lg focus-visible:ring-orange-500 focus-visible:border-orange-500"
+            className="pl-9 h-9 text-sm"
           />
-          {searchQuery && (
-            <button
-              onClick={() => onSearchChange('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
         </div>
       </div>
 

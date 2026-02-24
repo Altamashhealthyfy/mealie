@@ -544,7 +544,7 @@ Enjoy your cooking! 🍽️✨
       [];
 
     const filteredIngredients = manualRecipeForm.ingredients.filter(
-      ing => ing.item.trim() && String(ing.quantity || '').trim()
+      ing => ing.item.trim() && ing.quantity.trim()
     );
 
     const filteredInstructions = manualRecipeForm.instructions.filter(

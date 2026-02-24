@@ -7,7 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   MessageSquare, Send, CheckCheck, Check, Loader2, ArrowDown,
   Paperclip, X, FileText, Image as ImageIcon, Video, File, Download,
@@ -48,7 +47,6 @@ export default function ClientCommunication() {
   const [showCallHistory, setShowCallHistory] = useState(false);
   const [activeVideoCall, setActiveVideoCall] = useState(null);
   const [incomingCall, setIncomingCall] = useState(null);
-  const [selectedClientId, setSelectedClientId] = useState(null);
 
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
@@ -89,32 +87,16 @@ export default function ClientCommunication() {
     retry: false,
   });
 
-  // For admins/coaches - get all clients; for clients - get own profile
-  const isAdmin = user?.user_type === 'super_admin' || user?.user_type === 'student_coach' || user?.user_type === 'team_member';
-
-  const { data: allClients = [] } = useQuery({
-    queryKey: ['allClients'],
-    queryFn: async () => {
-      if (!isAdmin) return [];
-      return base44.entities.Client.list();
-    },
-    enabled: !!isAdmin,
-  });
-
   const { data: clientProfile, isLoading: profileLoading } = useQuery({
-    queryKey: ['myClientProfile', user?.email, selectedClientId],
+    queryKey: ['myClientProfile', user?.email],
     queryFn: async () => {
-      if (isAdmin && selectedClientId) {
-        const clients = await base44.entities.Client.filter({ id: selectedClientId });
-        return clients[0] || null;
-      }
       if (!user?.email) return null;
       const clients = await base44.entities.Client.filter({ email: user.email });
       if (clients.length > 0) return clients[0];
       const allClients = await base44.entities.Client.list();
       return allClients.find(c => c.email?.toLowerCase() === user.email?.toLowerCase()) || null;
     },
-    enabled: !!user && (isAdmin ? !!selectedClientId : true),
+    enabled: !!user,
   });
 
   const { data: messages = [] } = useQuery({
@@ -356,7 +338,7 @@ export default function ClientCommunication() {
 
   const isClient = user?.user_type === 'client';
 
-  if (userLoading || profileLoading) {
+  if (userLoading || (isClient && profileLoading)) {
     return (
       <div className="min-h-screen p-4 flex items-center justify-center">
         <div className="text-center">
@@ -380,96 +362,180 @@ export default function ClientCommunication() {
     );
   }
 
-  if (isAdmin && !clientProfile) {
-    return (
-      <div className="min-h-screen p-4 flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardHeader><CardTitle>Select a Client</CardTitle></CardHeader>
-          <CardContent>
-            <Select onValueChange={(value) => setSelectedClientId(value)}>
-              <SelectTrigger><SelectValue placeholder="Choose a client" /></SelectTrigger>
-              <SelectContent>
-                {allClients.map(c => (
-                  <SelectItem key={c.id} value={c.id}>{c.full_name} ({c.email})</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  const contactName = isAdmin ? clientProfile?.full_name : (coachUser?.full_name || (coachEmail ? coachEmail.split('@')[0] : 'Your Health Coach'));
+  const coachName = coachUser?.full_name || (coachEmail ? coachEmail.split('@')[0] : 'Your Health Coach');
   const totalMessages = messages.length;
   const myMessages = messages.filter(m => m.sender_type === 'client').length;
   const joinDate = clientProfile?.join_date ? new Date(clientProfile.join_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
 
   return (
-    <div className="flex flex-col overflow-hidden communication-page-height bg-gray-50">
+    <div className="flex flex-col overflow-hidden communication-page-height">
       {activeVideoCall && (
         <VideoCallRoom roomId={activeVideoCall.clientId} localName={user?.full_name || 'Me'}
           remoteName={activeVideoCall.coachName} isInitiator={false}
           signalingChannel={activeVideoCall.channel} onEnd={endVideoCall} />
       )}
 
-      {/* Main Chat Area with integrated sidebar */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        {/* Top bar - contact info and actions */}
-        <div className="flex-shrink-0 px-3 py-3 bg-gradient-to-r from-orange-500 to-red-500 shadow-lg flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-white/30">
-              <span className="text-white font-bold text-base">{contactName.charAt(0)}</span>
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-sm font-bold text-white truncate">{contactName}</h1>
-              <div className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 bg-green-300 rounded-full"></span>
-                <p className="text-xs text-green-100">Online</p>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar - hidden on mobile, shown when showSidebar is true */}
+        {showSidebar && (
+          <div className="fixed inset-0 z-50 md:relative md:inset-auto flex md:block">
+            {/* Overlay for mobile */}
+            <div className="absolute inset-0 bg-black/40 md:hidden" onClick={() => setShowSidebar(false)} />
+            <div className="relative z-10 flex flex-col w-72 md:w-64 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto h-full ml-0">
+              {/* Close button on mobile */}
+              <div className="flex items-center justify-between p-3 border-b md:hidden">
+                <span className="font-semibold text-gray-900">Chat Info</span>
+                <Button variant="ghost" size="sm" onClick={() => setShowSidebar(false)} className="h-8 w-8 p-0">
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              {/* Coach Info */}
+              <div className="p-4 bg-gradient-to-br from-orange-50 to-red-50 border-b">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-bold text-lg">{coachName.charAt(0)}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-gray-900 text-sm truncate">{coachName}</p>
+                    <p className="text-xs text-gray-500">Health Coach</p>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      <span className="text-xs text-green-600">Active</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Client Stats */}
+              <div className="p-4 border-b">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Your Journey</p>
+                <div className="space-y-2">
+                  {joinDate && (
+                    <div className="flex items-center gap-2 text-xs text-gray-700">
+                      <Calendar className="w-3.5 h-3.5 text-orange-500 flex-shrink-0" />
+                      <span>Joined: {joinDate}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-xs text-gray-700">
+                    <MessageSquare className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                    <span>{totalMessages} total messages</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-700">
+                    <Star className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" />
+                    <span>{myMessages} messages sent</span>
+                  </div>
+                  {clientProfile?.goal && (
+                    <div className="flex items-center gap-2 text-xs text-gray-700">
+                      <Zap className="w-3.5 h-3.5 text-purple-500 flex-shrink-0" />
+                      <span className="capitalize">{clientProfile.goal.replace(/_/g, ' ')}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="p-4 border-b">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Quick Actions</p>
+                <div className="space-y-2">
+                  <Button variant="outline" size="sm" onClick={() => { startVideoCall(); setShowSidebar(false); }}
+                    className="w-full justify-start text-green-600 hover:bg-green-50 border-green-200 text-xs h-9">
+                    <Phone className="w-3.5 h-3.5 mr-2" /> Video Call Coach
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setShowCallHistory(!showCallHistory); setShowSidebar(false); }}
+                    className="w-full justify-start text-purple-600 hover:bg-purple-50 border-purple-200 text-xs h-9">
+                    <History className="w-3.5 h-3.5 mr-2" /> Call History
+                  </Button>
+                  {isClient && (
+                    <div className="w-full">
+                      <InitiateConversation />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Groups */}
+              {clientGroups.length > 0 && (
+                <div className="p-4">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Groups ({clientGroups.length})</p>
+                  <div className="space-y-1.5">
+                    {clientGroups.map(g => (
+                      <div key={g.id} className="flex items-center gap-2 p-2 rounded-lg bg-blue-50 border border-blue-100">
+                        <Users className="w-3 h-3 text-blue-500 flex-shrink-0" />
+                        <span className="text-xs text-blue-800 truncate">{g.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Notification toggle */}
+              <div className="p-4 mt-auto border-t">
+                <PushNotificationManager userEmail={user?.email} />
               </div>
             </div>
           </div>
-          {isAdmin && (
-            <div className="flex-shrink-0 px-3 py-1 bg-white/20 rounded-lg">
-              <Select value={selectedClientId || ""} onValueChange={setSelectedClientId}>
-                <SelectTrigger className="w-32 h-8 text-xs text-white border-white/30 bg-white/10">
-                  <SelectValue placeholder="Select client" />
-                </SelectTrigger>
-                <SelectContent>
-                  {allClients.map(c => (
-                    <SelectItem key={c.id} value={c.id}>{c.full_name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        )}
+
+        {/* Main Chat Area */}
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+          {/* Top bar - mobile optimized */}
+          <div className="flex-shrink-0 px-3 py-2.5 bg-white border-b shadow-sm flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Button variant="ghost" size="sm" onClick={() => setShowSidebar(true)}
+                className="h-9 w-9 p-0 flex-shrink-0">
+                <Menu className="w-5 h-5 text-gray-600" />
+              </Button>
+              <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-white font-bold text-sm">{coachName.charAt(0)}</span>
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-sm font-bold text-gray-900 truncate">{coachName}</h1>
+                <div className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                  <p className="text-xs text-green-600">Health Coach</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              {incomingCall && (
+                <div className="flex gap-1">
+                  <Button onClick={acceptCall} size="sm" className="bg-green-500 hover:bg-green-600 text-white h-8 px-2 text-xs">
+                    <Phone className="w-3 h-3 mr-1" /> Answer
+                  </Button>
+                  <Button onClick={rejectCall} size="sm" variant="destructive" className="h-8 px-2 text-xs">
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
+              )}
+              <Button size="sm" onClick={startVideoCall}
+                className="bg-green-500 hover:bg-green-600 text-white h-8 w-8 p-0 sm:w-auto sm:px-3 flex items-center justify-center gap-1">
+                <Phone className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline text-xs">Video Call</span>
+              </Button>
+            </div>
+          </div>
+
+          {newMessageAlert && (
+            <div className="mx-3 mt-2 p-2 bg-green-50 border border-green-300 rounded-xl flex items-center gap-2 flex-shrink-0">
+              <Bell className="w-4 h-4 text-green-600 flex-shrink-0" />
+              <p className="text-xs text-green-800 font-medium flex-1 truncate">New: {newMessageAlert}</p>
+              <Button variant="ghost" size="sm" className="p-0.5 h-auto" onClick={() => setNewMessageAlert(null)}>
+                <X className="w-3.5 h-3.5 text-green-700" />
+              </Button>
             </div>
           )}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {incomingCall && (
-              <div className="flex gap-1">
-                <Button onClick={acceptCall} size="sm" className="bg-green-400 hover:bg-green-500 text-gray-900 h-8 px-2 text-xs font-semibold">
-                  <Phone className="w-3 h-3 mr-1" /> Answer
-                </Button>
-                <Button onClick={rejectCall} size="sm" className="bg-red-400 hover:bg-red-500 text-white h-8 px-2 text-xs">
-                  <X className="w-3 h-3" />
-                </Button>
-              </div>
-            )}
-            <Button size="sm" onClick={startVideoCall}
-              className="bg-green-400 hover:bg-green-500 text-gray-900 h-8 w-8 p-0 sm:w-auto sm:px-3 flex items-center justify-center gap-1.5 font-semibold">
-              <Phone className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline text-xs">Call</span>
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => setShowSidebar(!showSidebar)}
-              className={`h-8 w-8 p-0 ${showSidebar ? 'bg-white/20 text-white' : 'text-white/80 hover:text-white hover:bg-white/10'}`}>
-              <Info className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
 
-        <div className="flex flex-1 overflow-hidden gap-3 p-3">
-          {/* Chat messages area */}
-          <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-            <Card className="border-none shadow-lg flex-1 flex flex-col min-h-0 overflow-hidden rounded-xl">
+          {showCallHistory && (
+            <div className="mx-3 mt-2 border border-purple-200 rounded-xl bg-purple-50 p-3 flex-shrink-0">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-semibold text-purple-800 text-sm flex items-center gap-1"><History className="w-3.5 h-3.5" /> Past Calls</h4>
+                <Button variant="ghost" size="sm" onClick={() => setShowCallHistory(false)} className="h-6 w-6 p-0"><X className="w-4 h-4" /></Button>
+              </div>
+              <VideoCallHistory clientId={clientProfile?.id} />
+            </div>
+          )}
+
+          <Card className="border-none shadow-none flex-1 flex flex-col min-h-0 overflow-hidden rounded-none">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
               <TabsList className="rounded-none border-b w-full grid grid-cols-2 flex-shrink-0 h-10">
                 <TabsTrigger value="direct" className="flex gap-1 items-center text-xs sm:text-sm">
@@ -490,15 +556,15 @@ export default function ClientCommunication() {
               <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0">
                 <div className="flex flex-col h-full min-h-0">
                   {/* Chat Header */}
-                   <div className="border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50 flex-shrink-0 px-3 py-2 flex items-center gap-3">
-                     <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
-                       <span className="text-white font-bold text-sm">{contactName.charAt(0)}</span>
-                     </div>
-                     <div className="min-w-0 flex-1">
-                       <p className="font-semibold text-sm truncate">{contactName}</p>
-                       <p className="text-xs text-gray-500">{isAdmin ? 'Client Messages' : 'Always here to help you 💚'}</p>
-                     </div>
-                   </div>
+                  <div className="border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50 flex-shrink-0 px-3 py-2 flex items-center gap-3">
+                    <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-sm">{coachName.charAt(0)}</span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-sm truncate">{coachName}</p>
+                      <p className="text-xs text-gray-500">Always here to help you 💚</p>
+                    </div>
+                  </div>
 
                   {/* Messages */}
                   <div className="flex-1 overflow-hidden bg-gray-50 relative min-h-0">
@@ -526,22 +592,9 @@ export default function ClientCommunication() {
                                 }`}>
                                   {mainText && <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap mb-1.5">{mainText}</p>}
                                   {renderAttachment(message, isFromClient)}
-                                  <div className="flex items-center justify-between gap-1.5 mt-1">
-                                    <span className={`text-xs ${isFromClient ? 'text-white/70' : 'text-gray-400'}`}>
-                                      {formatToIST(message.created_date)}
-                                    </span>
-                                    {isFromClient && (
-                                      <div className="flex items-center gap-0.5">
-                                        {message.read ? (
-                                          <div className="flex items-center gap-0.5">
-                                            <Check className="w-3 h-3 text-white/70" />
-                                            <CheckCheck className="w-3 h-3 text-blue-300" />
-                                          </div>
-                                        ) : (
-                                          <Check className="w-3 h-3 text-white/70" />
-                                        )}
-                                      </div>
-                                    )}
+                                  <div className={`flex items-center gap-1.5 mt-1 text-xs ${isFromClient ? 'text-white/70' : 'text-gray-400'}`}>
+                                    <span>{formatToIST(message.created_date)}</span>
+                                    {isFromClient && (message.read ? <CheckCheck className="w-3.5 h-3.5 text-blue-300" /> : <Check className="w-3.5 h-3.5 text-white/70" />)}
                                   </div>
                                 </div>
                                 {!isFromClient && quickReplies.length > 0 && (
@@ -608,9 +661,9 @@ export default function ClientCommunication() {
                   </div>
 
                   {/* Send Message Box */}
-                  <div className="px-3 py-3 border-t-2 border-orange-500 bg-white flex-shrink-0 space-y-2">
+                  <div className="px-2 py-2 border-t-2 border-orange-500 bg-white flex-shrink-0">
                     {attachedFile && (
-                      <div className="p-2 bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-2">
+                      <div className="mb-2 p-2 bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-2">
                         {getFileIcon(attachedFile.type)}
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium text-gray-900 truncate">{attachedFile.name}</p>
@@ -619,32 +672,32 @@ export default function ClientCommunication() {
                         <Button variant="ghost" size="sm" onClick={removeAttachment} className="text-red-600 h-7 w-7 p-0"><X className="w-3.5 h-3.5" /></Button>
                       </div>
                     )}
-                    <div className="flex items-end gap-2 w-full">
+                    <div className="flex items-end gap-1.5 w-full">
                       <input ref={fileInputRef} type="file" onChange={handleFileSelect} className="hidden" accept="*/*" />
                       <Button variant="outline" size="icon"
                         onClick={() => fileInputRef.current?.click()}
-                        className="h-10 w-10 flex-shrink-0 border-2 border-orange-300 hover:bg-orange-50"
+                        className="h-9 w-9 flex-shrink-0 border-2 border-orange-300 hover:bg-orange-50"
                         disabled={uploading || sendMessageMutation.isPending}>
-                        <Paperclip className="w-5 h-5 text-orange-600" />
+                        <Paperclip className="w-4 h-4 text-orange-600" />
                       </Button>
                       <Button variant="outline" size="icon"
                         onClick={() => setShowSlidePanel(!showSlidePanel)}
-                        className={`h-10 w-10 flex-shrink-0 border-2 transition-colors ${showSlidePanel ? 'border-orange-500 bg-orange-50' : 'border-orange-300 hover:bg-orange-50'}`}>
-                        {showSlidePanel ? <ChevronDown className="w-5 h-5 text-orange-600" /> : <ChevronUp className="w-5 h-5 text-orange-600" />}
+                        className={`h-9 w-9 flex-shrink-0 border-2 transition-colors ${showSlidePanel ? 'border-orange-500 bg-orange-50' : 'border-orange-300 hover:bg-orange-50'}`}>
+                        {showSlidePanel ? <ChevronDown className="w-4 h-4 text-orange-600" /> : <ChevronUp className="w-4 h-4 text-orange-600" />}
                       </Button>
                       <Textarea ref={textareaRef}
                         placeholder="Message your coach..."
                         value={messageText}
                         onChange={(e) => { setMessageText(e.target.value); handleTyping(); }}
                         onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
-                        className="resize-none min-h-[40px] max-h-24 text-sm border-2 border-orange-300 focus:border-orange-500 rounded-lg flex-1 min-w-0 py-2"
+                        className="resize-none min-h-[36px] max-h-24 text-sm border-2 border-orange-300 focus:border-orange-500 flex-1 min-w-0"
                         rows={1} disabled={uploading} />
                       <Button onClick={handleSendMessage} disabled={sendMessageMutation.isPending || uploading}
-                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-10 w-10 flex-shrink-0 p-0 shadow-md rounded-lg">
-                        {(sendMessageMutation.isPending || uploading) ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-9 w-9 flex-shrink-0 p-0 shadow-md">
+                        {(sendMessageMutation.isPending || uploading) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                       </Button>
                     </div>
-                    </div>
+                  </div>
                 </div>
               </TabsContent>
 
@@ -753,114 +806,7 @@ export default function ClientCommunication() {
                 )}
               </TabsContent>
             </Tabs>
-            </Card>
-          </div>
-
-          {/* Right sidebar - collapsible info panel */}
-          <div className={`transition-all duration-300 overflow-hidden flex-shrink-0 ${
-            showSidebar ? 'w-80' : 'w-0'
-          }`}>
-            <div className="h-full bg-white border-l border-gray-200 rounded-xl shadow-lg flex flex-col overflow-y-auto">
-              {/* Close button */}
-              <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-orange-50 to-red-50 flex-shrink-0">
-                <span className="font-bold text-gray-900 text-sm">Chat Info</span>
-                <Button variant="ghost" size="sm" onClick={() => setShowSidebar(false)} className="h-7 w-7 p-0">
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-
-              {/* Contact Info */}
-               <div className="p-4 border-b bg-gradient-to-br from-orange-50 to-red-50">
-                 <div className="flex items-center gap-3">
-                   <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-orange-200">
-                     <span className="text-white font-bold text-lg">{contactName.charAt(0)}</span>
-                   </div>
-                   <div className="min-w-0">
-                     <p className="font-semibold text-gray-900 text-sm">{contactName}</p>
-                     <p className="text-xs text-gray-500">{isAdmin ? 'Client' : 'Health Coach'}</p>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                      <span className="text-xs text-green-600 font-medium">{isAdmin ? 'Client' : 'Active Now'}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Client Stats */}
-              <div className="p-4 border-b">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">📊 Journey Stats</p>
-                <div className="space-y-2.5">
-                  {joinDate && (
-                    <div className="flex items-center gap-2 text-xs text-gray-700 p-2 bg-gray-50 rounded-lg">
-                      <Calendar className="w-4 h-4 text-orange-500 flex-shrink-0" />
-                      <span>Joined {joinDate}</span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2 text-xs text-gray-700 p-2 bg-blue-50 rounded-lg">
-                    <MessageSquare className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                    <span><strong>{totalMessages}</strong> messages</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-700 p-2 bg-yellow-50 rounded-lg">
-                    <Star className="w-4 h-4 text-yellow-500 flex-shrink-0" />
-                    <span><strong>{myMessages}</strong> sent</span>
-                  </div>
-                  {clientProfile?.goal && (
-                    <div className="flex items-center gap-2 text-xs text-gray-700 p-2 bg-purple-50 rounded-lg">
-                      <Zap className="w-4 h-4 text-purple-500 flex-shrink-0" />
-                      <span className="capitalize"><strong>{clientProfile.goal.replace(/_/g, ' ')}</strong></span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Quick Actions */}
-              <div className="p-4 border-b">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">⚡ Quick Actions</p>
-                <div className="space-y-2">
-                  <Button variant="outline" size="sm" onClick={() => { startVideoCall(); setShowSidebar(false); }}
-                    className="w-full justify-start text-green-600 hover:bg-green-50 border-green-200 text-xs h-9 font-semibold">
-                    <Phone className="w-3.5 h-3.5 mr-2" /> Video Call
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => setShowCallHistory(!showCallHistory)}
-                    className="w-full justify-start text-purple-600 hover:bg-purple-50 border-purple-200 text-xs h-9 font-semibold">
-                    <History className="w-3.5 h-3.5 mr-2" /> Call History
-                  </Button>
-                  {isClient && <InitiateConversation />}
-                </div>
-              </div>
-
-              {/* Groups */}
-              {clientGroups.length > 0 && (
-                <div className="p-4 border-b">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">👥 Groups ({clientGroups.length})</p>
-                  <div className="space-y-2">
-                    {clientGroups.map(g => (
-                      <div key={g.id} className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-50 border border-blue-100 hover:bg-blue-100 transition-colors">
-                        <Users className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
-                        <span className="text-xs text-blue-800 font-semibold truncate">{g.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Call History */}
-              {showCallHistory && (
-                <div className="p-4 border-b bg-purple-50">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-bold text-purple-800 text-xs flex items-center gap-1 uppercase"><History className="w-3.5 h-3.5" /> Past Calls</h4>
-                    <Button variant="ghost" size="sm" onClick={() => setShowCallHistory(false)} className="h-5 w-5 p-0"><X className="w-3 h-3" /></Button>
-                  </div>
-                  <VideoCallHistory clientId={clientProfile?.id} />
-                </div>
-              )}
-
-              {/* Notification toggle */}
-              <div className="p-4 mt-auto border-t bg-gray-50">
-                <PushNotificationManager userEmail={user?.email} />
-              </div>
-            </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

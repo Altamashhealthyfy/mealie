@@ -88,25 +88,25 @@ export default function ImageUploader({
     setUploading(true);
 
     try {
-       // Resize image to required dimensions
-       const resizedBlob = await resizeImage(file, requiredWidth, requiredHeight);
-
-       // Create proper File object from blob for upload
-       const resizedFile = new File([resizedBlob], `recipe_${Date.now()}.jpeg`, { type: 'image/jpeg' });
-
-       // Upload the resized image
-       const result = await base44.integrations.Core.UploadFile({ file: resizedFile });
-
-       setPreviewUrl(result.file_url);
-       onImageUploaded(result.file_url);
-
-       alert(`✅ Image uploaded and automatically resized to ${requiredWidth}x${requiredHeight}px!`);
-     } catch (error) {
-       console.error("Error processing image:", error);
-       alert("❌ Failed to upload image. Please try again.");
-     } finally {
-       setUploading(false);
-     }
+      // Resize image to required dimensions
+      const resizedBlob = await resizeImage(file, requiredWidth, requiredHeight);
+      
+      // Create File object from blob
+      const resizedFile = new File([resizedBlob], file.name, { type: 'image/jpeg' });
+      
+      // Upload the resized image
+      const result = await base44.integrations.Core.UploadFile({ file: resizedFile });
+      
+      setPreviewUrl(result.file_url);
+      onImageUploaded(result.file_url);
+      
+      alert(`✅ Image uploaded and automatically resized to ${requiredWidth}x${requiredHeight}px!`);
+    } catch (error) {
+      console.error("Error processing image:", error);
+      alert("❌ Failed to upload image. Please try again.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (

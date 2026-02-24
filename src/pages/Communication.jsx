@@ -144,13 +144,12 @@ export default function Communication() {
       if (user?.user_type === 'super_admin') return allClients;
 
       if (user?.user_type === 'student_coach') {
-        const filtered = allClients.filter(client => {
+        return allClients.filter(client => {
           const assignedCoaches = Array.isArray(client.assigned_coach) 
             ? client.assigned_coach 
             : client.assigned_coach ? [client.assigned_coach] : [];
           return client.created_by === user?.email || assignedCoaches.includes(user?.email);
         });
-        return filtered.length > 0 ? filtered : allClients;
       }
 
       if (['team_member', 'student_team_member'].includes(user?.user_type)) {
@@ -159,7 +158,7 @@ export default function Communication() {
       
       return [];
     },
-    enabled: !!user && ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(user?.user_type),
+    enabled: !!user && user?.user_type !== 'client',
     staleTime: 30 * 1000,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
@@ -517,11 +516,7 @@ export default function Communication() {
   };
 
   const clientMessages = selectedClient 
-    ? allMessages.filter(m => {
-        // Admin can see all messages for the selected client
-        // Include messages where client_id matches
-        return m.client_id === selectedClient.id && m.content_type !== 'video_signal';
-      }).sort((a, b) => 
+    ? allMessages.filter(m => m.client_id === selectedClient.id && m.content_type !== 'video_signal').sort((a, b) => 
         new Date(a.created_date) - new Date(b.created_date)
       )
     : [];
@@ -698,8 +693,8 @@ export default function Communication() {
                  )}
 
                 {/* Client List Sidebar — slide in on mobile, fixed on desktop */}
-                 <div className={`fixed md:relative md:flex bottom-0 md:bottom-auto left-0 md:left-auto h-[60vh] md:h-full w-full md:w-72 lg:w-80 border-t md:border-r border-gray-200 bg-gradient-to-b from-white to-gray-50 flex-col min-h-0 flex-shrink-0 transition-transform duration-300 z-50 md:z-0 md:border-t-0 shadow-lg md:shadow-none ${
-                  mobileClientPanelOpen ? 'translate-y-0' : 'translate-y-full'
+                 <div className={`fixed md:relative md:flex bottom-0 md:bottom-auto left-0 md:left-auto h-[60vh] md:h-full w-full md:w-56 lg:w-64 border-t md:border-r border-gray-200 bg-white flex-col min-h-0 flex-shrink-0 transition-transform duration-300 z-50 md:z-0 md:border-t-0 ${
+                  mobileClientPanelOpen ? 'translate-y-0 md:translate-y-0' : 'translate-y-full md:translate-y-0'
                 }`}>
                   <ClientListSidebar
                     clients={sortedClients}

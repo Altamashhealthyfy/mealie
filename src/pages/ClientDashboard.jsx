@@ -683,16 +683,16 @@ export default function ClientDashboard() {
   }
 
   return (
-    <div className="min-h-screen p-3 sm:p-4 md:p-8 space-y-4 sm:space-y-6">
+    <div className="min-h-screen p-4 md:p-8 space-y-6">
       <ClientTutorial autoStart={true} />
       <div className="max-w-7xl mx-auto" id="dashboard-welcome">
-       {/* Header */}
-       <div className="mb-4 sm:mb-6 flex justify-between items-start gap-3">
-         <div className="min-w-0 flex-1">
-           <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2 break-words">
-             Welcome back, {clientProfile.full_name?.split(' ')[0]}! 👋
-           </h1>
-           <p className="text-xs sm:text-sm text-gray-600">Here's your health journey progress</p>
+        {/* Header */}
+        <div className="mb-6 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+              Welcome back, {clientProfile.full_name?.split(' ')[0]}! 👋
+            </h1>
+            <p className="text-gray-600">Here's your health journey progress</p>
           </div>
           <TourButton pageName="ClientDashboard" />
         </div>
@@ -748,18 +748,18 @@ export default function ClientDashboard() {
         </div>
 
         {/* Key Stats */}
-         <div id="client-overview" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mb-6">
+        <div id="client-overview" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
           <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div className="min-w-0">
-                   <p className="text-xs sm:text-sm text-gray-600 mb-1">Current Weight</p>
-                   <p className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">{currentWeight || '--'}</p>
-                   <p className="text-xs text-gray-500">kg</p>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Current Weight</p>
+                  <p className="text-3xl font-bold text-gray-900">{currentWeight || '--'}</p>
+                  <p className="text-xs text-gray-500">kg</p>
                 </div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
-                   <Scale className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                 </div>
+                <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
+                  <Scale className="w-6 h-6 text-white" />
+                </div>
               </div>
               {weightLost !== 0 && (
                 <div className="mt-3 flex items-center gap-1">
@@ -777,15 +777,15 @@ export default function ClientDashboard() {
           </Card>
 
           <Card className="border-none shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-xs sm:text-sm text-gray-600 mb-1">Goal Progress</p>
-                  <p className="text-2xl sm:text-3xl font-bold text-gray-900">{Math.max(0, progressPercentage)}%</p>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Goal Progress</p>
+                  <p className="text-3xl font-bold text-gray-900">{Math.max(0, progressPercentage)}%</p>
                   <p className="text-xs text-gray-500">{Math.abs(weightToGo).toFixed(1)} kg to go</p>
                 </div>
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Target className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                  <Target className="w-6 h-6 text-white" />
                 </div>
               </div>
               <div className="mt-3">
@@ -800,11 +800,11 @@ export default function ClientDashboard() {
           </Card>
 
           <Card className="border-none shadow-lg bg-gradient-to-br from-yellow-50 to-amber-50">
-            <CardContent className="p-4 sm:p-6">
+            <CardContent className="p-6">
               <div className="flex flex-col">
-                <p className="text-xs sm:text-sm text-gray-600 mb-2">Energy Level</p>
+                <p className="text-sm text-gray-600 mb-2">Energy Level</p>
                 <div className="flex items-center gap-2">
-                  <p className="text-2xl sm:text-3xl font-bold text-gray-900">
+                  <p className="text-3xl font-bold text-gray-900">
                     {todayWellness?.energy_level || avgWellness?.energy || '--'}
                   </p>
                   <span className="text-xs text-gray-500">/10</span>
@@ -819,11 +819,11 @@ export default function ClientDashboard() {
           </Card>
 
           <Card className="border-none shadow-lg bg-gradient-to-br from-indigo-50 to-purple-50">
-            <CardContent className="p-4 sm:p-6">
+            <CardContent className="p-6">
               <div className="flex flex-col">
-                <p className="text-xs sm:text-sm text-gray-600 mb-2">Sleep Quality</p>
+                <p className="text-sm text-gray-600 mb-2">Sleep Quality</p>
                 <div className="flex items-center gap-2">
-                  <p className="text-2xl sm:text-3xl font-bold text-gray-900">
+                  <p className="text-3xl font-bold text-gray-900">
                     {todayWellness?.sleep_quality || avgWellness?.sleep || '--'}
                   </p>
                   <span className="text-xs text-gray-500">/10</span>
@@ -838,10 +838,10 @@ export default function ClientDashboard() {
           </Card>
 
           <Card className="border-none shadow-lg bg-gradient-to-br from-pink-50 to-rose-50">
-            <CardContent className="p-4 sm:p-6">
+            <CardContent className="p-6">
               <div className="flex flex-col">
-                <p className="text-xs sm:text-sm text-gray-600 mb-2">Mood Today</p>
-                <p className="text-lg sm:text-2xl font-bold text-gray-900 capitalize">
+                <p className="text-sm text-gray-600 mb-2">Mood Today</p>
+                <p className="text-2xl font-bold text-gray-900 capitalize">
                   {todayWellness?.mood ? (
                     todayWellness.mood === 'excellent' ? '😄 Excellent' :
                     todayWellness.mood === 'good' ? '😊 Good' :
@@ -860,11 +860,11 @@ export default function ClientDashboard() {
           </Card>
 
           <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
-            <CardContent className="p-4 sm:p-6">
+            <CardContent className="p-6">
               <div className="flex flex-col">
-                <p className="text-xs sm:text-sm text-gray-600 mb-2">Stress Level</p>
+                <p className="text-sm text-gray-600 mb-2">Stress Level</p>
                 <div className="flex items-center gap-2">
-                  <p className="text-2xl sm:text-3xl font-bold text-gray-900">
+                  <p className="text-3xl font-bold text-gray-900">
                     {todayWellness?.stress_level || avgWellness?.stress || '--'}
                   </p>
                   <span className="text-xs text-gray-500">/10</span>
@@ -1598,63 +1598,63 @@ export default function ClientDashboard() {
         </div>
 
         {/* Quick Navigation Cards */}
-         <div id="resources-section" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6">
+        <div id="resources-section" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link to={createPageUrl("ProgressTracking")}>
             <Card className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer group bg-gradient-to-br from-orange-50 to-red-50">
-              <CardContent className="p-4 sm:p-6">
-                 <div className="flex items-center justify-between mb-2 sm:mb-3">
-                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
-                     <Scale className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                   </div>
-                   <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 group-hover:translate-x-1 transition-transform flex-shrink-0" />
-                 </div>
-                 <p className="font-bold text-sm sm:text-base text-gray-900 mb-1 truncate">Track Progress</p>
-                 <p className="text-xs sm:text-sm text-gray-600">{progressLogs.length} logs recorded</p>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Scale className="w-6 h-6 text-white" />
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-orange-600 group-hover:translate-x-1 transition-transform" />
+                </div>
+                <p className="font-bold text-gray-900 mb-1">Track Progress</p>
+                <p className="text-sm text-gray-600">{progressLogs.length} logs recorded</p>
               </CardContent>
             </Card>
           </Link>
 
           <Link to={createPageUrl("FoodLog")}>
             <Card className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer group bg-gradient-to-br from-blue-50 to-cyan-50">
-              <CardContent className="p-4 sm:p-6">
-                <div className="flex items-center justify-between mb-2 sm:mb-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
-                    <Flame className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Flame className="w-6 h-6 text-white" />
                   </div>
-                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 group-hover:translate-x-1 transition-transform flex-shrink-0" />
+                  <ArrowRight className="w-5 h-5 text-blue-600 group-hover:translate-x-1 transition-transform" />
                 </div>
-                <p className="font-bold text-sm sm:text-base text-gray-900 mb-1 truncate">Food Log</p>
-                <p className="text-xs sm:text-sm text-gray-600">{last7Days} meals this week</p>
+                <p className="font-bold text-gray-900 mb-1">Food Log</p>
+                <p className="text-sm text-gray-600">{last7Days} meals this week</p>
               </CardContent>
             </Card>
           </Link>
 
           <Link to={createPageUrl("MPESSTracker")}>
             <Card className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer group bg-gradient-to-br from-purple-50 to-pink-50">
-              <CardContent className="p-4 sm:p-6">
-                <div className="flex items-center justify-between mb-2 sm:mb-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
-                    <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Heart className="w-6 h-6 text-white" />
                   </div>
-                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 group-hover:translate-x-1 transition-transform flex-shrink-0" />
+                  <ArrowRight className="w-5 h-5 text-purple-600 group-hover:translate-x-1 transition-transform" />
                 </div>
-                <p className="font-bold text-sm sm:text-base text-gray-900 mb-1 truncate">MPESS Wellness</p>
-                <p className="text-xs sm:text-sm text-gray-600">{mpessLogs.length} days tracked</p>
+                <p className="font-bold text-gray-900 mb-1">MPESS Wellness</p>
+                <p className="text-sm text-gray-600">{mpessLogs.length} days tracked</p>
               </CardContent>
             </Card>
           </Link>
 
           <Link to={createPageUrl("ClientCommunication")}>
             <Card className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer group bg-gradient-to-br from-green-50 to-emerald-50">
-              <CardContent className="p-4 sm:p-6">
-                <div className="flex items-center justify-between mb-2 sm:mb-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
-                    <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <MessageSquare className="w-6 h-6 text-white" />
                   </div>
-                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 group-hover:translate-x-1 transition-transform flex-shrink-0" />
+                  <ArrowRight className="w-5 h-5 text-green-600 group-hover:translate-x-1 transition-transform" />
                 </div>
-                <p className="font-bold text-sm sm:text-base text-gray-900 mb-1 truncate">Messages</p>
-                <p className="text-xs sm:text-sm text-gray-600">Chat with your coach</p>
+                <p className="font-bold text-gray-900 mb-1">Messages</p>
+                <p className="text-sm text-gray-600">Chat with your coach</p>
               </CardContent>
             </Card>
           </Link>
