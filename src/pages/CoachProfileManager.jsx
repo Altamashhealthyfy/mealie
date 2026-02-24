@@ -115,11 +115,10 @@ export default function CoachProfileManager() {
     }
     setPasswordSaving(true);
     await base44.functions.invoke('changeUserPassword', {
-      current_password: passwordData.current_password,
       new_password: passwordData.new_password,
     });
     toast.success("Password changed successfully!");
-    setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
+    setPasswordData({ new_password: '', confirm_password: '' });
     setPasswordSaving(false);
   };
 
