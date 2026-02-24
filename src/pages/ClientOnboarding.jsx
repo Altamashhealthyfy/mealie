@@ -536,9 +536,9 @@ Provide a warm, personalized tip that's relevant to their situation.`,
                     : 'bg-gray-200 text-gray-500'
                 }`}>
                   {currentStep > step.number ? (
-                    <CheckCircle className="w-6 h-6" />
+                    <CheckCircle className="w-4 h-4 md:w-6 md:h-6" />
                   ) : (
-                    <step.icon className="w-5 h-5" />
+                    <step.icon className="w-4 h-4 md:w-5 md:h-5" />
                   )}
                 </div>
                 <span className={`text-[10px] md:text-xs font-medium text-center leading-tight ${
