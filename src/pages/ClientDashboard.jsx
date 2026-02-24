@@ -604,45 +604,53 @@ export default function ClientDashboard() {
     );
   }
 
-  if (clientError || !clientProfile) {
+  if (clientError || (!clientLoading && !clientProfile)) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md border-orange-300 bg-orange-50">
           <CardHeader>
             <CardTitle className="text-orange-800 flex items-center gap-2">
               <AlertCircle className="w-5 h-5" />
-              Profile Not Found
+              Profile Setup Pending
             </CardTitle>
           </CardHeader>
           <CardContent className="text-orange-800 space-y-4">
             <div>
-              <p className="font-semibold mb-2">Your client profile could not be found.</p>
+              <p className="font-semibold mb-2">Welcome! Your profile is being set up.</p>
               <p className="text-sm text-orange-700 mb-3">
-                This usually happens when your email doesn't match a client profile in the system.
+                Your coach needs to add you as a client. Please contact your health coach and share your email address below.
               </p>
             </div>
             
             <div className="bg-white p-3 rounded border border-orange-200">
-              <p className="text-xs text-gray-600 mb-1"><strong>Your Email:</strong></p>
+              <p className="text-xs text-gray-600 mb-1"><strong>Your Email (share this with your coach):</strong></p>
               <p className="text-sm font-mono text-gray-900 break-all">{user?.email}</p>
             </div>
 
             <div className="bg-orange-100 p-3 rounded">
-              <p className="text-xs font-semibold text-orange-900 mb-2">What to do:</p>
+              <p className="text-xs font-semibold text-orange-900 mb-2">Next Steps:</p>
               <ul className="text-xs text-orange-800 space-y-1">
-                <li>✓ Verify you're logged in with the correct email</li>
-                <li>✓ Contact your dietitian to create a client profile with this email</li>
-                <li>✓ If you have multiple emails, try logging in with another one</li>
+                <li>✓ Share your email with your health coach</li>
+                <li>✓ Once your coach adds you, refresh this page</li>
+                <li>✓ If you have a different email, try logging in with that one</li>
               </ul>
             </div>
 
-            <Button 
-              variant="outline"
-              onClick={() => base44.auth.logout()}
-              className="w-full border-orange-300 text-orange-700 hover:bg-orange-100"
-            >
-              Try Another Account
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => queryClient.invalidateQueries(['clientProfile'])}
+                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white"
+              >
+                Refresh
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => base44.auth.logout()}
+                className="flex-1 border-orange-300 text-orange-700 hover:bg-orange-100"
+              >
+                Switch Account
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
