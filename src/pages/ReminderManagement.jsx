@@ -198,7 +198,17 @@ export default function ReminderManagement() {
             </h1>
             <p className="text-gray-600 mt-1">Configure automated reminders for your clients</p>
           </div>
-          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={handleTriggerNow}
+              disabled={triggerLoading}
+              className="border-orange-300 text-orange-600 hover:bg-orange-50"
+            >
+              {triggerLoading ? <Zap className="w-4 h-4 mr-2 animate-pulse" /> : <Send className="w-4 h-4 mr-2" />}
+              Send Now
+            </Button>
+            <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
             <DialogTrigger asChild>
               <Button className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
                 <Plus className="w-4 h-4 mr-2" />
