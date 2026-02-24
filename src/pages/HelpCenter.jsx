@@ -479,13 +479,13 @@ export default function HelpCenter() {
           </p>
 
           {/* Search */}
-          <div className="max-w-xl mx-auto relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+           <div className="max-w-xl mx-auto relative">
+            <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 md:w-5 h-4 md:h-5 text-gray-400" />
             <Input
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search guides, tips, FAQs..."
-              className="pl-12 pr-10 py-3 text-sm bg-white text-gray-900 border-0 rounded-xl shadow-lg focus:ring-2 focus:ring-orange-300"
+              className="pl-10 md:pl-12 pr-8 md:pr-10 py-2.5 md:py-3 text-xs md:text-sm bg-white text-gray-900 border-0 rounded-xl shadow-lg focus:ring-2 focus:ring-orange-300"
             />
             {searchTerm && (
               <button onClick={() => setSearchTerm('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
