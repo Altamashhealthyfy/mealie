@@ -930,9 +930,9 @@ export default function Communication() {
               </div>
             </TabsContent>
 
-            <TabsContent value="groups" className="flex-1 mt-0 overflow-y-auto p-3 sm:p-4">
-              <GroupMessaging userEmail={user?.email} />
-            </TabsContent>
+            <TabsContent value="groups" className="flex-1 mt-0 overflow-y-auto p-2 md:p-4 pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
+               <GroupMessaging userEmail={user?.email} />
+             </TabsContent>
           </Tabs>
         </Card>
       </div>
