@@ -95,6 +95,18 @@ export default function CoachProfileManager() {
     }
   }, [user]);
 
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setPhotoUploading(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setPreviewPhoto(file_url);
+    await base44.auth.updateMe({ profile_photo_url: file_url });
+    queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+    toast.success("Profile photo updated!");
+    setPhotoUploading(false);
+  };
+
   const handleAccountSave = async () => {
     setAccountSaving(true);
     await base44.auth.updateMe({ full_name: accountData.full_name, phone: accountData.phone });
