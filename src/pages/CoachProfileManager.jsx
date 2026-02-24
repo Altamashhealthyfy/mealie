@@ -384,6 +384,35 @@ export default function CoachProfileManager() {
               <CardDescription>Update your name, email, and phone number</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Profile Photo */}
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  {(previewPhoto || user?.profile_photo_url) ? (
+                    <img
+                      src={previewPhoto || user?.profile_photo_url}
+                      alt="Profile"
+                      className="w-20 h-20 rounded-full object-cover border-2 border-orange-300"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
+                      <span className="text-white text-2xl font-bold">
+                        {user?.full_name?.charAt(0)?.toUpperCase() || 'C'}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="cursor-pointer">
+                    <div className="flex items-center gap-2 px-3 py-2 border border-orange-300 rounded-lg text-sm text-orange-600 hover:bg-orange-50 transition-colors">
+                      {photoUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <User className="w-4 h-4" />}
+                      {photoUploading ? 'Uploading...' : 'Change Photo'}
+                    </div>
+                    <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={photoUploading} />
+                  </label>
+                  <p className="text-xs text-gray-400 mt-1">JPG, PNG up to 5MB</p>
+                </div>
+              </div>
+              <Separator />
               <div className="space-y-2">
                 <Label>Full Name</Label>
                 <Input
