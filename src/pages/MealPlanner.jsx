@@ -1790,10 +1790,10 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
   return (
     <div className="min-h-screen p-3 md:p-6 lg:p-8 bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 pb-[calc(2rem+env(safe-area-inset-bottom))]">
       <div className="max-w-7xl mx-auto space-y-3 md:space-y-4 lg:space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 md:gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">Meal Planner</h1>
-            <p className="text-sm sm:text-base text-gray-600">Generate, use templates, or create manually</p>
+            <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-gray-900 mb-0.5 sm:mb-2">Meal Planner</h1>
+            <p className="text-xs md:text-base text-gray-600">Generate, use templates, or create manually</p>
           </div>
           <div className="text-right">
             <div className="flex items-center gap-2">
