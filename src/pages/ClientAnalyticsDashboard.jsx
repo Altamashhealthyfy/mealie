@@ -454,19 +454,19 @@ export default function ClientAnalyticsDashboard() {
                     type="date"
                     value={dateRange.start}
                     onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-                    className="h-10"
+                    className="h-9 md:h-10 text-xs md:text-sm"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">End Date</Label>
+                <div className="space-y-1.5 md:space-y-2">
+                  <Label className="text-xs md:text-sm font-medium">End Date</Label>
                   <Input
                     type="date"
                     value={dateRange.end}
                     onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-                    className="h-10"
+                    className="h-9 md:h-10 text-xs md:text-sm"
                   />
                 </div>
-              </div>
+                </div>
 
               {/* Other Filters */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
