@@ -646,7 +646,7 @@ export default function Communication() {
   }
 
   return (
-    <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 57px)' }}>
+    <div className="flex flex-col overflow-hidden" style={{ height: 'calc(100vh - 57px - env(safe-area-inset-bottom))' }}>
       {activeVideoCall && (
         <VideoCallRoom
           roomId={activeVideoCall.roomId}
@@ -658,7 +658,7 @@ export default function Communication() {
         />
       )}
       
-      <div className="w-full flex flex-col flex-1 overflow-hidden p-2 sm:p-3">
+      <div className="w-full flex flex-col flex-1 overflow-hidden p-1.5 sm:p-3">
         <div className="mb-2 flex justify-between items-center flex-shrink-0">
           <div className="min-w-0 mr-2">
             <h1 className="text-xl md:text-2xl font-bold text-gray-900">Messages</h1>
