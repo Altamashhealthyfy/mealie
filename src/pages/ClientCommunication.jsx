@@ -701,6 +701,112 @@ export default function ClientCommunication() {
               </TabsContent>
             </Tabs>
           </Card>
+
+          {/* Right sidebar - collapsible info panel */}
+          <div className={`transition-all duration-300 overflow-hidden flex-shrink-0 ${
+            showSidebar ? 'w-80' : 'w-0'
+          }`}>
+            <div className="h-full bg-white border-l border-gray-200 rounded-xl shadow-lg flex flex-col overflow-y-auto">
+              {/* Close button */}
+              <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-orange-50 to-red-50 flex-shrink-0">
+                <span className="font-bold text-gray-900 text-sm">Chat Info</span>
+                <Button variant="ghost" size="sm" onClick={() => setShowSidebar(false)} className="h-7 w-7 p-0">
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
+              {/* Coach Info */}
+              <div className="p-4 border-b bg-gradient-to-br from-orange-50 to-red-50">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-orange-200">
+                    <span className="text-white font-bold text-lg">{coachName.charAt(0)}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-gray-900 text-sm">{coachName}</p>
+                    <p className="text-xs text-gray-500">Health Coach</p>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      <span className="text-xs text-green-600 font-medium">Active Now</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Client Stats */}
+              <div className="p-4 border-b">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">📊 Journey Stats</p>
+                <div className="space-y-2.5">
+                  {joinDate && (
+                    <div className="flex items-center gap-2 text-xs text-gray-700 p-2 bg-gray-50 rounded-lg">
+                      <Calendar className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                      <span>Joined {joinDate}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-xs text-gray-700 p-2 bg-blue-50 rounded-lg">
+                    <MessageSquare className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                    <span><strong>{totalMessages}</strong> messages</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-700 p-2 bg-yellow-50 rounded-lg">
+                    <Star className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+                    <span><strong>{myMessages}</strong> sent</span>
+                  </div>
+                  {clientProfile?.goal && (
+                    <div className="flex items-center gap-2 text-xs text-gray-700 p-2 bg-purple-50 rounded-lg">
+                      <Zap className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                      <span className="capitalize"><strong>{clientProfile.goal.replace(/_/g, ' ')}</strong></span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="p-4 border-b">
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">⚡ Quick Actions</p>
+                <div className="space-y-2">
+                  <Button variant="outline" size="sm" onClick={() => { startVideoCall(); setShowSidebar(false); }}
+                    className="w-full justify-start text-green-600 hover:bg-green-50 border-green-200 text-xs h-9 font-semibold">
+                    <Phone className="w-3.5 h-3.5 mr-2" /> Video Call
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => setShowCallHistory(!showCallHistory)}
+                    className="w-full justify-start text-purple-600 hover:bg-purple-50 border-purple-200 text-xs h-9 font-semibold">
+                    <History className="w-3.5 h-3.5 mr-2" /> Call History
+                  </Button>
+                  {isClient && <InitiateConversation />}
+                </div>
+              </div>
+
+              {/* Groups */}
+              {clientGroups.length > 0 && (
+                <div className="p-4 border-b">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">👥 Groups ({clientGroups.length})</p>
+                  <div className="space-y-2">
+                    {clientGroups.map(g => (
+                      <div key={g.id} className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-50 border border-blue-100 hover:bg-blue-100 transition-colors">
+                        <Users className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                        <span className="text-xs text-blue-800 font-semibold truncate">{g.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Call History */}
+              {showCallHistory && (
+                <div className="p-4 border-b bg-purple-50">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-bold text-purple-800 text-xs flex items-center gap-1 uppercase"><History className="w-3.5 h-3.5" /> Past Calls</h4>
+                    <Button variant="ghost" size="sm" onClick={() => setShowCallHistory(false)} className="h-5 w-5 p-0"><X className="w-3 h-3" /></Button>
+                  </div>
+                  <VideoCallHistory clientId={clientProfile?.id} />
+                </div>
+              )}
+
+              {/* Notification toggle */}
+              <div className="p-4 mt-auto border-t bg-gray-50">
+                <PushNotificationManager userEmail={user?.email} />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
