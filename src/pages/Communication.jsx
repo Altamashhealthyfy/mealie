@@ -693,8 +693,8 @@ export default function Communication() {
                 )}
 
                 {/* Client List Sidebar — slide in on mobile, fixed on desktop */}
-                <div className={`fixed md:relative md:flex h-full w-64 md:w-56 lg:w-64 border-r border-gray-200 bg-white flex-col min-h-0 flex-shrink-0 transition-transform duration-300 z-50 md:z-0 ${
-                  mobileClientPanelOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+                 <div className={`fixed md:relative md:flex bottom-0 md:bottom-auto left-0 md:left-auto h-[60vh] md:h-full w-full md:w-56 lg:w-64 border-t md:border-r border-gray-200 bg-white flex-col min-h-0 flex-shrink-0 transition-transform duration-300 z-50 md:z-0 md:border-t-0 ${
+                  mobileClientPanelOpen ? 'translate-y-0 md:translate-y-0' : 'translate-y-full md:translate-y-0'
                 }`}>
                   <ClientListSidebar
                     clients={sortedClients}
