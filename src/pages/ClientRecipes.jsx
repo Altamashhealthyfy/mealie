@@ -209,7 +209,7 @@ Enjoy your cooking! 🍽️✨
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-4 w-full md:w-auto">
+          <TabsList className="grid grid-cols-5 w-full md:w-auto">
             <TabsTrigger
               value="recommendations"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
@@ -222,7 +222,7 @@ Enjoy your cooking! 🍽️✨
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white"
             >
               <ShoppingCart className="w-4 h-4 mr-2" />
-              Pantry ({pantryIngredients.length})
+              Pantry
             </TabsTrigger>
             <TabsTrigger
               value="suggestions"
@@ -232,11 +232,18 @@ Enjoy your cooking! 🍽️✨
               Browse
             </TabsTrigger>
             <TabsTrigger
+              value="library"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white"
+            >
+              <ChefHat className="w-4 h-4 mr-2" />
+              Library ({recipes.length})
+            </TabsTrigger>
+            <TabsTrigger
               value="favorites"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
             >
               <Heart className="w-4 h-4 mr-2" />
-              Favorites ({favoriteRecipes.length})
+              Favorites
             </TabsTrigger>
           </TabsList>
 
