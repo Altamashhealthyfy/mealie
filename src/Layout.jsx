@@ -991,8 +991,10 @@ export default function Layout({ children, currentPageName }) {
   }
 
   // Full-width pages without sidebar
-  const fullWidthPages = ['HealthCoachesManagement'];
-  const isFullWidth = fullWidthPages.includes(currentPageName);
+    const fullWidthPages = ['HealthCoachesManagement'];
+    const isFullWidth = fullWidthPages.includes(currentPageName);
+    // Pages where mobile bottom nav should be hidden (chat-like full-screen pages)
+    const noMobileNavPages = ['AICoachInsights', 'Communication', 'ClientCommunication'];
 
   if (isFullWidth) {
     return (
