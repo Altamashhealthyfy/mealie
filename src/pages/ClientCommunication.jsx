@@ -415,20 +415,34 @@ export default function ClientCommunication() {
 
       {/* Main Chat Area with integrated sidebar */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        {/* Top bar - coach info and actions */}
+        {/* Top bar - contact info and actions */}
         <div className="flex-shrink-0 px-3 py-3 bg-gradient-to-r from-orange-500 to-red-500 shadow-lg flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-white/30">
-              <span className="text-white font-bold text-base">{coachName.charAt(0)}</span>
+              <span className="text-white font-bold text-base">{contactName.charAt(0)}</span>
             </div>
             <div className="min-w-0">
-              <h1 className="text-sm font-bold text-white truncate">{coachName}</h1>
+              <h1 className="text-sm font-bold text-white truncate">{contactName}</h1>
               <div className="flex items-center gap-1">
                 <span className="w-1.5 h-1.5 bg-green-300 rounded-full"></span>
                 <p className="text-xs text-green-100">Online</p>
               </div>
             </div>
           </div>
+          {isAdmin && (
+            <div className="flex-shrink-0 px-3 py-1 bg-white/20 rounded-lg">
+              <Select value={selectedClientId || ""} onValueChange={setSelectedClientId}>
+                <SelectTrigger className="w-32 h-8 text-xs text-white border-white/30 bg-white/10">
+                  <SelectValue placeholder="Select client" />
+                </SelectTrigger>
+                <SelectContent>
+                  {allClients.map(c => (
+                    <SelectItem key={c.id} value={c.id}>{c.full_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <div className="flex items-center gap-2 flex-shrink-0">
             {incomingCall && (
               <div className="flex gap-1">
