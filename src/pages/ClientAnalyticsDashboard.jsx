@@ -424,7 +424,7 @@ export default function ClientAnalyticsDashboard() {
 
         {/* Filters */}
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-          <CardContent className="p-4">
+          <CardContent className="p-2.5 md:p-4">
             <div className="space-y-4">
               {/* Search Bar */}
               <div className="relative">
