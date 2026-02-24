@@ -475,11 +475,11 @@ export default function AdvancedCoachAnalytics() {
 
             {/* Top Engaged Clients */}
             <Card className="border-none shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2"><UserCheck className="w-5 h-5 text-green-500" /> Client Engagement Scores</CardTitle>
-                <CardDescription>Composite score based on logs, messages, and wellness submissions</CardDescription>
+              <CardHeader className="pb-2 md:pb-4">
+                <CardTitle className="text-sm md:text-base flex items-center gap-1.5 md:gap-2"><UserCheck className="w-4 md:w-5 h-4 md:h-5 text-green-500" /> Client Engagement Scores</CardTitle>
+                <CardDescription className="text-xs md:text-sm">Composite score based on logs, messages, and wellness submissions</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-3 md:p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {analytics.clientEngagement.sort((a, b) => b.score - a.score).slice(0, 12).map(c => (
                     <div key={c.client.id} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-orange-200 transition-colors">
