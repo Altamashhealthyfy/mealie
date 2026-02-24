@@ -791,9 +791,9 @@ export default function Communication() {
                       />
 
                       {/* Messages */}
-                      <div className="flex-1 overflow-hidden relative min-h-0 bg-gray-50">
+                      <div className="flex-1 overflow-hidden relative min-h-0 bg-gray-50 pb-[env(safe-area-inset-bottom)]">
                         <ScrollArea className="h-full" onScrollCapture={handleScroll}>
-                          <div className="p-3 space-y-2.5">
+                          <div className="p-2 md:p-3 space-y-2">
                             {clientMessages.length === 0 ? (
                               <div className="text-center py-10">
                                 <MessageSquare className="w-12 h-12 mx-auto text-gray-300 mb-3" />
