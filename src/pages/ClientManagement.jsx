@@ -1950,6 +1950,13 @@ support@mealiepro.com`;
         {/* Bulk Import Dialog */}
         <BulkClientImport open={showBulkImport} onOpenChange={setShowBulkImport} />
 
+        {/* Quick Actions Panel (standalone, from card button) */}
+        <QuickActionsPanel
+          client={clientForQuickActions}
+          open={showQuickActions}
+          onOpenChange={(open) => { setShowQuickActions(open); if (!open) setClientForQuickActions(null); }}
+        />
+
         {/* Video Call Scheduler */}
         {showVideoScheduler && clientForVideoCall && (
           <VideoCallScheduler
