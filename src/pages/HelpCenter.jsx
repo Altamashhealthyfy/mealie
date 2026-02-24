@@ -531,20 +531,20 @@ export default function HelpCenter() {
              </div>
 
             {filteredSteps.map((section, sIdx) => (
-              <div key={sIdx} className={`rounded-2xl border-2 ${section.borderColor} overflow-hidden shadow-md`}>
+              <div key={sIdx} className={`rounded-xl md:rounded-2xl border-2 ${section.borderColor} overflow-hidden shadow-md`}>
                 {/* Section Header */}
-                <div className={`bg-gradient-to-r ${section.color} text-white p-5`}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-3xl">{section.icon}</span>
-                      <div>
-                        <h3 className="text-xl font-black">{section.title}</h3>
-                        <Badge className={`mt-1 ${section.badgeColor} border-0 text-xs font-semibold`}>
+                <div className={`bg-gradient-to-r ${section.color} text-white p-3 md:p-5`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                      <span className="text-2xl md:text-3xl flex-shrink-0">{section.icon}</span>
+                      <div className="min-w-0">
+                        <h3 className="text-base md:text-xl font-black truncate">{section.title}</h3>
+                        <Badge className={`mt-0.5 md:mt-1 ${section.badgeColor} border-0 text-[10px] md:text-xs font-semibold`}>
                           {section.badge}
                         </Badge>
                       </div>
                     </div>
-                    <span className="text-white/60 text-sm">{section.steps.length} steps</span>
+                    <span className="text-white/60 text-[10px] md:text-sm flex-shrink-0">{section.steps.length} steps</span>
                   </div>
                 </div>
 
