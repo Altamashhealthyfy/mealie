@@ -81,6 +81,30 @@ export default function ClientRecipes() {
     return fav?.user_rating || 0;
   };
 
+  // Apply filters to recipes
+  const filteredRecipes = recipes.filter(recipe => {
+    // Cuisine filter
+    if (filters.cuisines.length > 0 && !filters.cuisines.includes(recipe.regional_cuisine)) {
+      return false;
+    }
+
+    // Meal type filter
+    if (filters.mealTypes.length > 0 && !filters.mealTypes.includes(recipe.meal_type)) {
+      return false;
+    }
+
+    // Dietary tags filter - recipe must match ALL selected dietary tags
+    if (filters.dietaryTags.length > 0) {
+      const recipeTags = recipe.dietary_tags || [];
+      const hasAllTags = filters.dietaryTags.every(tag =>
+        recipeTags.includes(tag)
+      );
+      if (!hasAllTags) return false;
+    }
+
+    return true;
+  });
+
   const downloadRecipe = (recipe) => {
     const content = `
 ╔══════════════════════════════════════════════════════════════╗
