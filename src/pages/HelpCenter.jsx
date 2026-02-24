@@ -557,19 +557,19 @@ export default function HelpCenter() {
                     return (
                       <div key={stIdx} className="bg-white">
                         <button
-                          className="w-full flex items-center gap-4 p-4 md:p-5 hover:bg-gray-50 transition-colors text-left"
+                          className="w-full flex items-center gap-2 md:gap-4 p-2.5 md:p-5 hover:bg-gray-50 transition-colors text-left"
                           onClick={() => setExpandedStep(isOpen ? null : key)}
                         >
-                          <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${section.color} text-white flex items-center justify-center text-sm font-black shrink-0`}>
+                          <div className={`w-7 md:w-9 h-7 md:h-9 rounded-full bg-gradient-to-br ${section.color} text-white flex items-center justify-center text-[10px] md:text-sm font-black shrink-0`}>
                             {step.step}
                           </div>
-                          <Icon className="w-5 h-5 text-gray-400 shrink-0" />
+                          <Icon className="w-4 md:w-5 h-4 md:h-5 text-gray-400 shrink-0" />
                           <div className="flex-1 min-w-0">
-                            <p className="font-bold text-gray-900">{step.title}</p>
-                            <p className="text-sm text-gray-500 mt-0.5">{step.desc}</p>
+                            <p className="font-bold text-gray-900 text-sm md:text-base">{step.title}</p>
+                            <p className="text-xs md:text-sm text-gray-500 mt-0.5">{step.desc}</p>
                           </div>
                           <div className={`shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`}>
-                            <ChevronRight className="w-5 h-5 text-gray-400" />
+                            <ChevronRight className="w-4 md:w-5 h-4 md:h-5 text-gray-400" />
                           </div>
                         </button>
 
