@@ -669,9 +669,9 @@ export default function Communication() {
           </div>
         </div>
 
-        <Card className="border-none shadow-xl overflow-hidden flex-1 flex flex-col min-h-0">
+        <Card className="border-none shadow-lg overflow-hidden flex-1 flex flex-col min-h-0">
           <Tabs defaultValue="direct" className="flex-1 flex flex-col min-h-0">
-            <TabsList className="rounded-none border-b w-full grid grid-cols-2 flex-shrink-0 h-10">
+            <TabsList className="rounded-none border-b w-full grid grid-cols-2 flex-shrink-0 h-9">
               <TabsTrigger value="direct" className="flex gap-1 text-xs sm:text-sm">
                 <MessageSquare className="w-3.5 h-3.5" />
                 <span>Direct</span>
