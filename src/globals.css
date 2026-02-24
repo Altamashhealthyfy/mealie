@@ -161,6 +161,105 @@
   border-radius: 8px !important;
 }
 
+/* =============================================
+   GLOBAL MOBILE RESPONSIVE FIXES
+   Applies to all pages without needing per-page changes
+   ============================================= */
+
+/* Prevent horizontal overflow on all pages */
+html, body {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Ensure all page content containers are mobile-safe */
+@media (max-width: 768px) {
+  /* Add bottom padding on all main page wrappers to account for mobile bottom nav */
+  .main-content-mobile > .flex-1 > * {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Make all page padding smaller on mobile */
+  .p-6, .p-8 {
+    padding: 12px !important;
+  }
+  .px-6, .px-8 {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  .py-6, .py-8 {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+  }
+
+  /* Make all grid layouts stack on mobile */
+  .grid-cols-2, .grid-cols-3, .grid-cols-4, .grid-cols-5, .grid-cols-6 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+  .grid-cols-2.sm\:grid-cols-2,
+  .sm\:grid-cols-2,
+  .md\:grid-cols-2,
+  .md\:grid-cols-3,
+  .md\:grid-cols-4 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+
+  /* Prevent tables from overflowing */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  /* Make cards full width */
+  .max-w-md, .max-w-lg, .max-w-xl, .max-w-2xl, .max-w-3xl, .max-w-4xl, .max-w-5xl, .max-w-6xl, .max-w-7xl {
+    max-width: 100% !important;
+  }
+
+  /* Improve touch targets - minimum 44px */
+  button, [role="button"], a, input[type="checkbox"], input[type="radio"] {
+    min-height: 36px;
+  }
+
+  /* Make text readable on mobile */
+  h1 { font-size: 1.375rem !important; line-height: 1.3 !important; }
+  h2 { font-size: 1.125rem !important; line-height: 1.35 !important; }
+  h3 { font-size: 1rem !important; }
+
+  /* Fix flex layouts that break on mobile */
+  .flex-row {
+    flex-wrap: wrap;
+  }
+
+  /* Ensure modals/dialogs don't overflow on mobile */
+  [role="dialog"] {
+    max-width: calc(100vw - 24px) !important;
+    max-height: calc(100vh - 80px) !important;
+    overflow-y: auto;
+  }
+
+  /* Fix images overflowing */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Slightly larger screens - 2 column grids */
+@media (min-width: 480px) and (max-width: 768px) {
+  .grid-cols-3, .grid-cols-4, .grid-cols-5, .grid-cols-6 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Safe area padding for notched phones */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .mobile-bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
 /* Custom scrollbar styling */
 .scrollbar-thin::-webkit-scrollbar {
   width: 6px;
