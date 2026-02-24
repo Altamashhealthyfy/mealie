@@ -6,7 +6,7 @@ import {
   Zap, X, ChevronRight, Star, Lightbulb,
   PlayCircle, Target, Utensils, Scale, ClipboardList,
   Users, DollarSign, Settings, Upload, Sparkles, LayoutDashboard,
-  UserPlus, Bell, BarChart2, Stethoscope
+  UserPlus, Bell, BarChart2, Stethoscope, Mail
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -54,7 +54,7 @@ const STEPS_GUIDE = [
         icon: Users,
         desc: 'Define subscription plans and packages to offer your clients.',
         details: [
-          'Navigate to Clients Packages in the sidebar',
+          'Navigate to Clients Packages under Payment & Plans in the sidebar',
           'Click "Create New Plan" and enter plan name, duration, and price',
           'Define which features are included in each plan',
           'Set meal plan tier (Basic or Advanced) for each package',
@@ -66,14 +66,14 @@ const STEPS_GUIDE = [
         step: 4,
         title: 'Invite Your First Client',
         icon: UserPlus,
-        desc: 'Add clients to the platform so they can access their personalized health journey.',
+        desc: 'Add clients and give them login access — two steps required.',
         details: [
-          'Go to Clients in the sidebar',
-          'Click "Add New Client" and fill in their name, email, and health details',
-          'Set their goal (Weight Loss, Muscle Gain, Diabetes, etc.)',
-          'Enter current weight, target weight, height, and dietary preferences',
-          'Assign yourself or a team member as their coach',
-          'The client will receive an email invitation to join the app'
+          'Step 1: Go to Clients in the sidebar and click "Add New Client"',
+          'Fill in their name, email, health details, goal, and dietary preferences',
+          'Step 2 (Important!): Go to Dashboard → Data → User and click "Invite User"',
+          'Enter the SAME email used in the client profile and set user_type = "client"',
+          'The client receives an email invitation to set their password',
+          'Once logged in, the client can see their meal plan, progress, and messages'
         ]
       }
     ]
@@ -104,6 +104,20 @@ const STEPS_GUIDE = [
       },
       {
         step: 2,
+        title: 'Use Quick Actions on Client Cards',
+        icon: Zap,
+        desc: 'Take instant action on any client directly from the client list.',
+        details: [
+          'Go to Clients in the sidebar',
+          'Each client card has an ⚡ Act button — click it to open Quick Actions',
+          'Meal Plan tab: assign any existing meal plan directly to the client',
+          'MPESS tab: create a custom wellness practice for the client',
+          'Call tab: schedule a check-in or video call appointment instantly',
+          'Notify tab: send a push notification or email reminder from pre-built templates'
+        ]
+      },
+      {
+        step: 3,
         title: 'Review Client Progress',
         icon: TrendingUp,
         desc: 'Monitor each client\'s weight, meals, and wellness metrics.',
@@ -117,7 +131,7 @@ const STEPS_GUIDE = [
         ]
       },
       {
-        step: 3,
+        step: 4,
         title: 'Send Messages & Check-ins',
         icon: MessageSquare,
         desc: 'Stay connected with clients through regular communication.',
@@ -127,21 +141,7 @@ const STEPS_GUIDE = [
           'Use Message Templates for quick motivational messages',
           'Send meal plan updates, encouragement, or feedback',
           'Attach files, reports, or resource documents',
-          'Schedule automated check-ins via Automated Check-in Scheduler'
-        ]
-      },
-      {
-        step: 4,
-        title: 'Schedule Appointments',
-        icon: Calendar,
-        desc: 'Book video or phone consultations with your clients.',
-        details: [
-          'Go to Appointments in the sidebar',
-          'Click "New Appointment" and select the client',
-          'Set date, time, duration, and appointment type',
-          'Choose Virtual (video call) or In-person',
-          'Add meeting notes or agenda for the call',
-          'Client receives a notification with the appointment details'
+          'Schedule automated check-ins via the Automated Check-in Scheduler in the chat panel'
         ]
       }
     ]
@@ -269,18 +269,18 @@ const STEPS_GUIDE = [
         icon: BarChart2,
         desc: 'Monitor revenue, client retention, and overall platform performance.',
         details: [
-          'Go to Advanced Analytics or Platform Analytics',
+          'Go to Advanced Analytics or Platform Analytics in the sidebar',
           'Review monthly revenue, new clients, and churn rate',
           'Check which plan tiers are most popular',
           'Monitor client engagement levels across the platform',
-          'Use Finance Manager to track payments and outstanding dues'
+          'Use Finance Manager under Business Tools to track payments and outstanding dues'
         ]
       }
     ]
   },
   {
-    id: 'reminders',
-    title: 'Automated Email Reminders',
+    id: 'email-sequences',
+    title: 'Email Sequences & Automation',
     icon: '📧',
     color: 'from-pink-500 to-rose-600',
     bgLight: 'bg-pink-50',
@@ -290,54 +290,54 @@ const STEPS_GUIDE = [
     steps: [
       {
         step: 1,
-        title: 'Open Reminder Management',
-        icon: Bell,
-        desc: 'Access the Reminder Management page to configure automated client reminders.',
+        title: 'Open Email Sequences',
+        icon: Mail,
+        desc: 'Set up automated drip email campaigns that are triggered when a new client joins.',
         details: [
-          'Go to Reminder Management in the sidebar under Business Tools',
-          'This page lets you create and manage all automated reminders for your clients',
-          'Reminders are sent via Gmail using your connected Google account',
-          'Three automated reminder types are supported: appointment, missed progress log, and check-in'
+          'Go to Email Sequences under Business Tools in the sidebar',
+          'Create a sequence with multiple emails, each with a delay after the previous one',
+          'Each email has its own subject, body, and delay (e.g. Day 1, Day 3, Day 7)',
+          'Once a client is added, the sequence starts automatically',
+          'Ideal for welcome sequences, onboarding tips, and habit reminders'
         ]
       },
       {
         step: 2,
-        title: 'Create a Reminder',
-        icon: Settings,
-        desc: 'Set up a reminder with custom message, frequency, and notification method.',
+        title: 'Set Up Automated Reminders',
+        icon: Bell,
+        desc: 'Create scheduled reminders for individual clients to keep them on track.',
         details: [
-          'Click "Create Reminder" and select the target client',
-          'Choose reminder type: Daily Progress Log, Food Log, Appointment, Challenge, Meal Plan Review, or Custom',
-          'Enter a title and optional custom message (used as email body)',
+          'Go to Broadcast Notification under Business Tools',
+          'Use the Check-in Scheduler panel to set per-client recurring messages',
+          'Choose reminder type: meal logging, water intake, workout, wellbeing, or custom',
           'Set frequency (Daily, Weekly, Bi-weekly, Monthly) and time of day',
-          'Choose specific days of the week or leave empty for all days',
-          'Select notification method: In-App Only, Email Only, or Both'
+          'Reminders are sent as in-app push notifications and/or email'
         ]
       },
       {
         step: 3,
-        title: 'Configure the Gmail Connector',
-        icon: Upload,
-        desc: 'Ensure Gmail is connected for email reminders to be sent successfully.',
+        title: 'Broadcast to All Clients',
+        icon: Bell,
+        desc: 'Send a single message to all clients or a specific group at once.',
         details: [
-          'Email reminders require the Gmail connector to be authorized',
-          'Contact your platform admin to verify the Gmail connector is active',
-          'Once connected, all email reminders are sent from the authorized Gmail account',
-          'Emails use a branded HTML template with your platform name and a call-to-action button'
+          'Go to Broadcast Notification in the Business Tools section',
+          'Type your message or choose a template',
+          'Select target: all clients, a specific group, or individual clients',
+          'Send immediately or schedule for a specific time',
+          'Great for announcements, challenge launches, and weekly motivation'
         ]
       },
       {
         step: 4,
-        title: 'Send Now & Monitor',
-        icon: Zap,
-        desc: 'Manually trigger reminders for immediate delivery and track reminder activity.',
+        title: 'Configure Gmail for Email Delivery',
+        icon: Upload,
+        desc: 'Ensure Gmail is connected for all email automations to work.',
         details: [
-          'Click "Send Now" on the Reminder Management page to immediately trigger all active reminders',
-          'Reminders run automatically every hour via a scheduled automation',
-          'Appointment reminders are sent 24 hours before the scheduled appointment',
-          'Missed progress reminders only fire if the client has not logged progress today',
-          'Toggle any reminder on/off without deleting it',
-          'Edit or delete reminders at any time from the reminder list'
+          'Email reminders and sequences require the Gmail connector to be authorized',
+          'Go to Dashboard → Settings → Connectors to verify Gmail is connected',
+          'Once connected, all emails are sent from the authorized Gmail account',
+          'Emails use a branded HTML template with your platform name',
+          'Check Email Sequence Logs to monitor delivery status'
         ]
       }
     ]
@@ -358,7 +358,7 @@ const STEPS_GUIDE = [
         icon: Award,
         desc: 'Increase client engagement and retention with points, badges, and challenges.',
         details: [
-          'Go to Gamification Settings to enable the system',
+          'Go to Gamification Settings under Business Tools to enable the system',
           'Configure points for actions like meal logging, weight logging, MPESS',
           'Create badges for milestones (first week, 5kg lost, 30-day streak)',
           'Launch a Challenge via Challenge Manager for group motivation',
@@ -371,7 +371,7 @@ const STEPS_GUIDE = [
         icon: Users,
         desc: 'Add nutritionists, assistants, or student coaches to your team.',
         details: [
-          'Go to Team Management in Business Tools',
+          'Go to Team Management under Business Tools',
           'Invite team members with their email and assign a role',
           'Roles available: Team Member, Student Coach, Student Team Member',
           'Assign specific clients to different team members',
@@ -384,10 +384,10 @@ const STEPS_GUIDE = [
         icon: Bell,
         desc: 'Promote your services and attract new clients through built-in tools.',
         details: [
-          'Open Marketing Hub from the sidebar',
+          'Open Marketing Hub from the Business Tools section in the sidebar',
           'Generate AI-powered social media posts, email campaigns, and scripts',
           'Use Business GPTs for creating marketing content instantly',
-          'Share your referral link via Share My Link to get new clients',
+          'Share your referral link via "Share My Link" to get new clients',
           'Use Broadcast Notification to send bulk updates to all clients'
         ]
       },
@@ -397,7 +397,7 @@ const STEPS_GUIDE = [
         icon: BookOpen,
         desc: 'Create and assign educational resources to enhance client education.',
         details: [
-          'Go to Resource Library in the sidebar',
+          'Go to Resource Library in the sidebar under Dietitian Tools',
           'Upload articles, videos, PDFs, or guides for clients',
           'Use AI to generate personalized resources for specific clients',
           'Assign resources to individual clients or client groups',
@@ -410,6 +410,8 @@ const STEPS_GUIDE = [
 ];
 
 const QUICK_TIPS = [
+  { icon: '🔑', tip: 'Clients need TWO steps to log in: (1) Create their Client Profile, then (2) Invite them as a User from Dashboard → Data → User. The email must match exactly!' },
+  { icon: '⚡', tip: 'Use the Quick Actions (⚡ Act) button on each client card to instantly assign meal plans, schedule calls, or send push notifications without opening the client profile.' },
   { icon: '📋', tip: 'Always fill out a client\'s full profile before generating a meal plan — AI uses their health data to personalize the plan.' },
   { icon: '🤖', tip: 'Use AI Coach Insights every Monday to get a weekly summary of all your clients\' progress and alerts.' },
   { icon: '📅', tip: 'Schedule appointments at least 48 hours in advance so clients receive reminders and can prepare.' },
@@ -418,6 +420,7 @@ const QUICK_TIPS = [
   { icon: '🍱', tip: 'Use Meal Plan Constraints to set global dietary rules per client — the AI will respect them when generating plans.' },
   { icon: '📊', tip: 'Review Client Analytics every Friday to catch clients with declining adherence before they drop off.' },
   { icon: '🏆', tip: 'Launch a new 7-day challenge each month to boost client engagement and platform activity.' },
+  { icon: '📧', tip: 'Set up an Email Sequence for new clients so they automatically receive onboarding tips on Day 1, Day 3, and Day 7 without manual effort.' },
   { icon: '👥', tip: 'Assign team members to handle client messages so you can focus on high-value tasks like meal planning and calls.' },
   { icon: '📢', tip: 'Use Broadcast Notification to send motivational messages to all clients at once — great for Monday mornings.' },
   { icon: '💎', tip: 'Upsell clients from Basic to Advanced plans by showing them disease-specific meal plans in the Pro Plans section.' },
@@ -425,19 +428,20 @@ const QUICK_TIPS = [
 ];
 
 const FAQS = [
-  { q: 'How do I add a new client?', a: 'Go to Clients in the sidebar and click "Add New Client". Fill in their name, email, health details, and dietary preferences. They will receive an email invitation to log in.' },
+  { q: 'How do I add a new client and give them login access?', a: 'Two steps are required. Step 1: Go to Clients → Add New Client, fill in their details. Step 2: Go to Dashboard → Data → User → Invite User. Enter the SAME email you used in the client profile and set user_type = "client". The client will receive an email invitation to set their password.' },
+  { q: 'Why can\'t my client log in even though I added them?', a: 'Creating a Client Profile is NOT the same as giving login access. You must separately invite them as a user from Dashboard → Data → User with role "client". Make sure the email matches exactly (same spelling, no extra spaces).' },
   { q: 'How does AI meal plan generation work?', a: 'Go to Meal Plans, select a client, and click "Generate with AI". The AI uses the client\'s health profile, goal, food preferences, and any constraints you\'ve set to build a full day-wise meal plan instantly.' },
+  { q: 'What are Quick Actions on client cards?', a: 'Each client card in the Clients page has an ⚡ Act button. Clicking it opens a Quick Actions panel with 4 tabs: Meal Plan (assign existing plans), MPESS (create wellness practices), Call (schedule appointments), and Notify (send push notifications or emails).' },
+  { q: 'How do Email Sequences work?', a: 'Go to Email Sequences under Business Tools. Create a sequence with multiple emails, each with a specific delay (e.g., Day 1, Day 3, Day 7). When a new client is added or you trigger the sequence manually, emails are sent automatically on the configured schedule. Requires Gmail connector to be authorized.' },
   { q: 'Can I set dietary restrictions for AI-generated plans?', a: 'Yes. Go to Meal Plan Constraints under Business Tools and define excluded meals, ingredients, or special rules for each client. The AI will follow these rules when generating plans.' },
   { q: 'What is the difference between Basic and Advanced meal plan tiers?', a: 'Basic plans are calorie and RDA-based for general health goals. Advanced plans are designed for disease reversal (Diabetes, PCOS, Thyroid, etc.) with specific nutrient targets and disease rationale for each meal.' },
   { q: 'How do I review a client\'s progress?', a: 'Go to Clients Feedback and select the client. You can view their weight trend, meal adherence %, MPESS scores, and latest progress logs. You can also add coach feedback and star ratings.' },
-  { q: 'How do I schedule a video call with a client?', a: 'Go to Appointments in the sidebar, click "New Appointment", select the client, and set the date, time, and type (video/call). The client gets a notification with the details.' },
+  { q: 'How do I schedule a video call with a client?', a: 'You can do it from two places: (1) Appointments in the sidebar → New Appointment, or (2) Use the ⚡ Quick Actions on any client card → Call tab, which lets you schedule a check-in instantly.' },
+  { q: 'How do I send a notification to all my clients at once?', a: 'Go to Broadcast Notification under Business Tools. Type your message, select your target (all clients or a specific group), and click Send. You can also schedule it for a later time.' },
   { q: 'How do I add team members?', a: 'Go to Team Management under Business Tools. Invite team members by email and assign them a role (Team Member, Student Coach, etc.). Use User Permissions to control what each role can access.' },
   { q: 'Where can I see my revenue and payments?', a: 'Go to Finance Manager under Business Tools to track all client payments, outstanding dues, and revenue summaries. Payment Gateway Settings lets you configure Razorpay for accepting online payments.' },
   { q: 'How does the gamification system work?', a: 'Enable gamification in Gamification Settings. Clients earn points for daily actions (logging meals, weight, MPESS). Badges are awarded at milestones. You can run group challenges via Challenge Manager.' },
-  { q: 'Can I send bulk messages to all clients?', a: 'Yes. Use Broadcast Notification under Business Tools to send a single message to all clients or a specific group at once. Great for announcements, challenges, or weekly motivation.' },
-  { q: 'How do automated email reminders work?', a: 'Go to Reminder Management in Business Tools. Create reminders for clients with a custom message, frequency, and notification method (email, in-app, or both). Reminders are processed automatically every hour via Gmail. You can also click "Send Now" to trigger them immediately.' },
-  { q: 'Can I customize the email content in reminders?', a: 'Yes. When creating a reminder, fill in the "Custom Message / Email Template" field. This text will be used as the email body. Leave it blank to send a default reminder message. Basic HTML is supported.' },
-  { q: 'What types of automated reminders are available?', a: 'Three automated reminder types are built-in: Appointment Reminders (sent 24h before the appointment), Missed Progress Reminders (sent if client has not logged today), and Check-in Schedule Reminders. You can also create custom reminders with any message and frequency.' },
+  { q: 'What automated reminders are available?', a: 'You can set automated check-in reminders per client from the Communication page (Automated Check-in Scheduler). These can be for meal logging, water intake, workout, wellbeing, or custom messages. Additionally, Email Sequences send drip emails automatically when new clients join.' },
 ];
 
 export default function HelpCenter() {
