@@ -30,15 +30,15 @@ const StatCard = ({ icon: Icon, label, value, sub, color = "orange", trend }) =>
   };
   return (
     <Card className={`border-none shadow-lg bg-gradient-to-br ${colorMap[color]}`}>
-      <CardContent className="p-5">
+      <CardContent className="p-3 md:p-5">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">{label}</p>
-            <p className="text-3xl font-bold text-gray-900">{value}</p>
-            {sub && <p className="text-xs text-gray-500 mt-1">{sub}</p>}
+            <p className="text-[10px] md:text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">{label}</p>
+            <p className="text-xl md:text-3xl font-bold text-gray-900">{value}</p>
+            {sub && <p className="text-[9px] md:text-xs text-gray-500 mt-1">{sub}</p>}
           </div>
-          <div className={`p-3 rounded-xl bg-white/60`}>
-            <Icon className={`w-6 h-6 ${colorMap[color].split(' ')[2]}`} />
+          <div className={`p-2 md:p-3 rounded-xl bg-white/60`}>
+            <Icon className={`w-5 md:w-6 h-5 md:h-6 ${colorMap[color].split(' ')[2]}`} />
           </div>
         </div>
         {trend !== undefined && (
