@@ -1062,7 +1062,7 @@ export default function Layout({ children, currentPageName }) {
   }
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <style>{`
         :root {
           --primary: 25 65% 55%;
@@ -1081,11 +1081,17 @@ export default function Layout({ children, currentPageName }) {
           .desktop-sidebar {
             display: none !important;
           }
+          .sidebar {
+            display: none !important;
+          }
           .mobile-bottom-nav {
             display: flex !important;
           }
           .main-content-mobile {
             padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
+          }
+          body {
+            overflow-x: hidden !important;
           }
         }
 
@@ -1095,7 +1101,7 @@ export default function Layout({ children, currentPageName }) {
           }
         }
       `}</style>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 overflow-x-hidden">
         <Sidebar className="desktop-sidebar border-r border-orange-100 backdrop-blur-sm" style={{ backgroundColor: sidebarBg }}>
           <SidebarHeader className="border-b border-orange-100 p-6">
             <div className="flex items-center gap-4">
