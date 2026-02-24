@@ -89,16 +89,32 @@ export default function ClientCommunication() {
     retry: false,
   });
 
-  const { data: clientProfile, isLoading: profileLoading } = useQuery({
-    queryKey: ['myClientProfile', user?.email],
+  // For admins/coaches - get all clients; for clients - get own profile
+  const isAdmin = user?.user_type === 'super_admin' || user?.user_type === 'student_coach' || user?.user_type === 'team_member';
+
+  const { data: allClients = [] } = useQuery({
+    queryKey: ['allClients'],
     queryFn: async () => {
+      if (!isAdmin) return [];
+      return base44.entities.Client.list();
+    },
+    enabled: !!isAdmin,
+  });
+
+  const { data: clientProfile, isLoading: profileLoading } = useQuery({
+    queryKey: ['myClientProfile', user?.email, selectedClientId],
+    queryFn: async () => {
+      if (isAdmin && selectedClientId) {
+        const clients = await base44.entities.Client.filter({ id: selectedClientId });
+        return clients[0] || null;
+      }
       if (!user?.email) return null;
       const clients = await base44.entities.Client.filter({ email: user.email });
       if (clients.length > 0) return clients[0];
       const allClients = await base44.entities.Client.list();
       return allClients.find(c => c.email?.toLowerCase() === user.email?.toLowerCase()) || null;
     },
-    enabled: !!user,
+    enabled: !!user && (isAdmin ? !!selectedClientId : true),
   });
 
   const { data: messages = [] } = useQuery({
