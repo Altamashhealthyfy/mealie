@@ -187,11 +187,11 @@ export default function Home() {
         {/* Weight Tracking Section - For Clients */}
         {clientProfile && (
           <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-red-500"></span>
               Weight Tracking
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
               <Card className="border-none shadow-md bg-white/80 backdrop-blur hover:shadow-lg transition-all">
                 <CardContent className="p-5">
                   <div className="flex items-center gap-3">
