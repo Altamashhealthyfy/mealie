@@ -1102,7 +1102,7 @@ export default function Layout({ children, currentPageName }) {
         }
       `}</style>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 overflow-x-hidden">
-        <Sidebar className="desktop-sidebar border-r border-orange-100 backdrop-blur-sm" style={{ backgroundColor: sidebarBg }}>
+        <Sidebar className="desktop-sidebar border-r border-orange-100 backdrop-blur-sm hidden md:block" style={{ backgroundColor: sidebarBg }}>
           <SidebarHeader className="border-b border-orange-100 p-6">
             <div className="flex items-center gap-4">
               {brandingLogo ? (
