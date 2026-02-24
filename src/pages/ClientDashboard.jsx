@@ -1472,7 +1472,7 @@ export default function ClientDashboard() {
                         />
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
-                        {progress}% complete • Target date: {goal.target_date ? format(new Date(goal.target_date), 'MMM dd, yyyy') : 'Not set'}
+                        {progress}% complete • Target date: {goal.target_date ? safeFormat(goal.target_date, 'MMM dd, yyyy') : 'Not set'}
                       </p>
                     </div>
                   );
