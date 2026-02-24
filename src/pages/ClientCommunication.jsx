@@ -490,15 +490,15 @@ export default function ClientCommunication() {
               <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0">
                 <div className="flex flex-col h-full min-h-0">
                   {/* Chat Header */}
-                  <div className="border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50 flex-shrink-0 px-3 py-2 flex items-center gap-3">
-                    <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-bold text-sm">{coachName.charAt(0)}</span>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-sm truncate">{coachName}</p>
-                      <p className="text-xs text-gray-500">Always here to help you 💚</p>
-                    </div>
-                  </div>
+                   <div className="border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50 flex-shrink-0 px-3 py-2 flex items-center gap-3">
+                     <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                       <span className="text-white font-bold text-sm">{contactName.charAt(0)}</span>
+                     </div>
+                     <div className="min-w-0 flex-1">
+                       <p className="font-semibold text-sm truncate">{contactName}</p>
+                       <p className="text-xs text-gray-500">{isAdmin ? 'Client Messages' : 'Always here to help you 💚'}</p>
+                     </div>
+                   </div>
 
                   {/* Messages */}
                   <div className="flex-1 overflow-hidden bg-gray-50 relative min-h-0">
