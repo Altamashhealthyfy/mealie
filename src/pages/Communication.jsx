@@ -856,14 +856,14 @@ export default function Communication() {
 
                       {/* Input area */}
                       {false ? null : (
-                        <div className="border-t border-gray-200 flex flex-col flex-shrink-0 bg-white">
+                        <div className="border-t border-gray-200 flex flex-col flex-shrink-0 bg-white pt-[env(safe-area-inset-bottom)]">
                           {isImportant && (
-                            <div className="px-3 py-2 bg-red-50 border-b border-red-200 flex items-center gap-2 text-red-700 text-xs">
-                              <span className="font-semibold">⭐ Marked as Important</span>
+                            <div className="px-2 md:px-3 py-1.5 md:py-2 bg-red-50 border-b border-red-200 flex items-center gap-2 text-red-700 text-xs">
+                              <span className="font-semibold">⭐ Important</span>
                               <button onClick={() => setIsImportant(false)} className="ml-auto text-red-600 hover:text-red-800 font-semibold">✕</button>
                             </div>
                           )}
-                          <div className="p-2 sm:p-3 flex items-end gap-2">
+                          <div className="p-1.5 md:p-3 flex items-end gap-1 md:gap-2">
                             <div className="flex-1">
                               <EnhancedMessageInput
                                 value={messageText}
