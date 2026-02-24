@@ -136,7 +136,6 @@ import HealthCoachPlans from './pages/HealthCoachPlans';
 import HealthCoachesManagement from './pages/HealthCoachesManagement';
 import HealthReportAnalysis from './pages/HealthReportAnalysis';
 import HealthReportAnalyzer from './pages/HealthReportAnalyzer';
-import HelpCenter from './pages/HelpCenter';
 import Home from './pages/Home';
 import IncomeExpense from './pages/IncomeExpense';
 import InstallmentTracker from './pages/InstallmentTracker';
@@ -278,7 +277,6 @@ export const PAGES = {
     "HealthCoachesManagement": HealthCoachesManagement,
     "HealthReportAnalysis": HealthReportAnalysis,
     "HealthReportAnalyzer": HealthReportAnalyzer,
-    "HelpCenter": HelpCenter,
     "Home": Home,
     "IncomeExpense": IncomeExpense,
     "InstallmentTracker": InstallmentTracker,
