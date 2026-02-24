@@ -33,6 +33,8 @@ export default function Appointments() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [activeVideoCall, setActiveVideoCall] = useState(null);
+  const signalingRef = useRef(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [modeFilter, setModeFilter] = useState("all");
   const [coachFilter, setCoachFilter] = useState("all");
