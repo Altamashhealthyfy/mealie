@@ -464,17 +464,17 @@ export default function HelpCenter() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50 pb-24 md:pb-6">
       {/* Hero */}
       <div className="relative overflow-hidden bg-gradient-to-r from-orange-600 via-amber-500 to-green-500 text-white">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-40 h-40 bg-white rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-20 w-60 h-60 bg-white rounded-full blur-3xl" />
+          <div className="absolute top-8 md:top-10 left-10 w-32 md:w-40 h-32 md:h-40 bg-white rounded-full blur-3xl" />
+          <div className="absolute bottom-8 md:bottom-10 right-10 md:right-20 w-40 md:w-60 h-40 md:h-60 bg-white rounded-full blur-3xl" />
         </div>
-        <div className="relative max-w-5xl mx-auto px-4 py-12 md:py-16 text-center">
-          <div className="text-5xl mb-4">📚</div>
-          <h1 className="text-3xl md:text-5xl font-black tracking-tight mb-3">Help Center</h1>
-          <p className="text-white/90 text-base md:text-lg max-w-2xl mx-auto mb-8">
+        <div className="relative max-w-5xl mx-auto px-4 py-8 md:py-16 text-center">
+          <div className="text-4xl md:text-5xl mb-3 md:mb-4">📚</div>
+          <h1 className="text-2xl md:text-5xl font-black tracking-tight mb-2 md:mb-3">Help Center</h1>
+          <p className="text-white/90 text-sm md:text-lg max-w-2xl mx-auto mb-6 md:mb-8">
             Step-by-step guides, tips, and answers to help you get the most out of Mealie Pro
           </p>
 
