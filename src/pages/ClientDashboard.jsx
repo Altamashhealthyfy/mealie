@@ -569,7 +569,7 @@ export default function ClientDashboard() {
   }, [clientProfile, navigate]);
 
   // Early return AFTER all hooks are defined
-  if (userLoading || clientLoading) {
+  if (userLoading || clientLoading || (user && !clientProfile && clientProfile === undefined)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
