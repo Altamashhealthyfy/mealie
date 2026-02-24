@@ -510,11 +510,11 @@ export default function AdvancedCoachAnalytics() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
               {/* Top Symptoms */}
               <Card className="border-none shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><AlertTriangle className="w-5 h-5 text-red-500" /> Most Reported Symptoms</CardTitle>
-                  <CardDescription>Frequency of symptoms logged by clients</CardDescription>
+                <CardHeader className="pb-2 md:pb-4">
+                  <CardTitle className="text-sm md:text-base flex items-center gap-1.5 md:gap-2"><AlertTriangle className="w-4 md:w-5 h-4 md:h-5 text-red-500" /> Most Reported Symptoms</CardTitle>
+                  <CardDescription className="text-xs md:text-sm">Frequency of symptoms logged by clients</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 md:p-6">
                   {analytics.topSymptoms.length > 0 ? (
                     <ResponsiveContainer width="100%" height={280}>
                       <BarChart data={analytics.topSymptoms} layout="vertical">
