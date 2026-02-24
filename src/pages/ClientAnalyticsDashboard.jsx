@@ -627,7 +627,7 @@ export default function ClientAnalyticsDashboard() {
         </div>
 
         {/* Module Usage Overview */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
           <Card className="border-none shadow-lg">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
