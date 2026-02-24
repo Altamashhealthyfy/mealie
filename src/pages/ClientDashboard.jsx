@@ -777,15 +777,15 @@ export default function ClientDashboard() {
           </Card>
 
           <Card className="border-none shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Goal Progress</p>
-                  <p className="text-3xl font-bold text-gray-900">{Math.max(0, progressPercentage)}%</p>
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm text-gray-600 mb-1">Goal Progress</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-gray-900">{Math.max(0, progressPercentage)}%</p>
                   <p className="text-xs text-gray-500">{Math.abs(weightToGo).toFixed(1)} kg to go</p>
                 </div>
-                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                  <Target className="w-6 h-6 text-white" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Target className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
               </div>
               <div className="mt-3">
