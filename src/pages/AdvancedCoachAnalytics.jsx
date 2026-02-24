@@ -669,11 +669,11 @@ export default function AdvancedCoachAnalytics() {
 
               {/* Calorie Adherence */}
               <Card className="border-none shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><Clipboard className="w-5 h-5 text-green-500" /> Calorie Target Adherence</CardTitle>
-                  <CardDescription>Avg daily calories vs target per client</CardDescription>
+                <CardHeader className="pb-2 md:pb-4">
+                  <CardTitle className="text-sm md:text-base flex items-center gap-1.5 md:gap-2"><Clipboard className="w-4 md:w-5 h-4 md:h-5 text-green-500" /> Calorie Target Adherence</CardTitle>
+                  <CardDescription className="text-xs md:text-sm">Avg daily calories vs target per client</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 md:p-6">
                   {analytics.calorieAdherence.length > 0 ? (
                     <ResponsiveContainer width="100%" height={260}>
                       <BarChart data={analytics.calorieAdherence} layout="vertical">
