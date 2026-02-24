@@ -517,7 +517,11 @@ export default function Communication() {
   };
 
   const clientMessages = selectedClient 
-    ? allMessages.filter(m => m.client_id === selectedClient.id && m.content_type !== 'video_signal').sort((a, b) => 
+    ? allMessages.filter(m => {
+        // Admin can see all messages for the selected client
+        // Include messages where client_id matches
+        return m.client_id === selectedClient.id && m.content_type !== 'video_signal';
+      }).sort((a, b) => 
         new Date(a.created_date) - new Date(b.created_date)
       )
     : [];
