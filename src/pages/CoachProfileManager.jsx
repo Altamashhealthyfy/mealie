@@ -40,6 +40,14 @@ export default function CoachProfileManager() {
   const [newCertification, setNewCertification] = useState("");
   const [newPreferredType, setNewPreferredType] = useState("");
 
+  // Account settings state
+  const [accountData, setAccountData] = useState({ full_name: '', email: '', phone: '' });
+  const [passwordData, setPasswordData] = useState({ current_password: '', new_password: '', confirm_password: '' });
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [accountSaving, setAccountSaving] = useState(false);
+  const [passwordSaving, setPasswordSaving] = useState(false);
+
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
