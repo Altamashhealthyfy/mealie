@@ -1796,11 +1796,11 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
             <p className="text-xs md:text-base text-gray-600">Generate, use templates, or create manually</p>
           </div>
           <div className="text-right">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-8 h-8 sm:w-10 sm:h-10 text-orange-500" />
+            <div className="flex items-center gap-1.5 md:gap-2">
+              <Calendar className="w-6 md:w-8 h-6 md:h-8 text-orange-500" />
               <div>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900">{mealPlans.length}</p>
-                <p className="text-xs text-gray-600">My Plans</p>
+                <p className="text-lg md:text-2xl font-bold text-gray-900">{mealPlans.length}</p>
+                <p className="text-xs text-gray-600">Plans</p>
               </div>
             </div>
           </div>
