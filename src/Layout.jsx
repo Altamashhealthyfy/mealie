@@ -1062,7 +1062,7 @@ export default function Layout({ children, currentPageName }) {
   }
 
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={true}>
       <style>{`
         :root {
           --primary: 25 65% 55%;
