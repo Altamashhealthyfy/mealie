@@ -1347,8 +1347,8 @@ export default function Layout({ children, currentPageName }) {
           </main>
 
           {/* Mobile Bottom Navigation */}
-          <div 
-            className="mobile-bottom-nav hidden fixed bottom-0 left-0 right-0 border-t shadow-2xl z-50"
+              <div 
+                className={`mobile-bottom-nav hidden fixed bottom-0 left-0 right-0 border-t shadow-2xl z-50 ${noMobileNavPages.includes(currentPageName) ? '!hidden' : ''}`}
             style={{ 
               backgroundColor: sidebarBg,
               borderColor: 'rgba(251, 146, 60, 0.2)'
