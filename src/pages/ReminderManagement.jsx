@@ -80,6 +80,20 @@ export default function ReminderManagement() {
     }
   });
 
+  const [triggerLoading, setTriggerLoading] = useState(false);
+
+  const handleTriggerNow = async () => {
+    setTriggerLoading(true);
+    try {
+      const res = await base44.functions.invoke('sendGmailEmailReminders', {});
+      const r = res.data?.results;
+      toast.success(`Sent — Appointments: ${r?.appointments || 0}, Progress: ${r?.missed_progress || 0}, Check-ins: ${r?.checkins || 0}`);
+    } catch (e) {
+      toast.error('Failed to trigger reminders: ' + e.message);
+    }
+    setTriggerLoading(false);
+  };
+
   const deleteReminderMutation = useMutation({
     mutationFn: (id) => base44.entities.ReminderSettings.delete(id),
     onSuccess: () => {
