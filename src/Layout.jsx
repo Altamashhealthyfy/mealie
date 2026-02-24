@@ -1354,13 +1354,14 @@ export default function Layout({ children, currentPageName }) {
 
           {/* Mobile Bottom Navigation */}
               <div 
-                className={`mobile-bottom-nav hidden fixed bottom-0 left-0 right-0 border-t shadow-2xl z-50 ${noMobileNavPages.includes(currentPageName) ? '!hidden' : ''}`}
+                className={`mobile-bottom-nav hidden fixed bottom-0 left-0 right-0 border-t shadow-2xl z-50 w-full overflow-x-hidden ${noMobileNavPages.includes(currentPageName) ? '!hidden' : ''}`}
             style={{ 
               backgroundColor: sidebarBg,
-              borderColor: 'rgba(251, 146, 60, 0.2)'
+              borderColor: 'rgba(251, 146, 60, 0.2)',
+              maxWidth: '100vw'
             }}
           >
-            <div className="grid grid-cols-5 gap-1 px-2 py-3 safe-area-inset-bottom">
+            <div className="grid grid-cols-5 gap-1 px-2 py-3 safe-area-inset-bottom w-full overflow-x-hidden">
               {navigationItems.slice(0, 4).map((item, index) => {
                 const isActive = location.pathname === item.url;
                 return (
