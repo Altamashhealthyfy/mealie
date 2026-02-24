@@ -541,7 +541,7 @@ Provide a warm, personalized tip that's relevant to their situation.`,
                     <step.icon className="w-5 h-5" />
                   )}
                 </div>
-                <span className={`text-xs md:text-sm font-medium text-center ${
+                <span className={`text-[10px] md:text-xs font-medium text-center leading-tight ${
                   currentStep >= step.number ? 'text-orange-600' : 'text-gray-500'
                 }`}>
                   {step.title}
