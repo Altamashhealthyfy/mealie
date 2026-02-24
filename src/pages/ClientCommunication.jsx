@@ -416,7 +416,8 @@ export default function ClientCommunication() {
 
         <div className="flex flex-1 overflow-hidden gap-3 p-3">
           {/* Chat messages area */}
-          <Card className="border-none shadow-lg flex-1 flex flex-col min-h-0 overflow-hidden rounded-xl">
+          <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+            <Card className="border-none shadow-lg flex-1 flex flex-col min-h-0 overflow-hidden rounded-xl">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
               <TabsList className="rounded-none border-b w-full grid grid-cols-2 flex-shrink-0 h-10">
                 <TabsTrigger value="direct" className="flex gap-1 items-center text-xs sm:text-sm">
