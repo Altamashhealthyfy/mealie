@@ -446,6 +446,12 @@ const businessNavigation = [
     roles: ['super_admin'],
   },
   {
+    title: "Coach Profile Manager",
+    url: createPageUrl("CoachProfileManager"),
+    icon: User,
+    roles: ['super_admin', 'student_coach', 'team_member'],
+  },
+  {
     title: "Platform Analytics",
     url: createPageUrl("AdminPlatformAnalytics"),
     icon: BarChart3,
