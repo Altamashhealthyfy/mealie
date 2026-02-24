@@ -698,7 +698,7 @@ export default function Communication() {
                  )}
 
                 {/* Client List Sidebar — slide in on mobile, fixed on desktop */}
-                 <div className={`fixed md:relative md:flex bottom-0 md:bottom-auto left-0 md:left-auto h-[60vh] md:h-full w-full md:w-56 lg:w-64 border-t md:border-r border-gray-200 bg-white flex-col min-h-0 flex-shrink-0 transition-transform duration-300 z-50 md:z-0 md:border-t-0 ${
+                 <div className={`fixed md:relative md:flex bottom-0 md:bottom-auto left-0 md:left-auto h-[60vh] md:h-full w-full md:w-72 lg:w-80 border-t md:border-r border-gray-200 bg-gradient-to-b from-white to-gray-50 flex-col min-h-0 flex-shrink-0 transition-transform duration-300 z-50 md:z-0 md:border-t-0 shadow-lg md:shadow-none ${
                   mobileClientPanelOpen ? 'translate-y-0' : 'translate-y-full'
                 }`}>
                   <ClientListSidebar
