@@ -557,7 +557,7 @@ export default function HelpCenter() {
           <div className="space-y-6">
             <div className="text-center">
               <h2 className="text-2xl font-black text-gray-900 mb-2">Frequently Asked Questions</h2>
-              <p className="text-gray-500">Quick answers to common questions</p>
+              <p className="text-gray-500">Common questions from health coaches on using the platform</p>
             </div>
             <div className="space-y-3">
               {filteredFaqs.map((faq, idx) => (
