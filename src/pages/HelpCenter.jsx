@@ -498,25 +498,25 @@ export default function HelpCenter() {
 
       {/* Nav Tabs */}
       <div className="sticky top-0 z-20 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-5xl mx-auto px-4 flex gap-1 overflow-x-auto py-2" style={{ scrollbarWidth: 'none' }}>
-          {[
-            { id: 'steps', label: 'Step-by-Step Guide', icon: PlayCircle },
-            { id: 'tips', label: 'Quick Tips', icon: Lightbulb },
-            { id: 'faq', label: 'FAQs', icon: MessageSquare },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveSection(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition-all ${
-                activeSection === tab.id
-                  ? 'bg-orange-500 text-white shadow-md'
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              <tab.icon className="w-4 h-4" />
-              {tab.label}
-            </button>
-          ))}
+        <div className="max-w-5xl mx-auto px-2 md:px-4 flex gap-1 overflow-x-auto py-1.5 md:py-2" style={{ scrollbarWidth: 'none' }}>
+           {[
+             { id: 'steps', label: 'Step-by-Step Guide', icon: PlayCircle },
+             { id: 'tips', label: 'Quick Tips', icon: Lightbulb },
+             { id: 'faq', label: 'FAQs', icon: MessageSquare },
+           ].map(tab => (
+             <button
+               key={tab.id}
+               onClick={() => setActiveSection(tab.id)}
+               className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-4 py-1.5 md:py-2.5 rounded-lg text-xs md:text-sm font-semibold whitespace-nowrap transition-all ${
+                 activeSection === tab.id
+                   ? 'bg-orange-500 text-white shadow-md'
+                   : 'text-gray-600 hover:bg-gray-100'
+               }`}
+             >
+               <tab.icon className="w-3.5 md:w-4 h-3.5 md:h-4" />
+               {tab.label}
+             </button>
+           ))}
         </div>
       </div>
 
