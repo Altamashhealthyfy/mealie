@@ -351,12 +351,12 @@ export default function Home() {
                 { letter: "S", word: "Social", desc: "Connection & bonding", color: "from-pink-500 to-rose-500" },
                 { letter: "S", word: "Spiritual", desc: "Meditation & gratitude", color: "from-purple-500 to-indigo-500" },
               ].map((item) => (
-                <div key={item.letter + item.word} className="text-center p-3 rounded-lg bg-white/50 hover:bg-white/80 transition-all">
-                  <div className={`w-14 h-14 mx-auto mb-2 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-md`}>
-                    <span className="text-xl font-bold text-white">{item.letter}</span>
+                <div key={item.letter + item.word} className="text-center p-2 md:p-3 rounded-lg bg-white/50 hover:bg-white/80 transition-all">
+                  <div className={`w-12 h-12 md:w-14 md:h-14 mx-auto mb-1 md:mb-2 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-md`}>
+                    <span className="text-lg md:text-xl font-bold text-white">{item.letter}</span>
                   </div>
-                  <h4 className="font-semibold text-gray-900 text-sm mb-1">{item.word}</h4>
-                  <p className="text-xs text-gray-600">{item.desc}</p>
+                  <h4 className="font-semibold text-gray-900 text-xs md:text-sm mb-1">{item.word}</h4>
+                  <p className="text-[10px] md:text-xs text-gray-600">{item.desc}</p>
                 </div>
               ))}
             </div>
