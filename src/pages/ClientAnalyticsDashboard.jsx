@@ -483,12 +483,12 @@ export default function ClientAnalyticsDashboard() {
                     ))}
                   </select>
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Filter by Client</Label>
+                <div className="space-y-1.5 md:space-y-2">
+                  <Label className="text-xs md:text-sm font-medium">Filter by Client</Label>
                   <select
                     value={selectedClient}
                     onChange={(e) => setSelectedClient(e.target.value)}
-                    className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full h-9 md:h-10 px-2 md:px-3 rounded-md border border-gray-300 bg-white text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                   >
                     <option value="all">All Clients</option>
                     {analytics.filteredClients.map(client => (
