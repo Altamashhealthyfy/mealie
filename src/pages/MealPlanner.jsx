@@ -1853,25 +1853,23 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
           <UsageLimitWarning usage={usage} limits={usage?.plan_limits} type="meal_plan" />
         )}
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 lg:space-y-6">
-          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4 h-auto gap-1 w-full">
-            <TabsTrigger value="templates" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-[11px] sm:text-xs px-1 sm:px-2 py-2 rounded-lg">
-              <Star className="w-3 h-3 mr-0.5 sm:mr-1" />
-              <span className="hidden sm:inline text-xs">Templates</span>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3 md:space-y-4 lg:space-y-6">
+          <TabsList className="bg-white/80 backdrop-blur grid grid-cols-4 h-auto gap-0.5 w-full">
+            <TabsTrigger value="templates" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white text-[10px] md:text-xs px-0.5 md:px-2 py-1.5 md:py-2 rounded-lg">
+              <Star className="w-2.5 md:w-3 h-2.5 md:h-3 mr-0 md:mr-1" />
+              <span className="hidden md:inline text-xs">Templates</span>
             </TabsTrigger>
-            <TabsTrigger value="manual" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-[11px] sm:text-xs px-1 sm:px-2 py-2 rounded-lg">
-              <Edit className="w-3 h-3 mr-0.5 sm:mr-1" />
-              <span className="hidden sm:inline text-xs">Manual</span>
+            <TabsTrigger value="manual" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-500 data-[state=active]:text-white text-[10px] md:text-xs px-0.5 md:px-2 py-1.5 md:py-2 rounded-lg">
+              <Edit className="w-2.5 md:w-3 h-2.5 md:h-3 mr-0 md:mr-1" />
+              <span className="hidden md:inline text-xs">Manual</span>
             </TabsTrigger>
-            <TabsTrigger value="generate" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-[11px] sm:text-xs px-1 sm:px-2 py-2 rounded-lg">
-              <Zap className="w-3 h-3 mr-0.5 sm:mr-1" />
-              <span className="hidden sm:inline text-xs">AI Generate</span>
+            <TabsTrigger value="generate" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white text-[10px] md:text-xs px-0.5 md:px-2 py-1.5 md:py-2 rounded-lg">
+              <Zap className="w-2.5 md:w-3 h-2.5 md:h-3 mr-0 md:mr-1" />
+              <span className="hidden md:inline text-xs">AI Gen</span>
             </TabsTrigger>
-            <TabsTrigger value="saved" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-[11px] sm:text-xs px-1 sm:px-2 py-2 rounded-lg">
-              <Calendar className="w-3 h-3 mr-0.5 sm:mr-1" />
-              <span className="hidden sm:inline text-xs">Plans</span>
-              <span className="sm:hidden">({mealPlans.length})</span>
-              <span className="hidden sm:inline">({mealPlans.length})</span>
+            <TabsTrigger value="saved" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white text-[10px] md:text-xs px-0.5 md:px-2 py-1.5 md:py-2 rounded-lg">
+              <Calendar className="w-2.5 md:w-3 h-2.5 md:h-3 mr-0 md:mr-1" />
+              <span className="text-[10px] md:text-xs">({mealPlans.length})</span>
             </TabsTrigger>
           </TabsList>
 
