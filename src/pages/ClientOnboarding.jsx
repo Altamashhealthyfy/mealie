@@ -514,15 +514,15 @@ Provide a warm, personalized tip that's relevant to their situation.`,
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 p-3 md:p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Sparkles className="w-8 h-8 text-orange-500" />
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Welcome to Your Health Journey!</h1>
+        <div className="text-center mb-4 md:mb-8">
+          <div className="flex items-center justify-center gap-2 mb-2 md:mb-4">
+            <Sparkles className="w-6 h-6 md:w-8 md:h-8 text-orange-500" />
+            <h1 className="text-xl md:text-4xl font-bold text-gray-900">AI-guided setup</h1>
           </div>
-          <p className="text-gray-600 text-lg">Let's get to know you better with our AI-guided setup</p>
+          <p className="text-gray-600 text-sm md:text-lg hidden md:block">Let's get to know you better with our AI-guided setup</p>
         </div>
 
         {/* Progress Bar */}
