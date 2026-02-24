@@ -25,7 +25,12 @@ import {
   BarChart3,
   Calendar,
   Target,
-  Sparkles
+  Sparkles,
+  Mail,
+  Phone,
+  Lock,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { toast } from "sonner";
 
