@@ -876,27 +876,27 @@ export default function Communication() {
                                 hideVoice={true}
                               />
                             </div>
-                            <div className="flex gap-1 flex-shrink-0 pb-2">
-                              <Button
-                                variant={isImportant ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => setIsImportant(!isImportant)}
-                                title="Mark as important (read receipts enabled)"
-                                className={isImportant ? "bg-red-500 hover:bg-red-600" : ""}
-                              >
-                                ⭐
-                              </Button>
-                              <ScheduleMessageDialog onSchedule={handleScheduledMessage}>
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  title="Schedule message for later"
-                                  className="flex items-center gap-1"
-                                >
-                                  <Clock className="w-3.5 h-3.5" />
-                                </Button>
-                              </ScheduleMessageDialog>
-                            </div>
+                            <div className="flex gap-0.5 md:gap-1 flex-shrink-0 pb-0">
+                               <Button
+                                 variant={isImportant ? "default" : "outline"}
+                                 size="sm"
+                                 onClick={() => setIsImportant(!isImportant)}
+                                 title="Mark as important"
+                                 className={`h-8 px-2 ${isImportant ? "bg-red-500 hover:bg-red-600" : ""}`}
+                               >
+                                 ⭐
+                               </Button>
+                               <ScheduleMessageDialog onSchedule={handleScheduledMessage}>
+                                 <Button
+                                   variant="outline"
+                                   size="sm"
+                                   title="Schedule message"
+                                   className="h-8 px-2"
+                                 >
+                                   <Clock className="w-3 h-3" />
+                                 </Button>
+                               </ScheduleMessageDialog>
+                             </div>
                           </div>
                         </div>
                       )}
