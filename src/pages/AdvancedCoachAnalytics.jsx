@@ -556,14 +556,14 @@ export default function AdvancedCoachAnalytics() {
               </Card>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
               {/* Top Cravings */}
               <Card className="border-none shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><Zap className="w-5 h-5 text-yellow-500" /> Most Common Cravings</CardTitle>
-                  <CardDescription>Cravings reported by clients — useful for plan adjustments</CardDescription>
+                <CardHeader className="pb-2 md:pb-4">
+                  <CardTitle className="text-sm md:text-base flex items-center gap-1.5 md:gap-2"><Zap className="w-4 md:w-5 h-4 md:h-5 text-yellow-500" /> Most Common Cravings</CardTitle>
+                  <CardDescription className="text-xs md:text-sm">Cravings reported by clients — useful for plan adjustments</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 md:p-6">
                   {analytics.topCravings.length > 0 ? (
                     <div className="space-y-2">
                       {analytics.topCravings.map((c, i) => (
