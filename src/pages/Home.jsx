@@ -253,12 +253,12 @@ export default function Home() {
 
         {/* Active Goals Preview */}
          {clientProfile && myGoals.length > 0 && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+          <div className="space-y-3 md:space-y-4">
+            <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-red-500"></span>
               Your Active Goals
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
               {myGoals.map(goal => {
                 const progress = goal.start_value && goal.target_value 
                   ? Math.min(100, Math.abs(((goal.current_value - goal.start_value) / (goal.target_value - goal.start_value)) * 100))
