@@ -240,6 +240,17 @@ Enjoy your cooking! 🍽️✨
             </TabsTrigger>
           </TabsList>
 
+          {/* AI Recommendations Tab */}
+          <TabsContent value="recommendations" className="space-y-6 mt-6">
+            <RecipeRecommendationEngine
+              userEmail={user?.email}
+              recipes={recipes}
+              pantryIngredients={pantryIngredients}
+              onSelectRecipe={setSelectedRecipe}
+              favoriteRecipeIds={favoriteRecipeIds}
+            />
+          </TabsContent>
+
           {/* Pantry Tab */}
           <TabsContent value="pantry" className="space-y-6 mt-6">
             <PantryManager clientEmail={user?.email} recipes={recipes} />
@@ -247,11 +258,20 @@ Enjoy your cooking! 🍽️✨
 
           {/* Recipe Suggestions Tab */}
           <TabsContent value="suggestions" className="space-y-6 mt-6">
-            <RecipeMatcher
-              recipes={recipes}
-              pantryIngredients={pantryIngredients}
-              onViewRecipe={setSelectedRecipe}
-            />
+            <div className="space-y-6">
+              <RecipeFilterPanel
+                recipes={filteredRecipes}
+                selectedCuisines={filters.cuisines}
+                selectedDietaryTags={filters.dietaryTags}
+                selectedMealTypes={filters.mealTypes}
+                onFiltersChange={setFilters}
+              />
+              <RecipeMatcher
+                recipes={filteredRecipes}
+                pantryIngredients={pantryIngredients}
+                onViewRecipe={setSelectedRecipe}
+              />
+            </div>
           </TabsContent>
 
           {/* Favorites Tab */}
