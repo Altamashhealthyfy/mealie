@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { Bell, Plus, Trash2, Edit, Clock, Mail, User, Calendar, CheckCircle, AlertCircle } from "lucide-react";
+import { Bell, Plus, Trash2, Edit, Clock, Mail, User, Calendar, CheckCircle, AlertCircle, Send, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ReminderManagement() {
