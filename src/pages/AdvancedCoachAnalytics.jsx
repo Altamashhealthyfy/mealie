@@ -706,11 +706,11 @@ export default function AdvancedCoachAnalytics() {
 
             {/* New Clients Trend */}
             <Card className="border-none shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2"><TrendingUp className="w-5 h-5 text-green-500" /> New Client Acquisition (Last 6 Months)</CardTitle>
-                <CardDescription>Monthly growth in client base</CardDescription>
+              <CardHeader className="pb-2 md:pb-4">
+                <CardTitle className="text-sm md:text-base flex items-center gap-1.5 md:gap-2"><TrendingUp className="w-4 md:w-5 h-4 md:h-5 text-green-500" /> New Client Acquisition (Last 6 Months)</CardTitle>
+                <CardDescription className="text-xs md:text-sm">Monthly growth in client base</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-3 md:p-6">
                 <ResponsiveContainer width="100%" height={260}>
                   <BarChart data={analytics.monthlyClients}>
                     <CartesianGrid strokeDasharray="3 3" />
