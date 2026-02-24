@@ -695,9 +695,9 @@ export default function AdvancedCoachAnalytics() {
           </TabsContent>
 
           {/* ── TAB 4: COACH PERFORMANCE ───────────────────────────── */}
-          <TabsContent value="performance" className="space-y-6">
+          <TabsContent value="performance" className="space-y-4 md:space-y-6">
             {/* Coach KPIs */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
               <StatCard icon={ThumbsUp} label="Appointment Completion" value={`${analytics.apptCompletion}%`} sub={`${analytics.completedAppts}/${analytics.totalAppts} completed`} color="green" />
               <StatCard icon={MessageSquare} label="Msg Response Rate" value={`${analytics.responseRate}%`} sub="replies vs client msgs" color="blue" />
               <StatCard icon={Star} label="Avg Feedback Rating" value={analytics.avgFeedbackRating > 0 ? `${analytics.avgFeedbackRating}/5` : 'N/A'} sub={`${analytics.reviewedLogs} reviewed logs`} color="yellow" />
