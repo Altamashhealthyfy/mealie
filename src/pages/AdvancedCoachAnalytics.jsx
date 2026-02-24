@@ -450,11 +450,11 @@ export default function AdvancedCoachAnalytics() {
 
               {/* Streak Leaderboard */}
               <Card className="border-none shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><Flame className="w-5 h-5 text-orange-500" /> Top Streak Leaders</CardTitle>
-                  <CardDescription>Consecutive days with at least one log</CardDescription>
+                <CardHeader className="pb-2 md:pb-4">
+                  <CardTitle className="text-sm md:text-base flex items-center gap-1.5 md:gap-2"><Flame className="w-4 md:w-5 h-4 md:h-5 text-orange-500" /> Top Streak Leaders</CardTitle>
+                  <CardDescription className="text-xs md:text-sm">Consecutive days with at least one log</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 md:p-6">
                   <div className="space-y-2">
                     {analytics.streakData.filter(s => s.streak > 0).slice(0, 8).map((s, i) => (
                       <div key={s.client.id} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 hover:bg-orange-50 transition-colors">
