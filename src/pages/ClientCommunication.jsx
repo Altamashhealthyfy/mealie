@@ -780,7 +780,7 @@ export default function ClientCommunication() {
                     <p className="text-xs text-gray-500">Health Coach</p>
                     <div className="flex items-center gap-1 mt-0.5">
                       <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                      <span className="text-xs text-green-600 font-medium">Active Now</span>
+                      <span className="text-xs text-green-600 font-medium">{isAdmin ? 'Client' : 'Active Now'}</span>
                     </div>
                   </div>
                 </div>
