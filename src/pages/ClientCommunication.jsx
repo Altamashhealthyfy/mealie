@@ -460,7 +460,7 @@ export default function ClientCommunication() {
 
               {/* Groups */}
               {clientGroups.length > 0 && (
-                <div className="p-4 border-b">
+                <div className="p-4">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Groups ({clientGroups.length})</p>
                   <div className="space-y-1.5">
                     {clientGroups.map(g => (
@@ -477,9 +477,9 @@ export default function ClientCommunication() {
               <div className="p-4 mt-auto border-t">
                 <PushNotificationManager userEmail={user?.email} />
               </div>
-              </div>
-              {/* Mobile sidebar backdrop */}
-              {showSidebar && <div className="fixed inset-0 bg-black/40 md:hidden z-30" onClick={() => setShowSidebar(false)} />
+            </div>
+          </div>
+        )}
 
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
@@ -596,11 +596,25 @@ export default function ClientCommunication() {
                                   isFromClient ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white' : 'bg-white text-gray-900 border border-gray-200'
                                 }`}>
                                   {mainText && <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap mb-1.5">{mainText}</p>}
-                                  {renderAttachment(message, isFromClient)}
-                                  <div className={`flex items-center gap-1.5 mt-1 text-xs ${isFromClient ? 'text-white/70' : 'text-gray-400'}`}>
-                                    <span>{formatToIST(message.created_date)}</span>
-                                    {isFromClient && (message.read ? <CheckCheck className="w-3.5 h-3.5 text-blue-300" /> : <Check className="w-3.5 h-3.5 text-white/70" />)}
-                                  </div>
+                                   {renderAttachment(message, isFromClient)}
+                                   <div className={`flex items-center justify-between gap-1.5 mt-2 text-xs ${isFromClient ? 'text-white/70' : 'text-gray-400'}`}>
+                                     <span>{formatToIST(message.created_date)}</span>
+                                     {isFromClient && (
+                                       <div className="flex items-center gap-1">
+                                         {message.read ? (
+                                           <>
+                                             <CheckCheck className="w-4 h-4 text-blue-300" />
+                                             <span className="text-xs text-white/60">Seen</span>
+                                           </>
+                                         ) : (
+                                           <>
+                                             <Check className="w-4 h-4 text-white/60" />
+                                             <span className="text-xs text-white/60">Sent</span>
+                                           </>
+                                         )}
+                                       </div>
+                                     )}
+                                   </div>
                                 </div>
                                 {!isFromClient && quickReplies.length > 0 && (
                                   <div className="flex flex-wrap gap-1.5 mt-1.5 max-w-[85%]">
