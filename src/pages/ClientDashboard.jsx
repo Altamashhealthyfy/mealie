@@ -683,7 +683,7 @@ export default function ClientDashboard() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 space-y-6">
+    <div className="min-h-screen p-3 sm:p-4 md:p-8 space-y-4 sm:space-y-6">
       <ClientTutorial autoStart={true} />
       <div className="max-w-7xl mx-auto" id="dashboard-welcome">
         {/* Header */}
