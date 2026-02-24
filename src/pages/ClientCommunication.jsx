@@ -368,17 +368,17 @@ export default function ClientCommunication() {
   const joinDate = clientProfile?.join_date ? new Date(clientProfile.join_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
 
   return (
-    <div className="flex flex-col overflow-hidden communication-page-height">
+    <div className="flex flex-col h-screen md:h-auto overflow-hidden communication-page-height">
       {activeVideoCall && (
         <VideoCallRoom roomId={activeVideoCall.clientId} localName={user?.full_name || 'Me'}
           remoteName={activeVideoCall.coachName} isInitiator={false}
           signalingChannel={activeVideoCall.channel} onEnd={endVideoCall} />
       )}
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden h-full">
         {/* Sidebar - hidden on mobile, shown when showSidebar is true */}
-        {showSidebar && (
-          <div className="fixed inset-0 z-50 md:relative md:inset-auto flex md:block">
+        {(showSidebar || window.innerWidth >= 768) && (
+          <div className={`fixed inset-0 z-50 md:relative md:inset-auto flex md:block transition-all duration-300 ${showSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
             {/* Overlay for mobile */}
             <div className="absolute inset-0 bg-black/40 md:hidden" onClick={() => setShowSidebar(false)} />
             <div className="relative z-10 flex flex-col w-72 md:w-64 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto h-full ml-0">
@@ -567,9 +567,9 @@ export default function ClientCommunication() {
                   </div>
 
                   {/* Messages */}
-                  <div className="flex-1 overflow-hidden bg-gray-50 relative min-h-0">
-                    <ScrollArea className="h-full scrollbar-thin" onScrollCapture={handleScroll} style={{ overflowY: 'scroll' }}>
-                      <div className="p-3 space-y-2.5">
+                  <div className="flex-1 overflow-hidden bg-gray-50 relative min-h-0 max-h-[calc(100vh-400px)] md:max-h-full">
+                    <ScrollArea className="h-full scrollbar-thin" onScrollCapture={handleScroll} style={{ overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                      <div className="p-2 sm:p-3 space-y-2.5">
                         {messages.length === 0 ? (
                           <div className="text-center py-10">
                             <MessageSquare className="w-12 h-12 mx-auto text-gray-300 mb-3" />
@@ -586,8 +586,8 @@ export default function ClientCommunication() {
                               ? qrSplit[1].split('  |  ').map(r => r.replace(/^\d+\.\s*/, '').trim()).filter(Boolean)
                               : [];
                             return (
-                              <div key={message.id} className={`flex ${isFromClient ? 'justify-end' : 'justify-start'} flex-col ${!isFromClient ? 'items-start' : 'items-end'}`}>
-                                <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-2.5 sm:p-3 shadow-sm ${
+                              <div key={message.id} className={`flex ${isFromClient ? 'justify-end' : 'justify-start'} flex-col ${!isFromClient ? 'items-start' : 'items-end'} w-full`}>
+                                <div className={`max-w-[90%] sm:max-w-[75%] md:max-w-[65%] rounded-2xl p-2 sm:p-3 shadow-sm break-words ${
                                   isFromClient ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white' : 'bg-white text-gray-900 border border-gray-200'
                                 }`}>
                                   {mainText && <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap mb-1.5">{mainText}</p>}
@@ -661,40 +661,40 @@ export default function ClientCommunication() {
                   </div>
 
                   {/* Send Message Box */}
-                  <div className="px-2 py-2 border-t-2 border-orange-500 bg-white flex-shrink-0">
+                  <div className="px-2 py-2 border-t-2 border-orange-500 bg-white flex-shrink-0 max-h-[200px] overflow-y-auto">
                     {attachedFile && (
-                      <div className="mb-2 p-2 bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-2">
+                      <div className="mb-2 p-2 bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-2 text-xs sm:text-sm">
                         {getFileIcon(attachedFile.type)}
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-gray-900 truncate">{attachedFile.name}</p>
-                          <p className="text-xs text-gray-500">{formatFileSize(attachedFile.size)}</p>
+                          <p className="font-medium text-gray-900 truncate">{attachedFile.name}</p>
+                          <p className="text-gray-500">{formatFileSize(attachedFile.size)}</p>
                         </div>
-                        <Button variant="ghost" size="sm" onClick={removeAttachment} className="text-red-600 h-7 w-7 p-0"><X className="w-3.5 h-3.5" /></Button>
+                        <Button variant="ghost" size="sm" onClick={removeAttachment} className="text-red-600 h-6 w-6 p-0 flex-shrink-0"><X className="w-3.5 h-3.5" /></Button>
                       </div>
                     )}
-                    <div className="flex items-end gap-1.5 w-full">
+                    <div className="flex items-end gap-1 sm:gap-1.5 w-full">
                       <input ref={fileInputRef} type="file" onChange={handleFileSelect} className="hidden" accept="*/*" />
                       <Button variant="outline" size="icon"
                         onClick={() => fileInputRef.current?.click()}
-                        className="h-9 w-9 flex-shrink-0 border-2 border-orange-300 hover:bg-orange-50"
+                        className="h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 border border-sm sm:border-2 border-orange-300 hover:bg-orange-50 p-0"
                         disabled={uploading || sendMessageMutation.isPending}>
-                        <Paperclip className="w-4 h-4 text-orange-600" />
+                        <Paperclip className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-600" />
                       </Button>
                       <Button variant="outline" size="icon"
                         onClick={() => setShowSlidePanel(!showSlidePanel)}
-                        className={`h-9 w-9 flex-shrink-0 border-2 transition-colors ${showSlidePanel ? 'border-orange-500 bg-orange-50' : 'border-orange-300 hover:bg-orange-50'}`}>
-                        {showSlidePanel ? <ChevronDown className="w-4 h-4 text-orange-600" /> : <ChevronUp className="w-4 h-4 text-orange-600" />}
+                        className={`h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 border border-sm sm:border-2 transition-colors p-0 ${showSlidePanel ? 'border-orange-500 bg-orange-50' : 'border-orange-300 hover:bg-orange-50'}`}>
+                        {showSlidePanel ? <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-600" /> : <ChevronUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-600" />}
                       </Button>
                       <Textarea ref={textareaRef}
-                        placeholder="Message your coach..."
+                        placeholder="Message..."
                         value={messageText}
                         onChange={(e) => { setMessageText(e.target.value); handleTyping(); }}
                         onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
-                        className="resize-none min-h-[36px] max-h-24 text-sm border-2 border-orange-300 focus:border-orange-500 flex-1 min-w-0"
+                        className="resize-none min-h-[32px] max-h-20 text-xs sm:text-sm border border-sm sm:border-2 border-orange-300 focus:border-orange-500 flex-1 min-w-0 p-1.5 sm:p-2"
                         rows={1} disabled={uploading} />
                       <Button onClick={handleSendMessage} disabled={sendMessageMutation.isPending || uploading}
-                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-9 w-9 flex-shrink-0 p-0 shadow-md">
-                        {(sendMessageMutation.isPending || uploading) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-8 w-8 sm:h-9 sm:w-9 flex-shrink-0 p-0 shadow-md">
+                        {(sendMessageMutation.isPending || uploading) ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                       </Button>
                     </div>
                   </div>
@@ -757,7 +757,7 @@ export default function ClientCommunication() {
                             {group.description && <p className="text-xs text-gray-500 mt-0.5">{group.description}</p>}
                           </CardHeader>
                           <CardContent className="p-2 sm:p-3">
-                            <div className="space-y-2 max-h-72 overflow-y-auto mb-3 p-1">
+                            <div className="space-y-2 max-h-60 sm:max-h-72 overflow-y-auto mb-3 p-1 scrollbar-thin">
                               {groupMsgs.length === 0 ? (
                                 <p className="text-xs text-gray-500 text-center py-3">No messages yet</p>
                               ) : groupMsgs.map(msg => {
