@@ -5,14 +5,15 @@ import {
   FileText, BarChart3, Heart, TrendingUp, BookOpen, Award,
   Zap, X, ChevronRight, Star, Lightbulb,
   PlayCircle, Target, Utensils, Scale, ClipboardList,
-  Image, Upload
+  Users, DollarSign, Settings, Upload, Sparkles, LayoutDashboard,
+  UserPlus, Bell, BarChart2, Stethoscope
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const STEPS_GUIDE = [
   {
     id: 'getting-started',
-    title: 'Getting Started',
+    title: 'Getting Started as a Health Coach',
     icon: '🚀',
     color: 'from-violet-500 to-purple-600',
     bgLight: 'bg-violet-50',
@@ -22,63 +23,65 @@ const STEPS_GUIDE = [
     steps: [
       {
         step: 1,
-        title: 'Complete Your Profile',
+        title: 'Set Up Your Coach Profile',
         icon: FileText,
-        desc: 'Fill in all your personal details to unlock personalized recommendations.',
+        desc: 'Complete your professional profile to build client trust and personalize your platform.',
         details: [
-          'Go to My Profile from the sidebar',
-          'Enter your age, height, current weight & target weight',
-          'Set your dietary preference (Veg / Non-Veg / Jain / Eggetarian)',
-          'Choose your regional cuisine (North / South / West / East)',
-          'Add your health conditions, lifestyle details & family history',
-          'Review your auto-calculated BMR, TDEE & daily calorie targets'
+          'Go to Coach Profile Manager in the sidebar under Business Tools',
+          'Add your full name, designation, and professional bio',
+          'Upload your profile photo and business logo',
+          'Set your custom branding name and tagline',
+          'Configure your platform colors under Color Customization',
+          'Add your business name, website, and social links'
         ]
       },
       {
         step: 2,
-        title: 'Set Up Your Health Goals',
-        icon: Target,
-        desc: 'Define clear, measurable goals to track your progress effectively.',
+        title: 'Configure Payment Gateway',
+        icon: DollarSign,
+        desc: 'Set up Razorpay to accept payments from clients directly through the platform.',
         details: [
-          'Navigate to My Progress → Goals section',
-          'Click "Set New Goal" and choose goal type (Weight, Wellness, Habit)',
-          'Set a specific target value and deadline',
-          'Add motivational notes or reminders',
-          'Your coach will review and guide your goal setting'
+          'Go to Payment Gateway under Payment & Plans in the sidebar',
+          'Enter your Razorpay Key ID and Key Secret',
+          'Test the payment gateway with a dummy transaction',
+          'Configure your billing currency and default plan prices',
+          'Enable/disable payment gateway per your preference'
         ]
       },
       {
         step: 3,
-        title: 'View Your Meal Plan',
-        icon: ChefHat,
-        desc: 'Access your personalized meal plan assigned by your coach.',
+        title: 'Create Client Packages',
+        icon: Users,
+        desc: 'Define subscription plans and packages to offer your clients.',
         details: [
-          'Go to My Meal Plan in the sidebar',
-          'Browse your day-wise meals: Breakfast, Mid-Morning, Lunch, Snack, Dinner',
-          'Tap any meal to see full ingredients and portion sizes',
-          'Check daily calorie and macro targets at the top',
-          'Mark meals as completed after eating to track adherence'
+          'Navigate to Clients Packages in the sidebar',
+          'Click "Create New Plan" and enter plan name, duration, and price',
+          'Define which features are included in each plan',
+          'Set meal plan tier (Basic or Advanced) for each package',
+          'Publish plans so clients can view and purchase them',
+          'Assign plans to existing clients from the client profile'
         ]
       },
       {
         step: 4,
-        title: 'Message Your Coach',
-        icon: MessageSquare,
-        desc: 'Establish communication with your health coach from day one.',
+        title: 'Invite Your First Client',
+        icon: UserPlus,
+        desc: 'Add clients to the platform so they can access their personalized health journey.',
         details: [
-          'Open Messages from the sidebar',
-          'Send an introduction message to your coach',
-          'Share any dietary concerns or preferences',
-          'Ask questions about your meal plan or health goals',
-          'Attach photos of your meals if needed'
+          'Go to Clients in the sidebar',
+          'Click "Add New Client" and fill in their name, email, and health details',
+          'Set their goal (Weight Loss, Muscle Gain, Diabetes, etc.)',
+          'Enter current weight, target weight, height, and dietary preferences',
+          'Assign yourself or a team member as their coach',
+          'The client will receive an email invitation to join the app'
         ]
       }
     ]
   },
   {
-    id: 'daily-routine',
-    title: 'Daily Routine',
-    icon: '📅',
+    id: 'client-management',
+    title: 'Managing Clients Daily',
+    icon: '👥',
     color: 'from-orange-500 to-amber-500',
     bgLight: 'bg-orange-50',
     borderColor: 'border-orange-200',
@@ -87,237 +90,255 @@ const STEPS_GUIDE = [
     steps: [
       {
         step: 1,
-        title: 'Check Your Dashboard',
-        icon: Home,
-        desc: 'Start each day by reviewing your health stats and pending tasks.',
+        title: 'Review Your Dashboard',
+        icon: LayoutDashboard,
+        desc: 'Start your day by checking client alerts, pending tasks, and key metrics.',
         details: [
-          'Open the app and view your Home Dashboard',
-          'Check today\'s calorie target and remaining budget',
-          'Review active goals and progress bars',
-          'See any new messages from your coach',
-          'Check upcoming appointments for the day'
+          'Open the Dietitian Dashboard from the sidebar',
+          'Review new client progress logs submitted overnight',
+          'Check unread messages from clients requiring response',
+          'See upcoming appointments for the day',
+          'Review clients who haven\'t logged progress in 3+ days',
+          'Check AI Coach Insights for flagged clients needing attention'
         ]
       },
       {
         step: 2,
-        title: 'Log Your Meals',
-        icon: Utensils,
-        desc: 'Track every meal to monitor nutrition and stay on target.',
+        title: 'Review Client Progress',
+        icon: TrendingUp,
+        desc: 'Monitor each client\'s weight, meals, and wellness metrics.',
         details: [
-          'Go to Food Log in the sidebar',
-          'Select today\'s date and meal type (Breakfast, Lunch, etc.)',
-          'Type meal name or use Food Lookup AI to search',
-          'Enter portion size for accurate calorie counting',
-          'Optionally add a photo of your meal',
-          'See running totals for calories, protein, carbs & fats'
+          'Go to Clients Feedback in the sidebar',
+          'Click on a client to open their progress dashboard',
+          'Review their weight trend chart and recent logs',
+          'Check meal adherence percentage for the past week',
+          'Look at MPESS wellness scores and trends',
+          'Add coach feedback and rate their weekly progress'
         ]
       },
       {
         step: 3,
-        title: 'Track Your Weight',
-        icon: Scale,
-        desc: 'Log your weight consistently for accurate trend tracking.',
+        title: 'Send Messages & Check-ins',
+        icon: MessageSquare,
+        desc: 'Stay connected with clients through regular communication.',
         details: [
-          'Navigate to My Progress',
-          'Click "Log Progress" button',
-          'Enter today\'s weight in kg',
-          'Optionally record body measurements (waist, chest, hips)',
-          'Add wellness notes — mood, energy, sleep quality',
-          'View the weight trend chart to see your journey'
+          'Open Messages from the sidebar',
+          'Select a client to open their chat window',
+          'Use Message Templates for quick motivational messages',
+          'Send meal plan updates, encouragement, or feedback',
+          'Attach files, reports, or resource documents',
+          'Schedule automated check-ins via Automated Check-in Scheduler'
         ]
       },
       {
         step: 4,
-        title: 'Complete MPESS Wellness',
-        icon: Heart,
-        desc: 'Log your holistic wellness activities across all 5 dimensions.',
+        title: 'Schedule Appointments',
+        icon: Calendar,
+        desc: 'Book video or phone consultations with your clients.',
         details: [
-          'Go to MPESS Wellness from the sidebar',
-          'Check off completed Mind activities (affirmations, meditation)',
-          'Log Physical activities (exercise, steps, hydration)',
-          'Record Emotional practices (journaling, breathing exercises)',
-          'Note Social connections (family time, community)',
-          'Log Spiritual practices (gratitude, nature walks)',
-          'Rate your overall wellness score for the day'
+          'Go to Appointments in the sidebar',
+          'Click "New Appointment" and select the client',
+          'Set date, time, duration, and appointment type',
+          'Choose Virtual (video call) or In-person',
+          'Add meeting notes or agenda for the call',
+          'Client receives a notification with the appointment details'
         ]
       }
     ]
   },
   {
-    id: 'progress-tracking',
-    title: 'Progress Tracking',
-    icon: '📊',
+    id: 'meal-plans',
+    title: 'Creating Meal Plans',
+    icon: '🍱',
     color: 'from-green-500 to-emerald-600',
     bgLight: 'bg-green-50',
     borderColor: 'border-green-200',
-    badge: 'Weekly',
+    badge: 'Core Feature',
     badgeColor: 'bg-green-100 text-green-700',
     steps: [
       {
         step: 1,
-        title: 'Review Your Progress Logs',
-        icon: TrendingUp,
-        desc: 'Analyze your weekly weight trend and wellness patterns.',
+        title: 'Generate AI Meal Plan',
+        icon: Sparkles,
+        desc: 'Use AI to instantly generate a personalized meal plan for any client.',
         details: [
-          'Open My Progress and switch to Chart view',
-          'Review your weight trend line over the past 30 days',
-          'Check progress toward your target weight',
-          'Compare weekly averages to spot improvements',
-          'Look at body measurement changes alongside weight'
+          'Go to Meal Plans in the sidebar',
+          'Click "Create New Meal Plan" and select the client',
+          'Choose plan tier: Basic (calorie-based) or Advanced (disease reversal)',
+          'Enter duration (days), target calories, and food preference',
+          'Click "Generate with AI" — the system builds the full plan in seconds',
+          'Review and edit any meals before assigning to the client'
         ]
       },
       {
         step: 2,
-        title: 'Track Meal Adherence',
-        icon: ClipboardList,
-        desc: 'Understand how closely you are following your meal plan.',
+        title: 'Customize & Edit Meals',
+        icon: ChefHat,
+        desc: 'Manually edit, swap, or add meals to any generated plan.',
         details: [
-          'Go to My Progress → Nutrition tab',
-          'View your daily adherence percentage chart',
-          'Compare actual calories vs. target calories',
-          'Identify which meal types you miss most often',
-          'Share adherence report with your coach in Messages'
+          'Open the generated meal plan and click on any day',
+          'Click the edit icon on a meal to modify it',
+          'Change meal name, food items, and portion sizes',
+          'Update calorie and macro values as needed',
+          'Add nutritional tips or disease rationale for advanced plans',
+          'Use Meal Plan Constraints to set global restrictions for a client'
         ]
       },
       {
         step: 3,
-        title: 'Monitor Your Goals',
-        icon: Target,
-        desc: 'Review goal progress and update targets as needed.',
+        title: 'Use Meal Plan Templates',
+        icon: FileText,
+        desc: 'Save time by using pre-built templates for common client goals.',
         details: [
-          'Visit My Progress → Goals section',
-          'See progress bars for each active goal',
-          'Check estimated completion dates',
-          'Log new progress entries for habit/wellness goals',
-          'Discuss goal adjustments with your coach if needed'
+          'Go to Template Library in the sidebar',
+          'Browse templates by category (Weight Loss, Diabetes, PCOS, etc.)',
+          'Filter by food preference and regional cuisine',
+          'Click "Use Template" and select the target client',
+          'Customize the template before assigning',
+          'Save your own frequently-used plans as new templates'
         ]
       },
       {
         step: 4,
-        title: 'Review MPESS Analytics',
-        icon: BarChart3,
-        desc: 'Analyze trends across all 5 wellness dimensions.',
+        title: 'Assign & Share the Plan',
+        icon: Upload,
+        desc: 'Send the finalized meal plan to the client so they can view it in their app.',
         details: [
-          'Go to MPESS Analytics in the sidebar',
-          'View radar charts showing your 5-dimension wellness balance',
-          'Identify which dimensions need more attention',
-          'Track your streak for daily MPESS logging',
-          'Share insights with your coach for holistic guidance'
+          'After editing, click "Assign to Client"',
+          'The client immediately sees the plan in their "My Meal Plan" section',
+          'Client gets a push notification about the new plan',
+          'You can send a follow-up message explaining the plan',
+          'Use the Download option to share a PDF version via WhatsApp or email'
         ]
       }
     ]
   },
   {
-    id: 'coach-communication',
-    title: 'Coach Communication',
-    icon: '💬',
+    id: 'analytics',
+    title: 'Analytics & Reports',
+    icon: '📊',
     color: 'from-blue-500 to-cyan-600',
     bgLight: 'bg-blue-50',
     borderColor: 'border-blue-200',
-    badge: 'Ongoing',
+    badge: 'Insights',
     badgeColor: 'bg-blue-100 text-blue-700',
     steps: [
       {
         step: 1,
-        title: 'Send Daily Updates',
-        icon: MessageSquare,
-        desc: 'Keep your coach informed with regular progress updates.',
+        title: 'View Client Analytics',
+        icon: BarChart3,
+        desc: 'Analyze all your clients\' progress trends from a single dashboard.',
         details: [
-          'Open Messages and select your coach',
-          'Send a daily check-in message with your weight and mood',
-          'Share meal photos for coach feedback',
-          'Report any challenges or cravings you\'re experiencing',
-          'Ask for tips if you feel stuck or unmotivated'
+          'Go to Client Analytics in the sidebar',
+          'See aggregate weight loss, adherence, and engagement metrics',
+          'Filter by client group, goal type, or date range',
+          'Spot clients with declining progress for early intervention',
+          'Export reports as PDF or Excel for sharing'
         ]
       },
       {
         step: 2,
-        title: 'Schedule Appointments',
-        icon: Calendar,
-        desc: 'Book regular coaching sessions for deeper guidance.',
+        title: 'Review Individual Client Reports',
+        icon: FileText,
+        desc: 'Generate detailed progress reports for individual clients.',
         details: [
-          'Go to My Appointments in the sidebar',
-          'View upcoming scheduled calls with your coach',
-          'Check appointment date, time and type (video/call)',
-          'Join the video call using the link in the appointment',
-          'Prepare your questions and progress notes before the call'
+          'Go to Client Progress in the sidebar',
+          'Select a client and click "Generate Report"',
+          'The report includes weight trend, adherence %, measurements, and wellness scores',
+          'Add your coaching notes before sharing',
+          'Download as PDF or share directly with the client in chat'
         ]
       },
       {
         step: 3,
-        title: 'Share Progress Photos',
-        icon: Image,
-        desc: 'Visual progress photos help your coach give better feedback.',
+        title: 'Use AI Coach Insights',
+        icon: Sparkles,
+        desc: 'Get AI-powered analysis and recommendations for each client.',
         details: [
-          'Go to My Progress and click "Log Progress"',
-          'Scroll to Progress Photos section',
-          'Upload Front, Side, and Back photos',
-          'Photos are private and only visible to your coach',
-          'Take photos at consistent times for fair comparison'
+          'Navigate to AI Coach Insights in the sidebar',
+          'Select a client to generate an AI analysis',
+          'AI reviews weight trend, food logs, MPESS, and adherence',
+          'Get specific coaching recommendations and red flags',
+          'Use insights to personalize your next session with the client',
+          'AI can draft progress summaries and intervention messages'
         ]
       },
       {
         step: 4,
-        title: 'Upload Health Reports',
-        icon: Upload,
-        desc: 'Share lab reports and health documents with your coach.',
+        title: 'Track Business Performance',
+        icon: BarChart2,
+        desc: 'Monitor revenue, client retention, and overall platform performance.',
         details: [
-          'Navigate to Upload Reports in the sidebar',
-          'Click "Upload Report" and select your file (PDF/Image)',
-          'Add a note describing what the report is about',
-          'Your coach will review and provide dietary guidance',
-          'Ideal reports: Blood tests, thyroid, cholesterol, diabetes panel'
+          'Go to Advanced Analytics or Platform Analytics',
+          'Review monthly revenue, new clients, and churn rate',
+          'Check which plan tiers are most popular',
+          'Monitor client engagement levels across the platform',
+          'Use Finance Manager to track payments and outstanding dues'
         ]
       }
     ]
   },
   {
-    id: 'motivation',
-    title: 'Stay Motivated',
-    icon: '🏆',
+    id: 'business-growth',
+    title: 'Growing Your Business',
+    icon: '💼',
     color: 'from-yellow-500 to-orange-500',
     bgLight: 'bg-yellow-50',
     borderColor: 'border-yellow-200',
-    badge: 'Rewards',
+    badge: 'Scale Up',
     badgeColor: 'bg-yellow-100 text-yellow-700',
     steps: [
       {
         step: 1,
-        title: 'Earn Points & Badges',
+        title: 'Set Up Gamification',
         icon: Award,
-        desc: 'Get rewarded for every healthy action you take in the app.',
+        desc: 'Increase client engagement and retention with points, badges, and challenges.',
         details: [
-          'Earn points for logging meals, weight, and MPESS daily',
-          'Get bonus points for hitting streaks (7-day, 30-day)',
-          'Unlock badges for milestones like first 5kg lost',
-          'View all your earned badges in the Achievements section',
-          'Points accumulate toward special recognition from your coach'
+          'Go to Gamification Settings to enable the system',
+          'Configure points for actions like meal logging, weight logging, MPESS',
+          'Create badges for milestones (first week, 5kg lost, 30-day streak)',
+          'Launch a Challenge via Challenge Manager for group motivation',
+          'View the Leaderboard to celebrate top-performing clients'
         ]
       },
       {
         step: 2,
-        title: 'Join Challenges',
-        icon: Zap,
-        desc: 'Participate in time-limited wellness challenges to stay engaged.',
+        title: 'Build Your Team',
+        icon: Users,
+        desc: 'Add nutritionists, assistants, or student coaches to your team.',
         details: [
-          'Check for active challenges in the app',
-          'Join a water intake or meal adherence challenge',
-          'Track daily challenge progress in your dashboard',
-          'Earn special challenge badges upon completion',
-          'Compete with other members on the leaderboard'
+          'Go to Team Management in Business Tools',
+          'Invite team members with their email and assign a role',
+          'Roles available: Team Member, Student Coach, Student Team Member',
+          'Assign specific clients to different team members',
+          'Control access permissions per role using User Permissions'
         ]
       },
       {
         step: 3,
-        title: 'Celebrate Milestones',
-        icon: Star,
-        desc: 'Recognize and celebrate your wins, big and small.',
+        title: 'Use Marketing Hub',
+        icon: Bell,
+        desc: 'Promote your services and attract new clients through built-in tools.',
         details: [
-          'Share milestone achievements with your coach in Messages',
-          'Screenshot your progress charts to save your journey',
-          'Set reward milestones (every 5kg lost = a treat)',
-          'Review your badges and progress history regularly',
-          'Let your coach know what\'s working so they can amplify it'
+          'Open Marketing Hub from the sidebar',
+          'Generate AI-powered social media posts, email campaigns, and scripts',
+          'Use Business GPTs for creating marketing content instantly',
+          'Share your referral link via Share My Link to get new clients',
+          'Use Broadcast Notification to send bulk updates to all clients'
+        ]
+      },
+      {
+        step: 4,
+        title: 'Manage Resources & Content',
+        icon: BookOpen,
+        desc: 'Create and assign educational resources to enhance client education.',
+        details: [
+          'Go to Resource Library in the sidebar',
+          'Upload articles, videos, PDFs, or guides for clients',
+          'Use AI to generate personalized resources for specific clients',
+          'Assign resources to individual clients or client groups',
+          'Track which resources clients have viewed and rated',
+          'Use Template Library for ready-made meal plan and recipe templates'
         ]
       }
     ]
