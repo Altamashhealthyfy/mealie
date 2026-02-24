@@ -520,15 +520,15 @@ export default function HelpCenter() {
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
+      <div className="max-w-5xl mx-auto px-3 md:px-4 py-6 md:py-8 space-y-6 md:space-y-8">
 
-        {/* Step-by-Step Guide */}
-        {activeSection === 'steps' && (
-          <div className="space-y-6">
-            <div className="text-center">
-              <h2 className="text-2xl font-black text-gray-900 mb-2">Step-by-Step Guide</h2>
-              <p className="text-gray-500">Follow these detailed steps to make the most of every feature</p>
-            </div>
+         {/* Step-by-Step Guide */}
+         {activeSection === 'steps' && (
+           <div className="space-y-4 md:space-y-6">
+             <div className="text-center">
+               <h2 className="text-xl md:text-2xl font-black text-gray-900 mb-1 md:mb-2">Step-by-Step Guide</h2>
+               <p className="text-xs md:text-sm text-gray-500">Follow these detailed steps to make the most of every feature</p>
+             </div>
 
             {filteredSteps.map((section, sIdx) => (
               <div key={sIdx} className={`rounded-2xl border-2 ${section.borderColor} overflow-hidden shadow-md`}>
