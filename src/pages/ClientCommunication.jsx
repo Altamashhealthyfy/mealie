@@ -356,7 +356,7 @@ export default function ClientCommunication() {
 
   const isClient = user?.user_type === 'client';
 
-  if (userLoading || (isClient && profileLoading)) {
+  if (userLoading || profileLoading) {
     return (
       <div className="min-h-screen p-4 flex items-center justify-center">
         <div className="text-center">
