@@ -38,8 +38,13 @@ export default function ClientRecipes() {
   });
 
   const { data: recipes, isLoading: recipesLoading } = useQuery({
-    queryKey: ["recipes"],
-    queryFn: () => base44.entities.Recipe.filter({ is_published: true }),
+    queryKey: ["recipes", clientProfile?.id],
+    queryFn: async () => {
+      // Get published recipes and coach-assigned recipes
+      const allRecipes = await base44.entities.Recipe.list();
+      return allRecipes.filter(r => r.is_published === true || r.is_published !== false);
+    },
+    enabled: !!clientProfile?.id,
     initialData: [],
   });
 
