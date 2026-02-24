@@ -437,7 +437,7 @@ Enjoy your cooking! 🍽️✨
                     {selectedRecipe.ingredients?.map((ing, i) => (
                       <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <span className="text-gray-700">{ing.item}</span>
-                        <Badge variant="secondary">{ing.quantity}</Badge>
+                        <Badge variant="secondary">{String(ing.quantity || '')} {ing.unit || ''}</Badge>
                       </div>
                     ))}
                   </div>
