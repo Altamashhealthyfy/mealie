@@ -661,7 +661,7 @@ export default function ClientCommunication() {
                   </div>
 
                   {/* Send Message Box */}
-                  <div className="p-2 sm:p-3 border-t-2 border-orange-500 bg-white flex-shrink-0">
+                  <div className="px-2 py-2 border-t-2 border-orange-500 bg-white flex-shrink-0">
                     {attachedFile && (
                       <div className="mb-2 p-2 bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-2">
                         {getFileIcon(attachedFile.type)}
@@ -672,29 +672,28 @@ export default function ClientCommunication() {
                         <Button variant="ghost" size="sm" onClick={removeAttachment} className="text-red-600 h-7 w-7 p-0"><X className="w-3.5 h-3.5" /></Button>
                       </div>
                     )}
-                    <div className="flex items-end gap-2">
+                    <div className="flex items-end gap-1.5 w-full">
                       <input ref={fileInputRef} type="file" onChange={handleFileSelect} className="hidden" accept="*/*" />
                       <Button variant="outline" size="icon"
                         onClick={() => fileInputRef.current?.click()}
-                        className="h-10 w-10 flex-shrink-0 border-2 border-orange-300 hover:bg-orange-50"
+                        className="h-9 w-9 flex-shrink-0 border-2 border-orange-300 hover:bg-orange-50"
                         disabled={uploading || sendMessageMutation.isPending}>
                         <Paperclip className="w-4 h-4 text-orange-600" />
                       </Button>
-                      {/* Slide toggle button */}
                       <Button variant="outline" size="icon"
                         onClick={() => setShowSlidePanel(!showSlidePanel)}
-                        className={`h-10 w-10 flex-shrink-0 border-2 transition-colors ${showSlidePanel ? 'border-orange-500 bg-orange-50' : 'border-orange-300 hover:bg-orange-50'}`}>
+                        className={`h-9 w-9 flex-shrink-0 border-2 transition-colors ${showSlidePanel ? 'border-orange-500 bg-orange-50' : 'border-orange-300 hover:bg-orange-50'}`}>
                         {showSlidePanel ? <ChevronDown className="w-4 h-4 text-orange-600" /> : <ChevronUp className="w-4 h-4 text-orange-600" />}
                       </Button>
                       <Textarea ref={textareaRef}
-                        placeholder={`Message ${coachEmail ? coachEmail.split('@')[0] : 'your coach'}...`}
+                        placeholder="Message your coach..."
                         value={messageText}
                         onChange={(e) => { setMessageText(e.target.value); handleTyping(); }}
                         onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
-                        className="resize-none min-h-[40px] text-sm border-2 border-orange-300 focus:border-orange-500 flex-1"
+                        className="resize-none min-h-[36px] max-h-24 text-sm border-2 border-orange-300 focus:border-orange-500 flex-1 min-w-0"
                         rows={1} disabled={uploading} />
                       <Button onClick={handleSendMessage} disabled={sendMessageMutation.isPending || uploading}
-                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-10 px-3 sm:px-4 font-semibold shadow-md flex-shrink-0">
+                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-9 w-9 flex-shrink-0 p-0 shadow-md">
                         {(sendMessageMutation.isPending || uploading) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                       </Button>
                     </div>
