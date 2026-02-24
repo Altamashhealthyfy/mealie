@@ -447,9 +447,9 @@ export default function ClientAnalyticsDashboard() {
               </div>
 
               {/* Date Range Filter */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Start Date</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+                <div className="space-y-1.5 md:space-y-2">
+                  <Label className="text-xs md:text-sm font-medium">Start Date</Label>
                   <Input
                     type="date"
                     value={dateRange.start}
