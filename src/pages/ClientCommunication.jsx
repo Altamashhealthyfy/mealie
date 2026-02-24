@@ -769,15 +769,15 @@ export default function ClientCommunication() {
                 </Button>
               </div>
 
-              {/* Coach Info */}
-              <div className="p-4 border-b bg-gradient-to-br from-orange-50 to-red-50">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-orange-200">
-                    <span className="text-white font-bold text-lg">{coachName.charAt(0)}</span>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-gray-900 text-sm">{coachName}</p>
-                    <p className="text-xs text-gray-500">Health Coach</p>
+              {/* Contact Info */}
+               <div className="p-4 border-b bg-gradient-to-br from-orange-50 to-red-50">
+                 <div className="flex items-center gap-3">
+                   <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0 ring-2 ring-orange-200">
+                     <span className="text-white font-bold text-lg">{contactName.charAt(0)}</span>
+                   </div>
+                   <div className="min-w-0">
+                     <p className="font-semibold text-gray-900 text-sm">{contactName}</p>
+                     <p className="text-xs text-gray-500">{isAdmin ? 'Client' : 'Health Coach'}</p>
                     <div className="flex items-center gap-1 mt-0.5">
                       <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                       <span className="text-xs text-green-600 font-medium">{isAdmin ? 'Client' : 'Active Now'}</span>
