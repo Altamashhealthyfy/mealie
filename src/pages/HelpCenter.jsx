@@ -668,15 +668,15 @@ export default function HelpCenter() {
         )}
 
         {/* Support Card */}
-        <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-6 text-white text-center shadow-lg">
-          <div className="text-4xl mb-3">🙋</div>
-          <h3 className="text-xl font-black mb-2">Need more support?</h3>
-          <p className="text-white/90 text-sm mb-4">Use the AI Coach Insights feature for smart client analysis, or reach out to your platform admin for technical help.</p>
+        <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-lg md:rounded-2xl p-4 md:p-6 text-white text-center shadow-lg">
+          <div className="text-3xl md:text-4xl mb-2 md:mb-3">🙋</div>
+          <h3 className="text-lg md:text-xl font-black mb-1 md:mb-2">Need more support?</h3>
+          <p className="text-white/90 text-xs md:text-sm mb-3 md:mb-4">Use the AI Coach Insights feature for smart client analysis, or reach out to your platform admin for technical help.</p>
           <a
             href="/aicoachinsights"
-            className="inline-flex items-center gap-2 bg-white text-orange-600 font-bold px-6 py-3 rounded-xl hover:bg-orange-50 transition-colors text-sm"
+            className="inline-flex items-center gap-1.5 md:gap-2 bg-white text-orange-600 font-bold px-4 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl hover:bg-orange-50 transition-colors text-xs md:text-sm"
           >
-            <Sparkles className="w-4 h-4" />
+            <Sparkles className="w-3.5 md:w-4 h-3.5 md:h-4" />
             Open AI Coach Insights
           </a>
         </div>
