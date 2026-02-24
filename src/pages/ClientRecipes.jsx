@@ -209,20 +209,27 @@ Enjoy your cooking! 🍽️✨
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-3 w-full md:w-auto">
+          <TabsList className="grid grid-cols-4 w-full md:w-auto">
+            <TabsTrigger
+              value="recommendations"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              AI Picks
+            </TabsTrigger>
             <TabsTrigger
               value="pantry"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white"
             >
               <ShoppingCart className="w-4 h-4 mr-2" />
-              My Pantry ({pantryIngredients.length})
+              Pantry ({pantryIngredients.length})
             </TabsTrigger>
             <TabsTrigger
               value="suggestions"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white"
             >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Suggestions
+              <Search className="w-4 h-4 mr-2" />
+              Browse
             </TabsTrigger>
             <TabsTrigger
               value="favorites"
