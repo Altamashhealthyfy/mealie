@@ -460,7 +460,7 @@ export default function ClientCommunication() {
 
               {/* Groups */}
               {clientGroups.length > 0 && (
-                <div className="p-4">
+                <div className="p-4 border-b">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Groups ({clientGroups.length})</p>
                   <div className="space-y-1.5">
                     {clientGroups.map(g => (
@@ -477,9 +477,9 @@ export default function ClientCommunication() {
               <div className="p-4 mt-auto border-t">
                 <PushNotificationManager userEmail={user?.email} />
               </div>
-            </div>
-          </div>
-        )}
+              </div>
+              {/* Mobile sidebar backdrop */}
+              {showSidebar && <div className="fixed inset-0 bg-black/40 md:hidden z-30" onClick={() => setShowSidebar(false)} />
 
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
