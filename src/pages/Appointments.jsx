@@ -324,6 +324,16 @@ export default function Appointments() {
 
   return (
     <div className="min-h-screen p-2 sm:p-4 md:p-8">
+      {activeVideoCall && (
+        <VideoCallRoom
+          roomId={activeVideoCall.roomId}
+          localName={user?.full_name || 'Coach'}
+          remoteName={activeVideoCall.clientName}
+          isInitiator={true}
+          signalingChannel={activeVideoCall.channel}
+          onEnd={endVideoCall}
+        />
+      )}
       <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-0">
