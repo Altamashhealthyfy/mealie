@@ -60,6 +60,7 @@ import ClientManagementHub from "@/components/client/ClientManagementHub";
 import BulkExport from "@/components/client/BulkExport";
 import VideoCallScheduler from "@/components/communication/VideoCallScheduler";
 import QuickActionsPanel from "@/components/dietitian/QuickActionsPanel";
+import ClientLoginHelpCard from "@/components/client/ClientLoginHelpCard";
 
 function ClientList() {
   return <ClientManagementInner />;
