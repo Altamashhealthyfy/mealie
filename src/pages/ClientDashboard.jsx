@@ -750,12 +750,12 @@ export default function ClientDashboard() {
         {/* Key Stats */}
          <div id="client-overview" className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6">
           <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Current Weight</p>
-                  <p className="text-3xl font-bold text-gray-900">{currentWeight || '--'}</p>
-                  <p className="text-xs text-gray-500">kg</p>
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="min-w-0">
+                   <p className="text-xs sm:text-sm text-gray-600 mb-1">Current Weight</p>
+                   <p className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">{currentWeight || '--'}</p>
+                   <p className="text-xs text-gray-500">kg</p>
                 </div>
                 <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
                   <Scale className="w-6 h-6 text-white" />
