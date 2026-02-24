@@ -361,6 +361,110 @@ export default function CoachProfileManager() {
           </Alert>
         )}
 
+        {/* Account Settings */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="w-5 h-5 text-orange-500" />
+                Account Details
+              </CardTitle>
+              <CardDescription>Update your name, email, and phone number</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Full Name</Label>
+                <Input
+                  value={accountData.full_name}
+                  onChange={(e) => setAccountData({ ...accountData, full_name: e.target.value })}
+                  placeholder="Your full name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> Email</Label>
+                <Input
+                  type="email"
+                  value={accountData.email}
+                  onChange={(e) => setAccountData({ ...accountData, email: e.target.value })}
+                  placeholder="your@email.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> Phone Number</Label>
+                <Input
+                  type="tel"
+                  value={accountData.phone}
+                  onChange={(e) => setAccountData({ ...accountData, phone: e.target.value })}
+                  placeholder="+91 98765 43210"
+                />
+              </div>
+              <Button
+                onClick={handleAccountSave}
+                disabled={accountSaving}
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+              >
+                {accountSaving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</> : <><Save className="w-4 h-4 mr-2" />Save Account Details</>}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Lock className="w-5 h-5 text-orange-500" />
+                Change Password
+              </CardTitle>
+              <CardDescription>Update your login password</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Current Password</Label>
+                <div className="relative">
+                  <Input
+                    type={showCurrentPw ? "text" : "password"}
+                    value={passwordData.current_password}
+                    onChange={(e) => setPasswordData({ ...passwordData, current_password: e.target.value })}
+                    placeholder="Enter current password"
+                  />
+                  <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" onClick={() => setShowCurrentPw(!showCurrentPw)}>
+                    {showCurrentPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>New Password</Label>
+                <div className="relative">
+                  <Input
+                    type={showNewPw ? "text" : "password"}
+                    value={passwordData.new_password}
+                    onChange={(e) => setPasswordData({ ...passwordData, new_password: e.target.value })}
+                    placeholder="Min. 6 characters"
+                  />
+                  <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" onClick={() => setShowNewPw(!showNewPw)}>
+                    {showNewPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Confirm New Password</Label>
+                <Input
+                  type="password"
+                  value={passwordData.confirm_password}
+                  onChange={(e) => setPasswordData({ ...passwordData, confirm_password: e.target.value })}
+                  placeholder="Re-enter new password"
+                />
+              </div>
+              <Button
+                onClick={handlePasswordChange}
+                disabled={passwordSaving || !passwordData.current_password || !passwordData.new_password}
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+              >
+                {passwordSaving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Changing...</> : <><Lock className="w-4 h-4 mr-2" />Change Password</>}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Specializations */}
           <Card>
