@@ -564,15 +564,15 @@ export default function ClientAnalyticsDashboard() {
         {/* Key Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 md:gap-4">
           <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                <Users className="w-4 h-4" />
+            <CardHeader className="pb-1.5 md:pb-2">
+              <CardTitle className="text-xs md:text-sm font-medium text-gray-600 flex items-center gap-1.5 md:gap-2">
+                <Users className="w-3.5 md:w-4 h-3.5 md:h-4" />
                 Total Clients
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-gray-900">{analytics.totalClients}</div>
-              <p className="text-xs text-gray-600 mt-1">
+            <CardContent className="p-3 md:p-4">
+              <div className="text-2xl md:text-3xl font-bold text-gray-900">{analytics.totalClients}</div>
+              <p className="text-[10px] md:text-xs text-gray-600 mt-1">
                 {analytics.activeClients} active in last 7 days
               </p>
             </CardContent>
