@@ -59,6 +59,41 @@ export default function ClientAppointments() {
     initialData: [],
   });
 
+  const clientId = clientProfile?.id;
+
+  // Listen for incoming video calls from coach
+  useEffect(() => {
+    if (!clientId || activeVideoCall) return;
+    const channel = createSignalingChannel({ clientId, senderType: 'client', senderEmail: user?.email });
+    channel.start();
+    incomingChannelRef.current = channel;
+    channel.onMessage((msg) => {
+      if (msg.type === 'offer') setIncomingCall({ channel });
+    });
+    return () => { channel.stop(); incomingChannelRef.current = null; };
+  }, [clientId, user?.email, activeVideoCall]);
+
+  const acceptCall = () => {
+    if (!incomingCall) return;
+    incomingChannelRef.current = null;
+    signalingRef.current = incomingCall.channel;
+    setActiveVideoCall({ clientId, coachName: 'Your Coach', channel: incomingCall.channel });
+    setIncomingCall(null);
+  };
+
+  const rejectCall = () => {
+    if (!incomingCall) return;
+    incomingCall.channel.send({ type: 'end-call', roomId: clientId });
+    incomingCall.channel.stop();
+    setIncomingCall(null);
+  };
+
+  const endVideoCall = () => {
+    signalingRef.current?.stop();
+    signalingRef.current = null;
+    setActiveVideoCall(null);
+  };
+
   const todayAppointments = appointments.filter(apt => 
     isSameDay(new Date(apt.date), new Date())
   );
