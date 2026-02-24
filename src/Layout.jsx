@@ -1062,7 +1062,7 @@ export default function Layout({ children, currentPageName }) {
   }
 
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider>
       <style>{`
         :root {
           --primary: 25 65% 55%;
@@ -1081,17 +1081,11 @@ export default function Layout({ children, currentPageName }) {
           .desktop-sidebar {
             display: none !important;
           }
-          .sidebar {
-            display: none !important;
-          }
           .mobile-bottom-nav {
             display: flex !important;
           }
           .main-content-mobile {
             padding-bottom: calc(80px + env(safe-area-inset-bottom)) !important;
-          }
-          body {
-            overflow-x: hidden !important;
           }
         }
 
@@ -1101,8 +1095,8 @@ export default function Layout({ children, currentPageName }) {
           }
         }
       `}</style>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 overflow-x-hidden">
-        <Sidebar className="desktop-sidebar border-r border-orange-100 backdrop-blur-sm hidden md:block" style={{ backgroundColor: sidebarBg }}>
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
+        <Sidebar className="desktop-sidebar border-r border-orange-100 backdrop-blur-sm" style={{ backgroundColor: sidebarBg }}>
           <SidebarHeader className="border-b border-orange-100 p-6">
             <div className="flex items-center gap-4">
               {brandingLogo ? (
@@ -1305,7 +1299,7 @@ export default function Layout({ children, currentPageName }) {
           </SidebarFooter>
         </Sidebar>
 
-        <main className="flex-1 flex flex-col main-content-mobile w-full overflow-x-hidden">
+        <main className="flex-1 flex flex-col main-content-mobile">
           <header className="bg-white/80 backdrop-blur-sm border-b border-orange-100 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4 md:hidden">
               <div className="flex items-center gap-2">
@@ -1347,23 +1341,20 @@ export default function Layout({ children, currentPageName }) {
             </div>
           </header>
 
-          <div className="flex-1 overflow-auto w-full overflow-x-hidden">
-            <div className="w-full overflow-x-hidden">
-              {children}
-            </div>
+          <div className="flex-1 overflow-auto">
+            {children}
           </div>
           </main>
 
           {/* Mobile Bottom Navigation */}
               <div 
-                className={`mobile-bottom-nav hidden fixed bottom-0 left-0 right-0 border-t shadow-2xl z-50 w-full overflow-x-hidden ${noMobileNavPages.includes(currentPageName) ? '!hidden' : ''}`}
+                className={`mobile-bottom-nav hidden fixed bottom-0 left-0 right-0 border-t shadow-2xl z-50 ${noMobileNavPages.includes(currentPageName) ? '!hidden' : ''}`}
             style={{ 
               backgroundColor: sidebarBg,
-              borderColor: 'rgba(251, 146, 60, 0.2)',
-              maxWidth: '100vw'
+              borderColor: 'rgba(251, 146, 60, 0.2)'
             }}
           >
-            <div className="grid grid-cols-5 gap-1 px-2 py-3 safe-area-inset-bottom w-full overflow-x-hidden">
+            <div className="grid grid-cols-5 gap-1 px-2 py-3 safe-area-inset-bottom">
               {navigationItems.slice(0, 4).map((item, index) => {
                 const isActive = location.pathname === item.url;
                 return (
