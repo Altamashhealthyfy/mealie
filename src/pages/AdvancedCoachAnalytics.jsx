@@ -372,24 +372,24 @@ export default function AdvancedCoachAnalytics() {
           <StatCard icon={Award} label="Goal Achievement" value={`${analytics.goalAchRate}%`} sub={`${progressGoals.length} goals tracked`} color="yellow" />
         </div>
 
-        <Tabs defaultValue="engagement" className="space-y-6">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 bg-white shadow-sm w-full">
-            <TabsTrigger value="engagement" className="flex items-center gap-1 text-xs md:text-sm">
-              <Activity className="w-4 h-4" /> Engagement
+        <Tabs defaultValue="engagement" className="space-y-4 md:space-y-6">
+          <TabsList className="grid grid-cols-2 md:grid-cols-4 bg-white shadow-sm w-full h-auto">
+            <TabsTrigger value="engagement" className="flex items-center gap-1 text-[10px] sm:text-xs md:text-sm py-2">
+              <Activity className="w-3.5 md:w-4 h-3.5 md:h-4" /> Engagement
             </TabsTrigger>
-            <TabsTrigger value="issues" className="flex items-center gap-1 text-xs md:text-sm">
-              <AlertTriangle className="w-4 h-4" /> Client Issues
+            <TabsTrigger value="issues" className="flex items-center gap-1 text-[10px] sm:text-xs md:text-sm py-2">
+              <AlertTriangle className="w-3.5 md:w-4 h-3.5 md:h-4" /> Issues
             </TabsTrigger>
-            <TabsTrigger value="plans" className="flex items-center gap-1 text-xs md:text-sm">
-              <ChefHat className="w-4 h-4" /> Plan Effectiveness
+            <TabsTrigger value="plans" className="flex items-center gap-1 text-[10px] sm:text-xs md:text-sm py-2">
+              <ChefHat className="w-3.5 md:w-4 h-3.5 md:h-4" /> Plans
             </TabsTrigger>
-            <TabsTrigger value="performance" className="flex items-center gap-1 text-xs md:text-sm">
-              <Star className="w-4 h-4" /> Coach Performance
+            <TabsTrigger value="performance" className="flex items-center gap-1 text-[10px] sm:text-xs md:text-sm py-2">
+              <Star className="w-3.5 md:w-4 h-3.5 md:h-4" /> Performance
             </TabsTrigger>
           </TabsList>
 
           {/* ── TAB 1: ENGAGEMENT ──────────────────────────────────── */}
-          <TabsContent value="engagement" className="space-y-6">
+          <TabsContent value="engagement" className="space-y-4 md:space-y-6">
             {/* Daily Active Users Trend */}
             <Card className="border-none shadow-lg">
               <CardHeader>
