@@ -701,7 +701,8 @@ export default function ClientCommunication() {
                 )}
               </TabsContent>
             </Tabs>
-          </Card>
+            </Card>
+          </div>
 
           {/* Right sidebar - collapsible info panel */}
           <div className={`transition-all duration-300 overflow-hidden flex-shrink-0 ${
