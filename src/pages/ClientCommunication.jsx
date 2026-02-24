@@ -48,6 +48,7 @@ export default function ClientCommunication() {
   const [showCallHistory, setShowCallHistory] = useState(false);
   const [activeVideoCall, setActiveVideoCall] = useState(null);
   const [incomingCall, setIncomingCall] = useState(null);
+  const [selectedClientId, setSelectedClientId] = useState(null);
 
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
