@@ -640,14 +640,14 @@ export default function AdvancedCoachAnalytics() {
               </CardContent>
             </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
               {/* Goal Success Rate by Type */}
               <Card className="border-none shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><Target className="w-5 h-5 text-purple-500" /> Outcome by Client Goal</CardTitle>
-                  <CardDescription>% of clients achieving weight goal by goal type</CardDescription>
+                <CardHeader className="pb-2 md:pb-4">
+                  <CardTitle className="text-sm md:text-base flex items-center gap-1.5 md:gap-2"><Target className="w-4 md:w-5 h-4 md:h-5 text-purple-500" /> Outcome by Client Goal</CardTitle>
+                  <CardDescription className="text-xs md:text-sm">% of clients achieving weight goal by goal type</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-3 md:p-6">
                   <div className="space-y-4">
                     {analytics.goalSuccessData.map(g => (
                       <div key={g.goal} className="space-y-1">
