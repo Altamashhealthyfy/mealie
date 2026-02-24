@@ -1598,7 +1598,7 @@ export default function ClientDashboard() {
         </div>
 
         {/* Quick Navigation Cards */}
-        <div id="resources-section" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+         <div id="resources-section" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6">
           <Link to={createPageUrl("ProgressTracking")}>
             <Card className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer group bg-gradient-to-br from-orange-50 to-red-50">
               <CardContent className="p-6">
