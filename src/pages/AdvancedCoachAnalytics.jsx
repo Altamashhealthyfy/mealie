@@ -751,10 +751,10 @@ export default function AdvancedCoachAnalytics() {
 
               {/* Coach Performance Summary */}
               <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><Star className="w-5 h-5 text-orange-500" /> Coach Performance Summary</CardTitle>
+                <CardHeader className="pb-2 md:pb-4">
+                  <CardTitle className="text-sm md:text-base flex items-center gap-1.5 md:gap-2"><Star className="w-4 md:w-5 h-4 md:h-5 text-orange-500" /> Coach Performance Summary</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="p-3 md:p-6 space-y-3 md:space-y-4">
                   {[
                     { label: 'Client Activation Rate', value: analytics.totalClients > 0 ? +((analytics.activeClients / analytics.totalClients) * 100).toFixed(1) : 0, max: 100, color: '#f97316', suffix: '%' },
                     { label: 'Clients On Track', value: Object.values({}).length > 0 ? analytics.onTrack : analytics.onTrack, max: analytics.totalClients || 1, display: `${analytics.onTrack}/${analytics.totalClients}`, color: '#10b981', suffix: '' },
