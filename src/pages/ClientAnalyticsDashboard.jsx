@@ -496,12 +496,12 @@ export default function ClientAnalyticsDashboard() {
                     ))}
                   </select>
                 </div>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium flex items-center gap-1"><Zap className="w-3.5 h-3.5" /> Focus Metric</Label>
+                <div className="space-y-1.5 md:space-y-2">
+                  <Label className="text-xs md:text-sm font-medium flex items-center gap-1"><Zap className="w-3 md:w-3.5 h-3 md:h-3.5" /> Focus Metric</Label>
                   <select
                     value={selectedMetric}
                     onChange={(e) => setSelectedMetric(e.target.value)}
-                    className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full h-9 md:h-10 px-2 md:px-3 rounded-md border border-gray-300 bg-white text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                   >
                     <option value="all">All Metrics</option>
                     <option value="weight">Weight Only</option>
