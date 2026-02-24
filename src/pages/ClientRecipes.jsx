@@ -14,14 +14,21 @@ import {
 import { format } from "date-fns";
 import PantryManager from "@/components/recipes/PantryManager";
 import RecipeMatcher from "@/components/recipes/RecipeMatcher";
+import RecipeRecommendationEngine from "@/components/recipes/RecipeRecommendationEngine";
+import RecipeFilterPanel from "@/components/recipes/RecipeFilterPanel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function ClientRecipes() {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [activeTab, setActiveTab] = useState("pantry");
+  const [activeTab, setActiveTab] = useState("recommendations");
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const [personalNotes, setPersonalNotes] = useState("");
+  const [filters, setFilters] = useState({
+    cuisines: [],
+    dietaryTags: [],
+    mealTypes: [],
+  });
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["currentUser"],
