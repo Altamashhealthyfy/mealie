@@ -109,6 +109,8 @@ function ClientManagementInner() {
   const [showBulkExport, setShowBulkExport] = useState(false);
   const [showVideoScheduler, setShowVideoScheduler] = useState(false);
   const [clientForVideoCall, setClientForVideoCall] = useState(null);
+  const [showQuickActions, setShowQuickActions] = useState(false);
+  const [clientForQuickActions, setClientForQuickActions] = useState(null);
 
   const [formData, setFormData] = useState({
     full_name: "",
