@@ -158,7 +158,7 @@ export default function Communication() {
       
       return [];
     },
-    enabled: !!user && user?.user_type !== 'client',
+    enabled: !!user && ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(user?.user_type),
     staleTime: 30 * 1000,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
