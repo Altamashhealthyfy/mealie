@@ -129,6 +129,26 @@ export default function Appointments() {
     },
   });
 
+  const startVideoCall = (appointment) => {
+    const client = clients.find(c => c.id === appointment.client_id);
+    if (!client) return;
+    const roomId = `apt-${appointment.id}-${Date.now()}`;
+    const channel = createSignalingChannel({
+      clientId: client.id,
+      roomId,
+      senderType: 'dietitian',
+      senderEmail: user?.email,
+    });
+    signalingRef.current = channel;
+    setActiveVideoCall({ clientId: client.id, clientName: client.full_name, channel, roomId });
+  };
+
+  const endVideoCall = () => {
+    signalingRef.current?.stop();
+    signalingRef.current = null;
+    setActiveVideoCall(null);
+  };
+
   const handleEdit = (appointment) => {
     setSelectedAppointment(appointment);
     setFormData(appointment);
