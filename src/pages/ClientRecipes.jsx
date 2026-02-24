@@ -281,6 +281,119 @@ Enjoy your cooking! 🍽️✨
             </div>
           </TabsContent>
 
+          {/* Recipe Library Tab */}
+          <TabsContent value="library" className="space-y-6 mt-6">
+            {recipes.length === 0 ? (
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <ChefHat className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    No recipes available
+                  </h3>
+                  <p className="text-gray-600">
+                    Recipe library is currently empty. Check back soon!
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recipes.map((recipe) => {
+                  const rating = getUserRating(recipe);
+                  const isFav = isFavorited(recipe);
+
+                  return (
+                    <Card
+                      key={recipe.id}
+                      className="border-none shadow-lg hover:shadow-xl transition-all overflow-hidden"
+                    >
+                      {recipe.image_url && (
+                        <div className="h-48 overflow-hidden bg-gray-100">
+                          <img
+                            src={recipe.image_url}
+                            alt={recipe.name}
+                            className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                          />
+                        </div>
+                      )}
+
+                      <CardHeader>
+                        <CardTitle className="text-lg line-clamp-2">
+                          {recipe.name}
+                        </CardTitle>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          <Badge variant="outline" className="text-xs capitalize">
+                            {recipe.meal_type}
+                          </Badge>
+                          <Badge className="text-xs bg-green-100 text-green-800 capitalize">
+                            {recipe.food_preference}
+                          </Badge>
+                          {isFav && (
+                            <Badge className="text-xs bg-red-100 text-red-800">
+                              ❤️ Favorite
+                            </Badge>
+                          )}
+                        </div>
+                      </CardHeader>
+
+                      <CardContent className="space-y-4">
+                        {/* Recipe Stats */}
+                        <div className="flex items-center justify-between text-sm text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            {(recipe.prep_time || 0) + (recipe.cook_time || 0)} min
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Flame className="w-4 h-4" />
+                            {recipe.calories} kcal
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Users className="w-4 h-4" />
+                            {recipe.servings}
+                          </div>
+                        </div>
+
+                        {/* Dietary Tags */}
+                        {recipe.dietary_tags && recipe.dietary_tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {recipe.dietary_tags.slice(0, 2).map((tag) => (
+                              <Badge key={tag} variant="secondary" className="text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                            {recipe.dietary_tags.length > 2 && (
+                              <Badge variant="secondary" className="text-xs">
+                                +{recipe.dietary_tags.length - 2}
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => setSelectedRecipe(recipe)}
+                            className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                          >
+                            <Eye className="w-4 h-4 mr-2" />
+                            View
+                          </Button>
+                          <Button
+                            onClick={() => downloadRecipe(recipe)}
+                            variant="outline"
+                            className="flex-1"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Download
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
+
           {/* Favorites Tab */}
           <TabsContent value="favorites" className="space-y-6 mt-6">
             {favoriteRecipesList.length === 0 ? (
