@@ -526,10 +526,10 @@ Provide a warm, personalized tip that's relevant to their situation.`,
         </div>
 
         {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex justify-between mb-4">
+        <div className="mb-6">
+          <div className="flex justify-between mb-4 overflow-x-auto gap-1 pb-1">
             {steps.map((step, idx) => (
-              <div key={step.number} className="flex flex-col items-center flex-1">
+              <div key={step.number} className="flex flex-col items-center flex-1 min-w-[50px]">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-all ${
                   currentStep >= step.number
                     ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
