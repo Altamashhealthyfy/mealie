@@ -144,20 +144,20 @@ export default function Home() {
         </div>
 
         {/* Feature Cards - Large CTAs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
           {/* Home Dashboard Card */}
           <Link to={createPageUrl("ClientDashboard")}>
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden h-40 cursor-pointer">
-              <CardContent className="p-8 h-full flex flex-col justify-center">
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden h-28 md:h-40 cursor-pointer">
+              <CardContent className="p-4 md:p-8 h-full flex flex-col justify-center">
                 <div className="flex items-start justify-between">
                   <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
-                        <ChefHat className="w-6 h-6" />
+                    <div className="flex items-center gap-3 mb-1 md:mb-2">
+                      <div className="w-10 md:w-12 h-10 md:h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                        <ChefHat className="w-5 h-5 md:w-6 md:h-6" />
                       </div>
                     </div>
-                    <h3 className="text-2xl font-bold mb-2">Home Dashboard</h3>
-                    <p className="text-blue-50 text-sm max-w-xs">Your personalized wellness hub with progress tracking</p>
+                    <h3 className="text-lg md:text-2xl font-bold mb-1">Home Dashboard</h3>
+                    <p className="text-blue-50 text-xs md:text-sm max-w-xs">Your personalized wellness hub with progress tracking</p>
                   </div>
                 </div>
               </CardContent>
@@ -166,17 +166,17 @@ export default function Home() {
 
           {/* My Progress Card */}
           <Link to={createPageUrl("ProgressTracking")}>
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-green-500 to-emerald-600 text-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden h-40 cursor-pointer">
-              <CardContent className="p-8 h-full flex flex-col justify-center">
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-green-500 to-emerald-600 text-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden h-28 md:h-40 cursor-pointer">
+              <CardContent className="p-4 md:p-8 h-full flex flex-col justify-center">
                 <div className="flex items-start justify-between">
                   <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
-                        <TrendingUp className="w-6 h-6" />
+                    <div className="flex items-center gap-3 mb-1 md:mb-2">
+                      <div className="w-10 md:w-12 h-10 md:h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                        <TrendingUp className="w-5 h-5 md:w-6 md:h-6" />
                       </div>
                     </div>
-                    <h3 className="text-2xl font-bold mb-2">My Progress</h3>
-                    <p className="text-green-50 text-sm max-w-xs">Track your weight, measurements, and wellness journey</p>
+                    <h3 className="text-lg md:text-2xl font-bold mb-1">My Progress</h3>
+                    <p className="text-green-50 text-xs md:text-sm max-w-xs">Track your weight, measurements, and wellness journey</p>
                   </div>
                 </div>
               </CardContent>
