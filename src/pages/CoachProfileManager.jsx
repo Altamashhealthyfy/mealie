@@ -42,8 +42,7 @@ export default function CoachProfileManager() {
 
   // Account settings state
   const [accountData, setAccountData] = useState({ full_name: '', email: '', phone: '' });
-  const [passwordData, setPasswordData] = useState({ current_password: '', new_password: '', confirm_password: '' });
-  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [passwordData, setPasswordData] = useState({ new_password: '', confirm_password: '' });
   const [showNewPw, setShowNewPw] = useState(false);
   const [accountSaving, setAccountSaving] = useState(false);
   const [passwordSaving, setPasswordSaving] = useState(false);
