@@ -346,18 +346,18 @@ const STEPS_GUIDE = [
 ];
 
 const QUICK_TIPS = [
-  { icon: '⏰', tip: 'Weigh yourself at the same time each day — preferably morning, after using the bathroom.' },
-  { icon: '💧', tip: 'Log your water intake daily. Aim for 8-10 glasses (2-3 litres) per day.' },
-  { icon: '📸', tip: 'Take progress photos every 4 weeks. Photos reveal changes that the scale often misses.' },
-  { icon: '🥗', tip: 'Use the Food Lookup tool before eating out to make smart choices at restaurants.' },
-  { icon: '😴', tip: 'Log your sleep quality in MPESS. Poor sleep directly affects weight and cravings.' },
-  { icon: '📝', tip: 'Message your coach at least 3 times a week. More communication = better results.' },
-  { icon: '🎯', tip: 'Review your goals every Sunday and plan your meals for the upcoming week.' },
-  { icon: '🔔', tip: 'Enable notifications for meal reminders and check-in prompts to stay consistent.' },
-  { icon: '🧘', tip: 'MPESS is not just fitness — track meditation, social time, and gratitude too.' },
-  { icon: '📊', tip: 'Focus on weekly averages, not daily fluctuations. Weight can vary 1-2 kg day to day.' },
-  { icon: '🍽️', tip: 'Mark meals as completed in your plan to easily track your adherence percentage.' },
-  { icon: '💬', tip: 'Share a meal photo daily in chat — your coach can spot issues and adjust your plan.' },
+  { icon: '📋', tip: 'Always fill out a client\'s full profile before generating a meal plan — AI uses their health data to personalize the plan.' },
+  { icon: '🤖', tip: 'Use AI Coach Insights every Monday to get a weekly summary of all your clients\' progress and alerts.' },
+  { icon: '📅', tip: 'Schedule appointments at least 48 hours in advance so clients receive reminders and can prepare.' },
+  { icon: '💬', tip: 'Use Message Templates for recurring messages like weekly motivational notes — saves time and keeps you consistent.' },
+  { icon: '🏷️', tip: 'Tag clients with goals (Diabetes, PCOS, Weight Loss) to quickly filter and manage them in analytics.' },
+  { icon: '🍱', tip: 'Use Meal Plan Constraints to set global dietary rules per client — the AI will respect them when generating plans.' },
+  { icon: '📊', tip: 'Review Client Analytics every Friday to catch clients with declining adherence before they drop off.' },
+  { icon: '🏆', tip: 'Launch a new 7-day challenge each month to boost client engagement and platform activity.' },
+  { icon: '👥', tip: 'Assign team members to handle client messages so you can focus on high-value tasks like meal planning and calls.' },
+  { icon: '📢', tip: 'Use Broadcast Notification to send motivational messages to all clients at once — great for Monday mornings.' },
+  { icon: '💎', tip: 'Upsell clients from Basic to Advanced plans by showing them disease-specific meal plans in the Pro Plans section.' },
+  { icon: '🔗', tip: 'Share your referral link via WhatsApp groups to attract new clients from your existing network.' },
 ];
 
 const FAQS = [
