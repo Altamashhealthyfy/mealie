@@ -279,6 +279,70 @@ const STEPS_GUIDE = [
     ]
   },
   {
+    id: 'reminders',
+    title: 'Automated Email Reminders',
+    icon: '📧',
+    color: 'from-pink-500 to-rose-600',
+    bgLight: 'bg-pink-50',
+    borderColor: 'border-pink-200',
+    badge: 'Automation',
+    badgeColor: 'bg-pink-100 text-pink-700',
+    steps: [
+      {
+        step: 1,
+        title: 'Open Reminder Management',
+        icon: Bell,
+        desc: 'Access the Reminder Management page to configure automated client reminders.',
+        details: [
+          'Go to Reminder Management in the sidebar under Business Tools',
+          'This page lets you create and manage all automated reminders for your clients',
+          'Reminders are sent via Gmail using your connected Google account',
+          'Three automated reminder types are supported: appointment, missed progress log, and check-in'
+        ]
+      },
+      {
+        step: 2,
+        title: 'Create a Reminder',
+        icon: Settings,
+        desc: 'Set up a reminder with custom message, frequency, and notification method.',
+        details: [
+          'Click "Create Reminder" and select the target client',
+          'Choose reminder type: Daily Progress Log, Food Log, Appointment, Challenge, Meal Plan Review, or Custom',
+          'Enter a title and optional custom message (used as email body)',
+          'Set frequency (Daily, Weekly, Bi-weekly, Monthly) and time of day',
+          'Choose specific days of the week or leave empty for all days',
+          'Select notification method: In-App Only, Email Only, or Both'
+        ]
+      },
+      {
+        step: 3,
+        title: 'Configure the Gmail Connector',
+        icon: Upload,
+        desc: 'Ensure Gmail is connected for email reminders to be sent successfully.',
+        details: [
+          'Email reminders require the Gmail connector to be authorized',
+          'Contact your platform admin to verify the Gmail connector is active',
+          'Once connected, all email reminders are sent from the authorized Gmail account',
+          'Emails use a branded HTML template with your platform name and a call-to-action button'
+        ]
+      },
+      {
+        step: 4,
+        title: 'Send Now & Monitor',
+        icon: Zap,
+        desc: 'Manually trigger reminders for immediate delivery and track reminder activity.',
+        details: [
+          'Click "Send Now" on the Reminder Management page to immediately trigger all active reminders',
+          'Reminders run automatically every hour via a scheduled automation',
+          'Appointment reminders are sent 24 hours before the scheduled appointment',
+          'Missed progress reminders only fire if the client has not logged progress today',
+          'Toggle any reminder on/off without deleting it',
+          'Edit or delete reminders at any time from the reminder list'
+        ]
+      }
+    ]
+  },
+  {
     id: 'business-growth',
     title: 'Growing Your Business',
     icon: '💼',
