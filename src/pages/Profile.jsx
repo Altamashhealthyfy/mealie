@@ -267,7 +267,11 @@ export default function Profile() {
 
   const changePasswordMutation = useMutation({
     mutationFn: async (data) => {
-      return await base44.functions.invoke('changeUserPassword', { password: data.newPassword });
+      const response = await base44.functions.invoke('changeUserPassword', { password: data.newPassword });
+      if (response.data?.error) {
+        throw new Error(response.data.error);
+      }
+      return response.data;
     },
     onSuccess: () => {
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
@@ -275,7 +279,7 @@ export default function Profile() {
       alert("✅ Password changed successfully!");
     },
     onError: (error) => {
-      setPasswordError(error?.response?.data?.error || "Failed to change password. Please try again.");
+      setPasswordError(error?.message || "Failed to change password. Please try again.");
     }
   });
 
