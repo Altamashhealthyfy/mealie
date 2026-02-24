@@ -348,10 +348,10 @@ export default function AdvancedCoachAnalytics() {
       <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
 
         {/* Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Advanced Coach Analytics</h1>
-            <p className="text-gray-500 mt-1">Deep insights into engagement, outcomes, and your performance</p>
+            <h1 className="text-lg sm:text-2xl md:text-4xl font-bold text-gray-900">Advanced Coach Analytics</h1>
+            <p className="text-xs sm:text-sm md:text-base text-gray-500 mt-1">Deep insights into engagement, outcomes, and your performance</p>
           </div>
           <div className="flex gap-2">
             {[7, 30, 90].map(p => (
