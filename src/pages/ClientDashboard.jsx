@@ -1601,15 +1601,15 @@ export default function ClientDashboard() {
          <div id="resources-section" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 mb-6">
           <Link to={createPageUrl("ProgressTracking")}>
             <Card className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer group bg-gradient-to-br from-orange-50 to-red-50">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Scale className="w-6 h-6 text-white" />
-                  </div>
-                  <ArrowRight className="w-5 h-5 text-orange-600 group-hover:translate-x-1 transition-transform" />
-                </div>
-                <p className="font-bold text-gray-900 mb-1">Track Progress</p>
-                <p className="text-sm text-gray-600">{progressLogs.length} logs recorded</p>
+              <CardContent className="p-4 sm:p-6">
+                 <div className="flex items-center justify-between mb-2 sm:mb-3">
+                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                     <Scale className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                   </div>
+                   <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 group-hover:translate-x-1 transition-transform flex-shrink-0" />
+                 </div>
+                 <p className="font-bold text-sm sm:text-base text-gray-900 mb-1 truncate">Track Progress</p>
+                 <p className="text-xs sm:text-sm text-gray-600">{progressLogs.length} logs recorded</p>
               </CardContent>
             </Card>
           </Link>
