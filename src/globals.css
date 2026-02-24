@@ -306,10 +306,30 @@ html, body {
   }
 }
 
-/* Slightly larger screens - 2 column grids */
+/* Tablet screens - 2 column grids */
 @media (min-width: 480px) and (max-width: 768px) {
   .grid-cols-3, .grid-cols-4, .grid-cols-5, .grid-cols-6 {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  /* Slightly larger padding on tablets */
+  .p-6, .p-8 {
+    padding: 16px !important;
+  }
+}
+
+/* Desktop screens - show sidebar properly */
+@media (min-width: 769px) {
+  .desktop-sidebar {
+    display: block !important;
+  }
+
+  .main-content-mobile {
+    padding-bottom: 0 !important;
+  }
+
+  .main-content-mobile > .flex-1 > * {
+    padding-bottom: 0 !important;
   }
 }
 
