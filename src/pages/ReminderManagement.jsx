@@ -375,6 +375,7 @@ export default function ReminderManagement() {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         {/* Reminders List */}
