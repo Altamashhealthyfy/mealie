@@ -110,10 +110,7 @@ export default function AICoachInsights() {
               <SelectContent>
                 {filteredClients.map(c => (
                   <SelectItem key={c.id} value={c.id}>
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-medium text-sm">{c.full_name}</span>
-                      <span className="text-xs text-gray-400">{c.email}</span>
-                    </div>
+                    {c.full_name} — {c.email}
                   </SelectItem>
                 ))}
               </SelectContent>
