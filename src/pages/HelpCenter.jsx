@@ -361,14 +361,16 @@ const QUICK_TIPS = [
 ];
 
 const FAQS = [
-  { q: 'How do I access my meal plan?', a: 'Go to "My Meal Plan" in the sidebar. Your coach will assign and update it. You\'ll see day-wise meals with ingredients and portions.' },
-  { q: 'What is MPESS?', a: 'MPESS stands for Mind, Physical, Emotional, Social, and Spiritual wellness — a holistic health framework to track all dimensions of your well-being beyond just nutrition.' },
-  { q: 'How often should I log my weight?', a: 'Aim to log your weight 3-5 times per week, ideally at the same time each day (morning is best). This gives your coach accurate trend data.' },
-  { q: 'How do I contact my coach?', a: 'Use the Messages section in the sidebar to send direct messages to your coach. You can also share files, meal photos, and health reports.' },
-  { q: 'What should I do if my meal plan needs changes?', a: 'Message your coach with specific foods you dislike or ingredients you\'re allergic to. They will update your plan within 24-48 hours.' },
-  { q: 'How do I schedule a video call with my coach?', a: 'Go to My Appointments in the sidebar. Your coach will schedule sessions there. You\'ll receive a notification with the call link.' },
-  { q: 'Where can I upload my blood test reports?', a: 'Navigate to "Upload Reports" in the sidebar. Upload PDF or image files and add a note. Your coach will review and provide dietary guidance.' },
-  { q: 'How do I earn badges and points?', a: 'Points are automatically awarded when you log meals, weight, and MPESS activities daily. Badges unlock at specific milestones like 7-day streaks or 5kg lost.' },
+  { q: 'How do I add a new client?', a: 'Go to Clients in the sidebar and click "Add New Client". Fill in their name, email, health details, and dietary preferences. They will receive an email invitation to log in.' },
+  { q: 'How does AI meal plan generation work?', a: 'Go to Meal Plans, select a client, and click "Generate with AI". The AI uses the client\'s health profile, goal, food preferences, and any constraints you\'ve set to build a full day-wise meal plan instantly.' },
+  { q: 'Can I set dietary restrictions for AI-generated plans?', a: 'Yes. Go to Meal Plan Constraints under Business Tools and define excluded meals, ingredients, or special rules for each client. The AI will follow these rules when generating plans.' },
+  { q: 'What is the difference between Basic and Advanced meal plan tiers?', a: 'Basic plans are calorie and RDA-based for general health goals. Advanced plans are designed for disease reversal (Diabetes, PCOS, Thyroid, etc.) with specific nutrient targets and disease rationale for each meal.' },
+  { q: 'How do I review a client\'s progress?', a: 'Go to Clients Feedback and select the client. You can view their weight trend, meal adherence %, MPESS scores, and latest progress logs. You can also add coach feedback and star ratings.' },
+  { q: 'How do I schedule a video call with a client?', a: 'Go to Appointments in the sidebar, click "New Appointment", select the client, and set the date, time, and type (video/call). The client gets a notification with the details.' },
+  { q: 'How do I add team members?', a: 'Go to Team Management under Business Tools. Invite team members by email and assign them a role (Team Member, Student Coach, etc.). Use User Permissions to control what each role can access.' },
+  { q: 'Where can I see my revenue and payments?', a: 'Go to Finance Manager under Business Tools to track all client payments, outstanding dues, and revenue summaries. Payment Gateway Settings lets you configure Razorpay for accepting online payments.' },
+  { q: 'How does the gamification system work?', a: 'Enable gamification in Gamification Settings. Clients earn points for daily actions (logging meals, weight, MPESS). Badges are awarded at milestones. You can run group challenges via Challenge Manager.' },
+  { q: 'Can I send bulk messages to all clients?', a: 'Yes. Use Broadcast Notification under Business Tools to send a single message to all clients or a specific group at once. Great for announcements, challenges, or weekly motivation.' },
 ];
 
 export default function HelpCenter() {
