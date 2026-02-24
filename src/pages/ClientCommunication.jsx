@@ -460,7 +460,7 @@ export default function ClientCommunication() {
 
               {/* Groups */}
               {clientGroups.length > 0 && (
-                <div className="p-4 border-b">
+                <div className="p-4">
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Groups ({clientGroups.length})</p>
                   <div className="space-y-1.5">
                     {clientGroups.map(g => (
@@ -477,9 +477,9 @@ export default function ClientCommunication() {
               <div className="p-4 mt-auto border-t">
                 <PushNotificationManager userEmail={user?.email} />
               </div>
-              </div>
-              {/* Mobile sidebar backdrop */}
-              {showSidebar && <div className="fixed inset-0 bg-black/40 md:hidden z-30" onClick={() => setShowSidebar(false)} />
+            </div>
+          </div>
+        )}
 
         {/* Main Chat Area */}
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
@@ -596,24 +596,25 @@ export default function ClientCommunication() {
                                   isFromClient ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white' : 'bg-white text-gray-900 border border-gray-200'
                                 }`}>
                                   {mainText && <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap mb-1.5">{mainText}</p>}
-                                  {renderAttachment(message, isFromClient)}
-                                  <div className="flex items-center justify-between gap-1.5 mt-1">
-                                    <span className={`text-xs ${isFromClient ? 'text-white/70' : 'text-gray-400'}`}>
-                                      {formatToIST(message.created_date)}
-                                    </span>
-                                    {isFromClient && (
-                                      <div className="flex items-center gap-0.5">
-                                        {message.read ? (
-                                          <div className="flex items-center gap-0.5">
-                                            <Check className="w-3 h-3 text-white/70" />
-                                            <CheckCheck className="w-3 h-3 text-blue-300" />
-                                          </div>
-                                        ) : (
-                                          <Check className="w-3 h-3 text-white/70" />
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
+                                   {renderAttachment(message, isFromClient)}
+                                   <div className={`flex items-center justify-between gap-1.5 mt-2 text-xs ${isFromClient ? 'text-white/70' : 'text-gray-400'}`}>
+                                     <span>{formatToIST(message.created_date)}</span>
+                                     {isFromClient && (
+                                       <div className="flex items-center gap-1">
+                                         {message.read ? (
+                                           <>
+                                             <CheckCheck className="w-4 h-4 text-blue-300" />
+                                             <span className="text-xs text-white/60">Seen</span>
+                                           </>
+                                         ) : (
+                                           <>
+                                             <Check className="w-4 h-4 text-white/60" />
+                                             <span className="text-xs text-white/60">Sent</span>
+                                           </>
+                                         )}
+                                       </div>
+                                     )}
+                                   </div>
                                 </div>
                                 {!isFromClient && quickReplies.length > 0 && (
                                   <div className="flex flex-wrap gap-1.5 mt-1.5 max-w-[85%]">
@@ -679,28 +680,28 @@ export default function ClientCommunication() {
                   </div>
 
                   {/* Send Message Box */}
-                  <div className="px-2 py-2 border-t-2 border-orange-500 bg-white flex-shrink-0">
+                  <div className="px-3 py-3 border-t border-gray-200 bg-gradient-to-r from-orange-50 to-red-50 flex-shrink-0 shadow-lg">
                     {attachedFile && (
-                      <div className="mb-2 p-2 bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-2">
+                      <div className="mb-3 p-3 bg-blue-50 rounded-xl border border-blue-200 flex items-center gap-2">
                         {getFileIcon(attachedFile.type)}
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-medium text-gray-900 truncate">{attachedFile.name}</p>
                           <p className="text-xs text-gray-500">{formatFileSize(attachedFile.size)}</p>
                         </div>
-                        <Button variant="ghost" size="sm" onClick={removeAttachment} className="text-red-600 h-7 w-7 p-0"><X className="w-3.5 h-3.5" /></Button>
+                        <Button variant="ghost" size="sm" onClick={removeAttachment} className="text-red-600 h-7 w-7 p-0 hover:bg-red-100"><X className="w-3.5 h-3.5" /></Button>
                       </div>
                     )}
-                    <div className="flex items-end gap-1.5 w-full">
+                    <div className="flex items-end gap-2 w-full">
                       <input ref={fileInputRef} type="file" onChange={handleFileSelect} className="hidden" accept="*/*" />
                       <Button variant="outline" size="icon"
                         onClick={() => fileInputRef.current?.click()}
-                        className="h-9 w-9 flex-shrink-0 border-2 border-orange-300 hover:bg-orange-50"
+                        className="h-10 w-10 flex-shrink-0 border-2 border-orange-300 hover:bg-orange-100 text-orange-600"
                         disabled={uploading || sendMessageMutation.isPending}>
-                        <Paperclip className="w-4 h-4 text-orange-600" />
+                        <Paperclip className="w-4 h-4" />
                       </Button>
                       <Button variant="outline" size="icon"
                         onClick={() => setShowSlidePanel(!showSlidePanel)}
-                        className={`h-9 w-9 flex-shrink-0 border-2 transition-colors ${showSlidePanel ? 'border-orange-500 bg-orange-50' : 'border-orange-300 hover:bg-orange-50'}`}>
+                        className={`h-10 w-10 flex-shrink-0 border-2 transition-colors ${showSlidePanel ? 'border-orange-500 bg-orange-100' : 'border-orange-300 hover:bg-orange-100'}`}>
                         {showSlidePanel ? <ChevronDown className="w-4 h-4 text-orange-600" /> : <ChevronUp className="w-4 h-4 text-orange-600" />}
                       </Button>
                       <Textarea ref={textareaRef}
@@ -708,10 +709,10 @@ export default function ClientCommunication() {
                         value={messageText}
                         onChange={(e) => { setMessageText(e.target.value); handleTyping(); }}
                         onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
-                        className="resize-none min-h-[36px] max-h-24 text-sm border-2 border-orange-300 focus:border-orange-500 flex-1 min-w-0"
+                        className="resize-none min-h-[40px] max-h-24 text-sm border-2 border-orange-300 focus:border-orange-500 rounded-xl flex-1 min-w-0 bg-white placeholder-gray-400"
                         rows={1} disabled={uploading} />
                       <Button onClick={handleSendMessage} disabled={sendMessageMutation.isPending || uploading}
-                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-9 w-9 flex-shrink-0 p-0 shadow-md">
+                        className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-10 w-10 flex-shrink-0 p-0 shadow-md rounded-xl">
                         {(sendMessageMutation.isPending || uploading) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                       </Button>
                     </div>
