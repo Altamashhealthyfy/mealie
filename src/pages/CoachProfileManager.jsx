@@ -440,7 +440,7 @@ export default function CoachProfileManager() {
               </div>
               <Button
                 onClick={handlePasswordChange}
-                disabled={passwordSaving || !passwordData.current_password || !passwordData.new_password}
+                disabled={passwordSaving || !passwordData.new_password}
                 className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
               >
                 {passwordSaving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Changing...</> : <><Lock className="w-4 h-4 mr-2" />Change Password</>}
