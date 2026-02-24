@@ -266,30 +266,30 @@ export default function Home() {
 
                 return (
                   <Card key={goal.id} className="border-none shadow-md hover:shadow-lg transition-all bg-white/80 backdrop-blur">
-                    <CardContent className="p-5">
-                      <div className="flex items-start justify-between mb-3">
+                    <CardContent className="p-3 md:p-5">
+                      <div className="flex items-start justify-between mb-2 md:mb-3">
                         <div>
-                          <h3 className="font-semibold text-gray-900 text-sm">{goal.title}</h3>
-                          <p className="text-xs text-gray-600 mt-1">{goal.description}</p>
+                          <h3 className="font-semibold text-gray-900 text-xs md:text-sm">{goal.title}</h3>
+                          <p className="text-[10px] md:text-xs text-gray-600 mt-1">{goal.description}</p>
                         </div>
-                        <Badge className={`text-xs ${
+                        <Badge className={`text-[10px] md:text-xs ${
                           goal.priority === 'high' ? 'bg-red-500' :
                           goal.priority === 'medium' ? 'bg-yellow-500' :
                           'bg-blue-500'
                         }`}>{goal.priority}</Badge>
                       </div>
-                      <div className="space-y-2 mt-4">
-                        <div className="flex justify-between text-xs">
+                      <div className="space-y-2 mt-2 md:mt-4">
+                        <div className="flex justify-between text-[10px] md:text-xs">
                           <span className="text-gray-600">Progress</span>
                           <span className="font-semibold text-gray-900">{progress.toFixed(0)}%</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full bg-gray-200 rounded-full h-1.5 md:h-2">
                           <div 
-                            className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all"
+                            className="bg-gradient-to-r from-purple-500 to-pink-500 h-1.5 md:h-2 rounded-full transition-all"
                             style={{ width: `${progress}%` }}
                           />
                         </div>
-                        <div className="flex justify-between text-xs text-gray-500">
+                        <div className="flex justify-between text-[10px] md:text-xs text-gray-500">
                           <span>{goal.current_value} {goal.unit}</span>
                           <span>Target: {goal.target_value} {goal.unit}</span>
                         </div>
