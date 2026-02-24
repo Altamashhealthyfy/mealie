@@ -537,7 +537,7 @@ export default function HelpCenter() {
           <div className="space-y-6">
             <div className="text-center">
               <h2 className="text-2xl font-black text-gray-900 mb-2">Quick Tips & Best Practices</h2>
-              <p className="text-gray-500">Pro tips to maximize your results on the platform</p>
+              <p className="text-gray-500">Pro tips for health coaches to save time and get better client outcomes</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {QUICK_TIPS.filter(t =>
