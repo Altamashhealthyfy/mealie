@@ -46,6 +46,8 @@ export default function CoachProfileManager() {
   const [showNewPw, setShowNewPw] = useState(false);
   const [accountSaving, setAccountSaving] = useState(false);
   const [passwordSaving, setPasswordSaving] = useState(false);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [previewPhoto, setPreviewPhoto] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
