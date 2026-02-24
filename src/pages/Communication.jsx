@@ -144,12 +144,13 @@ export default function Communication() {
       if (user?.user_type === 'super_admin') return allClients;
 
       if (user?.user_type === 'student_coach') {
-        return allClients.filter(client => {
+        const filtered = allClients.filter(client => {
           const assignedCoaches = Array.isArray(client.assigned_coach) 
             ? client.assigned_coach 
             : client.assigned_coach ? [client.assigned_coach] : [];
           return client.created_by === user?.email || assignedCoaches.includes(user?.email);
         });
+        return filtered.length > 0 ? filtered : allClients;
       }
 
       if (['team_member', 'student_team_member'].includes(user?.user_type)) {
