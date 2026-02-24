@@ -629,13 +629,13 @@ export default function ClientAnalyticsDashboard() {
         {/* Module Usage Overview */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
           <Card className="border-none shadow-lg">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <ClipboardList className="w-8 h-8 text-indigo-600" />
-                <div>
-                  <p className="text-xs text-gray-600">Assessments</p>
-                  <p className="text-2xl font-bold text-gray-900">{analytics.completedAssessments}</p>
-                  <p className="text-xs text-green-600">{analytics.assessmentCompletionRate}% completed</p>
+            <CardContent className="p-2.5 md:p-4">
+              <div className="flex items-center gap-2 md:gap-3">
+                <ClipboardList className="w-6 md:w-8 h-6 md:h-8 text-indigo-600 flex-shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-[10px] md:text-xs text-gray-600">Assessments</p>
+                  <p className="text-xl md:text-2xl font-bold text-gray-900">{analytics.completedAssessments}</p>
+                  <p className="text-[9px] md:text-xs text-green-600">{analytics.assessmentCompletionRate}% completed</p>
                 </div>
               </div>
             </CardContent>
