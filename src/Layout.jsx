@@ -1305,7 +1305,7 @@ export default function Layout({ children, currentPageName }) {
           </SidebarFooter>
         </Sidebar>
 
-        <main className="flex-1 flex flex-col main-content-mobile">
+        <main className="flex-1 flex flex-col main-content-mobile w-full overflow-x-hidden">
           <header className="bg-white/80 backdrop-blur-sm border-b border-orange-100 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4 md:hidden">
               <div className="flex items-center gap-2">
