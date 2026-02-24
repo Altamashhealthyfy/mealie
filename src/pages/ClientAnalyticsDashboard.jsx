@@ -469,9 +469,9 @@ export default function ClientAnalyticsDashboard() {
                 </div>
 
               {/* Other Filters */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium flex items-center gap-1"><Layers className="w-3.5 h-3.5" /> Filter by Group</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-4">
+                <div className="space-y-1.5 md:space-y-2">
+                  <Label className="text-xs md:text-sm font-medium flex items-center gap-1"><Layers className="w-3 md:w-3.5 h-3 md:h-3.5" /> Filter by Group</Label>
                   <select
                     value={selectedGroup}
                     onChange={(e) => { setSelectedGroup(e.target.value); setSelectedClient("all"); }}
