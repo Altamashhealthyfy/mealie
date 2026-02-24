@@ -728,14 +728,14 @@ export default function Communication() {
                       >
                         ☰
                       </Button>
-                      <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-white font-medium text-sm">
+                      <div className="w-7 h-7 md:w-8 md:h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-white font-medium text-xs md:text-sm">
                           {(selectedClient.full_name || 'C').charAt(0)}
                         </span>
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-sm truncate">{selectedClient.full_name}</p>
-                        <p className="text-xs text-gray-400 truncate">{selectedClient.email}</p>
+                        <p className="font-semibold text-xs md:text-sm truncate">{selectedClient.full_name}</p>
+                        <p className="text-xs text-gray-400 truncate hidden md:block">{selectedClient.email}</p>
                       </div>
                       <div className="flex items-center gap-1 flex-shrink-0">
                         <Button
