@@ -58,18 +58,22 @@ export default function ClientDashboard() {
       const clients = await base44.entities.Client.filter({ email: user?.email });
       if (clients.length > 0) return clients[0];
       
-      // If no match, try to find by user created by relationship
+      // If no match, try case-insensitive match
       const allClients = await base44.entities.Client.list();
+      const clientByEmail = allClients.find(c => c.email?.toLowerCase() === user?.email?.toLowerCase());
+      if (clientByEmail) return clientByEmail;
+
+      // If no match, try to find by user created by relationship
       const clientByCreator = allClients.find(c => c.created_by === user?.email);
       return clientByCreator || null;
     },
     enabled: !!user?.email,
-    retry: false,
-    staleTime: Infinity,
+    retry: 2,
+    staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-    refetchOnMount: false,
+    refetchOnReconnect: true,
+    refetchOnMount: true,
   });
 
   const { data: progressLogs } = useQuery({
