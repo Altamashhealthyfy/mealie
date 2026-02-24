@@ -800,11 +800,11 @@ export default function ClientDashboard() {
           </Card>
 
           <Card className="border-none shadow-lg bg-gradient-to-br from-yellow-50 to-amber-50">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex flex-col">
-                <p className="text-sm text-gray-600 mb-2">Energy Level</p>
+                <p className="text-xs sm:text-sm text-gray-600 mb-2">Energy Level</p>
                 <div className="flex items-center gap-2">
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-2xl sm:text-3xl font-bold text-gray-900">
                     {todayWellness?.energy_level || avgWellness?.energy || '--'}
                   </p>
                   <span className="text-xs text-gray-500">/10</span>
@@ -819,11 +819,11 @@ export default function ClientDashboard() {
           </Card>
 
           <Card className="border-none shadow-lg bg-gradient-to-br from-indigo-50 to-purple-50">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex flex-col">
-                <p className="text-sm text-gray-600 mb-2">Sleep Quality</p>
+                <p className="text-xs sm:text-sm text-gray-600 mb-2">Sleep Quality</p>
                 <div className="flex items-center gap-2">
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-2xl sm:text-3xl font-bold text-gray-900">
                     {todayWellness?.sleep_quality || avgWellness?.sleep || '--'}
                   </p>
                   <span className="text-xs text-gray-500">/10</span>
@@ -838,10 +838,10 @@ export default function ClientDashboard() {
           </Card>
 
           <Card className="border-none shadow-lg bg-gradient-to-br from-pink-50 to-rose-50">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex flex-col">
-                <p className="text-sm text-gray-600 mb-2">Mood Today</p>
-                <p className="text-2xl font-bold text-gray-900 capitalize">
+                <p className="text-xs sm:text-sm text-gray-600 mb-2">Mood Today</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900 capitalize">
                   {todayWellness?.mood ? (
                     todayWellness.mood === 'excellent' ? '😄 Excellent' :
                     todayWellness.mood === 'good' ? '😊 Good' :
@@ -860,11 +860,11 @@ export default function ClientDashboard() {
           </Card>
 
           <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex flex-col">
-                <p className="text-sm text-gray-600 mb-2">Stress Level</p>
+                <p className="text-xs sm:text-sm text-gray-600 mb-2">Stress Level</p>
                 <div className="flex items-center gap-2">
-                  <p className="text-3xl font-bold text-gray-900">
+                  <p className="text-2xl sm:text-3xl font-bold text-gray-900">
                     {todayWellness?.stress_level || avgWellness?.stress || '--'}
                   </p>
                   <span className="text-xs text-gray-500">/10</span>
