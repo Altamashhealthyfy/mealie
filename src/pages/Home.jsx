@@ -336,14 +336,14 @@ export default function Home() {
         {/* MPESS Framework Info */}
          <Card className="border-none shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
           <CardHeader>
-            <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <CardTitle className="text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-red-500"></span>
               Holistic Wellness Framework
             </CardTitle>
-            <p className="text-sm text-gray-600 mt-2">MPESS goes beyond nutrition to help you achieve complete wellbeing</p>
+            <p className="text-xs md:text-sm text-gray-600 mt-2">MPESS goes beyond nutrition to help you achieve complete wellbeing</p>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 md:gap-4">
               {[
                 { letter: "M", word: "Mind", desc: "Mental wellness", color: "from-blue-500 to-cyan-500" },
                 { letter: "P", word: "Physical", desc: "Movement & hydration", color: "from-green-500 to-emerald-500" },
