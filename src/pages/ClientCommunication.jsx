@@ -376,12 +376,17 @@ export default function ClientCommunication() {
       )}
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar - hidden on mobile, shown when showSidebar is true */}
-        {showSidebar && (
-          <div className="fixed inset-0 z-50 md:relative md:inset-auto flex md:block">
-            {/* Overlay for mobile */}
-            <div className="absolute inset-0 bg-black/40 md:hidden" onClick={() => setShowSidebar(false)} />
-            <div className="relative z-10 flex flex-col w-72 md:w-64 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto h-full ml-0">
+        {/* Sidebar - visible on desktop, toggleable on mobile */}
+        <div className={`flex flex-col w-72 md:w-64 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto h-full transition-transform duration-300 ${
+          showSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        } fixed md:relative inset-y-0 left-0 z-40 md:z-0`}>
+          {/* Close button on mobile */}
+          <div className="flex items-center justify-between p-3 border-b md:hidden">
+            <span className="font-semibold text-gray-900">Chat Info</span>
+            <Button variant="ghost" size="sm" onClick={() => setShowSidebar(false)} className="h-8 w-8 p-0">
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
               {/* Close button on mobile */}
               <div className="flex items-center justify-between p-3 border-b md:hidden">
                 <span className="font-semibold text-gray-900">Chat Info</span>
