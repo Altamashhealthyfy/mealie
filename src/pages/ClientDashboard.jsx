@@ -241,7 +241,7 @@ export default function ClientDashboard() {
         log.spiritual_practices?.meditation_done
       ].filter(Boolean).length;
       return {
-        date: format(new Date(log.date), 'MMM dd'),
+        date: safeFormat(log.date, 'MMM dd'),
         completed: total
       };
     }),
