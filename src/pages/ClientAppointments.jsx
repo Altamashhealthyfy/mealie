@@ -210,7 +210,7 @@ export default function ClientAppointments() {
     );
   };
 
-  if (!clientProfile) {
+  if (!clientProfile && !user) {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
         <Card className="max-w-md">
