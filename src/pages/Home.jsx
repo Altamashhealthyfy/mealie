@@ -11,6 +11,8 @@ import ClientGuidePanel from "@/components/common/ClientGuidePanel";
  
 
 export default function Home() {
+  const navigate = useNavigate();
+
   const { data: user, isLoading: userLoading, error: userError } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
