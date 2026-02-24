@@ -1616,45 +1616,45 @@ export default function ClientDashboard() {
 
           <Link to={createPageUrl("FoodLog")}>
             <Card className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer group bg-gradient-to-br from-blue-50 to-cyan-50">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Flame className="w-6 h-6 text-white" />
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-2 sm:mb-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                    <Flame className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
-                  <ArrowRight className="w-5 h-5 text-blue-600 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 group-hover:translate-x-1 transition-transform flex-shrink-0" />
                 </div>
-                <p className="font-bold text-gray-900 mb-1">Food Log</p>
-                <p className="text-sm text-gray-600">{last7Days} meals this week</p>
+                <p className="font-bold text-sm sm:text-base text-gray-900 mb-1 truncate">Food Log</p>
+                <p className="text-xs sm:text-sm text-gray-600">{last7Days} meals this week</p>
               </CardContent>
             </Card>
           </Link>
 
           <Link to={createPageUrl("MPESSTracker")}>
             <Card className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer group bg-gradient-to-br from-purple-50 to-pink-50">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Heart className="w-6 h-6 text-white" />
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-2 sm:mb-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                    <Heart className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
-                  <ArrowRight className="w-5 h-5 text-purple-600 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 group-hover:translate-x-1 transition-transform flex-shrink-0" />
                 </div>
-                <p className="font-bold text-gray-900 mb-1">MPESS Wellness</p>
-                <p className="text-sm text-gray-600">{mpessLogs.length} days tracked</p>
+                <p className="font-bold text-sm sm:text-base text-gray-900 mb-1 truncate">MPESS Wellness</p>
+                <p className="text-xs sm:text-sm text-gray-600">{mpessLogs.length} days tracked</p>
               </CardContent>
             </Card>
           </Link>
 
           <Link to={createPageUrl("ClientCommunication")}>
             <Card className="border-none shadow-lg hover:shadow-xl transition-all cursor-pointer group bg-gradient-to-br from-green-50 to-emerald-50">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <MessageSquare className="w-6 h-6 text-white" />
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-2 sm:mb-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                    <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                   </div>
-                  <ArrowRight className="w-5 h-5 text-green-600 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 group-hover:translate-x-1 transition-transform flex-shrink-0" />
                 </div>
-                <p className="font-bold text-gray-900 mb-1">Messages</p>
-                <p className="text-sm text-gray-600">Chat with your coach</p>
+                <p className="font-bold text-sm sm:text-base text-gray-900 mb-1 truncate">Messages</p>
+                <p className="text-xs sm:text-sm text-gray-600">Chat with your coach</p>
               </CardContent>
             </Card>
           </Link>
