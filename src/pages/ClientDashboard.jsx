@@ -686,13 +686,13 @@ export default function ClientDashboard() {
     <div className="min-h-screen p-3 sm:p-4 md:p-8 space-y-4 sm:space-y-6">
       <ClientTutorial autoStart={true} />
       <div className="max-w-7xl mx-auto" id="dashboard-welcome">
-        {/* Header */}
-        <div className="mb-6 flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              Welcome back, {clientProfile.full_name?.split(' ')[0]}! 👋
-            </h1>
-            <p className="text-gray-600">Here's your health journey progress</p>
+       {/* Header */}
+       <div className="mb-4 sm:mb-6 flex justify-between items-start gap-3">
+         <div className="min-w-0 flex-1">
+           <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2 break-words">
+             Welcome back, {clientProfile.full_name?.split(' ')[0]}! 👋
+           </h1>
+           <p className="text-xs sm:text-sm text-gray-600">Here's your health journey progress</p>
           </div>
           <TourButton pageName="ClientDashboard" />
         </div>
