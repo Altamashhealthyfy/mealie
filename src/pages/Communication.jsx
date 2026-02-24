@@ -685,12 +685,12 @@ export default function Communication() {
             <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0">
               <div className="flex h-full min-h-0 relative">
                 {/* Mobile Sidebar Overlay */}
-                {mobileClientPanelOpen && (
-                  <div 
-                    className="absolute inset-0 md:hidden bg-black/30 z-40"
-                    onClick={() => setMobileClientPanelOpen(false)}
-                  />
-                )}
+                 {mobileClientPanelOpen && (
+                   <div 
+                     className="fixed inset-0 md:hidden bg-black/30 z-40 bottom-[60vh] md:bottom-auto"
+                     onClick={() => setMobileClientPanelOpen(false)}
+                   />
+                 )}
 
                 {/* Client List Sidebar — slide in on mobile, fixed on desktop */}
                  <div className={`fixed md:relative md:flex bottom-0 md:bottom-auto left-0 md:left-auto h-[60vh] md:h-full w-full md:w-56 lg:w-64 border-t md:border-r border-gray-200 bg-white flex-col min-h-0 flex-shrink-0 transition-transform duration-300 z-50 md:z-0 md:border-t-0 ${
