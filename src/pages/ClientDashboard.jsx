@@ -197,11 +197,21 @@ export default function ClientDashboard() {
   
   const adherencePercentage = Math.round((last7Days / (7 * 6)) * 100);
 
+  const safeFormat = (dateStr, fmt) => {
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return '';
+      return format(d, fmt);
+    } catch {
+      return '';
+    }
+  };
+
   const weightChartData = React.useMemo(() => 
     sortedProgressLogs
-      .filter(log => log.weight)
+      .filter(log => log.weight && log.date && !isNaN(new Date(log.date).getTime()))
       .map(log => ({
-        date: format(new Date(log.date), 'MMM dd'),
+        date: safeFormat(log.date, 'MMM dd'),
         weight: log.weight,
         target: targetWeight
       })),
@@ -210,10 +220,10 @@ export default function ClientDashboard() {
 
   const wellnessChartData = React.useMemo(() => 
     sortedProgressLogs
-      .filter(log => log.wellness_metrics?.energy_level)
+      .filter(log => log.wellness_metrics?.energy_level && log.date && !isNaN(new Date(log.date).getTime()))
       .slice(-14)
       .map(log => ({
-        date: format(new Date(log.date), 'MMM dd'),
+        date: safeFormat(log.date, 'MMM dd'),
         energy: log.wellness_metrics?.energy_level || 0,
         sleep: log.wellness_metrics?.sleep_quality || 0,
         stress: 10 - (log.wellness_metrics?.stress_level || 5)
@@ -222,7 +232,7 @@ export default function ClientDashboard() {
   );
 
   const mpessAdherence = React.useMemo(() => 
-    (mpessLogs || []).filter(l => l.date).slice(-7).map(log => {
+    (mpessLogs || []).filter(l => l.date && !isNaN(new Date(l.date).getTime())).slice(-7).map(log => {
       const total = [
         log.mind_practices?.affirmations_completed,
         log.physical_practices?.movement_done,
