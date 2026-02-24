@@ -223,6 +223,31 @@ export default function ClientAppointments() {
 
   return (
     <div className="min-h-screen p-4 md:p-8">
+      {activeVideoCall && (
+        <VideoCallRoom
+          roomId={activeVideoCall.clientId}
+          localName={user?.full_name || 'Me'}
+          remoteName={activeVideoCall.coachName}
+          isInitiator={false}
+          signalingChannel={activeVideoCall.channel}
+          onEnd={endVideoCall}
+        />
+      )}
+
+      {incomingCall && (
+        <div className="fixed top-4 right-4 z-50 bg-white border border-green-300 rounded-2xl shadow-2xl p-4 flex flex-col items-center gap-3 w-64">
+          <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center">
+            <Video className="w-7 h-7 text-green-600" />
+          </div>
+          <p className="font-semibold text-gray-900 text-sm">Incoming Video Call</p>
+          <p className="text-xs text-gray-500">Your health coach is calling</p>
+          <div className="flex gap-2 w-full">
+            <Button onClick={acceptCall} size="sm" className="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs">Answer</Button>
+            <Button onClick={rejectCall} size="sm" variant="destructive" className="flex-1 text-xs">Decline</Button>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto space-y-6">
         <div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">My Appointments</h1>
