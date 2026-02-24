@@ -1403,201 +1403,34 @@ support@mealiepro.com`;
         )}
 
         {/* View Client Details Dialog */}
-        <Dialog open={!!viewingClient} onOpenChange={() => setViewingClient(null)}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-2xl flex items-center gap-3">
-                {viewingClient?.profile_photo_url ? (
-                  <img
-                    src={viewingClient.profile_photo_url}
-                    alt={viewingClient.full_name}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-orange-500"
-                  />
-                ) : (
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">
-                      {viewingClient?.full_name?.charAt(0)?.toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                {viewingClient?.full_name}
-              </DialogTitle>
-              <DialogDescription>
-                Detailed information and actions for {viewingClient?.full_name}.
-              </DialogDescription>
-            </DialogHeader>
-            {viewingClient && (
-              <div className="space-y-6 mt-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <UserPlus className="w-5 h-5 text-gray-600"/> Basic Info
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      <p><span className="font-semibold">Email:</span> {viewingClient.email}</p>
-                      {viewingClient.phone && <p><span className="font-semibold">Phone:</span> {viewingClient.phone}</p>}
-                      <p><span className="font-semibold">Status:</span> <Badge>{viewingClient.status}</Badge></p>
-                      <p><span className="font-semibold">Joined:</span> {format(new Date(viewingClient.join_date), 'MMM d, yyyy')}</p>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <TrendingUp className="w-5 h-5 text-gray-600"/> Health Data
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      <p><span className="font-semibold">Age:</span> {viewingClient.age || 'N/A'}</p>
-                      <p><span className="font-semibold">Gender:</span> {viewingClient.gender || 'N/A'}</p>
-                      <p><span className="font-semibold">Height:</span> {viewingClient.height ? `${viewingClient.height} cm` : 'N/A'}</p>
-                      <p><span className="font-semibold">Weight:</span> {viewingClient.weight ? `${viewingClient.weight} kg` : 'N/A'}</p>
-                      <p><span className="font-semibold">Target Weight:</span> {viewingClient.target_weight ? `${viewingClient.target_weight} kg` : 'N/A'}</p>
-                      <p><span className="font-semibold">Activity Level:</span> {viewingClient.activity_level?.replace('_', ' ') || 'N/A'}</p>
-                      <p><span className="font-semibold">Goal:</span> <Badge className="capitalize">{viewingClient.goal?.replace('_', ' ')}</Badge></p>
-                    </CardContent>
-                  </Card>
-
-                  {viewingClient.target_calories && (
-                    <Card className="col-span-2">
-                      <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <Calculator className="w-5 h-5 text-gray-600"/> Macros
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid grid-cols-4 gap-3 p-4 bg-gray-50 rounded-lg">
-                          <div>
-                            <p className="text-xs text-gray-600">Calories</p>
-                            <p className="text-lg font-bold">{viewingClient.target_calories}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-600">Protein</p>
-                            <p className="text-lg font-bold">{viewingClient.target_protein}g</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-600">Carbs</p>
-                            <p className="text-lg font-bold">{viewingClient.target_carbs}g</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-600">Fats</p>
-                            <p className="text-lg font-bold">{viewingClient.target_fats}g</p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  <Card className="col-span-2">
-                    <CardHeader>
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <ChefHat className="w-5 h-5 text-gray-600"/> Preferences & Notes
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm">
-                      <p><span className="font-semibold">Food Preference:</span> {viewingClient.food_preference?.replace('_', ' ') || 'N/A'}</p>
-                      <p><span className="font-semibold">Regional Preference:</span> {viewingClient.regional_preference?.replace('_', ' ') || 'N/A'}</p>
-                      {viewingClient.notes && (
-                        <div>
-                          <p className="font-semibold mb-1">Notes:</p>
-                          <Textarea value={viewingClient.notes} readOnly rows={4} className="bg-gray-50 resize-none"/>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-                  <Button variant="outline" onClick={() => { setViewingClient(null); handleEdit(viewingClient); }}>
-                    <Edit className="w-4 h-4 mr-2" /> Edit
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setViewingClient(null);
-                      handleOpenEmail(viewingClient);
-                    }}
-                    className="text-blue-600 hover:bg-blue-50"
-                  >
-                    <Send className="w-4 h-4 mr-2" /> Email
-                  </Button>
-                  <Button variant="outline" onClick={() => { setViewingClient(null); handleViewPlans(viewingClient); }}>
-                    <FileText className="w-4 h-4 mr-2" /> Plans
-                  </Button>
-                  <Button variant="outline" onClick={() => { setViewingClient(null); handleCreatePlan(viewingClient); }}>
-                    <Plus className="w-4 h-4 mr-2" /> Basic Plan
-                  </Button>
-                  <Button
-                    className="bg-purple-500 hover:bg-purple-600 text-white"
-                    onClick={() => {
-                      setViewingClient(null);
-                      navigate(`${createPageUrl("ClinicalIntake")}?clientId=${viewingClient.id}`);
-                    }}
-                  >
-                    <Stethoscope className="w-4 h-4 mr-2" /> Pro Plan
-                  </Button>
-                </div>
-
-                {/* Assign to Health Coach Button in View Dialog */}
-                {user?.user_type === 'super_admin' && healthCoaches.length > 0 && (
-                  <Button 
-                    variant="outline"
-                    className="w-full mt-2 text-green-600 hover:bg-green-50"
-                    onClick={() => handleAssignCoach(viewingClient)}
-                  >
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    Assign to Health Coach
-                  </Button>
-                )}
-
-                {/* Assign/Reassign Button in View Dialog */}
-                {(user?.user_type === 'super_admin' || user?.user_type === 'student_coach') && teamMembers && teamMembers.length > 0 && (
-                  <Button 
-                    variant="outline"
-                    className="w-full mt-2 text-purple-600 hover:bg-purple-50"
-                    onClick={() => handleAssignClient(viewingClient)}
-                  >
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    {viewingClient.assigned_to ? 'Reassign to Team Member' : 'Assign to Team Member'}
-                  </Button>
-                )}
-
-                {/* Create Password Button */}
-                <Button 
-                  variant="outline"
-                  className="w-full mt-2 text-green-600 hover:bg-green-50"
-                  onClick={() => {
-                    setClientForPassword(viewingClient);
-                    setNewClientPassword("");
-                    setShowCreatePasswordDialog(true);
-                  }}
-                >
-                  <KeyRound className="w-4 h-4 mr-2" />
-                  Create Login Password
-                </Button>
-
-                {/* Send Welcome Message */}
-                <Button 
-                  variant="outline"
-                  className="w-full mt-2 text-orange-600 hover:bg-orange-50"
-                  onClick={() => {
-                    setClientForWelcome(viewingClient);
-                    setShowWelcomeMessageDialog(true);
-                  }}
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Send Welcome Message
-                </Button>
-
-                <Button variant="destructive" onClick={() => handleDeleteClient(viewingClient)} disabled={deleteClientMutation.isPending} className="w-full mt-4">
-                  {deleteClientMutation.isPending ? 'Deleting...' : 'Delete Client'}
-                </Button>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+        {viewingClient && (
+          <>
+            <ClientDetailDialog
+              client={viewingClient}
+              onClose={() => setViewingClient(null)}
+              onEdit={handleEdit}
+              onEmail={handleOpenEmail}
+              onViewPlans={handleViewPlans}
+              onCreatePlan={handleCreatePlan}
+              onAssignCoach={handleAssignCoach}
+              onAssignTeam={handleAssignClient}
+              onCreatePassword={(c) => { setClientForPassword(c); setNewClientPassword(""); setShowCreatePasswordDialog(true); }}
+              onWelcomeMessage={(c) => { setClientForWelcome(c); setShowWelcomeMessageDialog(true); }}
+              onDelete={handleDeleteClient}
+              onQuickActions={(c) => { setViewingClient(null); setTimeout(() => { setClientForQuickActions(c); setShowQuickActions(true); }, 150); }}
+              onProPlan={(c) => navigate(`${createPageUrl("ClinicalIntake")}?clientId=${c.id}`)}
+              userType={user?.user_type}
+              teamMembers={teamMembers}
+              healthCoaches={healthCoaches}
+              isDeleting={deleteClientMutation.isPending}
+            />
+            <QuickActionsPanel
+              client={clientForQuickActions}
+              open={showQuickActions}
+              onOpenChange={(open) => { setShowQuickActions(open); if (!open) setClientForQuickActions(null); }}
+            />
+          </>
+        )}
 
         {/* View Client Plans Dialog */}
         <Dialog open={!!viewingClientPlans} onOpenChange={() => setViewingClientPlans(null)}>
