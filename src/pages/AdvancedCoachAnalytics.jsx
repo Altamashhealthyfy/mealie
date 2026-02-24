@@ -506,8 +506,8 @@ export default function AdvancedCoachAnalytics() {
           </TabsContent>
 
           {/* ── TAB 2: COMMON ISSUES ───────────────────────────────── */}
-          <TabsContent value="issues" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TabsContent value="issues" className="space-y-4 md:space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
               {/* Top Symptoms */}
               <Card className="border-none shadow-lg">
                 <CardHeader>
