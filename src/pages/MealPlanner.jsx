@@ -1788,8 +1788,8 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
   const isNoClientsMode = clients.length === 0;
 
   return (
-    <div className="min-h-screen p-4 lg:p-8 bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
-      <div className="max-w-7xl mx-auto space-y-4 lg:space-y-6">
+    <div className="min-h-screen p-3 md:p-6 lg:p-8 bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 pb-[calc(2rem+env(safe-area-inset-bottom))]">
+      <div className="max-w-7xl mx-auto space-y-3 md:space-y-4 lg:space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">Meal Planner</h1>
