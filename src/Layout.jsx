@@ -994,7 +994,7 @@ export default function Layout({ children, currentPageName }) {
     const fullWidthPages = ['HealthCoachesManagement'];
     const isFullWidth = fullWidthPages.includes(currentPageName);
     // Pages where mobile bottom nav should be hidden (chat-like full-screen pages)
-    const noMobileNavPages = ['AICoachInsights', 'Communication', 'ClientCommunication'];
+      const noMobileNavPages = ['AICoachInsights', 'Communication', 'ClientCommunication', 'ClientOnboarding', 'ClientOnboardingWizard'];
 
   if (isFullWidth) {
     return (
