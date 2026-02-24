@@ -91,12 +91,11 @@ export default function ImageUploader({
        // Resize image to required dimensions
        const resizedBlob = await resizeImage(file, requiredWidth, requiredHeight);
 
-       // Create FormData to properly send the file
-       const formData = new FormData();
-       formData.append('file', resizedBlob, file.name);
+       // Create proper File object from blob for upload
+       const resizedFile = new File([resizedBlob], `recipe_${Date.now()}.jpeg`, { type: 'image/jpeg' });
 
        // Upload the resized image
-       const result = await base44.integrations.Core.UploadFile({ file: resizedBlob });
+       const result = await base44.integrations.Core.UploadFile({ file: resizedFile });
 
        setPreviewUrl(result.file_url);
        onImageUploaded(result.file_url);
