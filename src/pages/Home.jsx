@@ -193,14 +193,14 @@ export default function Home() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
               <Card className="border-none shadow-md bg-white/80 backdrop-blur hover:shadow-lg transition-all">
-                <CardContent className="p-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                      <Scale className="w-5 h-5 text-blue-600" />
+                <CardContent className="p-3 md:p-5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                      <Scale className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-xs text-gray-500 font-medium">Current Weight</p>
-                      <p className="text-2xl font-bold text-gray-900">{recentProgress[0]?.weight || clientProfile.weight || 0} <span className="text-xs font-normal">kg</span></p>
+                      <p className="text-[10px] md:text-xs text-gray-500 font-medium">Current Weight</p>
+                      <p className="text-lg md:text-2xl font-bold text-gray-900">{recentProgress[0]?.weight || clientProfile.weight || 0} <span className="text-[10px] md:text-xs font-normal">kg</span></p>
                     </div>
                   </div>
                 </CardContent>
