@@ -18,6 +18,11 @@ import VideoCallRoom from "@/components/communication/VideoCallRoom";
 import { createSignalingChannel } from "@/components/communication/VideoCallSignaling";
 
 export default function ClientAppointments() {
+  const [activeVideoCall, setActiveVideoCall] = useState(null);
+  const [incomingCall, setIncomingCall] = useState(null);
+  const signalingRef = useRef(null);
+  const incomingChannelRef = useRef(null);
+
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
