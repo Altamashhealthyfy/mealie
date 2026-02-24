@@ -85,6 +85,46 @@ export default function CoachProfileManager() {
   const [formData, setFormData] = useState({});
 
   React.useEffect(() => {
+    if (user) {
+      setAccountData({
+        full_name: user.full_name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+      });
+    }
+  }, [user]);
+
+  const handleAccountSave = async () => {
+    setAccountSaving(true);
+    await base44.auth.updateMe({ full_name: accountData.full_name, phone: accountData.phone });
+    if (accountData.email !== user?.email) {
+      await base44.functions.invoke('updateUserEmail', { new_email: accountData.email });
+    }
+    queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+    toast.success("Account details updated!");
+    setAccountSaving(false);
+  };
+
+  const handlePasswordChange = async () => {
+    if (passwordData.new_password !== passwordData.confirm_password) {
+      toast.error("New passwords do not match!");
+      return;
+    }
+    if (passwordData.new_password.length < 6) {
+      toast.error("Password must be at least 6 characters.");
+      return;
+    }
+    setPasswordSaving(true);
+    await base44.functions.invoke('changeUserPassword', {
+      current_password: passwordData.current_password,
+      new_password: passwordData.new_password,
+    });
+    toast.success("Password changed successfully!");
+    setPasswordData({ current_password: '', new_password: '', confirm_password: '' });
+    setPasswordSaving(false);
+  };
+
+  React.useEffect(() => {
     if (coachProfile) {
       setFormData({
         specializations: coachProfile.specializations || [],
