@@ -13,15 +13,15 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { email, password, targetUserEmail } = await req.json();
+    const body = await req.json();
+    const password = body.password || body.new_password;
+    const targetUserEmail = body.targetUserEmail;
 
-    // Check if this is admin changing someone else's password
+    // Allow any authenticated user to change their own password, or admin to change others
     const isAdminChangingPassword = targetUserEmail && user.user_type === 'super_admin';
-    
-    // Check if coach is changing their own password
-    const isCoachChangingSelf = !targetUserEmail && user.user_type === 'student_coach';
-    
-    if (!isAdminChangingPassword && !isCoachChangingSelf) {
+    const isChangingSelf = !targetUserEmail;
+
+    if (!isAdminChangingPassword && !isChangingSelf) {
       return Response.json(
         { error: 'Unauthorized to change password' },
         { status: 403 }
