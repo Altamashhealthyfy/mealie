@@ -129,8 +129,8 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-6 bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="min-h-screen p-3 md:p-6 bg-gradient-to-br from-orange-50 via-amber-50 to-green-50 pb-24 md:pb-6">
+      <div className="max-w-6xl mx-auto space-y-4 md:space-y-6">
         {/* Tab Navigation */}
         <div className="flex gap-3 mb-6">
           <Button className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0 rounded-2xl shadow-lg hover:shadow-xl px-6 py-2">
