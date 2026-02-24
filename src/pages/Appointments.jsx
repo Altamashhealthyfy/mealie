@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -25,6 +25,8 @@ import {
   Filter
 } from "lucide-react";
 import { format, addDays, startOfWeek, endOfWeek, isSameDay } from "date-fns";
+import VideoCallRoom from "@/components/communication/VideoCallRoom";
+import { createSignalingChannel } from "@/components/communication/VideoCallSignaling";
 
 export default function Appointments() {
   const queryClient = useQueryClient();
