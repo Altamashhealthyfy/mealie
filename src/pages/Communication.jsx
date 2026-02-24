@@ -737,33 +737,33 @@ export default function Communication() {
                         <p className="font-semibold text-xs md:text-sm truncate">{selectedClient.full_name}</p>
                         <p className="text-xs text-gray-400 truncate hidden md:block">{selectedClient.email}</p>
                       </div>
-                      <div className="flex items-center gap-1 flex-shrink-0">
+                      <div className="flex items-center gap-0.5 md:gap-1 flex-shrink-0">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => setShowCallHistory(!showCallHistory)}
-                          className="flex items-center gap-1 border-purple-300 text-purple-700 hover:bg-purple-50 h-7 px-2 text-xs"
+                          className="hidden md:flex items-center gap-1 border-purple-300 text-purple-700 hover:bg-purple-50 h-6 px-1.5 text-xs"
                         >
-                          <History className="w-3 h-3" />
+                          <History className="w-2.5 h-2.5" />
                           <span className="hidden lg:inline">History</span>
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => setShowScheduler(true)}
-                          className="flex items-center gap-1 border-orange-300 text-orange-700 hover:bg-orange-50 h-7 px-2 text-xs"
+                          className="hidden md:flex items-center gap-1 border-orange-300 text-orange-700 hover:bg-orange-50 h-6 px-1.5 text-xs"
                         >
-                          <CalendarClock className="w-3 h-3" />
+                          <CalendarClock className="w-2.5 h-2.5" />
                           <span className="hidden lg:inline">Schedule</span>
                         </Button>
                         <ConversationSummary messages={clientMessages} clientName={selectedClient.full_name} />
                         <Button
                           size="sm"
                           onClick={() => startVideoCall(selectedClient)}
-                          className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-1 h-7 px-2 text-xs"
+                          className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-0.5 h-6 px-1.5 text-xs"
                         >
-                          <Phone className="w-3 h-3" />
-                          <span className="hidden sm:inline">Video</span>
+                          <Phone className="w-2.5 h-2.5" />
+                          <span className="hidden md:inline">Video</span>
                         </Button>
                       </div>
                       </div>
