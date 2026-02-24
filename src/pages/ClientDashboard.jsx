@@ -748,7 +748,7 @@ export default function ClientDashboard() {
         </div>
 
         {/* Key Stats */}
-        <div id="client-overview" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+         <div id="client-overview" className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6">
           <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
