@@ -307,11 +307,11 @@ export default function Home() {
 
         {/* Quick Navigation Section */}
         <div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3 md:mb-4 flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-red-500"></span>
             Essential Tools
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4">
             {features.map((feature) => (
               <Link key={feature.title} to={feature.link}>
                 <Card className="border-none shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 bg-white/80 backdrop-blur overflow-hidden group">
