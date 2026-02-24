@@ -1,237 +1,267 @@
-import React from "react";
-import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Watch, Plus, Trash2, RefreshCw, AlertCircle, CheckCircle, Clock } from "lucide-react";
-import { format } from "date-fns";
+import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { AlertCircle, Watch, Loader2, Plus, Trash2, RefreshCw, Check, X, Clock } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
-const WEARABLE_CONFIGS = {
-  google_fit: {
-    name: 'Google Fit',
-    icon: '📱',
-    color: 'from-blue-500 to-green-500',
-    description: 'Sync steps, heart rate, sleep, and calorie data from Google Fit',
-    permissions: ['steps', 'heart_rate', 'sleep', 'calories']
-  },
-  fitbit: {
-    name: 'Fitbit',
-    icon: '⌚',
-    color: 'from-purple-500 to-pink-500',
-    description: 'Connect your Fitbit device for comprehensive health tracking',
-    permissions: ['steps', 'heart_rate', 'sleep', 'calories', 'distance', 'elevation', 'activity']
-  },
-  apple_health: {
-    name: 'Apple Health',
-    icon: '🍎',
-    color: 'from-gray-600 to-black',
-    description: 'Sync data from Apple Health on your iPhone',
-    permissions: ['steps', 'heart_rate', 'sleep', 'calories', 'activity']
-  }
+const DEVICE_ICONS = {
+  fitbit: '🏃',
+  garmin: '⌚',
+  apple_health: '🍎',
+  google_fit: '📊',
+  oura_ring: '💍',
+  whoop: '📈'
 };
 
-export default function WearableDeviceManager({ clientId, clientEmail, compact = false }) {
+export default function WearableDeviceManager({ clientId }) {
   const queryClient = useQueryClient();
-  const [showConnectDialog, setShowConnectDialog] = React.useState(false);
-  const [selectedDevice, setSelectedDevice] = React.useState(null);
+  const [showConnectDialog, setShowConnectDialog] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState(null);
 
-  const { data: devices, isLoading } = useQuery({
+  // Fetch connected devices
+  const { data: devices = [], isLoading, error } = useQuery({
     queryKey: ['wearableDevices', clientId],
-    queryFn: () => base44.entities.WearableDevice.filter({ client_id: clientId }),
-    enabled: !!clientId,
-    initialData: []
-  });
-
-  const disconnectMutation = useMutation({
-    mutationFn: async (deviceId) => {
-      return await base44.entities.WearableDevice.update(deviceId, {
-        is_connected: false,
-        sync_status: 'disconnected'
-      });
+    queryFn: async () => {
+      if (!clientId) return [];
+      return await base44.entities.WearableDevice.filter({ client_id: clientId });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['wearableDevices', clientId] });
-    }
+    enabled: !!clientId
   });
 
+  // Sync data mutation
   const syncMutation = useMutation({
-    mutationFn: async () => {
-      return await base44.functions.invoke('syncWearableData', {});
+    mutationFn: async (deviceId) => {
+      return await base44.functions.invoke('syncWearableData', { deviceId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wearableDevices', clientId] });
-      queryClient.invalidateQueries({ queryKey: ['wearableData', clientId] });
     }
   });
 
-  const handleConnectDevice = (deviceType) => {
+  // Delete device mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (deviceId) => {
+      return await base44.entities.WearableDevice.delete(deviceId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['wearableDevices', clientId] });
+    }
+  });
+
+  // Connect device
+  const connectMutation = useMutation({
+    mutationFn: async (deviceType) => {
+      const response = await base44.functions.invoke('connectWearableDevice', {
+        deviceType,
+        clientId
+      });
+      return response.data.authUrl;
+    },
+    onSuccess: (authUrl) => {
+      window.open(authUrl, 'wearable-connect', 'width=600,height=700');
+      setShowConnectDialog(false);
+      setSelectedDevice(null);
+    }
+  });
+
+  const handleConnect = (deviceType) => {
     setSelectedDevice(deviceType);
-    setShowConnectDialog(true);
+    connectMutation.mutate(deviceType);
   };
 
-  const handleDisconnect = async (deviceId) => {
+  const handleSync = (deviceId) => {
+    syncMutation.mutate(deviceId);
+  };
+
+  const handleDelete = (deviceId) => {
     if (window.confirm('Are you sure you want to disconnect this device?')) {
-      disconnectMutation.mutate(deviceId);
+      deleteMutation.mutate(deviceId);
     }
   };
-
-  if (compact && devices.length === 0) {
-    return null;
-  }
 
   return (
-    <div className="space-y-4">
-      {/* Connected Devices */}
-      {devices.filter(d => d.is_connected).length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {devices.filter(d => d.is_connected).map((device) => {
-            const config = WEARABLE_CONFIGS[device.device_type];
-            return (
-              <Card key={device.id} className="border-none shadow-lg">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <span className="text-3xl">{config.icon}</span>
-                      <div>
-                        <CardTitle className="text-lg">{config.name}</CardTitle>
-                        <p className="text-xs text-gray-600">{device.device_name}</p>
-                      </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <Watch className="w-5 h-5 text-blue-600" />
+            Connected Wearable Devices
+          </h3>
+          <p className="text-sm text-gray-600 mt-1">Sync health data from your devices automatically</p>
+        </div>
+        <Button
+          onClick={() => setShowConnectDialog(true)}
+          className="bg-blue-600 hover:bg-blue-700"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Connect Device
+        </Button>
+      </div>
+
+      {error && (
+        <Alert className="bg-red-50 border-red-300">
+          <AlertCircle className="w-4 h-4 text-red-600" />
+          <AlertDescription className="text-red-800">
+            Failed to load devices: {error.message}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {isLoading ? (
+        <div className="flex items-center justify-center p-8">
+          <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+        </div>
+      ) : devices.length === 0 ? (
+        <Card className="border-dashed">
+          <CardContent className="p-8 text-center">
+            <Watch className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+            <p className="text-gray-600 mb-4">No devices connected yet</p>
+            <Button
+              onClick={() => setShowConnectDialog(true)}
+              variant="outline"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Connect Your First Device
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {devices.map((device) => (
+            <Card key={device.id} className="border-none shadow-md">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">{DEVICE_ICONS[device.device_type]}</span>
+                    <div>
+                      <CardTitle className="text-base">{device.device_name}</CardTitle>
+                      <p className="text-xs text-gray-600 mt-1 capitalize">
+                        {device.device_type.replace('_', ' ')}
+                      </p>
                     </div>
-                    <Badge className={`bg-gradient-to-r ${config.color} text-white`}>
-                      {device.sync_status}
-                    </Badge>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {device.last_sync && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Clock className="w-4 h-4" />
-                      Last synced: {format(new Date(device.last_sync), 'MMM dd, HH:mm')}
-                    </div>
-                  )}
-
-                  {device.sync_status === 'active' && (
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-600" />
-                      <span className="text-sm text-green-700">Connected & syncing</span>
-                    </div>
-                  )}
-
-                  {device.sync_status === 'failed' && device.sync_error && (
-                    <Alert className="bg-red-50 border-red-200">
-                      <AlertCircle className="w-4 h-4 text-red-600" />
-                      <AlertDescription className="text-red-800 text-sm">
-                        {device.sync_error}
-                      </AlertDescription>
-                    </Alert>
-                  )}
-
-                  {device.data_permissions && device.data_permissions.length > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-xs font-semibold text-gray-700">Data access:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {device.data_permissions.map(perm => (
-                          <Badge key={perm} variant="secondary" className="text-xs">
-                            {perm.replace(/_/g, ' ')}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex gap-2 pt-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => syncMutation.mutate()}
-                      disabled={syncMutation.isPending}
-                      className="flex-1"
-                    >
-                      <RefreshCw className="w-3 h-3 mr-1" />
-                      {syncMutation.isPending ? 'Syncing...' : 'Sync Now'}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleDisconnect(device.id)}
-                      disabled={disconnectMutation.isPending}
-                      className="flex-1 border-red-300 text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
+                  <Badge className={device.is_connected ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+                    {device.is_connected ? (
+                      <><Check className="w-3 h-3 mr-1" />Connected</>
+                    ) : (
+                      <><X className="w-3 h-3 mr-1" />Disconnected</>
+                    )}
+                  </Badge>
+                </div>
+              </CardHeader>
+              
+              <CardContent className="space-y-3">
+                {/* Data Types */}
+                <div>
+                  <p className="text-xs font-medium text-gray-600 mb-2">Syncing</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {device.data_types?.map((type) => (
+                      <Badge key={type} variant="outline" className="text-xs capitalize">
+                        {type.replace('_', ' ')}
+                      </Badge>
+                    ))}
                   </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                </div>
+
+                {/* Last Sync */}
+                {device.last_sync_date && (
+                  <div className="text-xs text-gray-600 flex items-center gap-2">
+                    <Clock className="w-3 h-3" />
+                    Last synced: {new Date(device.last_sync_date).toLocaleDateString()} {new Date(device.last_sync_date).toLocaleTimeString()}
+                  </div>
+                )}
+
+                {/* Error Message */}
+                {device.error_message && (
+                  <Alert className="bg-yellow-50 border-yellow-200 py-2">
+                    <AlertDescription className="text-yellow-800 text-xs">
+                      {device.error_message}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {/* Actions */}
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleSync(device.id)}
+                    disabled={syncMutation.isPending || !device.is_connected}
+                    className="flex-1"
+                  >
+                    {syncMutation.isPending && syncMutation.variables === device.id ? (
+                      <>
+                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                        Syncing
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-3 h-3 mr-1" />
+                        Sync Now
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDelete(device.id)}
+                    disabled={deleteMutation.isPending}
+                    className="flex-1 text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-3 h-3 mr-1" />
+                    Disconnect
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
 
-      {/* Add Device Button */}
-      {(!compact || devices.length === 0) && (
-        <Card className="border-2 border-dashed border-gray-300">
-          <CardContent className="p-6">
-            <div className="text-center">
-              <Watch className="w-12 h-12 mx-auto text-gray-400 mb-3" />
-              <p className="text-sm text-gray-700 mb-4">
-                Connect a wearable device to auto-sync your health data
-              </p>
-              <Dialog open={showConnectDialog} onOpenChange={setShowConnectDialog}>
-                <DialogTrigger asChild>
-                  <Button className="bg-blue-600 hover:bg-blue-700">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Connect Device
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>Connect Wearable Device</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4 pt-2">
-                    <Alert className="bg-blue-50 border-blue-200">
-                      <AlertCircle className="w-4 h-4 text-blue-600" />
-                      <AlertDescription className="text-blue-800 text-sm">
-                        Wearable device integration requires a native mobile app. You can manually log your health data using the Progress Tracking section.
-                      </AlertDescription>
-                    </Alert>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {Object.entries(WEARABLE_CONFIGS).map(([deviceType, config]) => (
-                        <Card key={deviceType} className="border-2 border-gray-200 opacity-75">
-                          <CardContent className="p-6 text-center">
-                            <p className="text-4xl mb-3">{config.icon}</p>
-                            <h3 className="font-bold text-lg mb-2">{config.name}</h3>
-                            <p className="text-xs text-gray-600 mb-3">{config.description}</p>
-                            <Badge variant="secondary" className="text-xs">Coming Soon</Badge>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                    <p className="text-xs text-gray-500 text-center">
-                      Contact your coach to manually record device data in your progress log.
-                    </p>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Connect Device Dialog */}
+      <Dialog open={showConnectDialog} onOpenChange={setShowConnectDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Plus className="w-5 h-5" />
+              Connect a Wearable Device
+            </DialogTitle>
+            <DialogDescription>
+              Select a device to automatically sync your health data
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2">
+            {[
+              { id: 'fitbit', name: 'Fitbit', icon: '🏃', description: 'Steps, heart rate, sleep, calories' },
+              { id: 'garmin', name: 'Garmin', icon: '⌚', description: 'Activities, heart rate, sleep' },
+              { id: 'apple_health', name: 'Apple Health', icon: '🍎', description: 'Health data from your iPhone' },
+              { id: 'google_fit', name: 'Google Fit', icon: '📊', description: 'Google Fit activities and metrics' }
+            ].map((device) => (
+              <Button
+                key={device.id}
+                variant="outline"
+                className="w-full h-auto justify-start gap-3 p-4"
+                onClick={() => handleConnect(device.id)}
+                disabled={connectMutation.isPending && selectedDevice === device.id}
+              >
+                <span className="text-2xl">{device.icon}</span>
+                <div className="text-left flex-1">
+                  <p className="font-medium">{device.name}</p>
+                  <p className="text-xs text-gray-600">{device.description}</p>
+                </div>
+                {connectMutation.isPending && selectedDevice === device.id && (
+                  <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                )}
+              </Button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
-}
-
-function handleOAuthConnection(deviceType) {
-  if (deviceType === 'google_fit') {
-    // Google Fit OAuth - already authorized
-    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${import.meta.env.VITE_GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(window.location.origin + '/wearable-callback')}&response_type=code&scope=https://www.googleapis.com/auth/fitness.heart_rate.read https://www.googleapis.com/auth/fitness.sleep.read https://www.googleapis.com/auth/fitness.activity.read`;
-  } else if (deviceType === 'fitbit') {
-    // Fitbit OAuth
-    window.location.href = `https://www.fitbit.com/oauth2/authorize?client_id=${import.meta.env.VITE_FITBIT_CLIENT_ID}&redirect_uri=${encodeURIComponent(window.location.origin + '/wearable-callback')}&response_type=code&scope=activity heartrate sleep`;
-  } else if (deviceType === 'apple_health') {
-    // Apple Health - requires native app
-    alert('Apple Health integration requires the mobile app. Please use the mobile app to connect your Apple Health data.');
-  }
 }
