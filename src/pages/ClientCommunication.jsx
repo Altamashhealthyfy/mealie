@@ -376,12 +376,12 @@ export default function ClientCommunication() {
       )}
 
       <div className="flex flex-1 overflow-hidden h-full">
-        {/* Sidebar - hidden on mobile, shown when showSidebar is true */}
+        {/* Sidebar - hidden on mobile, always shown on desktop */}
         {(showSidebar || window.innerWidth >= 768) && (
-          <div className={`fixed inset-0 z-50 md:relative md:inset-auto flex md:block transition-all duration-300 ${showSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+          <div className={`${window.innerWidth < 768 ? 'fixed inset-0 z-50' : 'relative'} ${window.innerWidth < 768 ? (showSidebar ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'} flex md:block transition-all duration-300`}>
             {/* Overlay for mobile */}
             <div className="absolute inset-0 bg-black/40 md:hidden" onClick={() => setShowSidebar(false)} />
-            <div className="relative z-10 flex flex-col w-72 md:w-64 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto h-full ml-0">
+            <div className="relative z-10 flex flex-col w-72 md:w-80 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto h-full ml-0">
               {/* Close button on mobile */}
               <div className="flex items-center justify-between p-3 border-b md:hidden">
                 <span className="font-semibold text-gray-900">Chat Info</span>
@@ -477,7 +477,7 @@ export default function ClientCommunication() {
         )}
 
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0 max-w-4xl mx-auto w-full md:border-l md:border-r border-gray-200">
           {/* Top bar - mobile optimized */}
           <div className="flex-shrink-0 px-3 py-2.5 bg-white border-b shadow-sm flex items-center justify-between gap-2">
             <div className="flex items-center gap-2.5 min-w-0">
