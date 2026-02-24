@@ -380,7 +380,27 @@ export default function ClientCommunication() {
     );
   }
 
-  const coachName = coachUser?.full_name || (coachEmail ? coachEmail.split('@')[0] : 'Your Health Coach');
+  if (isAdmin && !clientProfile) {
+    return (
+      <div className="min-h-screen p-4 flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardHeader><CardTitle>Select a Client</CardTitle></CardHeader>
+          <CardContent>
+            <Select onValueChange={(value) => setSelectedClientId(value)}>
+              <SelectTrigger><SelectValue placeholder="Choose a client" /></SelectTrigger>
+              <SelectContent>
+                {allClients.map(c => (
+                  <SelectItem key={c.id} value={c.id}>{c.full_name} ({c.email})</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const contactName = isAdmin ? clientProfile?.full_name : (coachUser?.full_name || (coachEmail ? coachEmail.split('@')[0] : 'Your Health Coach'));
   const totalMessages = messages.length;
   const myMessages = messages.filter(m => m.sender_type === 'client').length;
   const joinDate = clientProfile?.join_date ? new Date(clientProfile.join_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
