@@ -211,26 +211,6 @@ Enjoy your cooking! 🍽️✨
     );
   }
 
-  if (!clientProfile) {
-    return (
-      <div className="min-h-screen p-8 flex items-center justify-center">
-        <Card className="max-w-md border-none shadow-xl">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="w-6 h-6 text-orange-500" />
-              Profile Not Found
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-700">
-              Please complete your profile setup to access recipes.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
       {/* Header */}
