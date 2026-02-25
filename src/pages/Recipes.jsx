@@ -31,6 +31,7 @@ export default function Recipes() {
   const [sortOrder, setSortOrder] = useState("-created_date");
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [generatingRecipe, setGeneratingRecipe] = useState(false);
+  const [fillingImages, setFillingImages] = useState(false);
   const [customRecipeRequest, setCustomRecipeRequest] = useState("");
   const [showManualUpload, setShowManualUpload] = useState(false);
   const [activeTab, setActiveTab] = useState("library");
