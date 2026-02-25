@@ -710,8 +710,8 @@ export default function DietitianDashboard() {
                               <div>
                                 <p className="font-semibold text-gray-900">{client?.full_name || 'Client'}</p>
                                 <p className="text-xs text-gray-500">
-                                  {format(new Date(log.date), 'MMM d, yyyy')}
-                                </p>
+                                   {log.date ? format(new Date(log.date), 'MMM d, yyyy') : 'No date'}
+                                 </p>
                               </div>
                             </div>
                             <div className="grid grid-cols-2 gap-2 mt-3">
