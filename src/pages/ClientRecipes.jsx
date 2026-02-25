@@ -369,11 +369,12 @@ Enjoy your cooking! 🍽️✨
 
               <div className="space-y-6">
                 {selectedRecipe.image_url && (
-                  <div className="w-full h-64 rounded-xl overflow-hidden border-2 border-gray-200">
+                  <div className="w-full h-64 rounded-xl overflow-hidden border-2 border-gray-200 bg-gradient-to-br from-orange-100 to-amber-100">
                     <img
                       src={selectedRecipe.image_url}
                       alt={selectedRecipe.name}
                       className="w-full h-full object-cover"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     />
                   </div>
                 )}
