@@ -470,7 +470,7 @@ export default function ClientCommunication() {
            </div>
 
           {newMessageAlert && (
-            <div className="mx-3 mt-2 p-2 bg-green-50 border border-green-300 rounded-xl flex items-center gap-2 flex-shrink-0">
+            <div className="mt-[168px] mx-3 p-2 bg-green-50 border border-green-300 rounded-xl flex items-center gap-2 flex-shrink-0">
               <Bell className="w-4 h-4 text-green-600 flex-shrink-0" />
               <p className="text-xs text-green-800 font-medium flex-1 truncate">New: {newMessageAlert}</p>
               <Button variant="ghost" size="sm" className="p-0.5 h-auto" onClick={() => setNewMessageAlert(null)}>
