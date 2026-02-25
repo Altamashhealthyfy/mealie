@@ -32,7 +32,7 @@ export default function Recipes() {
   const [sortOrder, setSortOrder] = useState("-created_date");
   const [calorieFilter, setCalorieFilter] = useState("all");
   const [difficultyFilter, setDifficultyFilter] = useState("all");
-  const [, _forceUpdate] = useState(0); // keep state in sync
+
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [generatingRecipe, setGeneratingRecipe] = useState(false);
   const [fillingImages, setFillingImages] = useState(false);
