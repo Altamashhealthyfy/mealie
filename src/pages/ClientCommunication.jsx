@@ -74,7 +74,12 @@ export default function ClientCommunication() {
   };
 
   const scrollToBottom = (behavior = "smooth") => {
-    messagesEndRef.current?.scrollIntoView({ behavior });
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    } else {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }
   };
 
   const handleScroll = (e) => {
