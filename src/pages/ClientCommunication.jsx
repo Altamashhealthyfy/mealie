@@ -382,25 +382,25 @@ export default function ClientCommunication() {
             {/* Overlay for mobile */}
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowSidebar(false)} />
             <div className="relative z-10 flex flex-col w-80 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto h-full shadow-2xl">
-              {/* Close button on mobile */}
-              <div className="flex items-center justify-between p-3 border-b md:hidden">
-                <span className="font-semibold text-gray-900">Chat Info</span>
-                <Button variant="ghost" size="sm" onClick={() => setShowSidebar(false)} className="h-8 w-8 p-0">
-                  <X className="w-4 h-4" />
+              {/* Header */}
+              <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-orange-500 to-red-500">
+                <span className="font-bold text-white text-lg">Chat Info</span>
+                <Button variant="ghost" size="sm" onClick={() => setShowSidebar(false)} className="h-8 w-8 p-0 text-white hover:bg-white/20">
+                  <X className="w-5 h-5" />
                 </Button>
               </div>
               {/* Coach Info */}
-              <div className="p-4 bg-gradient-to-br from-orange-50 to-red-50 border-b">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold text-lg">{coachName.charAt(0)}</span>
+              <div className="p-5 bg-gradient-to-br from-orange-50 to-red-50 border-b">
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <span className="text-white font-bold text-xl">{coachName.charAt(0)}</span>
                   </div>
                   <div className="min-w-0">
-                    <p className="font-semibold text-gray-900 text-sm truncate">{coachName}</p>
-                    <p className="text-xs text-gray-500">Health Coach</p>
-                    <div className="flex items-center gap-1 mt-0.5">
-                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                      <span className="text-xs text-green-600">Active</span>
+                    <p className="font-bold text-gray-900 text-base truncate">{coachName}</p>
+                    <p className="text-sm text-gray-500">Health Coach</p>
+                    <div className="flex items-center gap-1 mt-1">
+                      <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                      <span className="text-xs text-green-600 font-medium">Active</span>
                     </div>
                   </div>
                 </div>
