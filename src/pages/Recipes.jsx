@@ -1058,6 +1058,17 @@ Provide 3 creative variations that ${variationRequest}. Each should maintain sim
               totalCount={recipes.length} filteredCount={filteredRecipes.length}
             />
 
+            <AdvancedFilters
+              macroFilters={macroFilters}
+              setMacroFilters={setMacroFilters}
+              ingredientExclusions={ingredientExclusions}
+              setIngredientExclusions={setIngredientExclusions}
+              prepTimeMax={prepTimeMax}
+              setPrepTimeMax={setPrepTimeMax}
+              dietaryTags={dietaryTags}
+              setDietaryTags={setDietaryTags}
+            />
+
             {isLoading ? (
               <div className="text-center py-12">
                 <Loader2 className="w-12 h-12 animate-spin mx-auto text-orange-500" />
@@ -1872,6 +1883,12 @@ Provide 3 creative variations that ${variationRequest}. Each should maintain sim
                     ))}
                   </ol>
                 </div>
+
+                <SimilarRecipes
+                  recipe={selectedRecipe}
+                  allRecipes={recipes}
+                  onSelectRecipe={setSelectedRecipe}
+                />
 
                 {!isClient && (canEditRecipe(selectedRecipe) || canDeleteRecipe(selectedRecipe)) && (
                   <div className="flex gap-3 pt-4 border-t">
