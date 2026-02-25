@@ -12,6 +12,7 @@ import {
   Eye, BookOpen, X, Calendar
 } from "lucide-react";
 import PantryManager from "@/components/recipes/PantryManager";
+import AuthenticatedImage from "@/components/common/AuthenticatedImage";
 import RecipeMatcher from "@/components/recipes/RecipeMatcher";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
