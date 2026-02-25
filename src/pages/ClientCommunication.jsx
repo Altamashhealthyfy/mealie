@@ -536,10 +536,12 @@ export default function ClientCommunication() {
                         <ArrowDown className="w-5 h-5 animate-bounce" />
                       </button>
                     )}
-                  </div>
+                    </div>
+                    </div>
 
-                  {/* Input Area Component */}
-                  <MessageInputArea
+                    {/* Input Area Component - Sticky Footer */}
+                    <div className="sticky bottom-0 z-10 flex-shrink-0 bg-white border-t">
+                    <MessageInputArea
                     messageText={messageText}
                     setMessageText={setMessageText}
                     attachedFile={attachedFile}
