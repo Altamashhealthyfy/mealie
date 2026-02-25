@@ -1118,18 +1118,9 @@ Provide 3 creative variations that ${variationRequest}. Each should maintain sim
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredRecipes.map((recipe) => (
-                  <Card
-                    key={recipe.id}
-                    className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all group"
-                  >
-                    {recipe.image_url ? (
-                      <div className="h-48 rounded-t-xl overflow-hidden relative">
-                        <img 
-                          src={recipe.image_url} 
-                          alt={recipe.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        />
+              {filteredRecipes.map((recipe) => (
+              <RecipeCardWrapper key={recipe.id} recipe={recipe} isClient={isClient} canEditRecipe={canEditRecipe} canDeleteRecipe={canDeleteRecipe} canGenerateAIRecipe={canGenerateAIRecipe} isSuperAdmin={isSuperAdmin} handleEditRecipe={handleEditRecipe} handleDeleteRecipe={handleDeleteRecipe} setSelectedRecipe={setSelectedRecipe} setAdjustingRecipe={setAdjustingRecipe} setShowMacroAdjuster={setShowMacroAdjuster} setVariationRecipe={setVariationRecipe} setShowVariations={setShowVariations} downloadRecipe={downloadRecipe} />
+              ))}
                         {!isClient && (
                           <div className="absolute top-2 right-2 flex gap-2">
                             {canEditRecipe(recipe) && (
