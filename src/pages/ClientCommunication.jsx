@@ -467,7 +467,7 @@ export default function ClientCommunication() {
 
           <Card className="border-none shadow-none flex-1 flex flex-col min-h-0 overflow-hidden rounded-none bg-transparent">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-              <TabsList className="rounded-none border-b bg-white w-full grid grid-cols-2 flex-shrink-0 h-10 px-2">
+              <TabsList className="sticky top-0 z-10 rounded-none border-b bg-white w-full grid grid-cols-2 flex-shrink-0 h-10 px-2">
                 <TabsTrigger value="direct" className="flex gap-1.5 items-center text-xs sm:text-sm font-medium rounded-none data-[state=active]:border-b-2 data-[state=active]:border-orange-500 data-[state=active]:text-orange-600 data-[state=active]:bg-transparent">
                   <MessageSquare className="w-3.5 h-3.5" />
                   Coach Chat
