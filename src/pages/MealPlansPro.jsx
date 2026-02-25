@@ -1464,14 +1464,15 @@ TDEE: ${Math.round(tdee)} kcal
 
 3. Apply disease-specific rules for: ${intake.health_conditions.join(', ')}
 
-3. **MANDATORY - DO NOT SKIP ANY DAYS**: 
+4. **MANDATORY - DO NOT SKIP ANY DAYS**: 
    - You MUST generate ALL ${numberOfDays} days of meal plans
    - Generate day 1, day 2, day 3, day 4, day 5, day 6, day 7, day 8, day 9, day 10
    - Continue until you reach day ${numberOfDays}
    - DO NOT stop at day 3 or any day before ${numberOfDays}
    - Each meal object must have a "day" field from 1 to ${numberOfDays}
+   - VERIFY: Daily protein targets must be achieved for EVERY day (total protein per day = ${proteinGrams}g ±5g)
 
-4. Pattern: ${mealPattern}${mealPattern === '3-3-4' ? ' (Plan A: days 1-3, Plan B: days 4-6, Plan C: days 7-' + numberOfDays + ')' : ''}
+5. Pattern: ${mealPattern}${mealPattern === '3-3-4' ? ' (Plan A: days 1-3, Plan B: days 4-6, Plan C: days 7-' + numberOfDays + ')' : ''}
 
 5. Each day MUST have 7 meal sections in EXACT sequence: Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner, Post Dinner (herbal drink only — SAME drink for all 10 days, NO bedtime meal)
 
