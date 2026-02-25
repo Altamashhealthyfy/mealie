@@ -7,6 +7,7 @@ import React, { useState, useEffect } from "react";
 export default function AuthenticatedImage({ src, alt, className, fallback = null, onError }) {
   const [blobUrl, setBlobUrl] = useState(null);
   const [failed, setFailed] = useState(false);
+  const isExternalUrl = src && !src.includes('/api/apps/') && !src.includes('base44.app/api');
 
   useEffect(() => {
     if (!src) {
@@ -17,7 +18,7 @@ export default function AuthenticatedImage({ src, alt, className, fallback = nul
     let objectUrl = null;
 
     // If it's a base44 internal API URL, fetch with credentials
-    if (src.includes('/api/apps/') || src.includes('base44.app/api')) {
+    if (!isExternalUrl) {
       fetch(src, { credentials: 'include' })
         .then(res => {
           if (!res.ok) throw new Error('Failed');
@@ -31,25 +32,24 @@ export default function AuthenticatedImage({ src, alt, className, fallback = nul
           setFailed(true);
           onError?.();
         });
-    } else {
-      // External URL — use directly
-      setBlobUrl(src);
     }
 
     return () => {
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [src]);
+  }, [src, isExternalUrl]);
 
   if (failed || !src) {
     return fallback || null;
   }
 
-  if (!blobUrl) return fallback || null; // Still loading
+  // For external URLs, render immediately; for internal, wait for blobUrl
+  const imageSrc = isExternalUrl ? src : blobUrl;
+  if (!imageSrc) return fallback || null;
 
   return (
     <img
-      src={blobUrl}
+      src={imageSrc}
       alt={alt}
       className={className}
       onError={() => {
