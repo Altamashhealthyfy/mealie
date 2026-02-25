@@ -102,12 +102,7 @@ const dietitianNavigation = [
     icon: BarChart3,
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
-  {
-    title: "Platform Analytics",
-    url: createPageUrl("AnalyticsDashboard"),
-    icon: BarChart,
-    roles: ['super_admin', 'team_member', 'student_coach'],
-  },
+
   {
     title: "Client Progress",
     url: createPageUrl("ClientReports"),
