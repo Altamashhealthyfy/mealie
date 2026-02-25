@@ -109,12 +109,16 @@ export default function AICoachInsights() {
               <SelectTrigger className="text-xs sm:text-sm">
                 <SelectValue placeholder="Choose a client..." />
               </SelectTrigger>
-              <SelectContent>
-                {filteredClients.map(c => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.full_name} — {c.email}
-                  </SelectItem>
-                ))}
+              <SelectContent position="popper" className="max-h-60 overflow-y-auto z-50">
+                {filteredClients.length === 0 ? (
+                  <SelectItem value="_none" disabled>No clients found</SelectItem>
+                ) : (
+                  filteredClients.map(c => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.full_name} — {c.email}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
             {client && (
