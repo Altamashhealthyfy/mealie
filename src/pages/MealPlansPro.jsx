@@ -1645,7 +1645,17 @@ For 10-day meal plans, rice with dal/rajma/chhole/kadhi/veg paneer pulao MUST ap
 - The meal_plan array must contain EXACTLY ${numberOfDays * 7} meals total
 - That is ${numberOfDays} days × 7 meals per day = ${numberOfDays * 7} meals
 - Verify you have generated meals for EVERY day from day 1 to day ${numberOfDays}
-- Daily calorie total must NOT exceed the calculated target calories
+- **PROTEIN VALIDATION (MANDATORY):**
+  * DAILY TOTAL: Sum protein from ALL 7 meals per day. MUST equal ${proteinGrams}g ±5g for EVERY day
+  * BREAKFAST: 15-20g protein (eggs/paneer/oats/milk-based options)
+  * LUNCH: 25-30g protein (dal/paneer/chicken/tofu in main course)
+  * DINNER: 25-30g protein (dal/paneer/chicken/tofu in main course)
+  * Mid-Morning & Evening Snack: 5-8g each (from fruits/milk products/nuts)
+  * Post Dinner: 0g (herbal drink only)
+  * Calculate & verify: ${proteinGrams}g ÷ ${numberOfDays} days = ${Math.round(proteinGrams / numberOfDays)}g per day minimum
+  * CONDITION CHECK: ${intake.health_conditions.includes('diabetes') || intake.health_conditions.includes('pcos') ? 'Diabetes/PCOS - confirm ${proteinGrams}g targets achieved' : ''} ${intake.health_conditions.includes('kidney') ? 'Kidney - limit to ${proteinGrams}g high quality proteins' : ''}
+- **CARBS & FATS VALIDATION:** Carbs=${carbsGrams}g, Fats=${fatsGrams}g distributed across meals
+- Daily calorie total must NOT exceed the calculated target calories of ${Math.round(targetCalories)}
 - Post dinner herbal drink MUST be IDENTICAL for all ${numberOfDays} days (NO rotation, NO variation)
 - Meal sequence MUST be: Early Morning → Breakfast → Mid Morning → Lunch → Evening Snack → Dinner → Post Dinner (EVERY day, NO exceptions)
 - RICE USAGE: Count rice meals in lunch/dinner - MUST be 4-5 days ONLY (not more)
