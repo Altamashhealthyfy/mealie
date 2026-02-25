@@ -239,35 +239,47 @@ export default function Recipes() {
   };
 
   const filteredRecipes = recipes.filter(recipe => {
-    // Fuzzy name search
-    const matchesSearch = fuzzyMatch(recipe.name, searchQuery) ||
-                         recipe.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+    // Search across name, description, cuisine, tags
+    const q = searchQuery.toLowerCase();
+    const matchesSearch = !searchQuery ||
+      fuzzyMatch(recipe.name, searchQuery) ||
+      recipe.description?.toLowerCase().includes(q) ||
+      recipe.regional_cuisine?.toLowerCase().includes(q) ||
+      recipe.meal_type?.toLowerCase().includes(q) ||
+      recipe.dietary_tags?.some(t => t.toLowerCase().includes(q)) ||
+      recipe.tags?.some(t => t.toLowerCase().includes(q));
+
     // Ingredient search
     const matchesIngredient = !ingredientSearch || 
-                             recipe.ingredients?.some(ing => 
-                               ing.item.toLowerCase().includes(ingredientSearch.toLowerCase())
-                             );
+      recipe.ingredients?.some(ing => ing.item.toLowerCase().includes(ingredientSearch.toLowerCase()));
     
     const matchesMealType = mealTypeFilter === "all" || recipe.meal_type === mealTypeFilter;
     const matchesFoodPref = foodPrefFilter === "all" || recipe.food_preference === foodPrefFilter;
     const matchesRegion = regionFilter === "all" || recipe.regional_cuisine === regionFilter;
     
-    // Cooking time filter
     const totalTime = (recipe.prep_time || 0) + (recipe.cook_time || 0);
     const matchesCookTime = cookTimeFilter === "all" ||
-                           (cookTimeFilter === "quick" && totalTime <= 30) ||
-                           (cookTimeFilter === "medium" && totalTime > 30 && totalTime <= 60) ||
-                           (cookTimeFilter === "long" && totalTime > 60);
+      (cookTimeFilter === "quick" && totalTime <= 30) ||
+      (cookTimeFilter === "medium" && totalTime > 30 && totalTime <= 60) ||
+      (cookTimeFilter === "long" && totalTime > 60);
     
-    // Dietary restrictions filter
     const matchesDietary = dietaryFilter === "all" ||
-                          recipe.tags?.some(tag => tag.toLowerCase().includes(dietaryFilter.toLowerCase()));
+      recipe.dietary_tags?.includes(dietaryFilter) ||
+      recipe.tags?.some(tag => tag.toLowerCase().includes(dietaryFilter.replace(/_/g, '-').toLowerCase()));
     
     const matchesUploader = uploaderFilter === "all" || recipe.created_by === uploaderFilter;
+
+    const cal = recipe.nutritional_info?.calories || recipe.calories || 0;
+    const matchesCalorie = calorieFilter === "all" ||
+      (calorieFilter === "low" && cal <= 200) ||
+      (calorieFilter === "medium" && cal > 200 && cal <= 500) ||
+      (calorieFilter === "high" && cal > 500);
+
+    const matchesDifficulty = difficultyFilter === "all" || recipe.difficulty_level === difficultyFilter;
     
     return matchesSearch && matchesIngredient && matchesMealType && matchesFoodPref && 
-           matchesRegion && matchesCookTime && matchesDietary && matchesUploader;
+           matchesRegion && matchesCookTime && matchesDietary && matchesUploader &&
+           matchesCalorie && matchesDifficulty;
   });
 
   const generateCustomRecipe = async () => {
