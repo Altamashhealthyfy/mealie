@@ -16,6 +16,7 @@ import RecipeMatcher from "@/components/recipes/RecipeMatcher";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 function RecipeCard({ recipe, isFav, rating, personalNotes, timesCocked, onView, onDownload }) {
+  const [imgError, setImgError] = React.useState(false);
   const totalTime = (recipe.prep_time || 0) + (recipe.cook_time || 0);
   const mealTypeColors = {
     breakfast: 'bg-yellow-100 text-yellow-700',
@@ -28,8 +29,8 @@ function RecipeCard({ recipe, isFav, rating, personalNotes, timesCocked, onView,
     <Card className="border-none shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden group cursor-pointer" onClick={onView}>
       {/* Image / Placeholder */}
       <div className="h-36 overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 relative">
-        {recipe.image_url ? (
-          <img src={recipe.image_url} alt={recipe.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+        {recipe.image_url && !imgError ? (
+          <img src={recipe.image_url} alt={recipe.name} onError={() => setImgError(true)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <ChefHat className="w-12 h-12 text-orange-300" />
