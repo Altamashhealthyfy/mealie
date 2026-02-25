@@ -407,9 +407,9 @@ export default function ClientCommunication() {
         />
 
         {/* Main Chat Area */}
-         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-           {/* Sticky Chat Header */}
-           <div className="sticky top-0 z-40 bg-white border-b shadow-md">
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+          {/* Sticky Chat Header */}
+          <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b shadow-lg" style={{ maxWidth: 'calc(100% - 0px)' }}>
              {/* Coach Info Bar */}
              <div className="px-3 py-2 flex items-center justify-between gap-2 border-b">
                <div className="flex items-center gap-2 min-w-0">
