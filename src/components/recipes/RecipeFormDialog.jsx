@@ -257,16 +257,24 @@ export default function RecipeFormDialog({ recipe, onClose }) {
                 </Select>
               </div>
 
-              <div>
-                <Label>Image</Label>
-                <div className="flex gap-2">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    disabled={uploading}
-                  />
-                  {uploading && <Loader2 className="w-5 h-5 animate-spin" />}
+              <div className="col-span-2">
+                <Label>Recipe Image</Label>
+                <div className="mt-1 space-y-2">
+                  {formData.image_url && (
+                    <div className="relative w-full h-40 rounded-lg overflow-hidden border border-gray-200">
+                      <img src={formData.image_url} alt="Recipe" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, image_url: '' })}
+                        className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow"
+                      >✕</button>
+                    </div>
+                  )}
+                  <label className={`flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg border border-dashed border-gray-300 hover:border-orange-400 hover:bg-orange-50 transition-colors ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                    {uploading ? <Loader2 className="w-4 h-4 animate-spin text-orange-500" /> : <Upload className="w-4 h-4 text-orange-500" />}
+                    <span className="text-sm text-gray-600">{uploading ? 'Uploading...' : formData.image_url ? 'Change Image' : 'Upload Image'}</span>
+                    <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} className="hidden" />
+                  </label>
                 </div>
               </div>
             </div>
