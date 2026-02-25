@@ -1469,6 +1469,23 @@ export default function ClientAnalyticsDashboard() {
             </div>
           </TabsContent>
 
+          {/* Reports Tab */}
+          <TabsContent value="reports" className="space-y-6">
+            <Card className="border-none shadow-lg">
+              <CardHeader>
+                <CardTitle>Client Reports</CardTitle>
+                <CardDescription>Comprehensive client progress reports and analytics</CardDescription>
+              </CardHeader>
+              <CardContent className="p-3 sm:p-6">
+                <Link to={createPageUrl("ClientReports")}>
+                  <Button className="w-full sm:w-auto bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">
+                    View All Client Reports
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* Goals Overview Tab - Renamed from goals to avoid confusion */}
           <TabsContent value="goals" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
