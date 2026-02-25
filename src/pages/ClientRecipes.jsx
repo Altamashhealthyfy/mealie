@@ -17,18 +17,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 
 function RecipeCard({ recipe, isFav, onView, onDownload, onToggleFav, toggling }) {
   const [imgError, setImgError] = React.useState(false);
-  const [imgSrc, setImgSrc] = React.useState(recipe.image_url);
-
-  React.useEffect(() => {
-    if (!recipe.image_url) return;
-    // If it's a base44 internal URL, fetch with credentials to get auth cookies
-    if (recipe.image_url.includes('base44.app/api')) {
-      fetch(recipe.image_url, { credentials: 'include' })
-        .then(r => r.ok ? r.blob() : Promise.reject())
-        .then(blob => setImgSrc(URL.createObjectURL(blob)))
-        .catch(() => setImgError(true));
-    }
-  }, [recipe.image_url]);
   const totalTime = (recipe.prep_time || 0) + (recipe.cook_time || 0);
   const mealTypeColors = {
     breakfast: 'bg-yellow-100 text-yellow-700',
