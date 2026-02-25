@@ -570,70 +570,48 @@ export default function ClientCommunication() {
 
               <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0">
                 <div className="flex flex-col h-full min-h-0">
-                  {/* Messages area - WhatsApp style: newest at bottom, scroll up for old */}
-                  <div ref={messagesContainerRef} className="flex-1 overflow-y-auto relative min-h-0 bg-[#e5ddd5] scrollbar-thin" style={{ overscrollBehavior: 'contain' }} onScroll={handleScroll}>
-                      <div className="p-3 space-y-1">
-                        {messages.length === 0 ? (
-                          <div className="flex flex-col items-center justify-center py-16">
-                            <div className="w-20 h-20 bg-white/80 backdrop-blur rounded-full flex items-center justify-center mb-4 shadow-lg">
-                              <MessageSquare className="w-10 h-10 text-orange-400" />
-                            </div>
-                            <h3 className="text-base font-bold text-gray-800 mb-1">Start chatting!</h3>
-                            <p className="text-sm text-gray-600">Send your first message to {coachName}</p>
-                          </div>
-                        ) : (
-                          messages.map((message, idx) => {
-                            const isFromClient = message.sender_type === 'client';
-                            const msgText = message.message || '';
-                            const qrSplit = msgText.split('\n\nQuick replies: ');
-                            const mainText = qrSplit[0];
-                            const quickReplies = qrSplit[1]
-                              ? qrSplit[1].split('  |  ').map(r => r.replace(/^\d+\.\s*/, '').trim()).filter(Boolean)
-                              : [];
-                            // Show date separator
-                            const msgDate = message.created_date ? new Date(message.created_date + (message.created_date.includes('Z') ? '' : 'Z')).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' }) : '';
-                            const prevMsgDate = idx > 0 && messages[idx-1].created_date ? new Date(messages[idx-1].created_date + (messages[idx-1].created_date.includes('Z') ? '' : 'Z')).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' }) : '';
-                            const showDateSep = idx === 0 || msgDate !== prevMsgDate;
-                            return (
-                              <React.Fragment key={message.id}>
-                                {showDateSep && msgDate && (
-                                  <div className="flex items-center justify-center my-2">
-                                    <span className="bg-white/80 backdrop-blur text-gray-500 text-xs font-medium px-3 py-1 rounded-full shadow-sm border border-gray-200">{msgDate}</span>
+                  {/* Messages Area */}
+                          <div ref={messagesContainerRef} className="flex-1 overflow-y-auto relative min-h-0 bg-gradient-to-b from-white via-orange-50/30 to-white scrollbar-thin" style={{ overscrollBehavior: 'contain' }} onScroll={handleScroll}>
+                            <div className="p-4 space-y-2">
+                              {messages.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center h-full py-20">
+                                  <div className="w-24 h-24 bg-gradient-to-br from-orange-100 to-red-100 rounded-full flex items-center justify-center mb-4 shadow-xl">
+                                    <MessageSquare className="w-12 h-12 text-orange-500" />
                                   </div>
-                                )}
-                                <div className={`flex ${isFromClient ? 'justify-end' : 'justify-start'} flex-col ${!isFromClient ? 'items-start' : 'items-end'} mb-0.5`}>
-                                  <div className={`max-w-[82%] rounded-2xl px-3 py-2 shadow-sm ${
-                                    isFromClient
-                                      ? 'bg-gradient-to-br from-orange-500 to-red-500 text-white rounded-br-sm'
-                                      : 'bg-white text-gray-900 border border-gray-100 rounded-bl-sm'
-                                  }`}>
-                                    {mainText && <p className="text-sm leading-relaxed whitespace-pre-wrap">{mainText}</p>}
-                                    {renderAttachment(message, isFromClient)}
-                                    <div className={`flex items-center gap-1 mt-0.5 ${isFromClient ? 'justify-end' : 'justify-start'}`}>
-                                      <span className={`text-[10px] ${isFromClient ? 'text-white/70' : 'text-gray-400'}`}>{formatToIST(message.created_date)}</span>
-                                      {isFromClient && (message.read
-                                        ? <CheckCheck className="w-3 h-3 text-blue-200" />
-                                        : <Check className="w-3 h-3 text-white/60" />
-                                      )}
-                                    </div>
-                                  </div>
-                                  {!isFromClient && quickReplies.length > 0 && (
-                                    <div className="flex flex-wrap gap-1.5 mt-1 max-w-[82%]">
-                                      {quickReplies.map((reply, ri) => (
-                                        <button key={ri} onClick={() => { setMessageText(reply); textareaRef.current?.focus(); }}
-                                          className="text-xs px-2.5 py-1 rounded-full border border-orange-300 text-orange-700 bg-white hover:bg-orange-50 transition-colors shadow-sm">
-                                          {reply}
-                                        </button>
-                                      ))}
-                                    </div>
-                                  )}
+                                  <h3 className="text-lg font-bold text-gray-900 mb-2">Let's get started!</h3>
+                                  <p className="text-sm text-gray-600 text-center max-w-xs">Send your first message to {coachName} to begin your health journey</p>
                                 </div>
-                              </React.Fragment>
-                            );
-                          })
-                        )}
-                        <div ref={messagesEndRef} />
-                      </div>
+                              ) : (
+                                messages.map((message, idx) => {
+                                  const isFromClient = message.sender_type === 'client';
+                                  // Show date separator
+                                  const msgDate = message.created_date ? new Date(message.created_date + (message.created_date.includes('Z') ? '' : 'Z')).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' }) : '';
+                                  const prevMsgDate = idx > 0 && messages[idx-1].created_date ? new Date(messages[idx-1].created_date + (messages[idx-1].created_date.includes('Z') ? '' : 'Z')).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' }) : '';
+                                  const showDateSep = idx === 0 || msgDate !== prevMsgDate;
+
+                                  return (
+                                    <React.Fragment key={message.id}>
+                                      {showDateSep && msgDate && (
+                                        <div className="flex items-center justify-center my-4">
+                                          <div className="bg-gradient-to-r from-orange-100 to-red-100 backdrop-blur text-gray-700 text-xs font-bold px-4 py-2 rounded-full shadow-md border border-orange-200">
+                                            {msgDate}
+                                          </div>
+                                        </div>
+                                      )}
+                                      <ModernMessageBubble
+                                        message={message}
+                                        isFromClient={isFromClient}
+                                        formatToIST={formatToIST}
+                                        handleDownload={handleDownload}
+                                        getFileIcon={getFileIcon}
+                                        formatFileSize={formatFileSize}
+                                      />
+                                    </React.Fragment>
+                                  );
+                                })
+                              )}
+                              <div ref={messagesEndRef} />
+                            </div>
                     {showScrollButton && (
                       <button
                         onClick={() => scrollToBottom("smooth")}
