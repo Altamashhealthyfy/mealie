@@ -813,7 +813,7 @@ export default function DietitianDashboard() {
                             <div>
                               <p className="font-semibold text-gray-900">{client?.full_name || 'Client'}</p>
                               <p className="text-xs text-gray-500">
-                                {format(new Date(tracking.date), 'MMM d, yyyy')}
+                                {tracking.date ? format(new Date(tracking.date), 'MMM d, yyyy') : 'No date'}
                               </p>
                             </div>
                           </div>
