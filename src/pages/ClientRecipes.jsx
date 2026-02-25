@@ -398,43 +398,45 @@ Enjoy your cooking! 🍽️✨
                   ))}
                 </div>
 
-                <div className="grid grid-cols-4 gap-4">
-                  <div className="p-4 bg-blue-50 rounded-xl text-center">
-                    <Clock className="w-6 h-6 mx-auto text-blue-600 mb-2" />
-                    <p className="text-sm text-gray-600">Prep</p>
-                    <p className="text-lg font-bold">{selectedRecipe.prep_time} min</p>
+                <div className="grid grid-cols-4 gap-3">
+                  <div className="p-3 bg-blue-50 rounded-xl text-center">
+                    <Clock className="w-5 h-5 mx-auto text-blue-600 mb-1" />
+                    <p className="text-xs text-gray-500">Prep</p>
+                    <p className="text-base font-bold">{selectedRecipe.prep_time || 0} min</p>
                   </div>
-                  <div className="p-4 bg-orange-50 rounded-xl text-center">
-                    <Clock className="w-6 h-6 mx-auto text-orange-600 mb-2" />
-                    <p className="text-sm text-gray-600">Cook</p>
-                    <p className="text-lg font-bold">{selectedRecipe.cook_time} min</p>
+                  <div className="p-3 bg-orange-50 rounded-xl text-center">
+                    <Clock className="w-5 h-5 mx-auto text-orange-600 mb-1" />
+                    <p className="text-xs text-gray-500">Cook</p>
+                    <p className="text-base font-bold">{selectedRecipe.cook_time || 0} min</p>
                   </div>
-                  <div className="p-4 bg-green-50 rounded-xl text-center">
-                    <Users className="w-6 h-6 mx-auto text-green-600 mb-2" />
-                    <p className="text-sm text-gray-600">Servings</p>
-                    <p className="text-lg font-bold">{selectedRecipe.servings}</p>
+                  <div className="p-3 bg-green-50 rounded-xl text-center">
+                    <Users className="w-5 h-5 mx-auto text-green-600 mb-1" />
+                    <p className="text-xs text-gray-500">Servings</p>
+                    <p className="text-base font-bold">{selectedRecipe.servings || '-'}</p>
                   </div>
-                  <div className="p-4 bg-red-50 rounded-xl text-center">
-                    <Flame className="w-6 h-6 mx-auto text-red-600 mb-2" />
-                    <p className="text-sm text-gray-600">Calories</p>
-                    <p className="text-lg font-bold">{selectedRecipe.calories}</p>
+                  <div className="p-3 bg-red-50 rounded-xl text-center">
+                    <Flame className="w-5 h-5 mx-auto text-red-600 mb-1" />
+                    <p className="text-xs text-gray-500">Calories</p>
+                    <p className="text-base font-bold">{selectedRecipe.nutritional_info?.calories || '-'}</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="p-4 bg-red-50 rounded-xl">
-                    <p className="text-sm text-gray-600 mb-1">Protein</p>
-                    <p className="text-2xl font-bold text-red-600">{selectedRecipe.protein}g</p>
+                {(selectedRecipe.nutritional_info?.protein || selectedRecipe.nutritional_info?.carbs || selectedRecipe.nutritional_info?.fats) && (
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="p-3 bg-red-50 rounded-xl">
+                    <p className="text-xs text-gray-500 mb-0.5">Protein</p>
+                    <p className="text-xl font-bold text-red-600">{selectedRecipe.nutritional_info?.protein || 0}g</p>
                   </div>
-                  <div className="p-4 bg-yellow-50 rounded-xl">
-                    <p className="text-sm text-gray-600 mb-1">Carbs</p>
-                    <p className="text-2xl font-bold text-yellow-600">{selectedRecipe.carbs}g</p>
+                  <div className="p-3 bg-yellow-50 rounded-xl">
+                    <p className="text-xs text-gray-500 mb-0.5">Carbs</p>
+                    <p className="text-xl font-bold text-yellow-600">{selectedRecipe.nutritional_info?.carbs || 0}g</p>
                   </div>
-                  <div className="p-4 bg-purple-50 rounded-xl">
-                    <p className="text-sm text-gray-600 mb-1">Fats</p>
-                    <p className="text-2xl font-bold text-purple-600">{selectedRecipe.fats}g</p>
+                  <div className="p-3 bg-purple-50 rounded-xl">
+                    <p className="text-xs text-gray-500 mb-0.5">Fats</p>
+                    <p className="text-xl font-bold text-purple-600">{selectedRecipe.nutritional_info?.fats || 0}g</p>
                   </div>
                 </div>
+                )}
 
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 mb-3">Ingredients</h3>
