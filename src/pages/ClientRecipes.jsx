@@ -17,6 +17,7 @@ import RecipeMatcher from "@/components/recipes/RecipeMatcher";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 function RecipeCard({ recipe, isFav, onView, onDownload, onToggleFav, toggling }) {
+  const [imgError, setImgError] = React.useState(false);
   const totalTime = (recipe.prep_time || 0) + (recipe.cook_time || 0);
   const mealTypeColors = {
     breakfast: 'bg-yellow-100 text-yellow-700',
@@ -27,22 +28,17 @@ function RecipeCard({ recipe, isFav, onView, onDownload, onToggleFav, toggling }
   };
   return (
     <Card className="border-none shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden group cursor-pointer" onClick={onView}>
-      <div className="h-36 overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 relative">
-        {recipe.image_url ? (
+      <div className="h-36 overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 relative flex items-center justify-center">
+        {recipe.image_url && !imgError ? (
           <img
             src={recipe.image_url}
             alt={recipe.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            onError={(e) => {
-              e.target.style.display = 'none';
-            }}
+            onError={() => setImgError(true)}
           />
-        ) : null}
-        <div className="w-full h-full flex items-center justify-center absolute inset-0 pointer-events-none" style={{ backgroundImage: `url(${recipe.image_url})`, backgroundSize: 'cover' }}>
-          <div className="hidden" id={`fallback-${recipe.id}`}>
-            <ChefHat className="w-12 h-12 text-orange-300" />
-          </div>
-        </div>
+        ) : (
+          <ChefHat className="w-12 h-12 text-orange-300" />
+        )}
         {/* Favourite Toggle Button */}
         <button
           onClick={e => { e.stopPropagation(); onToggleFav(recipe); }}
