@@ -626,10 +626,13 @@ export default function ClientCommunication() {
                         <div ref={messagesEndRef} />
                       </div>
                     {showScrollButton && (
-                      <Button onClick={() => scrollToBottom("smooth")}
-                        className="absolute bottom-3 right-3 rounded-full w-9 h-9 bg-white hover:bg-gray-100 text-gray-700 shadow-lg border border-gray-200 z-10" size="icon">
-                        <ArrowDown className="w-4 h-4 animate-bounce" />
-                      </Button>
+                      <button
+                        onClick={() => scrollToBottom("smooth")}
+                        className="fixed bottom-24 right-4 z-20 rounded-full w-10 h-10 bg-teal-600 hover:bg-teal-700 text-white shadow-xl flex items-center justify-center border-2 border-white transition-all"
+                        style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.25)' }}
+                      >
+                        <ArrowDown className="w-5 h-5 animate-bounce" />
+                      </button>
                     )}
                   </div>
 
