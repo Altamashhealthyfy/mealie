@@ -486,9 +486,9 @@ export default function ClientCommunication() {
               <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0">
                 <div className="flex flex-col h-full min-h-0">
                   {/* Messages Area */}
-                          <div ref={messagesContainerRef} className="flex-1 overflow-y-auto relative min-h-0 bg-gradient-to-b from-white via-orange-50/30 to-white scrollbar-thin" style={{ overscrollBehavior: 'contain' }} onScroll={handleScroll}>
-                            <div className="p-4 space-y-2">
-                              {messages.length === 0 ? (
+                  <div ref={messagesContainerRef} className="flex-1 overflow-y-auto relative min-h-0 bg-gradient-to-b from-white via-orange-50/30 to-white scrollbar-thin" style={{ overscrollBehavior: 'contain' }} onScroll={handleScroll}>
+                    <div className="p-4 space-y-2">
+                      {messages.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center h-full py-20">
                                   <div className="w-24 h-24 bg-gradient-to-br from-orange-100 to-red-100 rounded-full flex items-center justify-center mb-4 shadow-xl">
                                     <MessageSquare className="w-12 h-12 text-orange-500" />
