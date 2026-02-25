@@ -477,32 +477,32 @@ export default function ClientAnalyticsDashboard() {
     <Download className="w-4 h-4 mr-2" />
     Export PDF
   </Button>
-            <Button
-              variant={selectedPeriod === "7" ? "default" : "outline"}
-              onClick={() => setSelectedPeriod("7")}
-              size="sm"
-              className="flex-1 sm:flex-none"
-            >
-              7 Days
-            </Button>
-            <Button
-              variant={selectedPeriod === "30" ? "default" : "outline"}
-              onClick={() => setSelectedPeriod("30")}
-              size="sm"
-              className="flex-1 sm:flex-none"
-            >
-              30 Days
-            </Button>
-            <Button
-              variant={selectedPeriod === "90" ? "default" : "outline"}
-              onClick={() => setSelectedPeriod("90")}
-              size="sm"
-              className="flex-1 sm:flex-none"
-            >
-              90 Days
-            </Button>
-          </div>
-        </div>
+  <Button
+    variant={selectedPeriod === "7" ? "default" : "outline"}
+    onClick={() => setSelectedPeriod("7")}
+    size="sm"
+    className="flex-1 sm:flex-none"
+  >
+    7 Days
+  </Button>
+  <Button
+    variant={selectedPeriod === "30" ? "default" : "outline"}
+    onClick={() => setSelectedPeriod("30")}
+    size="sm"
+    className="flex-1 sm:flex-none"
+  >
+    30 Days
+  </Button>
+  <Button
+    variant={selectedPeriod === "90" ? "default" : "outline"}
+    onClick={() => setSelectedPeriod("90")}
+    size="sm"
+    className="flex-1 sm:flex-none"
+  >
+    90 Days
+  </Button>
+</div>
+</div>
 
         {/* Filters */}
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
