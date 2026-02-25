@@ -480,7 +480,7 @@ export default function ClientCommunication() {
           )}
 
           {showCallHistory && (
-            <div className="mx-3 mt-2 border border-purple-200 rounded-xl bg-purple-50 p-3 flex-shrink-0">
+            <div className="mt-[168px] mx-3 border border-purple-200 rounded-xl bg-purple-50 p-3 flex-shrink-0">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-semibold text-purple-800 text-sm flex items-center gap-1"><History className="w-3.5 h-3.5" /> Past Calls</h4>
                 <Button variant="ghost" size="sm" onClick={() => setShowCallHistory(false)} className="h-6 w-6 p-0"><X className="w-4 h-4" /></Button>
