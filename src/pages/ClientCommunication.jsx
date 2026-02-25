@@ -722,7 +722,7 @@ export default function ClientCommunication() {
                 </div>
               </TabsContent>
 
-              <TabsContent value="groups" className="flex-1 mt-0 overflow-y-auto">
+              <TabsContent value="groups" className="flex-1 mt-0 overflow-hidden min-h-0">
                 {clientGroups.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center px-4">
@@ -731,98 +731,206 @@ export default function ClientCommunication() {
                       <p className="text-sm text-gray-500">Your coach hasn't added you to any groups yet</p>
                     </div>
                   </div>
-                ) : (
-                  <div className="p-3 space-y-4">
-                    {clientGroups.map(group => {
-                      const groupMsgs = groupMessages.filter(m => m.group_id === group.id)
-                        .sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
-                      const handleGroupFileSelect = (e) => {
-                        const file = e.target.files[0];
-                        if (!file) return;
-                        if (file.size > 1073741824) { alert("⚠️ File size must be less than 1 GB"); return; }
-                        setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: file });
+                ) : clientGroups.length === 1 ? (
+                  // Single group: full WhatsApp-style fixed layout
+                  (() => {
+                    const group = clientGroups[0];
+                    const groupMsgs = groupMessages.filter(m => m.group_id === group.id)
+                      .sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+                    const handleGroupFileSelect = (e) => {
+                      const file = e.target.files[0];
+                      if (!file) return;
+                      if (file.size > 1073741824) { alert("⚠️ File size must be less than 1 GB"); return; }
+                      setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: file });
+                    };
+                    const removeGroupAttachment = () => {
+                      setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: null });
+                      if (groupFileInputRefs.current[group.id]) groupFileInputRefs.current[group.id].value = '';
+                    };
+                    const handleSendGroupMessage = async () => {
+                      const message = groupMessageInputs[group.id] || "";
+                      const attachedFile = groupAttachedFiles[group.id];
+                      if (!message.trim() && !attachedFile) return;
+                      let msgData = {
+                        group_id: group.id, sender_type: 'client', sender_id: user?.id,
+                        sender_name: user?.full_name || clientProfile?.full_name,
+                        message: message.trim() || '(File attachment)', read: false,
                       };
-                      const removeGroupAttachment = () => {
-                        setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: null });
-                        if (groupFileInputRefs.current[group.id]) groupFileInputRefs.current[group.id].value = '';
-                      };
-                      const handleSendGroupMessage = async () => {
-                        const message = groupMessageInputs[group.id] || "";
-                        const attachedFile = groupAttachedFiles[group.id];
-                        if (!message.trim() && !attachedFile) return;
-                        let msgData = {
-                          group_id: group.id, sender_type: 'client', sender_id: user?.id,
-                          sender_name: user?.full_name || clientProfile?.full_name,
-                          message: message.trim() || '(File attachment)', read: false,
-                        };
-                        if (attachedFile) {
-                          setGroupUploading({ ...groupUploading, [group.id]: true });
-                          try {
-                            const { file_url } = await base44.integrations.Core.UploadFile({ file: attachedFile });
-                            msgData.attachment_url = file_url; msgData.attachment_name = attachedFile.name;
-                            msgData.attachment_type = attachedFile.type; msgData.attachment_size = attachedFile.size;
-                          } catch { alert("❌ File upload failed."); setGroupUploading({ ...groupUploading, [group.id]: false }); return; }
-                          setGroupUploading({ ...groupUploading, [group.id]: false });
-                        }
-                        await sendMessageMutation.mutateAsync(msgData);
-                        setGroupMessageInputs({ ...groupMessageInputs, [group.id]: "" });
-                        setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: null });
-                        queryClient.invalidateQueries(['myGroupMessages']);
-                      };
-                      return (
-                        <Card key={group.id} className="border-l-4 border-l-blue-500">
-                          <CardHeader className="pb-2 pt-3 px-3 bg-blue-50">
-                            <CardTitle className="text-sm sm:text-base flex items-center gap-2">
-                              <Users className="w-4 h-4 text-blue-500" />{group.name}
-                            </CardTitle>
-                            {group.description && <p className="text-xs text-gray-500 mt-0.5">{group.description}</p>}
-                          </CardHeader>
-                          <CardContent className="p-2 sm:p-3">
-                            <div className="space-y-2 max-h-72 overflow-y-auto mb-3 p-1">
-                              {groupMsgs.length === 0 ? (
-                                <p className="text-xs text-gray-500 text-center py-3">No messages yet</p>
-                              ) : groupMsgs.map(msg => {
-                                const isFromClient = msg.sender_type === 'client';
-                                return (
-                                  <div key={msg.id} className={`flex ${isFromClient ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[85%] rounded-xl p-2 text-xs sm:text-sm ${isFromClient ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' : 'bg-gray-100 text-gray-900'}`}>
-                                      {msg.message && <p className="mb-1">{msg.message}</p>}
-                                      {renderAttachment(msg, isFromClient)}
-                                      <p className={`text-xs mt-0.5 ${isFromClient ? 'text-white/70' : 'text-gray-400'}`}>{formatToIST(msg.created_date)}</p>
-                                    </div>
-                                  </div>
-                                );
-                              })}
+                      if (attachedFile) {
+                        setGroupUploading({ ...groupUploading, [group.id]: true });
+                        try {
+                          const { file_url } = await base44.integrations.Core.UploadFile({ file: attachedFile });
+                          msgData.attachment_url = file_url; msgData.attachment_name = attachedFile.name;
+                          msgData.attachment_type = attachedFile.type; msgData.attachment_size = attachedFile.size;
+                        } catch { alert("❌ File upload failed."); setGroupUploading({ ...groupUploading, [group.id]: false }); return; }
+                        setGroupUploading({ ...groupUploading, [group.id]: false });
+                      }
+                      await sendMessageMutation.mutateAsync(msgData);
+                      setGroupMessageInputs({ ...groupMessageInputs, [group.id]: "" });
+                      setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: null });
+                      queryClient.invalidateQueries(['myGroupMessages']);
+                    };
+                    return (
+                      <div className="flex flex-col h-full min-h-0">
+                        {/* Group header */}
+                        <div className="flex-shrink-0 px-3 py-2 bg-blue-50 border-b flex items-center gap-2">
+                          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                            <Users className="w-4 h-4 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-gray-900">{group.name}</p>
+                            {group.description && <p className="text-xs text-gray-500">{group.description}</p>}
+                          </div>
+                        </div>
+                        {/* Messages */}
+                        <div className="flex-1 overflow-y-auto min-h-0 bg-[#e5ddd5] p-3 space-y-1 scrollbar-thin">
+                          {groupMsgs.length === 0 ? (
+                            <div className="flex items-center justify-center h-full">
+                              <p className="text-sm text-gray-500">No messages yet</p>
                             </div>
-                            {groupAttachedFiles[group.id] && (
-                              <div className="mb-2 p-2 bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-2">
-                                {getFileIcon(groupAttachedFiles[group.id].type)}
-                                <p className="text-xs font-medium text-gray-900 truncate flex-1">{groupAttachedFiles[group.id].name}</p>
-                                <Button variant="ghost" size="sm" onClick={removeGroupAttachment} className="text-red-600 h-6 w-6 p-0"><X className="w-3.5 h-3.5" /></Button>
+                          ) : groupMsgs.map(msg => {
+                            const isFromClient = msg.sender_type === 'client';
+                            return (
+                              <div key={msg.id} className={`flex ${isFromClient ? 'justify-end' : 'justify-start'} mb-0.5`}>
+                                <div className={`max-w-[82%] rounded-2xl px-3 py-2 shadow-sm ${isFromClient ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-br-sm' : 'bg-white text-gray-900 border border-gray-100 rounded-bl-sm'}`}>
+                                  {!isFromClient && msg.sender_name && (
+                                    <p className="text-xs font-semibold text-blue-600 mb-0.5">{msg.sender_name}</p>
+                                  )}
+                                  {msg.message && <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.message}</p>}
+                                  {renderAttachment(msg, isFromClient)}
+                                  <p className={`text-[10px] mt-0.5 ${isFromClient ? 'text-white/70 text-right' : 'text-gray-400'}`}>{formatToIST(msg.created_date)}</p>
+                                </div>
                               </div>
-                            )}
-                            <div className="flex gap-2 border-t pt-2">
-                              <input ref={(el) => groupFileInputRefs.current[group.id] = el} type="file" onChange={handleGroupFileSelect} className="hidden" accept="*/*" />
-                              <Button variant="outline" size="icon" className="h-9 w-9 flex-shrink-0"
-                                onClick={() => groupFileInputRefs.current[group.id]?.click()}
-                                disabled={groupUploading[group.id] || sendMessageMutation.isPending}>
-                                <Paperclip className="w-3.5 h-3.5" />
-                              </Button>
-                              <Textarea placeholder="Message the group..."
-                                value={groupMessageInputs[group.id] || ""}
-                                onChange={(e) => setGroupMessageInputs({ ...groupMessageInputs, [group.id]: e.target.value })}
-                                onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendGroupMessage(); } }}
-                                className="resize-none min-h-[36px] text-sm flex-1" rows={1}
-                                disabled={groupUploading[group.id]} />
-                              <Button onClick={handleSendGroupMessage} className="bg-blue-500 hover:bg-blue-600 h-9 px-3 flex-shrink-0"
-                                disabled={!(groupMessageInputs[group.id] || "").trim() && !groupAttachedFiles[group.id] || sendMessageMutation.isPending || groupUploading[group.id]}>
-                                {(sendMessageMutation.isPending || groupUploading[group.id]) ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                              </Button>
+                            );
+                          })}
+                        </div>
+                        {/* Input */}
+                        <div className="flex-shrink-0 px-2 py-2 bg-white border-t border-gray-200">
+                          {groupAttachedFiles[group.id] && (
+                            <div className="mb-1.5 px-2 py-1.5 bg-blue-50 rounded-xl border border-blue-200 flex items-center gap-2">
+                              {getFileIcon(groupAttachedFiles[group.id].type)}
+                              <p className="text-xs font-semibold text-gray-900 truncate flex-1">{groupAttachedFiles[group.id].name}</p>
+                              <Button variant="ghost" size="sm" onClick={removeGroupAttachment} className="text-red-600 h-6 w-6 p-0"><X className="w-3.5 h-3.5" /></Button>
                             </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
+                          )}
+                          <div className="flex items-end gap-1.5">
+                            <input ref={(el) => groupFileInputRefs.current[group.id] = el} type="file" onChange={handleGroupFileSelect} className="hidden" accept="*/*" />
+                            <Button variant="ghost" size="icon" className="h-9 w-9 flex-shrink-0 text-gray-500 hover:bg-gray-100 rounded-full"
+                              onClick={() => groupFileInputRefs.current[group.id]?.click()}
+                              disabled={groupUploading[group.id] || sendMessageMutation.isPending}>
+                              <Paperclip className="w-5 h-5" />
+                            </Button>
+                            <Textarea placeholder="Message the group..."
+                              value={groupMessageInputs[group.id] || ""}
+                              onChange={(e) => setGroupMessageInputs({ ...groupMessageInputs, [group.id]: e.target.value })}
+                              onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendGroupMessage(); } }}
+                              className="resize-none min-h-[38px] max-h-28 text-sm border border-gray-200 focus:border-blue-400 bg-gray-50 rounded-2xl flex-1 min-w-0 px-3 py-2"
+                              rows={1} disabled={groupUploading[group.id]} />
+                            <Button onClick={handleSendGroupMessage} className="bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 h-9 w-9 flex-shrink-0 p-0 rounded-full shadow-md disabled:opacity-50"
+                              disabled={!(groupMessageInputs[group.id] || "").trim() && !groupAttachedFiles[group.id] || sendMessageMutation.isPending || groupUploading[group.id]}>
+                              {(sendMessageMutation.isPending || groupUploading[group.id]) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()
+                ) : (
+                  // Multiple groups: scrollable list, each with fixed input
+                  <div className="flex flex-col h-full min-h-0 overflow-y-auto">
+                    <div className="p-3 space-y-4">
+                      {clientGroups.map(group => {
+                        const groupMsgs = groupMessages.filter(m => m.group_id === group.id)
+                          .sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+                        const handleGroupFileSelect = (e) => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+                          if (file.size > 1073741824) { alert("⚠️ File size must be less than 1 GB"); return; }
+                          setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: file });
+                        };
+                        const removeGroupAttachment = () => {
+                          setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: null });
+                          if (groupFileInputRefs.current[group.id]) groupFileInputRefs.current[group.id].value = '';
+                        };
+                        const handleSendGroupMessage = async () => {
+                          const message = groupMessageInputs[group.id] || "";
+                          const attachedFile = groupAttachedFiles[group.id];
+                          if (!message.trim() && !attachedFile) return;
+                          let msgData = {
+                            group_id: group.id, sender_type: 'client', sender_id: user?.id,
+                            sender_name: user?.full_name || clientProfile?.full_name,
+                            message: message.trim() || '(File attachment)', read: false,
+                          };
+                          if (attachedFile) {
+                            setGroupUploading({ ...groupUploading, [group.id]: true });
+                            try {
+                              const { file_url } = await base44.integrations.Core.UploadFile({ file: attachedFile });
+                              msgData.attachment_url = file_url; msgData.attachment_name = attachedFile.name;
+                              msgData.attachment_type = attachedFile.type; msgData.attachment_size = attachedFile.size;
+                            } catch { alert("❌ File upload failed."); setGroupUploading({ ...groupUploading, [group.id]: false }); return; }
+                            setGroupUploading({ ...groupUploading, [group.id]: false });
+                          }
+                          await sendMessageMutation.mutateAsync(msgData);
+                          setGroupMessageInputs({ ...groupMessageInputs, [group.id]: "" });
+                          setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: null });
+                          queryClient.invalidateQueries(['myGroupMessages']);
+                        };
+                        return (
+                          <Card key={group.id} className="border-l-4 border-l-blue-500">
+                            <CardHeader className="pb-2 pt-3 px-3 bg-blue-50">
+                              <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+                                <Users className="w-4 h-4 text-blue-500" />{group.name}
+                              </CardTitle>
+                              {group.description && <p className="text-xs text-gray-500 mt-0.5">{group.description}</p>}
+                            </CardHeader>
+                            <CardContent className="p-2 sm:p-3">
+                              <div className="space-y-2 max-h-72 overflow-y-auto mb-3 p-1 bg-[#e5ddd5] rounded-lg">
+                                {groupMsgs.length === 0 ? (
+                                  <p className="text-xs text-gray-500 text-center py-3">No messages yet</p>
+                                ) : groupMsgs.map(msg => {
+                                  const isFromClient = msg.sender_type === 'client';
+                                  return (
+                                    <div key={msg.id} className={`flex ${isFromClient ? 'justify-end' : 'justify-start'}`}>
+                                      <div className={`max-w-[85%] rounded-xl p-2 text-xs sm:text-sm shadow-sm ${isFromClient ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' : 'bg-white text-gray-900 border border-gray-100'}`}>
+                                        {!isFromClient && msg.sender_name && <p className="text-xs font-semibold text-blue-600 mb-0.5">{msg.sender_name}</p>}
+                                        {msg.message && <p className="mb-1">{msg.message}</p>}
+                                        {renderAttachment(msg, isFromClient)}
+                                        <p className={`text-xs mt-0.5 ${isFromClient ? 'text-white/70' : 'text-gray-400'}`}>{formatToIST(msg.created_date)}</p>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                              {groupAttachedFiles[group.id] && (
+                                <div className="mb-2 p-2 bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-2">
+                                  {getFileIcon(groupAttachedFiles[group.id].type)}
+                                  <p className="text-xs font-medium text-gray-900 truncate flex-1">{groupAttachedFiles[group.id].name}</p>
+                                  <Button variant="ghost" size="sm" onClick={removeGroupAttachment} className="text-red-600 h-6 w-6 p-0"><X className="w-3.5 h-3.5" /></Button>
+                                </div>
+                              )}
+                              <div className="flex gap-2 border-t pt-2">
+                                <input ref={(el) => groupFileInputRefs.current[group.id] = el} type="file" onChange={handleGroupFileSelect} className="hidden" accept="*/*" />
+                                <Button variant="outline" size="icon" className="h-9 w-9 flex-shrink-0"
+                                  onClick={() => groupFileInputRefs.current[group.id]?.click()}
+                                  disabled={groupUploading[group.id] || sendMessageMutation.isPending}>
+                                  <Paperclip className="w-3.5 h-3.5" />
+                                </Button>
+                                <Textarea placeholder="Message the group..."
+                                  value={groupMessageInputs[group.id] || ""}
+                                  onChange={(e) => setGroupMessageInputs({ ...groupMessageInputs, [group.id]: e.target.value })}
+                                  onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendGroupMessage(); } }}
+                                  className="resize-none min-h-[36px] text-sm flex-1" rows={1}
+                                  disabled={groupUploading[group.id]} />
+                                <Button onClick={handleSendGroupMessage} className="bg-blue-500 hover:bg-blue-600 h-9 px-3 flex-shrink-0"
+                                  disabled={!(groupMessageInputs[group.id] || "").trim() && !groupAttachedFiles[group.id] || sendMessageMutation.isPending || groupUploading[group.id]}>
+                                  {(sendMessageMutation.isPending || groupUploading[group.id]) ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </TabsContent>
