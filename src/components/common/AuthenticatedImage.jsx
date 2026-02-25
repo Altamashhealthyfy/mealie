@@ -41,11 +41,11 @@ export default function AuthenticatedImage({ src, alt, className, fallback = nul
     };
   }, [src]);
 
-  if (failed || (!blobUrl && !src)) {
+  if (failed || !src) {
     return fallback || null;
   }
 
-  if (!blobUrl) return null; // Still loading
+  if (!blobUrl) return fallback || null; // Still loading
 
   return (
     <img
