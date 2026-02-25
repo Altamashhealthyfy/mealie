@@ -559,13 +559,15 @@ export default function Communication() {
         m => !m.read && m.sender_type === 'client'
       );
       
-      // Debounce mark as read to prevent rate limiting
+      // Debounce mark as read to prevent rate limiting - increased delay
       if (unreadMessages.length > 0) {
         const timer = setTimeout(() => {
-          unreadMessages.forEach(msg => {
-            markAsReadMutation.mutate(msg);
+          unreadMessages.forEach((msg, idx) => {
+            setTimeout(() => {
+              markAsReadMutation.mutate(msg);
+            }, idx * 200); // Stagger mutations
           });
-        }, 500);
+        }, 1000);
         
         return () => clearTimeout(timer);
       }

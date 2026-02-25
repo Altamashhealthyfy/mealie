@@ -391,23 +391,23 @@ export default function ClientCommunication() {
       )}
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Chat Sidebar */}
-        <ChatSidebar
-          isOpen={showSidebar}
-          onClose={() => setShowSidebar(false)}
-          coachName={coachName}
-          coachUser={coachUser}
-          clientProfile={clientProfile}
-          clientGroups={clientGroups}
-          onStartCall={startVideoCall}
-          onShowCallHistory={(show) => setShowCallHistory(show)}
-          showCallHistory={showCallHistory}
-          userEmail={user?.email}
-          isClient={isClient}
-        />
+         {/* Chat Sidebar */}
+         <ChatSidebar
+           isOpen={showSidebar}
+           onClose={() => setShowSidebar(false)}
+           coachName={coachName}
+           coachUser={coachUser}
+           clientProfile={clientProfile}
+           clientGroups={clientGroups}
+           onStartCall={startVideoCall}
+           onShowCallHistory={(show) => setShowCallHistory(show)}
+           showCallHistory={showCallHistory}
+           userEmail={user?.email}
+           isClient={isClient}
+         />
 
-        {/* Main Chat Area */}
-         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+         {/* Main Chat Area - constrained width */}
+          <div className="flex-1 flex flex-col overflow-hidden min-w-0 max-w-6xl mx-auto">
            {/* Sticky Chat Header - constrained within chat area */}
            <div className="flex-shrink-0 bg-white border-b shadow-md">
              {/* Coach Info Bar */}
