@@ -545,11 +545,10 @@ export default function ClientCommunication() {
                       </button>
                     )}
                     </div>
-                    </div>
 
                     {/* Input Area Component - Sticky Footer */}
-                    <div className="sticky bottom-0 z-10 flex-shrink-0 bg-white border-t">
-                    <MessageInputArea
+                    <div className="flex-shrink-0 bg-white border-t">
+                      <MessageInputArea
                     messageText={messageText}
                     setMessageText={setMessageText}
                     attachedFile={attachedFile}
