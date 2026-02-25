@@ -625,6 +625,7 @@ export default function ClientCommunication() {
                         )}
                         <div ref={messagesEndRef} />
                       </div>
+                    </ScrollArea>
                     {showScrollButton && (
                       <Button onClick={() => scrollToBottom("smooth")}
                         className="absolute bottom-3 right-3 rounded-full w-9 h-9 bg-white hover:bg-gray-100 text-gray-700 shadow-lg border border-gray-200 z-10" size="icon">
