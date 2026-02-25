@@ -108,15 +108,32 @@ export default function CoachProfileManager() {
   };
 
   const handleAccountSave = async () => {
+    if (!accountData.full_name.trim()) {
+      toast.error("Full name is required");
+      return;
+    }
+    if (!accountData.email.trim()) {
+      toast.error("Email is required");
+      return;
+    }
     setAccountSaving(true);
     try {
-      await base44.auth.updateMe({ full_name: accountData.full_name, phone: accountData.phone });
+      // Always update full_name and phone
+      await base44.auth.updateMe({ 
+        full_name: accountData.full_name.trim(),
+        phone: accountData.phone.trim()
+      });
+      
+      // Update email if changed
       if (accountData.email !== user?.email) {
-        const res = await base44.functions.invoke('updateUserEmail', { email: accountData.email });
+        const res = await base44.functions.invoke('updateUserEmail', { 
+          email: accountData.email.trim() 
+        });
         if (res.data?.error) throw new Error(res.data.error);
       }
+      
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
-      toast.success("Account details updated!");
+      toast.success("Account details updated successfully!");
     } catch (err) {
       toast.error(err.message || "Failed to update account details.");
     }
