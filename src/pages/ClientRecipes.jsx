@@ -163,54 +163,92 @@ Enjoy your cooking! 🍽️✨
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-              <ChefHat className="w-8 h-8 text-orange-500" />
-              Recipe Discovery
-            </h1>
-            <p className="text-gray-600">
-              Discover what you can cook with ingredients you have
-            </p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
+      {/* Header */}
+      <div className="bg-white border-b border-orange-100 px-4 md:px-8 py-4 md:py-6">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-2 mb-1">
+            <ChefHat className="w-7 h-7 text-orange-500" />
+            Recipe Library
+          </h1>
+          <p className="text-gray-500 text-sm">Discover healthy recipes tailored for you</p>
         </div>
+      </div>
 
+      <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-4">
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-3 w-full md:w-auto">
-            <TabsTrigger
-              value="pantry"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-500 data-[state=active]:text-white"
-            >
-              <ShoppingCart className="w-4 h-4 mr-2" />
-              My Pantry ({pantryIngredients.length})
-            </TabsTrigger>
-            <TabsTrigger
-              value="suggestions"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Suggestions
-            </TabsTrigger>
-            <TabsTrigger
-              value="favorites"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
-            >
-              <Heart className="w-4 h-4 mr-2" />
-              Favorites ({favoriteRecipes.length})
-            </TabsTrigger>
-          </TabsList>
+          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+            <TabsList className="grid grid-cols-4 w-full sm:w-auto bg-white shadow-sm border">
+              <TabsTrigger value="library" className="flex items-center gap-1.5 text-xs sm:text-sm data-[state=active]:bg-orange-500 data-[state=active]:text-white">
+                <BookOpen className="w-3.5 h-3.5" /> All
+                {recipes.length > 0 && <span className="text-xs">({recipes.length})</span>}
+              </TabsTrigger>
+              <TabsTrigger value="pantry" className="flex items-center gap-1.5 text-xs sm:text-sm data-[state=active]:bg-orange-500 data-[state=active]:text-white">
+                <ShoppingCart className="w-3.5 h-3.5" /> Pantry
+              </TabsTrigger>
+              <TabsTrigger value="suggestions" className="flex items-center gap-1.5 text-xs sm:text-sm data-[state=active]:bg-green-500 data-[state=active]:text-white">
+                <Sparkles className="w-3.5 h-3.5" /> Smart
+              </TabsTrigger>
+              <TabsTrigger value="favorites" className="flex items-center gap-1.5 text-xs sm:text-sm data-[state=active]:bg-red-500 data-[state=active]:text-white">
+                <Heart className="w-3.5 h-3.5" /> Saved
+                {favoriteRecipes.length > 0 && <span className="text-xs">({favoriteRecipes.length})</span>}
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          {/* All Recipes / Library Tab */}
+          <TabsContent value="library" className="space-y-4 mt-4">
+            {/* Search & Filter Bar */}
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  placeholder="Search recipes..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 bg-white border-gray-200"
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              <div className="flex gap-1.5 flex-wrap">
+                {['', ...mealTypes].map(mt => (
+                  <button key={mt || 'all'} onClick={() => setFilterMealType(mt)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${filterMealType === mt ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-600 border-gray-200 hover:border-orange-300'}`}>
+                    {mt ? mt.charAt(0).toUpperCase() + mt.slice(1) : 'All Types'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {filteredRecipes.length === 0 ? (
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <Search className="w-14 h-14 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">No recipes found</h3>
+                  <p className="text-gray-500 text-sm">{searchQuery ? 'Try a different search term' : 'No recipes available yet'}</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filteredRecipes.map((recipe) => (
+                  <RecipeCard key={recipe.id} recipe={recipe} isFav={isFavorited(recipe)} onView={() => setSelectedRecipe(recipe)} onDownload={() => downloadRecipe(recipe)} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
 
           {/* Pantry Tab */}
-          <TabsContent value="pantry" className="space-y-6 mt-6">
+          <TabsContent value="pantry" className="space-y-6 mt-4">
             <PantryManager clientEmail={user?.email} recipes={recipes} />
           </TabsContent>
 
           {/* Recipe Suggestions Tab */}
-          <TabsContent value="suggestions" className="space-y-6 mt-6">
+          <TabsContent value="suggestions" className="space-y-6 mt-4">
             <RecipeMatcher
               recipes={recipes}
               pantryIngredients={pantryIngredients}
@@ -219,125 +257,22 @@ Enjoy your cooking! 🍽️✨
           </TabsContent>
 
           {/* Favorites Tab */}
-          <TabsContent value="favorites" className="space-y-6 mt-6">
+          <TabsContent value="favorites" className="space-y-4 mt-4">
             {favoriteRecipesList.length === 0 ? (
               <Card className="border-none shadow-lg">
                 <CardContent className="p-12 text-center">
-                  <Heart className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    No favorite recipes yet
-                  </h3>
-                  <p className="text-gray-600">
-                    Start saving your favorite recipes from the suggestions!
-                  </p>
+                  <Heart className="w-14 h-14 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No saved recipes yet</h3>
+                  <p className="text-gray-500">Browse the library and save your favorites!</p>
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {favoriteRecipesList.map((recipe) => {
                   const rating = getUserRating(recipe);
                   const favorite = favoriteRecipes.find(f => f.recipe_id === recipe.id);
-
                   return (
-                    <Card
-                      key={recipe.id}
-                      className="border-none shadow-lg hover:shadow-xl transition-all overflow-hidden"
-                    >
-                      {recipe.image_url && (
-                        <div className="h-48 overflow-hidden bg-gray-100">
-                          <img
-                            src={recipe.image_url}
-                            alt={recipe.name}
-                            className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                          />
-                        </div>
-                      )}
-
-                      <CardHeader>
-                        <CardTitle className="text-lg line-clamp-2">
-                          {recipe.name}
-                        </CardTitle>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          <Badge variant="outline" className="text-xs capitalize">
-                            {recipe.meal_type}
-                          </Badge>
-                          <Badge className="text-xs bg-green-100 text-green-800 capitalize">
-                            {recipe.food_preference}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-
-                      <CardContent className="space-y-4">
-                        {/* User Rating */}
-                        {rating > 0 && (
-                          <div className="flex items-center gap-2 p-2 bg-yellow-50 rounded-lg">
-                            <div className="flex gap-1">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-4 h-4 ${
-                                    i < rating
-                                      ? "fill-yellow-400 text-yellow-400"
-                                      : "text-gray-300"
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-sm font-semibold text-gray-700">
-                              {rating}.0
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Personal Notes */}
-                        {favorite?.personal_notes && (
-                          <p className="text-sm text-gray-600 italic p-3 bg-gray-50 rounded-lg">
-                            "{favorite.personal_notes}"
-                          </p>
-                        )}
-
-                        {/* Recipe Stats */}
-                        <div className="flex items-center justify-between text-sm text-gray-600">
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {(recipe.prep_time || 0) + (recipe.cook_time || 0)} min
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Flame className="w-4 h-4" />
-                            {recipe.calories} kcal
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Users className="w-4 h-4" />
-                            {recipe.servings}
-                          </div>
-                        </div>
-
-                        {favorite?.times_cooked > 0 && (
-                          <Badge className="bg-purple-100 text-purple-800">
-                            🍳 Cooked {favorite.times_cooked} time{favorite.times_cooked > 1 ? 's' : ''}
-                          </Badge>
-                        )}
-
-                        {/* Action Buttons */}
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={() => setSelectedRecipe(recipe)}
-                            className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
-                          >
-                            <Eye className="w-4 h-4 mr-2" />
-                            View
-                          </Button>
-                          <Button
-                            onClick={() => downloadRecipe(recipe)}
-                            variant="outline"
-                            className="flex-1"
-                          >
-                            <Download className="w-4 h-4 mr-2" />
-                            Download
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
+                    <RecipeCard key={recipe.id} recipe={recipe} isFav={true} rating={rating} personalNotes={favorite?.personal_notes} timesCocked={favorite?.times_cooked} onView={() => setSelectedRecipe(recipe)} onDownload={() => downloadRecipe(recipe)} />
                   );
                 })}
               </div>
