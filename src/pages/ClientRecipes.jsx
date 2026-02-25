@@ -15,6 +15,74 @@ import PantryManager from "@/components/recipes/PantryManager";
 import RecipeMatcher from "@/components/recipes/RecipeMatcher";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
+function RecipeCard({ recipe, isFav, rating, personalNotes, timesCocked, onView, onDownload }) {
+  const totalTime = (recipe.prep_time || 0) + (recipe.cook_time || 0);
+  const mealTypeColors = {
+    breakfast: 'bg-yellow-100 text-yellow-700',
+    lunch: 'bg-green-100 text-green-700',
+    dinner: 'bg-blue-100 text-blue-700',
+    snack: 'bg-purple-100 text-purple-700',
+    post_dinner: 'bg-pink-100 text-pink-700',
+  };
+  return (
+    <Card className="border-none shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden group cursor-pointer" onClick={onView}>
+      {/* Image / Placeholder */}
+      <div className="h-36 overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 relative">
+        {recipe.image_url ? (
+          <img src={recipe.image_url} alt={recipe.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <ChefHat className="w-12 h-12 text-orange-300" />
+          </div>
+        )}
+        {isFav && (
+          <div className="absolute top-2 right-2 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center shadow-sm">
+            <Heart className="w-3.5 h-3.5 fill-red-500 text-red-500" />
+          </div>
+        )}
+        {recipe.meal_type && (
+          <div className={`absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-xs font-semibold ${mealTypeColors[recipe.meal_type] || 'bg-gray-100 text-gray-600'}`}>
+            {recipe.meal_type}
+          </div>
+        )}
+      </div>
+
+      <CardContent className="p-3">
+        <h3 className="font-bold text-gray-900 text-sm line-clamp-2 mb-2 leading-tight">{recipe.name}</h3>
+        
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+          {totalTime > 0 && (
+            <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{totalTime}m</span>
+          )}
+          {recipe.nutritional_info?.calories && (
+            <span className="flex items-center gap-1"><Flame className="w-3 h-3 text-orange-400" />{recipe.nutritional_info.calories} kcal</span>
+          )}
+          {recipe.servings && (
+            <span className="flex items-center gap-1"><Users className="w-3 h-3" />{recipe.servings}</span>
+          )}
+        </div>
+
+        {rating > 0 && (
+          <div className="flex gap-0.5 mb-2">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className={`w-3 h-3 ${i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
+            ))}
+          </div>
+        )}
+
+        <div className="flex gap-1.5" onClick={e => e.stopPropagation()}>
+          <Button onClick={onView} size="sm" className="flex-1 h-7 text-xs bg-orange-500 hover:bg-orange-600 text-white rounded-lg">
+            <Eye className="w-3 h-3 mr-1" /> View
+          </Button>
+          <Button onClick={onDownload} size="sm" variant="outline" className="h-7 w-7 p-0 rounded-lg border-gray-200">
+            <Download className="w-3 h-3" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function ClientRecipes() {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [activeTab, setActiveTab] = useState("library");
