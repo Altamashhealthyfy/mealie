@@ -646,7 +646,7 @@ export default function DietitianDashboard() {
                         <div className="flex items-center gap-4 text-sm text-gray-500">
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            {format(new Date(appointment.date), 'MMM d, yyyy')}
+                            {appointment.date ? format(new Date(appointment.date), 'MMM d, yyyy') : 'No date'}
                           </span>
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
