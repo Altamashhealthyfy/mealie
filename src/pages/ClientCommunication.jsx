@@ -368,7 +368,7 @@ export default function ClientCommunication() {
   const joinDate = clientProfile?.join_date ? new Date(clientProfile.join_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
 
   return (
-    <div className="flex flex-col overflow-hidden communication-page-height">
+    <div className="flex flex-col overflow-hidden communication-page-height bg-[#f0f2f5]">
       {activeVideoCall && (
         <VideoCallRoom roomId={activeVideoCall.clientId} localName={user?.full_name || 'Me'}
           remoteName={activeVideoCall.coachName} isInitiator={false}
@@ -378,10 +378,10 @@ export default function ClientCommunication() {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar - hidden on mobile, shown when showSidebar is true */}
         {showSidebar && (
-          <div className="fixed inset-0 z-50 md:relative md:inset-auto flex md:block">
+          <div className="fixed inset-0 z-50 flex">
             {/* Overlay for mobile */}
-            <div className="absolute inset-0 bg-black/40 md:hidden" onClick={() => setShowSidebar(false)} />
-            <div className="relative z-10 flex flex-col w-72 md:w-64 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto h-full ml-0">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowSidebar(false)} />
+            <div className="relative z-10 flex flex-col w-80 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto h-full shadow-2xl">
               {/* Close button on mobile */}
               <div className="flex items-center justify-between p-3 border-b md:hidden">
                 <span className="font-semibold text-gray-900">Chat Info</span>
