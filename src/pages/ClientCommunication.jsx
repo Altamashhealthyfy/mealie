@@ -562,7 +562,7 @@ export default function ClientCommunication() {
               <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0">
                 <div className="flex flex-col h-full min-h-0">
                   {/* Messages area */}
-                  <div ref={messagesContainerRef} className="flex-1 overflow-y-auto relative min-h-0 bg-white scrollbar-thin" onScroll={handleScroll}>
+                  <div ref={messagesContainerRef} className="flex-1 overflow-y-auto relative min-h-0 bg-white scrollbar-thin" style={{ maxHeight: 'calc(100vh - 220px)' }} onScroll={handleScroll}>
                       <div className="p-3 space-y-1">
                         {messages.length === 0 ? (
                           <div className="flex flex-col items-center justify-center py-16">
