@@ -1124,47 +1124,31 @@ Provide 3 creative variations that ${variationRequest}. Each should maintain sim
                 className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all group"
               >
                 {recipe.image_url ? (
-                  <div className="h-48 rounded-t-xl overflow-hidden relative">
-                    <img 
-                      src={recipe.image_url} 
-                      alt={recipe.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      referrerPolicy="no-referrer"
-                      crossOrigin="anonymous"
-                      onError={(e) => { e.currentTarget.style.display='none'; e.currentTarget.parentElement.classList.add('!bg-gradient-to-br','!from-orange-100','!via-amber-100','!to-red-100'); }}
-                      />
-                      {!isClient && (
-                      <div className="absolute top-2 right-2 flex gap-2">
-                        {canEditRecipe(recipe) && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditRecipe(recipe);
-                                }}
-                                className="bg-white/90 hover:bg-white text-blue-600 h-8 w-8 p-0"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                            )}
-                            {canDeleteRecipe(recipe) && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteRecipe(recipe);
-                                }}
-                                className="bg-white/90 hover:bg-white text-red-600 h-8 w-8 p-0"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
+                   <div className="h-48 rounded-t-xl overflow-hidden relative">
+                     <img 
+                       src={recipe.image_url} 
+                       alt={recipe.name}
+                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                       referrerPolicy="no-referrer"
+                       crossOrigin="anonymous"
+                       onError={(e) => { e.currentTarget.style.display='none'; }}
+                     />
+                     {!isClient && (
+                       <div className="absolute top-2 right-2 flex gap-2">
+                         {canEditRecipe(recipe) && (
+                           <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleEditRecipe(recipe); }} className="bg-white/90 hover:bg-white text-blue-600 h-8 w-8 p-0">
+                             <Edit className="w-4 h-4" />
+                           </Button>
+                         )}
+                         {canDeleteRecipe(recipe) && (
+                           <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleDeleteRecipe(recipe); }} className="bg-white/90 hover:bg-white text-red-600 h-8 w-8 p-0">
+                             <Trash2 className="w-4 h-4" />
+                           </Button>
+                         )}
+                       </div>
+                     )}
+                   </div>
+                     ) : (
                       <div className="h-48 bg-gradient-to-br from-orange-100 via-amber-100 to-red-100 rounded-t-xl flex items-center justify-center relative">
                         <ChefHat className="w-16 h-16 text-orange-400 opacity-20" />
                         {!isClient && (
