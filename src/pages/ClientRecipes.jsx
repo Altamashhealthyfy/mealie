@@ -373,12 +373,10 @@ export default function ClientRecipes() {
               <div className="space-y-5">
                 {selectedRecipe.image_url && (
                   <div className="w-full h-56 rounded-xl overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100">
-                    <img
+                    <AuthenticatedImage
                       src={selectedRecipe.image_url}
                       alt={selectedRecipe.name}
                       className="w-full h-full object-cover"
-                      crossOrigin="use-credentials"
-                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     />
                   </div>
                 )}
