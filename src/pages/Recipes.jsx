@@ -19,6 +19,8 @@ import { createPageUrl } from "@/utils";
 import ImageUploader from "@/components/common/ImageUploader";
 import PersonalizedRecommendations from "@/components/recipes/PersonalizedRecommendations";
 import RecipeSearchFilters from "@/components/recipes/RecipeSearchFilters";
+import AdvancedFilters from "@/components/recipes/AdvancedFilters";
+import SimilarRecipes from "@/components/recipes/SimilarRecipes";
 import AuthenticatedImage from "@/components/common/AuthenticatedImage";
 
 export default function Recipes() {
@@ -50,6 +52,10 @@ export default function Recipes() {
   const [targetMacros, setTargetMacros] = useState({ calories: '', protein: '', carbs: '', fats: '' });
   const [variationRequest, setVariationRequest] = useState('');
   const [generatedVariations, setGeneratedVariations] = useState([]);
+  const [macroFilters, setMacroFilters] = useState({ protein: null, carbs: null, fats: null });
+  const [ingredientExclusions, setIngredientExclusions] = useState([]);
+  const [prepTimeMax, setPrepTimeMax] = useState(null);
+  const [dietaryTags, setDietaryTags] = useState([]);
 
   const [manualRecipeForm, setManualRecipeForm] = useState({
     name: "",
@@ -277,10 +283,33 @@ export default function Recipes() {
       (calorieFilter === "high" && cal > 500);
 
     const matchesDifficulty = difficultyFilter === "all" || recipe.difficulty_level === difficultyFilter;
+
+    // Advanced macro filters
+    const matchesMacros = (
+      (!macroFilters.protein || (recipe.protein || 0) >= macroFilters.protein) &&
+      (!macroFilters.carbs || (recipe.carbs || 0) >= macroFilters.carbs) &&
+      (!macroFilters.fats || (recipe.fats || 0) >= macroFilters.fats)
+    );
+
+    // Ingredient exclusions filter
+    const hasExcludedIngredients = ingredientExclusions.some(excluded =>
+      recipe.ingredients?.some(ing => ing.item.toLowerCase().includes(excluded.toLowerCase()))
+    );
+
+    // Prep time filter
+    const matchesPrepTime = !prepTimeMax || totalTime <= prepTimeMax;
+
+    // Dietary tags filter
+    const matchesDietaryTags = dietaryTags.length === 0 || 
+      dietaryTags.some(tag => 
+        recipe.dietary_tags?.includes(tag) || 
+        recipe.tags?.some(t => t.toLowerCase().includes(tag.toLowerCase()))
+      );
     
     return matchesSearch && matchesIngredient && matchesMealType && matchesFoodPref && 
            matchesRegion && matchesCookTime && matchesDietary && matchesUploader &&
-           matchesCalorie && matchesDifficulty;
+           matchesCalorie && matchesDifficulty && matchesMacros && !hasExcludedIngredients &&
+           matchesPrepTime && matchesDietaryTags;
   });
 
   const generateCustomRecipe = async () => {
