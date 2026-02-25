@@ -462,11 +462,21 @@ export default function ClientAnalyticsDashboard() {
     <div className="min-h-screen p-3 md:p-8 pb-24 md:pb-6">
       <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2 md:gap-4">
-         <div>
-           <h1 className="text-lg sm:text-2xl md:text-4xl font-bold text-gray-900 mb-1 md:mb-2">Client Analytics</h1>
-           <p className="text-xs md:text-base text-gray-600">Track progress, engagement, and identify clients needing attention</p>
-         </div>
+         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2 md:gap-4">
+          <div>
+            <h1 className="text-lg sm:text-2xl md:text-4xl font-bold text-gray-900 mb-1 md:mb-2">Client Analytics</h1>
+            <p className="text-xs md:text-base text-gray-600">Track progress, engagement, and identify clients needing attention</p>
+          </div>
+
+          <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+            <Button
+              onClick={generatePDF}
+              size="sm"
+              className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export PDF
+            </Button>
           
           <div className="flex flex-wrap gap-2 w-full lg:w-auto">
             <Button
