@@ -407,9 +407,9 @@ export default function ClientCommunication() {
         />
 
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-          {/* Sticky Chat Header */}
-          <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b shadow-lg" style={{ maxWidth: 'calc(100% - 0px)' }}>
+         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+           {/* Sticky Chat Header */}
+           <div className="sticky top-0 z-40 bg-white border-b shadow-md">
              {/* Coach Info Bar */}
              <div className="px-3 py-2 flex items-center justify-between gap-2 border-b">
                <div className="flex items-center gap-2 min-w-0">
@@ -470,7 +470,7 @@ export default function ClientCommunication() {
            </div>
 
           {newMessageAlert && (
-            <div className="mt-[168px] mx-3 p-2 bg-green-50 border border-green-300 rounded-xl flex items-center gap-2 flex-shrink-0">
+            <div className="mx-3 mt-2 p-2 bg-green-50 border border-green-300 rounded-xl flex items-center gap-2 flex-shrink-0">
               <Bell className="w-4 h-4 text-green-600 flex-shrink-0" />
               <p className="text-xs text-green-800 font-medium flex-1 truncate">New: {newMessageAlert}</p>
               <Button variant="ghost" size="sm" className="p-0.5 h-auto" onClick={() => setNewMessageAlert(null)}>
@@ -480,7 +480,7 @@ export default function ClientCommunication() {
           )}
 
           {showCallHistory && (
-            <div className="mt-[168px] mx-3 border border-purple-200 rounded-xl bg-purple-50 p-3 flex-shrink-0">
+            <div className="mx-3 mt-2 border border-purple-200 rounded-xl bg-purple-50 p-3 flex-shrink-0">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="font-semibold text-purple-800 text-sm flex items-center gap-1"><History className="w-3.5 h-3.5" /> Past Calls</h4>
                 <Button variant="ghost" size="sm" onClick={() => setShowCallHistory(false)} className="h-6 w-6 p-0"><X className="w-4 h-4" /></Button>
