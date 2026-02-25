@@ -553,8 +553,9 @@ export default function ClientCommunication() {
                     getFileIcon={getFileIcon}
                     formatFileSize={formatFileSize}
                     isGroup={false}
-                  />
-                </div>
+                    />
+                    </div>
+                    </div>
               </TabsContent>
 
               <TabsContent value="groups" className="flex-1 mt-0 overflow-hidden min-h-0">
