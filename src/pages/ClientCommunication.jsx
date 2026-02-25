@@ -49,6 +49,7 @@ export default function ClientCommunication() {
   const [incomingCall, setIncomingCall] = useState(null);
 
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
   const groupFileInputRefs = useRef({});
