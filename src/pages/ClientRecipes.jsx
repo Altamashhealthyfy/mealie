@@ -378,6 +378,7 @@ export default function ClientRecipes() {
                       src={selectedRecipe.image_url}
                       alt={selectedRecipe.name}
                       className="w-full h-full object-cover"
+                      crossOrigin="use-credentials"
                       onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     />
                   </div>
