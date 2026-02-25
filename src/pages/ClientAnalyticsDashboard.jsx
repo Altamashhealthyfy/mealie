@@ -468,17 +468,15 @@ export default function ClientAnalyticsDashboard() {
             <p className="text-xs md:text-base text-gray-600">Track progress, engagement, and identify clients needing attention</p>
           </div>
 
-          <div className="flex flex-wrap gap-2 w-full lg:w-auto">
-            <Button
-              onClick={generatePDF}
-              size="sm"
-              className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Export PDF
-            </Button>
-          
-          <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+<div className="flex flex-wrap gap-2 w-full lg:w-auto">
+  <Button
+    onClick={generatePDF}
+    size="sm"
+    className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+  >
+    <Download className="w-4 h-4 mr-2" />
+    Export PDF
+  </Button>
             <Button
               variant={selectedPeriod === "7" ? "default" : "outline"}
               onClick={() => setSelectedPeriod("7")}
