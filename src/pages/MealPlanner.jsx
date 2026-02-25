@@ -1747,44 +1747,9 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
     return true;
     });
 
-    const handleGenerateNew = () => {
-    setGeneratedPlan(null);
-    setGenerating(false);
-    setViewingPlan(null);
-  };
-
-  const handleViewPlan = (plan) => {
-    const client = clients.find(c => c.id === plan.client_id);
-    const viewPlan = {
-      ...plan,
-      plan_name: plan.name || plan.plan_name,
-      client_name: client?.full_name || plan.client_name || 'Unknown Client',
-      client_id: plan.client_id,
-      meals: plan.meals || [],
-    };
-    setViewingPlan(viewPlan);
-    setGeneratedPlan(null);
-    setActiveTab("generate");
-  };
-
-  const handleDeletePlan = (plan) => {
-    const client = clients.find(c => c.id === plan.client_id);
-    const confirmed = window.confirm(
-      `⚠️ Delete Diet Plan?\n\n` +
-      `Plan: ${plan.name}\n` +
-      `Client: ${client?.full_name || 'Unknown'}\n` +
-      `Duration: ${plan.duration} days\n\n` +
-      `This will remove the plan from the client's account.\n` +
-      `This action cannot be undone.\n\n` +
-      `Continue with deletion?`
-    );
-    
-    if (confirmed) {
-      deletePlanMutation.mutate(plan.id);
-    }
-  };
-
-  // Show limited UI if no clients yet
+    const handleGenerateNew = () => { setGeneratedPlan(null); setGenerating(false); setViewingPlan(null); };
+  const handleViewPlan = (plan) => { const client = clients.find(c => c.id === plan.client_id); setViewingPlan({ ...plan, plan_name: plan.name || plan.plan_name, client_name: client?.full_name || 'Unknown Client', client_id: plan.client_id, meals: plan.meals || [] }); setGeneratedPlan(null); setActiveTab("generate"); };
+  const handleDeletePlan = (plan) => { const client = clients.find(c => c.id === plan.client_id); if (window.confirm(`⚠️ Delete "${plan.name}" for ${client?.full_name || 'Unknown'}? This cannot be undone.`)) deletePlanMutation.mutate(plan.id); };
   const isNoClientsMode = clients.length === 0;
 
   return (
