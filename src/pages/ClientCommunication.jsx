@@ -556,8 +556,7 @@ export default function ClientCommunication() {
               <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0">
                 <div className="flex flex-col h-full min-h-0">
                   {/* Messages area */}
-                  <div className="flex-1 overflow-hidden relative min-h-0" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?w=400&q=20')", backgroundSize: 'cover', backgroundBlendMode: 'multiply', backgroundColor: 'rgba(240,242,245,0.97)' }}>
-                    <ScrollArea className="h-full scrollbar-thin" onScrollCapture={handleScroll} style={{ overflowY: 'scroll' }}>
+                  <div className="flex-1 overflow-y-auto relative min-h-0 bg-white scrollbar-thin" onScroll={handleScroll}>
                       <div className="p-3 space-y-1">
                         {messages.length === 0 ? (
                           <div className="flex flex-col items-center justify-center py-16">
