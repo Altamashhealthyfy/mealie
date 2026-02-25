@@ -1050,11 +1050,10 @@ Provide 3 creative variations that ${variationRequest}. Each should maintain sim
               >
                 {recipe.image_url ? (
                   <div className="h-48 rounded-t-xl overflow-hidden relative">
-                    <img 
-                      src={recipe.image_url} 
+                    <AuthenticatedImage
+                      src={recipe.image_url}
                       alt={recipe.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      onError={(e) => { e.currentTarget.style.display='none'; }}
                     />
                      {!isClient && (
                        <div className="absolute top-2 right-2 flex gap-2">
