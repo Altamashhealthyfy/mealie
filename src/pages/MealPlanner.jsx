@@ -21,7 +21,7 @@ import GeneratedMealPlan from "@/components/mealplanner/GeneratedMealPlan";
 import UsageLimitWarning from "@/components/mealplanner/UsageLimitWarning";
 import ManualMealPlanBuilder from "@/components/mealplanner/ManualMealPlanBuilder";
 import ManualTemplateBuilder from "@/components/mealplanner/ManualTemplateBuilder";
-import AIMealPlanGenerator from "@/components/mealplanner/AIMealPlanGenerator";
+import GeneratorSelection from "@/components/mealplanner/GeneratorSelection";
 
 export default function MealPlanner() {
   const queryClient = useQueryClient();
@@ -2514,52 +2514,18 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                     </Alert>
                   )}
 
-                  <div className="flex flex-col sm:flex-row gap-3">
-                   <Button
-                     onClick={generateMealPlan}
-                     disabled={generating || !selectedClientId}
-                     className="flex-1 h-12 sm:h-14 text-sm sm:text-base md:text-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg"
-                   >
-                     {generating ? (
-                       <>
-                         <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
-                         <span className="hidden sm:inline">Generating Meal Plan...</span>
-                         <span className="sm:hidden">Generating...</span>
-                       </>
-                     ) : (
-                       <>
-                         <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                         {user?.user_type === 'student_coach' && coachPlan ? (
-                           availableAICredits > 0 ? (
-                             <>
-                               <span className="hidden md:inline">Generate Meal Plan (FREE with credits)</span>
-                               <span className="md:hidden">Generate (FREE)</span>
-                             </>
-                           ) : (
-                             <>
-                               <span className="hidden md:inline">Generate Meal Plan (₹{coachPlan.ai_credit_price || 10})</span>
-                               <span className="md:hidden">Generate (₹{coachPlan.ai_credit_price || 10})</span>
-                             </>
-                           )
-                         ) : (
-                           <>
-                             <span className="hidden md:inline">Generate with AI (₹{coachPlan?.ai_credit_price || 10})</span>
-                             <span className="md:hidden">Generate AI (₹{coachPlan?.ai_credit_price || 10})</span>
-                           </>
-                         )}
-                       </>
-                     )}
-                   </Button>
-                   {selectedClient && (
-                     <AIMealPlanGenerator 
-                       client={selectedClient}
-                       onPlanGenerated={(plan) => {
-                         setGeneratedPlan(plan);
-                         setViewingPlan(null);
-                       }}
-                     />
-                   )}
-                  </div>
+                  <GeneratorSelection
+                    selectedClient={selectedClient}
+                    generating={generating}
+                    generateMealPlan={generateMealPlan}
+                    onPlanGenerated={(plan) => {
+                      setGeneratedPlan(plan);
+                      setViewingPlan(null);
+                    }}
+                    user={user}
+                    coachPlan={coachPlan}
+                    availableAICredits={availableAICredits}
+                  />
                 </CardContent>
               </Card>
             ) : (
