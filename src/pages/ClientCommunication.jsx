@@ -195,7 +195,14 @@ export default function ClientCommunication() {
       .forEach(msg => markAsReadMutation.mutate(msg));
   }, [messages.length]);
 
-  useEffect(() => { scrollToBottom("auto"); setShowScrollButton(false); }, [messages.length]);
+  useEffect(() => {
+    // Auto-scroll to bottom on new messages only if already near bottom
+    const container = messagesContainerRef.current;
+    if (!container) { scrollToBottom("auto"); setShowScrollButton(false); return; }
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 120;
+    if (isNearBottom) { scrollToBottom("smooth"); setShowScrollButton(false); }
+    else { setShowScrollButton(true); }
+  }, [messages.length]);
 
   useEffect(() => {
     if (!clientProfile?.id) return;
