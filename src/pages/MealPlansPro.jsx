@@ -1332,6 +1332,52 @@ function constructDiamondPrompt(client, intake, numberOfDays, mealPattern, prefe
     : (10 * client.weight) + (6.25 * client.height) - (5 * client.age) - 161;
 
   const tdee = bmr * activityMultipliers[client.activity_level];
+  
+  // Calculate target calories based on goal
+  let targetCalories = tdee;
+  if (client.goal === 'weight_loss') {
+    targetCalories = tdee * 0.85; // 15% deficit
+  } else if (client.goal === 'weight_gain') {
+    targetCalories = tdee * 1.15; // 15% surplus
+  } else if (client.goal === 'muscle_gain') {
+    targetCalories = tdee * 1.1; // 10% surplus for muscle
+  }
+
+  // Calculate macronutrients with condition-specific protein distribution
+  let proteinGrams = 0;
+  let carbsGrams = 0;
+  let fatsGrams = 0;
+  
+  // Base protein: 1.2g per kg body weight
+  let baseProtein = client.weight * 1.2;
+  
+  // Increase protein for specific conditions
+  if (intake.health_conditions.includes('diabetes') || intake.health_conditions.includes('pcos')) {
+    baseProtein = client.weight * 1.4; // Higher protein for insulin management
+  } else if (intake.health_conditions.includes('kidney')) {
+    baseProtein = client.weight * 0.8; // Lower protein for kidney
+  } else if (intake.goal === 'muscle_gain') {
+    baseProtein = client.weight * 1.6; // Higher for muscle building
+  } else if (intake.goal === 'weight_loss') {
+    baseProtein = client.weight * 1.3; // Higher to preserve muscle during loss
+  }
+  
+  proteinGrams = Math.round(baseProtein);
+  
+  // Calculate fats (0.8-1g per kg)
+  fatsGrams = Math.round(client.weight * 0.9);
+  
+  // Carbs fill remaining calories
+  const proteinCalories = proteinGrams * 4;
+  const fatCalories = fatsGrams * 9;
+  const carbCalories = targetCalories - proteinCalories - fatCalories;
+  carbsGrams = Math.round(carbCalories / 4);
+  
+  // Ensure carbs don't go negative
+  if (carbsGrams < 0) {
+    carbsGrams = Math.round(targetCalories * 0.4 / 4);
+    fatsGrams = Math.round((targetCalories - proteinCalories - (carbsGrams * 4)) / 9);
+  }
 
   // Format medications safely without nested template literals
   const medsText = intake.current_medications
