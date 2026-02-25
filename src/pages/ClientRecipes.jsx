@@ -30,20 +30,17 @@ function RecipeCard({ recipe, isFav, onView, onDownload, onToggleFav, toggling }
   return (
     <Card className="border-none shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden group cursor-pointer" onClick={onView}>
       <div className="h-36 overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 relative">
-        {showImage && (
-          <img
-            src={recipe.image_url}
-            alt={recipe.name}
-            crossOrigin="use-credentials"
-            onError={() => setImgError(true)}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        )}
-        {!showImage && (
-          <div className="w-full h-full flex items-center justify-center">
-            <ChefHat className="w-12 h-12 text-orange-300" />
-          </div>
-        )}
+        <AuthenticatedImage
+          src={recipe.image_url}
+          alt={recipe.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          onError={() => setImgError(true)}
+          fallback={
+            <div className="w-full h-full flex items-center justify-center">
+              <ChefHat className="w-12 h-12 text-orange-300" />
+            </div>
+          }
+        />
         {/* Favourite Toggle Button */}
         <button
           onClick={e => { e.stopPropagation(); onToggleFav(recipe); }}
