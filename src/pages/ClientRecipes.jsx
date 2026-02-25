@@ -25,13 +25,13 @@ function RecipeCard({ recipe, isFav, onView, onDownload, onToggleFav, toggling }
     snack: 'bg-purple-100 text-purple-700',
     post_dinner: 'bg-pink-100 text-pink-700',
   };
-  const showImage = imgSrc && !imgError;
+  const showImage = recipe.image_url && !imgError;
   return (
     <Card className="border-none shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden group cursor-pointer" onClick={onView}>
       <div className="h-36 overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 relative">
         {showImage && (
           <img
-            src={imgSrc}
+            src={recipe.image_url}
             alt={recipe.name}
             onError={() => setImgError(true)}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
