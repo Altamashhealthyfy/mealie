@@ -492,10 +492,9 @@ export default function ClientCommunication() {
           <Card className="border-none shadow-none flex-1 flex flex-col min-h-0 overflow-hidden rounded-none bg-transparent">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
 
-              <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0">
-                <div className="flex flex-col h-full min-h-0">
-                  {/* Messages Area */}
-                  <div ref={messagesContainerRef} className="flex-1 overflow-y-auto relative min-h-0 bg-gradient-to-b from-white via-orange-50/30 to-white scrollbar-thin" style={{ overscrollBehavior: 'contain' }} onScroll={handleScroll}>
+              <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0 flex flex-col">
+                {/* Messages Area */}
+                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto relative min-h-0 bg-gradient-to-b from-white via-orange-50/30 to-white scrollbar-thin" style={{ overscrollBehavior: 'contain' }} onScroll={handleScroll}>
                     <div className="p-4 space-y-2">
                       {messages.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center h-full py-20">
