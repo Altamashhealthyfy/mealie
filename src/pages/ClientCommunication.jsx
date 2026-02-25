@@ -495,60 +495,59 @@ export default function ClientCommunication() {
               <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0 flex flex-col">
                 {/* Messages Area */}
                 <div ref={messagesContainerRef} className="flex-1 overflow-y-auto relative min-h-0 bg-gradient-to-b from-white via-orange-50/30 to-white scrollbar-thin" style={{ overscrollBehavior: 'contain' }} onScroll={handleScroll}>
-                    <div className="p-4 space-y-2">
-                      {messages.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center h-full py-20">
-                                  <div className="w-24 h-24 bg-gradient-to-br from-orange-100 to-red-100 rounded-full flex items-center justify-center mb-4 shadow-xl">
-                                    <MessageSquare className="w-12 h-12 text-orange-500" />
-                                  </div>
-                                  <h3 className="text-lg font-bold text-gray-900 mb-2">Let's get started!</h3>
-                                  <p className="text-sm text-gray-600 text-center max-w-xs">Send your first message to {coachName} to begin your health journey</p>
+                  <div className="p-4 space-y-2">
+                    {messages.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center h-full py-20">
+                        <div className="w-24 h-24 bg-gradient-to-br from-orange-100 to-red-100 rounded-full flex items-center justify-center mb-4 shadow-xl">
+                          <MessageSquare className="w-12 h-12 text-orange-500" />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">Let's get started!</h3>
+                        <p className="text-sm text-gray-600 text-center max-w-xs">Send your first message to {coachName} to begin your health journey</p>
+                      </div>
+                    ) : (
+                      messages.map((message, idx) => {
+                        const isFromClient = message.sender_type === 'client';
+                        const msgDate = message.created_date ? new Date(message.created_date + (message.created_date.includes('Z') ? '' : 'Z')).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' }) : '';
+                        const prevMsgDate = idx > 0 && messages[idx-1].created_date ? new Date(messages[idx-1].created_date + (messages[idx-1].created_date.includes('Z') ? '' : 'Z')).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' }) : '';
+                        const showDateSep = idx === 0 || msgDate !== prevMsgDate;
+
+                        return (
+                          <React.Fragment key={message.id}>
+                            {showDateSep && msgDate && (
+                              <div className="flex items-center justify-center my-4">
+                                <div className="bg-gradient-to-r from-orange-100 to-red-100 backdrop-blur text-gray-700 text-xs font-bold px-4 py-2 rounded-full shadow-md border border-orange-200">
+                                  {msgDate}
                                 </div>
-                              ) : (
-                                messages.map((message, idx) => {
-                                  const isFromClient = message.sender_type === 'client';
-                                  // Show date separator
-                                  const msgDate = message.created_date ? new Date(message.created_date + (message.created_date.includes('Z') ? '' : 'Z')).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' }) : '';
-                                  const prevMsgDate = idx > 0 && messages[idx-1].created_date ? new Date(messages[idx-1].created_date + (messages[idx-1].created_date.includes('Z') ? '' : 'Z')).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' }) : '';
-                                  const showDateSep = idx === 0 || msgDate !== prevMsgDate;
-
-                                  return (
-                                    <React.Fragment key={message.id}>
-                                      {showDateSep && msgDate && (
-                                        <div className="flex items-center justify-center my-4">
-                                          <div className="bg-gradient-to-r from-orange-100 to-red-100 backdrop-blur text-gray-700 text-xs font-bold px-4 py-2 rounded-full shadow-md border border-orange-200">
-                                            {msgDate}
-                                          </div>
-                                        </div>
-                                      )}
-                                      <ModernMessageBubble
-                                        message={message}
-                                        isFromClient={isFromClient}
-                                        formatToIST={formatToIST}
-                                        handleDownload={handleDownload}
-                                        getFileIcon={getFileIcon}
-                                        formatFileSize={formatFileSize}
-                                      />
-                                    </React.Fragment>
-                                  );
-                                })
-                              )}
-                              <div ref={messagesEndRef} />
-                            </div>
-                    {showScrollButton && (
-                      <button
-                        onClick={() => scrollToBottom("smooth")}
-                        className="fixed bottom-24 right-4 z-20 rounded-full w-10 h-10 bg-teal-600 hover:bg-teal-700 text-white shadow-xl flex items-center justify-center border-2 border-white transition-all"
-                        style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.25)' }}
-                      >
-                        <ArrowDown className="w-5 h-5 animate-bounce" />
-                      </button>
+                              </div>
+                            )}
+                            <ModernMessageBubble
+                              message={message}
+                              isFromClient={isFromClient}
+                              formatToIST={formatToIST}
+                              handleDownload={handleDownload}
+                              getFileIcon={getFileIcon}
+                              formatFileSize={formatFileSize}
+                            />
+                          </React.Fragment>
+                        );
+                      })
                     )}
-                    </div>
+                    <div ref={messagesEndRef} />
+                  </div>
+                  {showScrollButton && (
+                    <button
+                      onClick={() => scrollToBottom("smooth")}
+                      className="fixed bottom-24 right-4 z-20 rounded-full w-10 h-10 bg-teal-600 hover:bg-teal-700 text-white shadow-xl flex items-center justify-center border-2 border-white transition-all"
+                      style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.25)' }}
+                    >
+                      <ArrowDown className="w-5 h-5 animate-bounce" />
+                    </button>
+                  )}
+                </div>
 
-                    {/* Input Area Component - Sticky Footer */}
-                    <div className="flex-shrink-0 bg-white border-t">
-                      <MessageInputArea
+                {/* Input Area Component - Sticky Footer */}
+                <div className="flex-shrink-0 bg-white border-t">
+                  <MessageInputArea
                     messageText={messageText}
                     setMessageText={setMessageText}
                     attachedFile={attachedFile}
@@ -560,9 +559,9 @@ export default function ClientCommunication() {
                     getFileIcon={getFileIcon}
                     formatFileSize={formatFileSize}
                     isGroup={false}
-                    />
-                    </div>
-                    </TabsContent>
+                  />
+                </div>
+                </TabsContent>
 
               <TabsContent value="groups" className="flex-1 mt-0 overflow-hidden min-h-0">
                 {clientGroups.length === 0 ? (
