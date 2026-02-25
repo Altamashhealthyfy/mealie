@@ -561,8 +561,8 @@ export default function ClientCommunication() {
 
               <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0">
                 <div className="flex flex-col h-full min-h-0">
-                  {/* Messages area */}
-                  <div ref={messagesContainerRef} className="flex-1 overflow-y-auto relative min-h-0 bg-white scrollbar-thin" onScroll={handleScroll}>
+                  {/* Messages area - WhatsApp style: newest at bottom, scroll up for old */}
+                  <div ref={messagesContainerRef} className="flex-1 overflow-y-auto relative min-h-0 bg-[#e5ddd5] scrollbar-thin" style={{ overscrollBehavior: 'contain' }} onScroll={handleScroll}>
                       <div className="p-3 space-y-1">
                         {messages.length === 0 ? (
                           <div className="flex flex-col items-center justify-center py-16">
