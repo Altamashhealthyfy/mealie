@@ -697,13 +697,13 @@ export default function ClientAnalyticsDashboard() {
 
         {/* Tabs for different views */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 bg-white/80 backdrop-blur w-full">
+          <TabsList className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 bg-white/80 backdrop-blur w-full">
             <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
             <TabsTrigger value="trends" className="text-xs sm:text-sm">Trends</TabsTrigger>
             <TabsTrigger value="progress" className="text-xs sm:text-sm">Progress</TabsTrigger>
             <TabsTrigger value="engagement" className="text-xs sm:text-sm">Engagement</TabsTrigger>
             <TabsTrigger value="attention" className="text-xs sm:text-sm">Attention</TabsTrigger>
-            <TabsTrigger value="modules" className="text-xs sm:text-sm col-span-3 sm:col-span-1">Modules</TabsTrigger>
+            <TabsTrigger value="reports" className="text-xs sm:text-sm col-span-3 sm:col-span-1">Reports</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
