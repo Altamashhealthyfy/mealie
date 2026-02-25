@@ -69,6 +69,13 @@ export default function ClientRecipes() {
     return fav?.user_rating || 0;
   };
 
+  const mealTypes = [...new Set(recipes.map(r => r.meal_type).filter(Boolean))];
+  const filteredRecipes = recipes.filter(r => {
+    const matchesSearch = !searchQuery || r.name?.toLowerCase().includes(searchQuery.toLowerCase()) || r.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesMealType = !filterMealType || r.meal_type === filterMealType;
+    return matchesSearch && matchesMealType;
+  });
+
   const downloadRecipe = (recipe) => {
     const content = `
 ╔══════════════════════════════════════════════════════════════╗
