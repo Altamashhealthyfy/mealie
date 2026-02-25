@@ -19,6 +19,7 @@ import { createPageUrl } from "@/utils";
 import ImageUploader from "@/components/common/ImageUploader";
 import PersonalizedRecommendations from "@/components/recipes/PersonalizedRecommendations";
 import RecipeSearchFilters from "@/components/recipes/RecipeSearchFilters";
+import AuthenticatedImage from "@/components/common/AuthenticatedImage";
 
 export default function Recipes() {
   const [searchQuery, setSearchQuery] = useState("");
