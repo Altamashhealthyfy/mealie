@@ -11,6 +11,7 @@ import AIProgressReport from "@/components/ai/AIProgressReport";
 import AIRiskAssessment from "@/components/ai/AIRiskAssessment";
 import AIEducationMaterial from "@/components/ai/AIEducationMaterial";
 import AICoachChat from "@/components/ai/AICoachChat";
+import ClientInsightsPanel from "@/components/ai/ClientInsightsPanel";
 
 const TABS = [
   { id: "chat", label: "AI Chat", icon: MessageSquare, color: "text-indigo-600", desc: "Ask the AI anything about this client — get context-aware answers, action suggestions, and escalation flags" },
