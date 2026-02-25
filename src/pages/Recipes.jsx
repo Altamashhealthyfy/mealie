@@ -913,6 +913,23 @@ Provide 3 creative variations that ${variationRequest}. Each should maintain sim
                   AI Generate
                 </Button>
               )}
+              {isSuperAdmin && (
+                <Button
+                  onClick={async () => {
+                    setFillingImages(true);
+                    const res = await base44.functions.invoke('autoFillRecipeImages', {});
+                    alert(res.data?.message || 'Done!');
+                    queryClient.invalidateQueries(['recipes']);
+                    setFillingImages(false);
+                  }}
+                  disabled={fillingImages}
+                  variant="outline"
+                  className="border-2 border-blue-500 text-blue-700 hover:bg-blue-50"
+                >
+                  {fillingImages ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Search className="w-4 h-4 mr-2" />}
+                  Auto-Fill Images
+                </Button>
+              )}
 
             </div>
           )}
