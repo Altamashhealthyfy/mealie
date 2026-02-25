@@ -1119,8 +1119,20 @@ Provide 3 creative variations that ${variationRequest}. Each should maintain sim
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredRecipes.map((recipe) => (
-              <RecipeCardWrapper key={recipe.id} recipe={recipe} isClient={isClient} canEditRecipe={canEditRecipe} canDeleteRecipe={canDeleteRecipe} canGenerateAIRecipe={canGenerateAIRecipe} isSuperAdmin={isSuperAdmin} handleEditRecipe={handleEditRecipe} handleDeleteRecipe={handleDeleteRecipe} setSelectedRecipe={setSelectedRecipe} setAdjustingRecipe={setAdjustingRecipe} setShowMacroAdjuster={setShowMacroAdjuster} setVariationRecipe={setVariationRecipe} setShowVariations={setShowVariations} downloadRecipe={downloadRecipe} />
-              ))}
+              <Card
+                key={recipe.id}
+                className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all group"
+              >
+                {recipe.image_url ? (
+                  <div className="h-48 rounded-t-xl overflow-hidden relative">
+                    <img 
+                      src={recipe.image_url} 
+                      alt={recipe.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      referrerPolicy="no-referrer"
+                      crossOrigin="anonymous"
+                      onError={(e) => { e.currentTarget.parentElement.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-100 via-amber-100 to-red-100"><svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-orange-300 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg></div>`; }}
+                    />
                         {!isClient && (
                           <div className="absolute top-2 right-2 flex gap-2">
                             {canEditRecipe(recipe) && (
