@@ -491,21 +491,6 @@ export default function ClientCommunication() {
 
           <Card className="border-none shadow-none flex-1 flex flex-col min-h-0 overflow-hidden rounded-none bg-transparent">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-              <TabsList className="sticky top-0 z-10 rounded-none border-b bg-white w-full grid grid-cols-2 flex-shrink-0 h-10 px-2">
-                <TabsTrigger value="direct" className="flex gap-1.5 items-center text-xs sm:text-sm font-medium rounded-none data-[state=active]:border-b-2 data-[state=active]:border-orange-500 data-[state=active]:text-orange-600 data-[state=active]:bg-transparent">
-                  <MessageSquare className="w-3.5 h-3.5" />
-                  Coach Chat
-                  {messages.filter(m => !m.read && m.sender_type === 'dietitian').length > 0 && (
-                    <Badge className="ml-0.5 bg-red-500 text-white text-xs h-4 min-w-4 flex items-center justify-center rounded-full px-1">
-                      {messages.filter(m => !m.read && m.sender_type === 'dietitian').length}
-                    </Badge>
-                  )}
-                </TabsTrigger>
-                <TabsTrigger value="groups" className="flex gap-1.5 text-xs sm:text-sm font-medium rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent">
-                  <Users className="w-3.5 h-3.5" />
-                  Groups {clientGroups.length > 0 && `(${clientGroups.length})`}
-                </TabsTrigger>
-              </TabsList>
 
               <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0">
                 <div className="flex flex-col h-full min-h-0">
