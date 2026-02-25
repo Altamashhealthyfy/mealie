@@ -158,8 +158,13 @@ export default function AICoachInsights() {
               </Card>
             </TabsContent>
 
+            {/* Client Insights tab */}
+            <TabsContent value="client_insights" className="space-y-3 mt-2 sm:mt-3 md:mt-4">
+              <ClientInsightsPanel clientId={selectedClient} client={client} />
+            </TabsContent>
+
             {/* Other tabs */}
-            {TABS.filter(t => t.id !== 'chat').map(tab => (
+            {TABS.filter(t => t.id !== 'chat' && t.id !== 'client_insights').map(tab => (
               <TabsContent key={tab.id} value={tab.id} className="space-y-2 sm:space-y-3 md:space-y-4 mt-2 sm:mt-3 md:mt-4">
                 {/* Feature description + generate button - Stack on mobile */}
                 <Card className="border-none shadow-md bg-gradient-to-r from-gray-50 to-slate-50 hover:shadow-lg transition-shadow">
