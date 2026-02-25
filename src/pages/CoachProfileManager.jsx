@@ -42,6 +42,11 @@ export default function CoachProfileManager() {
 
   // Account settings state
   const [accountData, setAccountData] = useState({ full_name: '', email: '', phone: '' });
+  
+  // Client editing state
+  const [editingClientId, setEditingClientId] = useState(null);
+  const [clientEditData, setClientEditData] = useState({ full_name: '', email: '' });
+  const [clientEditSaving, setClientEditSaving] = useState(false);
   const [passwordData, setPasswordData] = useState({ new_password: '', confirm_password: '' });
   const [showNewPw, setShowNewPw] = useState(false);
   const [accountSaving, setAccountSaving] = useState(false);
