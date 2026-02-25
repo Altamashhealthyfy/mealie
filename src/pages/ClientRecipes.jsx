@@ -5,23 +5,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
 import { 
   ChefHat, Search, Heart, ShoppingCart, Sparkles, 
   Star, Clock, Flame, Users, Loader2, Download, 
-  Eye, AlertCircle
+  Eye, AlertCircle, BookOpen, Filter, X
 } from "lucide-react";
-import { format } from "date-fns";
 import PantryManager from "@/components/recipes/PantryManager";
 import RecipeMatcher from "@/components/recipes/RecipeMatcher";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function ClientRecipes() {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
-  const [activeTab, setActiveTab] = useState("pantry");
-  const [showRatingDialog, setShowRatingDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState("library");
   const [userRating, setUserRating] = useState(0);
   const [personalNotes, setPersonalNotes] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterMealType, setFilterMealType] = useState("");
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["currentUser"],
