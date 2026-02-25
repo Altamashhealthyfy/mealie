@@ -18,6 +18,8 @@ import VideoCallHistory from "@/components/communication/VideoCallHistory";
 import { createSignalingChannel } from "@/components/communication/VideoCallSignaling";
 import InitiateConversation from "@/components/communication/InitiateConversation";
 import PushNotificationManager from "@/components/notifications/PushNotificationManager";
+import ModernMessageBubble from "@/components/communication/ModernMessageBubble";
+import MessageInputArea from "@/components/communication/MessageInputArea";
 
 const QUICK_MESSAGES = [
   { label: "👍 On track!", text: "I'm on track with my diet today!" },
