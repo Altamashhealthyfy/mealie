@@ -1439,13 +1439,30 @@ TDEE: ${Math.round(tdee)} kcal
 
 ## REQUIREMENTS:
 
-1. **PERSONALIZE WITH FOOD PREFERENCES:**
+1. **PROTEIN DISTRIBUTION & CALCULATION:**
+   - TOTAL DAILY PROTEIN TARGET: ${proteinGrams}g per day (${Math.round(proteinGrams / numberOfDays)}g per meal on average)
+   - PROTEIN DISTRIBUTION ACROSS MEALS:
+     * Breakfast: 15-20g protein
+     * Mid-Morning: 5-8g protein (from fruit/snack)
+     * Lunch: 25-30g protein (highest at lunch)
+     * Evening Snack: 5g protein (from tea/snack)
+     * Dinner: 25-30g protein (similar to lunch)
+     * Post Dinner: 0g (herbal drink only)
+   - CONDITION-SPECIFIC PROTEIN TARGETING:
+     ${intake.health_conditions.includes('diabetes') || intake.health_conditions.includes('pcos') ? '* DIABETES/PCOS: Prioritize ${proteinGrams}g for insulin management - distribute higher protein at breakfast, lunch, dinner' : ''}
+     ${intake.health_conditions.includes('kidney') ? '* KIDNEY: Limit to ${proteinGrams}g - ensure high biological value proteins, monitor sodium' : ''}
+     ${client.goal === 'muscle_gain' ? '* MUSCLE GAIN: ${proteinGrams}g spread across ALL meals for maximum protein synthesis' : ''}
+     ${client.goal === 'weight_loss' ? '* WEIGHT LOSS: ${proteinGrams}g to preserve lean muscle - higher at breakfast and dinner' : ''}
+   - MACRONUTRIENT TARGETS: Carbs: ${carbsGrams}g | Protein: ${proteinGrams}g | Fats: ${fatsGrams}g | Total: ${Math.round(targetCalories)} kcal/day
+   - VALIDATE: Every meal must have protein, carbs, fats labeled. Total daily protein across all meals MUST sum to ${proteinGrams}g ±5g
+
+2. **PERSONALIZE WITH FOOD PREFERENCES:**
    - Incorporate client's RECOMMENDED FOODS whenever possible in the meal plan (these support their health condition)
    - Include client's LIKED FOODS to make the plan enjoyable and sustainable
    - AVOID all DISLIKED FOODS completely - never include them in any meal
    - Balance health requirements with client preferences
 
-2. Apply disease-specific rules for: ${intake.health_conditions.join(', ')}
+3. Apply disease-specific rules for: ${intake.health_conditions.join(', ')}
 
 3. **MANDATORY - DO NOT SKIP ANY DAYS**: 
    - You MUST generate ALL ${numberOfDays} days of meal plans
