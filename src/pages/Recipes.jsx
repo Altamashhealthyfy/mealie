@@ -1131,11 +1131,11 @@ Provide 3 creative variations that ${variationRequest}. Each should maintain sim
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       referrerPolicy="no-referrer"
                       crossOrigin="anonymous"
-                      onError={(e) => { e.currentTarget.parentElement.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-100 via-amber-100 to-red-100"><svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-orange-300 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg></div>`; }}
-                    />
-                        {!isClient && (
-                          <div className="absolute top-2 right-2 flex gap-2">
-                            {canEditRecipe(recipe) && (
+                      onError={(e) => { e.currentTarget.style.display='none'; e.currentTarget.parentElement.classList.add('!bg-gradient-to-br','!from-orange-100','!via-amber-100','!to-red-100'); }}
+                      />
+                      {!isClient && (
+                      <div className="absolute top-2 right-2 flex gap-2">
+                        {canEditRecipe(recipe) && (
                               <Button
                                 variant="ghost"
                                 size="sm"
