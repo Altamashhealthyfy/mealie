@@ -809,34 +809,91 @@ export default function CoachProfileManager() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {myClients.slice(0, 6).map((client) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {myClients.map((client) => (
                 <div key={client.id} className="border rounded-lg p-4 hover:border-orange-300 transition-colors">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{client.full_name}</h4>
-                      <p className="text-sm text-gray-500">{client.goal?.replace(/_/g, ' ')}</p>
+                  {editingClientId === client.id ? (
+                    // Edit Mode
+                    <div className="space-y-3">
+                      <div className="space-y-2">
+                        <Label className="text-sm">Full Name</Label>
+                        <Input
+                          value={clientEditData.full_name}
+                          onChange={(e) => setClientEditData({ ...clientEditData, full_name: e.target.value })}
+                          placeholder="Client name"
+                          className="text-sm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> Email</Label>
+                        <Input
+                          type="email"
+                          value={clientEditData.email}
+                          onChange={(e) => setClientEditData({ ...clientEditData, email: e.target.value })}
+                          placeholder="client@email.com"
+                          className="text-sm"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={handleClientSave}
+                          disabled={clientEditSaving}
+                          className="flex-1 bg-green-600 hover:bg-green-700 h-8"
+                        >
+                          {clientEditSaving ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <CheckCircle className="w-3 h-3 mr-1" />}
+                          Save
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setEditingClientId(null)}
+                          className="flex-1 h-8"
+                        >
+                          <X className="w-3 h-3 mr-1" /> Cancel
+                        </Button>
+                      </div>
                     </div>
-                    <Badge variant={client.status === 'active' ? 'default' : 'secondary'}>
-                      {client.status}
-                    </Badge>
-                  </div>
-                  {client.health_conditions && client.health_conditions.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {client.health_conditions.slice(0, 2).map((condition, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">
-                          {condition.replace(/_/g, ' ')}
+                  ) : (
+                    // View Mode
+                    <>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900">{client.full_name}</h4>
+                          <p className="text-xs text-gray-500 mt-0.5">{client.email}</p>
+                          <p className="text-sm text-gray-600 mt-1">{client.goal?.replace(/_/g, ' ')}</p>
+                        </div>
+                        <Badge variant={client.status === 'active' ? 'default' : 'secondary'} className="text-xs">
+                          {client.status}
                         </Badge>
-                      ))}
-                    </div>
+                      </div>
+                      {client.health_conditions && client.health_conditions.length > 0 && (
+                        <div className="mb-3 flex flex-wrap gap-1">
+                          {client.health_conditions.slice(0, 2).map((condition, idx) => (
+                            <Badge key={idx} variant="outline" className="text-xs">
+                              {condition.replace(/_/g, ' ')}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleClientEdit(client)}
+                        className="w-full h-8 text-xs"
+                      >
+                        Edit Details
+                      </Button>
+                    </>
                   )}
                 </div>
               ))}
             </div>
-            {myClients.length > 6 && (
-              <p className="text-center text-sm text-gray-500 mt-4">
-                and {myClients.length - 6} more clients...
-              </p>
+            {myClients.length === 0 && (
+              <div className="text-center py-6 text-gray-500">
+                <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p>No clients assigned yet</p>
+              </div>
             )}
           </CardContent>
         </Card>
