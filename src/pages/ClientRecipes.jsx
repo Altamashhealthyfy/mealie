@@ -33,6 +33,7 @@ function RecipeCard({ recipe, isFav, onView, onDownload, onToggleFav, toggling }
           <img
             src={recipe.image_url}
             alt={recipe.name}
+            crossOrigin="use-credentials"
             onError={() => setImgError(true)}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
