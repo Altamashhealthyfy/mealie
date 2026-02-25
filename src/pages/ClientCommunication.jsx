@@ -495,7 +495,7 @@ export default function ClientCommunication() {
               <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0 flex flex-col">
                 {/* Messages Area */}
                 <div ref={messagesContainerRef} className="flex-1 overflow-y-auto relative min-h-0 bg-gradient-to-b from-white via-orange-50/30 to-white scrollbar-thin" style={{ overscrollBehavior: 'contain' }} onScroll={handleScroll}>
-                  <div className="p-4 space-y-2">
+                  <div className="px-2 py-1.5 space-y-1">
                     {messages.length === 0 ? (
                       <div className="flex flex-col items-center justify-center h-full py-20">
                         <div className="w-24 h-24 bg-gradient-to-br from-orange-100 to-red-100 rounded-full flex items-center justify-center mb-4 shadow-xl">
@@ -514,11 +514,11 @@ export default function ClientCommunication() {
                         return (
                           <React.Fragment key={message.id}>
                             {showDateSep && msgDate && (
-                              <div className="flex items-center justify-center my-4">
-                                <div className="bg-gradient-to-r from-orange-100 to-red-100 backdrop-blur text-gray-700 text-xs font-bold px-4 py-2 rounded-full shadow-md border border-orange-200">
-                                  {msgDate}
-                                </div>
-                              </div>
+                               <div className="flex items-center justify-center my-1">
+                                 <div className="bg-gradient-to-r from-orange-100 to-red-100 backdrop-blur text-gray-700 text-xs font-bold px-3 py-1 rounded-full shadow-md border border-orange-200">
+                                   {msgDate}
+                                 </div>
+                               </div>
                             )}
                             <ModernMessageBubble
                               message={message}
@@ -624,7 +624,7 @@ export default function ClientCommunication() {
                           </div>
                         </div>
                         {/* Messages */}
-                        <div className="flex-1 overflow-y-auto min-h-0 bg-[#e5ddd5] p-3 space-y-1 scrollbar-thin">
+                        <div className="flex-1 overflow-y-auto min-h-0 bg-[#e5ddd5] px-2 py-1 space-y-0.5 scrollbar-thin">
                           {groupMsgs.length === 0 ? (
                             <div className="flex items-center justify-center h-full">
                               <p className="text-sm text-gray-500">No messages yet</p>
@@ -632,8 +632,8 @@ export default function ClientCommunication() {
                           ) : groupMsgs.map(msg => {
                             const isFromClient = msg.sender_type === 'client';
                             return (
-                              <div key={msg.id} className={`flex ${isFromClient ? 'justify-end' : 'justify-start'} mb-0.5`}>
-                                <div className={`max-w-[82%] rounded-2xl px-3 py-2 shadow-sm ${isFromClient ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-br-sm' : 'bg-white text-gray-900 border border-gray-100 rounded-bl-sm'}`}>
+                              <div key={msg.id} className={`flex ${isFromClient ? 'justify-end' : 'justify-start'}`}>
+                                <div className={`max-w-[82%] rounded-2xl px-2.5 py-1.5 shadow-sm ${isFromClient ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-br-sm' : 'bg-white text-gray-900 border border-gray-100 rounded-bl-sm'}`}>
                                   {!isFromClient && msg.sender_name && (
                                     <p className="text-xs font-semibold text-blue-600 mb-0.5">{msg.sender_name}</p>
                                   )}
@@ -725,7 +725,7 @@ export default function ClientCommunication() {
                               {group.description && <p className="text-xs text-gray-500 mt-0.5">{group.description}</p>}
                             </CardHeader>
                             <CardContent className="p-2 sm:p-3">
-                              <div className="space-y-2 max-h-72 overflow-y-auto mb-3 p-1 bg-[#e5ddd5] rounded-lg">
+                              <div className="space-y-0.5 max-h-72 overflow-y-auto mb-2 p-0.5 bg-[#e5ddd5] rounded-lg">
                                 {groupMsgs.length === 0 ? (
                                   <p className="text-xs text-gray-500 text-center py-3">No messages yet</p>
                                 ) : groupMsgs.map(msg => {
