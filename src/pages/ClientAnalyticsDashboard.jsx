@@ -134,6 +134,78 @@ export default function ClientAnalyticsDashboard() {
   });
 
   // Calculate analytics
+  const generatePDF = () => {
+    if (selectedClient === 'all') {
+      alert('Please select a specific client to export');
+      return;
+    }
+
+    const client = analytics.filteredClients.find(c => c.id === selectedClient);
+    if (!client) return;
+
+    const doc = new jsPDF();
+    let yPosition = 10;
+
+    // Title
+    doc.setFontSize(18);
+    doc.text('Client Analytics Report', 14, yPosition);
+    yPosition += 10;
+
+    // Client Info
+    doc.setFontSize(11);
+    doc.text(`Client: ${client.full_name}`, 14, yPosition);
+    yPosition += 6;
+    doc.text(`Email: ${client.email}`, 14, yPosition);
+    yPosition += 6;
+    doc.text(`Generated: ${format(new Date(), 'PPpp')}`, 14, yPosition);
+    yPosition += 10;
+
+    // Key Metrics
+    doc.setFontSize(12);
+    doc.text('Key Metrics', 14, yPosition);
+    yPosition += 6;
+    doc.setFontSize(10);
+    doc.text(`Total Clients: ${analytics.totalClients}`, 14, yPosition);
+    yPosition += 5;
+    doc.text(`Active Clients: ${analytics.activeClients}`, 14, yPosition);
+    yPosition += 5;
+    doc.text(`Average Adherence: ${analytics.avgAdherence}%`, 14, yPosition);
+    yPosition += 5;
+    doc.text(`Clients Needing Attention: ${analytics.needsAttention.length}`, 14, yPosition);
+    yPosition += 5;
+    doc.text(`Total Logs: ${analytics.totalProgressLogs + analytics.totalFoodLogs}`, 14, yPosition);
+    yPosition += 10;
+
+    // Module Usage
+    doc.setFontSize(12);
+    doc.text('Module Usage', 14, yPosition);
+    yPosition += 6;
+    doc.setFontSize(10);
+    doc.text(`Completed Assessments: ${analytics.completedAssessments}`, 14, yPosition);
+    yPosition += 5;
+    doc.text(`Assessment Completion Rate: ${analytics.assessmentCompletionRate}%`, 14, yPosition);
+    yPosition += 5;
+    doc.text(`Active Goals: ${analytics.activeGoals}`, 14, yPosition);
+    yPosition += 5;
+    doc.text(`Completed Goals: ${analytics.completedGoals}`, 14, yPosition);
+    yPosition += 5;
+    doc.text(`Goal Achievement Rate: ${analytics.goalAchievementRate}%`, 14, yPosition);
+    yPosition += 10;
+
+    // Wellness Metrics
+    doc.setFontSize(12);
+    doc.text('Wellness Metrics', 14, yPosition);
+    yPosition += 6;
+    doc.setFontSize(10);
+    doc.text(`Average Energy: ${analytics.avgEnergy}/10`, 14, yPosition);
+    yPosition += 5;
+    doc.text(`Average Sleep: ${analytics.avgSleep}/10`, 14, yPosition);
+    yPosition += 5;
+    doc.text(`Average Stress: ${analytics.avgStress}/10`, 14, yPosition);
+
+    doc.save(`${client.full_name}_analytics_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+  };
+
   const analytics = useMemo(() => {
     // Apply date range if specified
     let cutoffDate = subDays(new Date(), parseInt(selectedPeriod));
