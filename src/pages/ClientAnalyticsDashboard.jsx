@@ -34,6 +34,7 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 import { format, subDays, differenceInDays } from "date-fns";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { useState, useMemo } from "react";
 
 export default function ClientAnalyticsDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState("30"); // days
