@@ -163,6 +163,39 @@ export default function CoachProfileManager() {
     setPasswordSaving(false);
   };
 
+  const handleClientEdit = (client) => {
+    setEditingClientId(client.id);
+    setClientEditData({
+      full_name: client.full_name || '',
+      email: client.email || ''
+    });
+  };
+
+  const handleClientSave = async () => {
+    if (!clientEditData.full_name.trim()) {
+      toast.error("Client full name is required");
+      return;
+    }
+    if (!clientEditData.email.trim()) {
+      toast.error("Client email is required");
+      return;
+    }
+    
+    setClientEditSaving(true);
+    try {
+      await base44.entities.Client.update(editingClientId, {
+        full_name: clientEditData.full_name.trim(),
+        email: clientEditData.email.trim()
+      });
+      queryClient.invalidateQueries({ queryKey: ['myClients'] });
+      toast.success("Client details updated successfully!");
+      setEditingClientId(null);
+    } catch (err) {
+      toast.error(err.message || "Failed to update client details");
+    }
+    setClientEditSaving(false);
+  };
+
   React.useEffect(() => {
     if (coachProfile) {
       setFormData({
