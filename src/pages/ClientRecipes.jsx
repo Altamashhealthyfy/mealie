@@ -18,6 +18,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 
 function RecipeCard({ recipe, isFav, onView, onDownload, onToggleFav, toggling }) {
   const [imgError, setImgError] = React.useState(false);
+  const [generatedImage, setGeneratedImage] = React.useState(null);
+  const [loadingImage, setLoadingImage] = React.useState(false);
   const totalTime = (recipe.prep_time || 0) + (recipe.cook_time || 0);
   const mealTypeColors = {
     breakfast: 'bg-yellow-100 text-yellow-700',
@@ -26,16 +28,45 @@ function RecipeCard({ recipe, isFav, onView, onDownload, onToggleFav, toggling }
     snack: 'bg-purple-100 text-purple-700',
     post_dinner: 'bg-pink-100 text-pink-700',
   };
+
+  const generateImage = React.useCallback(async () => {
+    if (loadingImage || generatedImage) return;
+    setLoadingImage(true);
+    try {
+      const response = await base44.functions.invoke('generateRecipeImage', {
+        recipe_name: recipe.name,
+        ingredients: recipe.ingredients || []
+      });
+      if (response.data?.url) {
+        setGeneratedImage(response.data.url);
+      }
+    } catch (error) {
+      console.error('Failed to generate image:', error);
+    } finally {
+      setLoadingImage(false);
+    }
+  }, [recipe.name, recipe.ingredients, loadingImage, generatedImage]);
+
+  React.useEffect(() => {
+    if ((!recipe.image_url || imgError) && !generatedImage && !loadingImage) {
+      generateImage();
+    }
+  }, [recipe.image_url, imgError, generatedImage, loadingImage, generateImage]);
+
+  const imageUrl = recipe.image_url && !imgError ? recipe.image_url : generatedImage;
+
   return (
     <Card className="border-none shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden group cursor-pointer" onClick={onView}>
       <div className="h-36 overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 relative flex items-center justify-center">
-        {recipe.image_url && !imgError ? (
+        {imageUrl ? (
           <img
-            src={recipe.image_url}
+            src={imageUrl}
             alt={recipe.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={() => setImgError(true)}
           />
+        ) : loadingImage ? (
+          <Loader2 className="w-6 h-6 text-orange-400 animate-spin" />
         ) : (
           <ChefHat className="w-12 h-12 text-orange-300" />
         )}
