@@ -1001,129 +1001,19 @@ Provide 3 creative variations that ${variationRequest}. Each should maintain sim
           </TabsContent>
 
           <TabsContent value="library" className="space-y-6">
-            <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-              <CardContent className="p-6 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-                  <div className="md:col-span-2">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <Input
-                        placeholder="Search recipes (fuzzy search)..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  <div className="md:col-span-2">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <Input
-                        placeholder="Search by ingredient..."
-                        value={ingredientSearch}
-                        onChange={(e) => setIngredientSearch(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  <Select value={mealTypeFilter} onValueChange={setMealTypeFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Meal Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Meals</SelectItem>
-                      <SelectItem value="breakfast">Breakfast</SelectItem>
-                      <SelectItem value="lunch">Lunch</SelectItem>
-                      <SelectItem value="dinner">Dinner</SelectItem>
-                      <SelectItem value="snack">Snack</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={sortOrder} onValueChange={setSortOrder}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sort by" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="-created_date">🆕 Newest First</SelectItem>
-                      <SelectItem value="created_date">🗓️ Oldest First</SelectItem>
-                      <SelectItem value="name">🔤 Name (A-Z)</SelectItem>
-                      <SelectItem value="-name">🔤 Name (Z-A)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <Select value={foodPrefFilter} onValueChange={setFoodPrefFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Food Preference" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Types</SelectItem>
-                      <SelectItem value="veg">Vegetarian</SelectItem>
-                      <SelectItem value="non_veg">Non-Veg</SelectItem>
-                      <SelectItem value="eggetarian">Eggetarian</SelectItem>
-                      <SelectItem value="jain">Jain</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={regionFilter} onValueChange={setRegionFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Region" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Regions</SelectItem>
-                      <SelectItem value="north">North Indian</SelectItem>
-                      <SelectItem value="south">South Indian</SelectItem>
-                      <SelectItem value="west">West Indian</SelectItem>
-                      <SelectItem value="east">East Indian</SelectItem>
-                      <SelectItem value="fusion">Fusion</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={cookTimeFilter} onValueChange={setCookTimeFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Cooking Time" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Times</SelectItem>
-                      <SelectItem value="quick">⚡ Quick (≤30 min)</SelectItem>
-                      <SelectItem value="medium">⏱️ Medium (30-60 min)</SelectItem>
-                      <SelectItem value="long">🕐 Long (&gt;60 min)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select value={dietaryFilter} onValueChange={setDietaryFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Dietary" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Diets</SelectItem>
-                      <SelectItem value="vegan">🌱 Vegan</SelectItem>
-                      <SelectItem value="gluten-free">🌾 Gluten-Free</SelectItem>
-                      <SelectItem value="high-protein">💪 High Protein</SelectItem>
-                      <SelectItem value="low-carb">🥗 Low Carb</SelectItem>
-                      <SelectItem value="keto">🥑 Keto</SelectItem>
-                      <SelectItem value="dairy-free">🥛 Dairy-Free</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-none shadow-lg bg-gradient-to-r from-blue-50 to-cyan-50">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Filter className="w-5 h-5 text-blue-600" />
-                    <span className="text-lg font-semibold text-gray-900">
-                      Showing {filteredRecipes.length} of {recipes.length} recipes
-                    </span>
-                  </div>
-                  <Badge className="bg-blue-600 text-white text-sm">
-                    {sortOrder === '-created_date' && '🆕 Newest First'}
-                    {sortOrder === 'created_date' && '🗓️ Oldest First'}
-                    {sortOrder === 'name' && '🔤 A-Z'}
-                    {sortOrder === '-name' && '🔤 Z-A'}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
+            <RecipeSearchFilters
+              searchQuery={searchQuery} setSearchQuery={setSearchQuery}
+              ingredientSearch={ingredientSearch} setIngredientSearch={setIngredientSearch}
+              mealTypeFilter={mealTypeFilter} setMealTypeFilter={setMealTypeFilter}
+              foodPrefFilter={foodPrefFilter} setFoodPrefFilter={setFoodPrefFilter}
+              regionFilter={regionFilter} setRegionFilter={setRegionFilter}
+              cookTimeFilter={cookTimeFilter} setCookTimeFilter={setCookTimeFilter}
+              dietaryFilter={dietaryFilter} setDietaryFilter={setDietaryFilter}
+              calorieFilter={calorieFilter} setCalorieFilter={setCalorieFilter}
+              difficultyFilter={difficultyFilter} setDifficultyFilter={setDifficultyFilter}
+              sortOrder={sortOrder} setSortOrder={setSortOrder}
+              totalCount={recipes.length} filteredCount={filteredRecipes.length}
+            />
 
             {isLoading ? (
               <div className="text-center py-12">
