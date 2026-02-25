@@ -555,8 +555,7 @@ export default function ClientCommunication() {
                     isGroup={false}
                     />
                     </div>
-                    </div>
-              </TabsContent>
+                    </TabsContent>
 
               <TabsContent value="groups" className="flex-1 mt-0 overflow-hidden min-h-0">
                 {clientGroups.length === 0 ? (
