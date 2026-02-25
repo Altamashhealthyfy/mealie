@@ -1474,9 +1474,12 @@ TDEE: ${Math.round(tdee)} kcal
 
 5. Pattern: ${mealPattern}${mealPattern === '3-3-4' ? ' (Plan A: days 1-3, Plan B: days 4-6, Plan C: days 7-' + numberOfDays + ')' : ''}
 
-5. Each day MUST have 7 meal sections in EXACT sequence: Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner, Post Dinner (herbal drink only — SAME drink for all 10 days, NO bedtime meal)
+6. Each day MUST have 7 meal sections in EXACT sequence: Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner, Post Dinner (herbal drink only — SAME drink for all 10 days, NO bedtime meal)
 
-6. For each meal provide: day (1 to ${numberOfDays}), meal_type, meal_name, items, portion_sizes (Indian units), calories, protein, carbs, fats, sodium, potassium, disease_rationale
+7. For each meal provide: day (1 to ${numberOfDays}), meal_type, meal_name, items, portion_sizes (Indian units), calories, protein, carbs, fats, sodium, potassium, disease_rationale
+   - PROTEIN VALIDATION: Verify breakfast (15-20g), lunch (25-30g), dinner (25-30g) protein targets
+   - CARBS VALIDATION: Distributed to support ${carbsGrams}g daily target
+   - FATS VALIDATION: Distributed to support ${fatsGrams}g daily target
 
 7. Include MPESS practices SPECIFICALLY for client needs:
    - **Affirmations**: Based on their health goals and mental wellbeing needs
