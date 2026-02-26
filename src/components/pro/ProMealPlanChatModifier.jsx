@@ -104,11 +104,15 @@ Instructions:
       if (updated_meals?.length > 0 && onPlanUpdate) {
         const newMealPlan = [...(plan.meal_plan || [])];
         updated_meals.forEach((updatedMeal) => {
-          const idx = newMealPlan.findIndex(
-            (m) => m.day === updatedMeal.day && m.meal_type?.toLowerCase() === updatedMeal.meal_type?.toLowerCase()
-          );
+          // Match by day and meal_type (case-insensitive, also try normalized comparison)
+          const idx = newMealPlan.findIndex((m) => {
+            const sameDay = m.day === updatedMeal.day;
+            const sameType = m.meal_type?.toLowerCase().replace(/[\s_]/g, '') === 
+                             updatedMeal.meal_type?.toLowerCase().replace(/[\s_]/g, '');
+            return sameDay && sameType;
+          });
           if (idx !== -1) {
-            newMealPlan[idx] = { ...updatedMeal };
+            newMealPlan[idx] = { ...newMealPlan[idx], ...updatedMeal };
           } else {
             newMealPlan.push(updatedMeal);
           }
