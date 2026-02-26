@@ -29,11 +29,9 @@ import {
   X,
   Layers,
   Zap,
-  Download,
 } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { format, subDays, differenceInDays } from "date-fns";
-import jsPDF from 'jspdf';
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
@@ -134,78 +132,6 @@ export default function ClientAnalyticsDashboard() {
   });
 
   // Calculate analytics
-  const generatePDF = () => {
-    if (selectedClient === 'all') {
-      alert('Please select a specific client to export');
-      return;
-    }
-
-    const client = analytics.filteredClients.find(c => c.id === selectedClient);
-    if (!client) return;
-
-    const doc = new jsPDF();
-    let yPosition = 10;
-
-    // Title
-    doc.setFontSize(18);
-    doc.text('Client Analytics Report', 14, yPosition);
-    yPosition += 10;
-
-    // Client Info
-    doc.setFontSize(11);
-    doc.text(`Client: ${client.full_name}`, 14, yPosition);
-    yPosition += 6;
-    doc.text(`Email: ${client.email}`, 14, yPosition);
-    yPosition += 6;
-    doc.text(`Generated: ${format(new Date(), 'PPpp')}`, 14, yPosition);
-    yPosition += 10;
-
-    // Key Metrics
-    doc.setFontSize(12);
-    doc.text('Key Metrics', 14, yPosition);
-    yPosition += 6;
-    doc.setFontSize(10);
-    doc.text(`Total Clients: ${analytics.totalClients}`, 14, yPosition);
-    yPosition += 5;
-    doc.text(`Active Clients: ${analytics.activeClients}`, 14, yPosition);
-    yPosition += 5;
-    doc.text(`Average Adherence: ${analytics.avgAdherence}%`, 14, yPosition);
-    yPosition += 5;
-    doc.text(`Clients Needing Attention: ${analytics.needsAttention.length}`, 14, yPosition);
-    yPosition += 5;
-    doc.text(`Total Logs: ${analytics.totalProgressLogs + analytics.totalFoodLogs}`, 14, yPosition);
-    yPosition += 10;
-
-    // Module Usage
-    doc.setFontSize(12);
-    doc.text('Module Usage', 14, yPosition);
-    yPosition += 6;
-    doc.setFontSize(10);
-    doc.text(`Completed Assessments: ${analytics.completedAssessments}`, 14, yPosition);
-    yPosition += 5;
-    doc.text(`Assessment Completion Rate: ${analytics.assessmentCompletionRate}%`, 14, yPosition);
-    yPosition += 5;
-    doc.text(`Active Goals: ${analytics.activeGoals}`, 14, yPosition);
-    yPosition += 5;
-    doc.text(`Completed Goals: ${analytics.completedGoals}`, 14, yPosition);
-    yPosition += 5;
-    doc.text(`Goal Achievement Rate: ${analytics.goalAchievementRate}%`, 14, yPosition);
-    yPosition += 10;
-
-    // Wellness Metrics
-    doc.setFontSize(12);
-    doc.text('Wellness Metrics', 14, yPosition);
-    yPosition += 6;
-    doc.setFontSize(10);
-    doc.text(`Average Energy: ${analytics.avgEnergy}/10`, 14, yPosition);
-    yPosition += 5;
-    doc.text(`Average Sleep: ${analytics.avgSleep}/10`, 14, yPosition);
-    yPosition += 5;
-    doc.text(`Average Stress: ${analytics.avgStress}/10`, 14, yPosition);
-
-    doc.save(`${client.full_name}_analytics_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
-  };
-
   const analytics = useMemo(() => {
     // Apply date range if specified
     let cutoffDate = subDays(new Date(), parseInt(selectedPeriod));
@@ -462,47 +388,39 @@ export default function ClientAnalyticsDashboard() {
     <div className="min-h-screen p-3 md:p-8 pb-24 md:pb-6">
       <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
         {/* Header */}
-         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2 md:gap-4">
-          <div>
-            <h1 className="text-lg sm:text-2xl md:text-4xl font-bold text-gray-900 mb-1 md:mb-2">Client Analytics</h1>
-            <p className="text-xs md:text-base text-gray-600">Track progress, engagement, and identify clients needing attention</p>
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2 md:gap-4">
+         <div>
+           <h1 className="text-lg sm:text-2xl md:text-4xl font-bold text-gray-900 mb-1 md:mb-2">Client Analytics</h1>
+           <p className="text-xs md:text-base text-gray-600">Track progress, engagement, and identify clients needing attention</p>
+         </div>
+          
+          <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+            <Button
+              variant={selectedPeriod === "7" ? "default" : "outline"}
+              onClick={() => setSelectedPeriod("7")}
+              size="sm"
+              className="flex-1 sm:flex-none"
+            >
+              7 Days
+            </Button>
+            <Button
+              variant={selectedPeriod === "30" ? "default" : "outline"}
+              onClick={() => setSelectedPeriod("30")}
+              size="sm"
+              className="flex-1 sm:flex-none"
+            >
+              30 Days
+            </Button>
+            <Button
+              variant={selectedPeriod === "90" ? "default" : "outline"}
+              onClick={() => setSelectedPeriod("90")}
+              size="sm"
+              className="flex-1 sm:flex-none"
+            >
+              90 Days
+            </Button>
           </div>
-
-<div className="flex flex-wrap gap-2 w-full lg:w-auto">
-  <Button
-    onClick={generatePDF}
-    size="sm"
-    className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-  >
-    <Download className="w-4 h-4 mr-2" />
-    Export PDF
-  </Button>
-  <Button
-    variant={selectedPeriod === "7" ? "default" : "outline"}
-    onClick={() => setSelectedPeriod("7")}
-    size="sm"
-    className="flex-1 sm:flex-none"
-  >
-    7 Days
-  </Button>
-  <Button
-    variant={selectedPeriod === "30" ? "default" : "outline"}
-    onClick={() => setSelectedPeriod("30")}
-    size="sm"
-    className="flex-1 sm:flex-none"
-  >
-    30 Days
-  </Button>
-  <Button
-    variant={selectedPeriod === "90" ? "default" : "outline"}
-    onClick={() => setSelectedPeriod("90")}
-    size="sm"
-    className="flex-1 sm:flex-none"
-  >
-    90 Days
-  </Button>
-</div>
-</div>
+        </div>
 
         {/* Filters */}
         <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
