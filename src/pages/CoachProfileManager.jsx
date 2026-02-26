@@ -123,14 +123,12 @@ export default function CoachProfileManager() {
     }
     setAccountSaving(true);
     try {
-      // Update full_name via backend function (works for all user types)
-      if (accountData.full_name.trim() !== user?.full_name) {
-        const nameRes = await base44.functions.invoke('updateUserFullName', {
-          user_id: user.id,
-          full_name: accountData.full_name.trim()
-        });
-        if (nameRes.data?.error) throw new Error(nameRes.data.error);
-      }
+      // Always update full_name via backend function (service role bypasses read-only restriction)
+      const nameRes = await base44.functions.invoke('updateUserFullName', {
+        user_id: user.id,
+        full_name: accountData.full_name.trim()
+      });
+      if (nameRes.data?.error) throw new Error(nameRes.data.error);
 
       // Update phone via updateMe
       await base44.auth.updateMe({ 
