@@ -690,16 +690,12 @@ Use ICMR data and standard Indian portion sizes. Be precise.`;
         </DialogContent>
       </Dialog>
 
-      <style>{`
-        @media print {
-          @page {
-            margin: 2cm;
-          }
-          .page-break-after {
-            page-break-after: always;
-          }
-        }
-      `}</style>
+      <MealPlanPDFDownload
+        plan={editablePlan}
+        mpessData={editablePlan?.mpess_integration}
+        open={showPDFDialog}
+        onOpenChange={setShowPDFDialog}
+      />
     </div>
   );
 }
