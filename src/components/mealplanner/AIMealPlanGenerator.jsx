@@ -63,10 +63,18 @@ function MacroCard({ label, value, unit, color }) {
 function DaySummaryView({ day, meals, summary }) {
   const [open, setOpen] = useState(day === 1);
   const dayMeals = meals.filter(m => m.day === day);
-  const mealOrder = ["breakfast", "mid_morning", "lunch", "evening_snack", "dinner"];
-  const sorted = dayMeals.sort((a, b) => mealOrder.indexOf(a.meal_type) - mealOrder.indexOf(b.meal_type));
-  const mealColors = { breakfast: "bg-yellow-50 border-yellow-200", mid_morning: "bg-green-50 border-green-200", lunch: "bg-blue-50 border-blue-200", evening_snack: "bg-purple-50 border-purple-200", dinner: "bg-orange-50 border-orange-200" };
-  const mealEmojis = { breakfast: "🌅", mid_morning: "🍎", lunch: "☀️", evening_snack: "🌿", dinner: "🌙" };
+  const mealOrder = ["early_morning", "breakfast", "mid_morning", "lunch", "evening_snack", "dinner", "post_dinner"];
+  const sorted = [...dayMeals].sort((a, b) => mealOrder.indexOf(a.meal_type) - mealOrder.indexOf(b.meal_type));
+  const mealColors = { early_morning: "bg-sky-50 border-sky-200", breakfast: "bg-yellow-50 border-yellow-200", mid_morning: "bg-green-50 border-green-200", lunch: "bg-blue-50 border-blue-200", evening_snack: "bg-purple-50 border-purple-200", dinner: "bg-orange-50 border-orange-200", post_dinner: "bg-gray-50 border-gray-200" };
+  const mealEmojis = { early_morning: "🌄", breakfast: "🌅", mid_morning: "🍎", lunch: "☀️", evening_snack: "🌿", dinner: "🌙", post_dinner: "🫖" };
+
+  // Compute actual totals from meal data (don't trust AI-reported summaries)
+  const computed = dayMeals.reduce((acc, m) => ({
+    calories: acc.calories + (Number(m.calories) || 0),
+    protein: acc.protein + (Number(m.protein) || 0),
+    carbs: acc.carbs + (Number(m.carbs) || 0),
+    fats: acc.fats + (Number(m.fats) || 0),
+  }), { calories: 0, protein: 0, carbs: 0, fats: 0 });
 
   return (
     <div className="border rounded-xl overflow-hidden">
