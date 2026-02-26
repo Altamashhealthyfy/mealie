@@ -89,25 +89,27 @@ export default function MealPlansPro() {
   });
 
   const { data: proMealPlans } = useQuery({
-    queryKey: ['proMealPlans', user?.email, user?.user_type],
+    queryKey: ['proMealPlans'],
     queryFn: async () => {
       const allPlans = await base44.entities.MealPlan.list('-created_date');
-      const advancedPlans = allPlans.filter(plan => plan.plan_tier === 'advanced');
-      if (user?.user_type === 'super_admin') {
-        return advancedPlans;
-      }
-      // student_coach sees only their own plans
-      return advancedPlans.filter(plan => plan.created_by === user?.email);
+      return allPlans.filter(plan => plan.plan_tier === 'advanced');
     },
     enabled: !!user,
     initialData: [],
   });
 
   const { data: templates } = useQuery({
-    queryKey: ['proTemplates', user?.email, user?.user_type],
+    queryKey: ['proTemplates'],
     queryFn: async () => {
-      // Both super_admin and student_coach see all templates
-      return await base44.entities.MealPlanTemplate.list('-created_date');
+      const myTemplates = await base44.entities.MealPlanTemplate.filter({ 
+        created_by: user?.email,
+        category: { $in: ['diabetes', 'pcos', 'thyroid', 'kidney', 'heart'] } // Added more categories as per common clinical needs
+      });
+      const publicTemplates = await base44.entities.MealPlanTemplate.filter({ 
+        is_public: true,
+        category: { $in: ['diabetes', 'pcos', 'thyroid', 'kidney', 'heart'] }
+      });
+      return [...myTemplates, ...publicTemplates];
     },
     enabled: !!user,
     initialData: [],
@@ -1330,52 +1332,6 @@ function constructDiamondPrompt(client, intake, numberOfDays, mealPattern, prefe
     : (10 * client.weight) + (6.25 * client.height) - (5 * client.age) - 161;
 
   const tdee = bmr * activityMultipliers[client.activity_level];
-  
-  // Calculate target calories based on goal
-  let targetCalories = tdee;
-  if (client.goal === 'weight_loss') {
-    targetCalories = tdee * 0.85; // 15% deficit
-  } else if (client.goal === 'weight_gain') {
-    targetCalories = tdee * 1.15; // 15% surplus
-  } else if (client.goal === 'muscle_gain') {
-    targetCalories = tdee * 1.1; // 10% surplus for muscle
-  }
-
-  // Calculate macronutrients with condition-specific protein distribution
-  let proteinGrams = 0;
-  let carbsGrams = 0;
-  let fatsGrams = 0;
-  
-  // Base protein: 1.2g per kg body weight
-  let baseProtein = client.weight * 1.2;
-  
-  // Increase protein for specific conditions
-  if (intake.health_conditions.includes('diabetes') || intake.health_conditions.includes('pcos')) {
-    baseProtein = client.weight * 1.4; // Higher protein for insulin management
-  } else if (intake.health_conditions.includes('kidney')) {
-    baseProtein = client.weight * 0.8; // Lower protein for kidney
-  } else if (intake.goal === 'muscle_gain') {
-    baseProtein = client.weight * 1.6; // Higher for muscle building
-  } else if (intake.goal === 'weight_loss') {
-    baseProtein = client.weight * 1.3; // Higher to preserve muscle during loss
-  }
-  
-  proteinGrams = Math.round(baseProtein);
-  
-  // Calculate fats (0.8-1g per kg)
-  fatsGrams = Math.round(client.weight * 0.9);
-  
-  // Carbs fill remaining calories
-  const proteinCalories = proteinGrams * 4;
-  const fatCalories = fatsGrams * 9;
-  const carbCalories = targetCalories - proteinCalories - fatCalories;
-  carbsGrams = Math.round(carbCalories / 4);
-  
-  // Ensure carbs don't go negative
-  if (carbsGrams < 0) {
-    carbsGrams = Math.round(targetCalories * 0.4 / 4);
-    fatsGrams = Math.round((targetCalories - proteinCalories - (carbsGrams * 4)) / 9);
-  }
 
   // Format medications safely without nested template literals
   const medsText = intake.current_medications
@@ -1437,47 +1393,26 @@ TDEE: ${Math.round(tdee)} kcal
 
 ## REQUIREMENTS:
 
-1. **PROTEIN DISTRIBUTION & CALCULATION:**
-   - TOTAL DAILY PROTEIN TARGET: ${proteinGrams}g per day (${Math.round(proteinGrams / numberOfDays)}g per meal on average)
-   - PROTEIN DISTRIBUTION ACROSS MEALS:
-     * Breakfast: 15-20g protein
-     * Mid-Morning: 5-8g protein (from fruit/snack)
-     * Lunch: 25-30g protein (highest at lunch)
-     * Evening Snack: 5g protein (from tea/snack)
-     * Dinner: 25-30g protein (similar to lunch)
-     * Post Dinner: 0g (herbal drink only)
-   - CONDITION-SPECIFIC PROTEIN TARGETING:
-     ${intake.health_conditions.includes('diabetes') || intake.health_conditions.includes('pcos') ? '* DIABETES/PCOS: Prioritize ${proteinGrams}g for insulin management - distribute higher protein at breakfast, lunch, dinner' : ''}
-     ${intake.health_conditions.includes('kidney') ? '* KIDNEY: Limit to ${proteinGrams}g - ensure high biological value proteins, monitor sodium' : ''}
-     ${client.goal === 'muscle_gain' ? '* MUSCLE GAIN: ${proteinGrams}g spread across ALL meals for maximum protein synthesis' : ''}
-     ${client.goal === 'weight_loss' ? '* WEIGHT LOSS: ${proteinGrams}g to preserve lean muscle - higher at breakfast and dinner' : ''}
-   - MACRONUTRIENT TARGETS: Carbs: ${carbsGrams}g | Protein: ${proteinGrams}g | Fats: ${fatsGrams}g | Total: ${Math.round(targetCalories)} kcal/day
-   - VALIDATE: Every meal must have protein, carbs, fats labeled. Total daily protein across all meals MUST sum to ${proteinGrams}g ±5g
-
-2. **PERSONALIZE WITH FOOD PREFERENCES:**
+1. **PERSONALIZE WITH FOOD PREFERENCES:**
    - Incorporate client's RECOMMENDED FOODS whenever possible in the meal plan (these support their health condition)
    - Include client's LIKED FOODS to make the plan enjoyable and sustainable
    - AVOID all DISLIKED FOODS completely - never include them in any meal
    - Balance health requirements with client preferences
 
-3. Apply disease-specific rules for: ${intake.health_conditions.join(', ')}
+2. Apply disease-specific rules for: ${intake.health_conditions.join(', ')}
 
-4. **MANDATORY - DO NOT SKIP ANY DAYS**: 
+3. **MANDATORY - DO NOT SKIP ANY DAYS**: 
    - You MUST generate ALL ${numberOfDays} days of meal plans
    - Generate day 1, day 2, day 3, day 4, day 5, day 6, day 7, day 8, day 9, day 10
    - Continue until you reach day ${numberOfDays}
    - DO NOT stop at day 3 or any day before ${numberOfDays}
    - Each meal object must have a "day" field from 1 to ${numberOfDays}
-   - VERIFY: Daily protein targets must be achieved for EVERY day (total protein per day = ${proteinGrams}g ±5g)
 
-5. Pattern: ${mealPattern}${mealPattern === '3-3-4' ? ' (Plan A: days 1-3, Plan B: days 4-6, Plan C: days 7-' + numberOfDays + ')' : ''}
+4. Pattern: ${mealPattern}${mealPattern === '3-3-4' ? ' (Plan A: days 1-3, Plan B: days 4-6, Plan C: days 7-' + numberOfDays + ')' : ''}
 
-6. Each day MUST have 7 meal sections in EXACT sequence: Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner, Post Dinner (herbal drink only — SAME drink for all 10 days, NO bedtime meal)
+5. Each day MUST have 7 meal sections in EXACT sequence: Early Morning, Breakfast, Mid-Morning, Lunch, Evening Snack, Dinner, Post Dinner (herbal drink only — SAME drink for all 10 days, NO bedtime meal)
 
-7. For each meal provide: day (1 to ${numberOfDays}), meal_type, meal_name, items, portion_sizes (Indian units), calories, protein, carbs, fats, sodium, potassium, disease_rationale
-   - PROTEIN VALIDATION: Verify breakfast (15-20g), lunch (25-30g), dinner (25-30g) protein targets
-   - CARBS VALIDATION: Distributed to support ${carbsGrams}g daily target
-   - FATS VALIDATION: Distributed to support ${fatsGrams}g daily target
+6. For each meal provide: day (1 to ${numberOfDays}), meal_type, meal_name, items, portion_sizes (Indian units), calories, protein, carbs, fats, sodium, potassium, disease_rationale
 
 7. Include MPESS practices SPECIFICALLY for client needs:
    - **Affirmations**: Based on their health goals and mental wellbeing needs
@@ -1643,17 +1578,7 @@ For 10-day meal plans, rice with dal/rajma/chhole/kadhi/veg paneer pulao MUST ap
 - The meal_plan array must contain EXACTLY ${numberOfDays * 7} meals total
 - That is ${numberOfDays} days × 7 meals per day = ${numberOfDays * 7} meals
 - Verify you have generated meals for EVERY day from day 1 to day ${numberOfDays}
-- **PROTEIN VALIDATION (MANDATORY):**
-  * DAILY TOTAL: Sum protein from ALL 7 meals per day. MUST equal ${proteinGrams}g ±5g for EVERY day
-  * BREAKFAST: 15-20g protein (eggs/paneer/oats/milk-based options)
-  * LUNCH: 25-30g protein (dal/paneer/chicken/tofu in main course)
-  * DINNER: 25-30g protein (dal/paneer/chicken/tofu in main course)
-  * Mid-Morning & Evening Snack: 5-8g each (from fruits/milk products/nuts)
-  * Post Dinner: 0g (herbal drink only)
-  * Calculate & verify: ${proteinGrams}g ÷ ${numberOfDays} days = ${Math.round(proteinGrams / numberOfDays)}g per day minimum
-  * CONDITION CHECK: ${intake.health_conditions.includes('diabetes') || intake.health_conditions.includes('pcos') ? 'Diabetes/PCOS - confirm ${proteinGrams}g targets achieved' : ''} ${intake.health_conditions.includes('kidney') ? 'Kidney - limit to ${proteinGrams}g high quality proteins' : ''}
-- **CARBS & FATS VALIDATION:** Carbs=${carbsGrams}g, Fats=${fatsGrams}g distributed across meals
-- Daily calorie total must NOT exceed the calculated target calories of ${Math.round(targetCalories)}
+- Daily calorie total must NOT exceed the calculated target calories
 - Post dinner herbal drink MUST be IDENTICAL for all ${numberOfDays} days (NO rotation, NO variation)
 - Meal sequence MUST be: Early Morning → Breakfast → Mid Morning → Lunch → Evening Snack → Dinner → Post Dinner (EVERY day, NO exceptions)
 - RICE USAGE: Count rice meals in lunch/dinner - MUST be 4-5 days ONLY (not more)

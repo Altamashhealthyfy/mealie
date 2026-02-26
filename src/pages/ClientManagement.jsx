@@ -61,7 +61,6 @@ import BulkExport from "@/components/client/BulkExport";
 import VideoCallScheduler from "@/components/communication/VideoCallScheduler";
 import QuickActionsPanel from "@/components/dietitian/QuickActionsPanel";
 import ClientLoginHelpCard from "@/components/client/ClientLoginHelpCard";
-import ClientDetailDialog from "@/components/client/ClientDetailDialog";
 
 function ClientList() {
   return <ClientManagementInner />;
@@ -138,9 +137,13 @@ function ClientManagementInner() {
   });
 
   const { data: clients } = useQuery({
-    queryKey: ['clients', user?.email, user?.user_type],
+    queryKey: ['clients'],
     queryFn: async () => {
-      const allClients = await base44.entities.Client.list('-created_date', 2000);
+      const allClients = await base44.entities.Client.list('-created_date');
+      
+      console.log('🔍 Fetched clients:', allClients.length);
+      console.log('👤 Current user type:', user?.user_type);
+      console.log('📧 Current user email:', user?.email);
 
       // Super admin sees ALL clients
       if (user?.user_type === 'super_admin') {
@@ -156,9 +159,7 @@ function ClientManagementInner() {
             : client.assigned_coach 
               ? [client.assigned_coach] 
               : [];
-          const coachEmail = user?.email?.toLowerCase().trim();
-          const isAssigned = assignedCoaches.some(e => e?.toLowerCase().trim() === coachEmail);
-          return client.created_by === user?.email || isAssigned;
+          return client.created_by === user?.email || assignedCoaches.includes(user?.email);
         });
         console.log('✅ Student coach - showing filtered clients:', filtered.length);
         return filtered;
@@ -171,7 +172,6 @@ function ClientManagementInner() {
     },
     enabled: !!user,
     initialData: [],
-    staleTime: 0,
   });
 
   const { data: mealPlans } = useQuery({

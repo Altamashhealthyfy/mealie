@@ -16,10 +16,8 @@ import {
 import VideoCallRoom from "@/components/communication/VideoCallRoom";
 import VideoCallHistory from "@/components/communication/VideoCallHistory";
 import { createSignalingChannel } from "@/components/communication/VideoCallSignaling";
+import InitiateConversation from "@/components/communication/InitiateConversation";
 import PushNotificationManager from "@/components/notifications/PushNotificationManager";
-import ModernMessageBubble from "@/components/communication/ModernMessageBubble";
-import MessageInputArea from "@/components/communication/MessageInputArea";
-import ChatSidebar from "@/components/communication/ChatSidebar";
 
 const QUICK_MESSAGES = [
   { label: "👍 On track!", text: "I'm on track with my diet today!" },
@@ -391,83 +389,144 @@ export default function ClientCommunication() {
       )}
 
       <div className="flex flex-1 overflow-hidden">
-         {/* Chat Sidebar */}
-         <ChatSidebar
-           isOpen={showSidebar}
-           onClose={() => setShowSidebar(false)}
-           coachName={coachName}
-           coachUser={coachUser}
-           clientProfile={clientProfile}
-           clientGroups={clientGroups}
-           onStartCall={startVideoCall}
-           onShowCallHistory={(show) => setShowCallHistory(show)}
-           showCallHistory={showCallHistory}
-           userEmail={user?.email}
-           isClient={isClient}
-         />
+        {/* Sidebar - hidden on mobile, shown when showSidebar is true */}
+        {showSidebar && (
+          <div className="fixed inset-0 z-50 flex">
+            {/* Overlay for mobile */}
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowSidebar(false)} />
+            <div className="relative z-10 flex flex-col w-80 bg-white border-r border-gray-200 flex-shrink-0 overflow-y-auto h-full shadow-2xl">
+              {/* Header */}
+              <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-orange-500 to-red-500">
+                <span className="font-bold text-white text-lg">Chat Info</span>
+                <Button variant="ghost" size="sm" onClick={() => setShowSidebar(false)} className="h-8 w-8 p-0 text-white hover:bg-white/20">
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              {/* Coach Info */}
+              <div className="p-5 bg-gradient-to-br from-orange-50 to-red-50 border-b">
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <span className="text-white font-bold text-xl">{coachName.charAt(0)}</span>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold text-gray-900 text-base truncate">{coachName}</p>
+                    <p className="text-sm text-gray-500">Health Coach</p>
+                    <div className="flex items-center gap-1 mt-1">
+                      <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                      <span className="text-xs text-green-600 font-medium">Active</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-         {/* Main Chat Area - constrained width */}
-          <div className="flex-1 flex flex-col overflow-hidden min-w-0 max-w-6xl mx-auto">
-           {/* Sticky Chat Header - constrained within chat area */}
-           <div className="flex-shrink-0 bg-white border-b shadow-md">
-             {/* Coach Info Bar */}
-             <div className="px-3 py-2 flex items-center justify-between gap-2 border-b">
-               <div className="flex items-center gap-2 min-w-0">
-                 <Button variant="ghost" size="sm" onClick={() => setShowSidebar(true)}
-                   className="h-9 w-9 p-0 flex-shrink-0 text-gray-600 hover:bg-gray-100 rounded-full">
-                   <Menu className="w-5 h-5" />
-                 </Button>
-                 <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
-                   <span className="text-white font-bold text-sm">{coachName.charAt(0)}</span>
-                 </div>
-                 <div className="min-w-0">
-                   <h1 className="text-sm font-bold text-gray-900 truncate">{coachName}</h1>
-                   <div className="flex items-center gap-1">
-                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                     <p className="text-xs text-green-600 font-medium">Health Coach · Online</p>
-                   </div>
-                 </div>
-               </div>
-               <div className="flex items-center gap-1.5 flex-shrink-0">
-                 {incomingCall && (
-                   <div className="flex gap-1 animate-pulse">
-                     <Button onClick={acceptCall} size="sm" className="bg-green-500 hover:bg-green-600 text-white h-8 px-2.5 text-xs font-semibold">
-                       <Phone className="w-3 h-3 mr-1" /> Answer
-                     </Button>
-                     <Button onClick={rejectCall} size="sm" variant="destructive" className="h-8 px-2 text-xs">
-                       <X className="w-3 h-3" />
-                     </Button>
-                   </div>
-                 )}
-                 <Button size="sm" onClick={startVideoCall}
-                   className="bg-green-500 hover:bg-green-600 text-white h-8 px-2 sm:px-3 flex items-center gap-1 rounded-full shadow-sm">
-                   <Phone className="w-3.5 h-3.5" />
-                   <span className="hidden sm:inline text-xs font-medium">Video Call</span>
-                 </Button>
-               </div>
-             </div>
+              {/* Client Stats */}
+              <div className="p-4 border-b">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Your Journey</p>
+                <div className="space-y-2">
+                  {joinDate && (
+                    <div className="flex items-center gap-2 text-xs text-gray-700">
+                      <Calendar className="w-3.5 h-3.5 text-orange-500 flex-shrink-0" />
+                      <span>Joined: {joinDate}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 text-xs text-gray-700">
+                    <MessageSquare className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+                    <span>{totalMessages} total messages</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-gray-700">
+                    <Star className="w-3.5 h-3.5 text-yellow-500 flex-shrink-0" />
+                    <span>{myMessages} messages sent</span>
+                  </div>
+                  {clientProfile?.goal && (
+                    <div className="flex items-center gap-2 text-xs text-gray-700">
+                      <Zap className="w-3.5 h-3.5 text-purple-500 flex-shrink-0" />
+                      <span className="capitalize">{clientProfile.goal.replace(/_/g, ' ')}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
 
-             {/* Tabs Bar */}
-             <div className="px-2 bg-white border-t">
-               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                 <TabsList className="rounded-none border-none w-full grid grid-cols-2 h-10 p-0 bg-transparent flex-shrink-0">
-                   <TabsTrigger value="direct" className="flex gap-1.5 items-center text-xs sm:text-sm font-medium rounded-none data-[state=active]:border-b-2 data-[state=active]:border-orange-500 data-[state=active]:text-orange-600 data-[state=active]:bg-transparent">
-                     <MessageSquare className="w-3.5 h-3.5" />
-                     Coach Chat
-                     {messages.filter(m => !m.read && m.sender_type === 'dietitian').length > 0 && (
-                       <Badge className="ml-0.5 bg-red-500 text-white text-xs h-4 min-w-4 flex items-center justify-center rounded-full px-1">
-                         {messages.filter(m => !m.read && m.sender_type === 'dietitian').length}
-                       </Badge>
-                     )}
-                   </TabsTrigger>
-                   <TabsTrigger value="groups" className="flex gap-1.5 text-xs sm:text-sm font-medium rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent">
-                     <Users className="w-3.5 h-3.5" />
-                     Groups {clientGroups.length > 0 && `(${clientGroups.length})`}
-                   </TabsTrigger>
-                 </TabsList>
-               </Tabs>
-             </div>
-           </div>
+              {/* Quick Actions */}
+              <div className="p-4 border-b">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Quick Actions</p>
+                <div className="space-y-2">
+                  <Button variant="outline" size="sm" onClick={() => { startVideoCall(); setShowSidebar(false); }}
+                    className="w-full justify-start text-green-600 hover:bg-green-50 border-green-200 text-xs h-9">
+                    <Phone className="w-3.5 h-3.5 mr-2" /> Video Call Coach
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setShowCallHistory(!showCallHistory); setShowSidebar(false); }}
+                    className="w-full justify-start text-purple-600 hover:bg-purple-50 border-purple-200 text-xs h-9">
+                    <History className="w-3.5 h-3.5 mr-2" /> Call History
+                  </Button>
+                  {isClient && (
+                    <div className="w-full">
+                      <InitiateConversation />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Groups */}
+              {clientGroups.length > 0 && (
+                <div className="p-4">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Groups ({clientGroups.length})</p>
+                  <div className="space-y-1.5">
+                    {clientGroups.map(g => (
+                      <div key={g.id} className="flex items-center gap-2 p-2 rounded-lg bg-blue-50 border border-blue-100">
+                        <Users className="w-3 h-3 text-blue-500 flex-shrink-0" />
+                        <span className="text-xs text-blue-800 truncate">{g.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Notification toggle */}
+              <div className="p-4 mt-auto border-t">
+                <PushNotificationManager userEmail={user?.email} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Main Chat Area */}
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+          {/* Top bar */}
+          <div className="flex-shrink-0 px-3 py-2 bg-white border-b shadow-sm flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <Button variant="ghost" size="sm" onClick={() => setShowSidebar(true)}
+                className="h-9 w-9 p-0 flex-shrink-0 text-gray-600 hover:bg-gray-100 rounded-full">
+                <Menu className="w-5 h-5" />
+              </Button>
+              <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+                <span className="text-white font-bold text-sm">{coachName.charAt(0)}</span>
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-sm font-bold text-gray-900 truncate">{coachName}</h1>
+                <div className="flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                  <p className="text-xs text-green-600 font-medium">Health Coach · Online</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              {incomingCall && (
+                <div className="flex gap-1 animate-pulse">
+                  <Button onClick={acceptCall} size="sm" className="bg-green-500 hover:bg-green-600 text-white h-8 px-2.5 text-xs font-semibold">
+                    <Phone className="w-3 h-3 mr-1" /> Answer
+                  </Button>
+                  <Button onClick={rejectCall} size="sm" variant="destructive" className="h-8 px-2 text-xs">
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
+              )}
+              <Button size="sm" onClick={startVideoCall}
+                className="bg-green-500 hover:bg-green-600 text-white h-8 px-2 sm:px-3 flex items-center gap-1 rounded-full shadow-sm">
+                <Phone className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline text-xs font-medium">Video Call</span>
+              </Button>
+            </div>
+          </div>
 
           {newMessageAlert && (
             <div className="mx-3 mt-2 p-2 bg-green-50 border border-green-300 rounded-xl flex items-center gap-2 flex-shrink-0">
@@ -491,79 +550,179 @@ export default function ClientCommunication() {
 
           <Card className="border-none shadow-none flex-1 flex flex-col min-h-0 overflow-hidden rounded-none bg-transparent">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-
-              <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0 flex flex-col">
-                {/* Messages Area */}
-                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto relative min-h-0 bg-gradient-to-b from-white via-orange-50/30 to-white scrollbar-thin" style={{ overscrollBehavior: 'contain' }} onScroll={handleScroll}>
-                  <div className="px-2 py-1.5 space-y-1">
-                    {messages.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center h-full py-20">
-                        <div className="w-24 h-24 bg-gradient-to-br from-orange-100 to-red-100 rounded-full flex items-center justify-center mb-4 shadow-xl">
-                          <MessageSquare className="w-12 h-12 text-orange-500" />
-                        </div>
-                        <h3 className="text-lg font-bold text-gray-900 mb-2">Let's get started!</h3>
-                        <p className="text-sm text-gray-600 text-center max-w-xs">Send your first message to {coachName} to begin your health journey</p>
-                      </div>
-                    ) : (
-                      messages.map((message, idx) => {
-                        const isFromClient = message.sender_type === 'client';
-                        const msgDate = message.created_date ? new Date(message.created_date + (message.created_date.includes('Z') ? '' : 'Z')).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' }) : '';
-                        const prevMsgDate = idx > 0 && messages[idx-1].created_date ? new Date(messages[idx-1].created_date + (messages[idx-1].created_date.includes('Z') ? '' : 'Z')).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' }) : '';
-                        const showDateSep = idx === 0 || msgDate !== prevMsgDate;
-
-                        return (
-                          <React.Fragment key={message.id}>
-                            {showDateSep && msgDate && (
-                               <div className="flex items-center justify-center my-1">
-                                 <div className="bg-gradient-to-r from-orange-100 to-red-100 backdrop-blur text-gray-700 text-xs font-bold px-3 py-1 rounded-full shadow-md border border-orange-200">
-                                   {msgDate}
-                                 </div>
-                               </div>
-                            )}
-                            <ModernMessageBubble
-                              message={message}
-                              isFromClient={isFromClient}
-                              formatToIST={formatToIST}
-                              handleDownload={handleDownload}
-                              getFileIcon={getFileIcon}
-                              formatFileSize={formatFileSize}
-                            />
-                          </React.Fragment>
-                        );
-                      })
-                    )}
-                    <div ref={messagesEndRef} />
-                  </div>
-                  {showScrollButton && (
-                    <button
-                      onClick={() => scrollToBottom("smooth")}
-                      className="fixed bottom-24 right-4 z-20 rounded-full w-10 h-10 bg-teal-600 hover:bg-teal-700 text-white shadow-xl flex items-center justify-center border-2 border-white transition-all"
-                      style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.25)' }}
-                    >
-                      <ArrowDown className="w-5 h-5 animate-bounce" />
-                    </button>
+              <TabsList className="rounded-none border-b bg-white w-full grid grid-cols-2 flex-shrink-0 h-10 px-2">
+                <TabsTrigger value="direct" className="flex gap-1.5 items-center text-xs sm:text-sm font-medium rounded-none data-[state=active]:border-b-2 data-[state=active]:border-orange-500 data-[state=active]:text-orange-600 data-[state=active]:bg-transparent">
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  Coach Chat
+                  {messages.filter(m => !m.read && m.sender_type === 'dietitian').length > 0 && (
+                    <Badge className="ml-0.5 bg-red-500 text-white text-xs h-4 min-w-4 flex items-center justify-center rounded-full px-1">
+                      {messages.filter(m => !m.read && m.sender_type === 'dietitian').length}
+                    </Badge>
                   )}
-                </div>
+                </TabsTrigger>
+                <TabsTrigger value="groups" className="flex gap-1.5 text-xs sm:text-sm font-medium rounded-none data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 data-[state=active]:bg-transparent">
+                  <Users className="w-3.5 h-3.5" />
+                  Groups {clientGroups.length > 0 && `(${clientGroups.length})`}
+                </TabsTrigger>
+              </TabsList>
 
-                {/* Input Area Component - Sticky Footer */}
-                <div className="flex-shrink-0 bg-white border-t">
-                  <MessageInputArea
-                    messageText={messageText}
-                    setMessageText={setMessageText}
-                    attachedFile={attachedFile}
-                    setAttachedFile={setAttachedFile}
-                    onSendMessage={handleSendMessage}
-                    isLoading={sendMessageMutation.isPending}
-                    isUploading={uploading}
-                    textareaRef={textareaRef}
-                    getFileIcon={getFileIcon}
-                    formatFileSize={formatFileSize}
-                    isGroup={false}
-                  />
-                </div>
-                </TabsContent>
+              <TabsContent value="direct" className="flex-1 mt-0 overflow-hidden min-h-0">
+                <div className="flex flex-col h-full min-h-0">
+                  {/* Messages area - WhatsApp style: newest at bottom, scroll up for old */}
+                  <div ref={messagesContainerRef} className="flex-1 overflow-y-auto relative min-h-0 bg-[#e5ddd5] scrollbar-thin" style={{ overscrollBehavior: 'contain' }} onScroll={handleScroll}>
+                      <div className="p-3 space-y-1">
+                        {messages.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center py-16">
+                            <div className="w-20 h-20 bg-white/80 backdrop-blur rounded-full flex items-center justify-center mb-4 shadow-lg">
+                              <MessageSquare className="w-10 h-10 text-orange-400" />
+                            </div>
+                            <h3 className="text-base font-bold text-gray-800 mb-1">Start chatting!</h3>
+                            <p className="text-sm text-gray-600">Send your first message to {coachName}</p>
+                          </div>
+                        ) : (
+                          messages.map((message, idx) => {
+                            const isFromClient = message.sender_type === 'client';
+                            const msgText = message.message || '';
+                            const qrSplit = msgText.split('\n\nQuick replies: ');
+                            const mainText = qrSplit[0];
+                            const quickReplies = qrSplit[1]
+                              ? qrSplit[1].split('  |  ').map(r => r.replace(/^\d+\.\s*/, '').trim()).filter(Boolean)
+                              : [];
+                            // Show date separator
+                            const msgDate = message.created_date ? new Date(message.created_date + (message.created_date.includes('Z') ? '' : 'Z')).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' }) : '';
+                            const prevMsgDate = idx > 0 && messages[idx-1].created_date ? new Date(messages[idx-1].created_date + (messages[idx-1].created_date.includes('Z') ? '' : 'Z')).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' }) : '';
+                            const showDateSep = idx === 0 || msgDate !== prevMsgDate;
+                            return (
+                              <React.Fragment key={message.id}>
+                                {showDateSep && msgDate && (
+                                  <div className="flex items-center justify-center my-2">
+                                    <span className="bg-white/80 backdrop-blur text-gray-500 text-xs font-medium px-3 py-1 rounded-full shadow-sm border border-gray-200">{msgDate}</span>
+                                  </div>
+                                )}
+                                <div className={`flex ${isFromClient ? 'justify-end' : 'justify-start'} flex-col ${!isFromClient ? 'items-start' : 'items-end'} mb-0.5`}>
+                                  <div className={`max-w-[82%] rounded-2xl px-3 py-2 shadow-sm ${
+                                    isFromClient
+                                      ? 'bg-gradient-to-br from-orange-500 to-red-500 text-white rounded-br-sm'
+                                      : 'bg-white text-gray-900 border border-gray-100 rounded-bl-sm'
+                                  }`}>
+                                    {mainText && <p className="text-sm leading-relaxed whitespace-pre-wrap">{mainText}</p>}
+                                    {renderAttachment(message, isFromClient)}
+                                    <div className={`flex items-center gap-1 mt-0.5 ${isFromClient ? 'justify-end' : 'justify-start'}`}>
+                                      <span className={`text-[10px] ${isFromClient ? 'text-white/70' : 'text-gray-400'}`}>{formatToIST(message.created_date)}</span>
+                                      {isFromClient && (message.read
+                                        ? <CheckCheck className="w-3 h-3 text-blue-200" />
+                                        : <Check className="w-3 h-3 text-white/60" />
+                                      )}
+                                    </div>
+                                  </div>
+                                  {!isFromClient && quickReplies.length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5 mt-1 max-w-[82%]">
+                                      {quickReplies.map((reply, ri) => (
+                                        <button key={ri} onClick={() => { setMessageText(reply); textareaRef.current?.focus(); }}
+                                          className="text-xs px-2.5 py-1 rounded-full border border-orange-300 text-orange-700 bg-white hover:bg-orange-50 transition-colors shadow-sm">
+                                          {reply}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              </React.Fragment>
+                            );
+                          })
+                        )}
+                        <div ref={messagesEndRef} />
+                      </div>
+                    {showScrollButton && (
+                      <button
+                        onClick={() => scrollToBottom("smooth")}
+                        className="fixed bottom-24 right-4 z-20 rounded-full w-10 h-10 bg-teal-600 hover:bg-teal-700 text-white shadow-xl flex items-center justify-center border-2 border-white transition-all"
+                        style={{ boxShadow: '0 4px 16px rgba(0,0,0,0.25)' }}
+                      >
+                        <ArrowDown className="w-5 h-5 animate-bounce" />
+                      </button>
+                    )}
+                  </div>
 
-              <TabsContent value="groups" className="flex-1 mt-0 overflow-hidden min-h-0">
+                  {/* Slide Panel (quick messages / emoji) */}
+                  <div className={`transition-all duration-300 ease-in-out overflow-hidden flex-shrink-0 ${showSlidePanel ? 'max-h-52' : 'max-h-0'}`}>
+                    <div className="bg-white border-t border-gray-200 px-3 pt-2 pb-1">
+                      <div className="flex gap-1.5 mb-2">
+                        <Button size="sm" onClick={() => setSlideTab('quick')}
+                          className={`text-xs h-6 px-2.5 rounded-full ${slideTab === 'quick' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                          variant="ghost">
+                          <Zap className="w-3 h-3 mr-1" /> Quick
+                        </Button>
+                        <Button size="sm" onClick={() => setSlideTab('emoji')}
+                          className={`text-xs h-6 px-2.5 rounded-full ${slideTab === 'emoji' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                          variant="ghost">
+                          <Smile className="w-3 h-3 mr-1" /> Emoji
+                        </Button>
+                      </div>
+                      {slideTab === 'quick' && (
+                        <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto pb-1">
+                          {QUICK_MESSAGES.map((qm, i) => (
+                            <button key={i} onClick={() => { setMessageText(qm.text); setShowSlidePanel(false); textareaRef.current?.focus(); }}
+                              className="text-xs px-2.5 py-1.5 rounded-full bg-orange-50 border border-orange-200 text-orange-700 hover:bg-orange-100 transition-colors whitespace-nowrap shadow-sm">
+                              {qm.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {slideTab === 'emoji' && (
+                        <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto pb-1">
+                          {EMOJIS.map((emoji, i) => (
+                            <button key={i} onClick={() => { setMessageText(prev => prev + emoji); textareaRef.current?.focus(); }}
+                              className="text-xl hover:scale-125 transition-transform p-1 rounded-lg hover:bg-gray-100">
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Input Box */}
+                  <div className="px-2 py-2 bg-white border-t border-gray-200 flex-shrink-0">
+                    {attachedFile && (
+                      <div className="mb-1.5 px-2 py-1.5 bg-orange-50 rounded-xl border border-orange-200 flex items-center gap-2">
+                        {getFileIcon(attachedFile.type)}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-gray-900 truncate">{attachedFile.name}</p>
+                          <p className="text-xs text-gray-500">{formatFileSize(attachedFile.size)}</p>
+                        </div>
+                        <Button variant="ghost" size="sm" onClick={removeAttachment} className="text-red-500 h-6 w-6 p-0 hover:bg-red-50 rounded-full"><X className="w-3.5 h-3.5" /></Button>
+                      </div>
+                    )}
+                    <div className="flex items-end gap-1.5 w-full">
+                      <input ref={fileInputRef} type="file" onChange={handleFileSelect} className="hidden" accept="*/*" />
+                      <Button variant="ghost" size="icon"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="h-9 w-9 flex-shrink-0 text-gray-500 hover:bg-gray-100 rounded-full"
+                        disabled={uploading || sendMessageMutation.isPending}>
+                        <Paperclip className="w-5 h-5" />
+                      </Button>
+                      <Button variant="ghost" size="icon"
+                        onClick={() => setShowSlidePanel(!showSlidePanel)}
+                        className={`h-9 w-9 flex-shrink-0 rounded-full transition-colors ${showSlidePanel ? 'bg-orange-100 text-orange-600' : 'text-gray-500 hover:bg-gray-100'}`}>
+                        <Smile className="w-5 h-5" />
+                      </Button>
+                      <Textarea ref={textareaRef}
+                        placeholder="Type a message..."
+                        value={messageText}
+                        onChange={(e) => { setMessageText(e.target.value); handleTyping(); }}
+                        onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
+                        className="resize-none min-h-[38px] max-h-28 text-sm border border-gray-200 focus:border-orange-400 bg-gray-50 rounded-2xl flex-1 min-w-0 px-3 py-2"
+                        rows={1} disabled={uploading} />
+                      <Button onClick={handleSendMessage} disabled={sendMessageMutation.isPending || uploading || (!messageText.trim() && !attachedFile)}
+                        className="bg-gradient-to-br from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-9 w-9 flex-shrink-0 p-0 rounded-full shadow-md disabled:opacity-50">
+                        {(sendMessageMutation.isPending || uploading) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="groups" className="flex-1 mt-0 overflow-y-auto">
                 {clientGroups.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center px-4">
@@ -572,206 +731,98 @@ export default function ClientCommunication() {
                       <p className="text-sm text-gray-500">Your coach hasn't added you to any groups yet</p>
                     </div>
                   </div>
-                ) : clientGroups.length === 1 ? (
-                  // Single group: full WhatsApp-style fixed layout
-                  (() => {
-                    const group = clientGroups[0];
-                    const groupMsgs = groupMessages.filter(m => m.group_id === group.id)
-                      .sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
-                    const handleGroupFileSelect = (e) => {
-                      const file = e.target.files[0];
-                      if (!file) return;
-                      if (file.size > 1073741824) { alert("⚠️ File size must be less than 1 GB"); return; }
-                      setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: file });
-                    };
-                    const removeGroupAttachment = () => {
-                      setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: null });
-                      if (groupFileInputRefs.current[group.id]) groupFileInputRefs.current[group.id].value = '';
-                    };
-                    const handleSendGroupMessage = async () => {
-                      const message = groupMessageInputs[group.id] || "";
-                      const attachedFile = groupAttachedFiles[group.id];
-                      if (!message.trim() && !attachedFile) return;
-                      let msgData = {
-                        group_id: group.id, sender_type: 'client', sender_id: user?.id,
-                        sender_name: user?.full_name || clientProfile?.full_name,
-                        message: message.trim() || '(File attachment)', read: false,
-                      };
-                      if (attachedFile) {
-                        setGroupUploading({ ...groupUploading, [group.id]: true });
-                        try {
-                          const { file_url } = await base44.integrations.Core.UploadFile({ file: attachedFile });
-                          msgData.attachment_url = file_url; msgData.attachment_name = attachedFile.name;
-                          msgData.attachment_type = attachedFile.type; msgData.attachment_size = attachedFile.size;
-                        } catch { alert("❌ File upload failed."); setGroupUploading({ ...groupUploading, [group.id]: false }); return; }
-                        setGroupUploading({ ...groupUploading, [group.id]: false });
-                      }
-                      await sendMessageMutation.mutateAsync(msgData);
-                      setGroupMessageInputs({ ...groupMessageInputs, [group.id]: "" });
-                      setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: null });
-                      queryClient.invalidateQueries(['myGroupMessages']);
-                    };
-                    return (
-                      <div className="flex flex-col h-full min-h-0">
-                        {/* Group header */}
-                        <div className="flex-shrink-0 px-3 py-2 bg-blue-50 border-b flex items-center gap-2">
-                          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                            <Users className="w-4 h-4 text-white" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-gray-900">{group.name}</p>
-                            {group.description && <p className="text-xs text-gray-500">{group.description}</p>}
-                          </div>
-                        </div>
-                        {/* Messages */}
-                        <div className="flex-1 overflow-y-auto min-h-0 bg-[#e5ddd5] px-2 py-1 space-y-0.5 scrollbar-thin">
-                          {groupMsgs.length === 0 ? (
-                            <div className="flex items-center justify-center h-full">
-                              <p className="text-sm text-gray-500">No messages yet</p>
-                            </div>
-                          ) : groupMsgs.map(msg => {
-                            const isFromClient = msg.sender_type === 'client';
-                            return (
-                              <div key={msg.id} className={`flex ${isFromClient ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`max-w-[82%] rounded-2xl px-2.5 py-1.5 shadow-sm ${isFromClient ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-br-sm' : 'bg-white text-gray-900 border border-gray-100 rounded-bl-sm'}`}>
-                                  {!isFromClient && msg.sender_name && (
-                                    <p className="text-xs font-semibold text-blue-600 mb-0.5">{msg.sender_name}</p>
-                                  )}
-                                  {msg.message && <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.message}</p>}
-                                  {renderAttachment(msg, isFromClient)}
-                                  <p className={`text-[10px] mt-0.5 ${isFromClient ? 'text-white/70 text-right' : 'text-gray-400'}`}>{formatToIST(msg.created_date)}</p>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        {/* Input */}
-                        <div className="flex-shrink-0 px-2 py-2 bg-white border-t border-gray-200">
-                          {groupAttachedFiles[group.id] && (
-                            <div className="mb-1.5 px-2 py-1.5 bg-blue-50 rounded-xl border border-blue-200 flex items-center gap-2">
-                              {getFileIcon(groupAttachedFiles[group.id].type)}
-                              <p className="text-xs font-semibold text-gray-900 truncate flex-1">{groupAttachedFiles[group.id].name}</p>
-                              <Button variant="ghost" size="sm" onClick={removeGroupAttachment} className="text-red-600 h-6 w-6 p-0"><X className="w-3.5 h-3.5" /></Button>
-                            </div>
-                          )}
-                          <div className="flex items-end gap-1.5">
-                            <input ref={(el) => groupFileInputRefs.current[group.id] = el} type="file" onChange={handleGroupFileSelect} className="hidden" accept="*/*" />
-                            <Button variant="ghost" size="icon" className="h-9 w-9 flex-shrink-0 text-gray-500 hover:bg-gray-100 rounded-full"
-                              onClick={() => groupFileInputRefs.current[group.id]?.click()}
-                              disabled={groupUploading[group.id] || sendMessageMutation.isPending}>
-                              <Paperclip className="w-5 h-5" />
-                            </Button>
-                            <Textarea placeholder="Message the group..."
-                              value={groupMessageInputs[group.id] || ""}
-                              onChange={(e) => setGroupMessageInputs({ ...groupMessageInputs, [group.id]: e.target.value })}
-                              onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendGroupMessage(); } }}
-                              className="resize-none min-h-[38px] max-h-28 text-sm border border-gray-200 focus:border-blue-400 bg-gray-50 rounded-2xl flex-1 min-w-0 px-3 py-2"
-                              rows={1} disabled={groupUploading[group.id]} />
-                            <Button onClick={handleSendGroupMessage} className="bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 h-9 w-9 flex-shrink-0 p-0 rounded-full shadow-md disabled:opacity-50"
-                              disabled={!(groupMessageInputs[group.id] || "").trim() && !groupAttachedFiles[group.id] || sendMessageMutation.isPending || groupUploading[group.id]}>
-                              {(sendMessageMutation.isPending || groupUploading[group.id]) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })()
                 ) : (
-                  // Multiple groups: scrollable list, each with fixed input
-                  <div className="flex flex-col h-full min-h-0 overflow-y-auto">
-                    <div className="p-3 space-y-4">
-                      {clientGroups.map(group => {
-                        const groupMsgs = groupMessages.filter(m => m.group_id === group.id)
-                          .sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
-                        const handleGroupFileSelect = (e) => {
-                          const file = e.target.files[0];
-                          if (!file) return;
-                          if (file.size > 1073741824) { alert("⚠️ File size must be less than 1 GB"); return; }
-                          setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: file });
+                  <div className="p-3 space-y-4">
+                    {clientGroups.map(group => {
+                      const groupMsgs = groupMessages.filter(m => m.group_id === group.id)
+                        .sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+                      const handleGroupFileSelect = (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        if (file.size > 1073741824) { alert("⚠️ File size must be less than 1 GB"); return; }
+                        setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: file });
+                      };
+                      const removeGroupAttachment = () => {
+                        setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: null });
+                        if (groupFileInputRefs.current[group.id]) groupFileInputRefs.current[group.id].value = '';
+                      };
+                      const handleSendGroupMessage = async () => {
+                        const message = groupMessageInputs[group.id] || "";
+                        const attachedFile = groupAttachedFiles[group.id];
+                        if (!message.trim() && !attachedFile) return;
+                        let msgData = {
+                          group_id: group.id, sender_type: 'client', sender_id: user?.id,
+                          sender_name: user?.full_name || clientProfile?.full_name,
+                          message: message.trim() || '(File attachment)', read: false,
                         };
-                        const removeGroupAttachment = () => {
-                          setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: null });
-                          if (groupFileInputRefs.current[group.id]) groupFileInputRefs.current[group.id].value = '';
-                        };
-                        const handleSendGroupMessage = async () => {
-                          const message = groupMessageInputs[group.id] || "";
-                          const attachedFile = groupAttachedFiles[group.id];
-                          if (!message.trim() && !attachedFile) return;
-                          let msgData = {
-                            group_id: group.id, sender_type: 'client', sender_id: user?.id,
-                            sender_name: user?.full_name || clientProfile?.full_name,
-                            message: message.trim() || '(File attachment)', read: false,
-                          };
-                          if (attachedFile) {
-                            setGroupUploading({ ...groupUploading, [group.id]: true });
-                            try {
-                              const { file_url } = await base44.integrations.Core.UploadFile({ file: attachedFile });
-                              msgData.attachment_url = file_url; msgData.attachment_name = attachedFile.name;
-                              msgData.attachment_type = attachedFile.type; msgData.attachment_size = attachedFile.size;
-                            } catch { alert("❌ File upload failed."); setGroupUploading({ ...groupUploading, [group.id]: false }); return; }
-                            setGroupUploading({ ...groupUploading, [group.id]: false });
-                          }
-                          await sendMessageMutation.mutateAsync(msgData);
-                          setGroupMessageInputs({ ...groupMessageInputs, [group.id]: "" });
-                          setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: null });
-                          queryClient.invalidateQueries(['myGroupMessages']);
-                        };
-                        return (
-                          <Card key={group.id} className="border-l-4 border-l-blue-500">
-                            <CardHeader className="pb-2 pt-3 px-3 bg-blue-50">
-                              <CardTitle className="text-sm sm:text-base flex items-center gap-2">
-                                <Users className="w-4 h-4 text-blue-500" />{group.name}
-                              </CardTitle>
-                              {group.description && <p className="text-xs text-gray-500 mt-0.5">{group.description}</p>}
-                            </CardHeader>
-                            <CardContent className="p-2 sm:p-3">
-                              <div className="space-y-0.5 max-h-72 overflow-y-auto mb-2 p-0.5 bg-[#e5ddd5] rounded-lg">
-                                {groupMsgs.length === 0 ? (
-                                  <p className="text-xs text-gray-500 text-center py-3">No messages yet</p>
-                                ) : groupMsgs.map(msg => {
-                                  const isFromClient = msg.sender_type === 'client';
-                                  return (
-                                    <div key={msg.id} className={`flex ${isFromClient ? 'justify-end' : 'justify-start'}`}>
-                                      <div className={`max-w-[85%] rounded-xl p-2 text-xs sm:text-sm shadow-sm ${isFromClient ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' : 'bg-white text-gray-900 border border-gray-100'}`}>
-                                        {!isFromClient && msg.sender_name && <p className="text-xs font-semibold text-blue-600 mb-0.5">{msg.sender_name}</p>}
-                                        {msg.message && <p className="mb-1">{msg.message}</p>}
-                                        {renderAttachment(msg, isFromClient)}
-                                        <p className={`text-xs mt-0.5 ${isFromClient ? 'text-white/70' : 'text-gray-400'}`}>{formatToIST(msg.created_date)}</p>
-                                      </div>
+                        if (attachedFile) {
+                          setGroupUploading({ ...groupUploading, [group.id]: true });
+                          try {
+                            const { file_url } = await base44.integrations.Core.UploadFile({ file: attachedFile });
+                            msgData.attachment_url = file_url; msgData.attachment_name = attachedFile.name;
+                            msgData.attachment_type = attachedFile.type; msgData.attachment_size = attachedFile.size;
+                          } catch { alert("❌ File upload failed."); setGroupUploading({ ...groupUploading, [group.id]: false }); return; }
+                          setGroupUploading({ ...groupUploading, [group.id]: false });
+                        }
+                        await sendMessageMutation.mutateAsync(msgData);
+                        setGroupMessageInputs({ ...groupMessageInputs, [group.id]: "" });
+                        setGroupAttachedFiles({ ...groupAttachedFiles, [group.id]: null });
+                        queryClient.invalidateQueries(['myGroupMessages']);
+                      };
+                      return (
+                        <Card key={group.id} className="border-l-4 border-l-blue-500">
+                          <CardHeader className="pb-2 pt-3 px-3 bg-blue-50">
+                            <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+                              <Users className="w-4 h-4 text-blue-500" />{group.name}
+                            </CardTitle>
+                            {group.description && <p className="text-xs text-gray-500 mt-0.5">{group.description}</p>}
+                          </CardHeader>
+                          <CardContent className="p-2 sm:p-3">
+                            <div className="space-y-2 max-h-72 overflow-y-auto mb-3 p-1">
+                              {groupMsgs.length === 0 ? (
+                                <p className="text-xs text-gray-500 text-center py-3">No messages yet</p>
+                              ) : groupMsgs.map(msg => {
+                                const isFromClient = msg.sender_type === 'client';
+                                return (
+                                  <div key={msg.id} className={`flex ${isFromClient ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`max-w-[85%] rounded-xl p-2 text-xs sm:text-sm ${isFromClient ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' : 'bg-gray-100 text-gray-900'}`}>
+                                      {msg.message && <p className="mb-1">{msg.message}</p>}
+                                      {renderAttachment(msg, isFromClient)}
+                                      <p className={`text-xs mt-0.5 ${isFromClient ? 'text-white/70' : 'text-gray-400'}`}>{formatToIST(msg.created_date)}</p>
                                     </div>
-                                  );
-                                })}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            {groupAttachedFiles[group.id] && (
+                              <div className="mb-2 p-2 bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-2">
+                                {getFileIcon(groupAttachedFiles[group.id].type)}
+                                <p className="text-xs font-medium text-gray-900 truncate flex-1">{groupAttachedFiles[group.id].name}</p>
+                                <Button variant="ghost" size="sm" onClick={removeGroupAttachment} className="text-red-600 h-6 w-6 p-0"><X className="w-3.5 h-3.5" /></Button>
                               </div>
-                              {groupAttachedFiles[group.id] && (
-                                <div className="mb-2 p-2 bg-blue-50 rounded-lg border border-blue-200 flex items-center gap-2">
-                                  {getFileIcon(groupAttachedFiles[group.id].type)}
-                                  <p className="text-xs font-medium text-gray-900 truncate flex-1">{groupAttachedFiles[group.id].name}</p>
-                                  <Button variant="ghost" size="sm" onClick={removeGroupAttachment} className="text-red-600 h-6 w-6 p-0"><X className="w-3.5 h-3.5" /></Button>
-                                </div>
-                              )}
-                              <div className="flex gap-2 border-t pt-2">
-                                <input ref={(el) => groupFileInputRefs.current[group.id] = el} type="file" onChange={handleGroupFileSelect} className="hidden" accept="*/*" />
-                                <Button variant="outline" size="icon" className="h-9 w-9 flex-shrink-0"
-                                  onClick={() => groupFileInputRefs.current[group.id]?.click()}
-                                  disabled={groupUploading[group.id] || sendMessageMutation.isPending}>
-                                  <Paperclip className="w-3.5 h-3.5" />
-                                </Button>
-                                <Textarea placeholder="Message the group..."
-                                  value={groupMessageInputs[group.id] || ""}
-                                  onChange={(e) => setGroupMessageInputs({ ...groupMessageInputs, [group.id]: e.target.value })}
-                                  onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendGroupMessage(); } }}
-                                  className="resize-none min-h-[36px] text-sm flex-1" rows={1}
-                                  disabled={groupUploading[group.id]} />
-                                <Button onClick={handleSendGroupMessage} className="bg-blue-500 hover:bg-blue-600 h-9 px-3 flex-shrink-0"
-                                  disabled={!(groupMessageInputs[group.id] || "").trim() && !groupAttachedFiles[group.id] || sendMessageMutation.isPending || groupUploading[group.id]}>
-                                  {(sendMessageMutation.isPending || groupUploading[group.id]) ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                                </Button>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                    </div>
+                            )}
+                            <div className="flex gap-2 border-t pt-2">
+                              <input ref={(el) => groupFileInputRefs.current[group.id] = el} type="file" onChange={handleGroupFileSelect} className="hidden" accept="*/*" />
+                              <Button variant="outline" size="icon" className="h-9 w-9 flex-shrink-0"
+                                onClick={() => groupFileInputRefs.current[group.id]?.click()}
+                                disabled={groupUploading[group.id] || sendMessageMutation.isPending}>
+                                <Paperclip className="w-3.5 h-3.5" />
+                              </Button>
+                              <Textarea placeholder="Message the group..."
+                                value={groupMessageInputs[group.id] || ""}
+                                onChange={(e) => setGroupMessageInputs({ ...groupMessageInputs, [group.id]: e.target.value })}
+                                onKeyPress={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendGroupMessage(); } }}
+                                className="resize-none min-h-[36px] text-sm flex-1" rows={1}
+                                disabled={groupUploading[group.id]} />
+                              <Button onClick={handleSendGroupMessage} className="bg-blue-500 hover:bg-blue-600 h-9 px-3 flex-shrink-0"
+                                disabled={!(groupMessageInputs[group.id] || "").trim() && !groupAttachedFiles[group.id] || sendMessageMutation.isPending || groupUploading[group.id]}>
+                                {(sendMessageMutation.isPending || groupUploading[group.id]) ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                   </div>
                 )}
               </TabsContent>

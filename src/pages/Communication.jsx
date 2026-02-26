@@ -159,9 +159,9 @@ export default function Communication() {
       return [];
     },
     enabled: !!user && user?.user_type !== 'client',
-    staleTime: 5 * 60 * 1000,
-    refetchOnMount: false,
-    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   const [allMessages, setAllMessages] = useState([]);
@@ -289,8 +289,6 @@ export default function Communication() {
       // Update local state immediately so badge disappears right away
       setAllMessages(prev => prev.map(m => m.id === messageId ? { ...m, read: true } : m));
     },
-    retry: 1,
-    retryDelay: 1000,
   });
 
   const handleFileSelect = async (e) => {
@@ -558,19 +556,9 @@ export default function Communication() {
       const unreadMessages = clientMessages.filter(
         m => !m.read && m.sender_type === 'client'
       );
-      
-      // Debounce mark as read to prevent rate limiting - increased delay
-      if (unreadMessages.length > 0) {
-        const timer = setTimeout(() => {
-          unreadMessages.forEach((msg, idx) => {
-            setTimeout(() => {
-              markAsReadMutation.mutate(msg);
-            }, idx * 200); // Stagger mutations
-          });
-        }, 1000);
-        
-        return () => clearTimeout(timer);
-      }
+      unreadMessages.forEach(msg => {
+        markAsReadMutation.mutate(msg);
+      });
     }
   }, [selectedClient?.id, clientMessages.length]);
 

@@ -1,5 +1,4 @@
 import React, { useState, useRef } from "react";
-import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -47,9 +46,8 @@ export default function CoachReferralLink() {
     initialData: [],
   });
 
-  // Generate referral link — points directly to onboarding with coach ref
-  const onboardingPath = createPageUrl("ClientOnboarding");
-  const referralLink = `https://app.mealiepro.com${onboardingPath.includes('?') ? onboardingPath + '&' : onboardingPath + '?'}coach_ref=${encodeURIComponent(user?.email || '')}`;
+  // Generate referral link
+  const referralLink = `https://mealiepro.com/?ref=${encodeURIComponent(user?.email || '')}`;
   
   // Generate QR code URL
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(referralLink)}`;

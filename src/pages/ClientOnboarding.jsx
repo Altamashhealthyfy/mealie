@@ -38,11 +38,6 @@ const STORAGE_KEY = "client_onboarding_progress";
 
 export default function ClientOnboarding() {
   const navigate = useNavigate();
-  // Read coach referral from URL
-  const coachRef = React.useMemo(() => {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('coach_ref') || null;
-  }, []);
   const [phase, setPhase] = useState("welcome"); // "welcome" | "form" | "schedule" | "goals" | "tutorial"
   const [currentStep, setCurrentStep] = useState(1);
   const [aiTip, setAiTip] = useState("");
@@ -249,11 +244,6 @@ Provide a warm, personalized tip that's relevant to their situation.`,
           no_go_foods: []
         }
       };
-
-      // Auto-assign coach if referred via coach link
-      if (coachRef) {
-        clientData.assigned_coach = [coachRef];
-      }
 
       return await base44.entities.Client.create(clientData);
     },

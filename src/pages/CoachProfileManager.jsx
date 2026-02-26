@@ -42,11 +42,6 @@ export default function CoachProfileManager() {
 
   // Account settings state
   const [accountData, setAccountData] = useState({ full_name: '', email: '', phone: '' });
-  
-  // Client editing state
-  const [editingClientId, setEditingClientId] = useState(null);
-  const [clientEditData, setClientEditData] = useState({ full_name: '', email: '' });
-  const [clientEditSaving, setClientEditSaving] = useState(false);
   const [passwordData, setPasswordData] = useState({ new_password: '', confirm_password: '' });
   const [showNewPw, setShowNewPw] = useState(false);
   const [accountSaving, setAccountSaving] = useState(false);
@@ -113,38 +108,15 @@ export default function CoachProfileManager() {
   };
 
   const handleAccountSave = async () => {
-    if (!accountData.full_name.trim()) {
-      toast.error("Full name is required");
-      return;
-    }
-    if (!accountData.email.trim()) {
-      toast.error("Email is required");
-      return;
-    }
     setAccountSaving(true);
     try {
-      // Always update full_name via backend function (service role bypasses read-only restriction)
-      const nameRes = await base44.functions.invoke('updateUserFullName', {
-        user_id: user.id,
-        full_name: accountData.full_name.trim()
-      });
-      if (nameRes.data?.error) throw new Error(nameRes.data.error);
-
-      // Update phone via updateMe
-      await base44.auth.updateMe({ 
-        phone: accountData.phone.trim()
-      });
-      
-      // Update email if changed
-      if (accountData.email.trim() !== user?.email) {
-        const res = await base44.functions.invoke('updateUserEmail', { 
-          email: accountData.email.trim() 
-        });
+      await base44.auth.updateMe({ full_name: accountData.full_name, phone: accountData.phone });
+      if (accountData.email !== user?.email) {
+        const res = await base44.functions.invoke('updateUserEmail', { email: accountData.email });
         if (res.data?.error) throw new Error(res.data.error);
       }
-      
       queryClient.invalidateQueries({ queryKey: ['currentUser'] });
-      toast.success("Account details updated successfully!");
+      toast.success("Account details updated!");
     } catch (err) {
       toast.error(err.message || "Failed to update account details.");
     }
@@ -167,39 +139,6 @@ export default function CoachProfileManager() {
     toast.success("Password changed successfully!");
     setPasswordData({ new_password: '', confirm_password: '' });
     setPasswordSaving(false);
-  };
-
-  const handleClientEdit = (client) => {
-    setEditingClientId(client.id);
-    setClientEditData({
-      full_name: client.full_name || '',
-      email: client.email || ''
-    });
-  };
-
-  const handleClientSave = async () => {
-    if (!clientEditData.full_name.trim()) {
-      toast.error("Client full name is required");
-      return;
-    }
-    if (!clientEditData.email.trim()) {
-      toast.error("Client email is required");
-      return;
-    }
-    
-    setClientEditSaving(true);
-    try {
-      await base44.entities.Client.update(editingClientId, {
-        full_name: clientEditData.full_name.trim(),
-        email: clientEditData.email.trim()
-      });
-      queryClient.invalidateQueries({ queryKey: ['myClients'] });
-      toast.success("Client details updated successfully!");
-      setEditingClientId(null);
-    } catch (err) {
-      toast.error(err.message || "Failed to update client details");
-    }
-    setClientEditSaving(false);
   };
 
   React.useEffect(() => {
@@ -815,91 +754,34 @@ export default function CoachProfileManager() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {myClients.map((client) => (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {myClients.slice(0, 6).map((client) => (
                 <div key={client.id} className="border rounded-lg p-4 hover:border-orange-300 transition-colors">
-                  {editingClientId === client.id ? (
-                    // Edit Mode
-                    <div className="space-y-3">
-                      <div className="space-y-2">
-                        <Label className="text-sm">Full Name</Label>
-                        <Input
-                          value={clientEditData.full_name}
-                          onChange={(e) => setClientEditData({ ...clientEditData, full_name: e.target.value })}
-                          placeholder="Client name"
-                          className="text-sm"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-sm flex items-center gap-1"><Mail className="w-3.5 h-3.5" /> Email</Label>
-                        <Input
-                          type="email"
-                          value={clientEditData.email}
-                          onChange={(e) => setClientEditData({ ...clientEditData, email: e.target.value })}
-                          placeholder="client@email.com"
-                          className="text-sm"
-                        />
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          onClick={handleClientSave}
-                          disabled={clientEditSaving}
-                          className="flex-1 bg-green-600 hover:bg-green-700 h-8"
-                        >
-                          {clientEditSaving ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <CheckCircle className="w-3 h-3 mr-1" />}
-                          Save
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => setEditingClientId(null)}
-                          className="flex-1 h-8"
-                        >
-                          <X className="w-3 h-3 mr-1" /> Cancel
-                        </Button>
-                      </div>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="font-semibold text-gray-900">{client.full_name}</h4>
+                      <p className="text-sm text-gray-500">{client.goal?.replace(/_/g, ' ')}</p>
                     </div>
-                  ) : (
-                    // View Mode
-                    <>
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900">{client.full_name}</h4>
-                          <p className="text-xs text-gray-500 mt-0.5">{client.email}</p>
-                          <p className="text-sm text-gray-600 mt-1">{client.goal?.replace(/_/g, ' ')}</p>
-                        </div>
-                        <Badge variant={client.status === 'active' ? 'default' : 'secondary'} className="text-xs">
-                          {client.status}
+                    <Badge variant={client.status === 'active' ? 'default' : 'secondary'}>
+                      {client.status}
+                    </Badge>
+                  </div>
+                  {client.health_conditions && client.health_conditions.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {client.health_conditions.slice(0, 2).map((condition, idx) => (
+                        <Badge key={idx} variant="outline" className="text-xs">
+                          {condition.replace(/_/g, ' ')}
                         </Badge>
-                      </div>
-                      {client.health_conditions && client.health_conditions.length > 0 && (
-                        <div className="mb-3 flex flex-wrap gap-1">
-                          {client.health_conditions.slice(0, 2).map((condition, idx) => (
-                            <Badge key={idx} variant="outline" className="text-xs">
-                              {condition.replace(/_/g, ' ')}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleClientEdit(client)}
-                        className="w-full h-8 text-xs"
-                      >
-                        Edit Details
-                      </Button>
-                    </>
+                      ))}
+                    </div>
                   )}
                 </div>
               ))}
             </div>
-            {myClients.length === 0 && (
-              <div className="text-center py-6 text-gray-500">
-                <Users className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p>No clients assigned yet</p>
-              </div>
+            {myClients.length > 6 && (
+              <p className="text-center text-sm text-gray-500 mt-4">
+                and {myClients.length - 6} more clients...
+              </p>
             )}
           </CardContent>
         </Card>

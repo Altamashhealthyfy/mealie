@@ -34,13 +34,13 @@ export default function ClientReportUpload() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: clientProfile, isLoading: profileLoading } = useQuery({
+  const { data: clientProfile } = useQuery({
     queryKey: ['clientProfile', user?.email],
     queryFn: async () => {
       const clients = await base44.entities.Client.filter({ email: user?.email });
       return clients[0] || null;
     },
-    enabled: !!user?.email,
+    enabled: !!user,
   });
 
   const { data: reports } = useQuery({
@@ -92,10 +92,6 @@ export default function ClientReportUpload() {
     }
     if (!selectedFile) {
       alert('Please select a file to upload');
-      return;
-    }
-    if (!clientProfile?.id) {
-      alert('Client profile not loaded yet. Please wait a moment and try again.');
       return;
     }
 
@@ -250,7 +246,7 @@ export default function ClientReportUpload() {
                   {/* Submit Button */}
                   <Button
                     type="submit"
-                    disabled={createReportMutation.isPending || uploadFileMutation.isPending || selectedReportType !== value || !clientProfile?.id}
+                    disabled={createReportMutation.isPending || uploadFileMutation.isPending || selectedReportType !== value}
                     className={`w-full h-10 text-base font-medium ${
                       value === 'blood_report' ? 'bg-gradient-to-r from-red-500 to-pink-500' :
                       value === 'ultrasound_report' ? 'bg-gradient-to-r from-cyan-500 to-blue-500' :

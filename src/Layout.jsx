@@ -96,9 +96,19 @@ const dietitianNavigation = [
     icon: TrendingUp,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
+  {
+    title: "Advanced Analytics",
+    url: createPageUrl("AdvancedCoachAnalytics"),
+    icon: BarChart3,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
 
-
-
+  {
+    title: "Client Progress",
+    url: createPageUrl("ClientReports"),
+    icon: FileText,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
   {
     title: "Segmentation & Analytics",
     url: createPageUrl("ClientSegmentationReports"),

@@ -51,6 +51,7 @@ import AICoachInsights from './pages/AICoachInsights';
 import AddTeamAppointment from './pages/AddTeamAppointment';
 import AdminPlatformAnalytics from './pages/AdminPlatformAnalytics';
 import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
+import AdvancedCoachAnalytics from './pages/AdvancedCoachAnalytics';
 import Appointments from './pages/Appointments';
 import AssessmentTemplates from './pages/AssessmentTemplates';
 import AutoAwardRules from './pages/AutoAwardRules';
@@ -151,12 +152,12 @@ import NotificationSettings from './pages/NotificationSettings';
 import Notifications from './pages/Notifications';
 import PaymentGatewaySettings from './pages/PaymentGatewaySettings';
 import PaymentHistory from './pages/PaymentHistory';
+import Profile from './pages/Profile';
 import PaymentSetup from './pages/PaymentSetup';
 import PaymentTracking from './pages/PaymentTracking';
 import PlatformBrandingTracker from './pages/PlatformBrandingTracker';
 import PlatformColorCustomization from './pages/PlatformColorCustomization';
 import PricingPlans from './pages/PricingPlans';
-import Profile from './pages/Profile';
 import ProgressTracking from './pages/ProgressTracking';
 import ProjectManagement from './pages/ProjectManagement';
 import PublicPlanPurchase from './pages/PublicPlanPurchase';
@@ -191,6 +192,7 @@ export const PAGES = {
     "AddTeamAppointment": AddTeamAppointment,
     "AdminPlatformAnalytics": AdminPlatformAnalytics,
     "AdminSubscriptionManager": AdminSubscriptionManager,
+    "AdvancedCoachAnalytics": AdvancedCoachAnalytics,
     "Appointments": Appointments,
     "AssessmentTemplates": AssessmentTemplates,
     "AutoAwardRules": AutoAwardRules,
@@ -291,12 +293,12 @@ export const PAGES = {
     "Notifications": Notifications,
     "PaymentGatewaySettings": PaymentGatewaySettings,
     "PaymentHistory": PaymentHistory,
+    "Profile": Profile,
     "PaymentSetup": PaymentSetup,
     "PaymentTracking": PaymentTracking,
     "PlatformBrandingTracker": PlatformBrandingTracker,
     "PlatformColorCustomization": PlatformColorCustomization,
     "PricingPlans": PricingPlans,
-    "Profile": Profile,
     "ProgressTracking": ProgressTracking,
     "ProjectManagement": ProjectManagement,
     "PublicPlanPurchase": PublicPlanPurchase,

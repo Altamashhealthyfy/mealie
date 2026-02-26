@@ -5,26 +5,18 @@ Deno.serve(async (req) => {
         const base44 = createClientFromRequest(req);
         const user = await base44.auth.me();
 
-        if (!user) {
-            return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        if (user?.role !== 'admin' && user?.user_type !== 'super_admin') {
+            return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
         }
 
         const { user_id, full_name } = await req.json();
 
-        // Allow user to update their own name, or admin to update any user
-        const targetUserId = user_id || user.id;
-        const isAdmin = user?.role === 'admin' || user?.user_type === 'super_admin';
-        const isOwnName = targetUserId === user.id;
-
-        if (!isAdmin && !isOwnName) {
-            return Response.json({ error: 'Forbidden' }, { status: 403 });
+        if (!user_id || !full_name) {
+            return Response.json({ error: 'user_id and full_name are required' }, { status: 400 });
         }
 
-        if (!full_name) {
-            return Response.json({ error: 'full_name is required' }, { status: 400 });
-        }
-
-        await base44.asServiceRole.entities.User.update(targetUserId, { full_name });
+        // Update User entity using service role
+        await base44.asServiceRole.entities.User.update(user_id, { full_name });
 
         return Response.json({ 
             success: true, 

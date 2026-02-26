@@ -40,32 +40,24 @@ export default function ProMealPlanChatModifier({ plan, onPlanUpdate }) {
     setMessages(newMessages);
     setIsLoading(true);
 
-    const mealPlan = plan.meal_plan || [];
-    // Build a concise summary grouped by day
-    const days = [...new Set(mealPlan.map(m => m.day))].sort((a, b) => a - b);
-    const mealSummary = days.map(day => {
-      const dayMeals = mealPlan.filter(m => m.day === day);
-      return `Day ${day}:\n` + dayMeals.map(m => `  ${m.meal_type}: ${m.meal_name}`).join("\n");
-    }).join("\n");
-
-    // Get unique meal_types present in the plan for reference
-    const mealTypes = [...new Set(mealPlan.map(m => m.meal_type))];
+    const mealSummary = (plan.meal_plan || [])
+      .map((m) => `Day ${m.day} ${m.meal_type}: ${m.meal_name} (${m.items?.join(", ")})`)
+      .join("\n");
 
     const prompt = `You are a clinical dietitian AI helping modify a disease-specific meal plan.
 
-Current meal plan structure (${days.length} days):
+Current meal plan summary (first 3 days shown for context):
 ${mealSummary}
-
-Valid meal_type values (use EXACTLY these): ${mealTypes.join(", ")}
 
 The coach requests: "${userText}"
 
 Instructions:
-1. Identify exactly which meals need to change based on the request.
-2. Return the modified meal(s) as "updated_meals". Each meal MUST use the EXACT meal_type values listed above.
-3. Each meal must have: day (number), meal_type (exact string from list above), meal_name, items (array of strings), portion_sizes (array of strings), calories, protein, carbs, fats, sodium, potassium, disease_rationale.
-4. Also provide a "summary" string explaining what was changed and why.
-5. If unclear, explain in "summary" and return empty "updated_meals" array.`;
+1. Identify exactly which meals need to change.
+2. Provide the modified meal(s) as a JSON array under the key "updated_meals". Each meal must have: day, meal_type, meal_name, items (array), portion_sizes (array), calories, protein, carbs, fats, sodium, potassium, disease_rationale.
+3. Also provide a "summary" string explaining what was changed and why.
+4. If the request is unclear or cannot be done safely, explain why in "summary" and return an empty "updated_meals" array.
+
+Respond ONLY with valid JSON: { "summary": "...", "updated_meals": [...] }`;
 
     try {
       const response = await base44.integrations.Core.InvokeLLM({
@@ -104,15 +96,11 @@ Instructions:
       if (updated_meals?.length > 0 && onPlanUpdate) {
         const newMealPlan = [...(plan.meal_plan || [])];
         updated_meals.forEach((updatedMeal) => {
-          // Match by day and meal_type (case-insensitive, also try normalized comparison)
-          const idx = newMealPlan.findIndex((m) => {
-            const sameDay = m.day === updatedMeal.day;
-            const sameType = m.meal_type?.toLowerCase().replace(/[\s_]/g, '') === 
-                             updatedMeal.meal_type?.toLowerCase().replace(/[\s_]/g, '');
-            return sameDay && sameType;
-          });
+          const idx = newMealPlan.findIndex(
+            (m) => m.day === updatedMeal.day && m.meal_type?.toLowerCase() === updatedMeal.meal_type?.toLowerCase()
+          );
           if (idx !== -1) {
-            newMealPlan[idx] = { ...newMealPlan[idx], ...updatedMeal };
+            newMealPlan[idx] = { ...updatedMeal };
           } else {
             newMealPlan.push(updatedMeal);
           }

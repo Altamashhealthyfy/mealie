@@ -696,13 +696,13 @@ export default function ClientAnalyticsDashboard() {
 
         {/* Tabs for different views */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 bg-white/80 backdrop-blur w-full">
+          <TabsList className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 bg-white/80 backdrop-blur w-full">
             <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
             <TabsTrigger value="trends" className="text-xs sm:text-sm">Trends</TabsTrigger>
             <TabsTrigger value="progress" className="text-xs sm:text-sm">Progress</TabsTrigger>
             <TabsTrigger value="engagement" className="text-xs sm:text-sm">Engagement</TabsTrigger>
             <TabsTrigger value="attention" className="text-xs sm:text-sm">Attention</TabsTrigger>
-            <TabsTrigger value="reports" className="text-xs sm:text-sm col-span-3 sm:col-span-1">Reports</TabsTrigger>
+            <TabsTrigger value="modules" className="text-xs sm:text-sm col-span-3 sm:col-span-1">Modules</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -1466,23 +1466,6 @@ export default function ClientAnalyticsDashboard() {
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
-
-          {/* Reports Tab */}
-          <TabsContent value="reports" className="space-y-6">
-            <Card className="border-none shadow-lg">
-              <CardHeader>
-                <CardTitle>Client Reports</CardTitle>
-                <CardDescription>Comprehensive client progress reports and analytics</CardDescription>
-              </CardHeader>
-              <CardContent className="p-3 sm:p-6">
-                <Link to={createPageUrl("ClientReports")}>
-                  <Button className="w-full sm:w-auto bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">
-                    View All Client Reports
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
           </TabsContent>
 
           {/* Goals Overview Tab - Renamed from goals to avoid confusion */}
