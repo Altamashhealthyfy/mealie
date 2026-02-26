@@ -34,6 +34,9 @@ export default function MealPlansPro() {
   const [numberOfDays, setNumberOfDays] = useState(10);
   const [showFoodPreferences, setShowFoodPreferences] = useState(false);
   const [foodPreferences, setFoodPreferences] = useState(null);
+  const [medicalReportFile, setMedicalReportFile] = useState(null);
+  const [extractingReport, setExtractingReport] = useState(false);
+  const [extractedReportData, setExtractedReportData] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
