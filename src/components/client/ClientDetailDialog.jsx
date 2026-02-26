@@ -1,13 +1,15 @@
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Edit, Send, FileText, Plus, Stethoscope, UserPlus, KeyRound, Sparkles, TrendingUp, Calculator, ChefHat, Zap
+  Edit, Send, FileText, Plus, Stethoscope, UserPlus, KeyRound, Sparkles, TrendingUp, Calculator, ChefHat, Zap, Activity
 } from "lucide-react";
 import { format } from "date-fns";
+import ClientMedicalProgress from "@/components/client/ClientMedicalProgress";
 
 export default function ClientDetailDialog({
   client,
