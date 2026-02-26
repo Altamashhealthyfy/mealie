@@ -22,6 +22,7 @@ export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGe
   const [editingMeal, setEditingMeal] = useState(null);
   const [copiedText, setCopiedText] = useState(false);
   const [recalculating, setRecalculating] = useState(false);
+  const [showPDFDialog, setShowPDFDialog] = useState(false);
 
   React.useEffect(() => {
     setEditablePlan(plan);
