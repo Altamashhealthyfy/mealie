@@ -81,14 +81,12 @@ function DaySummaryView({ day, meals, summary }) {
       <button onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between p-3.5 bg-gradient-to-r from-gray-50 to-slate-50 hover:from-gray-100 transition-colors">
         <div className="flex items-center gap-3">
           <span className="font-bold text-gray-800">Day {day}</span>
-          {summary && (
-            <div className="flex gap-2 text-xs text-gray-500">
-              <span>{summary.total_calories} kcal</span>
-              <span>P:{summary.total_protein}g</span>
-              <span>C:{summary.total_carbs}g</span>
-              <span>F:{summary.total_fats}g</span>
-            </div>
-          )}
+          <div className="flex gap-2 text-xs text-gray-500">
+            <span className="font-medium text-orange-600">{Math.round(computed.calories)} kcal</span>
+            <span>P:{Math.round(computed.protein)}g</span>
+            <span>C:{Math.round(computed.carbs)}g</span>
+            <span>F:{Math.round(computed.fats)}g</span>
+          </div>
         </div>
         {open ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
       </button>
