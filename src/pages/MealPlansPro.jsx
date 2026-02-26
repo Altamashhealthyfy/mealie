@@ -252,7 +252,11 @@ Return ONLY valid JSON, no explanation.`,
 
       setGenerating(true);
 
-      const prompt = constructDiamondPrompt(selectedClient, intake, numberOfDays, mealPattern, preferences, extractedReportData);
+      // Use manually uploaded report data OR latest stored report extracted_data
+      const latestStoredReport = clientHealthReports?.[0]?.extracted_data || null;
+      const reportDataToUse = extractedReportData || latestStoredReport;
+      
+      const prompt = constructDiamondPrompt(selectedClient, intake, numberOfDays, mealPattern, preferences, reportDataToUse);
       
       console.log('Sending prompt to AI with numberOfDays:', numberOfDays);
       
