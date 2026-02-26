@@ -1011,22 +1011,44 @@ Return ONLY valid JSON, no explanation.`;
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="space-y-2">
-                <Label>Primary Goal *</Label>
-                <Select
-                  value={formData.goal}
-                  onValueChange={(value) => setFormData({...formData, goal: value})}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select goal" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="weight_loss">Weight Loss</SelectItem>
-                    <SelectItem value="maintenance">Weight Maintenance</SelectItem>
-                    <SelectItem value="energy">Increase Energy</SelectItem>
-                    <SelectItem value="symptom_relief">Symptom Relief</SelectItem>
-                    <SelectItem value="disease_reversal">Disease Reversal</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label>Primary Goal * <span className="text-gray-400 font-normal">(Select all that apply)</span></Label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                  {[
+                    { value: 'weight_loss', label: '⚖️ Weight Loss' },
+                    { value: 'maintenance', label: '🔄 Weight Maintenance' },
+                    { value: 'energy', label: '⚡ Increase Energy' },
+                    { value: 'symptom_relief', label: '💊 Symptom Relief' },
+                    { value: 'disease_reversal', label: '🏥 Disease Reversal' },
+                    { value: 'muscle_gain', label: '💪 Muscle Gain' },
+                  ].map(({ value, label }) => {
+                    const selected = formData.goal?.includes(value);
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => handleGoalToggle(value)}
+                        className={`flex items-center gap-2 p-3 rounded-lg border-2 text-sm font-medium transition-all text-left
+                          ${selected
+                            ? 'border-green-500 bg-green-50 text-green-800'
+                            : 'border-gray-200 bg-white text-gray-700 hover:border-green-300 hover:bg-green-50'
+                          }`}
+                      >
+                        <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0
+                          ${selected ? 'border-green-500 bg-green-500' : 'border-gray-300'}`}>
+                          {selected && <CheckCircle className="w-3 h-3 text-white" />}
+                        </div>
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+                {formData.goal?.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {formData.goal.map(g => (
+                      <Badge key={g} className="bg-green-100 text-green-800 text-xs">{g.replace(/_/g, ' ')}</Badge>
+                    ))}
+                  </div>
+                )}
               </div>
               
               <div className="space-y-2">
