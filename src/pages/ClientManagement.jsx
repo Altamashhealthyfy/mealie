@@ -169,9 +169,9 @@ function ClientManagementInner() {
       console.log('✅ Team member - showing filtered clients:', filtered.length);
       return filtered;
     },
-    enabled: !!user?.email,
+    enabled: !!user,
     initialData: [],
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   });
 
   const { data: mealPlans } = useQuery({
