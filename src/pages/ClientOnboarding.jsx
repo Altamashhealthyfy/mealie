@@ -250,6 +250,11 @@ Provide a warm, personalized tip that's relevant to their situation.`,
         }
       };
 
+      // Auto-assign coach if referred via coach link
+      if (coachRef) {
+        clientData.assigned_coach = [coachRef];
+      }
+
       return await base44.entities.Client.create(clientData);
     },
     onSuccess: (client) => {
