@@ -123,14 +123,22 @@ export default function CoachProfileManager() {
     }
     setAccountSaving(true);
     try {
-      // Always update full_name and phone
+      // Update full_name via backend function (works for all user types)
+      if (accountData.full_name.trim() !== user?.full_name) {
+        const nameRes = await base44.functions.invoke('updateUserFullName', {
+          user_id: user.id,
+          full_name: accountData.full_name.trim()
+        });
+        if (nameRes.data?.error) throw new Error(nameRes.data.error);
+      }
+
+      // Update phone via updateMe
       await base44.auth.updateMe({ 
-        full_name: accountData.full_name.trim(),
         phone: accountData.phone.trim()
       });
       
       // Update email if changed
-      if (accountData.email !== user?.email) {
+      if (accountData.email.trim() !== user?.email) {
         const res = await base44.functions.invoke('updateUserEmail', { 
           email: accountData.email.trim() 
         });
