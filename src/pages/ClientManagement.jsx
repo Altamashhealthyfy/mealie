@@ -138,13 +138,9 @@ function ClientManagementInner() {
   });
 
   const { data: clients } = useQuery({
-    queryKey: ['clients'],
+    queryKey: ['clients', user?.email, user?.user_type],
     queryFn: async () => {
       const allClients = await base44.entities.Client.list('-created_date');
-      
-      console.log('🔍 Fetched clients:', allClients.length);
-      console.log('👤 Current user type:', user?.user_type);
-      console.log('📧 Current user email:', user?.email);
 
       // Super admin sees ALL clients
       if (user?.user_type === 'super_admin') {
