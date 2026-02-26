@@ -101,12 +101,8 @@ export default function MealPlansPro() {
   const { data: templates } = useQuery({
     queryKey: ['proTemplates', user?.email, user?.user_type],
     queryFn: async () => {
-      if (user?.user_type === 'super_admin') {
-        // Super admin sees all templates
-        return await base44.entities.MealPlanTemplate.list('-created_date');
-      }
-      // Health coaches only see their own templates
-      return await base44.entities.MealPlanTemplate.filter({ created_by: user?.email });
+      // Both super_admin and student_coach see all templates
+      return await base44.entities.MealPlanTemplate.list('-created_date');
     },
     enabled: !!user,
     initialData: [],
