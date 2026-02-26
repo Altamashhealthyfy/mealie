@@ -156,7 +156,9 @@ function ClientManagementInner() {
             : client.assigned_coach 
               ? [client.assigned_coach] 
               : [];
-          return client.created_by === user?.email || assignedCoaches.includes(user?.email);
+          const coachEmail = user?.email?.toLowerCase().trim();
+          const isAssigned = assignedCoaches.some(e => e?.toLowerCase().trim() === coachEmail);
+          return client.created_by === user?.email || isAssigned;
         });
         console.log('✅ Student coach - showing filtered clients:', filtered.length);
         return filtered;
