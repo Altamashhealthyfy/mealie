@@ -49,7 +49,8 @@ export default function CoachReferralLink() {
 
   // Generate referral link — points directly to onboarding with coach ref
   const baseUrl = window.location.origin;
-  const referralLink = `${baseUrl}/clientonboarding?coach_ref=${encodeURIComponent(user?.email || '')}`;
+  const onboardingPath = createPageUrl("ClientOnboarding");
+  const referralLink = `${baseUrl}${onboardingPath}?coach_ref=${encodeURIComponent(user?.email || '')}`;
   
   // Generate QR code URL
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(referralLink)}`;
