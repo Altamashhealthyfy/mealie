@@ -240,11 +240,11 @@ Use ICMR data and standard Indian portion sizes. Be precise.`;
               </Button>
               <Button
                 variant="outline"
-                onClick={printPlan}
+                onClick={() => setShowPDFDialog(true)}
                 className="border-purple-500 text-purple-600 hover:bg-purple-50"
               >
-                <Printer className="w-4 h-4 mr-2" />
-                Print PDF
+                <Download className="w-4 h-4 mr-2" />
+                Download PDF
               </Button>
             </div>
           </div>
