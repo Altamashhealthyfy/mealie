@@ -34,13 +34,13 @@ export default function ClientReportUpload() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: clientProfile } = useQuery({
+  const { data: clientProfile, isLoading: profileLoading } = useQuery({
     queryKey: ['clientProfile', user?.email],
     queryFn: async () => {
       const clients = await base44.entities.Client.filter({ email: user?.email });
       return clients[0] || null;
     },
-    enabled: !!user,
+    enabled: !!user?.email,
   });
 
   const { data: reports } = useQuery({
