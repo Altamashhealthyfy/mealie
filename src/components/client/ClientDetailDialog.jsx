@@ -50,6 +50,17 @@ export default function ClientDetailDialog({
         </DialogHeader>
 
         <div className="space-y-6 mt-4">
+          <Tabs defaultValue="profile">
+            <TabsList className="grid grid-cols-2 w-full">
+              <TabsTrigger value="profile" className="flex items-center gap-2">
+                <UserPlus className="w-4 h-4" /> Profile
+              </TabsTrigger>
+              <TabsTrigger value="medical" className="flex items-center gap-2">
+                <Activity className="w-4 h-4" /> Progress & Medical
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="profile" className="space-y-4 mt-4">
           <div className="grid grid-cols-2 gap-4">
             <Card>
               <CardHeader><CardTitle className="text-lg flex items-center gap-2"><UserPlus className="w-5 h-5 text-gray-600" /> Basic Info</CardTitle></CardHeader>
@@ -101,6 +112,12 @@ export default function ClientDetailDialog({
               </CardContent>
             </Card>
           </div>
+            </TabsContent>
+
+            <TabsContent value="medical" className="mt-4">
+              <ClientMedicalProgress client={client} />
+            </TabsContent>
+          </Tabs>
 
           {/* Quick Actions CTA */}
           <Button
