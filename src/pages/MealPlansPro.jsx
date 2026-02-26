@@ -1107,11 +1107,25 @@ Return ONLY valid JSON, no explanation.`,
                         ))}
                       </TabsList>
 
-                      {Array.from({ length: numberOfDays }, (_, i) => i + 1).map(day => (
+                      {Array.from({ length: numberOfDays }, (_, i) => i + 1).map(day => {
+                        const dayMeals = (editMode ? editedMeals : generatedPlan.meal_plan).filter(m => m.day === day);
+                        const dayTotals = dayMeals.reduce((acc, m) => ({
+                          calories: acc.calories + (Number(m.calories) || 0),
+                          protein: acc.protein + (Number(m.protein) || 0),
+                          carbs: acc.carbs + (Number(m.carbs) || 0),
+                          fats: acc.fats + (Number(m.fats) || 0),
+                        }), { calories: 0, protein: 0, carbs: 0, fats: 0 });
+                        return (
                         <TabsContent key={day} value={day.toString()} className="space-y-3">
-                          {(editMode ? editedMeals : generatedPlan.meal_plan)
-                            .filter(meal => meal.day === day)
-                            .map((meal, index) => (
+                          {/* Day Macro Summary */}
+                          <div className="flex flex-wrap gap-3 p-3 bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border border-orange-200 text-sm">
+                            <span className="font-semibold text-gray-700">Day {day} Totals:</span>
+                            <span className="font-bold text-orange-600">{Math.round(dayTotals.calories)} kcal</span>
+                            <span className="text-red-600">P: {Math.round(dayTotals.protein)}g</span>
+                            <span className="text-yellow-600">C: {Math.round(dayTotals.carbs)}g</span>
+                            <span className="text-purple-600">F: {Math.round(dayTotals.fats)}g</span>
+                          </div>
+                          {dayMeals.map((meal, index) => (
                               <Card key={index} className="bg-gradient-to-br from-gray-50 to-white">
                                 <CardHeader className="p-3 md:p-4">
                                   <div className="flex items-center justify-between gap-2">
