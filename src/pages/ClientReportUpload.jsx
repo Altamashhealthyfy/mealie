@@ -250,7 +250,7 @@ export default function ClientReportUpload() {
                   {/* Submit Button */}
                   <Button
                     type="submit"
-                    disabled={createReportMutation.isPending || uploadFileMutation.isPending || selectedReportType !== value}
+                    disabled={createReportMutation.isPending || uploadFileMutation.isPending || selectedReportType !== value || !clientProfile?.id}
                     className={`w-full h-10 text-base font-medium ${
                       value === 'blood_report' ? 'bg-gradient-to-r from-red-500 to-pink-500' :
                       value === 'ultrasound_report' ? 'bg-gradient-to-r from-cyan-500 to-blue-500' :
