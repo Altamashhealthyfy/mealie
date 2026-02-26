@@ -294,8 +294,8 @@ Return ONLY valid JSON, no explanation.`;
       alert('Please select diet type');
       return;
     }
-    if (!formData.goal) {
-      alert('Please select a goal');
+    if (!formData.goal?.length) {
+      alert('Please select at least one goal');
       return;
     }
 
