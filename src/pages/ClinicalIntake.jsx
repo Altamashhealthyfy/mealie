@@ -63,6 +63,7 @@ export default function ClinicalIntake() {
   const [dislikesText, setDislikesText] = useState('');
   const [allergiesText, setAllergiesText] = useState('');
   const [noGoText, setNoGoText] = useState('');
+  const [aiFileUploading, setAiFileUploading] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
