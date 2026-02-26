@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Loader2, Users, AlertTriangle, CheckCircle, FileText, Heart, Brain, Activity, Star, Edit, Copy } from "lucide-react";
+import { Sparkles, Loader2, Users, AlertTriangle, CheckCircle, FileText, Heart, Brain, Activity, Star, Edit, Copy, Upload, Wand2, X } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import ManualMealPlanBuilder from "@/components/mealplanner/ManualMealPlanBuilder";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ import ProMealPlanChatModifier from "@/components/pro/ProMealPlanChatModifier";
 import RecipeScaler from "@/components/mealplanner/RecipeScaler";
 import FoodPreferenceForm from "@/components/mealplanner/FoodPreferenceForm";
 import ExtraMealAdder from "@/components/pro/ExtraMealAdder";
+import { toast } from "sonner";
 
 export default function MealPlansPro() {
   const [searchParams] = useSearchParams();
