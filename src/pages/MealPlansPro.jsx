@@ -38,6 +38,44 @@ export default function MealPlansPro() {
   const [extractingReport, setExtractingReport] = useState(false);
   const [extractedReportData, setExtractedReportData] = useState(null);
 
+  const handleMedicalReportUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setMedicalReportFile(file);
+    setExtractingReport(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are a clinical dietitian assistant. Extract all relevant clinical information from this medical report. Return structured JSON with:
+- health_conditions: array of conditions found (e.g. Diabetes, Thyroid, Kidney, Heart, Hypertension, PCOS, etc.)
+- lab_values: object with any lab values found (hba1c, tsh, cholesterol, ldl, hdl, triglycerides, creatinine, urea, gfr, sodium, potassium, vitamin_d, vitamin_b12, sgot, sgpt, uric_acid, etc.)
+- medications: array of medications found
+- stage_severity: any disease stage or severity mentioned
+- key_findings: array of important clinical findings
+- dietary_recommendations: any dietary notes or restrictions mentioned in the report
+Return ONLY valid JSON.`,
+        file_urls: [file_url],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            health_conditions: { type: "array", items: { type: "string" } },
+            lab_values: { type: "object" },
+            medications: { type: "array", items: { type: "string" } },
+            stage_severity: { type: "string" },
+            key_findings: { type: "array", items: { type: "string" } },
+            dietary_recommendations: { type: "array", items: { type: "string" } }
+          }
+        }
+      });
+      setExtractedReportData(result);
+      toast.success("✅ Medical report analyzed! Data will be used to personalize the meal plan.");
+    } catch (err) {
+      toast.error("Failed to analyze report. You can still generate the plan.");
+      console.error(err);
+    }
+    setExtractingReport(false);
+  };
+
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
@@ -152,51 +190,6 @@ export default function MealPlansPro() {
     console.log('hasCompletedIntake:', hasCompletedIntake);
     console.log('==================');
   }, [selectedClientId, selectedClient, clinicalIntakes, latestIntake, hasCompletedIntake]);
-
-  const handleMedicalReportUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setMedicalReportFile(file);
-    setExtractingReport(true);
-    try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a clinical dietitian assistant. Extract all relevant medical/clinical data from this report/document and return structured JSON.
-
-Extract these fields if present:
-- health_conditions: array (e.g. ["Diabetes", "Thyroid", "Hypertension"])
-- lab_values: object with keys like hba1c, tsh, total_cholesterol, ldl, hdl, triglycerides, creatinine, vitamin_d, vitamin_b12, urea, gfr, sodium, potassium, sgot, sgpt, uric_acid
-- current_medications: array of { name, dosage, frequency }
-- basic_info: { age, gender, height_cm, weight_kg, bmi, activity_level }
-- diet_type: string (Veg/Non-Veg/Vegan/Jain/Eggetarian)
-- stage_severity: string
-- goal: array (e.g. ["weight_loss", "disease_reversal"])
-- additional_notes: string (any other relevant clinical notes)
-
-Return ONLY valid JSON, no explanation.`,
-        file_urls: [file_url],
-        response_json_schema: {
-          type: "object",
-          properties: {
-            health_conditions: { type: "array", items: { type: "string" } },
-            lab_values: { type: "object" },
-            current_medications: { type: "array", items: { type: "object" } },
-            basic_info: { type: "object" },
-            diet_type: { type: "string" },
-            stage_severity: { type: "string" },
-            goal: { type: "array", items: { type: "string" } },
-            additional_notes: { type: "string" }
-          }
-        }
-      });
-      setExtractedReportData(result);
-      toast.success("✅ Medical report analyzed! Data extracted and ready to use for meal plan generation.");
-    } catch (err) {
-      toast.error("Failed to analyze report. You can still generate without it.");
-      console.error(err);
-    }
-    setExtractingReport(false);
-  };
 
   const handleFoodPreferencesSubmit = (preferences) => {
     setFoodPreferences(preferences);
@@ -849,7 +842,57 @@ Return ONLY valid JSON, no explanation.`,
                         </div>
                       </div>
 
-                      {!showFoodPreferences && !foodPreferences && (
+                      {/* Medical Report Upload */}
+                      <div className="border-2 border-dashed border-indigo-200 rounded-xl p-4 bg-indigo-50/50">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <Upload className="w-4 h-4 text-indigo-600" />
+                            <span className="text-sm font-semibold text-indigo-800">Upload Medical Report (Optional)</span>
+                          </div>
+                          {extractedReportData && (
+                            <Badge className="bg-green-100 text-green-700 border-0 text-xs">✓ Analyzed</Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500 mb-3">Upload lab reports, blood tests, or prescriptions — AI will extract data to personalize the meal plan</p>
+                        
+                        {!medicalReportFile ? (
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <div className="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 bg-white border border-indigo-200 rounded-lg text-sm text-indigo-700 hover:bg-indigo-50 transition-colors font-medium">
+                              <Wand2 className="w-4 h-4" />
+                              Choose Image or PDF
+                            </div>
+                            <input type="file" accept="image/*,.pdf" onChange={handleMedicalReportUpload} className="hidden" />
+                          </label>
+                        ) : extractingReport ? (
+                          <div className="flex items-center gap-2 py-2.5 px-4 bg-white border border-indigo-200 rounded-lg text-sm text-indigo-600">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Analyzing report with AI...
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between py-2 px-3 bg-white border border-green-200 rounded-lg">
+                              <div className="flex items-center gap-2 text-sm text-green-700">
+                                <FileText className="w-4 h-4" />
+                                <span className="truncate max-w-[200px]">{medicalReportFile.name}</span>
+                              </div>
+                              <button onClick={() => { setMedicalReportFile(null); setExtractedReportData(null); }} className="text-gray-400 hover:text-red-500">
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                            {extractedReportData?.key_findings?.length > 0 && (
+                              <div className="p-3 bg-white border border-indigo-100 rounded-lg">
+                                <p className="text-xs font-semibold text-indigo-700 mb-1">📋 Extracted Findings:</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {extractedReportData.health_conditions?.map((c, i) => <Badge key={i} className="bg-red-100 text-red-700 border-0 text-xs">{c}</Badge>)}
+                                  {extractedReportData.key_findings?.slice(0, 3).map((f, i) => <span key={i} className="text-xs text-gray-600 bg-gray-50 px-1.5 py-0.5 rounded">{f}</span>)}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                  {!showFoodPreferences && !foodPreferences && (
                         <Alert className="bg-purple-50 border-purple-300">
                           <AlertDescription className="text-sm">
                             <strong>ℹ️</strong> Before generating, you'll be asked about your food preferences (recommended, liked, and disliked foods) to personalize your meal plan.
@@ -864,57 +907,6 @@ Return ONLY valid JSON, no explanation.`,
                           </AlertDescription>
                         </Alert>
                       )}
-
-                      {/* Medical Report Upload */}
-                      <div className="border-2 border-dashed border-indigo-200 rounded-xl p-4 bg-indigo-50/50">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Wand2 className="w-4 h-4 text-indigo-600" />
-                          <span className="font-semibold text-indigo-900 text-sm">Upload Medical Report (Optional)</span>
-                          <Badge className="bg-indigo-100 text-indigo-700 text-xs border-0">AI Enhanced</Badge>
-                        </div>
-                        <p className="text-xs text-gray-500 mb-3">Upload blood reports, lab results, or prescriptions — AI will extract data to further personalize the meal plan.</p>
-                        
-                        {!medicalReportFile ? (
-                          <label className={`flex items-center justify-center gap-2 w-full h-10 rounded-lg border cursor-pointer font-medium text-sm transition-all
-                            bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:opacity-90`}>
-                            <Upload className="w-4 h-4" />
-                            Upload Report (Image / PDF)
-                            <input type="file" accept="image/*,.pdf" onChange={handleMedicalReportUpload} className="hidden" />
-                          </label>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            {extractingReport ? (
-                              <div className="flex items-center gap-2 text-indigo-700 text-sm">
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                Analyzing report with AI...
-                              </div>
-                            ) : extractedReportData ? (
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 text-green-700 text-sm font-medium mb-1">
-                                  <CheckCircle className="w-4 h-4" />
-                                  Report analyzed: {medicalReportFile.name}
-                                </div>
-                                <div className="flex flex-wrap gap-1">
-                                  {extractedReportData.health_conditions?.map((c, i) => (
-                                    <Badge key={i} className="bg-red-100 text-red-700 text-xs border-0">{c}</Badge>
-                                  ))}
-                                  {extractedReportData.basic_info?.weight_kg && (
-                                    <Badge className="bg-blue-100 text-blue-700 text-xs border-0">Weight: {extractedReportData.basic_info.weight_kg}kg</Badge>
-                                  )}
-                                  {extractedReportData.lab_values && Object.keys(extractedReportData.lab_values).length > 0 && (
-                                    <Badge className="bg-purple-100 text-purple-700 text-xs border-0">{Object.keys(extractedReportData.lab_values).length} lab values</Badge>
-                                  )}
-                                </div>
-                              </div>
-                            ) : (
-                              <span className="text-sm text-gray-600">{medicalReportFile.name}</span>
-                            )}
-                            <button onClick={() => { setMedicalReportFile(null); setExtractedReportData(null); }} className="ml-auto text-gray-400 hover:text-red-500">
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
                     </div>
                   )}
 
