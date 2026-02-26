@@ -393,6 +393,28 @@ Be practical, use real Indian/regional food names, realistic portions.`;
       }
     });
 
+    // Recalculate day_summaries from actual meal data to ensure accurate macros
+    const recalculatedDaySummaries = [];
+    const dayNumbers = [...new Set(aiResponse.meals.map(m => m.day))].sort((a, b) => a - b);
+    for (const day of dayNumbers) {
+      const dayMeals = aiResponse.meals.filter(m => m.day === day);
+      const totals = dayMeals.reduce((acc, m) => ({
+        calories: acc.calories + (Number(m.calories) || 0),
+        protein: acc.protein + (Number(m.protein) || 0),
+        carbs: acc.carbs + (Number(m.carbs) || 0),
+        fats: acc.fats + (Number(m.fats) || 0),
+      }), { calories: 0, protein: 0, carbs: 0, fats: 0 });
+      const existing = aiResponse.day_summaries?.find(s => s.day === day) || {};
+      recalculatedDaySummaries.push({
+        ...existing,
+        day,
+        total_calories: Math.round(totals.calories),
+        total_protein: Math.round(totals.protein),
+        total_carbs: Math.round(totals.carbs),
+        total_fats: Math.round(totals.fats),
+      });
+    }
+
     // Save to DB
     const mealPlan = await base44.asServiceRole.entities.MealPlan.create({
       client_id: clientId,
