@@ -333,6 +333,15 @@ Return ONLY valid JSON, no explanation.`;
                 ✓ Previously Submitted
               </Badge>
             )}
+            <label className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer font-semibold text-sm transition-all
+              ${aiFileUploading ? 'bg-indigo-100 text-indigo-400 cursor-wait' : 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:opacity-90'}`}>
+              {aiFileUploading ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Extracting...</>
+              ) : (
+                <><Wand2 className="w-4 h-4" /> AI Auto-Fill from Report</>
+              )}
+              <input type="file" accept="image/*,.pdf" onChange={handleAIFillFromFile} disabled={aiFileUploading} className="hidden" />
+            </label>
             <Badge className="bg-purple-600 text-white text-lg px-4 py-2">
               💎 Mealie Pro
             </Badge>
