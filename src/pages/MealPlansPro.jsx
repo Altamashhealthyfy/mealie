@@ -153,6 +153,51 @@ export default function MealPlansPro() {
     console.log('==================');
   }, [selectedClientId, selectedClient, clinicalIntakes, latestIntake, hasCompletedIntake]);
 
+  const handleMedicalReportUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setMedicalReportFile(file);
+    setExtractingReport(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are a clinical dietitian assistant. Extract all relevant medical/clinical data from this report/document and return structured JSON.
+
+Extract these fields if present:
+- health_conditions: array (e.g. ["Diabetes", "Thyroid", "Hypertension"])
+- lab_values: object with keys like hba1c, tsh, total_cholesterol, ldl, hdl, triglycerides, creatinine, vitamin_d, vitamin_b12, urea, gfr, sodium, potassium, sgot, sgpt, uric_acid
+- current_medications: array of { name, dosage, frequency }
+- basic_info: { age, gender, height_cm, weight_kg, bmi, activity_level }
+- diet_type: string (Veg/Non-Veg/Vegan/Jain/Eggetarian)
+- stage_severity: string
+- goal: array (e.g. ["weight_loss", "disease_reversal"])
+- additional_notes: string (any other relevant clinical notes)
+
+Return ONLY valid JSON, no explanation.`,
+        file_urls: [file_url],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            health_conditions: { type: "array", items: { type: "string" } },
+            lab_values: { type: "object" },
+            current_medications: { type: "array", items: { type: "object" } },
+            basic_info: { type: "object" },
+            diet_type: { type: "string" },
+            stage_severity: { type: "string" },
+            goal: { type: "array", items: { type: "string" } },
+            additional_notes: { type: "string" }
+          }
+        }
+      });
+      setExtractedReportData(result);
+      toast.success("✅ Medical report analyzed! Data extracted and ready to use for meal plan generation.");
+    } catch (err) {
+      toast.error("Failed to analyze report. You can still generate without it.");
+      console.error(err);
+    }
+    setExtractingReport(false);
+  };
+
   const handleFoodPreferencesSubmit = (preferences) => {
     setFoodPreferences(preferences);
     setShowFoodPreferences(false);
