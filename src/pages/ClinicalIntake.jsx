@@ -108,9 +108,11 @@ export default function ClinicalIntake() {
   // Load existing intake data if available
   useEffect(() => {
     if (existingIntake && formData.client_id) {
+      const loadedGoal = existingIntake.goal;
       setFormData({
         ...existingIntake,
         client_id: formData.client_id,
+        goal: Array.isArray(loadedGoal) ? loadedGoal : (loadedGoal ? [loadedGoal] : []),
       });
       
       // Load medications
