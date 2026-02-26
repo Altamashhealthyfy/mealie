@@ -448,7 +448,7 @@ Be practical, use real Indian/regional food names, realistic portions.`;
       macro_targets: aiResponse.macro_targets,
       key_foods_included: aiResponse.key_foods_included,
       foods_avoided: aiResponse.foods_avoided,
-      day_summaries: aiResponse.day_summaries,
+      day_summaries: recalculatedDaySummaries,
       coach_notes: aiResponse.coach_notes,
       meals: aiResponse.meals,
     });
