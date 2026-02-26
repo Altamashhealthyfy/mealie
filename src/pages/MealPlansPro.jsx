@@ -89,10 +89,15 @@ export default function MealPlansPro() {
   });
 
   const { data: proMealPlans } = useQuery({
-    queryKey: ['proMealPlans'],
+    queryKey: ['proMealPlans', user?.email, user?.user_type],
     queryFn: async () => {
       const allPlans = await base44.entities.MealPlan.list('-created_date');
-      return allPlans.filter(plan => plan.plan_tier === 'advanced');
+      const advancedPlans = allPlans.filter(plan => plan.plan_tier === 'advanced');
+      if (user?.user_type === 'super_admin') {
+        return advancedPlans;
+      }
+      // student_coach sees only their own plans
+      return advancedPlans.filter(plan => plan.created_by === user?.email);
     },
     enabled: !!user,
     initialData: [],
