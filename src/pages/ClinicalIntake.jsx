@@ -175,6 +175,87 @@ export default function ClinicalIntake() {
     },
   });
 
+  const handleGoalToggle = (goal) => {
+    setFormData(prev => ({
+      ...prev,
+      goal: prev.goal.includes(goal)
+        ? prev.goal.filter(g => g !== goal)
+        : [...prev.goal, goal]
+    }));
+  };
+
+  const handleAIFillFromFile = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setAiFileUploading(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const prompt = `You are a clinical dietitian assistant. Extract all clinical information from this medical report / intake form image or PDF and return structured JSON. 
+
+Extract the following fields if present:
+- basic_info: { age, gender (male/female/other), height (cm), weight (kg), activity_level (sedentary/lightly_active/moderately_active/very_active/extremely_active) }
+- health_conditions: array from [Diabetes, Thyroid, Liver, Kidney, Heart, Hormonal, Hypertension, Others]
+- stage_severity: string
+- current_medications: array of { name, dosage, frequency }
+- lab_values: object with keys like tsh, hba1c, total_cholesterol, ldl, hdl, triglycerides, sgot, sgpt, creatinine, vitamin_d, vitamin_b12, urea, bun, uric_acid, gfr, sodium, potassium, chloride, calcium_total, phosphorus, albumin, globulin
+- diet_type: one of (Veg, Non-Veg, Vegan, Jain, Eggetarian)
+- likes: comma-separated string of liked foods
+- dislikes: comma-separated string of disliked foods
+- allergies: comma-separated string of allergies
+- goal: array of goals from [weight_loss, maintenance, energy, symptom_relief, disease_reversal]
+- symptom_goals: array of strings
+- daily_routine: { wake_up (HH:MM), breakfast_time, lunch_time, dinner_time, sleep_time }
+
+Return ONLY valid JSON, no explanation.`;
+
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        file_urls: [file_url],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            basic_info: { type: "object" },
+            health_conditions: { type: "array", items: { type: "string" } },
+            stage_severity: { type: "string" },
+            current_medications: { type: "array", items: { type: "object" } },
+            lab_values: { type: "object" },
+            diet_type: { type: "string" },
+            likes: { type: "string" },
+            dislikes: { type: "string" },
+            allergies: { type: "string" },
+            goal: { type: "array", items: { type: "string" } },
+            symptom_goals: { type: "array", items: { type: "string" } },
+            daily_routine: { type: "object" }
+          }
+        }
+      });
+
+      // Apply extracted data
+      setFormData(prev => ({
+        ...prev,
+        basic_info: { ...prev.basic_info, ...(result.basic_info || {}) },
+        health_conditions: result.health_conditions?.length ? result.health_conditions : prev.health_conditions,
+        stage_severity: result.stage_severity || prev.stage_severity,
+        lab_values: { ...prev.lab_values, ...(result.lab_values || {}) },
+        diet_type: result.diet_type || prev.diet_type,
+        goal: result.goal?.length ? result.goal : prev.goal,
+        daily_routine: { ...prev.daily_routine, ...(result.daily_routine || {}) },
+      }));
+
+      if (result.current_medications?.length) setMedications(result.current_medications);
+      if (result.symptom_goals?.length) setSymptomGoalsText(result.symptom_goals.join('\n'));
+      if (result.likes) setLikesText(result.likes);
+      if (result.dislikes) setDislikesText(result.dislikes);
+      if (result.allergies) setAllergiesText(result.allergies);
+
+      toast.success("✅ Form auto-filled from uploaded file!");
+    } catch (err) {
+      toast.error("Failed to extract data. Please fill manually.");
+      console.error(err);
+    }
+    setAiFileUploading(false);
+  };
+
   const handleHealthConditionToggle = (condition) => {
     setFormData(prev => ({
       ...prev,
