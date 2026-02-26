@@ -99,17 +99,14 @@ export default function MealPlansPro() {
   });
 
   const { data: templates } = useQuery({
-    queryKey: ['proTemplates'],
+    queryKey: ['proTemplates', user?.email, user?.user_type],
     queryFn: async () => {
-      const myTemplates = await base44.entities.MealPlanTemplate.filter({ 
-        created_by: user?.email,
-        category: { $in: ['diabetes', 'pcos', 'thyroid', 'kidney', 'heart'] } // Added more categories as per common clinical needs
-      });
-      const publicTemplates = await base44.entities.MealPlanTemplate.filter({ 
-        is_public: true,
-        category: { $in: ['diabetes', 'pcos', 'thyroid', 'kidney', 'heart'] }
-      });
-      return [...myTemplates, ...publicTemplates];
+      if (user?.user_type === 'super_admin') {
+        // Super admin sees all templates
+        return await base44.entities.MealPlanTemplate.list('-created_date');
+      }
+      // Health coaches only see their own templates
+      return await base44.entities.MealPlanTemplate.filter({ created_by: user?.email });
     },
     enabled: !!user,
     initialData: [],
