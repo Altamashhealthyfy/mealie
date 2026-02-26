@@ -1221,9 +1221,9 @@ Return ONLY valid JSON, no explanation.`,
                                 </CardContent>
                               </Card>
                             ))}
-                        </TabsContent>
-                        );
-                      })}
+                            </TabsContent>
+                            );
+                            })}
                     </Tabs>
                   </CardContent>
                 </Card>
