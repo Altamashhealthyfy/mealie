@@ -94,6 +94,10 @@ export default function ClientReportUpload() {
       alert('Please select a file to upload');
       return;
     }
+    if (!clientProfile?.id) {
+      alert('Client profile not loaded yet. Please wait a moment and try again.');
+      return;
+    }
 
     try {
       setUploadProgress(50);
