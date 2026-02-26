@@ -48,7 +48,7 @@ export default function CoachReferralLink() {
   });
 
   // Generate referral link — points directly to onboarding with coach ref
-  const baseUrl = window.location.origin;
+  const baseUrl = "https://app.mealiepro.com";
   const onboardingPath = createPageUrl("ClientOnboarding");
   const referralLink = `${baseUrl}${onboardingPath}?coach_ref=${encodeURIComponent(user?.email || '')}`;
   
