@@ -11,8 +11,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Stethoscope, Plus, X, CheckCircle, AlertTriangle, Heart, Brain, Users, Sparkles } from "lucide-react";
+import { Stethoscope, Plus, X, CheckCircle, AlertTriangle, Heart, Brain, Users, Sparkles, Upload, Loader2, Wand2 } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 export default function ClinicalIntake() {
   const navigate = useNavigate();
