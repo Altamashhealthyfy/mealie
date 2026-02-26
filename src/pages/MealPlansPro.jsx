@@ -876,6 +876,16 @@ Return ONLY valid JSON, no explanation.`,
                         </Alert>
                       )}
 
+                      {/* Stored Reports Info */}
+                      {clientHealthReports?.length > 0 && !extractedReportData && (
+                        <Alert className="bg-green-50 border-green-300">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                          <AlertDescription className="text-sm">
+                            <strong>{clientHealthReports.length} medical report(s)</strong> found for this client. They will automatically be used to personalize the meal plan.
+                          </AlertDescription>
+                        </Alert>
+                      )}
+
                       {/* Medical Report Upload */}
                       <div className="border-2 border-dashed border-indigo-200 rounded-xl p-4 bg-indigo-50/50">
                         <div className="flex items-center gap-2 mb-2">
