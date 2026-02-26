@@ -144,7 +144,7 @@ export default function ClinicalIntake() {
         },
         health_conditions: client.health_conditions || [],
         diet_type: client.food_preference || '',
-        goal: client.goal || ''
+        goal: client.goal ? [client.goal] : []
       }));
     }
   }, [client, formData.client_id, existingIntake]);
