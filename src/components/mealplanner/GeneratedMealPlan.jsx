@@ -11,6 +11,7 @@ import { Calendar, Save, RefreshCw, ChefHat, Lightbulb, Edit, Check, X, Download
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { base44 } from "@/api/base44Client";
 import MealPlanChatModifier from "./MealPlanChatModifier";
+import MealPlanPDFDownload from "./MealPlanPDFDownload";
 
 export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGenerateNew, isSaving }) {
   const [editablePlan, setEditablePlan] = useState(plan);
