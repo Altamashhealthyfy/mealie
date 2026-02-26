@@ -45,7 +45,7 @@ export default function ClinicalIntake() {
     },
     daily_routine: {},
     cooking_style: {},
-    goal: '',
+    goal: [],
     symptom_goals: [],
     mpess_preferences: {
       mind: true,
