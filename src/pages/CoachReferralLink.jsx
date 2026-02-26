@@ -46,8 +46,9 @@ export default function CoachReferralLink() {
     initialData: [],
   });
 
-  // Generate referral link
-  const referralLink = `https://mealiepro.com/?ref=${encodeURIComponent(user?.email || '')}`;
+  // Generate referral link — points directly to onboarding with coach ref
+  const baseUrl = window.location.origin;
+  const referralLink = `${baseUrl}/clientonboarding?coach_ref=${encodeURIComponent(user?.email || '')}`;
   
   // Generate QR code URL
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(referralLink)}`;
