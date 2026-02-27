@@ -107,6 +107,13 @@ export default function CoachProfileManager() {
     setPhotoUploading(false);
   };
 
+  const handleRemovePhoto = async () => {
+    await base44.auth.updateMe({ profile_photo_url: null });
+    setPreviewPhoto(null);
+    queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+    toast.success("Profile photo removed!");
+  };
+
   const handleAccountSave = async () => {
     setAccountSaving(true);
     try {
