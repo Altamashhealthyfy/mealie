@@ -36,9 +36,8 @@ export default function MealPlansPro() {
   const [numberOfDays, setNumberOfDays] = useState(10);
   const [showFoodPreferences, setShowFoodPreferences] = useState(false);
   const [foodPreferences, setFoodPreferences] = useState(null);
-  const [medicalReportFile, setMedicalReportFile] = useState(null);
+  const [medicalReportFiles, setMedicalReportFiles] = useState([]); // [{file, status, data}]
   const [extractingReport, setExtractingReport] = useState(false);
-  const [extractedReportData, setExtractedReportData] = useState(null);
   const [clientSearch, setClientSearch] = useState('');
   const [clientSearchTemplate, setClientSearchTemplate] = useState('');
   const [clientSearchManual, setClientSearchManual] = useState('');
