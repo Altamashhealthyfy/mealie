@@ -17,6 +17,7 @@ import RecipeScaler from "@/components/mealplanner/RecipeScaler";
 import FoodPreferenceForm from "@/components/mealplanner/FoodPreferenceForm";
 import ExtraMealAdder from "@/components/pro/ExtraMealAdder";
 import { toast } from "sonner";
+import ClientSearchSelect from "@/components/common/ClientSearchSelect";
 
 export default function MealPlansPro() {
   const [searchParams] = useSearchParams();
