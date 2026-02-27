@@ -109,14 +109,7 @@ export default function ImageUploader({
       <Alert className="bg-blue-50 border-blue-300">
         <Info className="w-4 h-4 text-blue-600" />
         <AlertDescription className="text-sm text-blue-900">
-          <strong>📏 Required Size:</strong> {requiredWidth} x {requiredHeight} pixels
-          {aspectRatio && <span className="ml-2">({aspectRatio} aspect ratio)</span>}
-          <br />
-          <strong>📦 Max File Size:</strong> {maxSizeMB}MB
-          <br />
-          <span className="text-xs text-blue-700 mt-1 block">
-            ✨ Don't worry! Images will be automatically resized to fit if needed.
-          </span>
+          <strong>📦 Max File Size:</strong> {maxSizeMB}MB &nbsp;|&nbsp; <strong>Formats:</strong> JPG, PNG, WEBP
         </AlertDescription>
       </Alert>
 
