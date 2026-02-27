@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Loader2, Users, AlertTriangle, CheckCircle, FileText, Heart, Brain, Activity, Star, Edit, Copy, Upload, Wand2, X } from "lucide-react";
+import { Sparkles, Loader2, Users, AlertTriangle, CheckCircle, FileText, Heart, Brain, Activity, Star, Edit, Copy, Upload, Wand2, X, Eye, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { createPageUrl } from "@/utils";
 import ManualMealPlanBuilder from "@/components/mealplanner/ManualMealPlanBuilder";
 import { Input } from "@/components/ui/input";
