@@ -16,18 +16,16 @@ export default function RecipeFormDialog({ recipe, onClose }) {
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   
-  const normalizeRecipe = (r) => {
-    if (!r) return null;
-    return {
-      ...r,
-      ingredients: (r.ingredients || []).map(ing => ({
-        ...ing,
-        quantity: ing.quantity !== undefined && ing.quantity !== null ? String(ing.quantity) : ''
-      }))
-    };
-  };
+  const normalizeIngredients = (ingredients) =>
+    (ingredients || []).map(ing => ({
+      ...ing,
+      quantity: ing.quantity !== undefined && ing.quantity !== null ? String(ing.quantity) : ''
+    }));
 
-  const [formData, setFormData] = useState(normalizeRecipe(recipe) || {
+  const [formData, setFormData] = useState(recipe ? {
+    ...recipe,
+    ingredients: normalizeIngredients(recipe.ingredients)
+  } : {
     name: '',
     description: '',
     category: 'main_course',
