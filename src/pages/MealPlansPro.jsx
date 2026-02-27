@@ -1148,8 +1148,9 @@ Return ONLY valid JSON, no explanation.`,
                       const allMeals = editMode ? editedMeals : (generatedPlan.meal_plan || generatedPlan.meals || []);
                       const actualDays = [...new Set(allMeals.map(m => m.day))].sort((a, b) => a - b);
                       const daysToShow = actualDays.length > 0 ? actualDays : Array.from({ length: numberOfDays }, (_, i) => i + 1);
+                      const defaultDay = daysToShow[0]?.toString() || "1";
                       return (
-                    <Tabs defaultValue={daysToShow[0]?.toString() || "1"} className="space-y-4">
+                    <Tabs defaultValue={defaultDay} className="space-y-4">
                       <TabsList className="flex flex-wrap gap-1.5 h-auto bg-gray-100 p-1.5">
                         {daysToShow.map(day => (
                           <TabsTrigger key={day} value={day.toString()} className="text-xs px-2 py-1">
