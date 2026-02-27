@@ -513,18 +513,21 @@ Return ONLY valid JSON, no explanation.`,
   };
 
   const handleSaveAsProTemplate = (plan) => {
-    const templateName = prompt("Enter Pro template name:", `Pro ${latestIntake?.health_conditions?.join('+') || 'Clinical'} Plan - ${plan.calculations.target_calories} cal`);
+    const targetCal = plan.calculations?.target_calories || 0;
+    const templateName = prompt("Enter Pro template name:", `Pro ${latestIntake?.health_conditions?.join('+') || 'Clinical'} Plan - ${targetCal} cal`);
     if (!templateName) return;
+
+    const mealsForTemplate = plan.meal_plan || plan.meals || [];
 
     saveTemplateMutation.mutate({
       name: templateName,
       description: `Disease-specific template for ${latestIntake?.health_conditions?.join(', ') || 'various conditions'}`,
       category: latestIntake?.health_conditions?.[0]?.toLowerCase() || 'general',
       duration: numberOfDays,
-      target_calories: plan.calculations.target_calories,
+      target_calories: targetCal,
       food_preference: latestIntake?.diet_type?.toLowerCase() || 'general',
       regional_preference: 'all',
-      meals: plan.meal_plan,
+      meals: mealsForTemplate,
       is_public: false,
       times_used: 0,
       tags: ['pro', 'disease-specific', ...(latestIntake?.health_conditions || [])],
