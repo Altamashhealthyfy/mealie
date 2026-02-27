@@ -67,12 +67,15 @@ export default function RecipeFormDialog({ recipe, onClose }) {
     setUploading(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setFormData({ ...formData, image_url: file_url });
+      setFormData(prev => ({ ...prev, image_url: file_url }));
       toast.success('Image uploaded!');
     } catch (error) {
-      toast.error('Failed to upload image');
+      console.error('Image upload error:', error);
+      toast.error('Failed to upload image. Please try again.');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
     }
-    setUploading(false);
   };
 
   const addIngredient = () => {
