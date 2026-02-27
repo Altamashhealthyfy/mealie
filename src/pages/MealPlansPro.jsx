@@ -217,14 +217,20 @@ export default function MealPlansPro() {
   }, [selectedClientId, selectedClient, clinicalIntakes, latestIntake, hasCompletedIntake]);
 
   const handleMedicalReportUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setMedicalReportFile(file);
+    const newFiles = Array.from(e.target.files);
+    if (!newFiles.length) return;
+    
+    // Add files with 'uploading' status
+    const fileEntries = newFiles.map(file => ({ file, status: 'uploading', data: null, name: file.name }));
+    setMedicalReportFiles(prev => [...prev, ...fileEntries]);
     setExtractingReport(true);
-    try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a clinical dietitian assistant. Extract all relevant medical/clinical data from this report/document and return structured JSON.
+
+    // Analyze each file
+    for (const entry of fileEntries) {
+      try {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file: entry.file });
+        const result = await base44.integrations.Core.InvokeLLM({
+          prompt: `You are a clinical dietitian assistant. Extract all relevant medical/clinical data from this report/document and return structured JSON.
 
 Extract these fields if present:
 - health_conditions: array (e.g. ["Diabetes", "Thyroid", "Hypertension"])
@@ -237,28 +243,52 @@ Extract these fields if present:
 - additional_notes: string (any other relevant clinical notes)
 
 Return ONLY valid JSON, no explanation.`,
-        file_urls: [file_url],
-        response_json_schema: {
-          type: "object",
-          properties: {
-            health_conditions: { type: "array", items: { type: "string" } },
-            lab_values: { type: "object" },
-            current_medications: { type: "array", items: { type: "object" } },
-            basic_info: { type: "object" },
-            diet_type: { type: "string" },
-            stage_severity: { type: "string" },
-            goal: { type: "array", items: { type: "string" } },
-            additional_notes: { type: "string" }
+          file_urls: [file_url],
+          response_json_schema: {
+            type: "object",
+            properties: {
+              health_conditions: { type: "array", items: { type: "string" } },
+              lab_values: { type: "object" },
+              current_medications: { type: "array", items: { type: "object" } },
+              basic_info: { type: "object" },
+              diet_type: { type: "string" },
+              stage_severity: { type: "string" },
+              goal: { type: "array", items: { type: "string" } },
+              additional_notes: { type: "string" }
+            }
           }
-        }
-      });
-      setExtractedReportData(result);
-      toast.success("✅ Medical report analyzed! Data extracted and ready to use for meal plan generation.");
-    } catch (err) {
-      toast.error("Failed to analyze report. You can still generate without it.");
-      console.error(err);
+        });
+        setMedicalReportFiles(prev => prev.map(f => f.name === entry.name ? { ...f, status: 'done', data: result } : f));
+        toast.success(`✅ ${entry.name} analyzed!`);
+      } catch (err) {
+        setMedicalReportFiles(prev => prev.map(f => f.name === entry.name ? { ...f, status: 'error' } : f));
+        toast.error(`Failed to analyze ${entry.name}`);
+      }
     }
     setExtractingReport(false);
+    e.target.value = '';
+  };
+
+  // Merge all analyzed report data
+  const getMergedReportData = () => {
+    const doneFies = medicalReportFiles.filter(f => f.status === 'done' && f.data);
+    if (!doneFies.length) return null;
+    const merged = {
+      health_conditions: [],
+      lab_values: {},
+      current_medications: [],
+      additional_notes: '',
+      stage_severity: ''
+    };
+    doneFies.forEach(f => {
+      if (f.data.health_conditions) merged.health_conditions.push(...f.data.health_conditions);
+      if (f.data.lab_values) Object.assign(merged.lab_values, f.data.lab_values);
+      if (f.data.current_medications) merged.current_medications.push(...f.data.current_medications);
+      if (f.data.additional_notes) merged.additional_notes += (merged.additional_notes ? '\n' : '') + f.data.additional_notes;
+      if (f.data.stage_severity) merged.stage_severity = f.data.stage_severity;
+    });
+    merged.health_conditions = [...new Set(merged.health_conditions)];
+    return merged;
   };
 
   const handleFoodPreferencesSubmit = (preferences) => {
