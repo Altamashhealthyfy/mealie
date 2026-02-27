@@ -138,7 +138,7 @@ export default function EnhancedMessageInput({
       )}
 
       <div className="flex gap-2 w-full items-end">
-        <input ref={fileInputRef} type="file" multiple onChange={(e) => {}} className="hidden" />
+        <input ref={fileInputRef} type="file" multiple onChange={(e) => { if (onFileSelect) onFileSelect(e); }} className="hidden" />
         
         {/* Emoji button */}
         <Button variant="outline" size="icon"
