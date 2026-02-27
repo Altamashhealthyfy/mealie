@@ -413,7 +413,7 @@ export default function CoachProfileManager() {
                     </div>
                   )}
                 </div>
-                <div>
+                <div className="space-y-2">
                   <label className="cursor-pointer">
                     <div className="flex items-center gap-2 px-3 py-2 border border-orange-300 rounded-lg text-sm text-orange-600 hover:bg-orange-50 transition-colors">
                       {photoUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <User className="w-4 h-4" />}
@@ -421,7 +421,16 @@ export default function CoachProfileManager() {
                     </div>
                     <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={photoUploading} />
                   </label>
-                  <p className="text-xs text-gray-400 mt-1">JPG, PNG up to 5MB</p>
+                  {(previewPhoto || user?.profile_photo_url) && (
+                    <button
+                      onClick={handleRemovePhoto}
+                      className="flex items-center gap-2 px-3 py-2 border border-red-300 rounded-lg text-sm text-red-600 hover:bg-red-50 transition-colors w-full"
+                    >
+                      <X className="w-4 h-4" />
+                      Remove Photo
+                    </button>
+                  )}
+                  <p className="text-xs text-gray-400">JPG, PNG up to 5MB</p>
                 </div>
               </div>
               <Separator />
