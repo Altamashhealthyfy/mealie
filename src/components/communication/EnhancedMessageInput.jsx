@@ -37,7 +37,8 @@ export default function EnhancedMessageInput({
   isLoading,
   disabled,
   attachedFiles = [],
-  onRemoveFile
+  onRemoveFile,
+  onFileSelect
 }) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showStickerPicker, setShowStickerPicker] = useState(false);
