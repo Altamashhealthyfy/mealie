@@ -76,13 +76,11 @@ export default function ImageUploader({
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert("❌ Please select an image file (JPG, PNG)");
+      alert("❌ Please select an image file (JPG, PNG, WEBP)");
       return;
     }
 
-    // Check file size
     const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > maxSizeMB) {
       alert(`❌ File too large! Maximum size is ${maxSizeMB}MB. Your file is ${fileSizeMB.toFixed(1)}MB`);
@@ -92,24 +90,15 @@ export default function ImageUploader({
     setUploading(true);
 
     try {
-      // Resize image to required dimensions
-      const resizedBlob = await resizeImage(file, requiredWidth, requiredHeight);
-      
-      // Create File object from blob
-      const resizedFile = new File([resizedBlob], file.name, { type: 'image/jpeg' });
-      
-      // Upload the resized image
-      const result = await base44.integrations.Core.UploadFile({ file: resizedFile });
-      
+      const result = await base44.integrations.Core.UploadFile({ file });
       setPreviewUrl(result.file_url);
       onImageUploaded(result.file_url);
-      
-      alert(`✅ Image uploaded and automatically resized to ${requiredWidth}x${requiredHeight}px!`);
     } catch (error) {
-      console.error("Error processing image:", error);
+      console.error("Error uploading image:", error);
       alert("❌ Failed to upload image. Please try again.");
     } finally {
       setUploading(false);
+      e.target.value = '';
     }
   };
 
