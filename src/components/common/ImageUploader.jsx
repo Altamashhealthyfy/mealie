@@ -18,7 +18,7 @@ export default function ImageUploader({
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(currentImageUrl);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setPreviewUrl(currentImageUrl);
   }, [currentImageUrl]);
 
