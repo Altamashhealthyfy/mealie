@@ -37,6 +37,7 @@ export default function MealPlansPro() {
   const [medicalReportFile, setMedicalReportFile] = useState(null);
   const [extractingReport, setExtractingReport] = useState(false);
   const [extractedReportData, setExtractedReportData] = useState(null);
+  const [clientSearch, setClientSearch] = useState('');
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
