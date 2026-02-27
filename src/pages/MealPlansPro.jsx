@@ -1275,9 +1275,11 @@ Return ONLY valid JSON, no explanation.`,
                             </TabsContent>
                             );
                             })}
-                    </Tabs>
-                  </CardContent>
-                </Card>
+                            </Tabs>
+                            );
+                            })()}
+                            </CardContent>
+                            </Card>
 
                 {/* MPESS Integration */}
                 {generatedPlan.mpess_integration && (
