@@ -686,42 +686,7 @@ Return ONLY valid JSON, no explanation.`,
                   <CardDescription>Choose a client to build a disease-specific meal plan manually</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="relative">
-                    <Input
-                      placeholder="Search client by name..."
-                      value={selectedClientId ? (clients.find(c => c.id === selectedClientId)?.full_name || clientSearchManual) : clientSearchManual}
-                      onChange={(e) => {
-                        setClientSearchManual(e.target.value);
-                        if (!e.target.value) setSelectedClientId(null);
-                      }}
-                      className="h-12 pr-8"
-                    />
-                    {selectedClientId && (
-                      <button
-                        onClick={() => { setSelectedClientId(null); setClientSearchManual(''); }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    )}
-                    {!selectedClientId && clientSearchManual && (
-                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                        {clients.filter(c => c.full_name.toLowerCase().includes(clientSearchManual.toLowerCase())).map(client => (
-                          <button
-                            key={client.id}
-                            className="w-full text-left px-4 py-2.5 hover:bg-purple-50 flex items-center gap-2"
-                            onClick={() => { setSelectedClientId(client.id); setClientSearchManual(''); }}
-                          >
-                            <span className="font-medium">{client.full_name}</span>
-                            <Badge variant="outline" className="text-xs capitalize">{client.food_preference}</Badge>
-                          </button>
-                        ))}
-                        {clients.filter(c => c.full_name.toLowerCase().includes(clientSearchManual.toLowerCase())).length === 0 && (
-                          <p className="px-4 py-3 text-sm text-gray-500">No clients found</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                  <ClientSearchSelect clients={clients} value={selectedClientId} onChange={setSelectedClientId} placeholder="Search or select client..." />
                 </CardContent>
               </Card>
             ) : (
