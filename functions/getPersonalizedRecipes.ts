@@ -136,7 +136,9 @@ Return exactly ${limit} recipe IDs ranked best to worst match.`;
       user_preferences: {
         food_preference: foodPreference,
         regional_preference: regionalPreference,
-        goal: goal
+        goal: goal,
+        allergies: allergies,
+        health_conditions: healthConditions
       }
     });
 
