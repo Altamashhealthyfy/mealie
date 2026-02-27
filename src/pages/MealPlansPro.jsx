@@ -1487,6 +1487,98 @@ Return ONLY valid JSON, no explanation.`,
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* View Plan Dialog */}
+      {viewingPlan && (
+        <Dialog open={!!viewingPlan} onOpenChange={() => setViewingPlan(null)}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-bold">{viewingPlan.name}</DialogTitle>
+              <p className="text-sm text-gray-500">{clients.find(c => c.id === viewingPlan.client_id)?.full_name} • {viewingPlan.duration || 10} Days</p>
+            </DialogHeader>
+            <div className="space-y-4">
+              {/* Disease Focus */}
+              {viewingPlan.disease_focus?.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {viewingPlan.disease_focus.map(d => (
+                    <Badge key={d} className="bg-red-100 text-red-700">{d}</Badge>
+                  ))}
+                </div>
+              )}
+              {/* Macros */}
+              {viewingPlan.audit_snapshot && (
+                <div className="grid grid-cols-3 gap-3 p-3 bg-purple-50 rounded-xl">
+                  <div className="text-center">
+                    <p className="text-xs text-gray-500">Avg Cal/Day</p>
+                    <p className="font-bold text-purple-700">{viewingPlan.audit_snapshot.avg_calories_per_day} kcal</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs text-gray-500">Calorie Range</p>
+                    <p className="font-bold text-purple-700 text-xs">{viewingPlan.audit_snapshot.calorie_range}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-xs text-gray-500">C/P/F %</p>
+                    <p className="font-bold text-purple-700 text-xs">
+                      {viewingPlan.audit_snapshot.macro_percentages?.carbs}%/{viewingPlan.audit_snapshot.macro_percentages?.protein}%/{viewingPlan.audit_snapshot.macro_percentages?.fats}%
+                    </p>
+                  </div>
+                </div>
+              )}
+              {/* Meal Plan by Day */}
+              <div>
+                <h3 className="font-semibold text-gray-800 mb-2">Meal Plan</h3>
+                {Array.from(new Set((viewingPlan.meals || []).map(m => m.day))).sort((a, b) => a - b).map(day => (
+                  <div key={day} className="mb-2 border border-gray-200 rounded-lg overflow-hidden">
+                    <button
+                      className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 hover:bg-gray-100 transition-colors font-medium text-sm"
+                      onClick={() => setExpandedPlanId(expandedPlanId === `${viewingPlan.id}-${day}` ? null : `${viewingPlan.id}-${day}`)}
+                    >
+                      <span>Day {day}</span>
+                      {expandedPlanId === `${viewingPlan.id}-${day}` ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
+                    {expandedPlanId === `${viewingPlan.id}-${day}` && (
+                      <div className="divide-y">
+                        {(viewingPlan.meals || []).filter(m => m.day === day).map((meal, i) => (
+                          <div key={i} className="px-4 py-3">
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="font-medium text-sm capitalize text-purple-700">{meal.meal_type?.replace(/_/g, ' ')}</span>
+                              <Badge variant="outline" className="text-xs">{meal.calories} kcal</Badge>
+                            </div>
+                            <p className="text-sm font-semibold text-gray-800 mb-1">{meal.meal_name}</p>
+                            <ul className="space-y-0.5">
+                              {meal.items?.map((item, j) => (
+                                <li key={j} className="flex justify-between text-xs text-gray-600">
+                                  <span>{item}</span>
+                                  <span className="text-gray-400 ml-2">{meal.portion_sizes?.[j]}</span>
+                                </li>
+                              ))}
+                            </ul>
+                            <div className="flex gap-3 mt-2 text-xs text-gray-500">
+                              <span className="text-red-600">P: {meal.protein}g</span>
+                              <span className="text-yellow-600">C: {meal.carbs}g</span>
+                              <span className="text-purple-600">F: {meal.fats}g</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  onClick={() => { handleEditSavedPlan(viewingPlan); setViewingPlan(null); }}
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit This Plan
+                </Button>
+                <Button variant="outline" onClick={() => setViewingPlan(null)} className="flex-1">Close</Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
