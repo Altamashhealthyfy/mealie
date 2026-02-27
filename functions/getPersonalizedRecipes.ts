@@ -33,10 +33,19 @@ Deno.serve(async (req) => {
     const foodPreference = userProfile?.food_preference || clientProfile?.food_preference || 'veg';
     const regionalPreference = userProfile?.regional_preference || clientProfile?.regional_preference || 'north';
     const dietaryRestrictions = userProfile?.dietary_restrictions || [];
+    const allergies = userProfile?.allergies || [];
+    const intolerances = userProfile?.intolerances || [];
+    const healthConditions = userProfile?.health_conditions || [];
+    const cuisinePreferences = userProfile?.cuisine_preferences || [];
+    const dislikedIngredients = userProfile?.disliked_ingredients || [];
+    const likedIngredients = userProfile?.liked_ingredients || [];
+    const mealPrefs = userProfile?.meal_preferences || {};
     const goal = userProfile?.goal || clientProfile?.goal || 'maintenance';
     const activityLevel = userProfile?.activity_level || clientProfile?.activity_level || 'moderately_active';
     const targetCalories = userProfile?.target_calories || clientProfile?.target_calories || null;
     const targetProtein = userProfile?.target_protein || clientProfile?.target_protein || null;
+    const targetCarbs = userProfile?.target_carbs || clientProfile?.target_carbs || null;
+    const targetFats = userProfile?.target_fats || clientProfile?.target_fats || null;
 
     // Prepare recipe data for AI analysis
     const recipeSummaries = allRecipes.map(recipe => ({
@@ -50,34 +59,52 @@ Deno.serve(async (req) => {
       carbs: recipe.carbs,
       fats: recipe.fats,
       tags: recipe.tags || [],
+      dietary_tags: recipe.dietary_tags || [],
+      allergens: recipe.allergens || [],
+      ingredients: (recipe.ingredients || []).map(i => i.item),
       prep_time: recipe.prep_time,
       cook_time: recipe.cook_time
     }));
 
     // Use AI to generate personalized recommendations
-    const prompt = `You are a nutrition AI assistant. Analyze the user's profile and recommend the best recipes from the available options.
+    const prompt = `You are a clinical nutrition AI. Select the ${limit} BEST-MATCHED recipes for this user from the list below.
 
-User Profile:
+USER PROFILE:
 - Food Preference: ${foodPreference}
-- Regional Preference: ${regionalPreference} Indian
-- Dietary Restrictions: ${dietaryRestrictions.length > 0 ? dietaryRestrictions.join(', ') : 'None'}
+- Regional Preference: ${regionalPreference}
+- Specific Cuisines Liked: ${cuisinePreferences.length ? cuisinePreferences.join(', ') : 'Not specified'}
 - Health Goal: ${goal}
 - Activity Level: ${activityLevel}
-${targetCalories ? `- Target Daily Calories: ${targetCalories} kcal` : ''}
-${targetProtein ? `- Target Daily Protein: ${targetProtein}g` : ''}
+- Health Conditions: ${healthConditions.length ? healthConditions.join(', ') : 'None'}
+- Allergies (STRICTLY AVOID): ${allergies.length ? allergies.join(', ') : 'None'}
+- Intolerances: ${intolerances.length ? intolerances.join(', ') : 'None'}
+- Other Dietary Restrictions: ${dietaryRestrictions.length ? dietaryRestrictions.join(', ') : 'None'}
+- Disliked Ingredients (avoid): ${dislikedIngredients.length ? dislikedIngredients.join(', ') : 'None'}
+- Liked Ingredients (prefer): ${likedIngredients.length ? likedIngredients.join(', ') : 'None'}
+- Prefers Quick Meals (≤30 min): ${mealPrefs.prefer_quick_meals ? 'Yes' : 'No'}
+- Prefers High Protein: ${mealPrefs.prefer_high_protein ? 'Yes' : 'No'}
+- Prefers Low Carb: ${mealPrefs.prefer_low_carb ? 'Yes' : 'No'}
+- Prefers Low Fat: ${mealPrefs.prefer_low_fat ? 'Yes' : 'No'}
+- Prefers Low Sodium: ${mealPrefs.prefer_low_sodium ? 'Yes' : 'No'}
+- Prefers High Fiber: ${mealPrefs.prefer_high_fiber ? 'Yes' : 'No'}
+${targetCalories ? `- Daily Calorie Target: ${targetCalories} kcal` : ''}
+${targetProtein ? `- Daily Protein Target: ${targetProtein}g` : ''}
+${targetCarbs ? `- Daily Carb Target: ${targetCarbs}g` : ''}
+${targetFats ? `- Daily Fat Target: ${targetFats}g` : ''}
 
-Available Recipes (${recipeSummaries.length} total):
+SELECTION RULES (in order of priority):
+1. NEVER recommend recipes containing the user's allergens
+2. Match food_preference (veg/non_veg/vegan/jain/eggetarian)
+3. Prefer recipes matching regional/cuisine preferences
+4. Align macros with health goals and conditions (e.g. low GI for diabetes, low sodium for hypertension)
+5. Prefer recipes with liked ingredients, avoid disliked ones
+6. Ensure variety across meal types
+7. If quick meals preferred, prioritize prep+cook ≤ 30 min
+
+AVAILABLE RECIPES:
 ${JSON.stringify(recipeSummaries, null, 2)}
 
-Select the ${limit} BEST recipes that match the user's preferences, dietary needs, and health goals. Consider:
-1. Food preference matching (vegetarian/non-veg)
-2. Regional cuisine preference
-3. Nutritional alignment with goals (weight loss/gain/maintenance)
-4. Calorie and protein targets
-5. Variety in meal types
-6. Dietary restrictions compatibility
-
-Return ONLY the recipe IDs in order of recommendation strength (most suitable first).`;
+Return exactly ${limit} recipe IDs ranked best to worst match.`;
 
     const aiResponse = await base44.integrations.Core.InvokeLLM({
       prompt: prompt,
