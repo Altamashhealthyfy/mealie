@@ -67,7 +67,7 @@ export default function ClientSearchSelect({ clients = [], value, onChange, plac
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl">
+        <div className="absolute z-[9999] w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl">
           <div className="p-2 border-b">
             <div className="flex items-center gap-2 px-2 py-1.5 bg-gray-50 rounded-md">
               <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
