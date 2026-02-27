@@ -18,6 +18,10 @@ export default function ImageUploader({
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(currentImageUrl);
 
+  React.useEffect(() => {
+    setPreviewUrl(currentImageUrl);
+  }, [currentImageUrl]);
+
   const resizeImage = (file, targetWidth, targetHeight) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
