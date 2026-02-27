@@ -484,7 +484,8 @@ Return ONLY valid JSON, no explanation.`,
   const handleSavePlan = () => {
     if (!generatedPlan) return;
 
-    const mealsToSave = editMode ? editedMeals : generatedPlan.meal_plan;
+    const mealsToSave = editMode ? editedMeals : (generatedPlan.meal_plan || generatedPlan.meals || []);
+    const mpess = generatedPlan.mpess_integration || {};
 
     savePlanMutation.mutate({
       client_id: generatedPlan.client_id,
@@ -492,21 +493,21 @@ Return ONLY valid JSON, no explanation.`,
       plan_tier: 'advanced',
       duration: numberOfDays,
       meal_pattern: mealPattern,
-      target_calories: generatedPlan.calculations.target_calories,
+      target_calories: generatedPlan.calculations?.target_calories || 0,
       disease_focus: latestIntake?.health_conditions || [],
       meals: mealsToSave,
-      food_preference: latestIntake?.diet_type?.toLowerCase() || 'general', // Use latestIntake for diet_type or default
+      food_preference: latestIntake?.diet_type?.toLowerCase() || 'general',
       active: true,
       mpess_integration: {
-        affirmations: generatedPlan.mpess_integration.affirmations,
-        journaling_prompts: generatedPlan.mpess_integration.journaling_prompts,
-        breathing_exercises: generatedPlan.mpess_integration.breathing_exercises,
-        physical_activities: generatedPlan.mpess_integration.physical_activities,
-        forgiveness_practices: generatedPlan.mpess_integration.forgiveness_practices
+        affirmations: mpess.affirmations || [],
+        journaling_prompts: mpess.journaling_prompts || [],
+        breathing_exercises: mpess.breathing_exercises || [],
+        physical_activities: mpess.physical_activities || [],
+        forgiveness_practices: mpess.forgiveness_practices || []
       },
-      audit_snapshot: generatedPlan.audit_snapshot,
-      decision_rules_applied: generatedPlan.decision_rules,
-      conflict_resolution: generatedPlan.conflict_resolution,
+      audit_snapshot: generatedPlan.audit_snapshot || {},
+      decision_rules_applied: generatedPlan.decision_rules || [],
+      conflict_resolution: generatedPlan.conflict_resolution || '',
       created_by: user?.email
     });
   };
