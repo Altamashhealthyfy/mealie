@@ -871,6 +871,7 @@ export default function Communication() {
                                 onSend={() => { stopTyping(); handleSendMessage(); }}
                                 attachedFiles={attachedFile ? [attachedFile] : []}
                                 onRemoveFile={removeAttachment}
+                                onFileSelect={handleFileSelect}
                                 isLoading={sendMessageMutation.isPending || uploading}
                                 disabled={uploading || sendMessageMutation.isPending}
                                 hideVoice={true}
