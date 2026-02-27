@@ -239,10 +239,9 @@ html, body {
     overflow-y: auto;
   }
 
-  /* Fix images overflowing */
-  img {
+  /* Fix images overflowing - but not fixed-size avatars/logos */
+  img:not(.avatar-img):not(.logo-img) {
     max-width: 100%;
-    height: auto;
   }
 }
 
