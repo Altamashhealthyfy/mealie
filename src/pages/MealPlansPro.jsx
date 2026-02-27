@@ -1452,15 +1452,33 @@ Return ONLY valid JSON, no explanation.`,
                 <CardTitle>My Pro Plans ({proMealPlans.length})</CardTitle>
               </CardHeader>
               <CardContent>
-                {/* Filter by client */}
-                <div className="mb-4">
-                  <ClientSearchSelect clients={clients} value={selectedClientId} onChange={setSelectedClientId} placeholder="Filter by client (optional)..." />
+                {/* Filters */}
+                <div className="mb-4 flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      className="pl-9 h-10"
+                      placeholder="Search plan by name or disease..."
+                      value={planSearch}
+                      onChange={(e) => setPlanSearch(e.target.value)}
+                    />
+                  </div>
+                  <div className="sm:w-64">
+                    <ClientSearchSelect clients={clients} value={selectedClientId} onChange={setSelectedClientId} placeholder="Filter by client..." />
+                  </div>
                 </div>
                 {proMealPlans.length === 0 ? (
                   <p className="text-center text-gray-500 py-12">No Pro plans created yet</p>
                 ) : (
                   <div className="space-y-4">
-                    {proMealPlans.filter(plan => !selectedClientId || plan.client_id === selectedClientId).map(plan => {
+                    {proMealPlans.filter(plan => {
+                      const matchesClient = !selectedClientId || plan.client_id === selectedClientId;
+                      const searchLower = planSearch.toLowerCase();
+                      const matchesPlan = !planSearch || 
+                        plan.name?.toLowerCase().includes(searchLower) ||
+                        plan.disease_focus?.some(d => d.toLowerCase().includes(searchLower));
+                      return matchesClient && matchesPlan;
+                    }).map(plan => {
                       const planClient = clients.find(c => c.id === plan.client_id);
                       return (
                         <Card key={plan.id} className="bg-purple-50 border border-purple-200">
