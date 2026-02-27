@@ -18,6 +18,7 @@ import { format } from "date-fns";
 import { createPageUrl } from "@/utils";
 import ImageUploader from "@/components/common/ImageUploader";
 import PersonalizedRecommendations from "@/components/recipes/PersonalizedRecommendations";
+import RecipeCardImage from "@/components/recipes/RecipeCardImage";
 
 export default function Recipes() {
   const [searchQuery, setSearchQuery] = useState("");
