@@ -70,7 +70,13 @@ export default function PersonalizedRecommendations({ onViewRecipe }) {
               <div>
                 <CardTitle className="text-2xl">AI Personalized For You</CardTitle>
                 <CardDescription className="text-gray-700">
-                  Based on your {recommendations.user_preferences?.food_preference} preference, {recommendations.user_preferences?.regional_preference} cuisine, and {recommendations.user_preferences?.goal} goals
+                  Based on your {recommendations.user_preferences?.food_preference} preference, {recommendations.user_preferences?.regional_preference} cuisine, and {recommendations.user_preferences?.goal?.replace(/_/g, ' ')} goals
+                  {recommendations.user_preferences?.allergies?.length > 0 && (
+                    <span className="ml-1 text-red-600">· Allergens excluded: {recommendations.user_preferences.allergies.join(', ')}</span>
+                  )}
+                  {recommendations.user_preferences?.health_conditions?.length > 0 && (
+                    <span className="ml-1 text-blue-600">· Optimised for: {recommendations.user_preferences.health_conditions.join(', ').replace(/_/g, ' ')}</span>
+                  )}
                 </CardDescription>
               </div>
             </div>
