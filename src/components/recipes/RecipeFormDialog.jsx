@@ -302,7 +302,7 @@ export default function RecipeFormDialog({ recipe, onClose }) {
                   type="number"
                   placeholder="Qty"
                   value={ingredient.quantity}
-                  onChange={(e) => updateIngredient(index, 'quantity', parseFloat(e.target.value))}
+                  onChange={(e) => updateIngredient(index, 'quantity', e.target.value === '' ? '' : parseFloat(e.target.value))}
                   className="w-24"
                 />
                 <Select value={ingredient.unit} onValueChange={(v) => updateIngredient(index, 'unit', v)}>
