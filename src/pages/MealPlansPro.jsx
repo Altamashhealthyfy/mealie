@@ -19,6 +19,7 @@ import FoodPreferenceForm from "@/components/mealplanner/FoodPreferenceForm";
 import ExtraMealAdder from "@/components/pro/ExtraMealAdder";
 import { toast } from "sonner";
 import ClientSearchSelect from "@/components/common/ClientSearchSelect";
+import { handleTemplateFileUpload, downloadSampleTemplate } from "@/components/pro/TemplateUploadUtils";
 
 export default function MealPlansPro() {
   const [searchParams] = useSearchParams();
