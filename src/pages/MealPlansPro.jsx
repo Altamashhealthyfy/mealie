@@ -338,9 +338,9 @@ Return ONLY valid JSON, no explanation.`,
 
       setGenerating(true);
 
-      // Use manually uploaded report data OR latest stored report extracted_data
+      // Use manually uploaded report data (merged) OR latest stored report extracted_data
       const latestStoredReport = clientHealthReports?.[0]?.extracted_data || null;
-      const reportDataToUse = extractedReportData || latestStoredReport;
+      const reportDataToUse = getMergedReportData() || latestStoredReport;
       
       const prompt = constructDiamondPrompt(selectedClient, intake, numberOfDays, mealPattern, preferences, reportDataToUse);
       
