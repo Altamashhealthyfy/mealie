@@ -43,6 +43,7 @@ export default function MealPlansPro() {
   const [clientSearchManual, setClientSearchManual] = useState('');
   const [viewingPlan, setViewingPlan] = useState(null);
   const [expandedPlanId, setExpandedPlanId] = useState(null);
+  const [planSearch, setPlanSearch] = useState('');
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
