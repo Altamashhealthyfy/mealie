@@ -20,6 +20,18 @@ export default function ClientSearchSelect({ clients = [], value, onChange, plac
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleOpen = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setDropdownPos({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+    setOpen(!open);
+  };
+
   const filtered = clients.filter(c =>
     c.full_name?.toLowerCase().includes(search.toLowerCase()) ||
     c.email?.toLowerCase().includes(search.toLowerCase())
