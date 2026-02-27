@@ -58,6 +58,7 @@ export default function ClientSearchSelect({ clients = [], value, onChange, plac
 
   const dropdown = open && ReactDOM.createPortal(
     <div
+      ref={dropdownRef}
       style={{ position: 'absolute', top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width, zIndex: 99999 }}
       className="bg-white border border-gray-200 rounded-lg shadow-2xl"
     >
