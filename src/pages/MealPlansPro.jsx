@@ -1144,17 +1144,22 @@ Return ONLY valid JSON, no explanation.`,
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="p-3 md:p-6">
-                    <Tabs defaultValue="1" className="space-y-4">
+                    {(() => {
+                      const allMeals = editMode ? editedMeals : (generatedPlan.meal_plan || generatedPlan.meals || []);
+                      const actualDays = [...new Set(allMeals.map(m => m.day))].sort((a, b) => a - b);
+                      const daysToShow = actualDays.length > 0 ? actualDays : Array.from({ length: numberOfDays }, (_, i) => i + 1);
+                      return (
+                    <Tabs defaultValue={daysToShow[0]?.toString() || "1"} className="space-y-4">
                       <TabsList className="flex flex-wrap gap-1.5 h-auto bg-gray-100 p-1.5">
-                        {Array.from({ length: numberOfDays }, (_, i) => i + 1).map(day => (
+                        {daysToShow.map(day => (
                           <TabsTrigger key={day} value={day.toString()} className="text-xs px-2 py-1">
                             D{day}
                           </TabsTrigger>
                         ))}
                       </TabsList>
 
-                      {Array.from({ length: numberOfDays }, (_, i) => i + 1).map(day => {
-                        const dayMeals = (editMode ? editedMeals : generatedPlan.meal_plan).filter(m => m.day === day);
+                      {daysToShow.map(day => {
+                        const dayMeals = allMeals.filter(m => m.day === day);
                         const dayTotals = dayMeals.reduce((acc, m) => ({
                           calories: acc.calories + (Number(m.calories) || 0),
                           protein: acc.protein + (Number(m.protein) || 0),
