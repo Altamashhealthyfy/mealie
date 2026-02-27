@@ -1425,25 +1425,56 @@ Return ONLY valid JSON, no explanation.`,
                     {proMealPlans.filter(plan => !selectedClientId || plan.client_id === selectedClientId).map(plan => {
                       const planClient = clients.find(c => c.id === plan.client_id);
                       return (
-                        <Card key={plan.id} className="bg-purple-50">
-                          <CardHeader>
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <CardTitle>{plan.name}</CardTitle>
-                                <p className="text-sm text-gray-600">{planClient?.full_name}</p>
+                        <Card key={plan.id} className="bg-purple-50 border border-purple-200">
+                          <CardHeader className="pb-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <CardTitle className="text-base truncate">{plan.name}</CardTitle>
+                                <p className="text-sm text-gray-600">{planClient?.full_name || 'Unknown Client'}</p>
+                                <p className="text-xs text-gray-400 mt-0.5">{new Date(plan.created_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                               </div>
-                              <Badge className="bg-purple-600">Diamond</Badge>
+                              <Badge className="bg-purple-600 flex-shrink-0">💎 Diamond</Badge>
                             </div>
                           </CardHeader>
-                          <CardContent>
-                            <div className="flex flex-wrap gap-2">
-                              <Badge variant="outline">10 Days</Badge>
-                              <Badge variant="outline">3-3-4 Rotation</Badge>
+                          <CardContent className="pt-0">
+                            <div className="flex flex-wrap gap-1.5 mb-3">
+                              <Badge variant="outline">{plan.duration || 10} Days</Badge>
+                              <Badge variant="outline">{plan.meal_pattern || '3-3-4'}</Badge>
+                              {plan.target_calories && <Badge className="bg-orange-100 text-orange-700">{plan.target_calories} kcal</Badge>}
                               {plan.disease_focus?.map(disease => (
-                                <Badge key={disease} className="bg-red-100 text-red-700">
+                                <Badge key={disease} className="bg-red-100 text-red-700 text-xs">
                                   {disease}
                                 </Badge>
                               ))}
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 text-purple-700 border-purple-300 hover:bg-purple-50"
+                                onClick={() => setViewingPlan(plan)}
+                              >
+                                <Eye className="w-3.5 h-3.5 mr-1" />
+                                View
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex-1 text-blue-700 border-blue-300 hover:bg-blue-50"
+                                onClick={() => handleEditSavedPlan(plan)}
+                              >
+                                <Edit className="w-3.5 h-3.5 mr-1" />
+                                Edit
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-red-600 border-red-300 hover:bg-red-50"
+                                onClick={() => handleDeletePlan(plan)}
+                                disabled={deletePlanMutation.isPending}
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
                             </div>
                           </CardContent>
                         </Card>
