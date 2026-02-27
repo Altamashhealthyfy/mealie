@@ -918,54 +918,63 @@ Return ONLY valid JSON, no explanation.`,
                         </Alert>
                       )}
 
-                      {/* Medical Report Upload */}
+                      {/* Medical Report Upload - Multiple */}
                       <div className="border-2 border-dashed border-indigo-200 rounded-xl p-4 bg-indigo-50/50">
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2 mb-1">
                           <Wand2 className="w-4 h-4 text-indigo-600" />
-                          <span className="font-semibold text-indigo-900 text-sm">Upload Medical Report (Optional)</span>
+                          <span className="font-semibold text-indigo-900 text-sm">Upload Medical Reports (Optional)</span>
                           <Badge className="bg-indigo-100 text-indigo-700 text-xs border-0">AI Enhanced</Badge>
                         </div>
-                        <p className="text-xs text-gray-500 mb-3">Upload blood reports, lab results, or prescriptions — AI will extract data to further personalize the meal plan.</p>
+                        <p className="text-xs text-gray-500 mb-3">Upload multiple blood reports, lab results, or prescriptions — AI will auto-analyze and merge all data to personalize the meal plan.</p>
                         
-                        {!medicalReportFile ? (
-                          <label className={`flex items-center justify-center gap-2 w-full h-10 rounded-lg border cursor-pointer font-medium text-sm transition-all
-                            bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:opacity-90`}>
-                            <Upload className="w-4 h-4" />
-                            Upload Report (Image / PDF)
-                            <input type="file" accept="image/*,.pdf" onChange={handleMedicalReportUpload} className="hidden" />
-                          </label>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            {extractingReport ? (
-                              <div className="flex items-center gap-2 text-indigo-700 text-sm">
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                Analyzing report with AI...
-                              </div>
-                            ) : extractedReportData ? (
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 text-green-700 text-sm font-medium mb-1">
-                                  <CheckCircle className="w-4 h-4" />
-                                  Report analyzed: {medicalReportFile.name}
-                                </div>
-                                <div className="flex flex-wrap gap-1">
-                                  {extractedReportData.health_conditions?.map((c, i) => (
-                                    <Badge key={i} className="bg-red-100 text-red-700 text-xs border-0">{c}</Badge>
-                                  ))}
-                                  {extractedReportData.basic_info?.weight_kg && (
-                                    <Badge className="bg-blue-100 text-blue-700 text-xs border-0">Weight: {extractedReportData.basic_info.weight_kg}kg</Badge>
+                        {/* Uploaded files list */}
+                        {medicalReportFiles.length > 0 && (
+                          <div className="space-y-2 mb-3">
+                            {medicalReportFiles.map((entry, i) => (
+                              <div key={i} className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-indigo-100">
+                                {entry.status === 'uploading' ? (
+                                  <Loader2 className="w-4 h-4 animate-spin text-indigo-500 flex-shrink-0" />
+                                ) : entry.status === 'done' ? (
+                                  <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                                ) : (
+                                  <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-medium text-gray-800 truncate">{entry.name}</p>
+                                  {entry.status === 'done' && entry.data && (
+                                    <div className="flex flex-wrap gap-1 mt-0.5">
+                                      {entry.data.health_conditions?.slice(0, 3).map((c, j) => (
+                                        <Badge key={j} className="bg-red-100 text-red-700 text-xs border-0 py-0">{c}</Badge>
+                                      ))}
+                                      {entry.data.lab_values && Object.keys(entry.data.lab_values).length > 0 && (
+                                        <Badge className="bg-purple-100 text-purple-700 text-xs border-0 py-0">{Object.keys(entry.data.lab_values).length} lab vals</Badge>
+                                      )}
+                                    </div>
                                   )}
-                                  {extractedReportData.lab_values && Object.keys(extractedReportData.lab_values).length > 0 && (
-                                    <Badge className="bg-purple-100 text-purple-700 text-xs border-0">{Object.keys(extractedReportData.lab_values).length} lab values</Badge>
-                                  )}
+                                  {entry.status === 'uploading' && <p className="text-xs text-indigo-500">Analyzing with AI...</p>}
+                                  {entry.status === 'error' && <p className="text-xs text-red-500">Analysis failed</p>}
                                 </div>
+                                <button
+                                  onClick={() => setMedicalReportFiles(prev => prev.filter((_, idx) => idx !== i))}
+                                  className="text-gray-400 hover:text-red-500 flex-shrink-0"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
                               </div>
-                            ) : (
-                              <span className="text-sm text-gray-600">{medicalReportFile.name}</span>
-                            )}
-                            <button onClick={() => { setMedicalReportFile(null); setExtractedReportData(null); }} className="ml-auto text-gray-400 hover:text-red-500">
-                              <X className="w-4 h-4" />
-                            </button>
+                            ))}
                           </div>
+                        )}
+
+                        <label className="flex items-center justify-center gap-2 w-full h-10 rounded-lg border cursor-pointer font-medium text-sm bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:opacity-90 transition-all">
+                          <Upload className="w-4 h-4" />
+                          {medicalReportFiles.length > 0 ? 'Add More Reports' : 'Upload Reports (Image / PDF)'}
+                          <input type="file" accept="image/*,.pdf" multiple onChange={handleMedicalReportUpload} className="hidden" />
+                        </label>
+                        
+                        {medicalReportFiles.filter(f => f.status === 'done').length > 0 && (
+                          <p className="text-xs text-green-700 text-center mt-2 font-medium">
+                            ✅ {medicalReportFiles.filter(f => f.status === 'done').length} report(s) analyzed & will be merged for meal plan
+                          </p>
                         )}
                       </div>
                     </div>
