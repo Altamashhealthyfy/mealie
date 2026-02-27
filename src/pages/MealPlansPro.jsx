@@ -126,11 +126,11 @@ export default function MealPlansPro() {
     queryFn: async () => {
       const myTemplates = await base44.entities.MealPlanTemplate.filter({ 
         created_by: user?.email,
-        category: { $in: ['diabetes', 'pcos', 'thyroid', 'kidney', 'heart'] } // Added more categories as per common clinical needs
+        category: { $in: ['diabetes', 'pcos', 'thyroid', 'kidney', 'heart', 'autoimmune_diseases', 'gastrointestinal_disorders', 'neurological_conditions', 'pediatric_nutrition'] }
       });
       const publicTemplates = await base44.entities.MealPlanTemplate.filter({ 
         is_public: true,
-        category: { $in: ['diabetes', 'pcos', 'thyroid', 'kidney', 'heart'] }
+        category: { $in: ['diabetes', 'pcos', 'thyroid', 'kidney', 'heart', 'autoimmune_diseases', 'gastrointestinal_disorders', 'neurological_conditions', 'pediatric_nutrition'] }
       });
       return [...myTemplates, ...publicTemplates];
     },
