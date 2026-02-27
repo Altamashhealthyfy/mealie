@@ -140,6 +140,17 @@ export default function EnhancedMessageInput({
       <div className="flex gap-2 w-full items-end">
         <input ref={fileInputRef} type="file" multiple onChange={(e) => { if (onFileSelect) onFileSelect(e); e.target.value = ''; }} className="hidden" />
         
+        {/* Attach file button */}
+        {onFileSelect && (
+          <Button variant="outline" size="icon"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={disabled}
+            title="Attach file"
+            className="flex-shrink-0 h-10 w-10">
+            <Paperclip className="w-4 h-4 text-gray-500" />
+          </Button>
+        )}
+
         {/* Emoji button */}
         <Button variant="outline" size="icon"
           onClick={toggleEmoji}
