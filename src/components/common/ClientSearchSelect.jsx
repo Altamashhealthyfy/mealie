@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Input } from "@/components/ui/input";
+import ReactDOM from "react-dom";
 import { Badge } from "@/components/ui/badge";
 import { X, ChevronDown, Search } from "lucide-react";
 
