@@ -1594,8 +1594,8 @@ Return ONLY valid JSON, no explanation.`,
               )}
               {/* Meal Plan by Day */}
               <div>
-                <h3 className="font-semibold text-gray-800 mb-2">Meal Plan</h3>
-                {Array.from(new Set((viewingPlan.meals || []).map(m => m.day))).sort((a, b) => a - b).map(day => (
+                <h3 className="font-semibold text-gray-800 mb-2">Meal Plan ({[...new Set((viewingPlan.meals || []).map(m => m.day))].length} days)</h3>
+                {[...new Set((viewingPlan.meals || []).map(m => m.day))].sort((a, b) => a - b).map(day => (
                   <div key={day} className="mb-2 border border-gray-200 rounded-lg overflow-hidden">
                     <button
                       className="w-full flex items-center justify-between px-4 py-2.5 bg-gray-50 hover:bg-gray-100 transition-colors font-medium text-sm"
@@ -1626,6 +1626,9 @@ Return ONLY valid JSON, no explanation.`,
                               <span className="text-yellow-600">C: {meal.carbs}g</span>
                               <span className="text-purple-600">F: {meal.fats}g</span>
                             </div>
+                            {meal.disease_rationale && (
+                              <p className="text-xs text-green-700 mt-1 italic">💡 {meal.disease_rationale}</p>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -1633,6 +1636,58 @@ Return ONLY valid JSON, no explanation.`,
                   </div>
                 ))}
               </div>
+
+              {/* MPESS in View Dialog */}
+              {viewingPlan.mpess_integration && Object.values(viewingPlan.mpess_integration).some(v => Array.isArray(v) && v.length > 0) && (
+                <div className="border border-pink-200 rounded-xl overflow-hidden">
+                  <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 py-3">
+                    <h3 className="font-bold text-sm">🧘 MPESS Wellness Practices</h3>
+                  </div>
+                  <div className="p-4 space-y-4">
+                    {viewingPlan.mpess_integration.affirmations?.length > 0 && (
+                      <div>
+                        <p className="font-semibold text-xs text-purple-700 mb-1 uppercase tracking-wide">✨ Affirmations</p>
+                        {viewingPlan.mpess_integration.affirmations.map((a, i) => (
+                          <p key={i} className="text-xs text-gray-700 py-1 border-l-2 border-purple-300 pl-2 mb-1">"{a}"</p>
+                        ))}
+                      </div>
+                    )}
+                    {viewingPlan.mpess_integration.journaling_prompts?.length > 0 && (
+                      <div>
+                        <p className="font-semibold text-xs text-blue-700 mb-1 uppercase tracking-wide">📝 Journaling Prompts</p>
+                        {viewingPlan.mpess_integration.journaling_prompts.map((p, i) => (
+                          <p key={i} className="text-xs text-gray-700 py-1 border-l-2 border-blue-300 pl-2 mb-1">{p}</p>
+                        ))}
+                      </div>
+                    )}
+                    {viewingPlan.mpess_integration.breathing_exercises?.length > 0 && (
+                      <div>
+                        <p className="font-semibold text-xs text-red-700 mb-1 uppercase tracking-wide">🌬️ Breathing Exercises</p>
+                        {viewingPlan.mpess_integration.breathing_exercises.map((e, i) => (
+                          <p key={i} className="text-xs text-gray-700 py-1 border-l-2 border-red-300 pl-2 mb-1">{e}</p>
+                        ))}
+                      </div>
+                    )}
+                    {viewingPlan.mpess_integration.physical_activities?.length > 0 && (
+                      <div>
+                        <p className="font-semibold text-xs text-green-700 mb-1 uppercase tracking-wide">🏃 Physical Activities</p>
+                        {viewingPlan.mpess_integration.physical_activities.map((a, i) => (
+                          <p key={i} className="text-xs text-gray-700 py-1 border-l-2 border-green-300 pl-2 mb-1">{a}</p>
+                        ))}
+                      </div>
+                    )}
+                    {viewingPlan.mpess_integration.forgiveness_practices?.length > 0 && (
+                      <div>
+                        <p className="font-semibold text-xs text-pink-700 mb-1 uppercase tracking-wide">💗 Forgiveness Practices</p>
+                        {viewingPlan.mpess_integration.forgiveness_practices.map((p, i) => (
+                          <p key={i} className="text-xs text-gray-700 py-1 border-l-2 border-pink-300 pl-2 mb-1">{p}</p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-2 pt-2">
                 <Button
                   className="flex-1 bg-blue-600 hover:bg-blue-700"
