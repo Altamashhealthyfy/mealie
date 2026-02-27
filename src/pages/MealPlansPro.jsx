@@ -155,6 +155,53 @@ export default function MealPlansPro() {
     },
   });
 
+  const deletePlanMutation = useMutation({
+    mutationFn: (planId) => base44.entities.MealPlan.delete(planId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['proMealPlans']);
+      toast.success("Plan deleted successfully!");
+    },
+  });
+
+  const handleDeletePlan = (plan) => {
+    if (window.confirm(`Are you sure you want to delete "${plan.name}"? This cannot be undone.`)) {
+      deletePlanMutation.mutate(plan.id);
+    }
+  };
+
+  const handleEditSavedPlan = (plan) => {
+    // Load saved plan into the generate tab for editing
+    setGeneratedPlan({
+      ...plan,
+      meal_plan: plan.meals,
+      client_name: clients.find(c => c.id === plan.client_id)?.full_name || '',
+      calculations: {
+        target_calories: plan.target_calories || 0,
+        bmr: 0,
+        tdee: 0,
+        macros: { carbs_g: 0, protein_g: 0, fats_g: 0 }
+      },
+      decision_rules: plan.decision_rules_applied || [],
+      conflict_resolution: plan.conflict_resolution || '',
+      mpess_integration: plan.mpess_integration || { affirmations: [], journaling_prompts: [], breathing_exercises: [], physical_activities: [], forgiveness_practices: [] },
+      audit_snapshot: plan.audit_snapshot || {
+        avg_calories_per_day: plan.target_calories || 0,
+        calorie_range: '',
+        macro_percentages: { carbs: 0, protein: 0, fats: 0 },
+        sodium_compliance: '',
+        potassium_compliance: '',
+        medication_conflicts: false,
+        variety_check: true,
+        mpess_integrated: false
+      }
+    });
+    setNumberOfDays(plan.duration || 10);
+    setEditMode(true);
+    setEditedMeals([...(plan.meals || [])]);
+    setActiveTab("generate");
+    toast.info("Plan loaded for editing. Make changes and save.");
+  };
+
   const selectedClient = clients.find(c => c.id === selectedClientId);
   const latestIntake = clinicalIntakes?.[0];
   const hasCompletedIntake = latestIntake?.completed;
