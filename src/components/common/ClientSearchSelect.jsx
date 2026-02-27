@@ -6,7 +6,9 @@ import { X, ChevronDown, Search } from "lucide-react";
 export default function ClientSearchSelect({ clients = [], value, onChange, placeholder = "Search or select client..." }) {
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
   const ref = useRef(null);
+  const triggerRef = useRef(null);
 
   const selectedClient = clients.find(c => c.id === value);
 
