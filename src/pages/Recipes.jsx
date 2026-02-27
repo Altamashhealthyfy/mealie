@@ -594,7 +594,10 @@ Enjoy your cooking! 🍽️✨
       protein: recipe.protein?.toString() || "",
       carbs: recipe.carbs?.toString() || "",
       fats: recipe.fats?.toString() || "",
-      ingredients: recipe.ingredients || [{ item: "", quantity: "" }],
+      ingredients: (recipe.ingredients || [{ item: "", quantity: "" }]).map(ing => ({
+        ...ing,
+        quantity: ing.quantity !== undefined && ing.quantity !== null ? String(ing.quantity) : ''
+      })),
       instructions: recipe.instructions || [""],
       tags: recipe.tags?.join(', ') || "",
       image_url: recipe.image_url || ""
