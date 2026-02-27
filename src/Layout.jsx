@@ -432,7 +432,7 @@ const businessNavigation = [
     title: "Bulk Import",
     url: createPageUrl("BulkImport"),
     icon: Utensils,
-    roles: ['super_admin', 'team_member', 'student_coach'],
+    roles: ['super_admin', 'team_member'],
   },
   {
     title: "Feature Control",
