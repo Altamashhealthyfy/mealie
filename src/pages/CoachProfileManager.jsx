@@ -99,12 +99,18 @@ export default function CoachProfileManager() {
     const file = e.target.files[0];
     if (!file) return;
     setPhotoUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setPreviewPhoto(file_url);
-    await base44.auth.updateMe({ profile_photo_url: file_url });
-    queryClient.invalidateQueries({ queryKey: ['currentUser'] });
-    toast.success("Profile photo updated!");
-    setPhotoUploading(false);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setPreviewPhoto(file_url);
+      await base44.auth.updateMe({ profile_photo_url: file_url });
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+      toast.success("Profile photo updated!");
+    } catch (error) {
+      console.error("Photo upload failed:", error);
+      toast.error("Failed to upload photo. Please try again.");
+    } finally {
+      setPhotoUploading(false);
+    }
   };
 
   const handleRemovePhoto = async () => {
