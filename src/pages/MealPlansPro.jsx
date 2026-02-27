@@ -1364,11 +1364,15 @@ Return ONLY valid JSON, no explanation.`,
                 <CardTitle>My Pro Plans ({proMealPlans.length})</CardTitle>
               </CardHeader>
               <CardContent>
+                {/* Filter by client */}
+                <div className="mb-4">
+                  <ClientSearchSelect clients={clients} value={selectedClientId} onChange={setSelectedClientId} placeholder="Filter by client (optional)..." />
+                </div>
                 {proMealPlans.length === 0 ? (
                   <p className="text-center text-gray-500 py-12">No Pro plans created yet</p>
                 ) : (
                   <div className="space-y-4">
-                    {proMealPlans.map(plan => {
+                    {proMealPlans.filter(plan => !selectedClientId || plan.client_id === selectedClientId).map(plan => {
                       const planClient = clients.find(c => c.id === plan.client_id);
                       return (
                         <Card key={plan.id} className="bg-purple-50">
