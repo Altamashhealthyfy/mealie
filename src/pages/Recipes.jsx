@@ -1793,8 +1793,6 @@ Provide 3 creative variations that ${variationRequest}. Each should maintain sim
                       src={selectedRecipe.image_url} 
                       alt={selectedRecipe.name}
                       className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                      crossOrigin="anonymous"
                       onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     />
                   </div>
