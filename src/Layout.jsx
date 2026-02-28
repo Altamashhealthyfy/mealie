@@ -77,155 +77,173 @@ import NotificationBell from "@/components/notifications/NotificationBell";
 import PWAInstallPrompt from "@/components/common/PWAInstallPrompt";
 import VoiceCommandControl from "@/components/common/VoiceCommandControl";
 
-const dietitianNavigation = [
+// STEP 1: Client Management (Core daily workflow)
+const clientManagementNav = [
   {
-    title: "Dashboard",
+    title: "🏠 Dashboard",
     url: createPageUrl("DietitianDashboard"),
     icon: LayoutDashboard,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
-    title: "Help Center",
-    url: createPageUrl("HelpCenter"),
-    icon: FileText,
+    title: "📲 Share My App to Client",
+    url: createPageUrl("CoachReferralLink"),
+    icon: Share2,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
-    title: "Client Analytics",
-    url: createPageUrl("ClientAnalyticsDashboard"),
-    icon: TrendingUp,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
-  },
-  {
-    title: "Advanced Analytics",
-    url: createPageUrl("AdvancedCoachAnalytics"),
-    icon: BarChart3,
-    roles: ['super_admin', 'team_member', 'student_coach'],
-  },
-
-  {
-    title: "Client Progress",
-    url: createPageUrl("ClientReports"),
-    icon: FileText,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
-  },
-  {
-    title: "Segmentation & Analytics",
-    url: createPageUrl("ClientSegmentationReports"),
-    icon: Filter,
-    roles: ['super_admin', 'team_member'],
-  },
-  {
-    title: "Clients Feedback",
-    url: createPageUrl("ClientProgressReview"),
-    icon: ClipboardList,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
-  },
-
-  {
-    title: "My Subscription",
-    url: createPageUrl("CoachSubscriptions"),
-    icon: Crown,
-    roles: ['student_coach'],
-  },
-  {
-    title: "Buy AI Credits",
-    url: createPageUrl("PurchaseAICredits"),
-    icon: Sparkles,
-    roles: ['student_coach', 'super_admin'],
-  },
-  {
-    title: "Payment Setup",
-    url: createPageUrl("CoachPaymentSetup"),
-    icon: CreditCard,
-    roles: ['student_coach'],
-  },
-  {
-    title: "Clients Packages",
-    url: createPageUrl("ClientPlanBuilder"),
-    icon: Users,
-    roles: ['super_admin', 'team_member', 'student_coach'],
-  },
-  {
-    title: "Clients",
+    title: "👥 Clients",
     url: createPageUrl("ClientManagement"),
     icon: Users,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
-    title: "Messages",
+    title: "💬 Messages",
     url: createPageUrl("Communication"),
     icon: MessageSquare,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
-    title: "Appointments",
+    title: "📅 Appointments",
     url: createPageUrl("Appointments"),
     icon: Calendar,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
-    title: "Meal Plans",
-    url: createPageUrl("MealPlanner"),
-    icon: ChefHat,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
-  },
-
-  {
-    title: "Template Library",
-    url: createPageUrl("TemplateLibrary"),
-    icon: FileText,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
-  },
-  {
-    title: "Client Assessments",
+    title: "📋 Client Assessments",
     url: createPageUrl("ClientAssessments"),
     icon: ClipboardList,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
-    title: "MPESS Tracker",
-    url: createPageUrl("CoachMPESSTracker"),
-    icon: Heart,
-    roles: ['super_admin', 'team_member', 'student_coach'],
+    title: "💬 Clients Feedback",
+    url: createPageUrl("ClientProgressReview"),
+    icon: ClipboardList,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+];
+
+// STEP 2: Meal & Clinical Planning
+const mealPlanningNav = [
+  {
+    title: "🍽️ Meal Plans",
+    url: createPageUrl("MealPlanner"),
+    icon: ChefHat,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
-    title: "Clinical Report",
+    title: "💎 Pro Plans",
+    url: createPageUrl("MealPlansPro"),
+    icon: Crown,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
+    title: "🧪 Clinical Report",
     url: createPageUrl("CoachReportTracker"),
     icon: FileText,
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
-    title: "AI Coach Insights",
-    url: createPageUrl("AICoachInsights"),
-    icon: Sparkles,
-    roles: ['super_admin', 'team_member', 'student_coach'],
-  },
-  {
-    title: "Assessment Templates",
-    url: createPageUrl("AssessmentTemplates"),
-    icon: FileText,
-    roles: ['super_admin', 'team_member', 'student_coach'],
-  },
-  {
-    title: "Recipes",
+    title: "🥗 Recipes",
     url: createPageUrl("Recipes"),
     icon: ClipboardList,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
-    title: "Food Lookup",
+    title: "🔍 Food Lookup",
     url: createPageUrl("FoodLookup"),
     icon: Search,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
-    title: "Resource Library",
+    title: "📁 Template Library",
+    url: createPageUrl("TemplateLibrary"),
+    icon: FileText,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
+    title: "📝 Assessment Templates",
+    url: createPageUrl("AssessmentTemplates"),
+    icon: FileText,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
+    title: "🧘 MPESS Tracker",
+    url: createPageUrl("CoachMPESSTracker"),
+    icon: Heart,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
+    title: "📚 Resource Library",
     url: createPageUrl("ResourceLibrary"),
     icon: BookOpen,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
-  ];
+];
+
+// STEP 3: Analytics & Insights
+const analyticsNav = [
+  {
+    title: "📊 Client Analytics",
+    url: createPageUrl("ClientAnalyticsDashboard"),
+    icon: TrendingUp,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
+    title: "📈 Advanced Analytics",
+    url: createPageUrl("AdvancedCoachAnalytics"),
+    icon: BarChart3,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+  {
+    title: "📉 Client Progress",
+    url: createPageUrl("ClientReports"),
+    icon: FileText,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
+    title: "🔎 Segmentation",
+    url: createPageUrl("ClientSegmentationReports"),
+    icon: Filter,
+    roles: ['super_admin', 'team_member'],
+  },
+  {
+    title: "🤖 AI Coach Insights",
+    url: createPageUrl("AICoachInsights"),
+    icon: Sparkles,
+    roles: ['super_admin', 'team_member', 'student_coach'],
+  },
+];
+
+// STEP 4: Account & Help (always accessible)
+const accountNav = [
+  {
+    title: "💳 My Subscription",
+    url: createPageUrl("CoachSubscriptions"),
+    icon: Crown,
+    roles: ['student_coach'],
+  },
+  {
+    title: "✨ Buy AI Credits",
+    url: createPageUrl("PurchaseAICredits"),
+    icon: Sparkles,
+    roles: ['student_coach', 'super_admin'],
+  },
+  {
+    title: "❓ Help Center",
+    url: createPageUrl("HelpCenter"),
+    icon: FileText,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+];
+
+// Keep dietitianNavigation as combined for mobile/other uses
+const dietitianNavigation = [
+  ...clientManagementNav,
+  ...mealPlanningNav,
+  ...analyticsNav,
+  ...accountNav,
+];
 
 const paymentNavigation = [
   {
