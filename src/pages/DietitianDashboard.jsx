@@ -70,8 +70,16 @@ export default function DietitianDashboard() {
         // All other views - show only user's own clients
         allClients = await base44.entities.Client.filter({ created_by: user?.email }, '-created_date', 50);
       }
-      // Filter out the current user's own email from the client list
-      return allClients.filter(client => client.email?.toLowerCase() !== user?.email?.toLowerCase());
+      // Fetch all users to get coach/team emails and exclude them
+      const allUsers = await base44.entities.User.list();
+      const coachEmails = new Set(
+        allUsers
+          .filter(u => ['student_coach', 'team_member', 'student_team_member', 'super_admin'].includes(u.user_type))
+          .map(u => u.email?.toLowerCase())
+          .filter(Boolean)
+      );
+      // Filter out coaches/team members from client list
+      return allClients.filter(client => !coachEmails.has(client.email?.toLowerCase()));
     },
     enabled: !!user,
     initialData: [],
