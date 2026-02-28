@@ -28,7 +28,10 @@ import {
   Target,
   ClipboardList,
   Crown,
-  Shield
+  Shield,
+  Share2,
+  Copy,
+  CheckCircle2
 } from "lucide-react";
 import { format } from "date-fns";
 import ActionItemsPanel from "@/components/dashboard/ActionItemsPanel";
