@@ -424,12 +424,7 @@ const businessNavigation = [
     icon: Target,
     roles: ['super_admin', 'student_coach', 'team_member'],
   },
-  {
-    title: "Progress Reports",
-    url: createPageUrl("CoachProgressReports"),
-    icon: FileText,
-    roles: ['super_admin', 'student_coach', 'team_member'],
-  },
+
   {
     title: "Team Management",
     url: createPageUrl("TeamManagement"),
