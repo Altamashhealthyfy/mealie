@@ -258,12 +258,7 @@ const paymentNavigation = [
     icon: Users,
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
-  {
-    title: "Clinical Meal Plans 🏥",
-    url: createPageUrl("MealPlansPro"),
-    icon: Stethoscope,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
-  },
+
   {
     title: "Assign Plans",
     url: createPageUrl("ClientPlanManagement"),
@@ -324,12 +319,7 @@ const gamificationNavigation = [
 ];
 
 const businessNavigation = [
-  {
-    title: "Share My Link",
-    url: createPageUrl("CoachReferralLink"),
-    icon: Share2,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
-  },
+
   {
     title: "Health Coach Plans",
     url: createPageUrl("HealthCoachPlans"),
