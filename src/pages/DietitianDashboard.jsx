@@ -395,6 +395,40 @@ export default function DietitianDashboard() {
           </Card>
         )}
 
+        {/* 🚀 New Coach Quick Start Guide */}
+        {clients.length === 0 && (
+          <Card className="border-2 border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-blue-700">
+                <Sparkles className="w-5 h-5" />
+                🚀 Getting Started — Your 5 Steps to Success
+              </CardTitle>
+              <CardDescription>Follow these steps to set up your coaching practice</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                {[
+                  { step: 1, title: "Complete Profile", desc: "Set up your coach profile & branding", link: "CoachProfileManager", done: false },
+                  { step: 2, title: "Share App Link", desc: "Send your referral link to clients so they can join", link: "CoachReferralLink", done: false },
+                  { step: 3, title: "Add First Client", desc: "Add a client manually or they join via your link", link: "ClientManagement", done: false },
+                  { step: 4, title: "Create Meal Plan", desc: "Create and assign a meal plan for your client", link: "MealPlanner", done: false },
+                  { step: 5, title: "Schedule Check-in", desc: "Book an appointment or send a message", link: "Appointments", done: false },
+                ].map((s) => (
+                  <Link key={s.step} to={createPageUrl(s.link)}>
+                    <div className="p-4 bg-white rounded-xl border-2 border-blue-100 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer h-full">
+                      <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center mb-2">
+                        <span className="text-white text-sm font-bold">{s.step}</span>
+                      </div>
+                      <h4 className="font-bold text-gray-900 text-sm mb-1">{s.title}</h4>
+                      <p className="text-xs text-gray-500">{s.desc}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Coach Guide Panel */}
         <CoachGuidePanel />
 
