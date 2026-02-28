@@ -885,6 +885,29 @@ export default function DietitianDashboard() {
         </Card>
         </div>
 
+        {/* Share My App to Client - Prominent Banner */}
+        <Card className="border-2 border-orange-400 shadow-lg bg-gradient-to-r from-orange-500 to-red-500 text-white">
+          <CardContent className="p-5">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                  <Share2 className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">📲 Share My App to Client</h3>
+                  <p className="text-orange-100 text-sm">Send your unique referral link so clients can join your coaching platform instantly</p>
+                </div>
+              </div>
+              <Link to={createPageUrl("CoachReferralLink")} className="shrink-0">
+                <Button className="bg-white text-orange-600 hover:bg-orange-50 font-bold px-6 py-2 rounded-xl shadow-md">
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Get My Link & QR Code
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Quick Actions */}
         <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50" id="quick-actions">
           <CardHeader>
@@ -894,7 +917,7 @@ export default function DietitianDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Link to={createPageUrl("ClientManagement")} className="block">
                 <Button className="w-full h-20 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600">
                   <div className="text-center">
