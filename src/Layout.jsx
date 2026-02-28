@@ -1134,10 +1134,113 @@ export default function Layout({ children, currentPageName }) {
           </SidebarHeader>
 
           <SidebarContent className="p-2">
-            <SidebarGroup id="dietitian-tools-nav">
-                              <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
-                                {isEffectiveDietitian ? 'Dietitian Tools' : 'My Health Journey'}
-                              </SidebarGroupLabel>
+            {isEffectiveDietitian ? (
+              <>
+                {/* STEP 1: Client Management */}
+                <SidebarGroup id="client-management-nav">
+                  <SidebarGroupLabel className="text-xs font-bold text-orange-600 uppercase tracking-wider px-2 py-2 border-b border-orange-100 mb-1">
+                    👤 Client Management
+                  </SidebarGroupLabel>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {clientManagementNav.filter(item => !item.roles || item.roles.includes(effectiveUserType)).map((item) => (
+                        <SidebarMenuItem key={item.title}>
+                          <SidebarMenuButton
+                            asChild
+                            className={`hover:bg-orange-50 transition-all duration-200 rounded-xl mb-1 ${location.pathname === item.url ? 'text-white hover:text-white shadow-md' : ''}`}
+                            style={location.pathname === item.url ? { background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`, color: '#ffffff' } : { color: themeColors.menu_text_color }}
+                          >
+                            <Link to={item.url} className="flex items-center gap-3 px-4 py-2">
+                              <item.icon className="w-4 h-4 flex-shrink-0" />
+                              <span className="font-medium text-sm">{item.title}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+
+                {/* STEP 2: Meal & Clinical Planning */}
+                <SidebarGroup id="meal-planning-nav">
+                  <SidebarGroupLabel className="text-xs font-bold text-green-600 uppercase tracking-wider px-2 py-2 border-b border-green-100 mb-1 mt-2">
+                    🍽️ Meal & Clinical Plans
+                  </SidebarGroupLabel>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {mealPlanningNav.filter(item => !item.roles || item.roles.includes(effectiveUserType)).map((item) => (
+                        <SidebarMenuItem key={item.title}>
+                          <SidebarMenuButton
+                            asChild
+                            className={`hover:bg-orange-50 transition-all duration-200 rounded-xl mb-1 ${location.pathname === item.url ? 'text-white hover:text-white shadow-md' : ''}`}
+                            style={location.pathname === item.url ? { background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`, color: '#ffffff' } : { color: themeColors.menu_text_color }}
+                          >
+                            <Link to={item.url} className="flex items-center gap-3 px-4 py-2">
+                              <item.icon className="w-4 h-4 flex-shrink-0" />
+                              <span className="font-medium text-sm">{item.title}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+
+                {/* STEP 3: Analytics */}
+                <SidebarGroup id="analytics-nav">
+                  <SidebarGroupLabel className="text-xs font-bold text-blue-600 uppercase tracking-wider px-2 py-2 border-b border-blue-100 mb-1 mt-2">
+                    📊 Analytics & Reports
+                  </SidebarGroupLabel>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {analyticsNav.filter(item => !item.roles || item.roles.includes(effectiveUserType)).map((item) => (
+                        <SidebarMenuItem key={item.title}>
+                          <SidebarMenuButton
+                            asChild
+                            className={`hover:bg-orange-50 transition-all duration-200 rounded-xl mb-1 ${location.pathname === item.url ? 'text-white hover:text-white shadow-md' : ''}`}
+                            style={location.pathname === item.url ? { background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`, color: '#ffffff' } : { color: themeColors.menu_text_color }}
+                          >
+                            <Link to={item.url} className="flex items-center gap-3 px-4 py-2">
+                              <item.icon className="w-4 h-4 flex-shrink-0" />
+                              <span className="font-medium text-sm">{item.title}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+
+                {/* STEP 4: Account & Help */}
+                <SidebarGroup id="account-nav">
+                  <SidebarGroupLabel className="text-xs font-bold text-purple-600 uppercase tracking-wider px-2 py-2 border-b border-purple-100 mb-1 mt-2">
+                    ⚙️ Account & Help
+                  </SidebarGroupLabel>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {accountNav.filter(item => !item.roles || item.roles.includes(effectiveUserType)).map((item) => (
+                        <SidebarMenuItem key={item.title}>
+                          <SidebarMenuButton
+                            asChild
+                            className={`hover:bg-orange-50 transition-all duration-200 rounded-xl mb-1 ${location.pathname === item.url ? 'text-white hover:text-white shadow-md' : ''}`}
+                            style={location.pathname === item.url ? { background: `linear-gradient(to right, ${themeColors.primary_from}, ${themeColors.primary_to})`, color: '#ffffff' } : { color: themeColors.menu_text_color }}
+                          >
+                            <Link to={item.url} className="flex items-center gap-3 px-4 py-2">
+                              <item.icon className="w-4 h-4 flex-shrink-0" />
+                              <span className="font-medium text-sm">{item.title}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+              </>
+            ) : (
+            <SidebarGroup id="client-journey-nav">
+              <SidebarGroupLabel className="text-xs font-medium text-gray-500 uppercase tracking-wider px-2 py-2">
+                My Health Journey
+              </SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {navigationItems.map((item) => (
@@ -1167,6 +1270,7 @@ export default function Layout({ children, currentPageName }) {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+            )}
 
 
 
