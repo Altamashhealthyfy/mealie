@@ -132,7 +132,7 @@ const mealPlanningNav = [
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
-    title: "💎 Pro Plans",
+    title: "🏥 Clinical Meal Plans",
     url: createPageUrl("MealPlansPro"),
     icon: Crown,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
