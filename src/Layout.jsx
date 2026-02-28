@@ -259,7 +259,7 @@ const paymentNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
   {
-    title: "Pro Plans 💎",
+    title: "Clinical Meal Plans 🏥",
     url: createPageUrl("MealPlansPro"),
     icon: Stethoscope,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
