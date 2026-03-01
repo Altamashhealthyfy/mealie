@@ -1702,16 +1702,23 @@ function constructDiamondPrompt(client, intake, numberOfDays, mealPattern, prefe
     extremely_active: 1.9
   };
 
-  const bmr = client.gender === 'male'
-    ? (10 * client.weight) + (6.25 * client.height) - (5 * client.age) + 5
-    : (10 * client.weight) + (6.25 * client.height) - (5 * client.age) - 161;
+  // Use intake.basic_info values (more detailed clinical data) with fallback to client entity
+  const gender = intake.basic_info?.gender || client.gender || 'female';
+  const weight = parseFloat(intake.basic_info?.weight || client.weight) || 60;
+  const height = parseFloat(intake.basic_info?.height || client.height) || 160;
+  const age = parseFloat(intake.basic_info?.age || client.age) || 30;
+  const activityLevel = intake.basic_info?.activity_level || client.activity_level || 'sedentary';
 
-  const tdee = bmr * activityMultipliers[client.activity_level];
+  const bmr = gender === 'male'
+    ? (10 * weight) + (6.25 * height) - (5 * age) + 5
+    : (10 * weight) + (6.25 * height) - (5 * age) - 161;
+
+  const tdee = bmr * (activityMultipliers[activityLevel] || 1.2);
 
   // Format medications safely without nested template literals
-  const medsText = intake.current_medications
+  const medsText = (intake.current_medications || [])
     .map(m => m.name + ' (' + m.dosage + ')')
-    .join(', ');
+    .join(', ') || 'None';
 
   const labValuesText = Object.entries(intake.lab_values)
     .map(([key, val]) => '- ' + key + ': ' + val)
