@@ -1694,9 +1694,6 @@ Return ONLY valid JSON, no explanation.`,
 }
 
 // constructDiamondPrompt is imported from components/pro/DiamondPromptBuilder.js
-// (old inline function fully removed — logic is in DiamondPromptBuilder.js)
-
-Generate a **disease-specific holistic 10-day meal plan** with 3-3-4 rotation pattern.
 
 ## CLIENT INTAKE DATA:
 Name: ${client.full_name}
