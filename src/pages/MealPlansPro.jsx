@@ -146,7 +146,7 @@ export default function MealPlansPro() {
       setGeneratedPlan(null);
       setSelectedClientId(null);
       setActiveTab("templates");
-      alert('✅ Pro meal plan saved and assigned successfully!');
+      toast.success('✅ Pro meal plan saved and assigned successfully!');
     },
   });
 
@@ -154,7 +154,7 @@ export default function MealPlansPro() {
     mutationFn: (templateData) => base44.entities.MealPlanTemplate.create(templateData),
     onSuccess: () => {
       queryClient.invalidateQueries(['proTemplates']);
-      alert("✅ Pro template saved! You can now use it unlimited times for FREE!");
+      toast.success("✅ Pro template saved! You can now use it unlimited times for FREE!");
     },
   });
 
@@ -311,12 +311,12 @@ Return ONLY valid JSON, no explanation.`,
       console.log('foodPreferences:', preferences);
 
       if (!selectedClientId || !selectedClient) {
-        alert('❌ Please select a client first');
+        toast.error('Please select a client first'); return;
         return;
       }
 
       if (!clinicalIntakes || clinicalIntakes.length === 0) {
-        alert('❌ No clinical intake found. Please complete the clinical intake form first.');
+        toast.error('No clinical intake found. Please complete the clinical intake form first.'); return;
         return;
       }
 
@@ -325,7 +325,7 @@ Return ONLY valid JSON, no explanation.`,
       console.log('intake.completed:', intake.completed);
 
       if (!intake.completed) {
-        alert('❌ Clinical intake is not completed yet. Please complete the form first.');
+        toast.error('Clinical intake is not completed yet. Please complete the form first.'); return;
         return;
       }
 
@@ -335,7 +335,7 @@ Return ONLY valid JSON, no explanation.`,
       const availableCredits = totalCredits - usedCredits;
 
       if (user?.user_type === 'student_coach' && availableCredits < 1) {
-        alert('❌ Insufficient AI credits. Please purchase more credits to generate meal plans.');
+        toast.error('Insufficient AI credits. Please purchase more credits to generate meal plans.');
         navigate(createPageUrl('PurchaseAICredits'));
         return;
       }
@@ -435,7 +435,7 @@ Return ONLY valid JSON, no explanation.`,
       console.log('Expected days:', expectedDays);
       
       if (generatedDays.length < numberOfDays) {
-        alert(`⚠️ Warning: AI only generated ${generatedDays.length} days instead of ${numberOfDays} days. Missing days: ${expectedDays.filter(d => !generatedDays.includes(d)).join(', ')}. Please try generating again.`);
+        toast.warning(`AI only generated ${generatedDays.length}/${numberOfDays} days. Missing: ${expectedDays.filter(d => !generatedDays.includes(d)).join(', ')}. Try regenerating.`);
       }
 
       setGeneratedPlan({
@@ -474,12 +474,12 @@ Return ONLY valid JSON, no explanation.`,
         }
       }
 
-      alert('✅ Pro meal plan generated successfully! Scroll down to review the plan.');
+      toast.success('Pro meal plan generated! Scroll down to review.');
       setGenerating(false);
 
     } catch (error) {
       console.error('❌ Error:', error);
-      alert(`❌ Error: ${error.message || 'Failed to generate meal plan'}`);
+      toast.error(error.message || 'Failed to generate meal plan');
       setGenerating(false);
     }
   };
@@ -540,7 +540,7 @@ Return ONLY valid JSON, no explanation.`,
 
   const cloneProTemplate = (template) => {
     if (!selectedClient) {
-      alert("Please select a client first");
+      toast.error("Please select a client first"); return;
       return;
     }
 
@@ -587,7 +587,7 @@ Return ONLY valid JSON, no explanation.`,
 
   const handleManualSave = (planData) => {
     if (!selectedClient) {
-      alert("Please select a client first before saving a manual plan.");
+      toast.error("Please select a client first before saving a manual plan."); return;
       return;
     }
 
@@ -1415,7 +1415,7 @@ Return ONLY valid JSON, no explanation.`,
                     const updated = editMode ? [...editedMeals] : [...generatedPlan.meal_plan];
                     updated.push(...newMeals);
                     setEditedMeals(updated);
-                    alert('✅ Extra meal(s) added! Remember to save the plan when done.');
+                    toast.success('Extra meal(s) added! Remember to save the plan when done.');
                   }}
                 />
 
