@@ -295,11 +295,7 @@ Return ONLY valid JSON, no explanation.`,
 
   const generateProPlan = async (preferences = foodPreferences) => {
     try {
-      console.log('🚀 GENERATE PRO PLAN CALLED');
-      console.log('selectedClientId:', selectedClientId);
-      console.log('selectedClient:', selectedClient);
-      console.log('clinicalIntakes:', clinicalIntakes);
-      console.log('foodPreferences:', preferences);
+
 
       if (!selectedClientId || !selectedClient) {
         toast.error('Please select a client first'); return;
@@ -312,8 +308,6 @@ Return ONLY valid JSON, no explanation.`,
       }
 
       const intake = clinicalIntakes[0];
-      console.log('intake:', intake);
-      console.log('intake.completed:', intake.completed);
 
       if (!intake.completed) {
         toast.error('Clinical intake is not completed yet. Please complete the form first.'); return;
@@ -339,7 +333,7 @@ Return ONLY valid JSON, no explanation.`,
       
       const prompt = constructDiamondPrompt(selectedClient, intake, numberOfDays, mealPattern, preferences, reportDataToUse);
       
-      console.log('Sending prompt to AI with numberOfDays:', numberOfDays);
+
       
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
@@ -421,9 +415,6 @@ Return ONLY valid JSON, no explanation.`,
       // Validate that all days were generated
       const generatedDays = [...new Set(response.meal_plan.map(m => m.day))].sort((a, b) => a - b);
       const expectedDays = Array.from({ length: numberOfDays }, (_, i) => i + 1);
-      
-      console.log('Generated days:', generatedDays);
-      console.log('Expected days:', expectedDays);
       
       if (generatedDays.length < numberOfDays) {
         toast.warning(`AI only generated ${generatedDays.length}/${numberOfDays} days. Missing: ${expectedDays.filter(d => !generatedDays.includes(d)).join(', ')}. Try regenerating.`);
