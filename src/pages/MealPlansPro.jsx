@@ -1694,27 +1694,7 @@ Return ONLY valid JSON, no explanation.`,
 }
 
 // constructDiamondPrompt is imported from components/pro/DiamondPromptBuilder.js
-
-## CLIENT FOOD PREFERENCES (FROM FORM):
-Recommended Foods (Health-promoting): ${recommendedFoodsText}
-Foods They Like: ${likedFoodsText}
-Foods They Dislike: ${dislikedFoodsText}
-
-Daily Routine:
-- Breakfast: ${intake.daily_routine?.breakfast_time || 'Not specified'}
-- Lunch: ${intake.daily_routine?.lunch_time || 'Not specified'}
-- Dinner: ${intake.daily_routine?.dinner_time || 'Not specified'}
-
-Goal: ${Array.isArray(intake.goal) ? intake.goal.join(', ') : (intake.goal || 'Not specified')}
-Symptom Goals: ${(intake.symptom_goals || []).join(', ') || 'None'}
-
-BMR: ${Math.round(bmr)} kcal
-${reportSection}
-TDEE: ${Math.round(tdee)} kcal
-
----
-
-## REQUIREMENTS:
+// (All remaining old inline function content below was removed)
 
 1. **PERSONALIZE WITH FOOD PREFERENCES:**
    - Incorporate client's RECOMMENDED FOODS whenever possible in the meal plan (these support their health condition)
