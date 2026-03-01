@@ -1746,12 +1746,12 @@ Generate a **disease-specific holistic 10-day meal plan** with 3-3-4 rotation pa
 
 ## CLIENT INTAKE DATA:
 Name: ${client.full_name}
-Age: ${client.age}
-Gender: ${client.gender}
-Height: ${client.height} cm
-Weight: ${client.weight} kg
-BMI: ${intake.basic_info.bmi}
-Activity Level: ${client.activity_level}
+Age: ${age}
+Gender: ${gender}
+Height: ${height} cm
+Weight: ${weight} kg
+BMI: ${intake.basic_info?.bmi || (weight / ((height/100)**2)).toFixed(1)}
+Activity Level: ${activityLevel}
 
 Health Conditions: ${intake.health_conditions.join(', ')}
 Stage/Severity: ${intake.stage_severity || 'Not specified'}
