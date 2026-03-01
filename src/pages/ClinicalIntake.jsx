@@ -25,11 +25,11 @@ export default function ClinicalIntake() {
     client_id: clientId,
     intake_date: format(new Date(), 'yyyy-MM-dd'),
     basic_info: {
-      age: 0,
+      age: '',
       gender: '',
-      height: 0,
-      weight: 0,
-      bmi: 0,
+      height: '',
+      weight: '',
+      bmi: '',
       activity_level: ''
     },
     health_conditions: [],
@@ -113,6 +113,13 @@ export default function ClinicalIntake() {
         ...existingIntake,
         client_id: formData.client_id,
         goal: Array.isArray(loadedGoal) ? loadedGoal : (loadedGoal ? [loadedGoal] : []),
+        basic_info: {
+          ...existingIntake.basic_info,
+          age: existingIntake.basic_info?.age ?? '',
+          height: existingIntake.basic_info?.height ?? '',
+          weight: existingIntake.basic_info?.weight ?? '',
+          bmi: existingIntake.basic_info?.bmi ?? '',
+        }
       });
       
       // Load medications
@@ -135,11 +142,11 @@ export default function ClinicalIntake() {
       setFormData(prev => ({
         ...prev,
         basic_info: {
-          age: client.age || 0,
+          age: client.age || '',
           gender: client.gender || '',
-          height: client.height || 0,
-          weight: client.weight || 0,
-          bmi: client.height && client.weight ? (client.weight / ((client.height / 100) ** 2)).toFixed(1) : 0,
+          height: client.height || '',
+          weight: client.weight || '',
+          bmi: client.height && client.weight ? parseFloat((client.weight / ((client.height / 100) ** 2)).toFixed(1)) : '',
           activity_level: client.activity_level || ''
         },
         health_conditions: client.health_conditions || [],
@@ -151,7 +158,8 @@ export default function ClinicalIntake() {
 
   // Auto-calculate BMI
   useEffect(() => {
-    const { height, weight } = formData.basic_info;
+    const height = parseFloat(formData.basic_info.height);
+    const weight = parseFloat(formData.basic_info.weight);
     if (height > 0 && weight > 0) {
       const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
       setFormData(prev => ({
@@ -170,9 +178,15 @@ export default function ClinicalIntake() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['clinicalIntake']);
-      alert(existingIntake?.id ? '✅ Clinical intake updated successfully!' : '✅ Clinical intake saved successfully!');
-      window.location.href = `/#/MealPlansPro?client=${formData.client_id}`;
+      toast.success(existingIntake?.id ? '✅ Clinical intake updated successfully!' : '✅ Clinical intake saved successfully!');
+      setTimeout(() => {
+        window.location.href = `/#/MealPlansPro?client=${formData.client_id}`;
+      }, 1000);
     },
+    onError: (error) => {
+      toast.error('Failed to save clinical intake. Please try again.');
+      console.error('Save error:', error);
+    }
   });
 
   const handleGoalToggle = (goal) => {
@@ -283,24 +297,51 @@ Return ONLY valid JSON, no explanation.`;
     e.preventDefault();
     
     if (!formData.client_id) {
-      alert('Please select a client');
+      toast.error('Please select a client');
+      return;
+    }
+    if (!formData.basic_info.age || parseFloat(formData.basic_info.age) <= 0) {
+      toast.error('Please enter a valid age');
+      return;
+    }
+    if (!formData.basic_info.gender) {
+      toast.error('Please select a gender');
+      return;
+    }
+    if (!formData.basic_info.height || parseFloat(formData.basic_info.height) <= 0) {
+      toast.error('Please enter a valid height');
+      return;
+    }
+    if (!formData.basic_info.weight || parseFloat(formData.basic_info.weight) <= 0) {
+      toast.error('Please enter a valid weight');
+      return;
+    }
+    if (!formData.basic_info.activity_level) {
+      toast.error('Please select an activity level');
       return;
     }
     if (!formData.health_conditions.length) {
-      alert('Please select at least one health condition');
+      toast.error('Please select at least one health condition');
       return;
     }
     if (!formData.diet_type) {
-      alert('Please select diet type');
+      toast.error('Please select diet type');
       return;
     }
     if (!formData.goal?.length) {
-      alert('Please select at least one goal');
+      toast.error('Please select at least one goal');
       return;
     }
 
     const finalData = {
       ...formData,
+      basic_info: {
+        ...formData.basic_info,
+        age: parseFloat(formData.basic_info.age) || 0,
+        height: parseFloat(formData.basic_info.height) || 0,
+        weight: parseFloat(formData.basic_info.weight) || 0,
+        bmi: parseFloat(formData.basic_info.bmi) || 0,
+      },
       current_medications: medications.filter(m => m.name),
       symptom_goals: symptomGoalsText.split('\n').filter(s => s.trim()),
       likes_dislikes_allergies: {
@@ -421,9 +462,11 @@ Return ONLY valid JSON, no explanation.`;
                   <Label>Age *</Label>
                   <Input
                     type="number"
+                    min="1"
+                    max="120"
                     value={formData.basic_info.age}
-                    onChange={(e) => setFormData({...formData, basic_info: {...formData.basic_info, age: parseInt(e.target.value)}})}
-                    required
+                    onChange={(e) => setFormData({...formData, basic_info: {...formData.basic_info, age: e.target.value}})}
+                    placeholder="e.g. 35"
                   />
                 </div>
                 <div className="space-y-2">
@@ -446,25 +489,29 @@ Return ONLY valid JSON, no explanation.`;
                   <Label>Height (cm) *</Label>
                   <Input
                     type="number"
+                    min="1"
+                    max="300"
                     value={formData.basic_info.height}
-                    onChange={(e) => setFormData({...formData, basic_info: {...formData.basic_info, height: parseInt(e.target.value)}})}
-                    required
+                    onChange={(e) => setFormData({...formData, basic_info: {...formData.basic_info, height: e.target.value}})}
+                    placeholder="e.g. 165"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Weight (kg) *</Label>
                   <Input
                     type="number"
+                    min="1"
+                    max="500"
                     value={formData.basic_info.weight}
-                    onChange={(e) => setFormData({...formData, basic_info: {...formData.basic_info, weight: parseInt(e.target.value)}})}
-                    required
+                    onChange={(e) => setFormData({...formData, basic_info: {...formData.basic_info, weight: e.target.value}})}
+                    placeholder="e.g. 70"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>BMI (Auto-calculated)</Label>
                   <Input
                     type="number"
-                    value={formData.basic_info.bmi}
+                    value={formData.basic_info.bmi || ''}
                     disabled
                     className="bg-gray-100"
                   />
@@ -580,7 +627,7 @@ Return ONLY valid JSON, no explanation.`;
                     step="0.01"
                     placeholder="0.4-4.0"
                     value={formData.lab_values.tsh || ''}
-                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, tsh: parseFloat(e.target.value)}})}
+                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, tsh: e.target.value ? parseFloat(e.target.value) : ''}})}
                   />
                 </div>
                 <div className="space-y-2">
@@ -590,7 +637,7 @@ Return ONLY valid JSON, no explanation.`;
                     step="0.1"
                     placeholder="<5.7"
                     value={formData.lab_values.hba1c || ''}
-                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, hba1c: parseFloat(e.target.value)}})}
+                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, hba1c: e.target.value ? parseFloat(e.target.value) : ''}})}
                   />
                 </div>
                 <div className="space-y-2">
@@ -599,7 +646,7 @@ Return ONLY valid JSON, no explanation.`;
                     type="number"
                     placeholder="<200"
                     value={formData.lab_values.total_cholesterol || ''}
-                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, total_cholesterol: parseFloat(e.target.value)}})}
+                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, total_cholesterol: e.target.value ? parseFloat(e.target.value) : ''}})}
                   />
                 </div>
                 <div className="space-y-2">
@@ -608,7 +655,7 @@ Return ONLY valid JSON, no explanation.`;
                     type="number"
                     placeholder="<100"
                     value={formData.lab_values.ldl || ''}
-                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, ldl: parseFloat(e.target.value)}})}
+                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, ldl: e.target.value ? parseFloat(e.target.value) : ''}})}
                   />
                 </div>
                 <div className="space-y-2">
@@ -617,7 +664,7 @@ Return ONLY valid JSON, no explanation.`;
                     type="number"
                     placeholder=">40 (M), >50 (F)"
                     value={formData.lab_values.hdl || ''}
-                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, hdl: parseFloat(e.target.value)}})}
+                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, hdl: e.target.value ? parseFloat(e.target.value) : ''}})}
                   />
                 </div>
                 <div className="space-y-2">
@@ -626,7 +673,7 @@ Return ONLY valid JSON, no explanation.`;
                     type="number"
                     placeholder="<150"
                     value={formData.lab_values.triglycerides || ''}
-                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, triglycerides: parseFloat(e.target.value)}})}
+                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, triglycerides: e.target.value ? parseFloat(e.target.value) : ''}})}
                   />
                 </div>
                 <div className="space-y-2">
@@ -635,7 +682,7 @@ Return ONLY valid JSON, no explanation.`;
                     type="number"
                     placeholder="5-40"
                     value={formData.lab_values.sgot || ''}
-                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, sgot: parseFloat(e.target.value)}})}
+                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, sgot: e.target.value ? parseFloat(e.target.value) : ''}})}
                   />
                 </div>
                 <div className="space-y-2">
@@ -644,7 +691,7 @@ Return ONLY valid JSON, no explanation.`;
                     type="number"
                     placeholder="7-56"
                     value={formData.lab_values.sgpt || ''}
-                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, sgpt: parseFloat(e.target.value)}})}
+                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, sgpt: e.target.value ? parseFloat(e.target.value) : ''}})}
                   />
                 </div>
                 <div className="space-y-2">
@@ -654,7 +701,7 @@ Return ONLY valid JSON, no explanation.`;
                     step="0.1"
                     placeholder="0.6-1.2"
                     value={formData.lab_values.creatinine || ''}
-                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, creatinine: parseFloat(e.target.value)}})}
+                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, creatinine: e.target.value ? parseFloat(e.target.value) : ''}})}
                   />
                 </div>
                 <div className="space-y-2">
@@ -663,7 +710,7 @@ Return ONLY valid JSON, no explanation.`;
                     type="number"
                     placeholder="30-100"
                     value={formData.lab_values.vitamin_d || ''}
-                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, vitamin_d: parseFloat(e.target.value)}})}
+                    onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, vitamin_d: e.target.value ? parseFloat(e.target.value) : ''}})}
                   />
                 </div>
                 <div className="space-y-2">
@@ -672,7 +719,7 @@ Return ONLY valid JSON, no explanation.`;
                      type="number"
                      placeholder="200-900"
                      value={formData.lab_values.vitamin_b12 || ''}
-                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, vitamin_b12: parseFloat(e.target.value)}})}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, vitamin_b12: e.target.value ? parseFloat(e.target.value) : ''}})}
                    />
                  </div>
 
@@ -691,7 +738,7 @@ Return ONLY valid JSON, no explanation.`;
                      step="0.1"
                      placeholder="15-45"
                      value={formData.lab_values.urea || ''}
-                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, urea: parseFloat(e.target.value)}})}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, urea: e.target.value ? parseFloat(e.target.value) : ''}})}
                    />
                  </div>
 
@@ -702,18 +749,7 @@ Return ONLY valid JSON, no explanation.`;
                      step="0.1"
                      placeholder="7-21"
                      value={formData.lab_values.bun || ''}
-                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, bun: parseFloat(e.target.value)}})}
-                   />
-                 </div>
-
-                <div className="space-y-2">
-                   <Label>Creatinine (mg/dL)</Label>
-                   <Input
-                     type="number"
-                     step="0.1"
-                     placeholder="0.6-1.2"
-                     value={formData.lab_values.creatinine || ''}
-                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, creatinine: parseFloat(e.target.value)}})}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, bun: e.target.value ? parseFloat(e.target.value) : ''}})}
                    />
                  </div>
 
@@ -724,18 +760,18 @@ Return ONLY valid JSON, no explanation.`;
                      step="0.1"
                      placeholder="3.5-7.2"
                      value={formData.lab_values.uric_acid || ''}
-                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, uric_acid: parseFloat(e.target.value)}})}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, uric_acid: e.target.value ? parseFloat(e.target.value) : ''}})}
                    />
                  </div>
 
                 <div className="space-y-2">
-                   <Label>Estimated GFR / GFR Category (mL/min)</Label>
+                   <Label>Estimated GFR (mL/min)</Label>
                    <Input
                      type="number"
                      step="0.1"
                      placeholder=">90"
                      value={formData.lab_values.gfr || ''}
-                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, gfr: parseFloat(e.target.value)}})}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, gfr: e.target.value ? parseFloat(e.target.value) : ''}})}
                    />
                  </div>
 
@@ -746,7 +782,7 @@ Return ONLY valid JSON, no explanation.`;
                      step="0.1"
                      placeholder="135-145"
                      value={formData.lab_values.sodium || ''}
-                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, sodium: parseFloat(e.target.value)}})}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, sodium: e.target.value ? parseFloat(e.target.value) : ''}})}
                    />
                  </div>
 
@@ -757,7 +793,7 @@ Return ONLY valid JSON, no explanation.`;
                      step="0.1"
                      placeholder="3.5-5.0"
                      value={formData.lab_values.potassium || ''}
-                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, potassium: parseFloat(e.target.value)}})}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, potassium: e.target.value ? parseFloat(e.target.value) : ''}})}
                    />
                  </div>
 
@@ -768,7 +804,7 @@ Return ONLY valid JSON, no explanation.`;
                      step="0.1"
                      placeholder="96-106"
                      value={formData.lab_values.chloride || ''}
-                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, chloride: parseFloat(e.target.value)}})}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, chloride: e.target.value ? parseFloat(e.target.value) : ''}})}
                    />
                  </div>
 
@@ -779,7 +815,7 @@ Return ONLY valid JSON, no explanation.`;
                      step="0.1"
                      placeholder="8.5-10.2"
                      value={formData.lab_values.calcium_total || ''}
-                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, calcium_total: parseFloat(e.target.value)}})}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, calcium_total: e.target.value ? parseFloat(e.target.value) : ''}})}
                    />
                  </div>
 
@@ -790,7 +826,7 @@ Return ONLY valid JSON, no explanation.`;
                      step="0.1"
                      placeholder="2.5-4.5"
                      value={formData.lab_values.phosphorus || ''}
-                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, phosphorus: parseFloat(e.target.value)}})}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, phosphorus: e.target.value ? parseFloat(e.target.value) : ''}})}
                    />
                  </div>
 
@@ -801,7 +837,7 @@ Return ONLY valid JSON, no explanation.`;
                      step="0.1"
                      placeholder="10-20"
                      value={formData.lab_values.bun_creatinine_ratio || ''}
-                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, bun_creatinine_ratio: parseFloat(e.target.value)}})}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, bun_creatinine_ratio: e.target.value ? parseFloat(e.target.value) : ''}})}
                    />
                  </div>
 
@@ -812,7 +848,7 @@ Return ONLY valid JSON, no explanation.`;
                      step="0.1"
                      placeholder="3.5-5.0"
                      value={formData.lab_values.albumin || ''}
-                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, albumin: parseFloat(e.target.value)}})}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, albumin: e.target.value ? parseFloat(e.target.value) : ''}})}
                    />
                  </div>
 
@@ -823,18 +859,18 @@ Return ONLY valid JSON, no explanation.`;
                      step="0.1"
                      placeholder="2.0-3.5"
                      value={formData.lab_values.globulin || ''}
-                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, globulin: parseFloat(e.target.value)}})}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, globulin: e.target.value ? parseFloat(e.target.value) : ''}})}
                    />
                  </div>
 
                 <div className="space-y-2">
-                   <Label>A:G Ratio (Albumin to Globulin)</Label>
+                   <Label>A:G Ratio</Label>
                    <Input
                      type="number"
                      step="0.01"
                      placeholder="1.0-2.5"
                      value={formData.lab_values.ag_ratio || ''}
-                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, ag_ratio: parseFloat(e.target.value)}})}
+                     onChange={(e) => setFormData({...formData, lab_values: {...formData.lab_values, ag_ratio: e.target.value ? parseFloat(e.target.value) : ''}})}
                    />
                  </div>
 
@@ -1112,7 +1148,7 @@ Return ONLY valid JSON, no explanation.`;
               className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-500 h-14 text-lg"
             >
               {saveMutation.isPending ? (
-                existingIntake ? 'Updating...' : 'Saving...'
+                <><Loader2 className="w-5 h-5 mr-2 animate-spin" />{existingIntake ? 'Updating...' : 'Saving...'}</>
               ) : (
                 <>
                   <CheckCircle className="w-5 h-5 mr-2" />
