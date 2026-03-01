@@ -1694,13 +1694,7 @@ Return ONLY valid JSON, no explanation.`,
 }
 
 // constructDiamondPrompt is imported from components/pro/DiamondPromptBuilder.js
-
-export const _buildVersion = '2.0'; // module marker — do not remove
-
-function _eof() {
-  // end of file sentinel
-  return null;
-  const height = parseFloat(intake.basic_info?.height || client.height) || 160;
+// END OF FILE
   const age = parseFloat(intake.basic_info?.age || client.age) || 30;
   const activityLevel = intake.basic_info?.activity_level || client.activity_level || 'sedentary';
 
