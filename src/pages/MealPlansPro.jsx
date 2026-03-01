@@ -1694,26 +1694,6 @@ Return ONLY valid JSON, no explanation.`,
 }
 
 // constructDiamondPrompt is imported from components/pro/DiamondPromptBuilder.js
-Name: ${client.full_name}
-Age: ${age}
-Gender: ${gender}
-Height: ${height} cm
-Weight: ${weight} kg
-BMI: ${intake.basic_info?.bmi || (weight / ((height/100)**2)).toFixed(1)}
-Activity Level: ${activityLevel}
-
-Health Conditions: ${intake.health_conditions.join(', ')}
-Stage/Severity: ${intake.stage_severity || 'Not specified'}
-Current Medications: ${medsText}
-
-Lab Values:
-${labValuesText}
-
-Diet Type: ${intake.diet_type || 'Not specified'}
-Likes: ${(intake.likes_dislikes_allergies?.likes || []).join(', ') || 'None'}
-Dislikes: ${(intake.likes_dislikes_allergies?.dislikes || []).join(', ') || 'None'}
-Allergies: ${(intake.likes_dislikes_allergies?.allergies || []).join(', ') || 'None'}
-No-Go Foods: ${(intake.likes_dislikes_allergies?.no_go_foods || []).join(', ') || 'None'}
 
 ## CLIENT FOOD PREFERENCES (FROM FORM):
 Recommended Foods (Health-promoting): ${recommendedFoodsText}
