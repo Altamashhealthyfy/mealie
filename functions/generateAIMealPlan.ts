@@ -485,7 +485,7 @@ Be practical, use real Indian/regional food names, realistic portions.`;
       target_calories: aiResponse.daily_calorie_target || targetCal,
       food_preference: client.food_preference,
       regional_preference: client.regional_preference,
-      meals: aiResponse.meals,
+      meals: enrichedMeals,
       active: true,
       plan_tier: 'basic',
     });
