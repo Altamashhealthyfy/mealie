@@ -1694,14 +1694,6 @@ Return ONLY valid JSON, no explanation.`,
 }
 
 // constructDiamondPrompt is imported from components/pro/DiamondPromptBuilder.js
-    .filter(([, val]) => val !== '' && val !== null && val !== undefined)
-    .map(([key, val]) => '- ' + key + ': ' + val)
-    .join('\n') || 'No lab values provided';
-
-  // Format food preferences
-  const recommendedFoodsText = preferences?.recommendedFoods?.join(', ') || 'Not specified';
-  const likedFoodsText = preferences?.likedFoods?.join(', ') || 'Not specified';
-  const dislikedFoodsText = preferences?.dislikedFoods?.join(', ') || 'Not specified';
 
   // Build report data section if available
   const reportSection = reportData ? `
