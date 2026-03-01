@@ -150,7 +150,11 @@ export default function ClinicalIntake() {
           activity_level: client.activity_level || ''
         },
         health_conditions: client.health_conditions || [],
-        diet_type: client.food_preference || '',
+        diet_type: (() => {
+          const fp = client.food_preference || '';
+          const map = { veg: 'Veg', non_veg: 'Non-Veg', vegan: 'Vegan', jain: 'Jain', eggetarian: 'Eggetarian', mixed: 'Non-Veg' };
+          return map[fp] || fp;
+        })(),
         goal: client.goal ? [client.goal] : []
       }));
     }

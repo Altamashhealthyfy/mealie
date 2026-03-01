@@ -1720,9 +1720,10 @@ function constructDiamondPrompt(client, intake, numberOfDays, mealPattern, prefe
     .map(m => m.name + ' (' + m.dosage + ')')
     .join(', ') || 'None';
 
-  const labValuesText = Object.entries(intake.lab_values)
+  const labValuesText = Object.entries(intake.lab_values || {})
+    .filter(([, val]) => val !== '' && val !== null && val !== undefined)
     .map(([key, val]) => '- ' + key + ': ' + val)
-    .join('\n');
+    .join('\n') || 'No lab values provided';
 
   // Format food preferences
   const recommendedFoodsText = preferences?.recommendedFoods?.join(', ') || 'Not specified';
@@ -1760,11 +1761,11 @@ Current Medications: ${medsText}
 Lab Values:
 ${labValuesText}
 
-Diet Type: ${intake.diet_type}
-Likes: ${intake.likes_dislikes_allergies.likes.join(', ')}
-Dislikes: ${intake.likes_dislikes_allergies.dislikes.join(', ')}
-Allergies: ${intake.likes_dislikes_allergies.allergies.join(', ')}
-No-Go Foods: ${intake.likes_dislikes_allergies.no_go_foods.join(', ')}
+Diet Type: ${intake.diet_type || 'Not specified'}
+Likes: ${(intake.likes_dislikes_allergies?.likes || []).join(', ') || 'None'}
+Dislikes: ${(intake.likes_dislikes_allergies?.dislikes || []).join(', ') || 'None'}
+Allergies: ${(intake.likes_dislikes_allergies?.allergies || []).join(', ') || 'None'}
+No-Go Foods: ${(intake.likes_dislikes_allergies?.no_go_foods || []).join(', ') || 'None'}
 
 ## CLIENT FOOD PREFERENCES (FROM FORM):
 Recommended Foods (Health-promoting): ${recommendedFoodsText}
@@ -1772,12 +1773,12 @@ Foods They Like: ${likedFoodsText}
 Foods They Dislike: ${dislikedFoodsText}
 
 Daily Routine:
-- Breakfast: ${intake.daily_routine.breakfast_time}
-- Lunch: ${intake.daily_routine.lunch_time}
-- Dinner: ${intake.daily_routine.dinner_time}
+- Breakfast: ${intake.daily_routine?.breakfast_time || 'Not specified'}
+- Lunch: ${intake.daily_routine?.lunch_time || 'Not specified'}
+- Dinner: ${intake.daily_routine?.dinner_time || 'Not specified'}
 
-Goal: ${intake.goal}
-Symptom Goals: ${intake.symptom_goals.join(', ')}
+Goal: ${Array.isArray(intake.goal) ? intake.goal.join(', ') : (intake.goal || 'Not specified')}
+Symptom Goals: ${(intake.symptom_goals || []).join(', ') || 'None'}
 
 BMR: ${Math.round(bmr)} kcal
 ${reportSection}
@@ -1815,7 +1816,7 @@ TDEE: ${Math.round(tdee)} kcal
    - **Physical Activity**: Exercises suitable for their health conditions
    - **Forgiveness**: Practices for emotional release and healing
    
-   Assign these practices according to: ${Object.entries(intake.mpess_preferences).filter(([k,v]) => v).map(([k]) => k).join(', ')}
+   Assign these practices according to: ${Object.entries(intake.mpess_preferences || {}).filter(([k,v]) => v).map(([k]) => k).join(', ') || 'all'}
 
    8. Provide audit snapshot with compliance tracking
 
