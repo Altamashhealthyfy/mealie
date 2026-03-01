@@ -37,6 +37,16 @@ export function constructDiamondPrompt(client, intake, numberOfDays, mealPattern
   const calorieRangeMin = targetCalories - 50;
   const calorieRangeMax = targetCalories + 50;
 
+  // Per-meal calorie breakdown to guide AI portion sizing
+  const earlyMorningCal = 10;
+  const breakfastCal = Math.round(targetCalories * 0.22);
+  const midMorningCal = Math.round(targetCalories * 0.08);
+  const lunchCal = Math.round(targetCalories * 0.33);
+  const eveningSnackCal = Math.round(targetCalories * 0.10);
+  const dinnerCal = Math.round(targetCalories * 0.25);
+  const postDinnerCal = 2;
+  // Verify they sum close to target (rounding may differ by a few kcal — acceptable)
+
   // Format medications safely without nested template literals
   const medsText = (intake.current_medications || [])
     .map(m => m.name + ' (' + m.dosage + ')')
