@@ -283,11 +283,12 @@ RULE G - NON-VEG OPTIONS (APPLY ONLY IF diet_type is non_veg or eggetarian):
   - LUNCH (2-3 days/week): Chicken breast curry or grilled fish with roti/rice
   - EGG WHITE RULE: If client has Diabetes OR High Cholesterol → ONLY egg whites (no whole eggs)
 
-RULE H - CALORIE COMPLIANCE (CRITICAL): 
-  EVERY day's total calories MUST be between ${calorieRangeMin} and ${calorieRangeMax} kcal.
-  The target is ${targetCalories} kcal/day based on this client's TDEE (${Math.round(tdee)} kcal) and goal (${goals.join(', ') || 'maintenance'}).
-  DO NOT use 1200 kcal as a default. If any day falls below ${calorieRangeMin} kcal, increase portion sizes.
-  Adjust: larger roti portions, more dal/sabzi, bigger smoothie, extra snack item until target is reached.
+RULE H - CALORIE COMPLIANCE (CRITICAL — APPLIES TO EVERY DAY EQUALLY): 
+  EVERY day (Day 1, Day 2, Day 3 ... Day ${numberOfDays}) MUST total ${calorieRangeMin}–${calorieRangeMax} kcal.
+  The per-meal targets above (Breakfast ~${breakfastCal}, Lunch ~${lunchCal}, Dinner ~${dinnerCal}, etc.) are MANDATORY guides.
+  DO NOT reduce calories on Day 2 onwards. Day 2 through Day ${numberOfDays} must have the SAME calorie level as Day 1.
+  If individual meal options seem low-calorie, scale portion sizes UP: e.g., use 2 roti instead of 1, add 1 tsp ghee to dal, use larger vegetable portions.
+  NEVER fall below ${calorieRangeMin} kcal on any day. No exceptions.
 
 RULE I - RICE LIMITATION: Rice meals on EXACTLY 4-5 days ONLY in a 10-day plan.
 
