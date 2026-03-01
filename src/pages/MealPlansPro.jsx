@@ -1694,11 +1694,6 @@ Return ONLY valid JSON, no explanation.`,
 }
 
 // constructDiamondPrompt is imported from components/pro/DiamondPromptBuilder.js
-// END OF FILE
-    .map(m => m.name + ' (' + m.dosage + ')')
-    .join(', ') || 'None';
-
-  const labValuesText = Object.entries(intake.lab_values || {})
     .filter(([, val]) => val !== '' && val !== null && val !== undefined)
     .map(([key, val]) => '- ' + key + ': ' + val)
     .join('\n') || 'No lab values provided';
