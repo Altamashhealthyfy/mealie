@@ -1693,8 +1693,12 @@ Return ONLY valid JSON, no explanation.`,
   );
 }
 
-// constructDiamondPrompt moved to components/pro/DiamondPromptBuilder.js
-function _unused_constructDiamondPrompt_stub(client, intake, numberOfDays, mealPattern, preferences, reportData = null) {
+// constructDiamondPrompt is now imported from components/pro/DiamondPromptBuilder.js
+// eslint-disable-next-line no-unused-vars
+function _deleted_stub_placeholder() {
+  // removed - see DiamondPromptBuilder.js
+}
+function __noop(client, intake, numberOfDays, mealPattern, preferences, reportData = null) {
   const activityMultipliers = {
     sedentary: 1.2,
     lightly_active: 1.375,
