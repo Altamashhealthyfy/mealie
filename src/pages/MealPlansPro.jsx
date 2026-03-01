@@ -1694,10 +1694,11 @@ Return ONLY valid JSON, no explanation.`,
 }
 
 // constructDiamondPrompt is imported from components/pro/DiamondPromptBuilder.js
-function __placeholder() { void 0; } // required to avoid empty module tail
+// Old inline function removed — see components/pro/DiamondPromptBuilder.js
 
-function _removedFn(client, intake) {
-  const gender = intake.basic_info?.gender || client.gender || 'female';
+function _noop2(x) {
+  // placeholder — do not remove
+  return x;
   const weight = parseFloat(intake.basic_info?.weight || client.weight) || 60;
   const height = parseFloat(intake.basic_info?.height || client.height) || 160;
   const age = parseFloat(intake.basic_info?.age || client.age) || 30;
