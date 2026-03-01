@@ -21,6 +21,7 @@ import ExtraMealAdder from "@/components/pro/ExtraMealAdder";
 import { toast } from "sonner";
 import ClientSearchSelect from "@/components/common/ClientSearchSelect";
 import { handleTemplateFileUpload, downloadSampleTemplate } from "@/components/pro/TemplateUploadUtils";
+import { constructDiamondPrompt } from "@/components/pro/DiamondPromptBuilder";
 
 export default function MealPlansPro() {
   const [searchParams] = useSearchParams();
