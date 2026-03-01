@@ -1138,15 +1138,53 @@ Return ONLY valid JSON, no explanation.`;
           </Card>
 
           {/* Submit Buttons */}
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button
               type="button"
               variant="outline"
               className="flex-1"
-              onClick={() => window.location.href = '/#/ClientManagement'}
+              onClick={() => navigate('/ClientManagement')}
             >
               Cancel
             </Button>
+            {existingIntake && (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={saveMutation.isPending}
+                className="flex-1 border-purple-400 text-purple-700 hover:bg-purple-50"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const finalData = {
+                    ...formData,
+                    basic_info: {
+                      ...formData.basic_info,
+                      age: parseFloat(formData.basic_info.age) || 0,
+                      height: parseFloat(formData.basic_info.height) || 0,
+                      weight: parseFloat(formData.basic_info.weight) || 0,
+                      bmi: parseFloat(formData.basic_info.bmi) || 0,
+                    },
+                    goal: Array.isArray(formData.goal) ? formData.goal : (formData.goal ? [formData.goal] : []),
+                    current_medications: medications.filter(m => m.name),
+                    symptom_goals: symptomGoalsText.split('\n').filter(s => s.trim()),
+                    likes_dislikes_allergies: {
+                      likes: likesText.split(',').map(s => s.trim()).filter(Boolean),
+                      dislikes: dislikesText.split(',').map(s => s.trim()).filter(Boolean),
+                      allergies: allergiesText.split(',').map(s => s.trim()).filter(Boolean),
+                      no_go_foods: noGoText.split(',').map(s => s.trim()).filter(Boolean)
+                    },
+                    completed: true
+                  };
+                  base44.entities.ClinicalIntake.update(existingIntake.id, finalData).then(() => {
+                    queryClient.invalidateQueries(['clinicalIntake']);
+                    toast.success('✅ Clinical intake updated! You can now generate the plan.');
+                  }).catch(err => toast.error(err.message || 'Update failed'));
+                }}
+              >
+                {saveMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                💾 Save Changes Only
+              </Button>
+            )}
             <Button
               type="submit"
               disabled={saveMutation.isPending}
@@ -1157,7 +1195,7 @@ Return ONLY valid JSON, no explanation.`;
               ) : (
                 <>
                   <CheckCircle className="w-5 h-5 mr-2" />
-                  {existingIntake ? 'Update & Regenerate Pro Plan' : 'Submit & Generate Pro Plan'}
+                  {existingIntake ? '✏️ Update & Go to Generate Plan' : 'Submit & Generate Pro Plan'}
                 </>
               )}
             </Button>
