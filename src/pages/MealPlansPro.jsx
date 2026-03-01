@@ -900,7 +900,7 @@ Return ONLY valid JSON, no explanation.`,
                       )}
 
                       {/* Stored Reports Info */}
-                      {clientHealthReports?.length > 0 && !extractedReportData && (
+                      {clientHealthReports?.length > 0 && medicalReportFiles.length === 0 && (
                         <Alert className="bg-green-50 border-green-300">
                           <CheckCircle className="w-4 h-4 text-green-600" />
                           <AlertDescription className="text-sm">
