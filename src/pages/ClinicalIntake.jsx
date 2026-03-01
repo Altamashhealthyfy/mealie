@@ -346,6 +346,7 @@ Return ONLY valid JSON, no explanation.`;
         weight: parseFloat(formData.basic_info.weight) || 0,
         bmi: parseFloat(formData.basic_info.bmi) || 0,
       },
+      goal: Array.isArray(formData.goal) ? formData.goal : (formData.goal ? [formData.goal] : []),
       current_medications: medications.filter(m => m.name),
       symptom_goals: symptomGoalsText.split('\n').filter(s => s.trim()),
       likes_dislikes_allergies: {
