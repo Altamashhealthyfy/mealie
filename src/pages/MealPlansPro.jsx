@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 // MealPlansPro page - fully uses toast for notifications, no alert() calls
+import React, { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
