@@ -182,10 +182,10 @@ export default function ClinicalIntake() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['clinicalIntake']);
-      toast.success(existingIntake?.id ? '✅ Clinical intake updated successfully!' : '✅ Clinical intake saved successfully!');
+      toast.success(existingIntake?.id ? '✅ Clinical intake updated! Redirecting to generate plan...' : '✅ Clinical intake saved! Redirecting to generate plan...');
       setTimeout(() => {
-        window.location.href = `/#/MealPlansPro?client=${formData.client_id}`;
-      }, 1000);
+        navigate(`/MealPlansPro?client=${formData.client_id}`);
+      }, 1200);
     },
     onError: (error) => {
       toast.error('Failed to save clinical intake. Please try again.');
