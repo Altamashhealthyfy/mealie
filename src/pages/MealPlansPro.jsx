@@ -1695,17 +1695,6 @@ Return ONLY valid JSON, no explanation.`,
 
 // constructDiamondPrompt is imported from components/pro/DiamondPromptBuilder.js
 // END OF FILE
-  const age = parseFloat(intake.basic_info?.age || client.age) || 30;
-  const activityLevel = intake.basic_info?.activity_level || client.activity_level || 'sedentary';
-
-  const bmr = gender === 'male'
-    ? (10 * weight) + (6.25 * height) - (5 * age) + 5
-    : (10 * weight) + (6.25 * height) - (5 * age) - 161;
-
-  const tdee = bmr * (activityMultipliers[activityLevel] || 1.2);
-
-  // Format medications safely without nested template literals
-  const medsText = (intake.current_medications || [])
     .map(m => m.name + ' (' + m.dosage + ')')
     .join(', ') || 'None';
 
