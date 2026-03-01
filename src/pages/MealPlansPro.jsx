@@ -209,16 +209,7 @@ export default function MealPlansPro() {
   const latestIntake = clinicalIntakes?.[0];
   const hasCompletedIntake = latestIntake?.completed;
 
-  // Debug logs
-  React.useEffect(() => {
-    console.log('=== DEBUG INFO ===');
-    console.log('selectedClientId:', selectedClientId);
-    console.log('selectedClient:', selectedClient);
-    console.log('clinicalIntakes:', clinicalIntakes);
-    console.log('latestIntake:', latestIntake);
-    console.log('hasCompletedIntake:', hasCompletedIntake);
-    console.log('==================');
-  }, [selectedClientId, selectedClient, clinicalIntakes, latestIntake, hasCompletedIntake]);
+
 
   const handleMedicalReportUpload = async (e) => {
     const newFiles = Array.from(e.target.files);
