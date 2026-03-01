@@ -1693,19 +1693,11 @@ Return ONLY valid JSON, no explanation.`,
   );
 }
 
-// constructDiamondPrompt is now imported from components/pro/DiamondPromptBuilder.js
-// eslint-disable-next-line no-unused-vars
-function _deleted_stub_placeholder() {
-  // removed - see DiamondPromptBuilder.js
-}
-function __noop(client, intake, numberOfDays, mealPattern, preferences, reportData = null) {
-  const activityMultipliers = {
-    sedentary: 1.2,
-    lightly_active: 1.375,
-    moderately_active: 1.55,
-    very_active: 1.725,
-    extremely_active: 1.9
-  };
+// constructDiamondPrompt is imported from components/pro/DiamondPromptBuilder.js
+// The old inline function has been removed to avoid duplicate declaration errors.
+function __noop_removed() {
+  // stub kept only to avoid empty file tail
+  void 0;
 
   // Use intake.basic_info values (more detailed clinical data) with fallback to client entity
   const gender = intake.basic_info?.gender || client.gender || 'female';
