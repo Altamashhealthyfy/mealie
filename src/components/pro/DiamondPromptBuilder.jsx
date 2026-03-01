@@ -295,9 +295,10 @@ RULE I - RICE LIMITATION: Rice meals on EXACTLY 4-5 days ONLY in a 10-day plan.
 ****CRITICAL VALIDATION**: 
 - The meal_plan array must contain EXACTLY ${numberOfDays * 7} meals total (${numberOfDays} days × 7 meals)
 - Verify EVERY day from day 1 to day ${numberOfDays} is present
-- Daily calorie total MUST be ${calorieRangeMin}–${calorieRangeMax} kcal (NOT 1200, NOT arbitrary)
+- Daily calorie total MUST be ${calorieRangeMin}–${calorieRangeMax} kcal for EVERY day (Day 1 AND Day 2 AND Day 3 ... through Day ${numberOfDays})
 - Post dinner herbal drink MUST be IDENTICAL for all ${numberOfDays} days
 - For weight loss: Include pre-meal water reminder in lunch AND dinner rationale
+- BEFORE SUBMITTING: Verify each day's meal calories sum to ${calorieRangeMin}–${calorieRangeMax}. If any day is below, increase portions for that day.
 
-Return structured JSON with decision_rules, calculations (include target_calories: ${targetCalories}), meal_plan array (ALL ${numberOfDays} days), mpess_integration, and audit_snapshot.`;
+Return structured JSON with decision_rules, calculations (include target_calories: ${targetCalories}, tdee: ${Math.round(tdee)}), meal_plan array (ALL ${numberOfDays} days with EVERY day at ${calorieRangeMin}–${calorieRangeMax} kcal), mpess_integration, and audit_snapshot.`;
 }
