@@ -118,12 +118,27 @@ ${reportSection}
 ---
 
 ## ⚠️ MANDATORY CALORIE TARGET — DO NOT DEVIATE:
-Daily Calorie Target: **${targetCalories} kcal** (calculated from TDEE based on client goal: ${goals.join(', ') || 'maintenance'})
-Acceptable Range: ${calorieRangeMin} – ${calorieRangeMax} kcal per day (±50 kcal ONLY)
+Daily Calorie Target: **${targetCalories} kcal** (calculated from TDEE: ${Math.round(tdee)} kcal, goal: ${goals.join(', ') || 'maintenance'})
+Acceptable Range: **${calorieRangeMin} – ${calorieRangeMax} kcal per day** (±50 kcal tolerance ONLY)
 
-This is a HARD REQUIREMENT. Every day's total calories (all meals combined) MUST fall within ${calorieRangeMin}–${calorieRangeMax} kcal.
-The AI MUST NOT default to 1200 kcal or any other generic number. Use ${targetCalories} kcal as the binding target.
-Adjust portion sizes upward or downward to hit this exact range. If a day's meals are underestimating, ADD more food (e.g., larger roti, extra dal, more salad with oil dressing) until the total reaches ${calorieRangeMin}–${calorieRangeMax} kcal.
+This is a HARD REQUIREMENT. Every single day (Day 1 through Day ${numberOfDays}) MUST total between ${calorieRangeMin} and ${calorieRangeMax} kcal.
+DO NOT use 1200 kcal as a default. DO NOT use any number other than ${targetCalories} kcal as the target.
+
+### MANDATORY PER-MEAL CALORIE BREAKDOWN (Size portions to hit these targets EVERY day):
+| Meal | Target Calories |
+|------|----------------|
+| Early Morning (detox water) | ~${earlyMorningCal} kcal |
+| Breakfast | ~${breakfastCal} kcal |
+| Mid-Morning | ~${midMorningCal} kcal |
+| Lunch | ~${lunchCal} kcal |
+| Evening Snack | ~${eveningSnackCal} kcal |
+| Dinner | ~${dinnerCal} kcal |
+| Post Dinner (herbal drink) | ~${postDinnerCal} kcal |
+| **DAILY TOTAL** | **${targetCalories} kcal** |
+
+You MUST assign calories to each meal so they sum to ${calorieRangeMin}–${calorieRangeMax} kcal EVERY day.
+If portion sizes from the approved list are insufficient, scale them up proportionally (e.g., 2 roti instead of 1, larger dal serving, bigger smoothie).
+Repeat this exact calorie distribution for ALL ${numberOfDays} days — do NOT reduce calories on subsequent days.
 
 ---
 
