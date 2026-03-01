@@ -1693,8 +1693,8 @@ Return ONLY valid JSON, no explanation.`,
   );
 }
 
-// Helper function to construct Diamond GPT prompt
-function constructDiamondPrompt(client, intake, numberOfDays, mealPattern, preferences, reportData = null) {
+// constructDiamondPrompt moved to components/pro/DiamondPromptBuilder.js
+function _unused_constructDiamondPrompt_stub(client, intake, numberOfDays, mealPattern, preferences, reportData = null) {
   const activityMultipliers = {
     sedentary: 1.2,
     lightly_active: 1.375,
