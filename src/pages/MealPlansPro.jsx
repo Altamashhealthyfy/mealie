@@ -1694,10 +1694,6 @@ Return ONLY valid JSON, no explanation.`,
 }
 
 // constructDiamondPrompt is imported from components/pro/DiamondPromptBuilder.js
-
-  // Build report data section if available
-  const reportSection = reportData ? `
-## UPLOADED MEDICAL REPORT DATA (USE THIS TO SUPPLEMENT CLINICAL INTAKE):
 ${reportData.health_conditions?.length ? `Additional Conditions from Report: ${reportData.health_conditions.join(', ')}` : ''}
 ${reportData.stage_severity ? `Stage/Severity from Report: ${reportData.stage_severity}` : ''}
 ${reportData.current_medications?.length ? `Medications from Report: ${reportData.current_medications.map(m => m.name + ' ' + (m.dosage || '')).join(', ')}` : ''}
