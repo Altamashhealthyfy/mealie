@@ -1694,8 +1694,6 @@ Return ONLY valid JSON, no explanation.`,
 }
 
 // constructDiamondPrompt is imported from components/pro/DiamondPromptBuilder.js
-
-## CLIENT INTAKE DATA:
 Name: ${client.full_name}
 Age: ${age}
 Gender: ${gender}
