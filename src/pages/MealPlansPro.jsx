@@ -1694,15 +1694,7 @@ Return ONLY valid JSON, no explanation.`,
 }
 
 // constructDiamondPrompt is imported from components/pro/DiamondPromptBuilder.js
-${reportData.health_conditions?.length ? `Additional Conditions from Report: ${reportData.health_conditions.join(', ')}` : ''}
-${reportData.stage_severity ? `Stage/Severity from Report: ${reportData.stage_severity}` : ''}
-${reportData.current_medications?.length ? `Medications from Report: ${reportData.current_medications.map(m => m.name + ' ' + (m.dosage || '')).join(', ')}` : ''}
-${reportData.lab_values && Object.keys(reportData.lab_values).length > 0 ? `Lab Values from Report:\n${Object.entries(reportData.lab_values).map(([k, v]) => '- ' + k + ': ' + v).join('\n')}` : ''}
-${reportData.additional_notes ? `Clinical Notes from Report: ${reportData.additional_notes}` : ''}
-IMPORTANT: Cross-reference these report values with clinical intake data above. Prioritize specific lab values from the report when generating meal plan rules.
-` : '';
-
-  return `# Diamond Clinical Meal Plan GPT
+// (old inline function fully removed — logic is in DiamondPromptBuilder.js)
 
 Generate a **disease-specific holistic 10-day meal plan** with 3-3-4 rotation pattern.
 
