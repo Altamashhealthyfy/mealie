@@ -393,11 +393,72 @@ Be practical, use real Indian/regional food names, realistic portions.`;
       }
     });
 
-    // Recalculate day_summaries from actual meal data to ensure accurate macros
+    // ─── RECALCULATE NUTRITION FROM DATABASE (mathematically exact) ───
+    // Fetch all recipe templates and ingredients from DB for cross-referencing
+    const [allRecipes, allIngredients] = await Promise.all([
+      base44.asServiceRole.entities.RecipeTemplate.list(),
+      base44.asServiceRole.entities.NutritionalIngredient.list(),
+    ]);
+
+    // Build a lookup map: template_code → recipe
+    const recipeMap = {};
+    for (const r of allRecipes) {
+      if (r.template_code) recipeMap[r.template_code.toUpperCase()] = r;
+      if (r.dish_name) recipeMap[r.dish_name.toUpperCase()] = r;
+    }
+
+    // Build ingredient lookup map
+    const ingredientMap = {};
+    for (const ing of allIngredients) {
+      ingredientMap[ing.ingredient_name.toLowerCase()] = ing;
+    }
+
+    function calcNutritionFromIngredients(ingredients) {
+      let kcal = 0, protein = 0, carbs = 0, fat = 0, fibre = 0;
+      for (const ing of (ingredients || [])) {
+        const dbEntry = ingredientMap[ing.ingredient_name?.toLowerCase()];
+        if (!dbEntry) continue;
+        let grams = ing.qty || 0;
+        if (ing.unit === 'ml' && dbEntry.density_g_per_ml) grams = ing.qty * dbEntry.density_g_per_ml;
+        const factor = grams / 100;
+        kcal    += (dbEntry.kcal_100g || 0) * factor;
+        protein += (dbEntry.protein_100g || 0) * factor;
+        carbs   += (dbEntry.carbs_100g || 0) * factor;
+        fat     += (dbEntry.fat_100g || 0) * factor;
+        fibre   += (dbEntry.fibre_100g || 0) * factor;
+      }
+      return { kcal, protein_g: protein, carbs_g: carbs, fat_g: fat, fibre_g: fibre };
+    }
+
+    // Enrich each AI meal with verified nutrition from DB where possible
+    const enrichedMeals = aiResponse.meals.map(meal => {
+      // Try to find matching recipe by meal_name
+      const mealNameKey = (meal.meal_name || '').toUpperCase();
+      const matchedRecipe = recipeMap[mealNameKey];
+
+      if (matchedRecipe?.calculated_nutrition_per_serving) {
+        const n = matchedRecipe.calculated_nutrition_per_serving;
+        const servings = meal.servings || 1;
+        return {
+          ...meal,
+          calories: Math.round(n.kcal * servings * 10) / 10,
+          protein: Math.round(n.protein_g * servings * 10) / 10,
+          carbs: Math.round(n.carbs_g * servings * 10) / 10,
+          fats: Math.round(n.fat_g * servings * 10) / 10,
+          fiber: Math.round((n.fibre_g || 0) * servings * 10) / 10,
+          nutrition_source: 'database_verified',
+        };
+      }
+
+      // If no DB match, keep AI values but flag them
+      return { ...meal, nutrition_source: 'ai_estimated' };
+    });
+
+    // Recalculate day summaries from enriched meals
     const recalculatedDaySummaries = [];
-    const dayNumbers = [...new Set(aiResponse.meals.map(m => m.day))].sort((a, b) => a - b);
+    const dayNumbers = [...new Set(enrichedMeals.map(m => m.day))].sort((a, b) => a - b);
     for (const day of dayNumbers) {
-      const dayMeals = aiResponse.meals.filter(m => m.day === day);
+      const dayMeals = enrichedMeals.filter(m => m.day === day);
       const totals = dayMeals.reduce((acc, m) => ({
         calories: acc.calories + (Number(m.calories) || 0),
         protein: acc.protein + (Number(m.protein) || 0),
