@@ -1694,12 +1694,9 @@ Return ONLY valid JSON, no explanation.`,
 }
 
 // constructDiamondPrompt is imported from components/pro/DiamondPromptBuilder.js
-// The old inline function has been removed to avoid duplicate declaration errors.
-function __noop_removed() {
-  // stub kept only to avoid empty file tail
-  void 0;
+function __placeholder() { void 0; } // required to avoid empty module tail
 
-  // Use intake.basic_info values (more detailed clinical data) with fallback to client entity
+function _removedFn(client, intake) {
   const gender = intake.basic_info?.gender || client.gender || 'female';
   const weight = parseFloat(intake.basic_info?.weight || client.weight) || 60;
   const height = parseFloat(intake.basic_info?.height || client.height) || 160;
