@@ -691,7 +691,7 @@ export default function DietitianDashboard() {
                         <div className="flex items-center gap-4 text-sm text-gray-500">
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            {format(new Date(appointment.date), 'MMM d, yyyy')}
+                            {appointment.appointment_date ? format(new Date(appointment.appointment_date), 'MMM d, yyyy') : 'TBD'}
                           </span>
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
@@ -755,7 +755,7 @@ export default function DietitianDashboard() {
                               <div>
                                 <p className="font-semibold text-gray-900">{client?.full_name || 'Client'}</p>
                                 <p className="text-xs text-gray-500">
-                                  {format(new Date(log.date), 'MMM d, yyyy')}
+                                  {log.date ? format(new Date(log.date), 'MMM d, yyyy') : 'N/A'}
                                 </p>
                               </div>
                             </div>
@@ -858,7 +858,7 @@ export default function DietitianDashboard() {
                             <div>
                               <p className="font-semibold text-gray-900">{client?.full_name || 'Client'}</p>
                               <p className="text-xs text-gray-500">
-                                {format(new Date(tracking.date), 'MMM d, yyyy')}
+                                {tracking.submission_date || tracking.created_date ? format(new Date(tracking.submission_date || tracking.created_date), 'MMM d, yyyy') : 'N/A'}
                               </p>
                             </div>
                           </div>
