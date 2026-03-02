@@ -113,11 +113,8 @@ export default function MealPlansPro() {
   const { data: proMealPlans } = useQuery({
     queryKey: ['proMealPlans', user?.email, user?.user_type],
     queryFn: async () => {
-      const allPlans = await base44.entities.MealPlan.list('-created_date');
-      const advancedPlans = allPlans.filter(plan => plan.plan_tier === 'advanced');
-      // super_admin sees all plans; everyone else sees only their own
-      if (user?.user_type === 'super_admin') return advancedPlans;
-      return advancedPlans.filter(plan => plan.created_by === user?.email);
+      const allPlans = await base44.entities.MealPlan.filter({ created_by: user?.email }, '-created_date');
+      return allPlans.filter(plan => plan.plan_tier === 'advanced');
     },
     enabled: !!user,
     initialData: [],
