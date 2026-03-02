@@ -109,13 +109,7 @@ export default function MealPlanner() {
   const { data: mealPlans } = useQuery({
     queryKey: ['mealPlans'],
     queryFn: async () => {
-      const allPlans = await base44.entities.MealPlan.list('-created_date');
-      
-      if (user?.user_type === 'super_admin') {
-        return allPlans;
-      }
-      
-      return allPlans.filter(plan => plan.created_by === user?.email);
+      return await base44.entities.MealPlan.filter({ created_by: user?.email }, '-created_date');
     },
     enabled: !!user && user?.user_type !== 'client',
     initialData: [],
