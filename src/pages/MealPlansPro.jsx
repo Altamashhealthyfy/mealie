@@ -126,15 +126,11 @@ export default function MealPlansPro() {
   const { data: templates } = useQuery({
     queryKey: ['proTemplates'],
     queryFn: async () => {
-      const myTemplates = await base44.entities.MealPlanTemplate.filter({ 
-        created_by: user?.email,
-        category: { $in: ['diabetes', 'pcos', 'thyroid', 'kidney', 'heart', 'autoimmune_diseases', 'gastrointestinal_disorders', 'neurological_conditions', 'pediatric_nutrition'] }
-      });
-      const publicTemplates = await base44.entities.MealPlanTemplate.filter({ 
-        is_public: true,
-        category: { $in: ['diabetes', 'pcos', 'thyroid', 'kidney', 'heart', 'autoimmune_diseases', 'gastrointestinal_disorders', 'neurological_conditions', 'pediatric_nutrition'] }
-      });
-      return [...myTemplates, ...publicTemplates];
+      const myTemplates = await base44.entities.MealPlanTemplate.filter({ created_by: user?.email });
+      const publicTemplates = await base44.entities.MealPlanTemplate.filter({ is_public: true });
+      const allTemplates = [...myTemplates, ...publicTemplates];
+      // Deduplicate by id
+      return allTemplates.filter((t, i, arr) => arr.findIndex(x => x.id === t.id) === i);
     },
     enabled: !!user,
     initialData: [],
