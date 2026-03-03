@@ -624,6 +624,7 @@ export default function TemplateLibrary() {
                   Contribute Your Template
                 </Button>
               </DialogTrigger>
+              </DialogContent>
             </Dialog>
 
             <Dialog open={showFormatUploadDialog} onOpenChange={setShowFormatUploadDialog}>
