@@ -1595,67 +1595,123 @@ export default function TemplateLibrary() {
           </DialogContent>
         </Dialog>
 
-        {/* Branding / Personalization Dialog */}
-        <Dialog open={showBrandingDialog} onOpenChange={setShowBrandingDialog}>
-          <DialogContent className="max-w-md">
+        {/* Download Dialog - Format chooser + branding */}
+        <Dialog open={showBrandingDialog} onOpenChange={(open) => {
+          setShowBrandingDialog(open);
+          if (!open) setBrandingData({ clinicName: "", logoUrl: "", letterheadUrl: "" });
+        }}>
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-red-500" />
-                Personalize & Download PDF
+                <Download className="w-5 h-5 text-green-600" />
+                Download Template
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-5 mt-2">
-              <div className="p-3 bg-orange-50 rounded-lg border border-orange-200 text-sm text-orange-800">
-                Add your clinic/brand name and logo — they'll appear as a letterhead on the PDF.
+              {brandingTemplate && (
+                <div className="p-3 bg-gray-50 rounded-lg border">
+                  <p className="font-semibold text-gray-900 text-sm">{brandingTemplate.name}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{brandingTemplate.file_type?.toUpperCase()} • {brandingTemplate.file_size}</p>
+                </div>
+              )}
+
+              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 text-sm text-blue-800">
+                <strong>Choose download format:</strong> Download the original file as-is, or get a branded PDF with your clinic's logo/letterhead.
               </div>
 
-              {/* Logo Upload */}
-              <div>
-                <Label className="font-semibold">Clinic Logo (Optional)</Label>
-                <p className="text-xs text-gray-500 mb-2">Upload your logo to appear at the top of the PDF</p>
-                {brandingData.logoUrl ? (
-                  <div className="relative">
-                    <img src={brandingData.logoUrl} alt="Logo" className="w-full h-20 object-contain border rounded-lg bg-gray-50" />
-                    <button
-                      onClick={() => setBrandingData(prev => ({ ...prev, logoUrl: "" }))}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold"
-                    >×</button>
+              {/* Format 1: Original File */}
+              <div className="border-2 border-gray-200 rounded-xl p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-green-600" />
                   </div>
-                ) : (
-                  <label className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg border border-dashed border-gray-300 hover:border-orange-400 hover:bg-orange-50 transition-colors">
-                    {uploadingLogo ? <Loader2 className="w-4 h-4 animate-spin text-orange-500" /> : <Upload className="w-4 h-4 text-orange-500" />}
-                    <span className="text-sm text-gray-600">{uploadingLogo ? "Uploading..." : "Upload Logo Image"}</span>
-                    <input type="file" accept="image/*" onChange={handleLogoUpload} disabled={uploadingLogo} className="hidden" />
-                  </label>
-                )}
-              </div>
-
-              {/* Clinic Name */}
-              <div>
-                <Label className="font-semibold">Clinic / Brand Name (Optional)</Label>
-                <Input
-                  placeholder="e.g., Dr. Sharma's Nutrition Clinic"
-                  value={brandingData.clinicName}
-                  onChange={(e) => setBrandingData(prev => ({ ...prev, clinicName: e.target.value }))}
-                  className="mt-1"
-                />
-              </div>
-
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setShowBrandingDialog(false)} className="flex-1">
-                  Cancel
+                  <div>
+                    <p className="font-semibold text-gray-900">Original File</p>
+                    <p className="text-xs text-gray-500">Download as DOCX/PDF/XLSX — editable original</p>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => { handleDownload(brandingTemplate); setShowBrandingDialog(false); }}
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 h-11"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download Original File
                 </Button>
+              </div>
+
+              {/* Format 2: Branded PDF */}
+              <div className="border-2 border-orange-200 rounded-xl p-4 space-y-4 bg-orange-50/30">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-orange-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Branded PDF</p>
+                    <p className="text-xs text-gray-500">Add your clinic logo, name & letterhead</p>
+                  </div>
+                </div>
+
+                {/* Clinic Logo */}
+                <div>
+                  <Label className="text-sm font-semibold">Clinic Logo (Optional)</Label>
+                  {brandingData.logoUrl ? (
+                    <div className="relative mt-1">
+                      <img src={brandingData.logoUrl} alt="Logo" className="w-full h-16 object-contain border rounded-lg bg-white" />
+                      <button onClick={() => setBrandingData(prev => ({ ...prev, logoUrl: "" }))} className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">×</button>
+                    </div>
+                  ) : (
+                    <label className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg border border-dashed border-gray-300 hover:border-orange-400 hover:bg-white transition-colors mt-1">
+                      {uploadingLogo ? <Loader2 className="w-4 h-4 animate-spin text-orange-500" /> : <Upload className="w-4 h-4 text-orange-500" />}
+                      <span className="text-sm text-gray-600">{uploadingLogo ? "Uploading..." : "Upload Logo"}</span>
+                      <input type="file" accept="image/*" onChange={handleLogoUpload} disabled={uploadingLogo} className="hidden" />
+                    </label>
+                  )}
+                </div>
+
+                {/* Letterhead */}
+                <div>
+                  <Label className="text-sm font-semibold">Letterhead Image (Optional)</Label>
+                  <p className="text-xs text-gray-500 mb-1">Full-width header image for your clinic letterhead</p>
+                  {brandingData.letterheadUrl ? (
+                    <div className="relative">
+                      <img src={brandingData.letterheadUrl} alt="Letterhead" className="w-full h-16 object-contain border rounded-lg bg-white" />
+                      <button onClick={() => setBrandingData(prev => ({ ...prev, letterheadUrl: "" }))} className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">×</button>
+                    </div>
+                  ) : (
+                    <label className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg border border-dashed border-gray-300 hover:border-orange-400 hover:bg-white transition-colors">
+                      {uploadingLetterhead ? <Loader2 className="w-4 h-4 animate-spin text-orange-500" /> : <Upload className="w-4 h-4 text-orange-500" />}
+                      <span className="text-sm text-gray-600">{uploadingLetterhead ? "Uploading..." : "Upload Letterhead"}</span>
+                      <input type="file" accept="image/*" onChange={handleLetterheadUpload} disabled={uploadingLetterhead} className="hidden" />
+                    </label>
+                  )}
+                </div>
+
+                {/* Clinic Name */}
+                <div>
+                  <Label className="text-sm font-semibold">Clinic / Brand Name (Optional)</Label>
+                  <Input
+                    placeholder="e.g., Dr. Sharma's Nutrition Clinic"
+                    value={brandingData.clinicName}
+                    onChange={(e) => setBrandingData(prev => ({ ...prev, clinicName: e.target.value }))}
+                    className="mt-1 bg-white"
+                  />
+                </div>
+
                 <Button
                   onClick={() => {
                     handlePDFDownload(brandingTemplate, brandingData);
                     setShowBrandingDialog(false);
                   }}
-                  className="flex-1 bg-gradient-to-r from-red-500 to-orange-500 h-11"
+                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-11"
                 >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download PDF
+                  <FileText className="w-4 h-4 mr-2" />
+                  Download Branded PDF
                 </Button>
               </div>
+
+              <Button variant="outline" onClick={() => setShowBrandingDialog(false)} className="w-full">
+                Cancel
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
