@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, ChefHat, Search, Heart, TrendingUp, Apple, Sparkles, User, Loader2, BookOpen, Scale, Target, MessageCircle } from "lucide-react";
+import { Calendar, ChefHat, Search, Heart, TrendingUp, Sparkles, User, Loader2, BookOpen, Scale, Target, MessageCircle } from "lucide-react";
 import ClientGuidePanel from "@/components/common/ClientGuidePanel";
  
 
@@ -61,7 +61,7 @@ export default function Home() {
     enabled: !!user && user.user_type === 'client',
   });
 
-  const { data: myGoals } = useQuery({
+  const { data: myGoals = [] } = useQuery({
     queryKey: ['myGoalsHome', clientProfile?.id],
     queryFn: async () => {
       const goals = await base44.entities.ProgressGoal.filter({ client_id: clientProfile?.id, status: 'active' });
@@ -71,7 +71,7 @@ export default function Home() {
     initialData: [],
   });
 
-  const { data: recentProgress } = useQuery({
+  const { data: recentProgress = [] } = useQuery({
     queryKey: ['recentProgressHome', clientProfile?.id],
     queryFn: async () => {
       const logs = await base44.entities.ProgressLog.filter({ client_id: clientProfile?.id });
