@@ -1006,10 +1006,12 @@ Return ONLY valid JSON, no explanation.`;
                   rows={2}
                 />
               </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+              </CollapsibleContent>
+              </Card>
+              </Collapsible>
 
-          {/* Section 6: Daily Routine */}
+              {/* Section 6: Daily Routine */}
           <Card className="border-none shadow-lg">
             <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white">
               <CardTitle>6. Daily Routine & Meal Timings</CardTitle>
