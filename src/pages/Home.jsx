@@ -120,7 +120,7 @@ export default function Home() {
     }
   }, [user, userLoading, navigate]);
 
-  if (userLoading) {
+  if (userLoading || (user && ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(user.user_type))) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
