@@ -488,7 +488,6 @@ export default function Layout({ children, currentPageName }) {
     },
     retry: false,
     staleTime: 5 * 60 * 1000,
-    initialData: undefined,
   });
 
   // Detect custom domain and fetch branding
@@ -987,11 +986,6 @@ export default function Layout({ children, currentPageName }) {
         </div>
       </div>
     );
-  }
-
-  // If user is null (not logged in), just show children without sidebar
-  if (!user) {
-    return <div className="min-h-screen">{children}</div>;
   }
 
   // Full-width pages without sidebar

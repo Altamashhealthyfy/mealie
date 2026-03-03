@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, ChefHat, Search, Heart, TrendingUp, Sparkles, User, Loader2, BookOpen, Scale, Target, MessageCircle } from "lucide-react";
+import { Calendar, ChefHat, Search, Heart, TrendingUp, Apple, Sparkles, User, Loader2, BookOpen, Scale, Target, MessageCircle } from "lucide-react";
 import ClientGuidePanel from "@/components/common/ClientGuidePanel";
  
 
@@ -61,7 +61,7 @@ export default function Home() {
     enabled: !!user && user.user_type === 'client',
   });
 
-  const { data: myGoals = [] } = useQuery({
+  const { data: myGoals } = useQuery({
     queryKey: ['myGoalsHome', clientProfile?.id],
     queryFn: async () => {
       const goals = await base44.entities.ProgressGoal.filter({ client_id: clientProfile?.id, status: 'active' });
@@ -71,7 +71,7 @@ export default function Home() {
     initialData: [],
   });
 
-  const { data: recentProgress = [] } = useQuery({
+  const { data: recentProgress } = useQuery({
     queryKey: ['recentProgressHome', clientProfile?.id],
     queryFn: async () => {
       const logs = await base44.entities.ProgressLog.filter({ client_id: clientProfile?.id });
@@ -122,36 +122,8 @@ export default function Home() {
 
   if (userLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
+      <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
-      </div>
-    );
-  }
-
-  // If user is dietitian, show loading (redirect in progress)
-  if (user && ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(user.user_type)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
-        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
-      </div>
-    );
-  }
-
-  // If no user, redirect to login or show message
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle>Welcome</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">Please login to continue.</p>
-            <Button onClick={() => window.location.reload()} className="w-full">
-              Reload Page
-            </Button>
-          </CardContent>
-        </Card>
       </div>
     );
   }
