@@ -799,7 +799,7 @@ export default function TemplateLibrary() {
         {/* Big Benefits Card */}
         <Card className="border-none shadow-2xl bg-gradient-to-br from-green-50 to-emerald-50">
           <CardContent className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 text-center">
               <div>
                 <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
                   <CheckCircle className="w-8 h-8 text-white" />
