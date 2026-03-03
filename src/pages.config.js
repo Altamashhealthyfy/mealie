@@ -144,6 +144,7 @@ import MPESSTracker from './pages/MPESSTracker';
 import MarketingHub from './pages/MarketingHub';
 import MealPhotoAnalysis from './pages/MealPhotoAnalysis';
 import MealPlanConstraints from './pages/MealPlanConstraints';
+import MealPlanDiagnostic from './pages/MealPlanDiagnostic';
 import MealPlanner from './pages/MealPlanner';
 import MealPlansPro from './pages/MealPlansPro';
 import MyAssessment from './pages/MyAssessment';
@@ -152,12 +153,12 @@ import NotificationSettings from './pages/NotificationSettings';
 import Notifications from './pages/Notifications';
 import PaymentGatewaySettings from './pages/PaymentGatewaySettings';
 import PaymentHistory from './pages/PaymentHistory';
+import Profile from './pages/Profile';
 import PaymentSetup from './pages/PaymentSetup';
 import PaymentTracking from './pages/PaymentTracking';
 import PlatformBrandingTracker from './pages/PlatformBrandingTracker';
 import PlatformColorCustomization from './pages/PlatformColorCustomization';
 import PricingPlans from './pages/PricingPlans';
-import Profile from './pages/Profile';
 import ProgressTracking from './pages/ProgressTracking';
 import ProjectManagement from './pages/ProjectManagement';
 import PublicPlanPurchase from './pages/PublicPlanPurchase';
@@ -185,7 +186,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import MealPlanDiagnostic from './pages/MealPlanDiagnostic';
 import __Layout from './Layout.jsx';
 
 
@@ -287,6 +287,7 @@ export const PAGES = {
     "MarketingHub": MarketingHub,
     "MealPhotoAnalysis": MealPhotoAnalysis,
     "MealPlanConstraints": MealPlanConstraints,
+    "MealPlanDiagnostic": MealPlanDiagnostic,
     "MealPlanner": MealPlanner,
     "MealPlansPro": MealPlansPro,
     "MyAssessment": MyAssessment,
@@ -295,12 +296,12 @@ export const PAGES = {
     "Notifications": Notifications,
     "PaymentGatewaySettings": PaymentGatewaySettings,
     "PaymentHistory": PaymentHistory,
+    "Profile": Profile,
     "PaymentSetup": PaymentSetup,
     "PaymentTracking": PaymentTracking,
     "PlatformBrandingTracker": PlatformBrandingTracker,
     "PlatformColorCustomization": PlatformColorCustomization,
     "PricingPlans": PricingPlans,
-    "Profile": Profile,
     "ProgressTracking": ProgressTracking,
     "ProjectManagement": ProjectManagement,
     "PublicPlanPurchase": PublicPlanPurchase,
@@ -328,7 +329,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "MealPlanDiagnostic": MealPlanDiagnostic,
 }
 
 export const pagesConfig = {
