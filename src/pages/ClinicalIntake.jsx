@@ -1005,15 +1005,15 @@ Return ONLY valid JSON, no explanation.`;
                   onChange={(e) => setNoGoText(e.target.value)}
                   rows={2}
                 />
-              </div>
-              </CardContent>
-              </CollapsibleContent>
-              </Card>
-              </Collapsible>
+                </div>
+                </CardContent>
+                </CollapsibleContent>
+                </Card>
+                </Collapsible>
 
-              {/* Section 6: Daily Routine */}
-              <Collapsible open={isDailyRoutineOpen} onOpenChange={setIsDailyRoutineOpen}>
-              <Card className="border-none shadow-lg">
+                {/* Section 6: Daily Routine */}
+                <Collapsible open={isDailyRoutineOpen} onOpenChange={setIsDailyRoutineOpen}>
+                <Card className="border-none shadow-lg">
                 <CollapsibleTrigger asChild>
                 <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
                   <CardTitle>6. Daily Routine & Meal Timings</CardTitle>
