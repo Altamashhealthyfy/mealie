@@ -1162,10 +1162,12 @@ Return ONLY valid JSON, no explanation.`;
                   rows={4}
                 />
               </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+              </CollapsibleContent>
+              </Card>
+              </Collapsible>
 
-          {/* Section 9: MPESS Preferences */}
+              {/* Section 9: MPESS Preferences */}
           <Card className="border-none shadow-lg">
             <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
               <CardTitle>9. MPESS Wellness Integration</CardTitle>
