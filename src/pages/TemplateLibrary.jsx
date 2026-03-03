@@ -1172,15 +1172,25 @@ export default function TemplateLibrary() {
                       <Eye className="w-4 h-4 mr-2" />
                       View Template Details
                     </Button>
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => handleDownload(template)}
-                        variant="outline"
-                        className="flex-1 h-11 border-2 border-green-500 text-green-700 hover:bg-green-50"
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        Download
-                      </Button>
+                    <div className="flex gap-2 flex-col">
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => handleDownload(template)}
+                          variant="outline"
+                          className="flex-1 h-11 border-2 border-green-500 text-green-700 hover:bg-green-50"
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          Download File
+                        </Button>
+                        <Button
+                          onClick={() => handleDownloadPDF(template)}
+                          variant="outline"
+                          className="flex-1 h-11 border-2 border-blue-500 text-blue-700 hover:bg-blue-50"
+                        >
+                          <FileDown className="w-4 h-4 mr-2" />
+                          PDF
+                        </Button>
+                      </div>
                       <Button
                         onClick={() => {
                           setTemplateToRate(template);
@@ -1188,7 +1198,7 @@ export default function TemplateLibrary() {
                           setUserRating(0);
                         }}
                         variant="outline"
-                        className="flex-1 h-11 border-2 border-orange-500 text-orange-700 hover:bg-orange-50"
+                        className="w-full h-11 border-2 border-orange-500 text-orange-700 hover:bg-orange-50"
                       >
                         <Star className="w-4 h-4 mr-1" />
                         Rate
