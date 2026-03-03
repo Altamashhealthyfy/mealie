@@ -280,23 +280,6 @@ export default function TemplateLibrary() {
     }
   });
 
-  const handleDownloadSample = () => {
-    const sampleData = `Template Name,Description,Category,Subcategory,Target Calories,Food Preference,Regional Preference,Duration (days),Tags
-"Vegetarian Weight Loss 1500 Cal","A balanced vegetarian meal plan for weight loss with 1500 calories per day","meal_plan","weight_loss","1500","veg","north","7","weight-loss, high-protein, vegetarian"
-"High Protein Non-Veg Diet","Muscle gain focused plan with high protein content","meal_plan","muscle_gain","2200","non_veg","south","14","muscle-gain, high-protein, non-veg"
-"Diabetic Friendly Plan","Low sugar, balanced nutrition for diabetes management","meal_plan","diabetes","1600","mixed","east","10","diabetes, low-sugar, balanced"`;
-
-    const blob = new Blob([sampleData], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'sample_template_format.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
   const handleUpload = async () => {
     if (!selectedFile) {
       alert("Please select a file first");
@@ -440,92 +423,86 @@ export default function TemplateLibrary() {
     downloadMutation.mutate(template);
   };
 
-  const handleDownloadPDF = async (template) => {
-    try {
-      const doc = new jsPDF();
-      let yPos = 15;
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const margin = 15;
-      const contentWidth = pageWidth - 2 * margin;
+  const handleDownloadPDF = (template) => {
+    const doc = new jsPDF();
+    let yPos = 15;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 15;
+    const contentWidth = pageWidth - 2 * margin;
 
-      // Title
-      doc.setFontSize(18);
-      doc.setTextColor(31, 41, 55);
-      doc.text(template.name, margin, yPos);
-      yPos += 10;
+    // Title
+    doc.setFontSize(18);
+    doc.setTextColor(31, 41, 55);
+    doc.text(template.name, margin, yPos);
+    yPos += 10;
 
-      // Line separator
-      doc.setDrawColor(200, 200, 200);
-      doc.line(margin, yPos, pageWidth - margin, yPos);
-      yPos += 8;
+    // Line separator
+    doc.setDrawColor(200, 200, 200);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+    yPos += 8;
 
-      // Description
-      if (template.description) {
-        doc.setFontSize(10);
-        doc.setTextColor(100, 100, 100);
-        const descLines = doc.splitTextToSize(template.description, contentWidth);
-        doc.text(descLines, margin, yPos);
-        yPos += descLines.length * 5 + 5;
-      }
+    // Description
+    if (template.description) {
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      const descLines = doc.splitTextToSize(template.description, contentWidth);
+      doc.text(descLines, margin, yPos);
+      yPos += descLines.length * 5 + 5;
+    }
 
-      // Template Details Section
+    // Template Details Section
+    doc.setFontSize(11);
+    doc.setTextColor(31, 41, 55);
+    doc.text("Template Details", margin, yPos);
+    yPos += 7;
+
+    doc.setFontSize(9);
+    doc.setTextColor(80, 80, 80);
+
+    const details = [
+      [`Category:`, template.category.replace(/_/g, ' ')],
+      template.subcategory && [`Subcategory:`, template.subcategory.replace(/_/g, ' ')],
+      template.target_calories && [`Calories:`, `${template.target_calories} Kcal`],
+      template.food_preference && template.food_preference !== 'all' && [`Food Preference:`, template.food_preference],
+      template.regional_preference && template.regional_preference !== 'all' && [`Region:`, template.regional_preference.replace(/_/g, ' ')],
+      template.duration && [`Duration:`, `${template.duration} days`],
+      [`File Type:`, template.file_type.toUpperCase()],
+      [`File Size:`, template.file_size],
+      [`Downloads:`, `${template.download_count || 0}`],
+      template.average_rating && [`Rating:`, `${template.average_rating.toFixed(1)} stars (${template.rating_count || 0} ratings)`],
+      template.created_by && [`Created by:`, template.created_by],
+    ].filter(Boolean);
+
+    details.forEach((detail) => {
+      doc.text(`${detail[0]}`, margin, yPos);
+      doc.text(`${detail[1]}`, margin + 50, yPos);
+      yPos += 6;
+    });
+
+    yPos += 5;
+
+    // Tags section
+    if (template.tags && template.tags.length > 0) {
       doc.setFontSize(11);
       doc.setTextColor(31, 41, 55);
-      doc.text("Template Details", margin, yPos);
+      doc.text("Tags", margin, yPos);
       yPos += 7;
-
+      
       doc.setFontSize(9);
       doc.setTextColor(80, 80, 80);
-
-      const fileTypeStr = (template.file_type || 'FILE').toUpperCase();
-      const details = [
-        [`Category:`, template.category.replace(/_/g, ' ')],
-        template.subcategory && [`Subcategory:`, template.subcategory.replace(/_/g, ' ')],
-        template.target_calories && [`Calories:`, `${template.target_calories} Kcal`],
-        template.food_preference && template.food_preference !== 'all' && [`Food Preference:`, template.food_preference],
-        template.regional_preference && template.regional_preference !== 'all' && [`Region:`, template.regional_preference.replace(/_/g, ' ')],
-        template.duration && [`Duration:`, `${template.duration} days`],
-        [`File Type:`, fileTypeStr],
-        template.file_size && [`File Size:`, template.file_size],
-        [`Downloads:`, `${template.download_count || 0}`],
-        template.average_rating && [`Rating:`, `${template.average_rating.toFixed(1)} stars (${template.rating_count || 0} ratings)`],
-        template.created_by && [`Created by:`, template.created_by],
-      ].filter(Boolean);
-
-      details.forEach((detail) => {
-        doc.text(`${detail[0]}`, margin, yPos);
-        doc.text(`${detail[1]}`, margin + 50, yPos);
-        yPos += 6;
-      });
-
-      yPos += 5;
-
-      // Tags section
-      if (template.tags && template.tags.length > 0) {
-        doc.setFontSize(11);
-        doc.setTextColor(31, 41, 55);
-        doc.text("Tags", margin, yPos);
-        yPos += 7;
-        
-        doc.setFontSize(9);
-        doc.setTextColor(80, 80, 80);
-        const tagsText = template.tags.join(", ");
-        const tagsLines = doc.splitTextToSize(tagsText, contentWidth);
-        doc.text(tagsLines, margin, yPos);
-        yPos += tagsLines.length * 5;
-      }
-
-      // Footer
-      doc.setFontSize(8);
-      doc.setTextColor(150, 150, 150);
-      doc.text(`Generated on ${new Date().toLocaleDateString('en-IN')}`, margin, pageHeight - 10);
-
-      doc.save(`${template.name}.pdf`);
-    } catch (error) {
-      console.error('PDF download error:', error);
-      alert('Failed to generate PDF. Please try again.');
+      const tagsText = template.tags.join(", ");
+      const tagsLines = doc.splitTextToSize(tagsText, contentWidth);
+      doc.text(tagsLines, margin, yPos);
+      yPos += tagsLines.length * 5;
     }
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Generated on ${new Date().toLocaleDateString('en-IN')}`, margin, pageHeight - 10);
+
+    doc.save(`${template.name}.pdf`);
   };
 
   const userType = user?.user_type || 'client';
@@ -560,29 +537,11 @@ export default function TemplateLibrary() {
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-               <DialogHeader>
-                 <div className="flex items-center justify-between">
-                   <DialogTitle className="text-2xl">Upload Template to Library</DialogTitle>
-                   <Button
-                     variant="outline"
-                     size="sm"
-                     onClick={handleDownloadSample}
-                     className="border-blue-500 text-blue-600 hover:bg-blue-50"
-                   >
-                     <Download className="w-4 h-4 mr-2" />
-                     Sample Format
-                   </Button>
-                 </div>
-               </DialogHeader>
+                <DialogHeader>
+                  <DialogTitle className="text-2xl">Upload Template to Library</DialogTitle>
+                </DialogHeader>
 
-               <Alert className="bg-green-50 border-green-300">
-                 <CheckCircle className="w-4 h-4 text-green-600" />
-                 <AlertDescription className="ml-2 text-sm text-green-700">
-                   💡 Download the sample format first to see the exact structure expected for uploading templates
-                 </AlertDescription>
-               </Alert>
-
-               <div className="space-y-4">
+                <div className="space-y-4">
                   <Alert className="bg-blue-50 border-blue-500">
                     <Sparkles className="w-5 h-5 text-blue-600" />
                     <AlertDescription>
