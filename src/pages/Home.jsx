@@ -36,7 +36,7 @@ export default function Home() {
 
   const { data: activeMealPlan } = useQuery({
     queryKey: ['homeActiveMealPlan', user?.email],
-    queryFn: () => base44.entities.MealPlan.filter({ active: true, created_by: user?.email }, '-created_date', 1).then(res => res[0]),
+    queryFn: () => base44.entities.MealPlan.filter({ active: true, created_by: user?.email }, '-created_date', 1).then(res => res[0] ?? null),
     enabled: !!user?.email,
     staleTime: 300000,
   });
