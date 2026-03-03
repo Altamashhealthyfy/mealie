@@ -2263,7 +2263,7 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
           </DialogContent>
         </Dialog>
 
-        <AITemplateDialog_PLACEHOLDER />
+        {/* AITemplateDialog rendered below */}
 
         {/* Manual Template Creation Dialog */}
         <Dialog open={showManualTemplateDialog} onOpenChange={setShowManualTemplateDialog}>
