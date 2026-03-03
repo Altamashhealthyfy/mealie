@@ -1242,13 +1242,13 @@ Return ONLY valid JSON, no explanation.`;
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Extracting data from report...
                 </div>
-              )}
-              </CardContent>
-              </CollapsibleContent>
-              </Card>
-              </Collapsible>
+                )}
+                </CardContent>
+                </CollapsibleContent>
+                </Card>
+                </Collapsible>
 
-              {/* Submit Buttons */}
+                {/* Submit Buttons */}
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               type="button"
