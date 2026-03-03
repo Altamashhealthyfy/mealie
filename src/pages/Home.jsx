@@ -120,10 +120,38 @@ export default function Home() {
     }
   }, [user, userLoading, navigate]);
 
-  if (userLoading || (user && ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(user.user_type))) {
+  if (userLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
         <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+      </div>
+    );
+  }
+
+  // If user is dietitian, show loading (redirect in progress)
+  if (user && ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(user.user_type)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
+        <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+      </div>
+    );
+  }
+
+  // If no user, redirect to login or show message
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 via-amber-50 to-green-50">
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle>Welcome</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">Please login to continue.</p>
+            <Button onClick={() => window.location.reload()} className="w-full">
+              Reload Page
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
