@@ -29,7 +29,7 @@ export default function Home() {
 
   const { data: userProfile } = useQuery({
     queryKey: ['homeUserProfile', user?.email],
-    queryFn: () => base44.entities.UserProfile.filter({ created_by: user?.email }, '-created_date', 1).then(res => res[0]),
+    queryFn: () => base44.entities.UserProfile.filter({ created_by: user?.email }, '-created_date', 1).then(res => res[0] ?? null),
     enabled: !!user?.email,
     staleTime: 300000,
   });
