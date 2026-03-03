@@ -423,86 +423,97 @@ export default function TemplateLibrary() {
     downloadMutation.mutate(template);
   };
 
-  const handleDownloadPDF = (template) => {
-    const doc = new jsPDF();
-    let yPos = 15;
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 15;
-    const contentWidth = pageWidth - 2 * margin;
+  const handleDownloadPDF = async (template) => {
+    try {
+      // Increment download count
+      await base44.entities.DownloadableTemplate.update(template.id, {
+        download_count: (template.download_count || 0) + 1
+      });
+      
+      const doc = new jsPDF();
+      let yPos = 15;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 15;
+      const contentWidth = pageWidth - 2 * margin;
 
-    // Title
-    doc.setFontSize(18);
-    doc.setTextColor(31, 41, 55);
-    doc.text(template.name, margin, yPos);
-    yPos += 10;
+      // Title
+      doc.setFontSize(18);
+      doc.setTextColor(31, 41, 55);
+      doc.text(template.name, margin, yPos);
+      yPos += 10;
 
-    // Line separator
-    doc.setDrawColor(200, 200, 200);
-    doc.line(margin, yPos, pageWidth - margin, yPos);
-    yPos += 8;
+      // Line separator
+      doc.setDrawColor(200, 200, 200);
+      doc.line(margin, yPos, pageWidth - margin, yPos);
+      yPos += 8;
 
-    // Description
-    if (template.description) {
-      doc.setFontSize(10);
-      doc.setTextColor(100, 100, 100);
-      const descLines = doc.splitTextToSize(template.description, contentWidth);
-      doc.text(descLines, margin, yPos);
-      yPos += descLines.length * 5 + 5;
-    }
+      // Description
+      if (template.description) {
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        const descLines = doc.splitTextToSize(template.description, contentWidth);
+        doc.text(descLines, margin, yPos);
+        yPos += descLines.length * 5 + 5;
+      }
 
-    // Template Details Section
-    doc.setFontSize(11);
-    doc.setTextColor(31, 41, 55);
-    doc.text("Template Details", margin, yPos);
-    yPos += 7;
-
-    doc.setFontSize(9);
-    doc.setTextColor(80, 80, 80);
-
-    const details = [
-      [`Category:`, template.category.replace(/_/g, ' ')],
-      template.subcategory && [`Subcategory:`, template.subcategory.replace(/_/g, ' ')],
-      template.target_calories && [`Calories:`, `${template.target_calories} Kcal`],
-      template.food_preference && template.food_preference !== 'all' && [`Food Preference:`, template.food_preference],
-      template.regional_preference && template.regional_preference !== 'all' && [`Region:`, template.regional_preference.replace(/_/g, ' ')],
-      template.duration && [`Duration:`, `${template.duration} days`],
-      [`File Type:`, template.file_type.toUpperCase()],
-      [`File Size:`, template.file_size],
-      [`Downloads:`, `${template.download_count || 0}`],
-      template.average_rating && [`Rating:`, `${template.average_rating.toFixed(1)} stars (${template.rating_count || 0} ratings)`],
-      template.created_by && [`Created by:`, template.created_by],
-    ].filter(Boolean);
-
-    details.forEach((detail) => {
-      doc.text(`${detail[0]}`, margin, yPos);
-      doc.text(`${detail[1]}`, margin + 50, yPos);
-      yPos += 6;
-    });
-
-    yPos += 5;
-
-    // Tags section
-    if (template.tags && template.tags.length > 0) {
+      // Template Details Section
       doc.setFontSize(11);
       doc.setTextColor(31, 41, 55);
-      doc.text("Tags", margin, yPos);
+      doc.text("Template Details", margin, yPos);
       yPos += 7;
-      
+
       doc.setFontSize(9);
       doc.setTextColor(80, 80, 80);
-      const tagsText = template.tags.join(", ");
-      const tagsLines = doc.splitTextToSize(tagsText, contentWidth);
-      doc.text(tagsLines, margin, yPos);
-      yPos += tagsLines.length * 5;
+
+      const details = [
+        [`Category:`, template.category.replace(/_/g, ' ')],
+        template.subcategory && [`Subcategory:`, template.subcategory.replace(/_/g, ' ')],
+        template.target_calories && [`Calories:`, `${template.target_calories} Kcal`],
+        template.food_preference && template.food_preference !== 'all' && [`Food Preference:`, template.food_preference],
+        template.regional_preference && template.regional_preference !== 'all' && [`Region:`, template.regional_preference.replace(/_/g, ' ')],
+        template.duration && [`Duration:`, `${template.duration} days`],
+        [`File Type:`, template.file_type.toUpperCase()],
+        [`File Size:`, template.file_size],
+        [`Downloads:`, `${(template.download_count || 0) + 1}`],
+        template.average_rating && [`Rating:`, `${template.average_rating.toFixed(1)} stars (${template.rating_count || 0} ratings)`],
+        template.created_by && [`Created by:`, template.created_by],
+      ].filter(Boolean);
+
+      details.forEach((detail) => {
+        doc.text(`${detail[0]}`, margin, yPos);
+        doc.text(`${detail[1]}`, margin + 50, yPos);
+        yPos += 6;
+      });
+
+      yPos += 5;
+
+      // Tags section
+      if (template.tags && template.tags.length > 0) {
+        doc.setFontSize(11);
+        doc.setTextColor(31, 41, 55);
+        doc.text("Tags", margin, yPos);
+        yPos += 7;
+        
+        doc.setFontSize(9);
+        doc.setTextColor(80, 80, 80);
+        const tagsText = template.tags.join(", ");
+        const tagsLines = doc.splitTextToSize(tagsText, contentWidth);
+        doc.text(tagsLines, margin, yPos);
+        yPos += tagsLines.length * 5;
+      }
+
+      // Footer
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(`Generated on ${new Date().toLocaleDateString('en-IN')}`, margin, pageHeight - 10);
+
+      doc.save(`${template.name}.pdf`);
+      queryClient.invalidateQueries(['downloadableTemplates']);
+    } catch (error) {
+      console.error('PDF download error:', error);
+      alert('Failed to generate PDF. Please try again.');
     }
-
-    // Footer
-    doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
-    doc.text(`Generated on ${new Date().toLocaleDateString('en-IN')}`, margin, pageHeight - 10);
-
-    doc.save(`${template.name}.pdf`);
   };
 
   const userType = user?.user_type || 'client';
