@@ -9,6 +9,8 @@ import {
   Edit, Send, FileText, Plus, Stethoscope, UserPlus, KeyRound, Sparkles, TrendingUp, Calculator, ChefHat, Zap, Activity
 } from "lucide-react";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import ClientMedicalProgress from "@/components/client/ClientMedicalProgress";
 
 export default function ClientDetailDialog({
