@@ -1014,14 +1014,14 @@ Return ONLY valid JSON, no explanation.`;
                 {/* Section 6: Daily Routine */}
                 <Collapsible open={isDailyRoutineOpen} onOpenChange={setIsDailyRoutineOpen}>
                 <Card className="border-none shadow-lg">
-                <CollapsibleTrigger asChild>
-                <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
-                  <CardTitle>6. Daily Routine & Meal Timings</CardTitle>
-                  <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isDailyRoutineOpen ? 'rotate-180' : ''}`} />
-                </CardHeader>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                <CardContent className="p-6">
+            <CollapsibleTrigger asChild>
+            <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
+              <CardTitle>6. Daily Routine & Meal Timings</CardTitle>
+              <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isDailyRoutineOpen ? 'rotate-180' : ''}`} />
+            </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+            <CardContent className="p-6">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Wake Up Time</Label>
