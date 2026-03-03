@@ -637,15 +637,15 @@ Return ONLY valid JSON, no explanation.`;
               ))}
               {medications.length === 0 && (
                 <p className="text-sm text-gray-500 text-center py-4">No medications added</p>
-              )}
-              </CardContent>
-              </CollapsibleContent>
-              </Card>
-              </Collapsible>
+                )}
+                </CardContent>
+                </CollapsibleContent>
+                </Card>
+                </Collapsible>
 
-              {/* Section 4: Lab Values */}
-              <Collapsible open={isLabValuesOpen} onOpenChange={setIsLabValuesOpen}>
-              <Card className="border-none shadow-lg">
+                {/* Section 4: Lab Values */}
+                <Collapsible open={isLabValuesOpen} onOpenChange={setIsLabValuesOpen}>
+                <Card className="border-none shadow-lg">
                 <CollapsibleTrigger asChild>
                 <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
                   <div>
