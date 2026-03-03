@@ -560,11 +560,29 @@ export default function TemplateLibrary() {
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl">Upload Template to Library</DialogTitle>
-                </DialogHeader>
+               <DialogHeader>
+                 <div className="flex items-center justify-between">
+                   <DialogTitle className="text-2xl">Upload Template to Library</DialogTitle>
+                   <Button
+                     variant="outline"
+                     size="sm"
+                     onClick={handleDownloadSample}
+                     className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                   >
+                     <Download className="w-4 h-4 mr-2" />
+                     Sample Format
+                   </Button>
+                 </div>
+               </DialogHeader>
 
-                <div className="space-y-4">
+               <Alert className="bg-green-50 border-green-300">
+                 <CheckCircle className="w-4 h-4 text-green-600" />
+                 <AlertDescription className="ml-2 text-sm text-green-700">
+                   💡 Download the sample format first to see the exact structure expected for uploading templates
+                 </AlertDescription>
+               </Alert>
+
+               <div className="space-y-4">
                   <Alert className="bg-blue-50 border-blue-500">
                     <Sparkles className="w-5 h-5 text-blue-600" />
                     <AlertDescription>
