@@ -57,11 +57,16 @@ Your Coach`;
 
   const sendWhatsAppMutation = useMutation({
     mutationFn: async (message) => {
-      return await base44.functions.invoke('sendWhatsAppMessage', {
+      const result = await base44.functions.invoke('sendWhatsAppMessage', {
         phone: client.phone,
         message: message,
         clientName: client.full_name,
       });
+      // Check if the response indicates failure
+      if (result?.data?.success === false) {
+        throw new Error(result?.data?.error || 'WhatsApp message failed to send. Please check the campaign name is configured in AISensy.');
+      }
+      return result;
     },
     onSuccess: () => {
       alert('✅ Welcome WhatsApp message sent successfully!');
