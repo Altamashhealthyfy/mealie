@@ -1174,24 +1174,41 @@ export default function TemplateLibrary() {
                       View Template Details
                     </Button>
                     <div className="flex gap-2 flex-col">
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => handleDownload(template)}
-                          variant="outline"
-                          className="flex-1 h-11 border-2 border-green-500 text-green-700 hover:bg-green-50"
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download File
-                        </Button>
-                        <Button
-                          onClick={() => handleDownloadPDF(template)}
-                          variant="outline"
-                          className="flex-1 h-11 border-2 border-blue-500 text-blue-700 hover:bg-blue-50"
-                        >
-                          <FileDown className="w-4 h-4 mr-2" />
-                          PDF
-                        </Button>
-                      </div>
+                      <Dialog open={downloadMenuOpen === template.id} onOpenChange={(open) => setDownloadMenuOpen(open ? template.id : null)}>
+                        <DialogTrigger asChild>
+                          <Button className="w-full h-11 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
+                            <Download className="w-4 h-4 mr-2" />
+                            Download File
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-xs">
+                          <DialogHeader>
+                            <DialogTitle>Choose Format</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-3 py-4">
+                            <Button
+                              onClick={() => {
+                                handleDownload(template);
+                                setDownloadMenuOpen(null);
+                              }}
+                              className="w-full h-12 bg-green-500 hover:bg-green-600"
+                            >
+                              <FileDown className="w-4 h-4 mr-2" />
+                              {template.file_type.toUpperCase()} File
+                            </Button>
+                            <Button
+                              onClick={() => {
+                                handleDownloadPDF(template);
+                                setDownloadMenuOpen(null);
+                              }}
+                              className="w-full h-12 bg-blue-500 hover:bg-blue-600"
+                            >
+                              <FileDown className="w-4 h-4 mr-2" />
+                              PDF File
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
                       <Button
                         onClick={() => {
                           setTemplateToRate(template);
