@@ -24,6 +24,7 @@ export default function MealPlanDiagnostic() {
   const [generatedPlan, setGeneratedPlan] = useState(null);
   const [mealCount, setMealCount] = useState('4');
   const [durationDays, setDurationDays] = useState('7');
+  const [customInstructions, setCustomInstructions] = useState('');
   const [loadingDiagnostics, setLoadingDiagnostics] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState(false);
   const [planVersions, setPlanVersions] = useState([]);
