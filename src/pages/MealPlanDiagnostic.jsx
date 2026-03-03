@@ -183,129 +183,58 @@ export default function MealPlanDiagnostic() {
 
         {/* DIAGNOSTICS TAB */}
         <TabsContent value="diagnostics" className="space-y-4">
-          {/* Nutritional Targets */}
           <Card>
-            <CardHeader className="bg-blue-50">
+            <CardHeader className="bg-slate-50">
               <CardTitle className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-blue-600" />
-                Calculated Nutritional Targets
+                <CheckCircle2 className="w-5 h-5 text-slate-600" />
+                Nutritional Profile
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div className="p-4 bg-blue-50 rounded-lg">
-                  <p className="text-xs text-gray-600">IBW</p>
-                  <p className="text-2xl font-bold">{diagnostics.nutritional_targets.ibw} kg</p>
-                </div>
-                <div className="p-4 bg-green-50 rounded-lg">
-                  <p className="text-xs text-gray-600">BMR</p>
-                  <p className="text-2xl font-bold">{diagnostics.nutritional_targets.bmr}</p>
-                </div>
-                <div className="p-4 bg-purple-50 rounded-lg">
-                  <p className="text-xs text-gray-600">TDEE</p>
-                  <p className="text-2xl font-bold">{diagnostics.nutritional_targets.tdee}</p>
-                </div>
-                <div className="p-4 bg-orange-50 rounded-lg">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
                   <p className="text-xs text-gray-600">Calorie Target</p>
                   <p className="text-2xl font-bold">{diagnostics.nutritional_targets.calorie_target}</p>
                 </div>
-                <div className="p-4 bg-pink-50 rounded-lg">
-                  <p className="text-xs text-gray-600">BMI</p>
-                  <p className="text-2xl font-bold">{diagnostics.health_analysis.bmi}</p>
-                </div>
-              </div>
-
-              <div className="mt-6 grid md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-1">Protein Target</label>
-                  <p className="text-lg">{diagnostics.nutritional_targets.macros.protein_grams}g</p>
+                  <p className="text-xs text-gray-600">Protein</p>
+                  <p className="text-2xl font-bold">{diagnostics.nutritional_targets.macros.protein_grams}g</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-1">Carbs Target</label>
-                  <p className="text-lg">{diagnostics.nutritional_targets.macros.carbs_grams}g</p>
+                  <p className="text-xs text-gray-600">Carbs</p>
+                  <p className="text-2xl font-bold">{diagnostics.nutritional_targets.macros.carbs_grams}g</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold mb-1">Fats Target</label>
-                  <p className="text-lg">{diagnostics.nutritional_targets.macros.fat_grams}g</p>
+                  <p className="text-xs text-gray-600">Fats</p>
+                  <p className="text-2xl font-bold">{diagnostics.nutritional_targets.macros.fat_grams}g</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Health Analysis */}
           <Card>
-            <CardHeader className="bg-green-50">
-              <CardTitle>Health Analysis & Restrictions</CardTitle>
+            <CardHeader className="bg-slate-50">
+              <CardTitle>Dietary Preferences</CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
-              {diagnostics.health_analysis.health_conditions.length > 0 && (
-                <div>
-                  <p className="font-semibold mb-2">Active Health Conditions:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {diagnostics.health_analysis.health_conditions.map(hc => (
-                      <Badge key={hc} variant="outline">{hc}</Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <p className="font-semibold mb-2 text-red-700">Foods to AVOID:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {diagnostics.health_analysis.foods_to_avoid.slice(0, 5).map((food, i) => (
-                      <Badge key={i} className="bg-red-100 text-red-800">{food}</Badge>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <p className="font-semibold mb-2 text-green-700">Foods to EMPHASIZE:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {diagnostics.health_analysis.foods_to_emphasize.slice(0, 5).map((food, i) => (
-                      <Badge key={i} className="bg-green-100 text-green-800">{food}</Badge>
-                    ))}
-                  </div>
+              <div>
+                <p className="font-semibold mb-2">Foods to Avoid:</p>
+                <div className="flex flex-wrap gap-2">
+                  {diagnostics.health_analysis.foods_to_avoid.slice(0, 5).map((food, i) => (
+                    <Badge key={i} variant="outline">{food}</Badge>
+                  ))}
                 </div>
               </div>
-
-              {diagnostics.health_analysis.cooking_rules.length > 0 && (
-                <div>
-                  <p className="font-semibold mb-2">Cooking Rules:</p>
-                  <ul className="list-disc ml-5 space-y-1">
-                    {diagnostics.health_analysis.cooking_rules.map((rule, i) => (
-                      <li key={i}>{rule}</li>
-                    ))}
-                  </ul>
+              <div>
+                <p className="font-semibold mb-2">Foods to Emphasize:</p>
+                <div className="flex flex-wrap gap-2">
+                  {diagnostics.health_analysis.foods_to_emphasize.slice(0, 5).map((food, i) => (
+                    <Badge key={i} variant="outline">{food}</Badge>
+                  ))}
                 </div>
-              )}
-
-              {diagnostics.health_analysis.medication_interactions && (
-                <Alert className="bg-yellow-50 border-yellow-200">
-                  <AlertTriangle className="w-4 h-4" />
-                  <AlertDescription>{diagnostics.health_analysis.medication_interactions}</AlertDescription>
-                </Alert>
-              )}
+              </div>
             </CardContent>
           </Card>
-
-          {/* Safety Flags */}
-          {diagnostics.safety_flags.length > 0 && (
-            <Card className="border-red-200 bg-red-50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-red-700">
-                  <AlertTriangle className="w-5 h-5" />
-                  Safety Flags
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {diagnostics.safety_flags.map((flag, i) => (
-                    <li key={i} className="text-red-700">{flag}</li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          )}
         </TabsContent>
 
         {/* GENERATION TAB */}
