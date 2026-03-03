@@ -2336,233 +2336,35 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">No Clients Yet</h3>
                   <p className="text-gray-600 mb-4">Add clients before generating meal plans</p>
                   <Button onClick={() => window.location.href = createPageUrl('ClientManagement')}>
-                    <Users className="w-4 h-4 mr-2" />
-                    Manage Clients
+                    <Users className="w-4 h-4 mr-2" />Manage Clients
                   </Button>
                 </CardContent>
               </Card>
-            ) : generatedPlan === null && viewingPlan === null ? (
-              <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-orange-500" />
-                    Generate New Meal Plan with AI
-                  </CardTitle>
-                  <CardDescription>
-                    {user?.user_type === 'student_coach' && coachPlan ? (
-                      availableAICredits > 0 ? (
-                        '✅ FREE with your AI credits - Use templates to save credits!'
-                      ) : (
-                        `⚠️ Costs ₹${coachPlan.ai_credit_price || 10} per plan - Use templates to save money!`
-                      )
-                    ) : (
-                      `⚠️ Costs ₹${coachPlan?.ai_credit_price || 10} per plan - Use templates to save money!`
-                    )}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="client" className="text-base font-semibold flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      Select Client *
-                    </Label>
-                    <Select
-                      value={selectedClientId || ''}
-                      onValueChange={setSelectedClientId}
-                    >
-                      <SelectTrigger id="client" className="h-12">
-                        <SelectValue placeholder="Choose a client..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {clients.map((client) => {
-                          const clientPlans = mealPlans.filter(p => p.client_id === client.id);
-                          const hasActivePlan = clientPlans.some(p => p.active);
-                          return (
-                            <SelectItem key={client.id} value={client.id}>
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">{client.full_name}</span>
-                                <Badge variant="outline" className="text-xs capitalize">
-                                  {client.food_preference}
-                                </Badge>
-                                <Badge className="text-xs">{client.target_calories} kcal</Badge>
-                                {hasActivePlan && (
-                                  <Badge className="text-xs bg-green-500">
-                                    <CheckCircle className="w-3 h-3 mr-1" />
-                                    Has Plan
-                                  </Badge>
-                                )}
-                              </div>
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {selectedClient && (
-                    <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
-                          <span className="text-white font-medium text-lg">
-                            {selectedClient.full_name.charAt(0)}
-                          </span>
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900">{selectedClient.full_name}</h3>
-                          <p className="text-sm text-gray-600">{selectedClient.email}</p>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                          <span className="text-gray-600">Food:</span>
-                          <Badge className="ml-2 capitalize">{selectedClient.food_preference}</Badge>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Region:</span>
-                          <Badge className="ml-2 capitalize">{selectedClient.regional_preference}</Badge>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Target Calories:</span>
-                          <span className="ml-2 font-semibold">{selectedClient.target_calories} kcal</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Goal:</span>
-                          <Badge className="ml-2 capitalize">{selectedClient.goal?.replace('_', ' ')}</Badge>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="duration">Duration</Label>
-                      <Select
-                        value={planConfig.duration.toString()}
-                        onValueChange={(value) => setPlanConfig({...planConfig, duration: parseInt(value)})}
-                      >
-                        <SelectTrigger id="duration">
-                          <SelectValue placeholder="Select duration" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="7">7 Days</SelectItem>
-                          <SelectItem value="10">10 Days</SelectItem>
-                          <SelectItem value="15">15 Days</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="meal-pattern">Meal Pattern</Label>
-                      <Select
-                        value={planConfig.meal_pattern}
-                        onValueChange={(value) => setPlanConfig({...planConfig, meal_pattern: value})}
-                      >
-                        <SelectTrigger id="meal-pattern">
-                          <SelectValue placeholder="Select meal pattern" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="daily">Daily (Unique each day)</SelectItem>
-                          <SelectItem value="3-3-4">3-3-4 Pattern (3+3+4 days rotation)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  {user?.user_type === 'student_coach' && coachPlan ? (
-                    <Alert className={`border-2 ${availableAICredits > 0 ? 'border-green-500 bg-green-50' : 'border-yellow-500 bg-yellow-50'}`}>
-                      <AlertTriangle className={`w-5 h-5 ${availableAICredits > 0 ? 'text-green-600' : 'text-yellow-600'}`} />
-                      <AlertDescription className="ml-2">
-                        <div className="space-y-2">
-                          <p className={`font-semibold ${availableAICredits > 0 ? 'text-green-900' : 'text-yellow-900'}`}>
-                            {availableAICredits > 0 ? '✅ FREE Generation (using your AI credits)' : `💸 Cost: ₹${coachPlan.ai_credit_price || 10} per generation`}
-                          </p>
-                          <p className={`text-sm ${availableAICredits > 0 ? 'text-green-800' : 'text-yellow-800'}`}>
-                            AI Credits Available: {availableAICredits === Infinity ? 'Unlimited ∞' : availableAICredits}
-                          </p>
-                          <div className="p-3 bg-blue-100 border border-blue-300 rounded-lg mt-2">
-                            <p className="text-sm font-semibold text-blue-900 mb-1">💡 Save Money!</p>
-                            <p className="text-xs text-blue-800">
-                              After generating, click "Save as Template" to reuse it FREE unlimited times!
-                            </p>
-                          </div>
-                        </div>
-                      </AlertDescription>
-                    </Alert>
-                  ) : (
-                    <Alert className="border-2 border-yellow-500 bg-yellow-50">
-                      <AlertTriangle className="w-5 h-5 text-yellow-600" />
-                      <AlertDescription className="ml-2">
-                        <div className="space-y-2">
-                          <p className="font-semibold text-yellow-900">💸 This will cost ₹{coachPlan?.ai_credit_price || 10}</p>
-                          <p className="text-sm text-yellow-800">
-                            You've used {usage?.meal_plans_generated || 0} / {usage?.plan_limits?.meal_plans || 20} AI generations this month
-                          </p>
-                          <div className="p-3 bg-green-100 border border-green-300 rounded-lg mt-2">
-                            <p className="text-sm font-semibold text-green-900 mb-1">💡 Save Money!</p>
-                            <p className="text-xs text-green-800">
-                              After generating, click "Save as Template" to reuse it FREE unlimited times!
-                            </p>
-                          </div>
-                        </div>
-                      </AlertDescription>
-                    </Alert>
-                  )}
-
-                  <div className="flex flex-col sm:flex-row gap-3">
-                   <Button
-                     onClick={generateMealPlan}
-                     disabled={generating || !selectedClientId}
-                     className="flex-1 h-12 sm:h-14 text-sm sm:text-base md:text-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg"
-                   >
-                     {generating ? (
-                       <>
-                         <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
-                         <span className="hidden sm:inline">Generating Meal Plan...</span>
-                         <span className="sm:hidden">Generating...</span>
-                       </>
-                     ) : (
-                       <>
-                         <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                         {user?.user_type === 'student_coach' && coachPlan ? (
-                           availableAICredits > 0 ? (
-                             <>
-                               <span className="hidden md:inline">Generate Meal Plan (FREE with credits)</span>
-                               <span className="md:hidden">Generate (FREE)</span>
-                             </>
-                           ) : (
-                             <>
-                               <span className="hidden md:inline">Generate Meal Plan (₹{coachPlan.ai_credit_price || 10})</span>
-                               <span className="md:hidden">Generate (₹{coachPlan.ai_credit_price || 10})</span>
-                             </>
-                           )
-                         ) : (
-                           <>
-                             <span className="hidden md:inline">Generate with AI (₹{coachPlan?.ai_credit_price || 10})</span>
-                             <span className="md:hidden">Generate AI (₹{coachPlan?.ai_credit_price || 10})</span>
-                           </>
-                         )}
-                       </>
-                     )}
-                   </Button>
-                   {selectedClient && (
-                     <AIMealPlanGenerator 
-                       client={selectedClient}
-                       onPlanGenerated={(plan) => {
-                         setGeneratedPlan(plan);
-                         setViewingPlan(null);
-                       }}
-                     />
-                   )}
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <GeneratedMealPlan 
-                plan={viewingPlan || generatedPlan} 
+            ) : generatedPlan !== null || viewingPlan !== null ? (
+              <GeneratedMealPlan
+                plan={viewingPlan || generatedPlan}
                 onSave={viewingPlan ? null : handleSavePlan}
                 onSaveAsTemplate={!viewingPlan ? handleSaveAsTemplate : null}
                 onGenerateNew={handleGenerateNew}
                 isSaving={savePlanMutation.isPending || updatePlanMutation.isPending}
+              />
+            ) : (
+              <AIGenerateTabContent
+                selectedClientId={selectedClientId}
+                setSelectedClientId={setSelectedClientId}
+                selectedClient={selectedClient}
+                clients={clients}
+                mealPlans={mealPlans}
+                planConfig={planConfig}
+                setPlanConfig={setPlanConfig}
+                generating={generating}
+                generateMealPlan={generateMealPlan}
+                setGeneratedPlan={setGeneratedPlan}
+                setViewingPlan={setViewingPlan}
+                user={user}
+                coachPlan={coachPlan}
+                availableAICredits={availableAICredits}
+                usage={usage}
               />
             )}
           </TabsContent>
