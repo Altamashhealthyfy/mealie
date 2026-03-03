@@ -280,6 +280,23 @@ export default function TemplateLibrary() {
     }
   });
 
+  const handleDownloadSample = () => {
+    const sampleData = `Template Name,Description,Category,Subcategory,Target Calories,Food Preference,Regional Preference,Duration (days),Tags
+"Vegetarian Weight Loss 1500 Cal","A balanced vegetarian meal plan for weight loss with 1500 calories per day","meal_plan","weight_loss","1500","veg","north","7","weight-loss, high-protein, vegetarian"
+"High Protein Non-Veg Diet","Muscle gain focused plan with high protein content","meal_plan","muscle_gain","2200","non_veg","south","14","muscle-gain, high-protein, non-veg"
+"Diabetic Friendly Plan","Low sugar, balanced nutrition for diabetes management","meal_plan","diabetes","1600","mixed","east","10","diabetes, low-sugar, balanced"`;
+
+    const blob = new Blob([sampleData], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sample_template_format.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const handleUpload = async () => {
     if (!selectedFile) {
       alert("Please select a file first");
