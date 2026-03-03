@@ -931,15 +931,15 @@ Return ONLY valid JSON, no explanation.`;
                      rows={2}
                    />
                  </div>
-                </div>
-                </CardContent>
-                </CollapsibleContent>
-                </Card>
-                </Collapsible>
+              </div>
+            </CardContent>
+            </CollapsibleContent>
+          </Card>
+          </Collapsible>
 
-                {/* Section 5: Diet Preferences */}
-                <Collapsible open={isDietPreferencesOpen} onOpenChange={setIsDietPreferencesOpen}>
-                <Card className="border-none shadow-lg">
+          {/* Section 5: Diet Preferences */}
+          <Collapsible open={isDietPreferencesOpen} onOpenChange={setIsDietPreferencesOpen}>
+          <Card className="border-none shadow-lg">
                   <CollapsibleTrigger asChild>
                   <CardHeader className="bg-gradient-to-r from-yellow-500 to-amber-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
                     <CardTitle>5. Diet Preferences *</CardTitle>
