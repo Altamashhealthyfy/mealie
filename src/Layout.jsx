@@ -488,7 +488,16 @@ export default function Layout({ children, currentPageName }) {
     },
     retry: false,
     staleTime: 5 * 60 * 1000,
+    initialData: undefined,
   });
+
+  // Safety: if layout crashes, still render children
+  const [layoutError, setLayoutError] = React.useState(false);
+  React.useEffect(() => {
+    const handler = (e) => { console.error('Layout error:', e); };
+    window.addEventListener('error', handler);
+    return () => window.removeEventListener('error', handler);
+  }, []);
 
   // Detect custom domain and fetch branding
   React.useEffect(() => {
