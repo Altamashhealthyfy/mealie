@@ -1518,7 +1518,7 @@ export default function TemplateLibrary() {
                    Download
                  </Button>
                  <Button
-                   onClick={() => handlePDFDownload(viewingTemplate)}
+                   onClick={() => { setViewingTemplate(null); openBrandedPDF(viewingTemplate); }}
                    variant="outline"
                    className="h-12 border-2 border-red-400 text-red-600 hover:bg-red-50"
                  >
