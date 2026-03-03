@@ -589,14 +589,14 @@ Return ONLY valid JSON, no explanation.`;
                   onChange={(e) => setFormData({...formData, stage_severity: e.target.value})}
                 />
               </div>
-              </CardContent>
-              </CollapsibleContent>
-              </Card>
-              </Collapsible>
+            </CardContent>
+            </CollapsibleContent>
+          </Card>
+          </Collapsible>
 
-              {/* Section 3: Current Medications */}
-              <Collapsible open={isMedicationsOpen} onOpenChange={setIsMedicationsOpen}>
-              <Card className="border-none shadow-lg">
+          {/* Section 3: Current Medications */}
+          <Collapsible open={isMedicationsOpen} onOpenChange={setIsMedicationsOpen}>
+          <Card className="border-none shadow-lg">
                 <CollapsibleTrigger asChild>
                 <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
                   <CardTitle>3. Current Medications</CardTitle>
