@@ -27,8 +27,10 @@ import {
   TrendingUp,
   ArrowUpDown,
   Copy,
-  Zap
+  Zap,
+  FileDown
 } from "lucide-react";
+import { jsPDF } from "jspdf";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export default function TemplateLibrary() {
