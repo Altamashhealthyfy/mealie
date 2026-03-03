@@ -101,11 +101,11 @@ Deno.serve(async (req) => {
             result: result
         });
 
-        if (!response.ok || !result.success) {
+        if (!response.ok) {
             console.error("❌ AISensy API Error:", result);
             return Response.json({ 
                 success: false,
-                error: 'Failed to send WhatsApp message',
+                error: result?.message || 'Failed to send WhatsApp message',
                 details: result
             }, { status: 500 });
         }
