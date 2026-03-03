@@ -299,6 +299,69 @@ export default function TemplateLibrary() {
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadFormatSample = () => {
+    const sampleJson = {
+      name: "Vegetarian Weight Loss 1500 Cal",
+      description: "A balanced vegetarian meal plan for weight loss with 1500 calories per day",
+      category: "meal_plan",
+      subcategory: "weight_loss",
+      target_calories: 1500,
+      food_preference: "veg",
+      regional_preference: "north",
+      duration: 7,
+      tags: ["weight-loss", "high-protein", "vegetarian"],
+      meals: [
+        {
+          day: 1,
+          meal_type: "breakfast",
+          meal_name: "Poha with Vegetables",
+          items: ["Poha", "Onion", "Potato", "Mustard seeds"],
+          portion_sizes: ["1 cup", "1/4 cup", "1 small", "1 tsp"],
+          calories: 250,
+          protein: 8,
+          carbs: 45,
+          fats: 4,
+          nutritional_tip: "Rich in iron and carbohydrates for energy"
+        },
+        {
+          day: 1,
+          meal_type: "lunch",
+          meal_name: "Moong Dal with Brown Rice",
+          items: ["Moong Dal", "Brown Rice", "Spinach", "Tomato"],
+          portion_sizes: ["1 cup cooked", "0.75 cup", "1 cup", "1 medium"],
+          calories: 400,
+          protein: 15,
+          carbs: 55,
+          fats: 3,
+          nutritional_tip: "Complete protein with complex carbs"
+        },
+        {
+          day: 1,
+          meal_type: "dinner",
+          meal_name: "Dal Fry with Roti",
+          items: ["Masoor Dal", "Wheat Flour", "Garlic", "Ginger"],
+          portion_sizes: ["1 cup", "2 rotis", "1 clove", "0.5 inch"],
+          calories: 350,
+          protein: 14,
+          carbs: 50,
+          fats: 3,
+          nutritional_tip: "High in fiber and plant-based protein"
+        }
+      ]
+    };
+
+    const dataStr = JSON.stringify(sampleJson, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sample_formatted_meal_plan.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const handleUpload = async () => {
     if (!selectedFile) {
       alert("Please select a file first");
