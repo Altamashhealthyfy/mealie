@@ -565,9 +565,7 @@ export default function TemplateLibrary() {
   };
 
   const userType = user?.user_type || 'client';
-  const canUpload = userType === 'super_admin' || 
-                    (userType === 'team_member') ||
-                    (userType === 'student_coach' && coachPlan?.can_contribute_templates === true);
+  const canUpload = ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(userType);
   const canEdit = (template) => {
     return userType === 'super_admin' || template.created_by === user?.email;
   };
