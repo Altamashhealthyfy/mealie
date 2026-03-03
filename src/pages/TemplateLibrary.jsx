@@ -501,7 +501,10 @@ export default function TemplateLibrary() {
       @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } .meal-block { break-inside: avoid; } }
     </style></head><body><div class="page">`;
 
-    if (logoUrl || clinicName) {
+    const { letterheadUrl } = branding;
+    if (letterheadUrl) {
+      html += `<div style="margin-bottom:20px;border-bottom:3px solid #ea580c;padding-bottom:16px;"><img src="${letterheadUrl}" style="width:100%;max-height:120px;object-fit:contain;" /></div>`;
+    } else if (logoUrl || clinicName) {
       html += `<div class="letterhead-bar">`;
       if (logoUrl) html += `<img src="${logoUrl}" class="letterhead-logo" />`;
       if (clinicName) html += `<div class="clinic-name-text">${clinicName}</div>`;
