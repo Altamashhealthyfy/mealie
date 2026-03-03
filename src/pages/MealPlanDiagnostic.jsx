@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,10 +9,16 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertTriangle, CheckCircle2, Loader2, Save, RefreshCw } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Loader2, Save, RefreshCw, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 
 export default function MealPlanDiagnostic() {
-  const [selectedClientId, setSelectedClientId] = useState('');
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const clientIdFromParam = searchParams.get('client');
+  
+  const [selectedClientId, setSelectedClientId] = useState(clientIdFromParam || '');
   const [diagnostics, setDiagnostics] = useState(null);
   const [generatedPlan, setGeneratedPlan] = useState(null);
   const [mealCount, setMealCount] = useState('4');
