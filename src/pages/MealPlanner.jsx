@@ -2201,69 +2201,17 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
                   </Card>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredTemplates.map((template) => (
-                    <Card key={template.id} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all">
-                      <CardHeader className="p-4 lg:p-6">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <CardTitle className="text-sm lg:text-lg truncate">{template.name}</CardTitle>
-                            <p className="text-xs lg:text-sm text-gray-600 mt-1 line-clamp-2">{template.description}</p>
-                          </div>
-                          <div className="flex gap-1 flex-shrink-0">
-                            {template.is_public && (
-                              <Badge className="bg-purple-100 text-purple-700 text-xs">Public</Badge>
-                            )}
-                            {template.created_by === user?.email && (
-                              <Badge className="bg-blue-100 text-blue-700 text-xs">Mine</Badge>
-                            )}
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="p-4 lg:p-6 space-y-3">
-                        <div className="flex flex-wrap gap-2">
-                          <Badge className="bg-orange-100 text-orange-700 capitalize text-xs">
-                            {template.food_preference}
-                          </Badge>
-                          <Badge className="bg-blue-100 text-blue-700 text-xs">
-                            {template.target_calories} kcal
-                          </Badge>
-                          <Badge className="bg-green-100 text-green-700 text-xs">
-                            {template.duration}d
-                          </Badge>
-                        </div>
-
-                        <div className="p-2 lg:p-3 bg-green-50 border border-green-200 rounded-lg">
-                          <p className="text-xs lg:text-sm font-semibold text-green-900">
-                            ✅ Used {template.times_used || 0}x
-                          </p>
-                          <p className="text-xs text-green-700">FREE!</p>
-                        </div>
-
-                        <div className="flex flex-col gap-2">
-                         <Button
-                           onClick={() => openAssignDialog(template)}
-                           disabled={!selectedClient}
-                           className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed text-xs h-9"
-                           title={!selectedClient ? "Please select a client first" : "Assign template directly to client"}
-                         >
-                           <CheckCircle className="w-3 h-3 mr-1" />
-                           Assign Now
-                         </Button>
-                         <Button
-                           onClick={() => cloneTemplate(template)}
-                           disabled={!selectedClient}
-                           variant="outline"
-                           className="w-full disabled:opacity-50 disabled:cursor-not-allowed text-xs h-9"
-                           title={!selectedClient ? "Please select a client first" : "Customize template before assigning"}
-                         >
-                           <Copy className="w-3 h-3 mr-1" />
-                           Customize
-                         </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                   ))}
-                    </div>
+                    {filteredTemplates.map((template) => (
+                      <TemplateCard
+                        key={template.id}
+                        template={template}
+                        selectedClient={selectedClient}
+                        user={user}
+                        onAssign={openAssignDialog}
+                        onCustomize={cloneTemplate}
+                      />
+                    ))}
+                  </div>
                     )}
                     </div>
                     )}
