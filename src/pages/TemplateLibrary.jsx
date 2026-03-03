@@ -56,6 +56,7 @@ export default function TemplateLibrary() {
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [templateToRate, setTemplateToRate] = useState(null);
   const [userRating, setUserRating] = useState(0);
+  const [downloadMenuOpen, setDownloadMenuOpen] = useState(null);
   const [uploadFormData, setUploadFormData] = useState({
     name: "",
     description: "",

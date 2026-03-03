@@ -176,6 +176,7 @@ import TeamAppointmentsCalendar from './pages/TeamAppointmentsCalendar';
 import TeamDashboard from './pages/TeamDashboard';
 import TeamManagement from './pages/TeamManagement';
 import TeamSetup from './pages/TeamSetup';
+import TemplateLibrary from './pages/TemplateLibrary';
 import TemplateLibraryManager from './pages/TemplateLibraryManager';
 import UserPermissionManagement from './pages/UserPermissionManagement';
 import VoiceCalendarAssistant from './pages/VoiceCalendarAssistant';
@@ -183,7 +184,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import TemplateLibrary from './pages/TemplateLibrary';
 import __Layout from './Layout.jsx';
 
 
@@ -317,6 +317,7 @@ export const PAGES = {
     "TeamDashboard": TeamDashboard,
     "TeamManagement": TeamManagement,
     "TeamSetup": TeamSetup,
+    "TemplateLibrary": TemplateLibrary,
     "TemplateLibraryManager": TemplateLibraryManager,
     "UserPermissionManagement": UserPermissionManagement,
     "VoiceCalendarAssistant": VoiceCalendarAssistant,
@@ -324,7 +325,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "TemplateLibrary": TemplateLibrary,
 }
 
 export const pagesConfig = {
