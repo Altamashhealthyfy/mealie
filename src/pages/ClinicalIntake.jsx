@@ -1203,15 +1203,15 @@ Return ONLY valid JSON, no explanation.`;
                     onCheckedChange={(checked) => setFormData({...formData, mpess_preferences: {...formData.mpess_preferences, [key]: checked}})}
                   />
                 </div>
-              ))}
-              </CardContent>
-              </CollapsibleContent>
-              </Card>
-              </Collapsible>
+                ))}
+                </CardContent>
+                </CollapsibleContent>
+                </Card>
+                </Collapsible>
 
-              {/* Section 10: Upload Medical Report */}
-              <Collapsible open={isUploadReportOpen} onOpenChange={setIsUploadReportOpen}>
-              <Card className="border-none shadow-lg">
+                {/* Section 10: Upload Medical Report */}
+                <Collapsible open={isUploadReportOpen} onOpenChange={setIsUploadReportOpen}>
+                <Card className="border-none shadow-lg">
               <CollapsibleTrigger asChild>
               <CardHeader className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
               <div>
