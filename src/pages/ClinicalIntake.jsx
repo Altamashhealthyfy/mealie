@@ -1063,15 +1063,15 @@ Return ONLY valid JSON, no explanation.`;
                     onChange={(e) => setFormData({...formData, daily_routine: {...formData.daily_routine, sleep_time: e.target.value}})}
                   />
                 </div>
-              </div>
-              </CardContent>
-              </CollapsibleContent>
-              </Card>
-              </Collapsible>
+                </div>
+                </CardContent>
+                </CollapsibleContent>
+                </Card>
+                </Collapsible>
 
-              {/* Section 7: Cooking Style */}
-              <Collapsible open={isCookingStyleOpen} onOpenChange={setIsCookingStyleOpen}>
-              <Card className="border-none shadow-lg">
+                {/* Section 7: Cooking Style */}
+                <Collapsible open={isCookingStyleOpen} onOpenChange={setIsCookingStyleOpen}>
+                <Card className="border-none shadow-lg">
                 <CollapsibleTrigger asChild>
                 <CardHeader className="bg-gradient-to-r from-pink-500 to-rose-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
                   <CardTitle>7. Cooking Style at Home</CardTitle>
