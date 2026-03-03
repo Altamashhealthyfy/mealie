@@ -1064,10 +1064,12 @@ Return ONLY valid JSON, no explanation.`;
                   />
                 </div>
               </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+              </CollapsibleContent>
+              </Card>
+              </Collapsible>
 
-          {/* Section 7: Cooking Style */}
+              {/* Section 7: Cooking Style */}
           <Card className="border-none shadow-lg">
             <CardHeader className="bg-gradient-to-r from-pink-500 to-rose-500 text-white">
               <CardTitle>7. Cooking Style at Home</CardTitle>
