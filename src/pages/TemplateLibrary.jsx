@@ -1553,7 +1553,7 @@ export default function TemplateLibrary() {
                   </Alert>
                 )}
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                  <Button
                    variant="outline"
                    onClick={() => setViewingTemplate(null)}
@@ -1562,22 +1562,11 @@ export default function TemplateLibrary() {
                    Close
                  </Button>
                  <Button
-                   onClick={() => {
-                     handleDownload(viewingTemplate);
-                     setViewingTemplate(null);
-                   }}
+                   onClick={() => { setViewingTemplate(null); openDownloadDialog(viewingTemplate); }}
                    className="h-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
                  >
                    <Download className="w-4 h-4 mr-2" />
                    Download
-                 </Button>
-                 <Button
-                   onClick={() => { setViewingTemplate(null); openBrandedPDF(viewingTemplate); }}
-                   variant="outline"
-                   className="h-12 border-2 border-red-400 text-red-600 hover:bg-red-50"
-                 >
-                   <FileText className="w-4 h-4 mr-2" />
-                   PDF
                  </Button>
                 </div>
 
