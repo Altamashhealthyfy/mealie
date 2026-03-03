@@ -1776,42 +1776,11 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
 
           <TabsContent value="generate" className="space-y-6">
             {isNoClientsMode ? (
-              <Card className="border-none shadow-lg">
-                <CardContent className="p-12 text-center">
-                  <Users className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Clients Yet</h3>
-                  <p className="text-gray-600 mb-4">Add clients before generating meal plans</p>
-                  <Button onClick={() => window.location.href = createPageUrl('ClientManagement')}>
-                    <Users className="w-4 h-4 mr-2" />Manage Clients
-                  </Button>
-                </CardContent>
-              </Card>
+              <Card className="border-none shadow-lg"><CardContent className="p-12 text-center"><Users className="w-16 h-16 mx-auto text-gray-300 mb-4" /><h3 className="text-xl font-semibold text-gray-900 mb-2">No Clients Yet</h3><p className="text-gray-600 mb-4">Add clients before generating meal plans</p><Button onClick={() => window.location.href = createPageUrl('ClientManagement')}><Users className="w-4 h-4 mr-2" />Manage Clients</Button></CardContent></Card>
             ) : generatedPlan !== null || viewingPlan !== null ? (
-              <GeneratedMealPlan
-                plan={viewingPlan || generatedPlan}
-                onSave={viewingPlan ? null : handleSavePlan}
-                onSaveAsTemplate={!viewingPlan ? handleSaveAsTemplate : null}
-                onGenerateNew={handleGenerateNew}
-                isSaving={savePlanMutation.isPending || updatePlanMutation.isPending}
-              />
+              <GeneratedMealPlan plan={viewingPlan || generatedPlan} onSave={viewingPlan ? null : handleSavePlan} onSaveAsTemplate={!viewingPlan ? handleSaveAsTemplate : null} onGenerateNew={handleGenerateNew} isSaving={savePlanMutation.isPending || updatePlanMutation.isPending} />
             ) : (
-              <AIGenerateTabContent
-                selectedClientId={selectedClientId}
-                setSelectedClientId={setSelectedClientId}
-                selectedClient={selectedClient}
-                clients={clients}
-                mealPlans={mealPlans}
-                planConfig={planConfig}
-                setPlanConfig={setPlanConfig}
-                generating={generating}
-                generateMealPlan={generateMealPlan}
-                setGeneratedPlan={setGeneratedPlan}
-                setViewingPlan={setViewingPlan}
-                user={user}
-                coachPlan={coachPlan}
-                availableAICredits={availableAICredits}
-                usage={usage}
-              />
+              <AIGenerateTabContent selectedClientId={selectedClientId} setSelectedClientId={setSelectedClientId} selectedClient={selectedClient} clients={clients} mealPlans={mealPlans} planConfig={planConfig} setPlanConfig={setPlanConfig} generating={generating} generateMealPlan={generateMealPlan} setGeneratedPlan={setGeneratedPlan} setViewingPlan={setViewingPlan} user={user} coachPlan={coachPlan} availableAICredits={availableAICredits} usage={usage} />
             )}
           </TabsContent>
 
