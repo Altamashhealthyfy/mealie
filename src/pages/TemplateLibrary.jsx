@@ -443,12 +443,18 @@ export default function TemplateLibrary() {
   };
 
   const handlePDFDownload = (template, branding = {}) => {
+    const { clinicName, logoUrl } = branding;
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
     <style>
+      * { box-sizing: border-box; }
       body { font-family: Arial, sans-serif; color: #222; margin: 0; padding: 0; }
-      .page { padding: 30px 40px; }
-      h1 { font-size: 24px; color: #ea580c; margin: 0 0 6px 0; }
-      .meta { font-size: 13px; color: #555; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; }
+      .page { padding: 32px 40px; max-width: 900px; margin: 0 auto; }
+      /* Letterhead / branding */
+      .letterhead-bar { display: flex; align-items: center; gap: 16px; padding-bottom: 16px; margin-bottom: 20px; border-bottom: 3px solid #ea580c; }
+      .letterhead-logo { max-height: 70px; max-width: 200px; object-fit: contain; }
+      .clinic-name { font-size: 22px; font-weight: 800; color: #ea580c; }
+      h1 { font-size: 24px; color: #1f2937; margin: 0 0 6px 0; font-weight: 800; }
+      .meta { font-size: 13px; color: #555; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
       .meta span { background: #fff7ed; border: 1px solid #fdba74; border-radius: 20px; padding: 3px 12px; }
       .description { font-size: 14px; color: #444; margin-bottom: 20px; padding: 12px; background: #f9fafb; border-left: 4px solid #ea580c; border-radius: 0 6px 6px 0; }
       .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
@@ -459,12 +465,14 @@ export default function TemplateLibrary() {
       .tags-title { font-size: 12px; font-weight: bold; color: #6b7280; margin-bottom: 8px; text-transform: uppercase; }
       .tag { display: inline-block; background: #e0e7ff; color: #3730a3; border-radius: 20px; padding: 3px 10px; font-size: 11px; margin: 2px; }
       .footer { margin-top: 30px; border-top: 1px solid #e5e7eb; padding-top: 12px; font-size: 11px; color: #9ca3af; text-align: center; }
-      .badge { display: inline-block; border: 1px solid #e5e7eb; border-radius: 4px; padding: 2px 8px; font-size: 11px; margin-right: 6px; text-transform: uppercase; }
       @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
     </style></head><body><div class="page">
-    <div class="badge">${(template.file_type || 'file').toUpperCase()}</div>
-    ${template.is_premium ? '<span style="background:#7c3aed;color:white;border-radius:4px;padding:2px 8px;font-size:11px;">⭐ Premium</span>' : ''}
-    <h1 style="margin-top:12px">${template.name}</h1>
+    ${(logoUrl || clinicName) ? `
+    <div class="letterhead-bar">
+      ${logoUrl ? `<img src="${logoUrl}" class="letterhead-logo" />` : ''}
+      ${clinicName ? `<div class="clinic-name">${clinicName}</div>` : ''}
+    </div>` : ''}
+    <h1>${template.name}</h1>
     <div class="meta">
       ${template.category ? `<span>📁 ${template.category.replace(/_/g, ' ')}</span>` : ''}
       ${template.target_calories ? `<span>🔥 ${template.target_calories} Kcal</span>` : ''}
@@ -480,7 +488,7 @@ export default function TemplateLibrary() {
       <div class="info-card"><div class="info-label">Downloads</div><div class="info-value">📥 ${template.download_count || 0}</div></div>
     </div>
     ${template.tags && template.tags.length > 0 ? `<div class="tags-section"><div class="tags-title">Tags</div>${template.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
-    <div class="footer">Template Library • ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+    <div class="footer">${clinicName || 'Template Library'} • ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
     </div></body></html>`;
 
     const printWindow = window.open('', '_blank');
