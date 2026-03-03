@@ -933,9 +933,11 @@ Return ONLY valid JSON, no explanation.`;
                  </div>
                 </div>
                 </CardContent>
+                </CollapsibleContent>
                 </Card>
+                </Collapsible>
 
-          {/* Section 5: Diet Preferences */}
+                {/* Section 5: Diet Preferences */}
           <Card className="border-none shadow-lg">
             <CardHeader className="bg-gradient-to-r from-yellow-500 to-amber-500 text-white">
               <CardTitle>5. Diet Preferences *</CardTitle>
