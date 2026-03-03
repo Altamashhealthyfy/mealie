@@ -70,7 +70,7 @@ export default function TeamMembersAndClients() {
   const filteredClients = useMemo(() => {
     return allClients.filter(client => {
       const assignedTo = client.assigned_to;
-      const assignedCoaches = client.assigned_coach || [];
+      const assignedCoaches = Array.isArray(client.assigned_coach) ? client.assigned_coach : [];
       
       return (
         (assignedTo && relevantEmails.includes(assignedTo)) ||
