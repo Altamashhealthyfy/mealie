@@ -1204,10 +1204,51 @@ Return ONLY valid JSON, no explanation.`;
                   />
                 </div>
               ))}
-            </CardContent>
-          </Card>
+              </CardContent>
+              </CollapsibleContent>
+              </Card>
+              </Collapsible>
 
-          {/* Submit Buttons */}
+              {/* Section 10: Upload Medical Report */}
+              <Collapsible open={isUploadReportOpen} onOpenChange={setIsUploadReportOpen}>
+              <Card className="border-none shadow-lg">
+              <CollapsibleTrigger asChild>
+              <CardHeader className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
+              <div>
+                <CardTitle>10. Upload Medical Reports (Optional)</CardTitle>
+                <CardDescription className="text-white/90">Upload existing reports for AI extraction</CardDescription>
+              </div>
+              <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isUploadReportOpen ? 'rotate-180' : ''}`} />
+              </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+              <CardContent className="p-6 space-y-4">
+              <div className="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
+                <Upload className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                <label className="cursor-pointer block">
+                  <p className="text-sm font-medium text-gray-700">Click to upload or drag and drop</p>
+                  <p className="text-xs text-gray-500 mt-1">PDF, Images (PNG, JPG)</p>
+                  <input 
+                    type="file" 
+                    accept="image/*,.pdf" 
+                    onChange={handleAIFillFromFile}
+                    disabled={aiFileUploading}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              {aiFileUploading && (
+                <div className="flex items-center gap-2 text-blue-600 text-sm">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Extracting data from report...
+                </div>
+              )}
+              </CardContent>
+              </CollapsibleContent>
+              </Card>
+              </Collapsible>
+
+              {/* Submit Buttons */}
           <div className="flex flex-col sm:flex-row gap-3">
             <Button
               type="button"
