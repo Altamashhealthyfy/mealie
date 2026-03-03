@@ -1413,104 +1413,31 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
   };
 
   const handleDownloadSampleJSON = () => {
-    const sampleTemplate = getSampleTemplateData();
-    const dataStr = JSON.stringify(sampleTemplate, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'sample-meal-plan-template.json';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const s = getSampleTemplateData();
+    const blob = new Blob([JSON.stringify(s, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement('a'), { href: url, download: 'sample-meal-plan-template.json' });
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
   };
 
   const handleDownloadSampleExcel = () => {
-    const sampleTemplate = getSampleTemplateData();
-    
-    // Create metadata sheet
-    const metadataSheet = XLSX.utils.json_to_sheet([{
-      'Template Name': sampleTemplate.name,
-      'Description': sampleTemplate.description,
-      'Category': sampleTemplate.category,
-      'Duration (Days)': sampleTemplate.duration,
-      'Target Calories': sampleTemplate.target_calories,
-      'Food Preference': sampleTemplate.food_preference,
-      'Regional Preference': sampleTemplate.regional_preference,
-      'Tags': sampleTemplate.tags.join(', ')
-    }]);
-
-    // Create meals sheet
-    const mealsData = sampleTemplate.meals.map(meal => ({
-      'Day': meal.day,
-      'Meal Type': meal.meal_type,
-      'Meal Name': meal.meal_name,
-      'Items': meal.items.join(' | '),
-      'Portion Sizes': meal.portion_sizes.join(' | '),
-      'Calories': meal.calories,
-      'Protein (g)': meal.protein,
-      'Carbs (g)': meal.carbs,
-      'Fats (g)': meal.fats,
-      'Nutritional Tip': meal.nutritional_tip
-    }));
-    const mealsSheet = XLSX.utils.json_to_sheet(mealsData);
-
-    // Create workbook
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, metadataSheet, 'Template Info');
-    XLSX.utils.book_append_sheet(workbook, mealsSheet, 'Meals');
-
-    // Download
-    XLSX.writeFile(workbook, 'sample-meal-plan-template.xlsx');
+    const s = getSampleTemplateData();
+    const metaSheet = XLSX.utils.json_to_sheet([{ 'Template Name': s.name, 'Description': s.description, 'Category': s.category, 'Duration (Days)': s.duration, 'Target Calories': s.target_calories, 'Food Preference': s.food_preference, 'Regional Preference': s.regional_preference, 'Tags': s.tags.join(', ') }]);
+    const mealsSheet = XLSX.utils.json_to_sheet(s.meals.map(m => ({ 'Day': m.day, 'Meal Type': m.meal_type, 'Meal Name': m.meal_name, 'Items': m.items.join(' | '), 'Portion Sizes': m.portion_sizes.join(' | '), 'Calories': m.calories, 'Protein (g)': m.protein, 'Carbs (g)': m.carbs, 'Fats (g)': m.fats, 'Nutritional Tip': m.nutritional_tip })));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, metaSheet, 'Template Info');
+    XLSX.utils.book_append_sheet(wb, mealsSheet, 'Meals');
+    XLSX.writeFile(wb, 'sample-meal-plan-template.xlsx');
   };
 
   const handleDownloadSampleWord = () => {
-    const sampleTemplate = getSampleTemplateData();
-    
-    let content = `MEAL PLAN TEMPLATE - SAMPLE FORMAT\n`;
-    content += `=====================================\n\n`;
-    content += `Template Name: ${sampleTemplate.name}\n`;
-    content += `Description: ${sampleTemplate.description}\n`;
-    content += `Category: ${sampleTemplate.category}\n`;
-    content += `Duration: ${sampleTemplate.duration} days\n`;
-    content += `Target Calories: ${sampleTemplate.target_calories} kcal\n`;
-    content += `Food Preference: ${sampleTemplate.food_preference}\n`;
-    content += `Regional Preference: ${sampleTemplate.regional_preference}\n`;
-    content += `Tags: ${sampleTemplate.tags.join(', ')}\n\n`;
-    content += `=====================================\n\n`;
-    content += `MEALS:\n\n`;
-
-    sampleTemplate.meals.forEach((meal, index) => {
-      content += `Meal ${index + 1}:\n`;
-      content += `  Day: ${meal.day}\n`;
-      content += `  Meal Type: ${meal.meal_type}\n`;
-      content += `  Meal Name: ${meal.meal_name}\n`;
-      content += `  Items: ${meal.items.join(' | ')}\n`;
-      content += `  Portion Sizes: ${meal.portion_sizes.join(' | ')}\n`;
-      content += `  Calories: ${meal.calories}\n`;
-      content += `  Protein: ${meal.protein}g\n`;
-      content += `  Carbs: ${meal.carbs}g\n`;
-      content += `  Fats: ${meal.fats}g\n`;
-      content += `  Nutritional Tip: ${meal.nutritional_tip}\n\n`;
-    });
-
-    content += `\n=====================================\n`;
-    content += `HOW TO USE:\n`;
-    content += `1. Copy this format and modify with your meal plan data\n`;
-    content += `2. Save as .txt or .doc file\n`;
-    content += `3. Upload in the Import Template section\n`;
-    content += `4. System will automatically parse and create your template\n`;
-
-    const blob = new Blob([content], { type: 'text/plain' });
+    const s = getSampleTemplateData();
+    let c = `MEAL PLAN TEMPLATE\n\nTemplate Name: ${s.name}\nDuration: ${s.duration} days\nCalories: ${s.target_calories} kcal\nFood: ${s.food_preference}\nRegion: ${s.regional_preference}\n\nMEALS:\n\n`;
+    s.meals.forEach((m, i) => { c += `Meal ${i+1}:\n  Day: ${m.day}\n  Meal Type: ${m.meal_type}\n  Meal Name: ${m.meal_name}\n  Items: ${m.items.join(' | ')}\n  Portion Sizes: ${m.portion_sizes.join(' | ')}\n  Calories: ${m.calories}\n  Protein: ${m.protein}g\n  Carbs: ${m.carbs}g\n  Fats: ${m.fats}g\n  Tip: ${m.nutritional_tip}\n\n`; });
+    const blob = new Blob([c], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'sample-meal-plan-template.txt';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const a = Object.assign(document.createElement('a'), { href: url, download: 'sample-meal-plan-template.txt' });
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
   };
 
   const handleImportTemplate = async (event) => {
