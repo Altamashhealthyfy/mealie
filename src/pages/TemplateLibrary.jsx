@@ -1508,24 +1508,34 @@ export default function TemplateLibrary() {
                   </Alert>
                 )}
 
-                <div className="grid grid-cols-2 gap-4">
-                  <Button
+                <div className="grid grid-cols-3 gap-3">
+                   <Button
                     variant="outline"
                     onClick={() => setViewingTemplate(null)}
                     className="h-12"
-                  >
+                   >
                     Close
-                  </Button>
-                  <Button
+                   </Button>
+                   <Button
                     onClick={() => {
                       handleDownload(viewingTemplate);
                       setViewingTemplate(null);
                     }}
                     className="h-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-                  >
+                   >
                     <Download className="w-4 h-4 mr-2" />
-                    Download Template
-                  </Button>
+                    File
+                   </Button>
+                   <Button
+                    onClick={() => {
+                      handleDownloadPDF(viewingTemplate);
+                      setViewingTemplate(null);
+                    }}
+                    className="h-12 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                   >
+                    <FileDown className="w-4 h-4 mr-2" />
+                    PDF
+                   </Button>
                 </div>
 
                 {canDelete && (
