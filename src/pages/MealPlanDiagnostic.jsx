@@ -72,6 +72,7 @@ export default function MealPlanDiagnostic() {
         diagnostics,
         meal_count: parseInt(mealCount),
         duration_days: parseInt(durationDays),
+        custom_instructions: customInstructions,
         previousPlanDishNames: planVersions.length > 0 ? 
           planVersions.flatMap(p => p.meals.map(m => m.meal_name)) : []
       });
