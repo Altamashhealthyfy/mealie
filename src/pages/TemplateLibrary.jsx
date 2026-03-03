@@ -56,8 +56,9 @@ export default function TemplateLibrary() {
   const [userRating, setUserRating] = useState(0);
   const [showBrandingDialog, setShowBrandingDialog] = useState(false);
   const [brandingTemplate, setBrandingTemplate] = useState(null);
-  const [brandingData, setBrandingData] = useState({ clinicName: "", logoUrl: "" });
+  const [brandingData, setBrandingData] = useState({ clinicName: "", logoUrl: "", letterheadUrl: "" });
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingLetterhead, setUploadingLetterhead] = useState(false);
   const [uploadFormData, setUploadFormData] = useState({
     name: "",
     description: "",
