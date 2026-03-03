@@ -638,10 +638,12 @@ Return ONLY valid JSON, no explanation.`;
               {medications.length === 0 && (
                 <p className="text-sm text-gray-500 text-center py-4">No medications added</p>
               )}
-            </CardContent>
-          </Card>
+              </CardContent>
+              </CollapsibleContent>
+              </Card>
+              </Collapsible>
 
-          {/* Section 4: Lab Values */}
+              {/* Section 4: Lab Values */}
           <Card className="border-none shadow-lg">
             <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
               <CardTitle>4. Lab Values (Optional)</CardTitle>
