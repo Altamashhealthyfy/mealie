@@ -1325,92 +1325,18 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
     });
   };
 
-  const getSampleTemplateData = () => {
-    return {
-      name: "Sample Meal Plan Template - 7 Days",
-      description: "This is a sample template showing the required format for importing meal plans",
-      category: "general",
-      duration: 7,
-      target_calories: 1800,
-      food_preference: "veg",
-      regional_preference: "north",
-      tags: ["sample", "veg", "1800cal"],
-      meals: [
-        {
-          day: 1,
-          meal_type: "early_morning",
-          meal_name: "Warm Lemon Water",
-          items: ["Warm water", "Lemon juice"],
-          portion_sizes: ["1 glass (250ml)", "Half lemon"],
-          calories: 10,
-          protein: 0,
-          carbs: 2,
-          fats: 0,
-          nutritional_tip: "Helps kickstart metabolism and aids digestion"
-        },
-        {
-          day: 1,
-          meal_type: "breakfast",
-          meal_name: "Poha with Vegetables",
-          items: ["Poha", "Mixed vegetables", "Peanuts", "Curry leaves"],
-          portion_sizes: ["1 medium katori (150g)", "1 small katori (100g)", "1 tbsp (10g)", "Few leaves"],
-          calories: 350,
-          protein: 8,
-          carbs: 55,
-          fats: 10,
-          nutritional_tip: "Rich in iron and fiber, light on stomach"
-        },
-        {
-          day: 1,
-          meal_type: "mid_morning",
-          meal_name: "Apple with Almonds",
-          items: ["Apple", "Almonds"],
-          portion_sizes: ["1 medium (150g)", "5-6 pieces (10g)"],
-          calories: 150,
-          protein: 3,
-          carbs: 25,
-          fats: 5,
-          nutritional_tip: "Provides sustained energy and healthy fats"
-        },
-        {
-          day: 1,
-          meal_type: "lunch",
-          meal_name: "Roti with Dal and Sabji",
-          items: ["Whole wheat roti", "Moong dal", "Mixed vegetable sabji", "Cucumber salad"],
-          portion_sizes: ["2 medium (60g)", "1 small katori (150g)", "1 medium katori (200g)", "1 small bowl (100g)"],
-          calories: 550,
-          protein: 18,
-          carbs: 85,
-          fats: 12,
-          nutritional_tip: "Complete balanced meal with protein, carbs and fiber"
-        },
-        {
-          day: 1,
-          meal_type: "evening_snack",
-          meal_name: "Green Tea with Bhuna Chana",
-          items: ["Green tea", "Bhuna chana"],
-          portion_sizes: ["1 cup (240ml)", "1 small katori (30g)"],
-          calories: 120,
-          protein: 5,
-          carbs: 18,
-          fats: 2,
-          nutritional_tip: "Light snack that boosts metabolism"
-        },
-        {
-          day: 1,
-          meal_type: "dinner",
-          meal_name: "Vegetable Khichdi with Raita",
-          items: ["Khichdi (rice + moong dal)", "Mixed vegetables", "Curd raita"],
-          portion_sizes: ["1 small bowl (200g)", "1 small katori (100g)", "1 small katori (100g)"],
-          calories: 450,
-          protein: 15,
-          carbs: 70,
-          fats: 8,
-          nutritional_tip: "Easy to digest, perfect for dinner"
-        }
-      ]
-    };
-  };
+  const getSampleTemplateData = () => ({
+    name: "Sample Meal Plan Template - 7 Days", description: "Sample template", category: "general",
+    duration: 7, target_calories: 1800, food_preference: "veg", regional_preference: "north", tags: ["sample"],
+    meals: [
+      { day: 1, meal_type: "early_morning", meal_name: "Warm Lemon Water", items: ["Warm water","Lemon juice"], portion_sizes: ["1 glass (250ml)","Half lemon"], calories: 10, protein: 0, carbs: 2, fats: 0, nutritional_tip: "Kickstarts metabolism" },
+      { day: 1, meal_type: "breakfast", meal_name: "Poha with Vegetables", items: ["Poha","Mixed vegetables","Peanuts"], portion_sizes: ["1 medium katori (150g)","1 small katori (100g)","1 tbsp (10g)"], calories: 350, protein: 8, carbs: 55, fats: 10, nutritional_tip: "Rich in iron and fiber" },
+      { day: 1, meal_type: "mid_morning", meal_name: "Apple with Almonds", items: ["Apple","Almonds"], portion_sizes: ["1 medium (150g)","5-6 pieces (10g)"], calories: 150, protein: 3, carbs: 25, fats: 5, nutritional_tip: "Sustained energy" },
+      { day: 1, meal_type: "lunch", meal_name: "Roti with Dal and Sabji", items: ["Whole wheat roti","Moong dal","Mixed vegetable sabji"], portion_sizes: ["2 medium (60g)","1 small katori (150g)","1 medium katori (200g)"], calories: 550, protein: 18, carbs: 85, fats: 12, nutritional_tip: "Complete balanced meal" },
+      { day: 1, meal_type: "evening_snack", meal_name: "Green Tea with Bhuna Chana", items: ["Green tea","Bhuna chana"], portion_sizes: ["1 cup (240ml)","1 small katori (30g)"], calories: 120, protein: 5, carbs: 18, fats: 2, nutritional_tip: "Boosts metabolism" },
+      { day: 1, meal_type: "dinner", meal_name: "Vegetable Khichdi with Raita", items: ["Khichdi","Mixed vegetables","Curd raita"], portion_sizes: ["1 small bowl (200g)","1 small katori (100g)","1 small katori (100g)"], calories: 450, protein: 15, carbs: 70, fats: 8, nutritional_tip: "Easy to digest" }
+    ]
+  });
 
   const handleDownloadSampleJSON = () => {
     const s = getSampleTemplateData();
