@@ -1096,10 +1096,12 @@ Return ONLY valid JSON, no explanation.`;
                 />
                 <Label>Millet Availability at Home</Label>
               </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+              </CollapsibleContent>
+              </Card>
+              </Collapsible>
 
-          {/* Section 8: Goals */}
+              {/* Section 8: Goals */}
           <Card className="border-none shadow-lg">
             <CardHeader className="bg-gradient-to-r from-green-500 to-teal-500 text-white">
               <CardTitle>8. Your Goals *</CardTitle>
