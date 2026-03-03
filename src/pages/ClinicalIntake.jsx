@@ -1212,17 +1212,17 @@ Return ONLY valid JSON, no explanation.`;
                 {/* Section 10: Upload Medical Report */}
                 <Collapsible open={isUploadReportOpen} onOpenChange={setIsUploadReportOpen}>
                 <Card className="border-none shadow-lg">
-              <CollapsibleTrigger asChild>
-              <CardHeader className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
+            <CollapsibleTrigger asChild>
+            <CardHeader className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
               <div>
                 <CardTitle>10. Upload Medical Reports (Optional)</CardTitle>
                 <CardDescription className="text-white/90">Upload existing reports for AI extraction</CardDescription>
               </div>
               <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isUploadReportOpen ? 'rotate-180' : ''}`} />
-              </CardHeader>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-              <CardContent className="p-6 space-y-4">
+            </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+            <CardContent className="p-6 space-y-4">
               <div className="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center hover:border-blue-500 transition-colors">
                 <Upload className="w-8 h-8 text-blue-500 mx-auto mb-2" />
                 <label className="cursor-pointer block">
