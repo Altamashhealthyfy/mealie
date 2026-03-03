@@ -420,6 +420,54 @@ export default function TemplateLibrary() {
     downloadMutation.mutate(template);
   };
 
+  const handlePDFDownload = (template) => {
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+    <style>
+      body { font-family: Arial, sans-serif; color: #222; margin: 0; padding: 0; }
+      .page { padding: 30px 40px; }
+      h1 { font-size: 24px; color: #ea580c; margin: 0 0 6px 0; }
+      .meta { font-size: 13px; color: #555; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; }
+      .meta span { background: #fff7ed; border: 1px solid #fdba74; border-radius: 20px; padding: 3px 12px; }
+      .description { font-size: 14px; color: #444; margin-bottom: 20px; padding: 12px; background: #f9fafb; border-left: 4px solid #ea580c; border-radius: 0 6px 6px 0; }
+      .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+      .info-card { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 12px; }
+      .info-label { font-size: 10px; text-transform: uppercase; color: #9a3412; font-weight: bold; letter-spacing: 0.5px; margin-bottom: 4px; }
+      .info-value { font-size: 15px; font-weight: bold; color: #1f2937; }
+      .tags-section { margin-top: 16px; }
+      .tags-title { font-size: 12px; font-weight: bold; color: #6b7280; margin-bottom: 8px; text-transform: uppercase; }
+      .tag { display: inline-block; background: #e0e7ff; color: #3730a3; border-radius: 20px; padding: 3px 10px; font-size: 11px; margin: 2px; }
+      .footer { margin-top: 30px; border-top: 1px solid #e5e7eb; padding-top: 12px; font-size: 11px; color: #9ca3af; text-align: center; }
+      .badge { display: inline-block; border: 1px solid #e5e7eb; border-radius: 4px; padding: 2px 8px; font-size: 11px; margin-right: 6px; text-transform: uppercase; }
+      @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+    </style></head><body><div class="page">
+    <div class="badge">${(template.file_type || 'file').toUpperCase()}</div>
+    ${template.is_premium ? '<span style="background:#7c3aed;color:white;border-radius:4px;padding:2px 8px;font-size:11px;">⭐ Premium</span>' : ''}
+    <h1 style="margin-top:12px">${template.name}</h1>
+    <div class="meta">
+      ${template.category ? `<span>📁 ${template.category.replace(/_/g, ' ')}</span>` : ''}
+      ${template.target_calories ? `<span>🔥 ${template.target_calories} Kcal</span>` : ''}
+      ${template.food_preference && template.food_preference !== 'all' ? `<span>🥗 ${template.food_preference}</span>` : ''}
+      ${template.duration ? `<span>📅 ${template.duration} Days</span>` : ''}
+      ${template.regional_preference && template.regional_preference !== 'all' ? `<span>🌍 ${template.regional_preference}</span>` : ''}
+    </div>
+    ${template.description ? `<div class="description">${template.description}</div>` : ''}
+    <div class="info-grid">
+      ${template.subcategory ? `<div class="info-card"><div class="info-label">Condition</div><div class="info-value">${template.subcategory.replace(/_/g, ' ')}</div></div>` : ''}
+      ${template.file_size ? `<div class="info-card"><div class="info-label">File Size</div><div class="info-value">${template.file_size}</div></div>` : ''}
+      ${template.average_rating ? `<div class="info-card"><div class="info-label">Rating</div><div class="info-value">⭐ ${template.average_rating.toFixed(1)} / 5</div></div>` : ''}
+      <div class="info-card"><div class="info-label">Downloads</div><div class="info-value">📥 ${template.download_count || 0}</div></div>
+    </div>
+    ${template.tags && template.tags.length > 0 ? `<div class="tags-section"><div class="tags-title">Tags</div>${template.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
+    <div class="footer">Template Library • ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+    </div></body></html>`;
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) { alert('Popup blocked! Please allow popups and try again.'); return; }
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.onload = () => { printWindow.focus(); printWindow.print(); };
+  };
+
   const userType = user?.user_type || 'client';
   const canUpload = userType === 'super_admin' || 
                     (userType === 'team_member') ||
