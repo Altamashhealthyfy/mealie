@@ -65,6 +65,17 @@ export default function ClinicalIntake() {
   const [allergiesText, setAllergiesText] = useState('');
   const [noGoText, setNoGoText] = useState('');
   const [aiFileUploading, setAiFileUploading] = useState(false);
+  
+  // Collapsible states - all closed by default except basic info
+  const [isHealthConditionsOpen, setIsHealthConditionsOpen] = useState(false);
+  const [isMedicationsOpen, setIsMedicationsOpen] = useState(false);
+  const [isLabValuesOpen, setIsLabValuesOpen] = useState(false);
+  const [isDietPreferencesOpen, setIsDietPreferencesOpen] = useState(false);
+  const [isDailyRoutineOpen, setIsDailyRoutineOpen] = useState(false);
+  const [isCookingStyleOpen, setIsCookingStyleOpen] = useState(false);
+  const [isGoalsOpen, setIsGoalsOpen] = useState(false);
+  const [isMpessOpen, setIsMpessOpen] = useState(false);
+  const [isUploadReportOpen, setIsUploadReportOpen] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
