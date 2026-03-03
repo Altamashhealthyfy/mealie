@@ -135,12 +135,22 @@ export default function TemplateLibrary() {
       await base44.entities.DownloadableTemplate.update(template.id, {
         download_count: (template.download_count || 0) + 1
       });
-      const a = document.createElement('a');
-      a.href = template.file_url;
-      a.download = template.name + '.' + template.file_type;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      // For cross-origin URLs, fetch the file as a blob first
+      try {
+        const response = await fetch(template.file_url);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = template.name + '.' + (template.file_type || 'docx');
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      } catch (err) {
+        // Fallback: open in new tab
+        window.open(template.file_url, '_blank');
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['downloadableTemplates']);
