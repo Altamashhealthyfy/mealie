@@ -79,10 +79,10 @@ Deno.serve(async (req) => {
             },
             body: JSON.stringify({
                 apiKey: projectPassword,
-                campaignName: 'client_welcome',
+                campaignName: 'welcome_message',
                 destination: formattedPhone,
-                userName: 'Healthyfy',
-                templateParams: [],
+                userName: clientName || 'Client',
+                templateParams: [clientName || 'Client'],
                 source: 'api',
                 media: {},
                 buttons: [],
