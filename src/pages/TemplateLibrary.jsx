@@ -580,8 +580,8 @@ export default function TemplateLibrary() {
             <Sparkles className="w-5 h-5 mr-2 inline" />
             100% FREE Templates
           </Badge>
-          <h1 className="text-5xl font-bold text-gray-900">Template Library</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <h1 className="text-3xl md:text-5xl font-bold text-gray-900">Template Library</h1>
+          <p className="text-base md:text-xl text-gray-600 max-w-3xl mx-auto">
             Download ready-made Word templates - Use unlimited times at NO COST!
           </p>
           
