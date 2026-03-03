@@ -1104,14 +1104,14 @@ Return ONLY valid JSON, no explanation.`;
           {/* Section 8: Goals */}
           <Collapsible open={isGoalsOpen} onOpenChange={setIsGoalsOpen}>
           <Card className="border-none shadow-lg">
-                <CollapsibleTrigger asChild>
-                <CardHeader className="bg-gradient-to-r from-green-500 to-teal-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
-                  <CardTitle>8. Your Goals *</CardTitle>
-                  <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isGoalsOpen ? 'rotate-180' : ''}`} />
-                </CardHeader>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                <CardContent className="p-6 space-y-4">
+            <CollapsibleTrigger asChild>
+            <CardHeader className="bg-gradient-to-r from-green-500 to-teal-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
+              <CardTitle>8. Your Goals *</CardTitle>
+              <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isGoalsOpen ? 'rotate-180' : ''}`} />
+            </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+            <CardContent className="p-6 space-y-4">
               <div className="space-y-2">
                 <Label>Primary Goal * <span className="text-gray-400 font-normal">(Select all that apply)</span></Label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
