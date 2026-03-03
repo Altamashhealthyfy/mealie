@@ -2868,18 +2868,7 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
           </DialogContent>
         </Dialog>
 
-        <AITemplateDialog
-          open={showAITemplateDialog}
-          onOpenChange={setShowAITemplateDialog}
-          aiTemplateForm={aiTemplateForm}
-          setAiTemplateForm={setAiTemplateForm}
-          aiGeneratedTemplate={aiGeneratedTemplate}
-          setAiGeneratedTemplate={setAiGeneratedTemplate}
-          generatingAITemplate={generatingAITemplate}
-          onGenerate={handleGenerateAITemplate}
-          onSave={handleSaveAITemplate}
-          isSaving={saveAITemplateMutation.isPending}
-        />
+        <AITemplateDialog_PLACEHOLDER />
 
         {/* Manual Template Creation Dialog */}
         <Dialog open={showManualTemplateDialog} onOpenChange={setShowManualTemplateDialog}>
