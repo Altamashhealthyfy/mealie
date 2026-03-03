@@ -342,6 +342,16 @@ export default function MealPlanDiagnostic() {
                 </div>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium mb-2">Dietician Instructions (Optional)</label>
+                <Textarea 
+                  placeholder="Add any custom instructions, preferences, or modifications you want for this meal plan..."
+                  value={customInstructions}
+                  onChange={(e) => setCustomInstructions(e.target.value)}
+                  className="min-h-24"
+                />
+              </div>
+
               <Button 
                 onClick={handleGeneratePlan}
                 disabled={loadingPlan}
