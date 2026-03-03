@@ -134,8 +134,8 @@ export default function ClientDetailDialog({
             <Button variant="outline" onClick={() => { onClose(); onEdit(client); }}><Edit className="w-4 h-4 mr-2" /> Edit</Button>
             <Button variant="outline" onClick={() => { onClose(); onEmail(client); }} className="text-blue-600 hover:bg-blue-50"><Send className="w-4 h-4 mr-2" /> Email</Button>
             <Button variant="outline" onClick={() => { onClose(); onViewPlans(client); }}><FileText className="w-4 h-4 mr-2" /> Plans</Button>
-            <Button variant="outline" onClick={() => { onClose(); onCreatePlan(client); }}><Plus className="w-4 h-4 mr-2" /> Basic Plan</Button>
-            <Button className="bg-purple-500 hover:bg-purple-600 text-white" onClick={() => { onClose(); onProPlan(client); }}><Stethoscope className="w-4 h-4 mr-2" /> Pro Plan</Button>
+            <Button variant="outline" onClick={() => { onClose(); onCreatePlan(client); }}><Plus className="w-4 h-4 mr-2" /> Basic</Button>
+             <Button className="bg-purple-500 hover:bg-purple-600 text-white" onClick={() => { onClose(); navigate(`${createPageUrl("MealPlanDiagnostic")}?client=${client.id}`); }}><Stethoscope className="w-4 h-4 mr-2" /> Pro Plan</Button>
           </div>
 
           {userType === 'super_admin' && healthCoaches?.length > 0 && (
