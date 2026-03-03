@@ -47,13 +47,12 @@ export default function TeamMembersAndClients() {
     enabled: !!currentUser,
   });
 
-  // Filter team members (exclude student_coach and blank user_type)
+  // Filter team members (only super_admin and team_member)
   const teamMembers = useMemo(() => {
     return allUsers.filter(
       user => 
         user.role && 
-        user.role !== 'student_coach' && 
-        ['super_admin', 'team_member', 'student_team_member'].includes(user.role)
+        ['super_admin', 'team_member'].includes(user.role)
     );
   }, [allUsers]);
 
