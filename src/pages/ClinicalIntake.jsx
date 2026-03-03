@@ -1070,11 +1070,16 @@ Return ONLY valid JSON, no explanation.`;
               </Collapsible>
 
               {/* Section 7: Cooking Style */}
-          <Card className="border-none shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-pink-500 to-rose-500 text-white">
-              <CardTitle>7. Cooking Style at Home</CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 space-y-4">
+              <Collapsible open={isCookingStyleOpen} onOpenChange={setIsCookingStyleOpen}>
+              <Card className="border-none shadow-lg">
+                <CollapsibleTrigger asChild>
+                <CardHeader className="bg-gradient-to-r from-pink-500 to-rose-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
+                  <CardTitle>7. Cooking Style at Home</CardTitle>
+                  <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isCookingStyleOpen ? 'rotate-180' : ''}`} />
+                </CardHeader>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                <CardContent className="p-6 space-y-4">
               <div className="space-y-2">
                 <Label>Oil Used</Label>
                 <Input
