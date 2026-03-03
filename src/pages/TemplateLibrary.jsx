@@ -438,7 +438,21 @@ export default function TemplateLibrary() {
     setUploadingLogo(false);
   };
 
-  const openBrandedPDF = (template) => {
+  const handleLetterheadUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingLetterhead(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setBrandingData(prev => ({ ...prev, letterheadUrl: file_url }));
+    } catch {
+      alert("Failed to upload letterhead");
+    }
+    setUploadingLetterhead(false);
+  };
+
+  // Open download dialog - always show branding/format chooser first
+  const openDownloadDialog = (template) => {
     setBrandingTemplate(template);
     setShowBrandingDialog(true);
   };
