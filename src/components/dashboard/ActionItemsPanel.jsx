@@ -63,15 +63,24 @@ export default function ActionItemsPanel({
   // Goals nearing deadline
   const urgentGoals = goals.filter(g => {
     if (g.status !== 'active' || !g.target_date) return false;
-    const daysUntil = differenceInDays(new Date(g.target_date), today);
-    return daysUntil <= 7 && daysUntil >= 0;
+    try {
+      const daysUntil = differenceInDays(new Date(g.target_date), today);
+      return daysUntil <= 7 && daysUntil >= 0;
+    } catch {
+      return false;
+    }
   });
 
   // Appointments today
-  const todayAppointments = appointments.filter(a => 
-    format(new Date(a.date), 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd') &&
-    a.status === 'scheduled'
-  );
+  const todayAppointments = appointments.filter(a => {
+    if (!a.date || !a.appointment_date) return false;
+    try {
+      const appointmentDate = a.date || a.appointment_date;
+      return format(new Date(appointmentDate), 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd') && a.status === 'scheduled';
+    } catch {
+      return false;
+    }
+  });
 
   const actionItems = [
     {
