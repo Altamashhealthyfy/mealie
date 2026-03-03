@@ -90,8 +90,12 @@ export default function MealPlanDiagnostic() {
     mutationFn: async (plan) => {
       return base44.entities.MealPlan.create(plan);
     },
-    onSuccess: () => {
+    onSuccess: (savedPlan) => {
       alert('✅ Meal plan saved successfully!');
+      // Redirect to client management to show saved plan
+      setTimeout(() => {
+        navigate(`${createPageUrl("ClientManagement")}`);
+      }, 500);
     }
   });
 
