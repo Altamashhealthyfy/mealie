@@ -98,6 +98,12 @@ const clientManagementNav = [
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
+    title: "👨‍💼 Team & Clients",
+    url: createPageUrl("TeamMembersAndClients"),
+    icon: Users,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
     title: "💬 Messages",
     url: createPageUrl("Communication"),
     icon: MessageSquare,
