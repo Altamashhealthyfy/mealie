@@ -32,6 +32,8 @@ export default function ClientDetailDialog({
   healthCoaches,
   isDeleting,
 }) {
+  const navigate = useNavigate();
+  
   if (!client) return null;
 
   return (
