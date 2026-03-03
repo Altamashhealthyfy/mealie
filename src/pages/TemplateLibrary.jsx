@@ -624,6 +624,15 @@ export default function TemplateLibrary() {
                   Contribute Your Template
                 </Button>
               </DialogTrigger>
+            </Dialog>
+
+            <Dialog open={showFormatUploadDialog} onOpenChange={setShowFormatUploadDialog}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="border-orange-500 text-orange-600 hover:bg-orange-50 h-12 px-6">
+                  <Upload className="w-5 h-5 mr-2" />
+                  Upload Formatted Meal Plan
+                </Button>
+              </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                <DialogHeader>
                  <div className="flex items-center justify-between">
