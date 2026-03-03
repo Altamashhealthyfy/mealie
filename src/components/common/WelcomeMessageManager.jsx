@@ -40,7 +40,7 @@ Your Coach`;
 
   const sendEmailMutation = useMutation({
     mutationFn: async (message) => {
-      return await base44.functions.invoke('sendGoogleWorkspaceEmail', {
+      return await base44.integrations.Core.SendEmail({
         to: client.email,
         subject: '🎉 Welcome to Your Health Journey!',
         body: message,
