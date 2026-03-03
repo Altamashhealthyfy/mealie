@@ -160,9 +160,15 @@ export default function MealPlanDiagnostic() {
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
-      <div className="space-y-4">
-        <h1 className="text-3xl font-bold">Meal Plan for {diagnostics.client_name}</h1>
-        <p className="text-gray-600">Review diagnostics and generate personalized meal plans</p>
+      <div className="flex items-center justify-between">
+        <div className="space-y-4">
+          <h1 className="text-3xl font-bold">Meal Plan for {diagnostics.client_name}</h1>
+          <p className="text-gray-600">Review diagnostics and generate personalized meal plans</p>
+        </div>
+        <Button variant="outline" onClick={() => navigate(createPageUrl("ClientManagement"))} className="flex items-center gap-2">
+          <ArrowLeft className="w-4 h-4" />
+          Back to Clients
+        </Button>
       </div>
 
       <Tabs defaultValue="diagnostics" className="space-y-4">
