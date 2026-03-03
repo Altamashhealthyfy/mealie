@@ -851,6 +851,200 @@ export default function TemplateLibrary() {
                 </div>
               </DialogContent>
             </Dialog>
+
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <div className="flex items-center justify-between">
+                  <DialogTitle className="text-2xl">Upload Formatted Meal Plan</DialogTitle>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDownloadFormatSample}
+                    className="border-green-500 text-green-600 hover:bg-green-50"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Sample Format
+                  </Button>
+                </div>
+              </DialogHeader>
+
+              <Alert className="bg-blue-50 border-blue-300">
+                <Sparkles className="w-4 h-4 text-blue-600" />
+                <AlertDescription className="ml-2 text-sm text-blue-700">
+                  📋 Upload a complete meal plan with daily meals in the same format clients see. Download the sample to see the exact structure.
+                </AlertDescription>
+              </Alert>
+
+              <div className="space-y-4">
+                <div className="p-6 border-2 border-dashed border-green-300 rounded-xl bg-green-50">
+                  <div className="text-center">
+                    <Upload className="w-12 h-12 mx-auto text-green-500 mb-3" />
+                    <p className="text-sm text-gray-700 mb-3">
+                      Select JSON file with complete meal plan details
+                    </p>
+                    <input
+                      type="file"
+                      accept=".json"
+                      onChange={(e) => setSelectedFile(e.target.files[0])}
+                      className="w-full p-2 border rounded-lg text-sm"
+                    />
+                    {selectedFile && (
+                      <div className="mt-3 p-3 bg-green-100 border border-green-300 rounded-lg">
+                        <p className="text-sm font-semibold text-green-900">
+                          ✅ {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm">Plan Name</Label>
+                    <Input
+                      placeholder="e.g., Veg Weight Loss 1500 cal"
+                      value={uploadFormData.name}
+                      onChange={(e) => setUploadFormData({...uploadFormData, name: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm">Target Calories</Label>
+                    <Input
+                      type="number"
+                      placeholder="1500"
+                      value={uploadFormData.target_calories}
+                      onChange={(e) => setUploadFormData({...uploadFormData, target_calories: e.target.value})}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm">Food Preference</Label>
+                    <Select
+                      value={uploadFormData.food_preference}
+                      onValueChange={(value) => setUploadFormData({...uploadFormData, food_preference: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="veg">Vegetarian</SelectItem>
+                        <SelectItem value="non_veg">Non-Veg</SelectItem>
+                        <SelectItem value="eggetarian">Eggetarian</SelectItem>
+                        <SelectItem value="jain">Jain</SelectItem>
+                        <SelectItem value="mixed">Mixed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm">Region</Label>
+                    <Select
+                      value={uploadFormData.regional_preference}
+                      onValueChange={(value) => setUploadFormData({...uploadFormData, regional_preference: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="north">North Indian</SelectItem>
+                        <SelectItem value="south">South Indian</SelectItem>
+                        <SelectItem value="west">West Indian</SelectItem>
+                        <SelectItem value="east">East Indian</SelectItem>
+                        <SelectItem value="all">All Regions</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm">Description</Label>
+                  <Textarea
+                    placeholder="Brief description..."
+                    value={uploadFormData.description}
+                    onChange={(e) => setUploadFormData({...uploadFormData, description: e.target.value})}
+                    rows={2}
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowFormatUploadDialog(false);
+                      setSelectedFile(null);
+                    }}
+                    className="flex-1"
+                    disabled={uploading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={async () => {
+                      if (!selectedFile) {
+                        alert("Please select a JSON file");
+                        return;
+                      }
+                      if (!uploadFormData.name) {
+                        alert("Please enter plan name");
+                        return;
+                      }
+
+                      setUploading(true);
+                      try {
+                        const fileContent = await selectedFile.text();
+                        const jsonData = JSON.parse(fileContent);
+                        
+                        const uploadResult = await base44.integrations.Core.UploadFile({ file: selectedFile });
+                        
+                        await base44.entities.DownloadableTemplate.create({
+                          name: uploadFormData.name,
+                          description: uploadFormData.description,
+                          category: "meal_plan",
+                          subcategory: jsonData.subcategory || "weight_loss",
+                          target_calories: uploadFormData.target_calories ? parseInt(uploadFormData.target_calories) : jsonData.target_calories,
+                          food_preference: uploadFormData.food_preference,
+                          regional_preference: uploadFormData.regional_preference,
+                          duration: jsonData.duration,
+                          file_url: uploadResult.file_url,
+                          file_type: "json",
+                          file_size: (selectedFile.size / 1024).toFixed(1) + " KB",
+                          tags: jsonData.tags || [],
+                          download_count: 0,
+                          version: "1.0",
+                          last_updated: new Date().toISOString().split('T')[0]
+                        });
+
+                        queryClient.invalidateQueries(['downloadableTemplates']);
+                        setShowFormatUploadDialog(false);
+                        setSelectedFile(null);
+                        alert("✅ Formatted meal plan uploaded successfully!");
+                      } catch (error) {
+                        console.error(error);
+                        alert("Failed to upload. Ensure valid JSON format.");
+                      } finally {
+                        setUploading(false);
+                      }
+                    }}
+                    disabled={uploading || !selectedFile || !uploadFormData.name}
+                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 h-12"
+                  >
+                    {uploading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-5 h-5 mr-2" />
+                        Upload Plan
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+            </Dialog>
           )}
         </div>
 
