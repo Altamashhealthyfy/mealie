@@ -989,11 +989,6 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
-  // If user is null (not logged in) and we're done loading, just show children without sidebar
-  if (!user && !userLoading) {
-    return <div className="min-h-screen">{children}</div>;
-  }
-
   // Full-width pages without sidebar
     const fullWidthPages = ['HealthCoachesManagement'];
     const isFullWidth = fullWidthPages.includes(currentPageName);
