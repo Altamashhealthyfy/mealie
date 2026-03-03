@@ -22,6 +22,9 @@ import UsageLimitWarning from "@/components/mealplanner/UsageLimitWarning";
 import ManualMealPlanBuilder from "@/components/mealplanner/ManualMealPlanBuilder";
 import ManualTemplateBuilder from "@/components/mealplanner/ManualTemplateBuilder";
 import AIMealPlanGenerator from "@/components/mealplanner/AIMealPlanGenerator";
+import AITemplateDialog from "@/components/mealplanner/AITemplateDialog";
+import SavedPlansTab from "@/components/mealplanner/SavedPlansTab";
+import TemplatesTab from "@/components/mealplanner/TemplatesTab";
 
 export default function MealPlanner() {
   const queryClient = useQueryClient();
