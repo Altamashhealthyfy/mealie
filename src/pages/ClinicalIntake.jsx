@@ -556,11 +556,18 @@ Return ONLY valid JSON, no explanation.`;
           </Card>
 
           {/* Section 2: Health Conditions */}
+          <Collapsible open={isHealthConditionsOpen} onOpenChange={setIsHealthConditionsOpen}>
           <Card className="border-none shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-red-500 to-orange-500 text-white">
-              <CardTitle>2. Health Conditions *</CardTitle>
-              <CardDescription className="text-white/90">Select all that apply</CardDescription>
+            <CollapsibleTrigger asChild>
+            <CardHeader className="bg-gradient-to-r from-red-500 to-orange-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
+              <div>
+                <CardTitle>2. Health Conditions *</CardTitle>
+                <CardDescription className="text-white/90">Select all that apply</CardDescription>
+              </div>
+              <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isHealthConditionsOpen ? 'rotate-180' : ''}`} />
             </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {['Diabetes', 'Thyroid', 'Liver', 'Kidney', 'Heart', 'Hormonal', 'Hypertension', 'Others'].map(condition => (
