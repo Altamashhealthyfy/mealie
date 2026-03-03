@@ -589,10 +589,12 @@ Return ONLY valid JSON, no explanation.`;
                   onChange={(e) => setFormData({...formData, stage_severity: e.target.value})}
                 />
               </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+              </CollapsibleContent>
+              </Card>
+              </Collapsible>
 
-          {/* Section 3: Current Medications */}
+              {/* Section 3: Current Medications */}
           <Card className="border-none shadow-lg">
             <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white">
               <div className="flex items-center justify-between">
