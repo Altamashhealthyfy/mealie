@@ -102,6 +102,13 @@ export default function MealPlanDiagnostic() {
   if (!diagnostics) {
     return (
       <div className="max-w-6xl mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between mb-4">
+          <Button variant="outline" onClick={() => navigate(createPageUrl("ClientManagement"))} className="flex items-center gap-2">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Clients
+          </Button>
+        </div>
+        
         <div className="space-y-4">
           <h1 className="text-3xl font-bold">Meal Plan Diagnostic Engine</h1>
           <p className="text-gray-600">Step 1: Select a client and analyze their profile</p>
