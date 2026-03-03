@@ -47,129 +47,43 @@ export default function MealPlanPDFDownload({ plan, mpessData, open, onOpenChang
   const generatePDF = async () => {
     setGenerating(true);
     try {
-      // Build HTML for PDF - exact same style as client view
+      // Build HTML for PDF
       let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
       <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: Arial, sans-serif; color: #111827; background: #fff; }
-        .page { padding: 32px 40px; max-width: 900px; margin: 0 auto; }
-        .letterhead { width: 100%; max-height: 120px; object-fit: contain; margin-bottom: 20px; }
-        h1 { font-size: 26px; color: #ea580c; margin-bottom: 6px; font-weight: 800; }
-        .meta { font-size: 13px; color: #555; margin-bottom: 24px; }
-        .meta strong { color: #111; }
-
-        /* Day Header - orange full-width bar */
-        .day-header {
-          background: #ea580c;
-          color: white;
-          padding: 10px 16px;
-          font-size: 17px;
-          font-weight: bold;
-          border-radius: 8px;
-          margin: 24px 0 12px 0;
-        }
-
-        /* Meal Block - white card with orange left border */
-        .meal-block {
-          background: #fff;
-          border: 1px solid #f3f4f6;
-          border-left: 4px solid #fb923c;
-          border-radius: 0 8px 8px 0;
-          padding: 14px 16px;
-          margin-bottom: 12px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-        }
-
-        .meal-type {
-          font-size: 10px;
-          text-transform: uppercase;
-          color: #ea580c;
-          font-weight: 700;
-          letter-spacing: 0.8px;
-          margin-bottom: 4px;
-        }
-        .meal-name {
-          font-size: 16px;
-          font-weight: 700;
-          color: #111827;
-          margin-bottom: 10px;
-        }
-
-        /* Items table - item on left, portion on right */
-        .items-table { width: 100%; border-collapse: collapse; }
-        .items-table tr { border-bottom: 1px solid #f9fafb; }
-        .items-table td { padding: 4px 2px; font-size: 13px; }
-        .items-table td.item-name { color: #374151; }
-        .items-table td.item-portion { color: #9ca3af; text-align: right; white-space: nowrap; padding-left: 12px; }
-
-        /* Macro badges row */
-        .macros {
-          display: flex;
-          gap: 8px;
-          margin-top: 10px;
-          flex-wrap: wrap;
-        }
-        .macro-badge {
-          border: 1px solid #e5e7eb;
-          border-radius: 6px;
-          padding: 3px 10px;
-          font-size: 12px;
-          font-weight: 500;
-          color: #374151;
-          background: #f9fafb;
-        }
-        .macro-badge.kcal { color: #ea580c; font-weight: 700; }
-
-        /* Tip */
-        .tip {
-          font-size: 12px;
-          color: #16a34a;
-          font-style: italic;
-          margin-top: 8px;
-          padding: 6px 10px;
-          background: #f0fdf4;
-          border-radius: 4px;
-        }
-
-        /* MPESS */
-        .mpess-section {
-          margin-top: 36px;
-          padding-top: 20px;
-          border-top: 2px solid #ea580c;
-        }
-        .mpess-title {
-          font-size: 20px;
-          font-weight: 800;
-          color: #ea580c;
-          margin-bottom: 14px;
-        }
-        .mpess-category {
-          font-size: 14px;
-          font-weight: 700;
-          color: #374151;
-          margin: 12px 0 6px 0;
-        }
-        .mpess-item {
-          font-size: 13px;
-          color: #4b5563;
-          margin: 3px 0 3px 12px;
-        }
-
-        @media print {
-          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          .meal-block { break-inside: avoid; }
-        }
+        body { font-family: Arial, sans-serif; color: #222; margin: 0; padding: 0; }
+        .page { padding: 30px 40px; }
+        .letterhead { width: 100%; max-height: 120px; object-fit: contain; margin-bottom: 16px; }
+        h1 { font-size: 22px; color: #ea580c; margin: 0 0 4px 0; }
+        .meta { font-size: 13px; color: #555; margin-bottom: 16px; }
+        .day-header { background: #ea580c; color: white; padding: 8px 14px; font-size: 16px; font-weight: bold; border-radius: 6px; margin: 20px 0 10px 0; }
+        .meal-block { border-left: 4px solid #fdba74; padding: 8px 12px; margin-bottom: 12px; background: #fff7ed; border-radius: 0 6px 6px 0; }
+        .meal-type { font-size: 10px; text-transform: uppercase; color: #ea580c; font-weight: bold; letter-spacing: 0.5px; }
+        .meal-name { font-size: 14px; font-weight: bold; margin: 2px 0 6px 0; }
+        .items-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .items-table td { padding: 3px 6px; }
+        .items-table td:first-child { color: #333; }
+        .items-table td:last-child { color: #888; text-align: right; }
+        .macros { display: flex; gap: 12px; margin-top: 6px; font-size: 11px; }
+        .macro { background: #fff; border: 1px solid #e5e7eb; border-radius: 4px; padding: 2px 8px; }
+        .tip { font-size: 11px; color: #16a34a; font-style: italic; margin-top: 4px; }
+        .day-total { font-size: 12px; color: #555; margin-bottom: 6px; }
+        .mpess-section { margin-top: 30px; border-top: 2px solid #ea580c; padding-top: 16px; }
+        .mpess-title { font-size: 18px; font-weight: bold; color: #ea580c; margin-bottom: 10px; }
+        .mpess-category { font-size: 13px; font-weight: bold; margin: 10px 0 4px 0; color: #374151; }
+        .mpess-item { font-size: 12px; color: #555; margin-left: 12px; }
+        @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
       </style></head><body><div class="page">`;
 
       if (letterheadUrl) {
         html += `<img src="${letterheadUrl}" class="letterhead" />`;
       }
 
-      html += `<h1>${plan.plan_name || plan.name || "Meal Plan"}</h1>
+      html += `<h1>${plan.plan_name || "Meal Plan"}</h1>
       <div class="meta">
         <strong>Client:</strong> ${plan.client_name || "—"} &nbsp;|&nbsp;
         <strong>Duration:</strong> ${plan.duration} Days &nbsp;|&nbsp;
-        <strong>Food Pref:</strong> ${plan.food_preference || "—"}${includeCalories ? ` &nbsp;|&nbsp; <strong>Target:</strong> ${plan.target_calories} kcal/day` : ""}
+        <strong>Food Pref:</strong> ${plan.food_preference || "—"} &nbsp;|&nbsp;
+        ${includeCalories ? `<strong>Target:</strong> ${plan.target_calories} kcal/day` : ""}
       </div>`;
 
       Object.keys(groupedMeals).sort((a, b) => parseInt(a) - parseInt(b)).forEach((day) => {
@@ -186,33 +100,26 @@ export default function MealPlanPDFDownload({ plan, mpessData, open, onOpenChang
             <div class="meal-name">${meal.meal_name}</div>
             <table class="items-table">`;
           meal.items?.forEach((item, i) => {
-            const portion = meal.portion_sizes?.[i] || "";
-            html += `<tr>
-              <td class="item-name">• ${item}</td>
-              <td class="item-portion">${portion}</td>
-            </tr>`;
+            html += `<tr><td>• ${item}</td><td>${meal.portion_sizes?.[i] || ""}</td></tr>`;
           });
           html += `</table>`;
           if (includeCalories) {
             html += `<div class="macros">
-              <span class="macro-badge kcal">🔥 ${meal.calories} kcal</span>
-              <span class="macro-badge">P: ${meal.protein}g</span>
-              <span class="macro-badge">C: ${meal.carbs}g</span>
-              <span class="macro-badge">F: ${meal.fats}g</span>
+              <span class="macro">🔥 ${meal.calories} kcal</span>
+              <span class="macro">P: ${meal.protein}g</span>
+              <span class="macro">C: ${meal.carbs}g</span>
+              <span class="macro">F: ${meal.fats}g</span>
             </div>`;
           }
           if (meal.nutritional_tip) {
             html += `<div class="tip">💡 ${meal.nutritional_tip}</div>`;
-          }
-          if (meal.disease_rationale) {
-            html += `<div class="tip">💡 ${meal.disease_rationale}</div>`;
           }
           html += `</div>`;
         });
       });
 
       // MPESS section
-      if (includeMPESS && (mpessData || plan?.mpess_integration)) {
+      if (includeMPESS && mpessData) {
         html += `<div class="mpess-section"><div class="mpess-title">🧘 MPESS Wellness Integration</div>`;
         const categories = {
           mind_practices: "🧠 Mind Practices",

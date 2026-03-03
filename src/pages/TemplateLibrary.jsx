@@ -54,10 +54,6 @@ export default function TemplateLibrary() {
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [templateToRate, setTemplateToRate] = useState(null);
   const [userRating, setUserRating] = useState(0);
-  const [showBrandingDialog, setShowBrandingDialog] = useState(false);
-  const [brandingTemplate, setBrandingTemplate] = useState(null);
-  const [brandingData, setBrandingData] = useState({ clinicName: "", logoUrl: "" });
-  const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadFormData, setUploadFormData] = useState({
     name: "",
     description: "",
@@ -424,37 +420,13 @@ export default function TemplateLibrary() {
     downloadMutation.mutate(template);
   };
 
-  const handleLogoUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setUploadingLogo(true);
-    try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setBrandingData(prev => ({ ...prev, logoUrl: file_url }));
-    } catch {
-      alert("Failed to upload logo");
-    }
-    setUploadingLogo(false);
-  };
-
-  const openBrandedPDF = (template) => {
-    setBrandingTemplate(template);
-    setShowBrandingDialog(true);
-  };
-
-  const handlePDFDownload = (template, branding = {}) => {
-    const { clinicName, logoUrl } = branding;
+  const handlePDFDownload = (template) => {
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
     <style>
-      * { box-sizing: border-box; }
       body { font-family: Arial, sans-serif; color: #222; margin: 0; padding: 0; }
-      .page { padding: 32px 40px; max-width: 900px; margin: 0 auto; }
-      /* Letterhead / branding */
-      .letterhead-bar { display: flex; align-items: center; gap: 16px; padding-bottom: 16px; margin-bottom: 20px; border-bottom: 3px solid #ea580c; }
-      .letterhead-logo { max-height: 70px; max-width: 200px; object-fit: contain; }
-      .clinic-name { font-size: 22px; font-weight: 800; color: #ea580c; }
-      h1 { font-size: 24px; color: #1f2937; margin: 0 0 6px 0; font-weight: 800; }
-      .meta { font-size: 13px; color: #555; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
+      .page { padding: 30px 40px; }
+      h1 { font-size: 24px; color: #ea580c; margin: 0 0 6px 0; }
+      .meta { font-size: 13px; color: #555; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; }
       .meta span { background: #fff7ed; border: 1px solid #fdba74; border-radius: 20px; padding: 3px 12px; }
       .description { font-size: 14px; color: #444; margin-bottom: 20px; padding: 12px; background: #f9fafb; border-left: 4px solid #ea580c; border-radius: 0 6px 6px 0; }
       .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
@@ -465,14 +437,12 @@ export default function TemplateLibrary() {
       .tags-title { font-size: 12px; font-weight: bold; color: #6b7280; margin-bottom: 8px; text-transform: uppercase; }
       .tag { display: inline-block; background: #e0e7ff; color: #3730a3; border-radius: 20px; padding: 3px 10px; font-size: 11px; margin: 2px; }
       .footer { margin-top: 30px; border-top: 1px solid #e5e7eb; padding-top: 12px; font-size: 11px; color: #9ca3af; text-align: center; }
+      .badge { display: inline-block; border: 1px solid #e5e7eb; border-radius: 4px; padding: 2px 8px; font-size: 11px; margin-right: 6px; text-transform: uppercase; }
       @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
     </style></head><body><div class="page">
-    ${(logoUrl || clinicName) ? `
-    <div class="letterhead-bar">
-      ${logoUrl ? `<img src="${logoUrl}" class="letterhead-logo" />` : ''}
-      ${clinicName ? `<div class="clinic-name">${clinicName}</div>` : ''}
-    </div>` : ''}
-    <h1>${template.name}</h1>
+    <div class="badge">${(template.file_type || 'file').toUpperCase()}</div>
+    ${template.is_premium ? '<span style="background:#7c3aed;color:white;border-radius:4px;padding:2px 8px;font-size:11px;">⭐ Premium</span>' : ''}
+    <h1 style="margin-top:12px">${template.name}</h1>
     <div class="meta">
       ${template.category ? `<span>📁 ${template.category.replace(/_/g, ' ')}</span>` : ''}
       ${template.target_calories ? `<span>🔥 ${template.target_calories} Kcal</span>` : ''}
@@ -488,7 +458,7 @@ export default function TemplateLibrary() {
       <div class="info-card"><div class="info-label">Downloads</div><div class="info-value">📥 ${template.download_count || 0}</div></div>
     </div>
     ${template.tags && template.tags.length > 0 ? `<div class="tags-section"><div class="tags-title">Tags</div>${template.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
-    <div class="footer">${clinicName || 'Template Library'} • ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+    <div class="footer">Template Library • ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
     </div></body></html>`;
 
     const printWindow = window.open('', '_blank');
@@ -1176,12 +1146,12 @@ export default function TemplateLibrary() {
                        Download
                      </Button>
                      <Button
-                      onClick={() => openBrandedPDF(template)}
-                      variant="outline"
-                      className="flex-1 h-11 border-2 border-red-400 text-red-600 hover:bg-red-50"
+                       onClick={() => handlePDFDownload(template)}
+                       variant="outline"
+                       className="flex-1 h-11 border-2 border-red-400 text-red-600 hover:bg-red-50"
                      >
-                      <FileText className="w-4 h-4 mr-2" />
-                      PDF
+                       <FileText className="w-4 h-4 mr-2" />
+                       PDF
                      </Button>
                      <Button
                        onClick={() => {
@@ -1518,7 +1488,7 @@ export default function TemplateLibrary() {
                    Download
                  </Button>
                  <Button
-                   onClick={() => { setViewingTemplate(null); openBrandedPDF(viewingTemplate); }}
+                   onClick={() => handlePDFDownload(viewingTemplate)}
                    variant="outline"
                    className="h-12 border-2 border-red-400 text-red-600 hover:bg-red-50"
                  >
@@ -1549,71 +1519,6 @@ export default function TemplateLibrary() {
                 )}
               </div>
             )}
-          </DialogContent>
-        </Dialog>
-
-        {/* Branding / Personalization Dialog */}
-        <Dialog open={showBrandingDialog} onOpenChange={setShowBrandingDialog}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-red-500" />
-                Personalize & Download PDF
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-5 mt-2">
-              <div className="p-3 bg-orange-50 rounded-lg border border-orange-200 text-sm text-orange-800">
-                Add your clinic/brand name and logo — they'll appear as a letterhead on the PDF.
-              </div>
-
-              {/* Logo Upload */}
-              <div>
-                <Label className="font-semibold">Clinic Logo (Optional)</Label>
-                <p className="text-xs text-gray-500 mb-2">Upload your logo to appear at the top of the PDF</p>
-                {brandingData.logoUrl ? (
-                  <div className="relative">
-                    <img src={brandingData.logoUrl} alt="Logo" className="w-full h-20 object-contain border rounded-lg bg-gray-50" />
-                    <button
-                      onClick={() => setBrandingData(prev => ({ ...prev, logoUrl: "" }))}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold"
-                    >×</button>
-                  </div>
-                ) : (
-                  <label className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg border border-dashed border-gray-300 hover:border-orange-400 hover:bg-orange-50 transition-colors">
-                    {uploadingLogo ? <Loader2 className="w-4 h-4 animate-spin text-orange-500" /> : <Upload className="w-4 h-4 text-orange-500" />}
-                    <span className="text-sm text-gray-600">{uploadingLogo ? "Uploading..." : "Upload Logo Image"}</span>
-                    <input type="file" accept="image/*" onChange={handleLogoUpload} disabled={uploadingLogo} className="hidden" />
-                  </label>
-                )}
-              </div>
-
-              {/* Clinic Name */}
-              <div>
-                <Label className="font-semibold">Clinic / Brand Name (Optional)</Label>
-                <Input
-                  placeholder="e.g., Dr. Sharma's Nutrition Clinic"
-                  value={brandingData.clinicName}
-                  onChange={(e) => setBrandingData(prev => ({ ...prev, clinicName: e.target.value }))}
-                  className="mt-1"
-                />
-              </div>
-
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setShowBrandingDialog(false)} className="flex-1">
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() => {
-                    handlePDFDownload(brandingTemplate, brandingData);
-                    setShowBrandingDialog(false);
-                  }}
-                  className="flex-1 bg-gradient-to-r from-red-500 to-orange-500 h-11"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download PDF
-                </Button>
-              </div>
-            </div>
           </DialogContent>
         </Dialog>
 

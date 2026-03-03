@@ -22,9 +22,6 @@ import UsageLimitWarning from "@/components/mealplanner/UsageLimitWarning";
 import ManualMealPlanBuilder from "@/components/mealplanner/ManualMealPlanBuilder";
 import ManualTemplateBuilder from "@/components/mealplanner/ManualTemplateBuilder";
 import AIMealPlanGenerator from "@/components/mealplanner/AIMealPlanGenerator";
-import AITemplateDialog from "@/components/mealplanner/AITemplateDialog";
-import SavedPlansTab from "@/components/mealplanner/SavedPlansTab";
-import TemplatesTab from "@/components/mealplanner/TemplatesTab";
 
 export default function MealPlanner() {
   const queryClient = useQueryClient();
@@ -1328,76 +1325,341 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
     });
   };
 
-  const getSampleTemplateData = () => ({
-    name: "Sample Meal Plan Template - 7 Days", description: "Sample template", category: "general",
-    duration: 7, target_calories: 1800, food_preference: "veg", regional_preference: "north", tags: ["sample"],
-    meals: [
-      { day: 1, meal_type: "early_morning", meal_name: "Warm Lemon Water", items: ["Warm water","Lemon juice"], portion_sizes: ["1 glass (250ml)","Half lemon"], calories: 10, protein: 0, carbs: 2, fats: 0, nutritional_tip: "Kickstarts metabolism" },
-      { day: 1, meal_type: "breakfast", meal_name: "Poha with Vegetables", items: ["Poha","Mixed vegetables","Peanuts"], portion_sizes: ["1 medium katori (150g)","1 small katori (100g)","1 tbsp (10g)"], calories: 350, protein: 8, carbs: 55, fats: 10, nutritional_tip: "Rich in iron and fiber" },
-      { day: 1, meal_type: "mid_morning", meal_name: "Apple with Almonds", items: ["Apple","Almonds"], portion_sizes: ["1 medium (150g)","5-6 pieces (10g)"], calories: 150, protein: 3, carbs: 25, fats: 5, nutritional_tip: "Sustained energy" },
-      { day: 1, meal_type: "lunch", meal_name: "Roti with Dal and Sabji", items: ["Whole wheat roti","Moong dal","Mixed vegetable sabji"], portion_sizes: ["2 medium (60g)","1 small katori (150g)","1 medium katori (200g)"], calories: 550, protein: 18, carbs: 85, fats: 12, nutritional_tip: "Complete balanced meal" },
-      { day: 1, meal_type: "evening_snack", meal_name: "Green Tea with Bhuna Chana", items: ["Green tea","Bhuna chana"], portion_sizes: ["1 cup (240ml)","1 small katori (30g)"], calories: 120, protein: 5, carbs: 18, fats: 2, nutritional_tip: "Boosts metabolism" },
-      { day: 1, meal_type: "dinner", meal_name: "Vegetable Khichdi with Raita", items: ["Khichdi","Mixed vegetables","Curd raita"], portion_sizes: ["1 small bowl (200g)","1 small katori (100g)","1 small katori (100g)"], calories: 450, protein: 15, carbs: 70, fats: 8, nutritional_tip: "Easy to digest" }
-    ]
-  });
+  const getSampleTemplateData = () => {
+    return {
+      name: "Sample Meal Plan Template - 7 Days",
+      description: "This is a sample template showing the required format for importing meal plans",
+      category: "general",
+      duration: 7,
+      target_calories: 1800,
+      food_preference: "veg",
+      regional_preference: "north",
+      tags: ["sample", "veg", "1800cal"],
+      meals: [
+        {
+          day: 1,
+          meal_type: "early_morning",
+          meal_name: "Warm Lemon Water",
+          items: ["Warm water", "Lemon juice"],
+          portion_sizes: ["1 glass (250ml)", "Half lemon"],
+          calories: 10,
+          protein: 0,
+          carbs: 2,
+          fats: 0,
+          nutritional_tip: "Helps kickstart metabolism and aids digestion"
+        },
+        {
+          day: 1,
+          meal_type: "breakfast",
+          meal_name: "Poha with Vegetables",
+          items: ["Poha", "Mixed vegetables", "Peanuts", "Curry leaves"],
+          portion_sizes: ["1 medium katori (150g)", "1 small katori (100g)", "1 tbsp (10g)", "Few leaves"],
+          calories: 350,
+          protein: 8,
+          carbs: 55,
+          fats: 10,
+          nutritional_tip: "Rich in iron and fiber, light on stomach"
+        },
+        {
+          day: 1,
+          meal_type: "mid_morning",
+          meal_name: "Apple with Almonds",
+          items: ["Apple", "Almonds"],
+          portion_sizes: ["1 medium (150g)", "5-6 pieces (10g)"],
+          calories: 150,
+          protein: 3,
+          carbs: 25,
+          fats: 5,
+          nutritional_tip: "Provides sustained energy and healthy fats"
+        },
+        {
+          day: 1,
+          meal_type: "lunch",
+          meal_name: "Roti with Dal and Sabji",
+          items: ["Whole wheat roti", "Moong dal", "Mixed vegetable sabji", "Cucumber salad"],
+          portion_sizes: ["2 medium (60g)", "1 small katori (150g)", "1 medium katori (200g)", "1 small bowl (100g)"],
+          calories: 550,
+          protein: 18,
+          carbs: 85,
+          fats: 12,
+          nutritional_tip: "Complete balanced meal with protein, carbs and fiber"
+        },
+        {
+          day: 1,
+          meal_type: "evening_snack",
+          meal_name: "Green Tea with Bhuna Chana",
+          items: ["Green tea", "Bhuna chana"],
+          portion_sizes: ["1 cup (240ml)", "1 small katori (30g)"],
+          calories: 120,
+          protein: 5,
+          carbs: 18,
+          fats: 2,
+          nutritional_tip: "Light snack that boosts metabolism"
+        },
+        {
+          day: 1,
+          meal_type: "dinner",
+          meal_name: "Vegetable Khichdi with Raita",
+          items: ["Khichdi (rice + moong dal)", "Mixed vegetables", "Curd raita"],
+          portion_sizes: ["1 small bowl (200g)", "1 small katori (100g)", "1 small katori (100g)"],
+          calories: 450,
+          protein: 15,
+          carbs: 70,
+          fats: 8,
+          nutritional_tip: "Easy to digest, perfect for dinner"
+        }
+      ]
+    };
+  };
 
   const handleDownloadSampleJSON = () => {
-    const s = getSampleTemplateData();
-    const blob = new Blob([JSON.stringify(s, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = Object.assign(document.createElement('a'), { href: url, download: 'sample-meal-plan-template.json' });
-    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    const sampleTemplate = getSampleTemplateData();
+    const dataStr = JSON.stringify(sampleTemplate, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'sample-meal-plan-template.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleDownloadSampleExcel = () => {
-    const s = getSampleTemplateData();
-    const metaSheet = XLSX.utils.json_to_sheet([{ 'Template Name': s.name, 'Description': s.description, 'Category': s.category, 'Duration (Days)': s.duration, 'Target Calories': s.target_calories, 'Food Preference': s.food_preference, 'Regional Preference': s.regional_preference, 'Tags': s.tags.join(', ') }]);
-    const mealsSheet = XLSX.utils.json_to_sheet(s.meals.map(m => ({ 'Day': m.day, 'Meal Type': m.meal_type, 'Meal Name': m.meal_name, 'Items': m.items.join(' | '), 'Portion Sizes': m.portion_sizes.join(' | '), 'Calories': m.calories, 'Protein (g)': m.protein, 'Carbs (g)': m.carbs, 'Fats (g)': m.fats, 'Nutritional Tip': m.nutritional_tip })));
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, metaSheet, 'Template Info');
-    XLSX.utils.book_append_sheet(wb, mealsSheet, 'Meals');
-    XLSX.writeFile(wb, 'sample-meal-plan-template.xlsx');
+    const sampleTemplate = getSampleTemplateData();
+    
+    // Create metadata sheet
+    const metadataSheet = XLSX.utils.json_to_sheet([{
+      'Template Name': sampleTemplate.name,
+      'Description': sampleTemplate.description,
+      'Category': sampleTemplate.category,
+      'Duration (Days)': sampleTemplate.duration,
+      'Target Calories': sampleTemplate.target_calories,
+      'Food Preference': sampleTemplate.food_preference,
+      'Regional Preference': sampleTemplate.regional_preference,
+      'Tags': sampleTemplate.tags.join(', ')
+    }]);
+
+    // Create meals sheet
+    const mealsData = sampleTemplate.meals.map(meal => ({
+      'Day': meal.day,
+      'Meal Type': meal.meal_type,
+      'Meal Name': meal.meal_name,
+      'Items': meal.items.join(' | '),
+      'Portion Sizes': meal.portion_sizes.join(' | '),
+      'Calories': meal.calories,
+      'Protein (g)': meal.protein,
+      'Carbs (g)': meal.carbs,
+      'Fats (g)': meal.fats,
+      'Nutritional Tip': meal.nutritional_tip
+    }));
+    const mealsSheet = XLSX.utils.json_to_sheet(mealsData);
+
+    // Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, metadataSheet, 'Template Info');
+    XLSX.utils.book_append_sheet(workbook, mealsSheet, 'Meals');
+
+    // Download
+    XLSX.writeFile(workbook, 'sample-meal-plan-template.xlsx');
   };
 
   const handleDownloadSampleWord = () => {
-    const s = getSampleTemplateData();
-    let c = `MEAL PLAN TEMPLATE\n\nTemplate Name: ${s.name}\nDuration: ${s.duration} days\nCalories: ${s.target_calories} kcal\nFood: ${s.food_preference}\nRegion: ${s.regional_preference}\n\nMEALS:\n\n`;
-    s.meals.forEach((m, i) => { c += `Meal ${i+1}:\n  Day: ${m.day}\n  Meal Type: ${m.meal_type}\n  Meal Name: ${m.meal_name}\n  Items: ${m.items.join(' | ')}\n  Portion Sizes: ${m.portion_sizes.join(' | ')}\n  Calories: ${m.calories}\n  Protein: ${m.protein}g\n  Carbs: ${m.carbs}g\n  Fats: ${m.fats}g\n  Tip: ${m.nutritional_tip}\n\n`; });
-    const blob = new Blob([c], { type: 'text/plain' });
+    const sampleTemplate = getSampleTemplateData();
+    
+    let content = `MEAL PLAN TEMPLATE - SAMPLE FORMAT\n`;
+    content += `=====================================\n\n`;
+    content += `Template Name: ${sampleTemplate.name}\n`;
+    content += `Description: ${sampleTemplate.description}\n`;
+    content += `Category: ${sampleTemplate.category}\n`;
+    content += `Duration: ${sampleTemplate.duration} days\n`;
+    content += `Target Calories: ${sampleTemplate.target_calories} kcal\n`;
+    content += `Food Preference: ${sampleTemplate.food_preference}\n`;
+    content += `Regional Preference: ${sampleTemplate.regional_preference}\n`;
+    content += `Tags: ${sampleTemplate.tags.join(', ')}\n\n`;
+    content += `=====================================\n\n`;
+    content += `MEALS:\n\n`;
+
+    sampleTemplate.meals.forEach((meal, index) => {
+      content += `Meal ${index + 1}:\n`;
+      content += `  Day: ${meal.day}\n`;
+      content += `  Meal Type: ${meal.meal_type}\n`;
+      content += `  Meal Name: ${meal.meal_name}\n`;
+      content += `  Items: ${meal.items.join(' | ')}\n`;
+      content += `  Portion Sizes: ${meal.portion_sizes.join(' | ')}\n`;
+      content += `  Calories: ${meal.calories}\n`;
+      content += `  Protein: ${meal.protein}g\n`;
+      content += `  Carbs: ${meal.carbs}g\n`;
+      content += `  Fats: ${meal.fats}g\n`;
+      content += `  Nutritional Tip: ${meal.nutritional_tip}\n\n`;
+    });
+
+    content += `\n=====================================\n`;
+    content += `HOW TO USE:\n`;
+    content += `1. Copy this format and modify with your meal plan data\n`;
+    content += `2. Save as .txt or .doc file\n`;
+    content += `3. Upload in the Import Template section\n`;
+    content += `4. System will automatically parse and create your template\n`;
+
+    const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
-    const a = Object.assign(document.createElement('a'), { href: url, download: 'sample-meal-plan-template.txt' });
-    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'sample-meal-plan-template.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleImportTemplate = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
     try {
       const fileName = file.name.toLowerCase();
       let templateData;
+
       if (fileName.endsWith('.json')) {
-        const importedData = JSON.parse(await file.text());
-        if (!importedData.meals || !Array.isArray(importedData.meals)) { alert("Invalid template file: Missing meals array"); return; }
-        if (!importedData.name || !importedData.duration || !importedData.target_calories) { alert("Invalid template file: Missing required fields"); return; }
-        templateData = { name: importedData.name, description: importedData.description || "Imported template", category: importedData.category || "general", duration: importedData.duration, target_calories: importedData.target_calories, food_preference: importedData.food_preference || "veg", regional_preference: importedData.regional_preference || "all", meals: importedData.meals, is_public: false, times_used: 0, tags: importedData.tags || ["imported"] };
+        // Handle JSON import
+        const text = await file.text();
+        const importedData = JSON.parse(text);
+
+        if (!importedData.meals || !Array.isArray(importedData.meals)) {
+          alert("Invalid template file: Missing meals array");
+          return;
+        }
+
+        if (!importedData.name || !importedData.duration || !importedData.target_calories) {
+          alert("Invalid template file: Missing required fields (name, duration, target_calories)");
+          return;
+        }
+
+        templateData = {
+          name: importedData.name,
+          description: importedData.description || "Imported template",
+          category: importedData.category || "general",
+          duration: importedData.duration,
+          target_calories: importedData.target_calories,
+          food_preference: importedData.food_preference || "veg",
+          regional_preference: importedData.regional_preference || "all",
+          meals: importedData.meals,
+          is_public: false,
+          times_used: 0,
+          tags: importedData.tags || ["imported"]
+        };
       } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
-        const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' });
-        const meta = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]])[0];
-        const meals = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[1]]).map(r => ({ day: parseInt(r['Day']), meal_type: r['Meal Type'], meal_name: r['Meal Name'], items: r['Items'].split(' | '), portion_sizes: r['Portion Sizes'].split(' | '), calories: parseFloat(r['Calories']), protein: parseFloat(r['Protein (g)']), carbs: parseFloat(r['Carbs (g)']), fats: parseFloat(r['Fats (g)']), nutritional_tip: r['Nutritional Tip'] }));
-        templateData = { name: meta['Template Name'], description: meta['Description'] || "Imported from Excel", category: meta['Category'] || "general", duration: parseInt(meta['Duration (Days)']), target_calories: parseInt(meta['Target Calories']), food_preference: meta['Food Preference'] || "veg", regional_preference: meta['Regional Preference'] || "all", meals, is_public: false, times_used: 0, tags: meta['Tags'] ? meta['Tags'].split(', ') : ["imported"] };
+        // Handle Excel import
+        const arrayBuffer = await file.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+
+        // Read metadata
+        const metadataSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const metadata = XLSX.utils.sheet_to_json(metadataSheet)[0];
+
+        // Read meals
+        const mealsSheet = workbook.Sheets[workbook.SheetNames[1]];
+        const mealsData = XLSX.utils.sheet_to_json(mealsSheet);
+
+        const meals = mealsData.map(row => ({
+          day: parseInt(row['Day']),
+          meal_type: row['Meal Type'],
+          meal_name: row['Meal Name'],
+          items: row['Items'].split(' | '),
+          portion_sizes: row['Portion Sizes'].split(' | '),
+          calories: parseFloat(row['Calories']),
+          protein: parseFloat(row['Protein (g)']),
+          carbs: parseFloat(row['Carbs (g)']),
+          fats: parseFloat(row['Fats (g)']),
+          nutritional_tip: row['Nutritional Tip']
+        }));
+
+        templateData = {
+          name: metadata['Template Name'],
+          description: metadata['Description'] || "Imported from Excel",
+          category: metadata['Category'] || "general",
+          duration: parseInt(metadata['Duration (Days)']),
+          target_calories: parseInt(metadata['Target Calories']),
+          food_preference: metadata['Food Preference'] || "veg",
+          regional_preference: metadata['Regional Preference'] || "all",
+          meals: meals,
+          is_public: false,
+          times_used: 0,
+          tags: metadata['Tags'] ? metadata['Tags'].split(', ') : ["imported"]
+        };
       } else if (fileName.endsWith('.txt') || fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
-        const lines = (await file.text()).split('\n'); let metadata = {}, meals = [], currentMeal = null;
-        lines.forEach(l => { l = l.trim(); if (!l) return; if (l.includes('Template Name:')) metadata.name = l.split('Template Name:')[1].trim(); else if (l.includes('Duration:')) metadata.duration = parseInt(l.match(/\d+/)[0]); else if (l.includes('Target Calories:')) metadata.target_calories = parseInt(l.match(/\d+/)[0]); else if (l.includes('Food Preference:')) metadata.food_preference = l.split('Food Preference:')[1].trim(); else if (l.includes('Regional Preference:')) metadata.regional_preference = l.split('Regional Preference:')[1].trim(); else if (l.startsWith('Meal ') && l.includes(':')) { if (currentMeal) meals.push(currentMeal); currentMeal = {}; } else if (currentMeal) { if (l.includes('Day:')) currentMeal.day = parseInt(l.split('Day:')[1].trim()); else if (l.includes('Meal Type:')) currentMeal.meal_type = l.split('Meal Type:')[1].trim(); else if (l.includes('Meal Name:')) currentMeal.meal_name = l.split('Meal Name:')[1].trim(); else if (l.includes('Items:')) currentMeal.items = l.split('Items:')[1].trim().split(' | '); else if (l.includes('Portion Sizes:')) currentMeal.portion_sizes = l.split('Portion Sizes:')[1].trim().split(' | '); else if (l.includes('Calories:')) currentMeal.calories = parseFloat(l.match(/[\d.]+/)[0]); else if (l.includes('Protein:')) currentMeal.protein = parseFloat(l.match(/[\d.]+/)[0]); else if (l.includes('Carbs:')) currentMeal.carbs = parseFloat(l.match(/[\d.]+/)[0]); else if (l.includes('Fats:')) currentMeal.fats = parseFloat(l.match(/[\d.]+/)[0]); else if (l.includes('Tip:') || l.includes('Nutritional Tip:')) currentMeal.nutritional_tip = l.split(':')[1]?.trim(); } });
+        // Handle Word/Text import
+        const text = await file.text();
+        
+        // Parse text format
+        const lines = text.split('\n');
+        let metadata = {};
+        let meals = [];
+        let currentMeal = null;
+
+        lines.forEach(line => {
+          line = line.trim();
+          if (!line) return;
+
+          if (line.includes('Template Name:')) metadata.name = line.split('Template Name:')[1].trim();
+          else if (line.includes('Description:')) metadata.description = line.split('Description:')[1].trim();
+          else if (line.includes('Category:')) metadata.category = line.split('Category:')[1].trim();
+          else if (line.includes('Duration:')) metadata.duration = parseInt(line.match(/\d+/)[0]);
+          else if (line.includes('Target Calories:')) metadata.target_calories = parseInt(line.match(/\d+/)[0]);
+          else if (line.includes('Food Preference:')) metadata.food_preference = line.split('Food Preference:')[1].trim();
+          else if (line.includes('Regional Preference:')) metadata.regional_preference = line.split('Regional Preference:')[1].trim();
+          else if (line.includes('Tags:')) metadata.tags = line.split('Tags:')[1].trim().split(', ');
+          else if (line.startsWith('Meal ') && line.includes(':')) {
+            if (currentMeal) meals.push(currentMeal);
+            currentMeal = {};
+          }
+          else if (currentMeal) {
+            if (line.includes('Day:')) currentMeal.day = parseInt(line.split('Day:')[1].trim());
+            else if (line.includes('Meal Type:')) currentMeal.meal_type = line.split('Meal Type:')[1].trim();
+            else if (line.includes('Meal Name:')) currentMeal.meal_name = line.split('Meal Name:')[1].trim();
+            else if (line.includes('Items:')) currentMeal.items = line.split('Items:')[1].trim().split(' | ');
+            else if (line.includes('Portion Sizes:')) currentMeal.portion_sizes = line.split('Portion Sizes:')[1].trim().split(' | ');
+            else if (line.includes('Calories:')) currentMeal.calories = parseFloat(line.match(/[\d.]+/)[0]);
+            else if (line.includes('Protein:')) currentMeal.protein = parseFloat(line.match(/[\d.]+/)[0]);
+            else if (line.includes('Carbs:')) currentMeal.carbs = parseFloat(line.match(/[\d.]+/)[0]);
+            else if (line.includes('Fats:')) currentMeal.fats = parseFloat(line.match(/[\d.]+/)[0]);
+            else if (line.includes('Nutritional Tip:')) currentMeal.nutritional_tip = line.split('Nutritional Tip:')[1].trim();
+          }
+        });
+        
         if (currentMeal) meals.push(currentMeal);
-        templateData = { name: metadata.name || "Imported Template", description: "Imported", category: "general", duration: metadata.duration || 7, target_calories: metadata.target_calories || 1800, food_preference: metadata.food_preference || "veg", regional_preference: metadata.regional_preference || "all", meals, is_public: false, times_used: 0, tags: ["imported"] };
-      } else { alert("Unsupported file format."); event.target.value = ''; return; }
-      if (!templateData.meals || templateData.meals.length === 0) { alert("No meals found in the template file."); return; }
+
+        templateData = {
+          name: metadata.name || "Imported Template",
+          description: metadata.description || "Imported from Word/Text",
+          category: metadata.category || "general",
+          duration: metadata.duration || 7,
+          target_calories: metadata.target_calories || 1800,
+          food_preference: metadata.food_preference || "veg",
+          regional_preference: metadata.regional_preference || "all",
+          meals: meals,
+          is_public: false,
+          times_used: 0,
+          tags: metadata.tags || ["imported"]
+        };
+      } else {
+        alert("Unsupported file format. Please upload JSON, Excel (.xlsx, .xls), or Text/Word (.txt, .doc) files.");
+        event.target.value = '';
+        return;
+      }
+
+      if (!templateData.meals || templateData.meals.length === 0) {
+        alert("No meals found in the template file.");
+        return;
+      }
+
       saveTemplateMutation.mutate(templateData);
       event.target.value = '';
       alert(`✅ Successfully imported template with ${templateData.meals.length} meals!`);
     } catch (error) {
       console.error("Import error:", error);
-      alert(`Failed to import template: ${error.message}`);
+      alert(`Failed to import template: ${error.message}\n\nPlease ensure the file format matches the sample template.`);
       event.target.value = '';
     }
   };
@@ -1573,32 +1835,439 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
           </TabsList>
 
           <TabsContent value="templates" className="space-y-6">
-            <TemplatesTab
-              templates={templates}
-              filteredTemplates={filteredTemplates}
-              selectedClientId={selectedClientId}
-              setSelectedClientId={setSelectedClientId}
-              selectedClient={selectedClient}
-              clients={clients}
-              mealPlans={mealPlans}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              templateFilters={templateFilters}
-              setTemplateFilters={setTemplateFilters}
-              showDownloadOptions={showDownloadOptions}
-              setShowDownloadOptions={setShowDownloadOptions}
-              user={user}
-              coachPlan={coachPlan}
-              onOpenAssignDialog={openAssignDialog}
-              onCloneTemplate={cloneTemplate}
-              onAITemplateClick={() => setShowAITemplateDialog(true)}
-              onManualTemplateClick={() => setShowManualTemplateDialog(true)}
-              onImportTemplate={handleImportTemplate}
-              onDownloadJSON={handleDownloadSampleJSON}
-              onDownloadExcel={handleDownloadSampleExcel}
-              onDownloadWord={handleDownloadSampleWord}
-            />
-          </TabsContent>
+            {templates.length === 0 && !isNoClientsMode ? (
+              <Card className="border-none shadow-xl bg-gradient-to-br from-green-50 to-emerald-50">
+                <CardContent className="p-12 text-center">
+                  <Star className="w-16 h-16 mx-auto text-green-500 mb-4" />
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Create Your First Template!</h3>
+                  <p className="text-gray-600 mb-6">Templates save you money - use them unlimited times for FREE!</p>
+                  <div className="space-y-2 text-sm text-gray-700 text-left max-w-md mx-auto">
+                    <p>✅ Generate 1 AI meal plan (costs ₹{coachPlan?.ai_credit_price || 10})</p>
+                    <p>✅ Save it as template (FREE forever)</p>
+                    <p>✅ Use for 100 clients (₹0 instead of ₹{(coachPlan?.ai_credit_price || 10) * 100}!)</p>
+                  </div>
+                  <Button 
+                    className="mt-6 bg-gradient-to-r from-green-500 to-emerald-500"
+                    onClick={() => setActiveTab("generate")}
+                  >
+                    <Zap className="w-4 h-4 mr-2" />
+                    Generate Your First Template
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="w-5 h-5 text-blue-600" />
+                      Select Client to Assign Template
+                    </CardTitle>
+                    <CardDescription>
+                      ⚠️ <strong>Important:</strong> First select a client, then choose a template below to assign or customize it.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {!selectedClientId && (
+                      <Alert className="mb-4 bg-yellow-50 border-yellow-300">
+                        <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                        <AlertDescription className="text-yellow-900">
+                          <strong>No client selected!</strong> Please choose a client from the dropdown below.
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    <Select
+                      value={selectedClientId || ''}
+                      onValueChange={setSelectedClientId}
+                    >
+                      <SelectTrigger className="h-12">
+                        <SelectValue placeholder="🔍 Choose a client..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {clients.map((client) => {
+                          const clientPlans = mealPlans.filter(p => p.client_id === client.id);
+                          const hasActivePlan = clientPlans.some(p => p.active);
+                          return (
+                            <SelectItem key={client.id} value={client.id}>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{client.full_name}</span>
+                                <Badge variant="outline" className="text-xs capitalize">
+                                  {client.food_preference}
+                                </Badge>
+                                <Badge className="text-xs">{client.target_calories} kcal</Badge>
+                                {hasActivePlan && (
+                                  <Badge className="text-xs bg-green-500">
+                                    <CheckCircle className="w-3 h-3 mr-1" />
+                                    Has Plan
+                                  </Badge>
+                                )}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </CardContent>
+                </Card>
+
+                {(user?.user_type === 'super_admin' || user?.user_type === 'team_member' || coachPlan?.can_generate_ai_templates) && (
+                   <div className="space-y-3">
+                     <div className="flex flex-col lg:flex-row gap-2 lg:gap-3">
+                       <Button
+                         onClick={() => setShowAITemplateDialog(true)}
+                         className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-11 lg:h-12 w-full lg:flex-1 text-sm lg:text-base"
+                       >
+                         <Sparkles className="w-4 lg:w-5 h-4 lg:h-5 mr-1 lg:mr-2" />
+                         <span>AI Generate Template</span>
+                       </Button>
+                       <Button
+                         onClick={() => setShowManualTemplateDialog(true)}
+                         variant="outline"
+                         className="h-11 lg:h-12 border-2 border-indigo-500 text-indigo-600 hover:bg-indigo-50 w-full lg:flex-1 text-sm lg:text-base"
+                       >
+                         <Edit className="w-4 lg:w-5 h-4 lg:h-5 mr-1 lg:mr-2" />
+                         <span>Create Manual Template</span>
+                       </Button>
+                     </div>
+                    
+                    <Card className="border-2 border-dashed border-green-300 bg-green-50/50">
+                       <CardContent className="p-3 lg:p-4">
+                         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-2 lg:gap-4">
+                           <div className="flex-1 min-w-0">
+                             <p className="font-semibold text-green-900 mb-1 text-sm lg:text-base">Import Meal Plan Template</p>
+                             <p className="text-xs lg:text-sm text-green-700">Upload JSON, Excel (.xlsx), or Word/Text (.txt, .doc) file</p>
+                           </div>
+                           <div className="flex flex-col sm:flex-row gap-1.5 lg:gap-2 w-full lg:w-auto">
+                            <div className="relative w-full lg:w-auto">
+                               <Button
+                                 onClick={() => setShowDownloadOptions(!showDownloadOptions)}
+                                 variant="outline"
+                                 size="sm"
+                                 className="border-green-600 text-green-700 hover:bg-green-100 w-full text-xs"
+                               >
+                                 <Download className="w-3 h-3 mr-1" />
+                                 Sample
+                               </Button>
+                              {showDownloadOptions && (
+                                <div className="absolute top-full mt-1 right-0 bg-white border-2 border-green-500 rounded-lg shadow-lg z-10 w-48">
+                                  <button
+                                    onClick={() => {
+                                      handleDownloadSampleJSON();
+                                      setShowDownloadOptions(false);
+                                    }}
+                                    className="w-full px-4 py-2 text-left hover:bg-green-50 flex items-center gap-2 text-sm"
+                                  >
+                                    <FileText className="w-4 h-4 text-blue-600" />
+                                    <span>JSON Format</span>
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      handleDownloadSampleExcel();
+                                      setShowDownloadOptions(false);
+                                    }}
+                                    className="w-full px-4 py-2 text-left hover:bg-green-50 flex items-center gap-2 text-sm border-t"
+                                  >
+                                    <Table className="w-4 h-4 text-green-600" />
+                                    <span>Excel Format</span>
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      handleDownloadSampleWord();
+                                      setShowDownloadOptions(false);
+                                    }}
+                                    className="w-full px-4 py-2 text-left hover:bg-green-50 flex items-center gap-2 text-sm border-t rounded-b-lg"
+                                  >
+                                    <FileText className="w-4 h-4 text-orange-600" />
+                                    <span>Text/Word Format</span>
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                            <Button
+                               onClick={() => document.getElementById('import-template-file').click()}
+                               size="sm"
+                               className="bg-green-600 hover:bg-green-700 text-white w-full lg:w-auto text-xs"
+                             >
+                               <Download className="w-3 h-3 mr-1" />
+                               Import
+                             </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <input
+                      id="import-template-file"
+                      type="file"
+                      accept=".json,.xlsx,.xls,.txt,.doc,.docx"
+                      className="hidden"
+                      onChange={handleImportTemplate}
+                    />
+                  </div>
+                )}
+
+                {user?.user_type === 'student_coach' && !coachPlan?.can_generate_ai_templates && (
+                  <Alert className="border-orange-500 bg-orange-50">
+                    <Crown className="w-5 h-5 text-orange-600" />
+                    <AlertDescription className="text-orange-900">
+                      <strong>Upgrade Required!</strong> AI Template Generation is not included in your plan. 
+                      <Button
+                        onClick={() => window.location.href = createPageUrl('CoachSubscriptions')}
+                        variant="link"
+                        className="p-0 h-auto ml-1 text-orange-700 underline"
+                      >
+                        Upgrade your plan
+                      </Button> to access this feature.
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+                  <CardContent className="p-6 space-y-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <Filter className="w-5 h-5 text-gray-600" />
+                        <h3 className="font-semibold text-gray-900">Filter Templates</h3>
+                      </div>
+                      {(templateFilters.disease !== "all" || templateFilters.goal !== "all" || 
+                        templateFilters.foodPreference !== "all" || templateFilters.regionalPreference !== "all" || 
+                        templateFilters.calorieRange !== "all" || templateFilters.duration !== "all") && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setTemplateFilters({
+                            disease: "all",
+                            goal: "all",
+                            foodPreference: "all",
+                            regionalPreference: "all",
+                            calorieRange: "all",
+                            duration: "all"
+                          })}
+                          className="text-red-600 hover:bg-red-50"
+                        >
+                          <X className="w-4 h-4 mr-1" />
+                          Clear Filters
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Disease Focus</Label>
+                        <Select
+                          value={templateFilters.disease}
+                          onValueChange={(value) => setTemplateFilters({...templateFilters, disease: value})}
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Diseases</SelectItem>
+                            <SelectItem value="diabetes_type1">Diabetes Type 1</SelectItem>
+                            <SelectItem value="diabetes_type2">Diabetes Type 2</SelectItem>
+                            <SelectItem value="prediabetes">Prediabetes</SelectItem>
+                            <SelectItem value="hypertension">Hypertension</SelectItem>
+                            <SelectItem value="pcos">PCOS</SelectItem>
+                            <SelectItem value="thyroid_hypo">Hypothyroid</SelectItem>
+                            <SelectItem value="thyroid_hyper">Hyperthyroid</SelectItem>
+                            <SelectItem value="fatty_liver">Fatty Liver</SelectItem>
+                            <SelectItem value="high_cholesterol">High Cholesterol</SelectItem>
+                            <SelectItem value="ibs">IBS</SelectItem>
+                            <SelectItem value="gerd">GERD</SelectItem>
+                            <SelectItem value="kidney_disease">Kidney Disease</SelectItem>
+                            <SelectItem value="heart_disease">Heart Disease</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Goal Target</Label>
+                        <Select
+                          value={templateFilters.goal}
+                          onValueChange={(value) => setTemplateFilters({...templateFilters, goal: value})}
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Goals</SelectItem>
+                            <SelectItem value="weight_loss">Weight Loss</SelectItem>
+                            <SelectItem value="weight_gain">Weight Gain</SelectItem>
+                            <SelectItem value="muscle_gain">Muscle Gain</SelectItem>
+                            <SelectItem value="diabetes">Diabetes</SelectItem>
+                            <SelectItem value="pcos">PCOS</SelectItem>
+                            <SelectItem value="thyroid">Thyroid</SelectItem>
+                            <SelectItem value="general">General Health</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Food Preference</Label>
+                        <Select
+                          value={templateFilters.foodPreference}
+                          onValueChange={(value) => setTemplateFilters({...templateFilters, foodPreference: value})}
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Types</SelectItem>
+                            <SelectItem value="veg">Vegetarian</SelectItem>
+                            <SelectItem value="non_veg">Non-Veg</SelectItem>
+                            <SelectItem value="eggetarian">Eggetarian</SelectItem>
+                            <SelectItem value="jain">Jain</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Regional Preference</Label>
+                        <Select
+                          value={templateFilters.regionalPreference}
+                          onValueChange={(value) => setTemplateFilters({...templateFilters, regionalPreference: value})}
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Regions</SelectItem>
+                            <SelectItem value="north">North Indian</SelectItem>
+                            <SelectItem value="south">South Indian</SelectItem>
+                            <SelectItem value="west">West Indian</SelectItem>
+                            <SelectItem value="east">East Indian</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Calorie Range</Label>
+                        <Select
+                          value={templateFilters.calorieRange}
+                          onValueChange={(value) => setTemplateFilters({...templateFilters, calorieRange: value})}
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Ranges</SelectItem>
+                            <SelectItem value="low">Low (1000-1500 cal)</SelectItem>
+                            <SelectItem value="medium">Medium (1500-2000 cal)</SelectItem>
+                            <SelectItem value="high">High (2000-3000 cal)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Duration</Label>
+                        <Select
+                          value={templateFilters.duration}
+                          onValueChange={(value) => setTemplateFilters({...templateFilters, duration: value})}
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Durations</SelectItem>
+                            <SelectItem value="7">7 Days</SelectItem>
+                            <SelectItem value="10">10 Days</SelectItem>
+                            <SelectItem value="15">15 Days</SelectItem>
+                            <SelectItem value="21">21 Days</SelectItem>
+                            <SelectItem value="30">30 Days</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <Input
+                      placeholder="🔍 Search templates by name, category, tags..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="h-12 text-base"
+                    />
+
+                    <div className="flex items-center justify-between pt-2 border-t">
+                      <p className="text-sm text-gray-600">
+                        Showing <span className="font-semibold text-gray-900">{filteredTemplates.length}</span> of {templates.length} templates
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {filteredTemplates.length === 0 && searchQuery ? (
+                  <Card className="border-none shadow-lg">
+                    <CardContent className="p-12 text-center">
+                      <p className="text-gray-600">No templates found matching "{searchQuery}"</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredTemplates.map((template) => (
+                    <Card key={template.id} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all">
+                      <CardHeader className="p-4 lg:p-6">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <CardTitle className="text-sm lg:text-lg truncate">{template.name}</CardTitle>
+                            <p className="text-xs lg:text-sm text-gray-600 mt-1 line-clamp-2">{template.description}</p>
+                          </div>
+                          <div className="flex gap-1 flex-shrink-0">
+                            {template.is_public && (
+                              <Badge className="bg-purple-100 text-purple-700 text-xs">Public</Badge>
+                            )}
+                            {template.created_by === user?.email && (
+                              <Badge className="bg-blue-100 text-blue-700 text-xs">Mine</Badge>
+                            )}
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-4 lg:p-6 space-y-3">
+                        <div className="flex flex-wrap gap-2">
+                          <Badge className="bg-orange-100 text-orange-700 capitalize text-xs">
+                            {template.food_preference}
+                          </Badge>
+                          <Badge className="bg-blue-100 text-blue-700 text-xs">
+                            {template.target_calories} kcal
+                          </Badge>
+                          <Badge className="bg-green-100 text-green-700 text-xs">
+                            {template.duration}d
+                          </Badge>
+                        </div>
+
+                        <div className="p-2 lg:p-3 bg-green-50 border border-green-200 rounded-lg">
+                          <p className="text-xs lg:text-sm font-semibold text-green-900">
+                            ✅ Used {template.times_used || 0}x
+                          </p>
+                          <p className="text-xs text-green-700">FREE!</p>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                         <Button
+                           onClick={() => openAssignDialog(template)}
+                           disabled={!selectedClient}
+                           className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed text-xs h-9"
+                           title={!selectedClient ? "Please select a client first" : "Assign template directly to client"}
+                         >
+                           <CheckCircle className="w-3 h-3 mr-1" />
+                           Assign Now
+                         </Button>
+                         <Button
+                           onClick={() => cloneTemplate(template)}
+                           disabled={!selectedClient}
+                           variant="outline"
+                           className="w-full disabled:opacity-50 disabled:cursor-not-allowed text-xs h-9"
+                           title={!selectedClient ? "Please select a client first" : "Customize template before assigning"}
+                         >
+                           <Copy className="w-3 h-3 mr-1" />
+                           Customize
+                         </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                   ))}
+                    </div>
+                    )}
+                    </div>
+                    )}
+                    </TabsContent>
 
           <TabsContent value="manual" className="space-y-6">
             {isNoClientsMode ? (
@@ -1661,28 +2330,348 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
 
           <TabsContent value="generate" className="space-y-6">
             {isNoClientsMode ? (
-              <Card className="border-none shadow-lg"><CardContent className="p-12 text-center"><Users className="w-16 h-16 mx-auto text-gray-300 mb-4" /><h3 className="text-xl font-semibold text-gray-900 mb-2">No Clients Yet</h3><p className="text-gray-600 mb-4">Add clients before generating meal plans</p><Button onClick={() => window.location.href = createPageUrl('ClientManagement')}><Users className="w-4 h-4 mr-2" />Manage Clients</Button></CardContent></Card>
-            ) : generatedPlan !== null || viewingPlan !== null ? (
-              <GeneratedMealPlan plan={viewingPlan || generatedPlan} onSave={viewingPlan ? null : handleSavePlan} onSaveAsTemplate={!viewingPlan ? handleSaveAsTemplate : null} onGenerateNew={handleGenerateNew} isSaving={savePlanMutation.isPending || updatePlanMutation.isPending} />
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <Users className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Clients Yet</h3>
+                  <p className="text-gray-600 mb-4">Add clients before generating meal plans</p>
+                  <Button onClick={() => window.location.href = createPageUrl('ClientManagement')}>
+                    <Users className="w-4 h-4 mr-2" />
+                    Manage Clients
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : generatedPlan === null && viewingPlan === null ? (
+              <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-orange-500" />
+                    Generate New Meal Plan with AI
+                  </CardTitle>
+                  <CardDescription>
+                    {user?.user_type === 'student_coach' && coachPlan ? (
+                      availableAICredits > 0 ? (
+                        '✅ FREE with your AI credits - Use templates to save credits!'
+                      ) : (
+                        `⚠️ Costs ₹${coachPlan.ai_credit_price || 10} per plan - Use templates to save money!`
+                      )
+                    ) : (
+                      `⚠️ Costs ₹${coachPlan?.ai_credit_price || 10} per plan - Use templates to save money!`
+                    )}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="client" className="text-base font-semibold flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      Select Client *
+                    </Label>
+                    <Select
+                      value={selectedClientId || ''}
+                      onValueChange={setSelectedClientId}
+                    >
+                      <SelectTrigger id="client" className="h-12">
+                        <SelectValue placeholder="Choose a client..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {clients.map((client) => {
+                          const clientPlans = mealPlans.filter(p => p.client_id === client.id);
+                          const hasActivePlan = clientPlans.some(p => p.active);
+                          return (
+                            <SelectItem key={client.id} value={client.id}>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{client.full_name}</span>
+                                <Badge variant="outline" className="text-xs capitalize">
+                                  {client.food_preference}
+                                </Badge>
+                                <Badge className="text-xs">{client.target_calories} kcal</Badge>
+                                {hasActivePlan && (
+                                  <Badge className="text-xs bg-green-500">
+                                    <CheckCircle className="w-3 h-3 mr-1" />
+                                    Has Plan
+                                  </Badge>
+                                )}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {selectedClient && (
+                    <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
+                          <span className="text-white font-medium text-lg">
+                            {selectedClient.full_name.charAt(0)}
+                          </span>
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">{selectedClient.full_name}</h3>
+                          <p className="text-sm text-gray-600">{selectedClient.email}</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <span className="text-gray-600">Food:</span>
+                          <Badge className="ml-2 capitalize">{selectedClient.food_preference}</Badge>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Region:</span>
+                          <Badge className="ml-2 capitalize">{selectedClient.regional_preference}</Badge>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Target Calories:</span>
+                          <span className="ml-2 font-semibold">{selectedClient.target_calories} kcal</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Goal:</span>
+                          <Badge className="ml-2 capitalize">{selectedClient.goal?.replace('_', ' ')}</Badge>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="duration">Duration</Label>
+                      <Select
+                        value={planConfig.duration.toString()}
+                        onValueChange={(value) => setPlanConfig({...planConfig, duration: parseInt(value)})}
+                      >
+                        <SelectTrigger id="duration">
+                          <SelectValue placeholder="Select duration" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="7">7 Days</SelectItem>
+                          <SelectItem value="10">10 Days</SelectItem>
+                          <SelectItem value="15">15 Days</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="meal-pattern">Meal Pattern</Label>
+                      <Select
+                        value={planConfig.meal_pattern}
+                        onValueChange={(value) => setPlanConfig({...planConfig, meal_pattern: value})}
+                      >
+                        <SelectTrigger id="meal-pattern">
+                          <SelectValue placeholder="Select meal pattern" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="daily">Daily (Unique each day)</SelectItem>
+                          <SelectItem value="3-3-4">3-3-4 Pattern (3+3+4 days rotation)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {user?.user_type === 'student_coach' && coachPlan ? (
+                    <Alert className={`border-2 ${availableAICredits > 0 ? 'border-green-500 bg-green-50' : 'border-yellow-500 bg-yellow-50'}`}>
+                      <AlertTriangle className={`w-5 h-5 ${availableAICredits > 0 ? 'text-green-600' : 'text-yellow-600'}`} />
+                      <AlertDescription className="ml-2">
+                        <div className="space-y-2">
+                          <p className={`font-semibold ${availableAICredits > 0 ? 'text-green-900' : 'text-yellow-900'}`}>
+                            {availableAICredits > 0 ? '✅ FREE Generation (using your AI credits)' : `💸 Cost: ₹${coachPlan.ai_credit_price || 10} per generation`}
+                          </p>
+                          <p className={`text-sm ${availableAICredits > 0 ? 'text-green-800' : 'text-yellow-800'}`}>
+                            AI Credits Available: {availableAICredits === Infinity ? 'Unlimited ∞' : availableAICredits}
+                          </p>
+                          <div className="p-3 bg-blue-100 border border-blue-300 rounded-lg mt-2">
+                            <p className="text-sm font-semibold text-blue-900 mb-1">💡 Save Money!</p>
+                            <p className="text-xs text-blue-800">
+                              After generating, click "Save as Template" to reuse it FREE unlimited times!
+                            </p>
+                          </div>
+                        </div>
+                      </AlertDescription>
+                    </Alert>
+                  ) : (
+                    <Alert className="border-2 border-yellow-500 bg-yellow-50">
+                      <AlertTriangle className="w-5 h-5 text-yellow-600" />
+                      <AlertDescription className="ml-2">
+                        <div className="space-y-2">
+                          <p className="font-semibold text-yellow-900">💸 This will cost ₹{coachPlan?.ai_credit_price || 10}</p>
+                          <p className="text-sm text-yellow-800">
+                            You've used {usage?.meal_plans_generated || 0} / {usage?.plan_limits?.meal_plans || 20} AI generations this month
+                          </p>
+                          <div className="p-3 bg-green-100 border border-green-300 rounded-lg mt-2">
+                            <p className="text-sm font-semibold text-green-900 mb-1">💡 Save Money!</p>
+                            <p className="text-xs text-green-800">
+                              After generating, click "Save as Template" to reuse it FREE unlimited times!
+                            </p>
+                          </div>
+                        </div>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                   <Button
+                     onClick={generateMealPlan}
+                     disabled={generating || !selectedClientId}
+                     className="flex-1 h-12 sm:h-14 text-sm sm:text-base md:text-lg bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg"
+                   >
+                     {generating ? (
+                       <>
+                         <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 mr-2 animate-spin" />
+                         <span className="hidden sm:inline">Generating Meal Plan...</span>
+                         <span className="sm:hidden">Generating...</span>
+                       </>
+                     ) : (
+                       <>
+                         <Zap className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                         {user?.user_type === 'student_coach' && coachPlan ? (
+                           availableAICredits > 0 ? (
+                             <>
+                               <span className="hidden md:inline">Generate Meal Plan (FREE with credits)</span>
+                               <span className="md:hidden">Generate (FREE)</span>
+                             </>
+                           ) : (
+                             <>
+                               <span className="hidden md:inline">Generate Meal Plan (₹{coachPlan.ai_credit_price || 10})</span>
+                               <span className="md:hidden">Generate (₹{coachPlan.ai_credit_price || 10})</span>
+                             </>
+                           )
+                         ) : (
+                           <>
+                             <span className="hidden md:inline">Generate with AI (₹{coachPlan?.ai_credit_price || 10})</span>
+                             <span className="md:hidden">Generate AI (₹{coachPlan?.ai_credit_price || 10})</span>
+                           </>
+                         )}
+                       </>
+                     )}
+                   </Button>
+                   {selectedClient && (
+                     <AIMealPlanGenerator 
+                       client={selectedClient}
+                       onPlanGenerated={(plan) => {
+                         setGeneratedPlan(plan);
+                         setViewingPlan(null);
+                       }}
+                     />
+                   )}
+                  </div>
+                </CardContent>
+              </Card>
             ) : (
-              <AIGenerateTabContent selectedClientId={selectedClientId} setSelectedClientId={setSelectedClientId} selectedClient={selectedClient} clients={clients} mealPlans={mealPlans} planConfig={planConfig} setPlanConfig={setPlanConfig} generating={generating} generateMealPlan={generateMealPlan} setGeneratedPlan={setGeneratedPlan} setViewingPlan={setViewingPlan} user={user} coachPlan={coachPlan} availableAICredits={availableAICredits} usage={usage} />
+              <GeneratedMealPlan 
+                plan={viewingPlan || generatedPlan} 
+                onSave={viewingPlan ? null : handleSavePlan}
+                onSaveAsTemplate={!viewingPlan ? handleSaveAsTemplate : null}
+                onGenerateNew={handleGenerateNew}
+                isSaving={savePlanMutation.isPending || updatePlanMutation.isPending}
+              />
             )}
           </TabsContent>
 
           <TabsContent value="saved">
-            <SavedPlansTab
-              mealPlans={mealPlans}
-              clients={clients}
-              deletePlanMutation={deletePlanMutation}
-              onViewPlan={handleViewPlan}
-              onEditPlan={(plan, planClient) => {
-                setGeneratedPlan({ ...plan, plan_name: plan.name, client_name: planClient?.full_name || 'Unknown Client' });
-                setActiveTab("generate");
-              }}
-              onDeletePlan={handleDeletePlan}
-              onBrowseTemplates={() => setActiveTab("templates")}
-              coachPlan={coachPlan}
-            />
+            {mealPlans.length === 0 ? (
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <Calendar className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No Plans Created Yet</h3>
+                  <p className="text-gray-600 mb-4">Create a new plan or clone a template to get started</p>
+                  <Button 
+                    onClick={() => setActiveTab("templates")}
+                    className="bg-gradient-to-r from-green-500 to-emerald-500"
+                  >
+                    <Star className="w-4 h-4 mr-2" />
+                    Browse Templates (FREE)
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                <div className="grid gap-4">
+                  {mealPlans.map((plan) => {
+                    const planClient = clients.find(c => c.id === plan.client_id);
+                    return (
+                      <Card key={plan.id} className="border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-shadow">
+                        <CardHeader>
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start sm:items-center gap-2 mb-2 flex-wrap">
+                                <CardTitle className="text-lg sm:text-xl md:text-2xl break-words">{plan.name}</CardTitle>
+                                {plan.active && (
+                                  <Badge className="bg-green-500 text-white flex-shrink-0">
+                                    <CheckCircle className="w-3 h-3 mr-1" />
+                                    Active
+                                  </Badge>
+                                )}
+                              </div>
+                              {planClient ? (
+                                <div className="flex items-center gap-2 mb-3">
+                                  <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
+                                    <span className="text-white font-medium text-sm">
+                                      {planClient.full_name.charAt(0)}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <p className="font-medium text-gray-900">{planClient.full_name}</p>
+                                    <p className="text-xs text-gray-600">{planClient.email}</p>
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="text-sm text-red-600 mb-3">⚠️ Client not found</p>
+                              )}
+                              <div className="flex flex-wrap gap-2">
+                                <Badge className="bg-orange-100 text-orange-700">{plan.duration} Days</Badge>
+                                <Badge className="bg-blue-100 text-blue-700 capitalize">{plan.food_preference}</Badge>
+                                <Badge className="bg-green-100 text-green-700 capitalize">{plan.regional_preference}</Badge>
+                                <Badge className="bg-gray-100 text-gray-700">{plan.target_calories} kcal</Badge>
+                              </div>
+                            </div>
+                            <div className="text-left sm:text-right ml-0 sm:ml-4">
+                              <p className="text-xs sm:text-sm text-gray-600">Created</p>
+                              <p className="text-xs sm:text-sm font-semibold">{format(new Date(plan.created_date), 'MMM d, yyyy')}</p>
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex flex-col sm:flex-row gap-2">
+                            <Button 
+                              variant="outline" 
+                              className="flex-1"
+                              onClick={() => handleViewPlan(plan)}
+                            >
+                              <Eye className="w-4 h-4 mr-2" />
+                              View Details
+                            </Button>
+                            <Button 
+                              className="flex-1 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                              onClick={() => {
+                                const editPlan = {
+                                  ...plan,
+                                  plan_name: plan.name,
+                                  client_name: planClient?.full_name || 'Unknown Client'
+                                };
+                                setGeneratedPlan(editPlan);
+                                setActiveTab("generate");
+                              }}
+                            >
+                              <Edit className="w-4 h-4 mr-2" />
+                              Edit Plan
+                            </Button>
+                            <Button 
+                              variant="outline"
+                              className="text-red-600 hover:bg-red-50"
+                              onClick={() => handleDeletePlan(plan)}
+                              disabled={deletePlanMutation.isPending}
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
 
@@ -1970,7 +2959,453 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
           </DialogContent>
         </Dialog>
 
-        {/* AITemplateDialog rendered below */}
+        <Dialog open={showAITemplateDialog} onOpenChange={setShowAITemplateDialog}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl flex items-center gap-2">
+                <Sparkles className="w-6 h-6 text-orange-500" />
+                AI Generate Complete Meal Plan Template
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6">
+              <Alert className="bg-orange-50 border-orange-500">
+                <Sparkles className="w-5 h-5 text-orange-600" />
+                <AlertDescription>
+                  AI will generate a complete {aiTemplateForm.duration}-day meal plan with ALL 6 meals per day ({parseInt(aiTemplateForm.duration) * 6} total meals) - ready to use unlimited times FREE!
+                </AlertDescription>
+              </Alert>
+
+              {!aiGeneratedTemplate ? (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="font-semibold text-gray-900 flex items-center gap-2">
+                      📏 Portion Size Reference Guide
+                    </Label>
+                    <div className="grid grid-cols-3 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setAiTemplateForm({...aiTemplateForm, portion_size: 'small'})}
+                        className={`p-4 rounded-lg border-2 transition-all ${
+                          aiTemplateForm.portion_size === 'small'
+                            ? 'border-orange-500 bg-orange-50'
+                            : 'border-gray-200 bg-white hover:border-orange-300'
+                        }`}
+                      >
+                        <p className="font-semibold text-gray-900">Small Bowl</p>
+                        <p className="text-gray-600">150gm</p>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAiTemplateForm({...aiTemplateForm, portion_size: 'medium'})}
+                        className={`p-4 rounded-lg border-2 transition-all ${
+                          aiTemplateForm.portion_size === 'medium'
+                            ? 'border-orange-500 bg-orange-50'
+                            : 'border-gray-200 bg-white hover:border-orange-300'
+                        }`}
+                      >
+                        <p className="font-semibold text-gray-900">Medium Bowl</p>
+                        <p className="text-gray-600">200gm</p>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAiTemplateForm({...aiTemplateForm, portion_size: 'large'})}
+                        className={`p-4 rounded-lg border-2 transition-all ${
+                          aiTemplateForm.portion_size === 'large'
+                            ? 'border-orange-500 bg-orange-50'
+                            : 'border-gray-200 bg-white hover:border-orange-300'
+                        }`}
+                      >
+                        <p className="font-semibold text-gray-900">Large Bowl</p>
+                        <p className="text-gray-600">250gm</p>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label>Age</Label>
+                      <Input
+                        type="number"
+                        placeholder="30"
+                        value={aiTemplateForm.age}
+                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, age: e.target.value})}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Height (cm)</Label>
+                      <Input
+                        type="number"
+                        placeholder="170"
+                        value={aiTemplateForm.height}
+                        onChange={(e) => {
+                          const newHeight = e.target.value;
+                          
+                          // Auto-calculate goal based on BMI
+                          if (newHeight && aiTemplateForm.weight) {
+                            const bmi = aiTemplateForm.weight / Math.pow(newHeight / 100, 2);
+                            let autoGoal;
+                            if (bmi > 25) {
+                              autoGoal = 'weight_loss';
+                            } else if (bmi < 18.5) {
+                              autoGoal = 'weight_gain';
+                            } else {
+                              autoGoal = 'maintenance';
+                            }
+                            setAiTemplateForm({...aiTemplateForm, height: newHeight, goal: autoGoal});
+                          } else {
+                            setAiTemplateForm({...aiTemplateForm, height: newHeight});
+                          }
+                        }}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Weight (kg)</Label>
+                      <Input
+                        type="number"
+                        placeholder="70"
+                        value={aiTemplateForm.weight}
+                        onChange={(e) => {
+                          const newWeight = e.target.value;
+                          
+                          // Auto-calculate goal based on BMI
+                          if (aiTemplateForm.height && newWeight) {
+                            const bmi = newWeight / Math.pow(aiTemplateForm.height / 100, 2);
+                            let autoGoal;
+                            if (bmi > 25) {
+                              autoGoal = 'weight_loss';
+                            } else if (bmi < 18.5) {
+                              autoGoal = 'weight_gain';
+                            } else {
+                              autoGoal = 'maintenance';
+                            }
+                            setAiTemplateForm({...aiTemplateForm, weight: newWeight, goal: autoGoal});
+                          } else {
+                            setAiTemplateForm({...aiTemplateForm, weight: newWeight});
+                          }
+                        }}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>BMI (Auto-calculated)</Label>
+                      <Input
+                        type="text"
+                        value={
+                          aiTemplateForm.height && aiTemplateForm.weight
+                            ? (aiTemplateForm.weight / Math.pow(aiTemplateForm.height / 100, 2)).toFixed(1)
+                            : ''
+                        }
+                        disabled
+                        placeholder="Fill height and weight to calculate"
+                        className="bg-gray-50"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Target Calories * (Auto-calculated)</Label>
+                      <Input
+                        type="text"
+                        value={(() => {
+                          if (!aiTemplateForm.age || !aiTemplateForm.height || !aiTemplateForm.weight) return '';
+                          
+                          const age = parseFloat(aiTemplateForm.age);
+                          const height = parseFloat(aiTemplateForm.height);
+                          const weight = parseFloat(aiTemplateForm.weight);
+                          
+                          // Mifflin-St Jeor equation (using average for both genders)
+                          const bmrMale = (10 * weight) + (6.25 * height) - (5 * age) + 5;
+                          const bmrFemale = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+                          const bmr = (bmrMale + bmrFemale) / 2;
+                          
+                          // TDEE for lightly active
+                          const tdee = bmr * 1.375;
+                          
+                          // Adjust based on goal
+                          let targetCalories = tdee;
+                          if (aiTemplateForm.goal === 'weight_loss') {
+                            targetCalories = tdee - 500; // 500 cal deficit for ~0.5kg/week loss
+                          } else if (aiTemplateForm.goal === 'weight_gain' || aiTemplateForm.goal === 'muscle_gain') {
+                            targetCalories = tdee + 300; // 300 cal surplus
+                          }
+                          
+                          return Math.round(targetCalories);
+                        })()}
+                        disabled
+                        placeholder="Fill age, height, weight, and select goal"
+                        className="bg-gray-50"
+                      />
+                      <p className="text-xs text-gray-600">
+                        Based on Mifflin-St Jeor equation and {aiTemplateForm.goal === 'weight_loss' ? '500 cal deficit' : aiTemplateForm.goal === 'weight_gain' || aiTemplateForm.goal === 'muscle_gain' ? '300 cal surplus' : 'maintenance'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Duration (days) *</Label>
+                      <Select
+                        value={aiTemplateForm.duration}
+                        onValueChange={(value) => setAiTemplateForm({...aiTemplateForm, duration: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="7">7 Days</SelectItem>
+                          <SelectItem value="10">10 Days</SelectItem>
+                          <SelectItem value="15">15 Days</SelectItem>
+                          <SelectItem value="21">21 Days</SelectItem>
+                          <SelectItem value="30">30 Days</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Goal Target * (Auto-selected)</Label>
+                      <Select
+                        value={aiTemplateForm.goal}
+                        onValueChange={(value) => setAiTemplateForm({...aiTemplateForm, goal: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Will auto-select based on BMI" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="weight_loss">Weight Loss</SelectItem>
+                          <SelectItem value="weight_gain">Weight Gain</SelectItem>
+                          <SelectItem value="muscle_gain">Muscle Gain</SelectItem>
+                          <SelectItem value="maintenance">Maintenance</SelectItem>
+                          <SelectItem value="health_improvement">Health Improvement</SelectItem>
+                          <SelectItem value="disease_reversal">Disease Reversal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {aiTemplateForm.height && aiTemplateForm.weight && (
+                        <p className="text-xs text-gray-600">
+                          {(() => {
+                            const bmi = aiTemplateForm.weight / Math.pow(aiTemplateForm.height / 100, 2);
+                            if (bmi > 25) return '⚠️ BMI > 25: Weight Loss recommended';
+                            if (bmi < 18.5) return '⚠️ BMI < 18.5: Weight Gain recommended';
+                            return '✅ BMI Normal: Maintenance recommended';
+                          })()}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Food Preference *</Label>
+                      <Select
+                        value={aiTemplateForm.food_preference}
+                        onValueChange={(value) => setAiTemplateForm({...aiTemplateForm, food_preference: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="veg">Vegetarian</SelectItem>
+                          <SelectItem value="non_veg">Non-Veg</SelectItem>
+                          <SelectItem value="eggetarian">Eggetarian</SelectItem>
+                          <SelectItem value="jain">Jain</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Regional Preference *</Label>
+                      <Select
+                        value={aiTemplateForm.regional_preference}
+                        onValueChange={(value) => setAiTemplateForm({...aiTemplateForm, regional_preference: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="north">North Indian</SelectItem>
+                          <SelectItem value="south">South Indian</SelectItem>
+                          <SelectItem value="west">West Indian</SelectItem>
+                          <SelectItem value="east">East Indian</SelectItem>
+                          <SelectItem value="all">All Regions</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Disease Focus (Optional)</Label>
+                    <div className="p-4 bg-gray-50 border rounded-lg">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {[
+                          { value: "diabetes_type1", label: "Diabetes Type 1" },
+                          { value: "diabetes_type2", label: "Diabetes Type 2" },
+                          { value: "prediabetes", label: "Prediabetes" },
+                          { value: "hypertension", label: "Hypertension" },
+                          { value: "pcos", label: "PCOS" },
+                          { value: "thyroid_hypo", label: "Hypothyroid" },
+                          { value: "thyroid_hyper", label: "Hyperthyroid" },
+                          { value: "fatty_liver", label: "Fatty Liver" },
+                          { value: "high_cholesterol", label: "High Cholesterol" },
+                          { value: "ibs", label: "IBS" },
+                          { value: "gerd", label: "GERD" },
+                          { value: "kidney_disease", label: "Kidney Disease" },
+                          { value: "heart_disease", label: "Heart Disease" },
+                        ].map((disease) => (
+                          <label key={disease.value} className="flex items-center gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={aiTemplateForm.disease_focus.includes(disease.value)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setAiTemplateForm({
+                                    ...aiTemplateForm,
+                                    disease_focus: [...aiTemplateForm.disease_focus, disease.value]
+                                  });
+                                } else {
+                                  setAiTemplateForm({
+                                    ...aiTemplateForm,
+                                    disease_focus: aiTemplateForm.disease_focus.filter(d => d !== disease.value)
+                                  });
+                                }
+                              }}
+                              className="w-4 h-4"
+                            />
+                            <span className="text-sm">{disease.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                      {aiTemplateForm.disease_focus.length > 0 && (
+                        <div className="mt-3 pt-3 border-t">
+                          <p className="text-sm font-medium text-gray-700">Selected: {aiTemplateForm.disease_focus.length} disease(s)</p>
+                          <div className="flex flex-wrap gap-2 mt-2">
+                            {aiTemplateForm.disease_focus.map(disease => (
+                              <Badge key={disease} className="bg-red-100 text-red-700">
+                                {disease.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={handleGenerateAITemplate}
+                    disabled={generatingAITemplate}
+                    className="w-full h-14 bg-gradient-to-r from-orange-500 to-red-500"
+                  >
+                    {generatingAITemplate ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Generating {parseInt(aiTemplateForm.duration) * 6} meals...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-5 h-5 mr-2" />
+                        Generate Complete Meal Plan
+                      </>
+                    )}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <Alert className="bg-green-50 border-green-500">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <AlertDescription>
+                      ✅ Successfully generated {aiGeneratedTemplate.length} meals! Review and save as template.
+                    </AlertDescription>
+                  </Alert>
+
+                  <div className="p-4 bg-white border-2 rounded-lg max-h-64 overflow-y-auto">
+                    <h3 className="font-bold mb-3">Generated Meals Summary:</h3>
+                    {Array.from({ length: parseInt(aiTemplateForm.duration) }, (_, i) => i + 1).map(day => {
+                      const dayMeals = aiGeneratedTemplate.filter(m => m.day === day);
+                      return (
+                        <div key={day} className="mb-3 p-3 bg-gray-50 rounded">
+                          <p className="font-semibold text-sm">Day {day} ({dayMeals.length} meals):</p>
+                          <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+                            {dayMeals.map((meal, idx) => (
+                              <div key={idx} className="flex justify-between">
+                                <span className="capitalize text-gray-600">{meal.meal_type.replace('_', ' ')}:</span>
+                                <span className="font-medium">{meal.meal_name}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label>Template Name *</Label>
+                      <Input
+                        placeholder="e.g., Veg 1800 cal - 7 days Template"
+                        value={aiTemplateForm.name}
+                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, name: e.target.value})}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Description (optional)</Label>
+                      <Textarea
+                        placeholder="Description"
+                        value={aiTemplateForm.description}
+                        onChange={(e) => setAiTemplateForm({...aiTemplateForm, description: e.target.value})}
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setAiGeneratedTemplate(null);
+                        setAiTemplateForm({
+                          name: "",
+                          target_calories: "",
+                          food_preference: "veg",
+                          regional_preference: "all",
+                          duration: "7",
+                          description: "",
+                          disease_focus: [],
+                          goal: "",
+                          age: "",
+                          height: "",
+                          weight: "",
+                          bmi: "",
+                          bmi_file: null,
+                          weight_loss_target: "",
+                          portion_size: "medium"
+                        });
+                      }}
+                      className="flex-1"
+                    >
+                      Start Over
+                    </Button>
+                    <Button
+                      onClick={handleSaveAITemplate}
+                      disabled={saveAITemplateMutation.isPending}
+                      className="flex-1 bg-green-500 h-12"
+                    >
+                      {saveAITemplateMutation.isPending ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-5 h-5 mr-2" />
+                          Save as Template
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Manual Template Creation Dialog */}
         <Dialog open={showManualTemplateDialog} onOpenChange={setShowManualTemplateDialog}>
