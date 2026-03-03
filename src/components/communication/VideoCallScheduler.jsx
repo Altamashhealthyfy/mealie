@@ -195,7 +195,7 @@ export default function VideoCallScheduler({ clientId, clientName, clientEmail, 
                 <Label>Date & Time (IST)</Label>
                 <Input type="datetime-local" value={scheduledAt}
                   onChange={(e) => setScheduledAt(e.target.value)}
-                  min={new Date().toISOString().slice(0, 16)} />
+                  min={new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)} />
               </div>
               <div className="space-y-1.5">
                 <Label>Duration</Label>
