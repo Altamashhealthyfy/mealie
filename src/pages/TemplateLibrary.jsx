@@ -1526,34 +1526,51 @@ export default function TemplateLibrary() {
                   </Alert>
                 )}
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="flex gap-3">
                    <Button
                     variant="outline"
                     onClick={() => setViewingTemplate(null)}
-                    className="h-12"
+                    className="flex-1 h-12"
                    >
                     Close
                    </Button>
-                   <Button
-                    onClick={() => {
-                      handleDownload(viewingTemplate);
-                      setViewingTemplate(null);
-                    }}
-                    className="h-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-                   >
-                    <Download className="w-4 h-4 mr-2" />
-                    File
-                   </Button>
-                   <Button
-                    onClick={() => {
-                      handleDownloadPDF(viewingTemplate);
-                      setViewingTemplate(null);
-                    }}
-                    className="h-12 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
-                   >
-                    <FileDown className="w-4 h-4 mr-2" />
-                    PDF
-                   </Button>
+                   <Dialog open={downloadMenuOpen === 'viewing'} onOpenChange={(open) => setDownloadMenuOpen(open ? 'viewing' : null)}>
+                     <DialogTrigger asChild>
+                       <Button className="flex-1 h-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
+                         <Download className="w-4 h-4 mr-2" />
+                         Download
+                       </Button>
+                     </DialogTrigger>
+                     <DialogContent className="max-w-xs">
+                       <DialogHeader>
+                         <DialogTitle>Choose Format</DialogTitle>
+                       </DialogHeader>
+                       <div className="space-y-3 py-4">
+                         <Button
+                           onClick={() => {
+                             handleDownload(viewingTemplate);
+                             setViewingTemplate(null);
+                             setDownloadMenuOpen(null);
+                           }}
+                           className="w-full h-12 bg-green-500 hover:bg-green-600"
+                         >
+                           <FileDown className="w-4 h-4 mr-2" />
+                           {viewingTemplate.file_type.toUpperCase()} File
+                         </Button>
+                         <Button
+                           onClick={() => {
+                             handleDownloadPDF(viewingTemplate);
+                             setViewingTemplate(null);
+                             setDownloadMenuOpen(null);
+                           }}
+                           className="w-full h-12 bg-blue-500 hover:bg-blue-600"
+                         >
+                           <FileDown className="w-4 h-4 mr-2" />
+                           PDF File
+                         </Button>
+                       </div>
+                     </DialogContent>
+                   </Dialog>
                 </div>
 
                 {canDelete && (
