@@ -1161,15 +1161,15 @@ Return ONLY valid JSON, no explanation.`;
                   onChange={(e) => setSymptomGoalsText(e.target.value)}
                   rows={4}
                 />
-              </div>
-              </CardContent>
-              </CollapsibleContent>
-              </Card>
-              </Collapsible>
+                </div>
+                </CardContent>
+                </CollapsibleContent>
+                </Card>
+                </Collapsible>
 
-              {/* Section 9: MPESS Preferences */}
-              <Collapsible open={isMpessOpen} onOpenChange={setIsMpessOpen}>
-              <Card className="border-none shadow-lg">
+                {/* Section 9: MPESS Preferences */}
+                <Collapsible open={isMpessOpen} onOpenChange={setIsMpessOpen}>
+                <Card className="border-none shadow-lg">
                 <CollapsibleTrigger asChild>
                 <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
                   <div>
