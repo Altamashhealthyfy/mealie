@@ -1369,150 +1369,32 @@ Return EXACTLY ${duration * 6} meals with proper variety and complete nutrition 
   const handleImportTemplate = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     try {
       const fileName = file.name.toLowerCase();
       let templateData;
-
       if (fileName.endsWith('.json')) {
-        // Handle JSON import
-        const text = await file.text();
-        const importedData = JSON.parse(text);
-
-        if (!importedData.meals || !Array.isArray(importedData.meals)) {
-          alert("Invalid template file: Missing meals array");
-          return;
-        }
-
-        if (!importedData.name || !importedData.duration || !importedData.target_calories) {
-          alert("Invalid template file: Missing required fields (name, duration, target_calories)");
-          return;
-        }
-
-        templateData = {
-          name: importedData.name,
-          description: importedData.description || "Imported template",
-          category: importedData.category || "general",
-          duration: importedData.duration,
-          target_calories: importedData.target_calories,
-          food_preference: importedData.food_preference || "veg",
-          regional_preference: importedData.regional_preference || "all",
-          meals: importedData.meals,
-          is_public: false,
-          times_used: 0,
-          tags: importedData.tags || ["imported"]
-        };
+        const importedData = JSON.parse(await file.text());
+        if (!importedData.meals || !Array.isArray(importedData.meals)) { alert("Invalid template file: Missing meals array"); return; }
+        if (!importedData.name || !importedData.duration || !importedData.target_calories) { alert("Invalid template file: Missing required fields"); return; }
+        templateData = { name: importedData.name, description: importedData.description || "Imported template", category: importedData.category || "general", duration: importedData.duration, target_calories: importedData.target_calories, food_preference: importedData.food_preference || "veg", regional_preference: importedData.regional_preference || "all", meals: importedData.meals, is_public: false, times_used: 0, tags: importedData.tags || ["imported"] };
       } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
-        // Handle Excel import
-        const arrayBuffer = await file.arrayBuffer();
-        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-
-        // Read metadata
-        const metadataSheet = workbook.Sheets[workbook.SheetNames[0]];
-        const metadata = XLSX.utils.sheet_to_json(metadataSheet)[0];
-
-        // Read meals
-        const mealsSheet = workbook.Sheets[workbook.SheetNames[1]];
-        const mealsData = XLSX.utils.sheet_to_json(mealsSheet);
-
-        const meals = mealsData.map(row => ({
-          day: parseInt(row['Day']),
-          meal_type: row['Meal Type'],
-          meal_name: row['Meal Name'],
-          items: row['Items'].split(' | '),
-          portion_sizes: row['Portion Sizes'].split(' | '),
-          calories: parseFloat(row['Calories']),
-          protein: parseFloat(row['Protein (g)']),
-          carbs: parseFloat(row['Carbs (g)']),
-          fats: parseFloat(row['Fats (g)']),
-          nutritional_tip: row['Nutritional Tip']
-        }));
-
-        templateData = {
-          name: metadata['Template Name'],
-          description: metadata['Description'] || "Imported from Excel",
-          category: metadata['Category'] || "general",
-          duration: parseInt(metadata['Duration (Days)']),
-          target_calories: parseInt(metadata['Target Calories']),
-          food_preference: metadata['Food Preference'] || "veg",
-          regional_preference: metadata['Regional Preference'] || "all",
-          meals: meals,
-          is_public: false,
-          times_used: 0,
-          tags: metadata['Tags'] ? metadata['Tags'].split(', ') : ["imported"]
-        };
+        const wb = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+        const meta = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]])[0];
+        const meals = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[1]]).map(r => ({ day: parseInt(r['Day']), meal_type: r['Meal Type'], meal_name: r['Meal Name'], items: r['Items'].split(' | '), portion_sizes: r['Portion Sizes'].split(' | '), calories: parseFloat(r['Calories']), protein: parseFloat(r['Protein (g)']), carbs: parseFloat(r['Carbs (g)']), fats: parseFloat(r['Fats (g)']), nutritional_tip: r['Nutritional Tip'] }));
+        templateData = { name: meta['Template Name'], description: meta['Description'] || "Imported from Excel", category: meta['Category'] || "general", duration: parseInt(meta['Duration (Days)']), target_calories: parseInt(meta['Target Calories']), food_preference: meta['Food Preference'] || "veg", regional_preference: meta['Regional Preference'] || "all", meals, is_public: false, times_used: 0, tags: meta['Tags'] ? meta['Tags'].split(', ') : ["imported"] };
       } else if (fileName.endsWith('.txt') || fileName.endsWith('.doc') || fileName.endsWith('.docx')) {
-        // Handle Word/Text import
-        const text = await file.text();
-        
-        // Parse text format
-        const lines = text.split('\n');
-        let metadata = {};
-        let meals = [];
-        let currentMeal = null;
-
-        lines.forEach(line => {
-          line = line.trim();
-          if (!line) return;
-
-          if (line.includes('Template Name:')) metadata.name = line.split('Template Name:')[1].trim();
-          else if (line.includes('Description:')) metadata.description = line.split('Description:')[1].trim();
-          else if (line.includes('Category:')) metadata.category = line.split('Category:')[1].trim();
-          else if (line.includes('Duration:')) metadata.duration = parseInt(line.match(/\d+/)[0]);
-          else if (line.includes('Target Calories:')) metadata.target_calories = parseInt(line.match(/\d+/)[0]);
-          else if (line.includes('Food Preference:')) metadata.food_preference = line.split('Food Preference:')[1].trim();
-          else if (line.includes('Regional Preference:')) metadata.regional_preference = line.split('Regional Preference:')[1].trim();
-          else if (line.includes('Tags:')) metadata.tags = line.split('Tags:')[1].trim().split(', ');
-          else if (line.startsWith('Meal ') && line.includes(':')) {
-            if (currentMeal) meals.push(currentMeal);
-            currentMeal = {};
-          }
-          else if (currentMeal) {
-            if (line.includes('Day:')) currentMeal.day = parseInt(line.split('Day:')[1].trim());
-            else if (line.includes('Meal Type:')) currentMeal.meal_type = line.split('Meal Type:')[1].trim();
-            else if (line.includes('Meal Name:')) currentMeal.meal_name = line.split('Meal Name:')[1].trim();
-            else if (line.includes('Items:')) currentMeal.items = line.split('Items:')[1].trim().split(' | ');
-            else if (line.includes('Portion Sizes:')) currentMeal.portion_sizes = line.split('Portion Sizes:')[1].trim().split(' | ');
-            else if (line.includes('Calories:')) currentMeal.calories = parseFloat(line.match(/[\d.]+/)[0]);
-            else if (line.includes('Protein:')) currentMeal.protein = parseFloat(line.match(/[\d.]+/)[0]);
-            else if (line.includes('Carbs:')) currentMeal.carbs = parseFloat(line.match(/[\d.]+/)[0]);
-            else if (line.includes('Fats:')) currentMeal.fats = parseFloat(line.match(/[\d.]+/)[0]);
-            else if (line.includes('Nutritional Tip:')) currentMeal.nutritional_tip = line.split('Nutritional Tip:')[1].trim();
-          }
-        });
-        
+        const lines = (await file.text()).split('\n'); let metadata = {}, meals = [], currentMeal = null;
+        lines.forEach(l => { l = l.trim(); if (!l) return; if (l.includes('Template Name:')) metadata.name = l.split('Template Name:')[1].trim(); else if (l.includes('Duration:')) metadata.duration = parseInt(l.match(/\d+/)[0]); else if (l.includes('Target Calories:')) metadata.target_calories = parseInt(l.match(/\d+/)[0]); else if (l.includes('Food Preference:')) metadata.food_preference = l.split('Food Preference:')[1].trim(); else if (l.includes('Regional Preference:')) metadata.regional_preference = l.split('Regional Preference:')[1].trim(); else if (l.startsWith('Meal ') && l.includes(':')) { if (currentMeal) meals.push(currentMeal); currentMeal = {}; } else if (currentMeal) { if (l.includes('Day:')) currentMeal.day = parseInt(l.split('Day:')[1].trim()); else if (l.includes('Meal Type:')) currentMeal.meal_type = l.split('Meal Type:')[1].trim(); else if (l.includes('Meal Name:')) currentMeal.meal_name = l.split('Meal Name:')[1].trim(); else if (l.includes('Items:')) currentMeal.items = l.split('Items:')[1].trim().split(' | '); else if (l.includes('Portion Sizes:')) currentMeal.portion_sizes = l.split('Portion Sizes:')[1].trim().split(' | '); else if (l.includes('Calories:')) currentMeal.calories = parseFloat(l.match(/[\d.]+/)[0]); else if (l.includes('Protein:')) currentMeal.protein = parseFloat(l.match(/[\d.]+/)[0]); else if (l.includes('Carbs:')) currentMeal.carbs = parseFloat(l.match(/[\d.]+/)[0]); else if (l.includes('Fats:')) currentMeal.fats = parseFloat(l.match(/[\d.]+/)[0]); else if (l.includes('Tip:') || l.includes('Nutritional Tip:')) currentMeal.nutritional_tip = l.split(':')[1]?.trim(); } });
         if (currentMeal) meals.push(currentMeal);
-
-        templateData = {
-          name: metadata.name || "Imported Template",
-          description: metadata.description || "Imported from Word/Text",
-          category: metadata.category || "general",
-          duration: metadata.duration || 7,
-          target_calories: metadata.target_calories || 1800,
-          food_preference: metadata.food_preference || "veg",
-          regional_preference: metadata.regional_preference || "all",
-          meals: meals,
-          is_public: false,
-          times_used: 0,
-          tags: metadata.tags || ["imported"]
-        };
-      } else {
-        alert("Unsupported file format. Please upload JSON, Excel (.xlsx, .xls), or Text/Word (.txt, .doc) files.");
-        event.target.value = '';
-        return;
-      }
-
-      if (!templateData.meals || templateData.meals.length === 0) {
-        alert("No meals found in the template file.");
-        return;
-      }
-
+        templateData = { name: metadata.name || "Imported Template", description: "Imported", category: "general", duration: metadata.duration || 7, target_calories: metadata.target_calories || 1800, food_preference: metadata.food_preference || "veg", regional_preference: metadata.regional_preference || "all", meals, is_public: false, times_used: 0, tags: ["imported"] };
+      } else { alert("Unsupported file format."); event.target.value = ''; return; }
+      if (!templateData.meals || templateData.meals.length === 0) { alert("No meals found in the template file."); return; }
       saveTemplateMutation.mutate(templateData);
       event.target.value = '';
       alert(`✅ Successfully imported template with ${templateData.meals.length} meals!`);
     } catch (error) {
       console.error("Import error:", error);
-      alert(`Failed to import template: ${error.message}\n\nPlease ensure the file format matches the sample template.`);
+      alert(`Failed to import template: ${error.message}`);
       event.target.value = '';
     }
   };
