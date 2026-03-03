@@ -48,8 +48,10 @@ export default function TemplateLibrary() {
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showFormatUploadDialog, setShowFormatUploadDialog] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadFormat, setUploadFormat] = useState('csv');
   const [sortByRating, setSortByRating] = useState(false);
   const [clientTypeFilter, setClientTypeFilter] = useState("all");
   const [ratingFilter, setRatingFilter] = useState("all");
