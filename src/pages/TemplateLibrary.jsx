@@ -1176,12 +1176,12 @@ export default function TemplateLibrary() {
                        Download
                      </Button>
                      <Button
-                       onClick={() => handlePDFDownload(template)}
-                       variant="outline"
-                       className="flex-1 h-11 border-2 border-red-400 text-red-600 hover:bg-red-50"
+                      onClick={() => openBrandedPDF(template)}
+                      variant="outline"
+                      className="flex-1 h-11 border-2 border-red-400 text-red-600 hover:bg-red-50"
                      >
-                       <FileText className="w-4 h-4 mr-2" />
-                       PDF
+                      <FileText className="w-4 h-4 mr-2" />
+                      PDF
                      </Button>
                      <Button
                        onClick={() => {
