@@ -1096,14 +1096,14 @@ Return ONLY valid JSON, no explanation.`;
                 />
                 <Label>Millet Availability at Home</Label>
               </div>
-              </CardContent>
-              </CollapsibleContent>
-              </Card>
-              </Collapsible>
+            </CardContent>
+            </CollapsibleContent>
+          </Card>
+          </Collapsible>
 
-              {/* Section 8: Goals */}
-              <Collapsible open={isGoalsOpen} onOpenChange={setIsGoalsOpen}>
-              <Card className="border-none shadow-lg">
+          {/* Section 8: Goals */}
+          <Collapsible open={isGoalsOpen} onOpenChange={setIsGoalsOpen}>
+          <Card className="border-none shadow-lg">
                 <CollapsibleTrigger asChild>
                 <CardHeader className="bg-gradient-to-r from-green-500 to-teal-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
                   <CardTitle>8. Your Goals *</CardTitle>
