@@ -135,7 +135,12 @@ export default function TemplateLibrary() {
       await base44.entities.DownloadableTemplate.update(template.id, {
         download_count: (template.download_count || 0) + 1
       });
-      window.open(template.file_url, '_blank');
+      const a = document.createElement('a');
+      a.href = template.file_url;
+      a.download = template.name + '.' + template.file_type;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['downloadableTemplates']);
