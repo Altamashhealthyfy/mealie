@@ -1222,42 +1222,33 @@ export default function TemplateLibrary() {
                   </div>
 
                   <div className="space-y-2">
-                    <Button
-                      onClick={() => setViewingTemplate(template)}
-                      className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 h-12 font-semibold"
-                    >
-                      <Eye className="w-4 h-4 mr-2" />
-                      View Template Details
-                    </Button>
-                    <div className="flex gap-2">
-                     <Button
-                       onClick={() => handleDownload(template)}
-                       variant="outline"
-                       className="flex-1 h-11 border-2 border-green-500 text-green-700 hover:bg-green-50"
-                     >
-                       <Download className="w-4 h-4 mr-2" />
-                       Download
-                     </Button>
-                     <Button
-                      onClick={() => openBrandedPDF(template)}
-                      variant="outline"
-                      className="flex-1 h-11 border-2 border-red-400 text-red-600 hover:bg-red-50"
-                     >
-                      <FileText className="w-4 h-4 mr-2" />
-                      PDF
-                     </Button>
-                     <Button
-                       onClick={() => {
-                         setTemplateToRate(template);
-                         setShowRatingDialog(true);
-                         setUserRating(0);
-                       }}
-                       variant="outline"
-                       className="h-11 border-2 border-orange-500 text-orange-700 hover:bg-orange-50 px-3"
-                     >
-                       <Star className="w-4 h-4" />
-                     </Button>
-                    </div>
+                  <Button
+                   onClick={() => setViewingTemplate(template)}
+                   className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 h-12 font-semibold"
+                  >
+                   <Eye className="w-4 h-4 mr-2" />
+                   View Template Details
+                  </Button>
+                  <div className="flex gap-2">
+                  <Button
+                    onClick={() => openDownloadDialog(template)}
+                    className="flex-1 h-11 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setTemplateToRate(template);
+                      setShowRatingDialog(true);
+                      setUserRating(0);
+                    }}
+                    variant="outline"
+                    className="h-11 border-2 border-orange-500 text-orange-700 hover:bg-orange-50 px-3"
+                  >
+                    <Star className="w-4 h-4" />
+                  </Button>
+                  </div>
                   </div>
                 </CardContent>
               </Card>
