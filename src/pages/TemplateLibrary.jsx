@@ -54,11 +54,6 @@ export default function TemplateLibrary() {
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [templateToRate, setTemplateToRate] = useState(null);
   const [userRating, setUserRating] = useState(0);
-  const [showBrandingDialog, setShowBrandingDialog] = useState(false);
-  const [brandingTemplate, setBrandingTemplate] = useState(null);
-  const [brandingData, setBrandingData] = useState({ clinicName: "", logoUrl: "", letterheadUrl: "" });
-  const [uploadingLogo, setUploadingLogo] = useState(false);
-  const [uploadingLetterhead, setUploadingLetterhead] = useState(false);
   const [uploadFormData, setUploadFormData] = useState({
     name: "",
     description: "",
@@ -425,137 +420,46 @@ export default function TemplateLibrary() {
     downloadMutation.mutate(template);
   };
 
-  const handleLogoUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setUploadingLogo(true);
-    try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setBrandingData(prev => ({ ...prev, logoUrl: file_url }));
-    } catch {
-      alert("Failed to upload logo");
-    }
-    setUploadingLogo(false);
-  };
-
-  const handleLetterheadUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setUploadingLetterhead(true);
-    try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setBrandingData(prev => ({ ...prev, letterheadUrl: file_url }));
-    } catch {
-      alert("Failed to upload letterhead");
-    }
-    setUploadingLetterhead(false);
-  };
-
-  // Open download dialog - always show branding/format chooser first
-  const openDownloadDialog = (template) => {
-    setBrandingTemplate(template);
-    setShowBrandingDialog(true);
-  };
-
-  const MEAL_TYPE_ORDER_LIB = ["early_morning", "breakfast", "mid_morning", "lunch", "evening_snack", "dinner", "post_dinner"];
-  const MEAL_TYPE_LABELS_LIB = { early_morning: "Early Morning", breakfast: "Breakfast", mid_morning: "Mid-Morning", lunch: "Lunch", evening_snack: "Evening Snack", dinner: "Dinner", post_dinner: "Post Dinner" };
-
-  const handlePDFDownload = (template, branding = {}) => {
-    const { clinicName, logoUrl } = branding;
-
-    // Group meals by day
-    const groupedMeals = {};
-    (template.meals || []).forEach((meal) => {
-      if (!groupedMeals[meal.day]) groupedMeals[meal.day] = [];
-      groupedMeals[meal.day].push(meal);
-    });
-    const sortedDays = Object.keys(groupedMeals).sort((a, b) => parseInt(a) - parseInt(b));
-    const hasMeals = sortedDays.length > 0;
-
-    let html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+  const handlePDFDownload = (template) => {
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
     <style>
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: Arial, sans-serif; color: #111827; background: #fff; }
-      .page { padding: 32px 40px; max-width: 900px; margin: 0 auto; }
-      .letterhead-bar { display: flex; align-items: center; gap: 16px; padding-bottom: 16px; margin-bottom: 20px; border-bottom: 3px solid #ea580c; }
-      .letterhead-logo { max-height: 70px; max-width: 200px; object-fit: contain; }
-      .clinic-name-text { font-size: 22px; font-weight: 800; color: #ea580c; }
-      h1 { font-size: 26px; color: #ea580c; margin-bottom: 6px; font-weight: 800; }
-      .meta { font-size: 13px; color: #555; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 8px; }
+      body { font-family: Arial, sans-serif; color: #222; margin: 0; padding: 0; }
+      .page { padding: 30px 40px; }
+      h1 { font-size: 24px; color: #ea580c; margin: 0 0 6px 0; }
+      .meta { font-size: 13px; color: #555; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; }
       .meta span { background: #fff7ed; border: 1px solid #fdba74; border-radius: 20px; padding: 3px 12px; }
       .description { font-size: 14px; color: #444; margin-bottom: 20px; padding: 12px; background: #f9fafb; border-left: 4px solid #ea580c; border-radius: 0 6px 6px 0; }
-      .day-header { background: #ea580c; color: white; padding: 10px 16px; font-size: 17px; font-weight: bold; border-radius: 8px; margin: 24px 0 12px 0; }
-      .meal-block { background: #fff; border: 1px solid #f3f4f6; border-left: 4px solid #fb923c; border-radius: 0 8px 8px 0; padding: 14px 16px; margin-bottom: 12px; }
-      .meal-type { font-size: 10px; text-transform: uppercase; color: #ea580c; font-weight: 700; letter-spacing: 0.8px; margin-bottom: 4px; }
-      .meal-name { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 10px; }
-      .items-table { width: 100%; border-collapse: collapse; }
-      .items-table tr { border-bottom: 1px solid #f9fafb; }
-      .items-table td { padding: 4px 2px; font-size: 13px; }
-      .items-table td.item-name { color: #374151; }
-      .items-table td.item-portion { color: #9ca3af; text-align: right; white-space: nowrap; padding-left: 12px; }
-      .macros { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-      .macro-badge { border: 1px solid #e5e7eb; border-radius: 6px; padding: 3px 10px; font-size: 12px; font-weight: 500; color: #374151; background: #f9fafb; }
-      .macro-badge.kcal { color: #ea580c; font-weight: 700; }
-      .tip { font-size: 12px; color: #16a34a; font-style: italic; margin-top: 8px; padding: 6px 10px; background: #f0fdf4; border-radius: 4px; }
+      .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+      .info-card { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 12px; }
+      .info-label { font-size: 10px; text-transform: uppercase; color: #9a3412; font-weight: bold; letter-spacing: 0.5px; margin-bottom: 4px; }
+      .info-value { font-size: 15px; font-weight: bold; color: #1f2937; }
+      .tags-section { margin-top: 16px; }
+      .tags-title { font-size: 12px; font-weight: bold; color: #6b7280; margin-bottom: 8px; text-transform: uppercase; }
+      .tag { display: inline-block; background: #e0e7ff; color: #3730a3; border-radius: 20px; padding: 3px 10px; font-size: 11px; margin: 2px; }
       .footer { margin-top: 30px; border-top: 1px solid #e5e7eb; padding-top: 12px; font-size: 11px; color: #9ca3af; text-align: center; }
-      @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } .meal-block { break-inside: avoid; } }
-    </style></head><body><div class="page">`;
-
-    const { letterheadUrl } = branding;
-    if (letterheadUrl) {
-      html += `<div style="margin-bottom:20px;border-bottom:3px solid #ea580c;padding-bottom:16px;"><img src="${letterheadUrl}" style="width:100%;max-height:120px;object-fit:contain;" /></div>`;
-    } else if (logoUrl || clinicName) {
-      html += `<div class="letterhead-bar">`;
-      if (logoUrl) html += `<img src="${logoUrl}" class="letterhead-logo" />`;
-      if (clinicName) html += `<div class="clinic-name-text">${clinicName}</div>`;
-      html += `</div>`;
-    }
-
-    html += `<h1>${template.name}</h1>`;
-    html += `<div class="meta">`;
-    if (template.category) html += `<span>📁 ${template.category.replace(/_/g, ' ')}</span>`;
-    if (template.target_calories) html += `<span>🔥 ${template.target_calories} Kcal/day</span>`;
-    if (template.food_preference && template.food_preference !== 'all') html += `<span>🥗 ${template.food_preference}</span>`;
-    if (template.duration) html += `<span>📅 ${template.duration} Days</span>`;
-    if (template.regional_preference && template.regional_preference !== 'all') html += `<span>🌍 ${template.regional_preference}</span>`;
-    html += `</div>`;
-
-    if (template.description) html += `<div class="description">${template.description}</div>`;
-
-    if (hasMeals) {
-      sortedDays.forEach((day) => {
-        const meals = (groupedMeals[day] || []).slice().sort(
-          (a, b) => MEAL_TYPE_ORDER_LIB.indexOf(a.meal_type) - MEAL_TYPE_ORDER_LIB.indexOf(b.meal_type)
-        );
-        const dayTotal = meals.reduce((s, m) => s + (m.calories || 0), 0);
-        html += `<div class="day-header">Day ${day}${dayTotal > 0 ? ` — ${Math.round(dayTotal)} kcal` : ''}</div>`;
-        meals.forEach((meal) => {
-          html += `<div class="meal-block">
-            <div class="meal-type">${MEAL_TYPE_LABELS_LIB[meal.meal_type] || meal.meal_type}</div>
-            <div class="meal-name">${meal.meal_name || ''}</div>
-            <table class="items-table">`;
-          (meal.items || []).forEach((item, i) => {
-            const portion = meal.portion_sizes?.[i] || '';
-            html += `<tr><td class="item-name">• ${item}</td><td class="item-portion">${portion}</td></tr>`;
-          });
-          html += `</table>`;
-          if (meal.calories) {
-            html += `<div class="macros">
-              <span class="macro-badge kcal">🔥 ${meal.calories} kcal</span>
-              ${meal.protein ? `<span class="macro-badge">P: ${meal.protein}g</span>` : ''}
-              ${meal.carbs ? `<span class="macro-badge">C: ${meal.carbs}g</span>` : ''}
-              ${meal.fats ? `<span class="macro-badge">F: ${meal.fats}g</span>` : ''}
-            </div>`;
-          }
-          if (meal.nutritional_tip) html += `<div class="tip">💡 ${meal.nutritional_tip}</div>`;
-          html += `</div>`;
-        });
-      });
-    } else {
-      html += `<p style="color:#9ca3af;font-style:italic;margin-top:20px;">No meal content available in this template.</p>`;
-    }
-
-    html += `<div class="footer">${clinicName || 'Template Library'} • ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div></div></body></html>`;
+      .badge { display: inline-block; border: 1px solid #e5e7eb; border-radius: 4px; padding: 2px 8px; font-size: 11px; margin-right: 6px; text-transform: uppercase; }
+      @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+    </style></head><body><div class="page">
+    <div class="badge">${(template.file_type || 'file').toUpperCase()}</div>
+    ${template.is_premium ? '<span style="background:#7c3aed;color:white;border-radius:4px;padding:2px 8px;font-size:11px;">⭐ Premium</span>' : ''}
+    <h1 style="margin-top:12px">${template.name}</h1>
+    <div class="meta">
+      ${template.category ? `<span>📁 ${template.category.replace(/_/g, ' ')}</span>` : ''}
+      ${template.target_calories ? `<span>🔥 ${template.target_calories} Kcal</span>` : ''}
+      ${template.food_preference && template.food_preference !== 'all' ? `<span>🥗 ${template.food_preference}</span>` : ''}
+      ${template.duration ? `<span>📅 ${template.duration} Days</span>` : ''}
+      ${template.regional_preference && template.regional_preference !== 'all' ? `<span>🌍 ${template.regional_preference}</span>` : ''}
+    </div>
+    ${template.description ? `<div class="description">${template.description}</div>` : ''}
+    <div class="info-grid">
+      ${template.subcategory ? `<div class="info-card"><div class="info-label">Condition</div><div class="info-value">${template.subcategory.replace(/_/g, ' ')}</div></div>` : ''}
+      ${template.file_size ? `<div class="info-card"><div class="info-label">File Size</div><div class="info-value">${template.file_size}</div></div>` : ''}
+      ${template.average_rating ? `<div class="info-card"><div class="info-label">Rating</div><div class="info-value">⭐ ${template.average_rating.toFixed(1)} / 5</div></div>` : ''}
+      <div class="info-card"><div class="info-label">Downloads</div><div class="info-value">📥 ${template.download_count || 0}</div></div>
+    </div>
+    ${template.tags && template.tags.length > 0 ? `<div class="tags-section"><div class="tags-title">Tags</div>${template.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
+    <div class="footer">Template Library • ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+    </div></body></html>`;
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) { alert('Popup blocked! Please allow popups and try again.'); return; }
@@ -565,23 +469,25 @@ export default function TemplateLibrary() {
   };
 
   const userType = user?.user_type || 'client';
-  const canUpload = ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(userType);
+  const canUpload = userType === 'super_admin' || 
+                    (userType === 'team_member') ||
+                    (userType === 'student_coach' && coachPlan?.can_contribute_templates === true);
   const canEdit = (template) => {
     return userType === 'super_admin' || template.created_by === user?.email;
   };
   const canDelete = userType === 'super_admin';
 
   return (
-    <div className="min-h-screen p-3 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
+    <div className="min-h-screen p-4 md:p-8">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-4">
           <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-lg px-6 py-2">
             <Sparkles className="w-5 h-5 mr-2 inline" />
             100% FREE Templates
           </Badge>
-          <h1 className="text-3xl md:text-5xl font-bold text-gray-900">Template Library</h1>
-          <p className="text-base md:text-xl text-gray-600 max-w-3xl mx-auto">
+          <h1 className="text-5xl font-bold text-gray-900">Template Library</h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Download ready-made Word templates - Use unlimited times at NO COST!
           </p>
           
@@ -799,7 +705,7 @@ export default function TemplateLibrary() {
         {/* Big Benefits Card */}
         <Card className="border-none shadow-2xl bg-gradient-to-br from-green-50 to-emerald-50">
           <CardContent className="p-8">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 text-center">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
               <div>
                 <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
                   <CheckCircle className="w-8 h-8 text-white" />
@@ -835,7 +741,7 @@ export default function TemplateLibrary() {
             <CardDescription>Community members who uploaded the most templates</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {uploaderStats.slice(0, 6).map((stat, index) => (
                 <Card key={stat.email} className="border-2 hover:border-purple-300 transition-all">
                   <CardContent className="p-4">
@@ -925,7 +831,7 @@ export default function TemplateLibrary() {
                 </Select>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                   <SelectTrigger>
                     <SelectValue placeholder="Category" />
@@ -1121,7 +1027,7 @@ export default function TemplateLibrary() {
         </Card>
 
         {/* Templates Grid */}
-         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
            {sortedTemplates.length === 0 ? (
             <div className="col-span-full text-center py-12">
               <FileText className="w-16 h-16 mx-auto text-gray-300 mb-4" />
@@ -1223,33 +1129,42 @@ export default function TemplateLibrary() {
                   </div>
 
                   <div className="space-y-2">
-                  <Button
-                   onClick={() => setViewingTemplate(template)}
-                   className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 h-12 font-semibold"
-                  >
-                   <Eye className="w-4 h-4 mr-2" />
-                   View Template Details
-                  </Button>
-                  <div className="flex gap-2">
-                  <Button
-                    onClick={() => openDownloadDialog(template)}
-                    className="flex-1 h-11 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setTemplateToRate(template);
-                      setShowRatingDialog(true);
-                      setUserRating(0);
-                    }}
-                    variant="outline"
-                    className="h-11 border-2 border-orange-500 text-orange-700 hover:bg-orange-50 px-3"
-                  >
-                    <Star className="w-4 h-4" />
-                  </Button>
-                  </div>
+                    <Button
+                      onClick={() => setViewingTemplate(template)}
+                      className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 h-12 font-semibold"
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      View Template Details
+                    </Button>
+                    <div className="flex gap-2">
+                     <Button
+                       onClick={() => handleDownload(template)}
+                       variant="outline"
+                       className="flex-1 h-11 border-2 border-green-500 text-green-700 hover:bg-green-50"
+                     >
+                       <Download className="w-4 h-4 mr-2" />
+                       Download
+                     </Button>
+                     <Button
+                       onClick={() => handlePDFDownload(template)}
+                       variant="outline"
+                       className="flex-1 h-11 border-2 border-red-400 text-red-600 hover:bg-red-50"
+                     >
+                       <FileText className="w-4 h-4 mr-2" />
+                       PDF
+                     </Button>
+                     <Button
+                       onClick={() => {
+                         setTemplateToRate(template);
+                         setShowRatingDialog(true);
+                         setUserRating(0);
+                       }}
+                       variant="outline"
+                       className="h-11 border-2 border-orange-500 text-orange-700 hover:bg-orange-50 px-3"
+                     >
+                       <Star className="w-4 h-4" />
+                     </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -1554,7 +1469,7 @@ export default function TemplateLibrary() {
                   </Alert>
                 )}
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                  <Button
                    variant="outline"
                    onClick={() => setViewingTemplate(null)}
@@ -1563,11 +1478,22 @@ export default function TemplateLibrary() {
                    Close
                  </Button>
                  <Button
-                   onClick={() => { setViewingTemplate(null); openDownloadDialog(viewingTemplate); }}
+                   onClick={() => {
+                     handleDownload(viewingTemplate);
+                     setViewingTemplate(null);
+                   }}
                    className="h-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
                  >
                    <Download className="w-4 h-4 mr-2" />
                    Download
+                 </Button>
+                 <Button
+                   onClick={() => handlePDFDownload(viewingTemplate)}
+                   variant="outline"
+                   className="h-12 border-2 border-red-400 text-red-600 hover:bg-red-50"
+                 >
+                   <FileText className="w-4 h-4 mr-2" />
+                   PDF
                  </Button>
                 </div>
 
@@ -1593,127 +1519,6 @@ export default function TemplateLibrary() {
                 )}
               </div>
             )}
-          </DialogContent>
-        </Dialog>
-
-        {/* Download Dialog - Format chooser + branding */}
-        <Dialog open={showBrandingDialog} onOpenChange={(open) => {
-          setShowBrandingDialog(open);
-          if (!open) setBrandingData({ clinicName: "", logoUrl: "", letterheadUrl: "" });
-        }}>
-          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Download className="w-5 h-5 text-green-600" />
-                Download Template
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-5 mt-2">
-              {brandingTemplate && (
-                <div className="p-3 bg-gray-50 rounded-lg border">
-                  <p className="font-semibold text-gray-900 text-sm">{brandingTemplate.name}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{brandingTemplate.file_type?.toUpperCase()} • {brandingTemplate.file_size}</p>
-                </div>
-              )}
-
-              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 text-sm text-blue-800">
-                <strong>Choose download format:</strong> Download the original file as-is, or get a branded PDF with your clinic's logo/letterhead.
-              </div>
-
-              {/* Format 1: Original File */}
-              <div className="border-2 border-gray-200 rounded-xl p-4 space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <FileText className="w-4 h-4 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">Original File</p>
-                    <p className="text-xs text-gray-500">Download as DOCX/PDF/XLSX — editable original</p>
-                  </div>
-                </div>
-                <Button
-                  onClick={() => { handleDownload(brandingTemplate); setShowBrandingDialog(false); }}
-                  className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 h-11"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download Original File
-                </Button>
-              </div>
-
-              {/* Format 2: Branded PDF */}
-              <div className="border-2 border-orange-200 rounded-xl p-4 space-y-4 bg-orange-50/30">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                    <FileText className="w-4 h-4 text-orange-600" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">Branded PDF</p>
-                    <p className="text-xs text-gray-500">Add your clinic logo, name & letterhead</p>
-                  </div>
-                </div>
-
-                {/* Clinic Logo */}
-                <div>
-                  <Label className="text-sm font-semibold">Clinic Logo (Optional)</Label>
-                  {brandingData.logoUrl ? (
-                    <div className="relative mt-1">
-                      <img src={brandingData.logoUrl} alt="Logo" className="w-full h-16 object-contain border rounded-lg bg-white" />
-                      <button onClick={() => setBrandingData(prev => ({ ...prev, logoUrl: "" }))} className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">×</button>
-                    </div>
-                  ) : (
-                    <label className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg border border-dashed border-gray-300 hover:border-orange-400 hover:bg-white transition-colors mt-1">
-                      {uploadingLogo ? <Loader2 className="w-4 h-4 animate-spin text-orange-500" /> : <Upload className="w-4 h-4 text-orange-500" />}
-                      <span className="text-sm text-gray-600">{uploadingLogo ? "Uploading..." : "Upload Logo"}</span>
-                      <input type="file" accept="image/*" onChange={handleLogoUpload} disabled={uploadingLogo} className="hidden" />
-                    </label>
-                  )}
-                </div>
-
-                {/* Letterhead */}
-                <div>
-                  <Label className="text-sm font-semibold">Letterhead Image (Optional)</Label>
-                  <p className="text-xs text-gray-500 mb-1">Full-width header image for your clinic letterhead</p>
-                  {brandingData.letterheadUrl ? (
-                    <div className="relative">
-                      <img src={brandingData.letterheadUrl} alt="Letterhead" className="w-full h-16 object-contain border rounded-lg bg-white" />
-                      <button onClick={() => setBrandingData(prev => ({ ...prev, letterheadUrl: "" }))} className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">×</button>
-                    </div>
-                  ) : (
-                    <label className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-lg border border-dashed border-gray-300 hover:border-orange-400 hover:bg-white transition-colors">
-                      {uploadingLetterhead ? <Loader2 className="w-4 h-4 animate-spin text-orange-500" /> : <Upload className="w-4 h-4 text-orange-500" />}
-                      <span className="text-sm text-gray-600">{uploadingLetterhead ? "Uploading..." : "Upload Letterhead"}</span>
-                      <input type="file" accept="image/*" onChange={handleLetterheadUpload} disabled={uploadingLetterhead} className="hidden" />
-                    </label>
-                  )}
-                </div>
-
-                {/* Clinic Name */}
-                <div>
-                  <Label className="text-sm font-semibold">Clinic / Brand Name (Optional)</Label>
-                  <Input
-                    placeholder="e.g., Dr. Sharma's Nutrition Clinic"
-                    value={brandingData.clinicName}
-                    onChange={(e) => setBrandingData(prev => ({ ...prev, clinicName: e.target.value }))}
-                    className="mt-1 bg-white"
-                  />
-                </div>
-
-                <Button
-                  onClick={() => {
-                    handlePDFDownload(brandingTemplate, brandingData);
-                    setShowBrandingDialog(false);
-                  }}
-                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 h-11"
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  Download Branded PDF
-                </Button>
-              </div>
-
-              <Button variant="outline" onClick={() => setShowBrandingDialog(false)} className="w-full">
-                Cancel
-              </Button>
-            </div>
           </DialogContent>
         </Dialog>
 
