@@ -597,14 +597,14 @@ Return ONLY valid JSON, no explanation.`;
           {/* Section 3: Current Medications */}
           <Collapsible open={isMedicationsOpen} onOpenChange={setIsMedicationsOpen}>
           <Card className="border-none shadow-lg">
-                <CollapsibleTrigger asChild>
-                <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
-                  <CardTitle>3. Current Medications</CardTitle>
-                  <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isMedicationsOpen ? 'rotate-180' : ''}`} />
-                </CardHeader>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                <CardContent className="p-6 space-y-3">
+            <CollapsibleTrigger asChild>
+            <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
+              <CardTitle>3. Current Medications</CardTitle>
+              <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isMedicationsOpen ? 'rotate-180' : ''}`} />
+            </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+            <CardContent className="p-6 space-y-3">
                   <Button type="button" variant="secondary" size="sm" onClick={addMedication} className="mb-3">
                     <Plus className="w-4 h-4 mr-2" />
                     Add Medication
