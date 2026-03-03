@@ -1170,19 +1170,19 @@ Return ONLY valid JSON, no explanation.`;
                 {/* Section 9: MPESS Preferences */}
                 <Collapsible open={isMpessOpen} onOpenChange={setIsMpessOpen}>
                 <Card className="border-none shadow-lg">
-                <CollapsibleTrigger asChild>
-                <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
-                  <div>
-                    <CardTitle>9. MPESS Wellness Integration</CardTitle>
-                    <CardDescription className="text-white/90">
-                      Would you like holistic wellness practices included in your plan?
-                    </CardDescription>
-                  </div>
-                  <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isMpessOpen ? 'rotate-180' : ''}`} />
-                </CardHeader>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                <CardContent className="p-6 space-y-4">
+            <CollapsibleTrigger asChild>
+            <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
+              <div>
+                <CardTitle>9. MPESS Wellness Integration</CardTitle>
+                <CardDescription className="text-white/90">
+                  Would you like holistic wellness practices included in your plan?
+                </CardDescription>
+              </div>
+              <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isMpessOpen ? 'rotate-180' : ''}`} />
+            </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+            <CardContent className="p-6 space-y-4">
               {[
                 { key: 'mind', icon: Brain, title: 'Mind', desc: 'Meditation, journaling, mental clarity' },
                 { key: 'physical', icon: Heart, title: 'Physical', desc: 'Yoga, movement, activity' },
