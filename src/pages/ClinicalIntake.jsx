@@ -644,12 +644,19 @@ Return ONLY valid JSON, no explanation.`;
               </Collapsible>
 
               {/* Section 4: Lab Values */}
-          <Card className="border-none shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-              <CardTitle>4. Lab Values (Optional)</CardTitle>
-              <CardDescription className="text-white/90">Enter if available</CardDescription>
-            </CardHeader>
-            <CardContent className="p-6">
+              <Collapsible open={isLabValuesOpen} onOpenChange={setIsLabValuesOpen}>
+              <Card className="border-none shadow-lg">
+                <CollapsibleTrigger asChild>
+                <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
+                  <div>
+                    <CardTitle>4. Lab Values (Optional)</CardTitle>
+                    <CardDescription className="text-white/90">Enter if available</CardDescription>
+                  </div>
+                  <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isLabValuesOpen ? 'rotate-180' : ''}`} />
+                </CardHeader>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                <CardContent className="p-6">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>TSH (mIU/L)</Label>
