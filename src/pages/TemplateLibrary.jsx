@@ -424,7 +424,25 @@ export default function TemplateLibrary() {
     downloadMutation.mutate(template);
   };
 
-  const handlePDFDownload = (template) => {
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingLogo(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setBrandingData(prev => ({ ...prev, logoUrl: file_url }));
+    } catch {
+      alert("Failed to upload logo");
+    }
+    setUploadingLogo(false);
+  };
+
+  const openBrandedPDF = (template) => {
+    setBrandingTemplate(template);
+    setShowBrandingDialog(true);
+  };
+
+  const handlePDFDownload = (template, branding = {}) => {
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
     <style>
       body { font-family: Arial, sans-serif; color: #222; margin: 0; padding: 0; }
