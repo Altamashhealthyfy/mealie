@@ -285,8 +285,13 @@ Return ONLY valid JSON, no explanation.`,
   const handleFoodPreferencesSubmit = (preferences) => {
     setFoodPreferences(preferences);
     setShowFoodPreferences(false);
-    // Now proceed with meal plan generation
-    generateProPlan(preferences);
+    // Show diagnostic review before generating
+    setShowDiagnostic(true);
+  };
+
+  const handleDiagnosticConfirm = (approvedRules) => {
+    setShowDiagnostic(false);
+    generateProPlan(foodPreferences, approvedRules);
   };
 
   const generateProPlan = async (preferences = foodPreferences) => {
