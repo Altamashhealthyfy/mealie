@@ -199,46 +199,129 @@ export default function ClientDetailSidePanel({
 
             {/* Meals Tab */}
             <TabsContent value="meals" className="space-y-3 mt-4">
-              {mealPlans && mealPlans.length > 0 ? (
+              {mealView === "list" && (
                 <>
-                  {mealPlans.map((plan) => (
-                    <Card key={plan.id} className="border-2 hover:border-orange-300">
-                      <CardContent className="p-3">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h4 className="font-semibold text-sm truncate">{plan.name}</h4>
-                              {plan.active && <Badge className="bg-green-500 text-white text-xs">Active</Badge>}
-                              {plan.plan_tier === 'advanced' && <Badge className="bg-purple-600 text-white text-xs">Pro</Badge>}
+                  {mealPlans && mealPlans.length > 0 ? (
+                    <>
+                      {mealPlans.map((plan) => (
+                        <Card key={plan.id} className="border-2 hover:border-orange-300">
+                          <CardContent className="p-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <h4 className="font-semibold text-sm truncate">{plan.name}</h4>
+                                  {plan.active && <Badge className="bg-green-500 text-white text-xs">Active</Badge>}
+                                  {plan.plan_tier === 'advanced' && <Badge className="bg-purple-600 text-white text-xs">Pro</Badge>}
+                                </div>
+                                <p className="text-xs text-gray-600 mt-1">{plan.duration} Days • {plan.target_calories} kcal</p>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => { setSelectedMeal(plan); setMealView("detail"); }}
+                                className="text-xs flex-shrink-0"
+                              >
+                                View
+                              </Button>
                             </div>
-                            <p className="text-xs text-gray-600 mt-1">{plan.duration} Days • {plan.target_calories} kcal</p>
-                          </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => onViewPlans(client)}
-                            className="text-xs flex-shrink-0"
-                          >
-                            View
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                  <Button variant="outline" size="sm" onClick={() => onCreatePlan(client)} className="w-full text-xs">
-                    <Plus className="w-3 h-3 mr-1" /> Create Plan
-                  </Button>
-                  <Button size="sm" onClick={() => onProPlan(client)} className="w-full bg-purple-600 hover:bg-purple-700 text-xs">
-                    <Stethoscope className="w-3 h-3 mr-1" /> Create Pro Plan
-                  </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                      <Button variant="outline" size="sm" onClick={() => setMealView("create")} className="w-full text-xs">
+                        <Plus className="w-3 h-3 mr-1" /> Create Plan
+                      </Button>
+                      <Button size="sm" onClick={() => setMealView("pro")} className="w-full bg-purple-600 hover:bg-purple-700 text-xs">
+                        <Stethoscope className="w-3 h-3 mr-1" /> Create Pro Plan
+                      </Button>
+                    </>
+                  ) : (
+                    <div className="text-center py-6">
+                      <ChefHat className="w-12 h-12 mx-auto text-gray-300 mb-2" />
+                      <p className="text-sm text-gray-600 mb-3">No meal plans yet</p>
+                      <Button size="sm" onClick={() => setMealView("create")} className="w-full text-xs">
+                        <Plus className="w-3 h-3 mr-1" /> Create Plan
+                      </Button>
+                    </div>
+                  )}
                 </>
-              ) : (
-                <div className="text-center py-6">
-                  <ChefHat className="w-12 h-12 mx-auto text-gray-300 mb-2" />
-                  <p className="text-sm text-gray-600 mb-3">No meal plans yet</p>
-                  <Button size="sm" onClick={() => onCreatePlan(client)} className="w-full text-xs">
-                    <Plus className="w-3 h-3 mr-1" /> Create Plan
+              )}
+              
+              {mealView === "detail" && selectedMeal && (
+                <div className="space-y-3">
+                  <Button variant="outline" size="sm" onClick={() => setMealView("list")} className="w-full text-xs">
+                    ← Back to Plans
                   </Button>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm">{selectedMeal.name}</CardTitle>
+                      <CardDescription className="text-xs">
+                        {selectedMeal.duration} Days • {selectedMeal.target_calories} kcal
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="text-xs space-y-2">
+                      <p><strong>Meal Pattern:</strong> {selectedMeal.meal_pattern}</p>
+                      <p><strong>Food Preference:</strong> {selectedMeal.food_preference?.replace('_', ' ')}</p>
+                      {selectedMeal.meals?.length > 0 && (
+                        <div>
+                          <p className="font-semibold mb-2">Meals ({selectedMeal.meals.length})</p>
+                          <div className="space-y-2 max-h-60 overflow-y-auto">
+                            {selectedMeal.meals.slice(0, 10).map((meal, idx) => (
+                              <div key={idx} className="p-2 bg-gray-50 rounded">
+                                <p className="font-medium capitalize">Day {meal.day} - {meal.meal_type}</p>
+                                <p className="text-gray-600">{meal.meal_name}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+              
+              {mealView === "create" && (
+                <div className="space-y-3">
+                  <Button variant="outline" size="sm" onClick={() => setMealView("list")} className="w-full text-xs">
+                    ← Back to Plans
+                  </Button>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm">Create Basic Meal Plan</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-xs space-y-3">
+                      <p className="text-gray-600">To create a basic meal plan, click the button below to proceed to the meal planner.</p>
+                      <Button 
+                        onClick={() => onCreatePlan(client)}
+                        className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                      >
+                        Open Meal Planner
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+              
+              {mealView === "pro" && (
+                <div className="space-y-3">
+                  <Button variant="outline" size="sm" onClick={() => setMealView("list")} className="w-full text-xs">
+                    ← Back to Plans
+                  </Button>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <Sparkles className="w-4 h-4" /> Create Pro Meal Plan
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-xs space-y-3">
+                      <p className="text-gray-600">Create a disease-specific pro meal plan with advanced clinical intake.</p>
+                      <Button 
+                        onClick={() => onProPlan(client)}
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                      >
+                        Open Clinical Intake
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </div>
               )}
             </TabsContent>
