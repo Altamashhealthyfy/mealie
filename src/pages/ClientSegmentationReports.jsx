@@ -715,7 +715,7 @@ export default function ClientSegmentationReports() {
             progressLogs={progressLogs}
           />
           </div>
-          </div>
-          </div>
-          );
-          }
+        </div>
+      </div>
+    );
+}
