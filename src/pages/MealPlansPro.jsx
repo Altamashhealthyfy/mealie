@@ -332,7 +332,7 @@ Return ONLY valid JSON, no explanation.`,
       const latestStoredReport = clientHealthReports?.[0]?.extracted_data || null;
       const reportDataToUse = getMergedReportData() || latestStoredReport;
       
-      const prompt = constructDiamondPrompt(selectedClient, intake, numberOfDays, mealPattern, preferences, reportDataToUse);
+      const prompt = constructDiamondPrompt(selectedClient, intake, numberOfDays, mealPattern, preferences, reportDataToUse, approvedRules);
       
 
       
