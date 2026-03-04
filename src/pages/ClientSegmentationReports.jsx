@@ -152,44 +152,29 @@ export default function ClientSegmentationReports() {
       // Normal sub-segment objects
       return Object.entries(segmentClients).map(([subKey, subClients]) => {
         const clientIds = subClients.map(c => c.id);
-      const segmentProgress = progressLogs.filter(p => clientIds.includes(p.client_id));
-      const segmentPlans = mealPlans.filter(m => clientIds.includes(m.client_id));
-      
-      // Calculate average weight loss
-      const weightChanges = segmentClients.map(client => {
-        const clientProgress = segmentProgress.filter(p => p.client_id === client.id).sort((a, b) => 
-          new Date(b.date) - new Date(a.date)
-        );
-        if (clientProgress.length > 0 && client.initial_weight) {
-          return client.initial_weight - clientProgress[0].weight;
-        }
-        return 0;
-      }).filter(w => w !== 0);
-      
-      const avgWeightLoss = weightChanges.length > 0 
-        ? weightChanges.reduce((a, b) => a + b, 0) / weightChanges.length 
-        : 0;
-      
-      // Calculate engagement rate
-      const last30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      const recentProgress = segmentProgress.filter(p => new Date(p.date) >= last30Days);
-      const engagedClients = new Set(recentProgress.map(p => p.client_id)).size;
-      const engagementRate = segmentClients.length > 0 
-        ? (engagedClients / segmentClients.length) * 100 
-        : 0;
-      
-      // Active clients
-      const activeClients = segmentClients.filter(c => c.status === 'active').length;
-      
-      return {
-        name: key,
-        count: segmentClients.length,
-        activeClients,
-        avgWeightLoss: avgWeightLoss.toFixed(1),
-        engagementRate: engagementRate.toFixed(0),
-        mealPlans: segmentPlans.length,
-        progressLogs: segmentProgress.length
-      };
+        const segmentProgress = progressLogs.filter(p => clientIds.includes(p.client_id));
+        const segmentPlans = mealPlans.filter(m => clientIds.includes(m.client_id));
+        const weightChanges = subClients.map(client => {
+          const clientProgress = segmentProgress.filter(p => p.client_id === client.id).sort((a, b) => new Date(b.date) - new Date(a.date));
+          if (clientProgress.length > 0 && client.initial_weight) return client.initial_weight - clientProgress[0].weight;
+          return 0;
+        }).filter(w => w !== 0);
+        const avgWeightLoss = weightChanges.length > 0 ? weightChanges.reduce((a, b) => a + b, 0) / weightChanges.length : 0;
+        const last30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        const recentProgress = segmentProgress.filter(p => new Date(p.date) >= last30Days);
+        const engagedClients = new Set(recentProgress.map(p => p.client_id)).size;
+        const engagementRate = subClients.length > 0 ? (engagedClients / subClients.length) * 100 : 0;
+        const activeClients = subClients.filter(c => c.status === 'active').length;
+        return {
+          name: subKey,
+          count: subClients.length,
+          activeClients,
+          avgWeightLoss: avgWeightLoss.toFixed(1),
+          engagementRate: engagementRate.toFixed(0),
+          mealPlans: segmentPlans.length,
+          progressLogs: segmentProgress.length
+        };
+      });
     });
   }, [segments, progressLogs, mealPlans]);
 
