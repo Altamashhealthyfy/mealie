@@ -419,7 +419,7 @@ const QUICK_TIPS = [
   { icon: '💬', tip: 'Use Message Templates for recurring messages like weekly motivational notes — saves time and keeps you consistent.' },
   { icon: '🏷️', tip: 'Tag clients with goals (Diabetes, PCOS, Weight Loss) to quickly filter and manage them in analytics.' },
   { icon: '🍱', tip: 'Use Meal Plan Constraints to set global dietary rules per client — the AI will respect them when generating plans.' },
-  { icon: '📊', tip: 'Review Client Analytics every Friday to catch clients with declining adherence before they drop off.' },
+  { icon: '📊', tip: 'Review Business Analytics every Friday to catch clients with declining adherence before they drop off. For individual client analytics, open their Client Hub → Analytics tab.' },
   { icon: '🏆', tip: 'Launch a new 7-day challenge each month to boost client engagement and platform activity.' },
   { icon: '📧', tip: 'Set up an Email Sequence for new clients so they automatically receive onboarding tips on Day 1, Day 3, and Day 7 without manual effort.' },
   { icon: '👥', tip: 'Assign team members to handle client messages so you can focus on high-value tasks like meal planning and calls.' },
