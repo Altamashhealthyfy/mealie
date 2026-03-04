@@ -777,7 +777,16 @@ Return ONLY valid JSON, no explanation.`,
 
           {/* AI GENERATE TAB */}
           <TabsContent value="generate" className="space-y-4 md:space-y-6">
-            {!generatedPlan ? (
+            {!generatedPlan && showDiagnostic ? (
+              <DiagnosticReview
+                client={selectedClient}
+                intake={clinicalIntakes?.[0]}
+                foodPreferences={foodPreferences}
+                numberOfDays={numberOfDays}
+                mealPattern={mealPattern}
+                onConfirm={handleDiagnosticConfirm}
+              />
+            ) : !generatedPlan ? (
               <div className="border-none shadow-lg rounded-xl overflow-hidden">
                 <div className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white p-4 md:p-6">
                   <h2 className="text-lg md:text-2xl font-bold">Therapeutic Meal & Holistic Plan</h2>
