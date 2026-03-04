@@ -125,18 +125,7 @@ const clientManagementNav = [
 
 // STEP 2: Meal & Clinical Planning
 const mealPlanningNav = [
-  {
-    title: "🍽️ Meal Planner",
-    url: createPageUrl("MealPlanner"),
-    icon: ChefHat,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
-  },
-  {
-    title: "🧪 Clinical Report",
-    url: createPageUrl("CoachReportTracker"),
-    icon: FileText,
-    roles: ['super_admin', 'team_member', 'student_coach'],
-  },
+
   {
     title: "🥗 Recipes",
     url: createPageUrl("Recipes"),
@@ -1149,7 +1138,7 @@ export default function Layout({ children, currentPageName }) {
                 {/* STEP 2: Meal & Clinical Planning */}
                 <SidebarGroup id="meal-planning-nav">
                   <SidebarGroupLabel className="text-xs font-bold text-green-600 uppercase tracking-wider px-2 py-2 border-b border-green-100 mb-1 mt-2">
-                    🍽️ Meal & Clinical Plans
+                    📋 Ready Mades
                   </SidebarGroupLabel>
                   <SidebarGroupContent>
                     <SidebarMenu>
