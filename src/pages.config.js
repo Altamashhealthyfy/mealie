@@ -76,6 +76,7 @@ import ClientDashboard from './pages/ClientDashboard';
 import ClientFeedbackManagement from './pages/ClientFeedbackManagement';
 import ClientFinanceManager from './pages/ClientFinanceManager';
 import ClientGamificationDashboard from './pages/ClientGamificationDashboard';
+import ClientHub from './pages/ClientHub';
 import ClientMPESSAnalytics from './pages/ClientMPESSAnalytics';
 import ClientMPESSAssessment from './pages/ClientMPESSAssessment';
 import ClientManagement from './pages/ClientManagement';
@@ -152,6 +153,7 @@ import MyAssessment from './pages/MyAssessment';
 import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
 import NotificationSettings from './pages/NotificationSettings';
 import Notifications from './pages/Notifications';
+import Profile from './pages/Profile';
 import PaymentGatewaySettings from './pages/PaymentGatewaySettings';
 import PaymentHistory from './pages/PaymentHistory';
 import PaymentSetup from './pages/PaymentSetup';
@@ -159,7 +161,6 @@ import PaymentTracking from './pages/PaymentTracking';
 import PlatformBrandingTracker from './pages/PlatformBrandingTracker';
 import PlatformColorCustomization from './pages/PlatformColorCustomization';
 import PricingPlans from './pages/PricingPlans';
-import Profile from './pages/Profile';
 import ProgressTracking from './pages/ProgressTracking';
 import ProjectManagement from './pages/ProjectManagement';
 import PublicPlanPurchase from './pages/PublicPlanPurchase';
@@ -187,7 +188,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import ClientHub from './pages/ClientHub';
 import __Layout from './Layout.jsx';
 
 
@@ -221,6 +221,7 @@ export const PAGES = {
     "ClientFeedbackManagement": ClientFeedbackManagement,
     "ClientFinanceManager": ClientFinanceManager,
     "ClientGamificationDashboard": ClientGamificationDashboard,
+    "ClientHub": ClientHub,
     "ClientMPESSAnalytics": ClientMPESSAnalytics,
     "ClientMPESSAssessment": ClientMPESSAssessment,
     "ClientManagement": ClientManagement,
@@ -297,6 +298,7 @@ export const PAGES = {
     "MyAssignedMealPlan": MyAssignedMealPlan,
     "NotificationSettings": NotificationSettings,
     "Notifications": Notifications,
+    "Profile": Profile,
     "PaymentGatewaySettings": PaymentGatewaySettings,
     "PaymentHistory": PaymentHistory,
     "PaymentSetup": PaymentSetup,
@@ -304,7 +306,6 @@ export const PAGES = {
     "PlatformBrandingTracker": PlatformBrandingTracker,
     "PlatformColorCustomization": PlatformColorCustomization,
     "PricingPlans": PricingPlans,
-    "Profile": Profile,
     "ProgressTracking": ProgressTracking,
     "ProjectManagement": ProjectManagement,
     "PublicPlanPurchase": PublicPlanPurchase,
@@ -332,7 +333,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "ClientHub": ClientHub,
 }
 
 export const pagesConfig = {

@@ -394,8 +394,8 @@ export default function ClientHub() {
                       {latestIntake.diet_type && (
                         <p className="text-gray-600">Diet: <span className="font-medium">{latestIntake.diet_type}</span></p>
                       )}
-                      {latestIntake.goal?.length > 0 && (
-                        <p className="text-gray-600">Goals: <span className="font-medium capitalize">{latestIntake.goal.join(", ")}</span></p>
+                      {latestIntake.goal && (Array.isArray(latestIntake.goal) ? latestIntake.goal.length > 0 : !!latestIntake.goal) && (
+                        <p className="text-gray-600">Goals: <span className="font-medium capitalize">{Array.isArray(latestIntake.goal) ? latestIntake.goal.join(", ") : latestIntake.goal}</span></p>
                       )}
                       {latestIntake.stage_severity && (
                         <p className="text-gray-600">Stage: <span className="font-medium">{latestIntake.stage_severity}</span></p>
