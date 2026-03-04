@@ -1145,7 +1145,7 @@ export default function Layout({ children, currentPageName }) {
                 {/* STEP 3: Analytics */}
                 <SidebarGroup id="analytics-nav">
                   <SidebarGroupLabel className="text-xs font-bold text-blue-600 uppercase tracking-wider px-2 py-2 border-b border-blue-100 mb-1 mt-2">
-                    📊 Analytics & Reports
+                    📊 Analytics
                   </SidebarGroupLabel>
                   <SidebarGroupContent>
                     <SidebarMenu>
