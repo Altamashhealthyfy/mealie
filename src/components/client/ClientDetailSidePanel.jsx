@@ -214,7 +214,7 @@ export default function ClientDetailSidePanel({
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => { onOpenChange(false); onViewPlans(client); }}
+                            onClick={() => onViewPlans(client)}
                             className="text-xs flex-shrink-0"
                           >
                             View
@@ -226,7 +226,7 @@ export default function ClientDetailSidePanel({
                   <Button variant="outline" size="sm" onClick={() => onCreatePlan(client)} className="w-full text-xs">
                     <Plus className="w-3 h-3 mr-1" /> Create Plan
                   </Button>
-                  <Button size="sm" onClick={() => { onOpenChange(false); onProPlan(client); }} className="w-full bg-purple-600 hover:bg-purple-700 text-xs">
+                  <Button size="sm" onClick={() => onProPlan(client)} className="w-full bg-purple-600 hover:bg-purple-700 text-xs">
                     <Stethoscope className="w-3 h-3 mr-1" /> Create Pro Plan
                   </Button>
                 </>
@@ -262,7 +262,7 @@ export default function ClientDetailSidePanel({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => { onOpenChange(false); onEmail(client); }}
+                onClick={() => onEmail(client)}
                 className="w-full text-xs"
               >
                 <Mail className="w-3 h-3 mr-1" /> Send Message
@@ -294,10 +294,11 @@ export default function ClientDetailSidePanel({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onOpenChange(false)}
+                onClick={() => {}}
                 className="w-full text-xs"
+                disabled
               >
-                <Calendar className="w-3 h-3 mr-1" /> Schedule Appointment
+                <Calendar className="w-3 h-3 mr-1" /> Schedule (coming soon)
               </Button>
             </TabsContent>
 
@@ -329,7 +330,7 @@ export default function ClientDetailSidePanel({
           {/* Quick Action Buttons */}
           <div className="space-y-2 sticky bottom-0 bg-white pt-4 border-t mt-6">
             <Button
-              onClick={() => { onOpenChange(false); onEdit(client); }}
+              onClick={() => onEdit(client)}
               variant="outline"
               size="sm"
               className="w-full text-xs"
@@ -339,7 +340,7 @@ export default function ClientDetailSidePanel({
 
             {userType === 'super_admin' && healthCoaches?.length > 0 && (
               <Button
-                onClick={() => { onOpenChange(false); onAssignCoach(client); }}
+                onClick={() => onAssignCoach(client)}
                 variant="outline"
                 size="sm"
                 className="w-full text-xs text-green-600 hover:bg-green-50"
@@ -350,7 +351,7 @@ export default function ClientDetailSidePanel({
 
             {(userType === 'super_admin' || userType === 'student_coach') && teamMembers?.length > 0 && (
               <Button
-                onClick={() => { onOpenChange(false); onAssignTeam(client); }}
+                onClick={() => onAssignTeam(client)}
                 variant="outline"
                 size="sm"
                 className="w-full text-xs text-purple-600 hover:bg-purple-50"
@@ -360,7 +361,7 @@ export default function ClientDetailSidePanel({
             )}
 
             <Button
-              onClick={() => { onOpenChange(false); onCreatePassword(client); }}
+              onClick={() => onCreatePassword(client)}
               variant="outline"
               size="sm"
               className="w-full text-xs text-blue-600 hover:bg-blue-50"
@@ -369,7 +370,7 @@ export default function ClientDetailSidePanel({
             </Button>
 
             <Button
-              onClick={() => { onOpenChange(false); onDelete(client); }}
+              onClick={() => onDelete(client)}
               variant="destructive"
               size="sm"
               disabled={isDeleting}
