@@ -152,7 +152,8 @@ export default function ClientSegmentationReports() {
         }];
       }
       // Normal sub-segment objects
-      return Object.entries(segmentClients).map(([subKey, subClients]) => {
+      return Object.entries(segmentClients).flatMap(([subKey, subClients]) => {
+        if (!Array.isArray(subClients)) return [];
         const clientIds = subClients.map(c => c.id);
         const segmentProgress = progressLogs.filter(p => clientIds.includes(p.client_id));
         const segmentPlans = mealPlans.filter(m => clientIds.includes(m.client_id));
