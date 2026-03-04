@@ -126,15 +126,9 @@ const clientManagementNav = [
 // STEP 2: Meal & Clinical Planning
 const mealPlanningNav = [
   {
-    title: "🍽️ Meal Plans",
+    title: "🍽️ Meal Planner",
     url: createPageUrl("MealPlanner"),
     icon: ChefHat,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
-  },
-  {
-    title: "🏥 Clinical Meal Plans",
-    url: createPageUrl("MealPlansPro"),
-    icon: Crown,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
