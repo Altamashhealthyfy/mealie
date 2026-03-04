@@ -1410,28 +1410,26 @@ support@mealiepro.com`;
           />
         )}
 
-        {/* View Client Details Dialog */}
-        {viewingClient && (
-          <>
-            <ClientDetailDialog
-              client={viewingClient}
-              onClose={() => setViewingClient(null)}
-              onEdit={handleEdit}
-              onEmail={handleOpenEmail}
-              onViewPlans={handleViewPlans}
-              onCreatePlan={handleCreatePlan}
-              onAssignCoach={handleAssignCoach}
-              onAssignTeam={handleAssignClient}
-              onCreatePassword={(c) => { setClientForPassword(c); setNewClientPassword(""); setShowCreatePasswordDialog(true); }}
-              onWelcomeMessage={(c) => { setClientForWelcome(c); setShowWelcomeMessageDialog(true); }}
-              onDelete={handleDeleteClient}
-              onQuickActions={(c) => { setViewingClient(null); setTimeout(() => { setClientForQuickActions(c); setShowQuickActions(true); }, 150); }}
-              onProPlan={(c) => navigate(`${createPageUrl("ClinicalIntake")}?clientId=${c.id}`)}
-              userType={user?.user_type}
-              teamMembers={teamMembers}
-              healthCoaches={healthCoaches}
-              isDeleting={deleteClientMutation.isPending}
-            />
+        {/* View Client Details Side Panel */}
+        <ClientDetailSidePanel
+          client={viewingClient}
+          open={!!viewingClient}
+          onOpenChange={(open) => !open && setViewingClient(null)}
+          onEdit={handleEdit}
+          onEmail={handleOpenEmail}
+          onViewPlans={handleViewPlans}
+          onCreatePlan={handleCreatePlan}
+          onAssignCoach={handleAssignCoach}
+          onAssignTeam={handleAssignClient}
+          onCreatePassword={(c) => { setClientForPassword(c); setNewClientPassword(""); setShowCreatePasswordDialog(true); }}
+          onWelcomeMessage={(c) => { setClientForWelcome(c); setShowWelcomeMessageDialog(true); }}
+          onDelete={handleDeleteClient}
+          onProPlan={(c) => navigate(`${createPageUrl("ClinicalIntake")}?clientId=${c.id}`)}
+          userType={user?.user_type}
+          teamMembers={teamMembers}
+          healthCoaches={healthCoaches}
+          isDeleting={deleteClientMutation.isPending}
+        />
             <QuickActionsPanel
               client={clientForQuickActions}
               open={showQuickActions}
