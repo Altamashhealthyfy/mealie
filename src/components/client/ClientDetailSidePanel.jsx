@@ -437,10 +437,41 @@ export default function ClientDetailSidePanel({
             </TabsContent>
           </Tabs>
 
+          {/* Edit Profile Modal - Internal */}
+          {editView === "open" && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+              <Card className="w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto">
+                <CardHeader className="flex flex-row items-center justify-between sticky top-0 bg-white">
+                  <CardTitle>Edit Client Profile</CardTitle>
+                  <Button variant="ghost" size="sm" onClick={() => setEditView("closed")}>✕</Button>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-gray-600">Click the button below to open the full profile editor.</p>
+                  <Button 
+                    onClick={() => {
+                      setEditView("closed");
+                      onEdit(client);
+                    }}
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                  >
+                    Open Profile Editor
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setEditView("closed")} 
+                    className="w-full"
+                  >
+                    Close
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           {/* Quick Action Buttons */}
           <div className="space-y-2 sticky bottom-0 bg-white pt-4 border-t mt-6">
             <Button
-              onClick={() => onEdit(client)}
+              onClick={() => setEditView("open")}
               variant="outline"
               size="sm"
               className="w-full text-xs"
