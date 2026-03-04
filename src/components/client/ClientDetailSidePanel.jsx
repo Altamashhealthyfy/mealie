@@ -358,35 +358,58 @@ export default function ClientDetailSidePanel({
 
             {/* Appointments Tab */}
             <TabsContent value="appointments" className="space-y-3 mt-4">
-              {appointments && appointments.length > 0 ? (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {appointments.map((apt) => (
-                    <Card key={apt.id} className="border border-orange-200">
-                      <CardContent className="p-3">
-                        <p className="font-semibold text-sm">{apt.title}</p>
-                        <p className="text-xs text-gray-600 mt-1">
-                          {format(new Date(apt.appointment_date), 'MMM d, yyyy HH:mm')}
-                        </p>
-                        <Badge className="mt-2 text-xs capitalize">{apt.status}</Badge>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-6">
-                  <Calendar className="w-12 h-12 mx-auto text-gray-300 mb-2" />
-                  <p className="text-sm text-gray-600">No appointments scheduled</p>
+              {appointmentView === "list" && (
+                <>
+                  {appointments && appointments.length > 0 ? (
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                      {appointments.map((apt) => (
+                        <Card key={apt.id} className="border border-orange-200">
+                          <CardContent className="p-3">
+                            <p className="font-semibold text-sm">{apt.title}</p>
+                            <p className="text-xs text-gray-600 mt-1">
+                              {format(new Date(apt.appointment_date), 'MMM d, yyyy HH:mm')}
+                            </p>
+                            <Badge className="mt-2 text-xs capitalize">{apt.status}</Badge>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6">
+                      <Calendar className="w-12 h-12 mx-auto text-gray-300 mb-2" />
+                      <p className="text-sm text-gray-600">No appointments scheduled</p>
+                    </div>
+                  )}
+                  <Button
+                    size="sm"
+                    onClick={() => setAppointmentView("schedule")}
+                    className="w-full text-xs bg-orange-600 hover:bg-orange-700 text-white"
+                  >
+                    <Plus className="w-3 h-3 mr-1" /> Schedule Appointment
+                  </Button>
+                </>
+              )}
+
+              {appointmentView === "schedule" && (
+                <div className="space-y-3">
+                  <Button variant="outline" size="sm" onClick={() => setAppointmentView("list")} className="w-full text-xs">
+                    ← Back to Appointments
+                  </Button>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm">Schedule New Appointment</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-xs space-y-3">
+                      <p className="text-gray-600">Click the button below to schedule an appointment for this client.</p>
+                      <Button 
+                        className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                      >
+                        Open Appointment Scheduler
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </div>
               )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {}}
-                className="w-full text-xs"
-                disabled
-              >
-                <Calendar className="w-3 h-3 mr-1" /> Schedule (coming soon)
-              </Button>
             </TabsContent>
 
             {/* Analytics Tab (hidden on mobile) */}
