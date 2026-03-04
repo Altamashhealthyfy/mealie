@@ -1054,7 +1054,7 @@ Return ONLY valid JSON, no explanation.`,
 
                 </div>
               </div>
-            ) : (
+            ) : !generatedPlan ? null : (
               /* Show Generated Plan */
               <div className="space-y-4 md:space-y-6">
                 {/* Decision Rules */}
