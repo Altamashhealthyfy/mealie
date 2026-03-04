@@ -676,8 +676,13 @@ support@mealiepro.com`;
         client.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         client.phone?.includes(searchQuery);
       const matchesStatus = statusFilter === "all" || client.status === statusFilter;
+      const assignedCoachList = Array.isArray(client.assigned_coach)
+        ? client.assigned_coach
+        : client.assigned_coach ? [client.assigned_coach] : [];
       const matchesCoach = coachFilter === "all" || 
-        (coachFilter === "unassigned" ? !client.assigned_coach : client.assigned_coach === coachFilter);
+        (coachFilter === "unassigned" 
+          ? assignedCoachList.length === 0 
+          : assignedCoachList.includes(coachFilter));
       const matchesGoal = goalFilter === "all" || client.goal === goalFilter;
       
       // Active plan filter
