@@ -411,8 +411,8 @@ const STEPS_GUIDE = [
 ];
 
 const QUICK_TIPS = [
-  { icon: '🔑', tip: 'Clients need TWO steps to log in: (1) Create their Client Profile, then (2) Invite them as a User from Dashboard → Data → User. The email must match exactly!' },
-  { icon: '⚡', tip: 'Use the Quick Actions (⚡ Act) button on each client card to instantly assign meal plans, schedule calls, or send push notifications without opening the client profile.' },
+  { icon: '🔑', tip: 'Clients need TWO steps to log in: (1) Create their Client Profile via Clients page, then (2) Invite them as a User from Dashboard → Data → User. The email must match exactly!' },
+  { icon: '🏠', tip: 'Use the Client Hub button on each client card to access their full profile, meal plans, progress, analytics, AI insights, and appointments — all in one place.' },
   { icon: '📋', tip: 'Always fill out a client\'s full profile before generating a meal plan — AI uses their health data to personalize the plan.' },
   { icon: '🤖', tip: 'Use AI Coach Insights every Monday to get a weekly summary of all your clients\' progress and alerts.' },
   { icon: '📅', tip: 'Schedule appointments at least 48 hours in advance so clients receive reminders and can prepare.' },
