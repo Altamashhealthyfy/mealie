@@ -41,6 +41,13 @@ export default function UserPermissionManagement() {
     queryFn: () => base44.auth.me(),
   });
 
+  const { data: allClientRecords } = useQuery({
+    queryKey: ['allClientRecords'],
+    queryFn: () => base44.entities.Client.list(),
+    enabled: !!currentUser && currentUser.user_type === 'super_admin',
+    initialData: [],
+  });
+
   const { data: allUsers, refetch: refetchUsers } = useQuery({
     queryKey: ['allUsers'],
     queryFn: async () => {
