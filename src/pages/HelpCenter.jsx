@@ -6,7 +6,7 @@ import {
   Zap, X, ChevronRight, Star, Lightbulb,
   PlayCircle, Target, Utensils, Scale, ClipboardList,
   Users, DollarSign, Settings, Upload, Sparkles, LayoutDashboard,
-  UserPlus, Bell, BarChart2, Stethoscope, Mail
+  UserPlus, Bell, BarChart2, Stethoscope, Mail, BarChart2 as BarChart2Icon
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
