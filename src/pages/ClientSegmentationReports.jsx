@@ -128,8 +128,30 @@ export default function ClientSegmentationReports() {
 
   // Calculate metrics for each segment
   const segmentMetrics = useMemo(() => {
-    return Object.entries(segments).map(([key, segmentClients]) => {
-      const clientIds = segmentClients.map(c => c.id);
+    return Object.entries(segments).flatMap(([key, segmentClients]) => {
+      // atRisk and similar top-level arrays are flat arrays, not sub-segment objects
+      if (Array.isArray(segmentClients)) {
+        const clientIds = segmentClients.map(c => c.id);
+        const segmentProgress = progressLogs.filter(p => clientIds.includes(p.client_id));
+        const segmentPlans = mealPlans.filter(m => clientIds.includes(m.client_id));
+        const last30Days = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+        const recentProgress = segmentProgress.filter(p => new Date(p.date) >= last30Days);
+        const engagedClients = new Set(recentProgress.map(p => p.client_id)).size;
+        const engagementRate = segmentClients.length > 0 ? (engagedClients / segmentClients.length) * 100 : 0;
+        const activeClients = segmentClients.filter(c => c.status === 'active').length;
+        return [{
+          name: key,
+          count: segmentClients.length,
+          activeClients,
+          avgWeightLoss: "0.0",
+          engagementRate: engagementRate.toFixed(0),
+          mealPlans: segmentPlans.length,
+          progressLogs: segmentProgress.length
+        }];
+      }
+      // Normal sub-segment objects
+      return Object.entries(segmentClients).map(([subKey, subClients]) => {
+        const clientIds = subClients.map(c => c.id);
       const segmentProgress = progressLogs.filter(p => clientIds.includes(p.client_id));
       const segmentPlans = mealPlans.filter(m => clientIds.includes(m.client_id));
       
