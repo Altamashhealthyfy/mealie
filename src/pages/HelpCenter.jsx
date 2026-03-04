@@ -68,7 +68,7 @@ const STEPS_GUIDE = [
         icon: UserPlus,
         desc: 'Add clients and give them login access — two steps required.',
         details: [
-          'Step 1: Go to Clients in the sidebar and click "Add New Client"',
+          'Step 1: Go to Clients in the sidebar under Client Management and click "Add New Client"',
           'Fill in their name, email, health details, goal, and dietary preferences',
           'Step 2 (Important!): Go to Dashboard → Data → User and click "Invite User"',
           'Enter the SAME email used in the client profile and set user_type = "client"',
@@ -94,35 +94,38 @@ const STEPS_GUIDE = [
         icon: LayoutDashboard,
         desc: 'Start your day by checking client alerts, pending tasks, and key metrics.',
         details: [
-          'Open the Dietitian Dashboard from the sidebar',
+          'Open the Dashboard from the sidebar under Client Management',
           'Review new client progress logs submitted overnight',
           'Check unread messages from clients requiring response',
           'See upcoming appointments for the day',
-          'Review clients who haven\'t logged progress in 3+ days',
-          'Check AI Coach Insights for flagged clients needing attention'
+          'Review clients who haven\'t logged progress in 3+ days'
         ]
       },
       {
         step: 2,
-        title: 'Use Quick Actions on Client Cards',
+        title: 'Use the Client Hub',
         icon: Zap,
-        desc: 'Take instant action on any client directly from the client list.',
+        desc: 'Open a client\'s full profile to manage everything about them in one place.',
         details: [
-          'Go to Clients in the sidebar',
-          'Each client card has an ⚡ Act button — click it to open Quick Actions',
-          'Meal Plan tab: assign any existing meal plan directly to the client',
-          'MPESS tab: create a custom wellness practice for the client',
-          'Call tab: schedule a check-in or video call appointment instantly',
-          'Notify tab: send a push notification or email reminder from pre-built templates'
+          'Go to Clients under Client Management in the sidebar',
+          'Click the "Client Hub" button on any client card to open their full hub',
+          'Overview tab: see their profile, clinical summary, active plan, and recent progress',
+          'Clinical Intake tab: fill or update the client\'s health intake form',
+          'Meal Plans tab: view, create, and activate meal plans for the client',
+          'Progress tab: see all progress logs in one place',
+          'Analytics tab: view weight trends and wellness charts for this client',
+          'AI Insights tab: generate AI-powered analysis specific to this client',
+          'Assessments tab: view uploaded health reports and assessments',
+          'Appointments tab: see all scheduled appointments'
         ]
       },
       {
         step: 3,
-        title: 'Review Client Progress',
+        title: 'Review Client Feedback',
         icon: TrendingUp,
-        desc: 'Monitor each client\'s weight, meals, and wellness metrics.',
+        desc: 'Monitor each client\'s submitted progress and provide coach feedback.',
         details: [
-          'Go to Clients Feedback in the sidebar',
+          'Go to Clients Feedback in the sidebar under Client Management',
           'Click on a client to open their progress dashboard',
           'Review their weight trend chart and recent logs',
           'Check meal adherence percentage for the past week',
@@ -136,7 +139,7 @@ const STEPS_GUIDE = [
         icon: MessageSquare,
         desc: 'Stay connected with clients through regular communication.',
         details: [
-          'Open Messages from the sidebar',
+          'Open Messages from the sidebar under Client Management',
           'Select a client to open their chat window',
           'Use Message Templates for quick motivational messages',
           'Send meal plan updates, encouragement, or feedback',
@@ -148,7 +151,7 @@ const STEPS_GUIDE = [
   },
   {
     id: 'meal-plans',
-    title: 'Creating Meal Plans',
+    title: 'Creating Meal Plans (Ready Mades)',
     icon: '🍱',
     color: 'from-green-500 to-emerald-600',
     bgLight: 'bg-green-50',
@@ -158,56 +161,55 @@ const STEPS_GUIDE = [
     steps: [
       {
         step: 1,
-        title: 'Generate AI Meal Plan',
+        title: 'Generate AI Meal Plan from Client Hub',
         icon: Sparkles,
-        desc: 'Use AI to instantly generate a personalized meal plan for any client.',
+        desc: 'Create a personalized meal plan directly from the client\'s hub.',
         details: [
-          'Go to Meal Plans in the sidebar',
-          'Click "Create New Meal Plan" and select the client',
+          'Open a client\'s Client Hub from the Clients page',
+          'Go to the Meal Plans tab and click "Basic Plan" or "Pro Clinical Plan"',
           'Choose plan tier: Basic (calorie-based) or Advanced (disease reversal)',
           'Enter duration (days), target calories, and food preference',
           'Click "Generate with AI" — the system builds the full plan in seconds',
-          'Review and edit any meals before assigning to the client'
+          'Review and edit any meals before activating for the client'
         ]
       },
       {
         step: 2,
-        title: 'Customize & Edit Meals',
+        title: 'Use Recipes & Food Lookup',
         icon: ChefHat,
-        desc: 'Manually edit, swap, or add meals to any generated plan.',
+        desc: 'Build your recipe bank and look up nutritional data for any food.',
         details: [
-          'Open the generated meal plan and click on any day',
-          'Click the edit icon on a meal to modify it',
-          'Change meal name, food items, and portion sizes',
-          'Update calorie and macro values as needed',
-          'Add nutritional tips or disease rationale for advanced plans',
-          'Use Meal Plan Constraints to set global restrictions for a client'
+          'Go to Recipes under Ready Mades in the sidebar',
+          'Add custom recipes with ingredients, macros, and tags',
+          'Use Food Lookup under Ready Mades to search USDA nutritional data',
+          'Look up calorie and macro values for any ingredient',
+          'Use nutritional data to accurately build meal plans'
         ]
       },
       {
         step: 3,
-        title: 'Use Meal Plan Templates',
+        title: 'Use Template Library',
         icon: FileText,
         desc: 'Save time by using pre-built templates for common client goals.',
         details: [
-          'Go to Template Library in the sidebar',
+          'Go to Template Library under Ready Mades in the sidebar',
           'Browse templates by category (Weight Loss, Diabetes, PCOS, etc.)',
           'Filter by food preference and regional cuisine',
           'Click "Use Template" and select the target client',
           'Customize the template before assigning',
-          'Save your own frequently-used plans as new templates'
+          'Save your own frequently-used plans as new templates via Template Manager'
         ]
       },
       {
         step: 4,
         title: 'Assign & Share the Plan',
         icon: Upload,
-        desc: 'Send the finalized meal plan to the client so they can view it in their app.',
+        desc: 'Activate and send the finalized meal plan to the client.',
         details: [
-          'After editing, click "Assign to Client"',
+          'In the client\'s Meal Plans tab, set a plan as Active',
           'The client immediately sees the plan in their "My Meal Plan" section',
           'Client gets a push notification about the new plan',
-          'You can send a follow-up message explaining the plan',
+          'You can send a follow-up message from the Messages tab',
           'Use the Download option to share a PDF version via WhatsApp or email'
         ]
       }
@@ -225,11 +227,11 @@ const STEPS_GUIDE = [
     steps: [
       {
         step: 1,
-        title: 'View Client Analytics',
+        title: 'View Business Analytics',
         icon: BarChart3,
-        desc: 'Analyze all your clients\' progress trends from a single dashboard.',
+        desc: 'Analyze all your clients\' overall progress trends from a single dashboard.',
         details: [
-          'Go to Client Analytics in the sidebar',
+          'Go to Business Analytics under Analytics in the sidebar',
           'See aggregate weight loss, adherence, and engagement metrics',
           'Filter by client group, goal type, or date range',
           'Spot clients with declining progress for early intervention',
@@ -238,29 +240,28 @@ const STEPS_GUIDE = [
       },
       {
         step: 2,
-        title: 'Review Individual Client Reports',
-        icon: FileText,
-        desc: 'Generate detailed progress reports for individual clients.',
+        title: 'Individual Client Analytics & AI Insights',
+        icon: Sparkles,
+        desc: 'Access per-client analytics and AI insights directly from the Client Hub.',
         details: [
-          'Go to Client Progress in the sidebar',
-          'Select a client and click "Generate Report"',
-          'The report includes weight trend, adherence %, measurements, and wellness scores',
-          'Add your coaching notes before sharing',
-          'Download as PDF or share directly with the client in chat'
+          'Open any client\'s Client Hub from the Clients page',
+          'Go to the Analytics tab to see weight trends and wellness charts',
+          'Go to the AI Insights tab to generate an AI analysis for that client',
+          'AI reviews weight trend, food logs, MPESS, and adherence',
+          'Get specific coaching recommendations and red flags',
+          'For overall business AI insights, go to AI Coach Insights in Business Tools'
         ]
       },
       {
         step: 3,
-        title: 'Use AI Coach Insights',
-        icon: Sparkles,
-        desc: 'Get AI-powered analysis and recommendations for each client.',
+        title: 'Client Segmentation',
+        icon: Target,
+        desc: 'Group and filter clients by goal, health condition, or engagement level.',
         details: [
-          'Navigate to AI Coach Insights in the sidebar',
-          'Select a client to generate an AI analysis',
-          'AI reviews weight trend, food logs, MPESS, and adherence',
-          'Get specific coaching recommendations and red flags',
-          'Use insights to personalize your next session with the client',
-          'AI can draft progress summaries and intervention messages'
+          'Go to Segmentation under Analytics in the sidebar',
+          'Create segments based on goal type, status, or activity level',
+          'View segment-specific stats and trends',
+          'Use segments to send targeted broadcasts or assign resources'
         ]
       },
       {
@@ -269,11 +270,11 @@ const STEPS_GUIDE = [
         icon: BarChart2,
         desc: 'Monitor revenue, client retention, and overall platform performance.',
         details: [
-          'Go to Advanced Analytics or Platform Analytics in the sidebar',
-          'Review monthly revenue, new clients, and churn rate',
+          'Go to Finance Manager under Business Tools in the sidebar',
+          'Review monthly revenue, new clients, and payment history',
           'Check which plan tiers are most popular',
           'Monitor client engagement levels across the platform',
-          'Use Finance Manager under Business Tools to track payments and outstanding dues'
+          'Use Platform Analytics (super admin) for full platform performance data'
         ]
       }
     ]
