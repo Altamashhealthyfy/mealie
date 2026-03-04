@@ -954,6 +954,181 @@ export default function ClientHub() {
             </div>
           </TabsContent>
 
+          {/* ANALYTICS TAB */}
+          <TabsContent value="analytics" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900">Client Progress Analytics</h2>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigate(`${createPageUrl("AdvancedCoachAnalytics")}?clientId=${clientId}`)}
+              >
+                <ExternalLink className="w-4 h-4 mr-1" /> Advanced Analytics
+              </Button>
+            </div>
+
+            {/* Weight Progress Chart */}
+            {progressLogs.length > 0 ? (
+              <div className="space-y-4">
+                <Card className="border-none shadow-lg bg-white">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Scale className="w-4 h-4 text-blue-500" /> Weight Progress
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {progressLogs.slice(0, 10).map((log, i) => {
+                        const prev = progressLogs[i + 1];
+                        const diff = prev?.weight && log.weight ? (log.weight - prev.weight).toFixed(1) : null;
+                        return (
+                          <div key={log.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-3 text-sm">
+                            <span className="text-gray-500 text-xs w-24">{log.date ? format(new Date(log.date), "MMM d, yyyy") : "—"}</span>
+                            <div className="flex gap-4 flex-1 justify-end">
+                              {log.weight && <span className="font-bold text-blue-600">{log.weight} kg</span>}
+                              {diff !== null && (
+                                <span className={`text-xs font-medium ${parseFloat(diff) < 0 ? "text-green-600" : parseFloat(diff) > 0 ? "text-red-500" : "text-gray-400"}`}>
+                                  {parseFloat(diff) > 0 ? "+" : ""}{diff} kg
+                                </span>
+                              )}
+                              {log.meal_adherence != null && (
+                                <span className="text-xs text-gray-600">🍽️ {log.meal_adherence}%</span>
+                              )}
+                              {log.wellness_metrics?.energy_level && (
+                                <span className="text-xs text-gray-600">⚡ {log.wellness_metrics.energy_level}/10</span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {progressLogs.length > 1 && (
+                      <div className="mt-4 grid grid-cols-3 gap-3">
+                        <div className="bg-blue-50 rounded-xl p-3 text-center">
+                          <p className="text-xs text-gray-500">Starting Weight</p>
+                          <p className="font-bold text-blue-600">{progressLogs[progressLogs.length - 1]?.weight || client.initial_weight || "—"} kg</p>
+                        </div>
+                        <div className="bg-green-50 rounded-xl p-3 text-center">
+                          <p className="text-xs text-gray-500">Current Weight</p>
+                          <p className="font-bold text-green-600">{progressLogs[0]?.weight || client.weight || "—"} kg</p>
+                        </div>
+                        <div className="bg-orange-50 rounded-xl p-3 text-center">
+                          <p className="text-xs text-gray-500">Total Change</p>
+                          {progressLogs[0]?.weight && progressLogs[progressLogs.length - 1]?.weight ? (
+                            <p className={`font-bold ${(progressLogs[0].weight - progressLogs[progressLogs.length - 1].weight) < 0 ? "text-green-600" : "text-red-500"}`}>
+                              {(progressLogs[0].weight - progressLogs[progressLogs.length - 1].weight) > 0 ? "+" : ""}
+                              {(progressLogs[0].weight - progressLogs[progressLogs.length - 1].weight).toFixed(1)} kg
+                            </p>
+                          ) : <p className="font-bold text-gray-400">—</p>}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card className="border-none shadow-lg bg-white">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Activity className="w-4 h-4 text-purple-500" /> Wellness Trends
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {progressLogs.slice(0, 5).map((log) => (
+                        <div key={log.id} className="bg-gray-50 rounded-lg p-3 text-sm">
+                          <p className="text-xs text-gray-400 mb-2">{log.date ? format(new Date(log.date), "MMM d, yyyy") : "—"}</p>
+                          <div className="flex flex-wrap gap-3">
+                            {log.wellness_metrics?.mood && <span>😊 Mood: <strong className="capitalize">{log.wellness_metrics.mood}</strong></span>}
+                            {log.wellness_metrics?.sleep_quality && <span>😴 Sleep: <strong>{log.wellness_metrics.sleep_quality}/10</strong></span>}
+                            {log.wellness_metrics?.stress_level && <span>😰 Stress: <strong>{log.wellness_metrics.stress_level}/10</strong></span>}
+                            {log.wellness_metrics?.water_intake && <span>💧 Water: <strong>{log.wellness_metrics.water_intake}L</strong></span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : (
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <TrendingUp className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">No Analytics Data Yet</h3>
+                  <p className="text-gray-600">Progress logs will fuel the analytics once the client starts tracking.</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* AI INSIGHTS TAB */}
+          <TabsContent value="ai_insights" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900">AI Insights for {client.full_name}</h2>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigate(createPageUrl("AICoachInsights"))}
+              >
+                <ExternalLink className="w-4 h-4 mr-1" /> Overall AI Dashboard
+              </Button>
+            </div>
+            <Card className="border-none shadow-lg bg-white">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900 mb-1">Client-Specific AI Analysis</h3>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Get AI-powered insights specific to {client.full_name}'s health journey, meal adherence, and progress patterns.
+                    </p>
+                    <Button
+                      onClick={() => navigate(`${createPageUrl("AICoachInsights")}?clientId=${clientId}`)}
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" /> Generate AI Insights
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick summary cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50">
+                <CardContent className="p-4">
+                  <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                    <Target className="w-4 h-4 text-blue-500" /> Goal Alignment
+                  </h4>
+                  <div className="space-y-1 text-sm">
+                    <p className="text-gray-600">Primary Goal: <strong className="capitalize">{client.goal?.replace(/_/g, " ") || "Not set"}</strong></p>
+                    <p className="text-gray-600">Current Weight: <strong>{progressLogs[0]?.weight || client.weight || "—"} kg</strong></p>
+                    <p className="text-gray-600">Target Weight: <strong>{client.target_weight || "—"} kg</strong></p>
+                    {client.target_weight && (progressLogs[0]?.weight || client.weight) && (
+                      <p className="text-gray-600">Remaining: <strong className="text-orange-600">
+                        {Math.abs((progressLogs[0]?.weight || client.weight) - client.target_weight).toFixed(1)} kg
+                      </strong></p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="border-none shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
+                <CardContent className="p-4">
+                  <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                    <Heart className="w-4 h-4 text-green-500" /> Health Summary
+                  </h4>
+                  <div className="space-y-1 text-sm">
+                    <p className="text-gray-600">Progress Entries: <strong>{progressLogs.length}</strong></p>
+                    <p className="text-gray-600">Meal Plans: <strong>{mealPlans.length}</strong></p>
+                    <p className="text-gray-600">Assessments: <strong>{assessments.length}</strong></p>
+                    <p className="text-gray-600">Clinical Intakes: <strong>{clinicalIntakes.length}</strong></p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
           {/* APPOINTMENTS TAB */}
           <TabsContent value="appointments" className="space-y-4">
             <div className="flex items-center justify-between">
