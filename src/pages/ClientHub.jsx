@@ -82,6 +82,13 @@ export default function ClientHub() {
     initialData: [],
   });
 
+  const { data: clinicalReports } = useQuery({
+    queryKey: ["clientClinicalReports", clientId],
+    queryFn: () => base44.entities.ClientReport.filter({ client_id: clientId }, "-created_date", 20),
+    enabled: !!clientId,
+    initialData: [],
+  });
+
   const { data: coachSubscription } = useQuery({
     queryKey: ["coachSubscription", user?.email],
     queryFn: async () => {
