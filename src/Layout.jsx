@@ -195,6 +195,12 @@ const accountNav = [
     roles: ['student_coach', 'super_admin'],
   },
   {
+    title: "🎓 Coach Training",
+    url: createPageUrl("CoachTraining"),
+    icon: BookOpen,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
     title: "❓ Help Center",
     url: createPageUrl("HelpCenter"),
     icon: FileText,
