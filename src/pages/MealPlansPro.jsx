@@ -1399,7 +1399,7 @@ Return ONLY valid JSON, no explanation.`,
                   <Button
                     variant="outline"
                     className="col-span-1 sm:flex-1"
-                    onClick={() => { setGeneratedPlan(null); setEditMode(false); setEditedMeals([]); }}
+                    onClick={() => { setGeneratedPlan(null); setEditMode(false); setEditedMeals([]); setShowDiagnostic(false); setFoodPreferences(null); }}
                   >
                     New Plan
                   </Button>
