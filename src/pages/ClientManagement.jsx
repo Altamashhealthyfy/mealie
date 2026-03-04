@@ -1260,6 +1260,9 @@ support@mealiepro.com`;
                     )}
                   </div>
 
+                  {/* Open Client Hub - Primary Action */}
+                  <ClientHubButton clientId={client.id} className="w-full mb-2" />
+
                   {/* Action Buttons Row 1 - Progress & Communication */}
                   <div className="grid grid-cols-2 gap-2">
                     <Button
