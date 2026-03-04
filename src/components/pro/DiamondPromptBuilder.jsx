@@ -180,6 +180,11 @@ Repeat this exact calorie distribution for ALL ${numberOfDays} days — do NOT r
 
    10. Handle conflicts with hierarchy: Kidney > Diabetes > Heart > Thyroid
 
+${approvedRules && approvedRules.length > 0 ? `## NUTRITIONIST-APPROVED DECISION RULES (MUST FOLLOW — OVERRIDES ALL DEFAULTS):
+These rules have been reviewed and approved by the nutritionist. Follow them strictly:
+${approvedRules.map((r, i) => `${i + 1}. ${r}`).join('\n')}
+` : ''}
+
 ## APPROVED MEAL OPTIONS (USE ONLY THESE - FROM COMPREHENSIVE LIST):
 
 **EARLY MORNING (Choose 1):**
