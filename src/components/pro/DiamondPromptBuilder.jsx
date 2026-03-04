@@ -1,5 +1,5 @@
 // Helper function to construct Diamond GPT prompt
-export function constructDiamondPrompt(client, intake, numberOfDays, mealPattern, preferences, reportData = null) {
+export function constructDiamondPrompt(client, intake, numberOfDays, mealPattern, preferences, reportData = null, approvedRules = null) {
   const activityMultipliers = {
     sedentary: 1.2,
     lightly_active: 1.375,
