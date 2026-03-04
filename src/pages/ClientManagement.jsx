@@ -62,6 +62,7 @@ import VideoCallScheduler from "@/components/communication/VideoCallScheduler";
 import QuickActionsPanel from "@/components/dietitian/QuickActionsPanel";
 import ClientLoginHelpCard from "@/components/client/ClientLoginHelpCard";
 import ClientDetailDialog from "@/components/client/ClientDetailDialog";
+import ClientHubButton from "@/components/client/ClientHubButton";
 
 function ClientList() {
   return <ClientManagementInner />;
