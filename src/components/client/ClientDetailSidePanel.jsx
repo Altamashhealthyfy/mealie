@@ -38,6 +38,8 @@ export default function ClientDetailSidePanel({
   const [activeTab, setActiveTab] = useState("overview");
   const [mealView, setMealView] = useState("list"); // 'list', 'detail', 'create', 'pro'
   const [selectedMeal, setSelectedMeal] = useState(null);
+  const [appointmentView, setAppointmentView] = useState("list"); // 'list', 'schedule'
+  const [editView, setEditView] = useState("closed"); // 'closed', 'open'
 
   const { data: mealPlans } = useQuery({
     queryKey: ['clientMealPlans', client?.id],
