@@ -168,7 +168,7 @@ export default function ClientSegmentationReports() {
         const engagedClients = new Set(recentProgress.map(p => p.client_id)).size;
         const engagementRate = subClients.length > 0 ? (engagedClients / subClients.length) * 100 : 0;
         const activeClients = subClients.filter(c => c.status === 'active').length;
-        return {
+        return [{
           name: subKey,
           count: subClients.length,
           activeClients,
@@ -176,7 +176,7 @@ export default function ClientSegmentationReports() {
           engagementRate: engagementRate.toFixed(0),
           mealPlans: segmentPlans.length,
           progressLogs: segmentProgress.length
-        };
+        }];
       });
     });
   }, [segments, progressLogs, mealPlans]);
