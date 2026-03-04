@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import {
   X, Edit, Mail, ChefHat, MessageSquare, Calendar, CheckCircle2,
@@ -15,6 +15,9 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import ClientMedicalProgress from "@/components/client/ClientMedicalProgress";
+import InlineMealPlanForm from "@/components/client/InlineMealPlanForm";
+import InlineProPlanForm from "@/components/client/InlineProPlanForm";
+import InlineProfileEditor from "@/components/client/InlineProfileEditor";
 
 export default function ClientDetailSidePanel({
   client,
@@ -35,11 +38,12 @@ export default function ClientDetailSidePanel({
   healthCoaches,
   isDeleting,
 }) {
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("overview");
   const [mealView, setMealView] = useState("list"); // 'list', 'detail', 'create', 'pro'
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [appointmentView, setAppointmentView] = useState("list"); // 'list', 'schedule'
-  const [editView, setEditView] = useState("closed"); // 'closed', 'open'
+  const [profileEditMode, setProfileEditMode] = useState(false);
 
   const { data: mealPlans } = useQuery({
     queryKey: ['clientMealPlans', client?.id],
@@ -129,6 +133,18 @@ export default function ClientDetailSidePanel({
 
             {/* Overview Tab */}
             <TabsContent value="overview" className="space-y-4 mt-4">
+              {profileEditMode ? (
+                <InlineProfileEditor
+                  client={client}
+                  onSuccess={() => {
+                    setProfileEditMode(false);
+                    queryClient.invalidateQueries(['clients']);
+                    alert("✅ Profile updated successfully!");
+                  }}
+                  onCancel={() => setProfileEditMode(false)}
+                />
+              ) : (
+                <>
               <div className="grid grid-cols-2 gap-3">
                 <Card>
                   <CardHeader className="pb-2"><CardTitle className="text-sm">Contact</CardTitle></CardHeader>
@@ -197,6 +213,8 @@ export default function ClientDetailSidePanel({
               )}
 
               <ClientMedicalProgress client={client} />
+              </>
+              )}
             </TabsContent>
 
             {/* Meals Tab */}
@@ -286,20 +304,15 @@ export default function ClientDetailSidePanel({
                   <Button variant="outline" size="sm" onClick={() => setMealView("list")} className="w-full text-xs">
                     ← Back to Plans
                   </Button>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm">Create Basic Meal Plan</CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-xs space-y-3">
-                      <p className="text-gray-600">To create a basic meal plan, click the button below to proceed to the meal planner.</p>
-                      <Button 
-                        onClick={() => onCreatePlan(client)}
-                        className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-                      >
-                        Open Meal Planner
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <InlineMealPlanForm
+                    client={client}
+                    onSuccess={(plan) => {
+                      setMealView("list");
+                      queryClient.invalidateQueries(['clientMealPlans']);
+                      alert("✅ Meal plan created successfully!");
+                    }}
+                    onCancel={() => setMealView("list")}
+                  />
                 </div>
               )}
               
@@ -308,22 +321,15 @@ export default function ClientDetailSidePanel({
                   <Button variant="outline" size="sm" onClick={() => setMealView("list")} className="w-full text-xs">
                     ← Back to Plans
                   </Button>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm flex items-center gap-2">
-                        <Sparkles className="w-4 h-4" /> Create Pro Meal Plan
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-xs space-y-3">
-                      <p className="text-gray-600">Create a disease-specific pro meal plan with advanced clinical intake.</p>
-                      <Button 
-                        onClick={() => onProPlan(client)}
-                        className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-                      >
-                        Open Clinical Intake
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <InlineProPlanForm
+                    client={client}
+                    onSuccess={() => {
+                      setMealView("list");
+                      queryClient.invalidateQueries(['clientMealPlans']);
+                      toast.success("✅ Clinical intake saved! Pro plan ready to generate.");
+                    }}
+                    onCancel={() => setMealView("list")}
+                  />
                 </div>
               )}
             </TabsContent>
@@ -437,41 +443,12 @@ export default function ClientDetailSidePanel({
             </TabsContent>
           </Tabs>
 
-          {/* Edit Profile Modal - Internal */}
-          {editView === "open" && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-              <Card className="w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto">
-                <CardHeader className="flex flex-row items-center justify-between sticky top-0 bg-white">
-                  <CardTitle>Edit Client Profile</CardTitle>
-                  <Button variant="ghost" size="sm" onClick={() => setEditView("closed")}>✕</Button>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-gray-600">Click the button below to open the full profile editor.</p>
-                  <Button 
-                    onClick={() => {
-                      setEditView("closed");
-                      onEdit(client);
-                    }}
-                    className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-                  >
-                    Open Profile Editor
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setEditView("closed")} 
-                    className="w-full"
-                  >
-                    Close
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          )}
+
 
           {/* Quick Action Buttons */}
           <div className="space-y-2 sticky bottom-0 bg-white pt-4 border-t mt-6">
             <Button
-              onClick={() => setEditView("open")}
+              onClick={() => setProfileEditMode(true)}
               variant="outline"
               size="sm"
               className="w-full text-xs"
