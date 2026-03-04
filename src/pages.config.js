@@ -116,6 +116,7 @@ import CoachReferralLink from './pages/CoachReferralLink';
 import CoachReportTracker from './pages/CoachReportTracker';
 import CoachSubscription from './pages/CoachSubscription';
 import CoachSubscriptions from './pages/CoachSubscriptions';
+import CoachTraining from './pages/CoachTraining';
 import Communication from './pages/Communication';
 import ComprehensiveAnalyticsDashboard from './pages/ComprehensiveAnalyticsDashboard';
 import CouponManagement from './pages/CouponManagement';
@@ -152,8 +153,8 @@ import MealPlansPro from './pages/MealPlansPro';
 import MyAssessment from './pages/MyAssessment';
 import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
 import NotificationSettings from './pages/NotificationSettings';
-import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
+import Notifications from './pages/Notifications';
 import PaymentGatewaySettings from './pages/PaymentGatewaySettings';
 import PaymentHistory from './pages/PaymentHistory';
 import PaymentSetup from './pages/PaymentSetup';
@@ -188,7 +189,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import CoachTraining from './pages/CoachTraining';
 import __Layout from './Layout.jsx';
 
 
@@ -262,6 +262,7 @@ export const PAGES = {
     "CoachReportTracker": CoachReportTracker,
     "CoachSubscription": CoachSubscription,
     "CoachSubscriptions": CoachSubscriptions,
+    "CoachTraining": CoachTraining,
     "Communication": Communication,
     "ComprehensiveAnalyticsDashboard": ComprehensiveAnalyticsDashboard,
     "CouponManagement": CouponManagement,
@@ -298,8 +299,8 @@ export const PAGES = {
     "MyAssessment": MyAssessment,
     "MyAssignedMealPlan": MyAssignedMealPlan,
     "NotificationSettings": NotificationSettings,
-    "Notifications": Notifications,
     "Profile": Profile,
+    "Notifications": Notifications,
     "PaymentGatewaySettings": PaymentGatewaySettings,
     "PaymentHistory": PaymentHistory,
     "PaymentSetup": PaymentSetup,
@@ -334,7 +335,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "CoachTraining": CoachTraining,
 }
 
 export const pagesConfig = {
