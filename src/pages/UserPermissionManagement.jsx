@@ -299,6 +299,16 @@ export default function UserPermissionManagement() {
   }
 
   const getUsersByType = (userType) => {
+    if (userType === 'client') {
+      // Use Client entity records for the client tab — includes all clients
+      return allClientRecords.map(c => ({
+        ...c,
+        user_type: 'client',
+        full_name: c.full_name,
+        email: c.email,
+        assigned_coach: c.assigned_coach || [],
+      }));
+    }
     return allUsers.filter(u => {
       // Handle both user_type and role fields
       const type = u.user_type || (u.role === 'admin' ? 'super_admin' : u.role);
