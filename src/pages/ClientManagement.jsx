@@ -1435,7 +1435,6 @@ support@mealiepro.com`;
               open={showQuickActions}
               onOpenChange={(open) => { setShowQuickActions(open); if (!open) setClientForQuickActions(null); }}
             />
-        )}
 
         {/* View Client Plans Dialog */}
         <Dialog open={!!viewingClientPlans} onOpenChange={() => setViewingClientPlans(null)}>
