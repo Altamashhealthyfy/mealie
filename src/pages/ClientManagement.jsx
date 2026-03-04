@@ -157,13 +157,9 @@ function ClientManagementInner() {
         !coachEmails.has(client.email?.toLowerCase())
       );
 
-      // Super admin sees only clients that have an assigned_coach
+      // Super admin sees ALL clients
       if (user?.user_type === 'super_admin') {
-        return nonCoachClients.filter(client => 
-          Array.isArray(client.assigned_coach) 
-            ? client.assigned_coach.length > 0 
-            : !!client.assigned_coach
-        );
+        return nonCoachClients;
       }
 
       // Student coaches see clients they created OR clients assigned to them
