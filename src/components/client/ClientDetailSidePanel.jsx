@@ -36,6 +36,8 @@ export default function ClientDetailSidePanel({
   isDeleting,
 }) {
   const [activeTab, setActiveTab] = useState("overview");
+  const [mealView, setMealView] = useState("list"); // 'list', 'detail', 'create', 'pro'
+  const [selectedMeal, setSelectedMeal] = useState(null);
 
   const { data: mealPlans } = useQuery({
     queryKey: ['clientMealPlans', client?.id],
