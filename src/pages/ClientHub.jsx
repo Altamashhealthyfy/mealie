@@ -334,6 +334,12 @@ export default function ClientHub() {
             <TabsTrigger value="appointments" className="flex items-center gap-1 text-xs sm:text-sm">
               <Calendar className="w-3 h-3 sm:w-4 sm:h-4" /> Appointments
             </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-1 text-xs sm:text-sm">
+              <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" /> Analytics
+            </TabsTrigger>
+            <TabsTrigger value="ai_insights" className="flex items-center gap-1 text-xs sm:text-sm">
+              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" /> AI Insights
+            </TabsTrigger>
           </TabsList>
 
           {/* OVERVIEW TAB */}
