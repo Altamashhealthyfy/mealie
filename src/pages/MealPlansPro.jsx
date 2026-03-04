@@ -294,7 +294,7 @@ Return ONLY valid JSON, no explanation.`,
     generateProPlan(foodPreferences, approvedRules);
   };
 
-  const generateProPlan = async (preferences = foodPreferences) => {
+  const generateProPlan = async (preferences = foodPreferences, approvedRules = null) => {
     try {
 
 
