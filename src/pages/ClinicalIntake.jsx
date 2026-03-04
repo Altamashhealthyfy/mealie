@@ -470,8 +470,8 @@ Return ONLY valid JSON, no explanation.`;
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Section 1: Basic Information */}
           <Card className="border-none shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white">
-              <CardTitle>1. Basic Information</CardTitle>
+            <CardHeader className="bg-slate-100">
+              <CardTitle className="text-slate-800">1. Basic Information</CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -598,8 +598,8 @@ Return ONLY valid JSON, no explanation.`;
           <Collapsible open={isMedicationsOpen} onOpenChange={setIsMedicationsOpen}>
           <Card className="border-none shadow-lg">
             <CollapsibleTrigger asChild>
-            <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
-              <CardTitle>3. Current Medications</CardTitle>
+            <CardHeader className="bg-slate-100 cursor-pointer hover:bg-slate-200 transition-colors flex flex-row items-center justify-between p-6">
+             <CardTitle className="text-slate-800">3. Current Medications</CardTitle>
               <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isMedicationsOpen ? 'rotate-180' : ''}`} />
             </CardHeader>
             </CollapsibleTrigger>
@@ -647,11 +647,11 @@ Return ONLY valid JSON, no explanation.`;
                 <Collapsible open={isLabValuesOpen} onOpenChange={setIsLabValuesOpen}>
                 <Card className="border-none shadow-lg">
             <CollapsibleTrigger asChild>
-            <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
-              <div>
-                <CardTitle>4. Lab Values (Optional)</CardTitle>
-                <CardDescription className="text-white/90">Enter if available</CardDescription>
-              </div>
+            <CardHeader className="bg-slate-100 cursor-pointer hover:bg-slate-200 transition-colors flex flex-row items-center justify-between p-6">
+             <div>
+               <CardTitle className="text-slate-800">4. Lab Values (Optional)</CardTitle>
+               <CardDescription className="text-slate-600">Enter if available</CardDescription>
+             </div>
               <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isLabValuesOpen ? 'rotate-180' : ''}`} />
             </CardHeader>
             </CollapsibleTrigger>
@@ -941,8 +941,8 @@ Return ONLY valid JSON, no explanation.`;
           <Collapsible open={isDietPreferencesOpen} onOpenChange={setIsDietPreferencesOpen}>
           <Card className="border-none shadow-lg">
             <CollapsibleTrigger asChild>
-            <CardHeader className="bg-gradient-to-r from-yellow-500 to-amber-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
-              <CardTitle>5. Diet Preferences *</CardTitle>
+            <CardHeader className="bg-slate-100 cursor-pointer hover:bg-slate-200 transition-colors flex flex-row items-center justify-between p-6">
+             <CardTitle className="text-slate-800">5. Diet Preferences *</CardTitle>
               <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isDietPreferencesOpen ? 'rotate-180' : ''}`} />
             </CardHeader>
             </CollapsibleTrigger>
@@ -1015,8 +1015,8 @@ Return ONLY valid JSON, no explanation.`;
                 <Collapsible open={isDailyRoutineOpen} onOpenChange={setIsDailyRoutineOpen}>
                 <Card className="border-none shadow-lg">
             <CollapsibleTrigger asChild>
-            <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
-              <CardTitle>6. Daily Routine & Meal Timings</CardTitle>
+            <CardHeader className="bg-slate-100 cursor-pointer hover:bg-slate-200 transition-colors flex flex-row items-center justify-between p-6">
+             <CardTitle className="text-slate-800">6. Daily Routine & Meal Timings</CardTitle>
               <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isDailyRoutineOpen ? 'rotate-180' : ''}`} />
             </CardHeader>
             </CollapsibleTrigger>
@@ -1073,8 +1073,8 @@ Return ONLY valid JSON, no explanation.`;
                 <Collapsible open={isCookingStyleOpen} onOpenChange={setIsCookingStyleOpen}>
                 <Card className="border-none shadow-lg">
             <CollapsibleTrigger asChild>
-            <CardHeader className="bg-gradient-to-r from-pink-500 to-rose-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
-              <CardTitle>7. Cooking Style at Home</CardTitle>
+            <CardHeader className="bg-slate-100 cursor-pointer hover:bg-slate-200 transition-colors flex flex-row items-center justify-between p-6">
+             <CardTitle className="text-slate-800">7. Cooking Style at Home</CardTitle>
               <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isCookingStyleOpen ? 'rotate-180' : ''}`} />
             </CardHeader>
             </CollapsibleTrigger>
@@ -1105,8 +1105,8 @@ Return ONLY valid JSON, no explanation.`;
           <Collapsible open={isGoalsOpen} onOpenChange={setIsGoalsOpen}>
           <Card className="border-none shadow-lg">
             <CollapsibleTrigger asChild>
-            <CardHeader className="bg-gradient-to-r from-green-500 to-teal-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
-              <CardTitle>8. Your Goals *</CardTitle>
+            <CardHeader className="bg-slate-100 cursor-pointer hover:bg-slate-200 transition-colors flex flex-row items-center justify-between p-6">
+             <CardTitle className="text-slate-800">8. Your Goals *</CardTitle>
               <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isGoalsOpen ? 'rotate-180' : ''}`} />
             </CardHeader>
             </CollapsibleTrigger>
@@ -1171,10 +1171,10 @@ Return ONLY valid JSON, no explanation.`;
                 <Collapsible open={isMpessOpen} onOpenChange={setIsMpessOpen}>
                 <Card className="border-none shadow-lg">
             <CollapsibleTrigger asChild>
-            <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
-              <div>
-                <CardTitle>9. MPESS Wellness Integration</CardTitle>
-                <CardDescription className="text-white/90">
+            <CardHeader className="bg-slate-100 cursor-pointer hover:bg-slate-200 transition-colors flex flex-row items-center justify-between p-6">
+             <div>
+               <CardTitle className="text-slate-800">9. MPESS Wellness Integration</CardTitle>
+               <CardDescription className="text-slate-600">
                   Would you like holistic wellness practices included in your plan?
                 </CardDescription>
               </div>
@@ -1213,11 +1213,11 @@ Return ONLY valid JSON, no explanation.`;
                 <Collapsible open={isUploadReportOpen} onOpenChange={setIsUploadReportOpen}>
                 <Card className="border-none shadow-lg">
             <CollapsibleTrigger asChild>
-            <CardHeader className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
-              <div>
-                <CardTitle>10. Upload Medical Reports (Optional)</CardTitle>
-                <CardDescription className="text-white/90">Upload existing reports for AI extraction</CardDescription>
-              </div>
+            <CardHeader className="bg-slate-100 cursor-pointer hover:bg-slate-200 transition-colors flex flex-row items-center justify-between p-6">
+             <div>
+               <CardTitle className="text-slate-800">10. Upload Medical Reports (Optional)</CardTitle>
+               <CardDescription className="text-slate-600">Upload existing reports for AI extraction</CardDescription>
+             </div>
               <ChevronDown className={`h-6 w-6 transition-transform flex-shrink-0 ${isUploadReportOpen ? 'rotate-180' : ''}`} />
             </CardHeader>
             </CollapsibleTrigger>

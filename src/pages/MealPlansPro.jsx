@@ -468,7 +468,7 @@ Return ONLY valid JSON, no explanation.`,
 
     savePlanMutation.mutate({
       client_id: generatedPlan.client_id,
-      name: `Diamond Clinical Plan - ${generatedPlan.client_name}`,
+      name: `Therapeutic & Holistic Plan - ${generatedPlan.client_name}`,
       plan_tier: 'advanced',
       duration: numberOfDays,
       meal_pattern: mealPattern,
@@ -628,8 +628,8 @@ Return ONLY valid JSON, no explanation.`,
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1">💎 Mealie Pro</h1>
-            <p className="text-sm md:text-base text-gray-600">Disease-Specific Clinical Meal Planning</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-1">🌿 Mealie Pro</h1>
+            <p className="text-sm md:text-base text-gray-600">Therapeutic Meal & Holistic Wellness Planning</p>
           </div>
           <Badge className="bg-purple-600 text-white text-sm md:text-base px-3 py-1.5 md:px-4 md:py-2 self-start sm:self-auto">
             Advanced Tier
@@ -639,7 +639,7 @@ Return ONLY valid JSON, no explanation.`,
         <Alert className="bg-gradient-to-r from-purple-100 to-indigo-100 border-purple-300">
           <Sparkles className="w-4 h-4 text-purple-600 flex-shrink-0" />
           <AlertDescription className="text-xs sm:text-sm">
-            <strong>Pro Features:</strong> 10-day rotation plans • Disease-specific rationales • MPESS integration • Lab tracking • Audit compliance
+            <strong>Pro Features:</strong> Multi-day rotation plans • Holistic MPESS wellness • Lab tracking • Audit compliance • Personalized nutrition
           </AlertDescription>
         </Alert>
 
@@ -773,9 +773,9 @@ Return ONLY valid JSON, no explanation.`,
             {!generatedPlan ? (
               <div className="border-none shadow-lg rounded-xl overflow-hidden">
                 <div className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white p-4 md:p-6">
-                  <h2 className="text-lg md:text-2xl font-bold">Generate Diamond Clinical Meal Plan</h2>
+                  <h2 className="text-lg md:text-2xl font-bold">Therapeutic Meal & Holistic Plan</h2>
                   <p className="text-white/90 mt-1 text-sm md:text-base">
-                    Based on detailed clinical intake with disease-specific guidelines
+                   Personalized clinical nutrition with holistic MPESS wellness integration
                   </p>
                 </div>
                 <div className="p-4 md:p-6 space-y-5 bg-white">
@@ -997,7 +997,7 @@ Return ONLY valid JSON, no explanation.`,
                       {generating ? (
                         <>
                           <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                          Generating Diamond Plan...
+                          Generating Holistic Plan...
                         </>
                       ) : (
                         <>
@@ -1035,33 +1035,7 @@ Return ONLY valid JSON, no explanation.`,
                     </Alert>
                   )}
 
-                  {/* Info about Pro features */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 mt-4">
-                    <div className="p-4 bg-purple-50 rounded-lg">
-                      <h4 className="font-semibold text-purple-900 mb-2">🎯 Disease-Specific Rules</h4>
-                      <p className="text-sm text-gray-700">
-                        Follows clinical guidelines for diabetes, thyroid, kidney, heart, and hormonal conditions with conflict resolution hierarchy.
-                      </p>
-                    </div>
-                    <div className="p-4 bg-indigo-50 rounded-lg">
-                      <h4 className="font-semibold text-indigo-900 mb-2">🔄 3-3-4 Rotation</h4>
-                      <p className="text-sm text-gray-700">
-                        10-day plan with Plan A (days 1-3), Plan B (days 4-6), Plan C (days 7-10) for variety and convenience.
-                      </p>
-                    </div>
-                    <div className="p-4 bg-pink-50 rounded-lg">
-                      <h4 className="font-semibold text-pink-900 mb-2">🧘 MPESS Integration</h4>
-                      <p className="text-sm text-gray-700">
-                        Holistic wellness practices for Mind, Physical, Emotional, Social, and Spiritual health.
-                      </p>
-                    </div>
-                    <div className="p-4 bg-green-50 rounded-lg">
-                      <h4 className="font-semibold text-green-900 mb-2">📊 Audit Compliance</h4>
-                      <p className="text-sm text-gray-700">
-                        Automatic tracking of sodium, potassium, medication conflicts, and RDA compliance (90-250% range).
-                      </p>
-                    </div>
-                  </div>
+
                 </div>
               </div>
             ) : (
