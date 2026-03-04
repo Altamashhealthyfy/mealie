@@ -129,6 +129,8 @@ export default function ClientSegmentationReports() {
   // Calculate metrics for each segment
   const segmentMetrics = useMemo(() => {
     return Object.entries(segments).flatMap(([key, segmentClients]) => {
+      // Skip null/undefined values
+      if (!segmentClients) return [];
       // atRisk and similar top-level arrays are flat arrays, not sub-segment objects
       if (Array.isArray(segmentClients)) {
         const clientIds = segmentClients.map(c => c.id);
