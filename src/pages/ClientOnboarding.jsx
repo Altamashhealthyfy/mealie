@@ -251,6 +251,11 @@ Provide a warm, personalized tip that's relevant to their situation.`,
         }
       };
 
+      // If client came via a coach referral link, assign that coach
+      if (coachRefEmail) {
+        clientData.assigned_coach = [coachRefEmail];
+      }
+
       return await base44.entities.Client.create(clientData);
     },
     onSuccess: (client) => {
