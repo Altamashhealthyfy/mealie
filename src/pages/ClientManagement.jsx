@@ -139,9 +139,9 @@ function ClientManagementInner() {
   });
 
   const { data: clients } = useQuery({
-    queryKey: ['clients'],
+    queryKey: ['clients', user?.email, user?.user_type],
     queryFn: async () => {
-      const allClients = await base44.entities.Client.list('-created_date');
+      const allClients = await base44.entities.Client.list('-created_date', 500);
 
       // Get all coach/team user emails to exclude them from client list
       const allUsers = await base44.entities.User.list();
