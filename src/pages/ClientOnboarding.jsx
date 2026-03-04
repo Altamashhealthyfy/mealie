@@ -38,6 +38,12 @@ const STORAGE_KEY = "client_onboarding_progress";
 
 export default function ClientOnboarding() {
   const navigate = useNavigate();
+  
+  // Capture coach ref from URL (e.g. ?ref=coach@email.com)
+  const coachRefEmail = React.useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('ref') ? decodeURIComponent(params.get('ref')) : null;
+  }, []);
   const [phase, setPhase] = useState("welcome"); // "welcome" | "form" | "schedule" | "goals" | "tutorial"
   const [currentStep, setCurrentStep] = useState(1);
   const [aiTip, setAiTip] = useState("");

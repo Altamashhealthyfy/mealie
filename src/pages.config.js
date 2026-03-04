@@ -49,6 +49,7 @@
  */
 import AICoachInsights from './pages/AICoachInsights';
 import AddTeamAppointment from './pages/AddTeamAppointment';
+import AdminMealPlanGenerator from './pages/AdminMealPlanGenerator';
 import AdminPlatformAnalytics from './pages/AdminPlatformAnalytics';
 import AdminSubscriptionManager from './pages/AdminSubscriptionManager';
 import AdvancedCoachAnalytics from './pages/AdvancedCoachAnalytics';
@@ -153,12 +154,12 @@ import NotificationSettings from './pages/NotificationSettings';
 import Notifications from './pages/Notifications';
 import PaymentGatewaySettings from './pages/PaymentGatewaySettings';
 import PaymentHistory from './pages/PaymentHistory';
-import Profile from './pages/Profile';
 import PaymentSetup from './pages/PaymentSetup';
 import PaymentTracking from './pages/PaymentTracking';
 import PlatformBrandingTracker from './pages/PlatformBrandingTracker';
 import PlatformColorCustomization from './pages/PlatformColorCustomization';
 import PricingPlans from './pages/PricingPlans';
+import Profile from './pages/Profile';
 import ProgressTracking from './pages/ProgressTracking';
 import ProjectManagement from './pages/ProjectManagement';
 import PublicPlanPurchase from './pages/PublicPlanPurchase';
@@ -186,13 +187,13 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import AdminMealPlanGenerator from './pages/AdminMealPlanGenerator';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AICoachInsights": AICoachInsights,
     "AddTeamAppointment": AddTeamAppointment,
+    "AdminMealPlanGenerator": AdminMealPlanGenerator,
     "AdminPlatformAnalytics": AdminPlatformAnalytics,
     "AdminSubscriptionManager": AdminSubscriptionManager,
     "AdvancedCoachAnalytics": AdvancedCoachAnalytics,
@@ -297,12 +298,12 @@ export const PAGES = {
     "Notifications": Notifications,
     "PaymentGatewaySettings": PaymentGatewaySettings,
     "PaymentHistory": PaymentHistory,
-    "Profile": Profile,
     "PaymentSetup": PaymentSetup,
     "PaymentTracking": PaymentTracking,
     "PlatformBrandingTracker": PlatformBrandingTracker,
     "PlatformColorCustomization": PlatformColorCustomization,
     "PricingPlans": PricingPlans,
+    "Profile": Profile,
     "ProgressTracking": ProgressTracking,
     "ProjectManagement": ProjectManagement,
     "PublicPlanPurchase": PublicPlanPurchase,
@@ -330,7 +331,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "AdminMealPlanGenerator": AdminMealPlanGenerator,
 }
 
 export const pagesConfig = {

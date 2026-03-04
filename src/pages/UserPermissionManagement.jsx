@@ -730,14 +730,18 @@ export default function UserPermissionManagement() {
 
               <Card className="border-none shadow-lg">
                 <CardHeader>
-                  <CardTitle>Individual Client Permissions</CardTitle>
+                  <CardTitle>Your Clients (Platform / Unassigned)</CardTitle>
+                  <p className="text-sm text-gray-500 mt-1">Clients not assigned to any health coach — these are your direct clients</p>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {getUsersByType('client').filter(u =>
-                      u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      u.email?.toLowerCase().includes(searchQuery.toLowerCase())
-                    ).map(client => {
+                    {getUsersByType('client').filter(u => {
+                      const nameMatch = u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        u.email?.toLowerCase().includes(searchQuery.toLowerCase());
+                      // Only show clients NOT assigned to any health coach
+                      const isUnassigned = !u.assigned_coach || u.assigned_coach.length === 0;
+                      return nameMatch && isUnassigned;
+                    }).map(client => {
                       const hasCustomPerms = !!getUserCustomPermissions(client.email);
                       return (
                         <Card key={client.id} className="border-none shadow-lg hover:shadow-xl transition-shadow">
