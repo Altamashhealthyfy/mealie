@@ -407,6 +407,12 @@ const businessNavigation = [
     roles: ['super_admin', 'student_coach', 'team_member'],
   },
   {
+    title: "📚 Healthyfy Resources",
+    url: createPageUrl("HealthyfyResources"),
+    icon: BookOpen,
+    roles: ['super_admin'],
+  },
+  {
     title: "🍽️ Meal Plan Generator",
     url: createPageUrl("AdminMealPlanGenerator"),
     icon: ChefHat,
