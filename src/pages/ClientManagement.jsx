@@ -1293,7 +1293,7 @@ support@mealiepro.com`;
                     <Button
                      variant="outline"
                      size="sm"
-                     onClick={() => { setClientForVideoCall(client); setShowVideoScheduler(true); }}
+                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); setClientForVideoCall(client); setShowVideoScheduler(true); }}
                      className="text-green-600 hover:bg-green-50 border-green-200 h-9 md:h-auto text-xs md:text-sm"
                      title="Schedule Video Call"
                     >
