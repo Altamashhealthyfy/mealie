@@ -609,7 +609,7 @@ export default function ClientHub() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <CardTitle className="text-base">
-                            {index === 0 ? "Clinical Intake" : `Intake — ${intake.intake_date ? format(new Date(intake.intake_date), "MMM d, yyyy") : "—"}`}
+                            {`Client Intake ${[...clinicalIntakes].sort((a, b) => new Date(b.intake_date || b.created_date) - new Date(a.intake_date || a.created_date)).length - index}`}
                           </CardTitle>
                           {intake.completed && (
                             <Badge className="bg-green-100 text-green-700 text-xs">
