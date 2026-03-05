@@ -313,6 +313,7 @@ function SimpleGoalGenerator({ goal, knowledgeBase = [] }) {
     const midMorningCal = Math.round(kcalTarget * 0.08);
 
     return `# 10-Day ${label} Meal Plan Generator (No Disease)
+${kbSection}
 
 Generate a complete, clinically accurate Indian **10-day ${label} meal plan** (no medical condition, healthy individual).
 
