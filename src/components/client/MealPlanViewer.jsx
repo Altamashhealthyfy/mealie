@@ -442,10 +442,10 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
               </button>
             </div>
 
-            {/* Download — label changes with view */}
-            <Button size="sm" variant="outline" onClick={handleDownload} disabled={downloading}>
+            {/* Download PDF — matches current view */}
+            <Button size="sm" variant="outline" onClick={handleDownloadPDF} disabled={downloading}>
               {downloading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3 mr-1" />}
-              {viewMode === "table" ? "Download CSV" : "Download TXT"}
+              Download PDF
             </Button>
 
             {/* Assign */}
