@@ -29,6 +29,8 @@ export default function ClientHub() {
   const clientId = urlParams.get("clientId");
 
   const [activeTab, setActiveTab] = useState("overview");
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showMessageChat, setShowMessageChat] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
