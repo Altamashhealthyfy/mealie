@@ -12,11 +12,12 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Stethoscope, Plus, X, CheckCircle, Sparkles, Upload, Loader2, Wand2, ChevronDown,
-  Heart, Brain, Users
+  Heart, Brain, Users, FileText, Trash2
 } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import IntakeTemplateDownload from "@/components/client/IntakeTemplateDownload";
 
 /**
  * InlineClinicalIntakeForm
