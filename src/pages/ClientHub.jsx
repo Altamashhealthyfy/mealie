@@ -577,13 +577,13 @@ export default function ClientHub() {
           {/* CLINICAL INTAKE TAB */}
           <TabsContent value="intake" className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-900">Clinical Intake History</h2>
+              <h2 className="text-lg font-bold text-gray-900">Clinical Intake ({clinicalIntakes.length})</h2>
               <Button
-                onClick={() => navigate(`${createPageUrl("ClinicalIntake")}?clientId=${clientId}`)}
+                onClick={() => setShowNewIntakeForm(true)}
                 className="bg-purple-500 hover:bg-purple-600"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                {hasCompletedIntake ? "Update Intake" : "Fill Intake Form"}
+                {hasCompletedIntake ? "Update New Intake" : "Fill Intake Form"}
               </Button>
             </div>
 
@@ -593,23 +593,23 @@ export default function ClientHub() {
                   <Stethoscope className="w-16 h-16 mx-auto text-gray-300 mb-4" />
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">No Clinical Intake Yet</h3>
                   <p className="text-gray-600 mb-4">Complete the clinical intake form to enable disease-specific meal planning.</p>
-                  <Button
-                    onClick={() => navigate(`${createPageUrl("ClinicalIntake")}?clientId=${clientId}`)}
-                    className="bg-purple-500 hover:bg-purple-600"
-                  >
+                  <Button onClick={() => setShowNewIntakeForm(true)} className="bg-purple-500 hover:bg-purple-600">
                     <Stethoscope className="w-4 h-4 mr-2" /> Fill Clinical Intake
                   </Button>
                 </CardContent>
               </Card>
             ) : (
               <div className="space-y-4">
-                {clinicalIntakes.map((intake, index) => (
+                {/* Sort descending by intake_date */}
+                {[...clinicalIntakes]
+                  .sort((a, b) => new Date(b.intake_date || b.created_date) - new Date(a.intake_date || a.created_date))
+                  .map((intake, index) => (
                   <Card key={intake.id} className={`border-none shadow-lg ${index === 0 ? "border-l-4 border-l-purple-500" : ""}`}>
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <CardTitle className="text-base">
-                            {index === 0 ? "Latest Intake" : `Intake #${clinicalIntakes.length - index}`}
+                            {index === 0 ? "Clinical Intake" : `Intake — ${intake.intake_date ? format(new Date(intake.intake_date), "MMM d, yyyy") : "—"}`}
                           </CardTitle>
                           {intake.completed && (
                             <Badge className="bg-green-100 text-green-700 text-xs">
@@ -621,15 +621,12 @@ export default function ClientHub() {
                           <span className="text-xs text-gray-400">
                             {intake.intake_date ? format(new Date(intake.intake_date), "MMM d, yyyy") : "—"}
                           </span>
-                          {index === 0 && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => navigate(`${createPageUrl("ClinicalIntake")}?clientId=${clientId}`)}
-                            >
-                              <Edit className="w-3 h-3 mr-1" /> Edit
-                            </Button>
-                          )}
+                          <Button size="sm" variant="outline" onClick={() => setViewingIntake(intake)}>
+                            <Eye className="w-3 h-3 mr-1" /> View
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => setEditingIntake(intake)}>
+                            <Edit className="w-3 h-3 mr-1" /> Edit
+                          </Button>
                         </div>
                       </div>
                     </CardHeader>
@@ -680,19 +677,6 @@ export default function ClientHub() {
                           )}
                         </div>
                       </div>
-                      {index === 0 && intake.completed && (
-                        <div className="mt-3">
-                          <Button
-                            size="sm"
-                            onClick={() => setShowProMealPlan(true)}
-                            className="bg-purple-500 hover:bg-purple-600"
-                            disabled={!hasProAccess}
-                          >
-                            <Sparkles className="w-3 h-3 mr-1" />
-                            {hasProAccess ? "Generate Pro Meal Plan" : "Pro Plan (Upgrade Required)"}
-                          </Button>
-                        </div>
-                      )}
                     </CardContent>
                   </Card>
                 ))}
