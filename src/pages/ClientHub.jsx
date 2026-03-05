@@ -33,6 +33,8 @@ export default function ClientHub() {
   const [activeTab, setActiveTab] = useState("overview");
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showMessageChat, setShowMessageChat] = useState(false);
+  const [showBasicMealPlan, setShowBasicMealPlan] = useState(false);
+  const [showProMealPlan, setShowProMealPlan] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
