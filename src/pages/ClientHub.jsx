@@ -15,6 +15,7 @@ import {
   Phone, Mail, Target, Clock
 } from "lucide-react";
 import { format } from "date-fns";
+import InlineAppointmentManager from "@/components/client/InlineAppointmentManager";
 
 export default function ClientHub() {
   const navigate = useNavigate();
