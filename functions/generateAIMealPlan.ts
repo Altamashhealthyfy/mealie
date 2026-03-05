@@ -241,7 +241,10 @@ Food patterns: ${recentFoodLogs.slice(0, 6).map(f => f.meal_name || f.meal_type)
       dinner_base: "1BOWL SOUP[250ml] + Full bowl of green salad chopped or grated[raw/steam]"
     };
 
+    const kbContext = buildKBSection();
+
     const prompt = `You are a senior clinical dietitian creating a personalized ${duration}-day meal plan. Be thorough, specific, and clinically sound.
+${kbContext}
 
 ═══ CLIENT PROFILE ═══
 Name: ${client.full_name} | Age: ${client.age || 'N/A'} | Gender: ${client.gender || 'N/A'}
