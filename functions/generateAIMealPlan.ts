@@ -29,6 +29,31 @@ Deno.serve(async (req) => {
     const client = clientArr[0];
     if (!client) return Response.json({ error: 'Client not found' }, { status: 404 });
 
+    // ─── BUILD KNOWLEDGE BASE CONTEXT ───
+    const knowledgeBase = knowledgeBaseArr || [];
+    const kbByCategory = {};
+    for (const doc of knowledgeBase) {
+      if (!kbByCategory[doc.category]) kbByCategory[doc.category] = [];
+      kbByCategory[doc.category].push(doc);
+    }
+
+    const buildKBSection = () => {
+      if (knowledgeBase.length === 0) return '';
+      let section = '\n═══ HEALTHYFY KNOWLEDGE BASE (AUTHORITATIVE CLINICAL RULES — FOLLOW STRICTLY) ═══\n';
+      section += 'The following rules and guidelines are set by the Healthyfy clinical team. They OVERRIDE any general AI knowledge.\n\n';
+      for (const [category, docs] of Object.entries(kbByCategory)) {
+        section += `▶ ${category.toUpperCase()}\n`;
+        for (const doc of docs) {
+          section += `  • [${doc.name}]`;
+          if (doc.description) section += ` — ${doc.description}`;
+          if (doc.ai_instruction) section += `\n    → AI INSTRUCTION: ${doc.ai_instruction}`;
+          section += '\n';
+        }
+        section += '\n';
+      }
+      return section;
+    };
+
     const clinical = clinicalArr[0];
     const recentLogs = [...progressArr].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 7);
     const recentFoodLogs = [...foodLogsArr].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 14);
