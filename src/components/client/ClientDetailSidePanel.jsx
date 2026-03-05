@@ -18,6 +18,7 @@ import ClientMedicalProgress from "@/components/client/ClientMedicalProgress";
 import InlineMealPlanForm from "@/components/client/InlineMealPlanForm";
 import InlineProPlanForm from "@/components/client/InlineProPlanForm";
 import InlineProfileEditor from "@/components/client/InlineProfileEditor";
+import InlineAppointmentManager from "@/components/client/InlineAppointmentManager";
 
 export default function ClientDetailSidePanel({
   client,
