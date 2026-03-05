@@ -1209,6 +1209,65 @@ export default function ClientHub() {
         </DialogContent>
       </Dialog>
 
+      {/* New Clinical Intake Dialog ("Update New Intake") */}
+      <Dialog open={showNewIntakeForm} onOpenChange={setShowNewIntakeForm}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {hasCompletedIntake ? "Update New Intake" : "Fill Clinical Intake"} — {client.full_name}
+            </DialogTitle>
+          </DialogHeader>
+          <InlineClinicalIntakeForm
+            clientId={clientId}
+            prefillData={clinicalIntakes?.[0] || null}
+            isViewOnly={false}
+            onSuccess={() => {
+              setShowNewIntakeForm(false);
+              queryClient.invalidateQueries(["clientClinicalIntakes", clientId]);
+            }}
+            onCancel={() => setShowNewIntakeForm(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Specific Intake Dialog */}
+      <Dialog open={!!editingIntake} onOpenChange={(open) => { if (!open) setEditingIntake(null); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Intake — {editingIntake?.intake_date ? format(new Date(editingIntake.intake_date), "MMM d, yyyy") : ""}</DialogTitle>
+          </DialogHeader>
+          {editingIntake && (
+            <InlineClinicalIntakeForm
+              clientId={clientId}
+              prefillData={editingIntake}
+              isViewOnly={false}
+              onSuccess={() => {
+                setEditingIntake(null);
+                queryClient.invalidateQueries(["clientClinicalIntakes", clientId]);
+              }}
+              onCancel={() => setEditingIntake(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* View Specific Intake Dialog (read-only) */}
+      <Dialog open={!!viewingIntake} onOpenChange={(open) => { if (!open) setViewingIntake(null); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>View Intake — {viewingIntake?.intake_date ? format(new Date(viewingIntake.intake_date), "MMM d, yyyy") : ""}</DialogTitle>
+          </DialogHeader>
+          {viewingIntake && (
+            <InlineClinicalIntakeForm
+              clientId={clientId}
+              prefillData={viewingIntake}
+              isViewOnly={true}
+              onCancel={() => setViewingIntake(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* View Meal Plan Dialog */}
       <Dialog open={!!viewingPlan} onOpenChange={(open) => { if (!open) setViewingPlan(null); }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
