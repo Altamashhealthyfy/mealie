@@ -63,15 +63,6 @@ export default function ClientDetailSidePanel({
     enabled: !!client?.id && activeTab === "messages",
   });
 
-  const { data: appointments } = useQuery({
-    queryKey: ['clientAppointments', client?.id],
-    queryFn: async () => {
-      if (!client?.id) return [];
-      return await base44.entities.Appointment.filter({ client_id: client.id }, '-appointment_date');
-    },
-    enabled: !!client?.id && activeTab === "appointments",
-  });
-
   const { data: progressLogs } = useQuery({
     queryKey: ['clientProgressLogs', client?.id],
     queryFn: async () => {
