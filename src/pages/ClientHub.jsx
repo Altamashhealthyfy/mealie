@@ -1141,6 +1141,35 @@ export default function ClientHub() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Edit Profile Dialog */}
+      <Dialog open={showEditProfile} onOpenChange={setShowEditProfile}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Profile — {client.full_name}</DialogTitle>
+          </DialogHeader>
+          <InlineProfileEditor
+            client={client}
+            onSuccess={() => {
+              setShowEditProfile(false);
+              queryClient.invalidateQueries(["client", clientId]);
+            }}
+            onCancel={() => setShowEditProfile(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Message Dialog */}
+      <Dialog open={showMessageChat} onOpenChange={setShowMessageChat}>
+        <DialogContent className="max-w-lg p-0 overflow-hidden">
+          <RealtimeChat
+            recipientId={clientId}
+            recipientName={client.full_name}
+            isCoach={true}
+            onClose={() => setShowMessageChat(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
