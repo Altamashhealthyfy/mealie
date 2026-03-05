@@ -703,13 +703,13 @@ export default function AdminMealPlanGenerator() {
           </TabsList>
 
           <TabsContent value="weight_loss" className="mt-6">
-            <SimpleGoalGenerator goal="weight_loss" />
+            <SimpleGoalGenerator goal="weight_loss" knowledgeBase={knowledgeBase} />
           </TabsContent>
           <TabsContent value="weight_gain" className="mt-6">
-            <SimpleGoalGenerator goal="weight_gain" />
+            <SimpleGoalGenerator goal="weight_gain" knowledgeBase={knowledgeBase} />
           </TabsContent>
           <TabsContent value="disease" className="mt-6">
-            <DiseaseGenerator />
+            <DiseaseGenerator knowledgeBase={knowledgeBase} />
           </TabsContent>
         </Tabs>
       </div>
