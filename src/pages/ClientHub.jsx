@@ -1198,13 +1198,35 @@ export default function ClientHub() {
           </DialogHeader>
           <InlineProPlanForm
             client={client}
+            prefillIntake={clinicalIntakes?.[0]}
             onSuccess={() => {
               setShowProMealPlan(false);
               queryClient.invalidateQueries(["clientClinicalIntakes", clientId]);
+              queryClient.invalidateQueries(["clientMealPlans", clientId]);
               setActiveTab("plans");
             }}
             onCancel={() => setShowProMealPlan(false)}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* View Meal Plan Dialog */}
+      <Dialog open={!!viewingPlan} onOpenChange={(open) => { if (!open) setViewingPlan(null); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="truncate">{viewingPlan?.name}</DialogTitle>
+          </DialogHeader>
+          {viewingPlan && (
+            <MealPlanViewer
+              plan={viewingPlan}
+              allPlanIds={mealPlans.map((p) => p.id)}
+              onAssigned={() => {
+                queryClient.invalidateQueries(["clientMealPlans", clientId]);
+                setViewingPlan(null);
+              }}
+              onClose={() => setViewingPlan(null)}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>
