@@ -196,80 +196,207 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
     }
   };
 
-  const handleDownload = () => {
+  const handleDownloadPDF = () => {
     setDownloading(true);
     try {
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const pageW = doc.internal.pageSize.getWidth();
+      const margin = 14;
+      const usableW = pageW - margin * 2;
+      let y = 14;
+
+      const checkPage = (needed = 8) => {
+        if (y + needed > 280) { doc.addPage(); y = 14; }
+      };
+
+      // Title
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(40, 40, 40);
+      doc.text(plan.name || "Meal Plan", margin, y);
+      y += 7;
+
+      // Meta line
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(100, 100, 100);
+      const meta = [
+        plan.duration ? `${plan.duration} Days` : "",
+        plan.food_preference || "",
+        plan.target_calories ? `${plan.target_calories} kcal/day` : "",
+        plan.meal_pattern || "",
+      ].filter(Boolean).join("  |  ");
+      doc.text(meta, margin, y);
+      y += 5;
+      doc.setDrawColor(220, 220, 220);
+      doc.line(margin, y, pageW - margin, y);
+      y += 4;
+
       if (viewMode === "table") {
-        // ── CSV download ──
-        const header = ["Day", ...MEAL_TYPES_USED.map(t => MEAL_LABELS[t] || t), "Total kcal", "Total Protein (g)"];
-        const rows = days.map(day => {
+        // ── TABLE PDF ──
+        const usedTypes = MEAL_ORDER.filter(type =>
+          days.some(d => (mealsByDay[d] || []).some(m => m.meal_type === type))
+        );
+        const colCount = usedTypes.length + 2; // Day + meals + Total
+        const dayColW = 14;
+        const totalColW = 22;
+        const mealColW = Math.floor((usableW - dayColW - totalColW) / usedTypes.length);
+
+        // Header row
+        doc.setFillColor(255, 237, 213);
+        doc.rect(margin, y, usableW, 7, "F");
+        doc.setFontSize(7);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(60, 60, 60);
+        doc.text("Day", margin + 2, y + 5);
+        usedTypes.forEach((type, i) => {
+          doc.text(MEAL_LABELS[type] || type, margin + dayColW + i * mealColW + 1, y + 5);
+        });
+        doc.text("Total", margin + dayColW + usedTypes.length * mealColW + 1, y + 5);
+        y += 7;
+
+        days.forEach((day, idx) => {
           const meals = mealsByDay[day] || [];
           const mealMap = {};
           meals.forEach(m => { mealMap[m.meal_type] = m; });
           const totalCal = meals.reduce((s, m) => s + (m.calories || 0), 0);
           const totalProt = meals.reduce((s, m) => s + (m.protein || 0), 0);
-          return [
-            `Day ${day}`,
-            ...MEAL_TYPES_USED.map(type => {
-              const m = mealMap[type];
-              return m ? `${m.meal_name || ""}${m.calories ? ` (${m.calories} kcal)` : ""}` : "";
-            }),
-            totalCal,
-            Math.round(totalProt),
-          ];
+
+          // Calculate row height (up to 2 lines per cell)
+          const rowH = 10;
+          checkPage(rowH + 2);
+
+          if (idx % 2 === 0) {
+            doc.setFillColor(250, 250, 250);
+            doc.rect(margin, y, usableW, rowH, "F");
+          }
+
+          doc.setFontSize(7);
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(234, 88, 12);
+          doc.text(`Day ${day}`, margin + 2, y + 4);
+
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(50, 50, 50);
+          usedTypes.forEach((type, i) => {
+            const m = mealMap[type];
+            const cellX = margin + dayColW + i * mealColW + 1;
+            if (m) {
+              const name = doc.splitTextToSize(m.meal_name || "—", mealColW - 2);
+              doc.text(name[0] || "", cellX, y + 4);
+              if (m.calories) {
+                doc.setTextColor(150, 150, 150);
+                doc.text(`${m.calories} kcal`, cellX, y + 8);
+                doc.setTextColor(50, 50, 50);
+              }
+            } else {
+              doc.setTextColor(180, 180, 180);
+              doc.text("—", cellX, y + 4);
+              doc.setTextColor(50, 50, 50);
+            }
+          });
+
+          // Total col
+          const totalX = margin + dayColW + usedTypes.length * mealColW + 1;
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(40, 40, 40);
+          doc.text(`${totalCal} kcal`, totalX, y + 4);
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(150, 150, 150);
+          if (totalProt > 0) doc.text(`P:${Math.round(totalProt)}g`, totalX, y + 8);
+
+          // Row border
+          doc.setDrawColor(230, 230, 230);
+          doc.line(margin, y + rowH, pageW - margin, y + rowH);
+          y += rowH;
         });
 
-        const csvContent = [header, ...rows]
-          .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
-          .join("\n");
-
-        const blob = new Blob([csvContent], { type: "text/csv" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${plan.name?.replace(/\s+/g, "_") || "meal_plan"}_table.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
-        toast.success("Table downloaded as CSV!");
       } else {
-        // ── Text download (detail view) ──
-        const lines = [];
-        lines.push(`MEAL PLAN: ${plan.name}`);
-        lines.push(`Duration: ${plan.duration} days | Calories: ${plan.target_calories || "—"} kcal/day`);
-        lines.push("=".repeat(60));
-
+        // ── DETAIL PDF ──
         days.forEach((day) => {
-          lines.push(`\nDAY ${day}`);
-          lines.push("-".repeat(40));
+          checkPage(12);
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(234, 88, 12);
+          doc.text(`DAY ${day}`, margin, y);
+          y += 5;
+          doc.setDrawColor(253, 186, 116);
+          doc.line(margin, y, pageW - margin, y);
+          y += 3;
+
           const meals = (mealsByDay[day] || []).sort(
             (a, b) => MEAL_ORDER.indexOf(a.meal_type) - MEAL_ORDER.indexOf(b.meal_type)
           );
+
           meals.forEach((meal) => {
-            lines.push(`\n[${(meal.meal_type || "").toUpperCase().replace(/_/g, " ")}] ${meal.meal_name || ""}`);
+            checkPage(14);
+            // Meal type label
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(180, 80, 20);
+            doc.text((meal.meal_type || "").toUpperCase().replace(/_/g, " "), margin, y);
+            if (meal.calories) {
+              doc.setTextColor(150, 100, 20);
+              doc.text(`${meal.calories} cal`, pageW - margin - 18, y);
+            }
+            y += 4;
+
+            // Meal name
+            if (meal.meal_name) {
+              doc.setFontSize(9);
+              doc.setFont("helvetica", "bold");
+              doc.setTextColor(30, 30, 30);
+              doc.text(meal.meal_name, margin, y);
+              y += 4;
+            }
+
+            // Items
+            doc.setFontSize(7.5);
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(70, 70, 70);
             (meal.items || []).forEach((item, i) => {
-              lines.push(`  • ${item}${meal.portion_sizes?.[i] ? " — " + meal.portion_sizes[i] : ""}`);
+              checkPage(5);
+              const line = `• ${item}${meal.portion_sizes?.[i] ? " — " + meal.portion_sizes[i] : ""}`;
+              const wrapped = doc.splitTextToSize(line, usableW - 4);
+              doc.text(wrapped, margin + 2, y);
+              y += wrapped.length * 4;
             });
+
+            // Macros
             const macros = [];
-            if (meal.calories) macros.push(`Cal: ${meal.calories} kcal`);
             if (meal.protein) macros.push(`P: ${meal.protein}g`);
             if (meal.carbs) macros.push(`C: ${meal.carbs}g`);
             if (meal.fats) macros.push(`F: ${meal.fats}g`);
-            if (macros.length) lines.push(`  ${macros.join(" | ")}`);
-            if (meal.nutritional_tip) lines.push(`  💡 ${meal.nutritional_tip}`);
-          });
-        });
+            if (macros.length) {
+              checkPage(5);
+              doc.setFont("helvetica", "bold");
+              doc.setTextColor(100, 100, 100);
+              doc.text(macros.join("  "), margin, y);
+              y += 4;
+            }
 
-        const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${plan.name?.replace(/\s+/g, "_") || "meal_plan"}_detail.txt`;
-        a.click();
-        URL.revokeObjectURL(url);
-        toast.success("Plan downloaded!");
+            // Tip
+            if (meal.nutritional_tip || meal.disease_rationale) {
+              checkPage(6);
+              doc.setFont("helvetica", "italic");
+              doc.setTextColor(59, 130, 246);
+              const tip = doc.splitTextToSize(`💡 ${meal.nutritional_tip || meal.disease_rationale}`, usableW - 4);
+              doc.text(tip, margin + 2, y);
+              y += tip.length * 4 + 1;
+            }
+
+            y += 3;
+          });
+
+          y += 4;
+        });
       }
+
+      doc.save(`${plan.name?.replace(/\s+/g, "_") || "meal_plan"}_${viewMode}.pdf`);
+      toast.success("PDF downloaded!");
     } catch (e) {
-      toast.error("Download failed");
+      console.error(e);
+      toast.error("PDF generation failed");
     } finally {
       setDownloading(false);
     }
