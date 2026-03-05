@@ -304,16 +304,7 @@ export default function ClientHub() {
               >
                 <Calendar className="w-4 h-4 mr-1" /> Appointment
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  setActiveTab("plans");
-                  setShowBasicMealPlan(true);
-                }}
-              >
-                <ChefHat className="w-4 h-4 mr-1" /> Add Meal Plan
-              </Button>
+
               <Button
                 size="sm"
                 variant="outline"
@@ -345,9 +336,6 @@ export default function ClientHub() {
               {progressLogs.length > 0 && (
                 <Badge className="ml-1 bg-green-500 text-white text-xs px-1">{progressLogs.length}</Badge>
               )}
-            </TabsTrigger>
-            <TabsTrigger value="assessments" className="flex items-center gap-1 text-xs sm:text-sm">
-              <ClipboardList className="w-3 h-3 sm:w-4 sm:h-4" /> Assessments
             </TabsTrigger>
             <TabsTrigger value="appointments" className="flex items-center gap-1 text-xs sm:text-sm">
               <Calendar className="w-3 h-3 sm:w-4 sm:h-4" /> Appointments

@@ -92,7 +92,7 @@ const clientManagementNav = [
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
   {
-    title: "👥 Clients",
+    title: "👥 Clients Hub",
     url: createPageUrl("ClientManagement"),
     icon: Users,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
