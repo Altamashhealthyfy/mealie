@@ -259,14 +259,36 @@ Combine information from all uploaded documents intelligently. Return ONLY valid
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* AI Autofill (edit mode only) */}
+      {/* AI Autofill + Template Download (edit mode only) */}
       {!isViewOnly && (
-        <div className="flex justify-end">
-          <label className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer font-semibold text-sm transition-all
-            ${aiFileUploading ? 'bg-indigo-100 text-indigo-400 cursor-wait' : 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:opacity-90'}`}>
-            {aiFileUploading ? <><Loader2 className="w-4 h-4 animate-spin" /> Extracting...</> : <><Wand2 className="w-4 h-4" /> AI Auto-Fill from Report</>}
-            <input type="file" accept="image/*,.pdf" onChange={handleAIFillFromFile} disabled={aiFileUploading} className="hidden" />
-          </label>
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl p-4 space-y-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Wand2 className="w-4 h-4 text-indigo-600" />
+            <p className="font-semibold text-sm text-indigo-800">Smart Intake — Upload & Auto-Fill</p>
+          </div>
+          <p className="text-xs text-gray-600">
+            Step 1: Download the intake template → get it filled by the client → then upload it here along with any blood/lab reports. The form will be auto-populated.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <IntakeTemplateDownload clientName="" />
+            <label className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer font-semibold text-sm transition-all border
+              ${aiFileUploading
+                ? 'bg-indigo-100 text-indigo-400 cursor-wait border-indigo-200'
+                : 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white border-transparent hover:opacity-90'}`}>
+              {aiFileUploading
+                ? <><Loader2 className="w-4 h-4 animate-spin" /> Extracting {aiFileCount} file(s)...</>
+                : <><Upload className="w-4 h-4" /> Upload Reports &amp; Filled Template</>}
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                multiple
+                onChange={handleAIFillFromFiles}
+                disabled={aiFileUploading}
+                className="hidden"
+              />
+            </label>
+          </div>
+          <p className="text-xs text-gray-500">Accepts: PDF, JPG, PNG. You can select multiple files at once (e.g. intake form + blood report).</p>
         </div>
       )}
 
