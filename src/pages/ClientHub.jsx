@@ -302,6 +302,7 @@ export default function ClientHub() {
                 variant="outline"
                 onClick={() => {
                   setActiveTab("plans");
+                  setShowBasicMealPlan(true);
                 }}
               >
                 <ChefHat className="w-4 h-4 mr-1" /> Add Meal Plan
