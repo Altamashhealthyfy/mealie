@@ -30,7 +30,7 @@ export default function RealtimeChat({ recipientId, recipientName, isCoach = fal
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [attachedFile, setAttachedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
