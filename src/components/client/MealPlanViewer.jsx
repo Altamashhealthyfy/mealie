@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Download, Send, CheckCircle, ChefHat, Loader2, LayoutList, Table2 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { jsPDF } from "jspdf";
 
 const MEAL_ORDER = ["early_morning", "breakfast", "mid_morning", "lunch", "evening_snack", "dinner", "post_dinner"];
 const MEAL_LABELS = {
