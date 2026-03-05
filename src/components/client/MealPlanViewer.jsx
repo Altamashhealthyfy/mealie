@@ -30,61 +30,105 @@ function groupByDay(meals = []) {
 }
 
 // ─── TABLE VIEW ─────────────────────────────────────────────────────────────
+const MPESS_TIPS = [
+  { label: "Mind 🧠", tip: "10 min morning meditation or deep breathing to reduce stress hormones that spike blood sugar." },
+  { label: "Physical 🏃", tip: "30-min brisk walk after dinner; light yoga / stretching in the morning." },
+  { label: "Emotional 💛", tip: "Journaling 3 gratitudes before bed to improve sleep quality and emotional resilience." },
+  { label: "Social 🤝", tip: "Share one healthy meal with family or a friend this week for positive reinforcement." },
+  { label: "Spiritual 🌿", tip: "5-min mindful eating practice — chew slowly, eat without screens, appreciate each bite." },
+];
+
 function TableView({ mealsByDay, days }) {
-  // Determine which meal types actually exist
   const usedTypes = MEAL_ORDER.filter(type =>
     days.some(d => (mealsByDay[d] || []).some(m => m.meal_type === type))
   );
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-gray-200">
-      <table className="min-w-full text-xs">
-        <thead>
-          <tr className="bg-orange-50 border-b border-orange-100">
-            <th className="text-left px-3 py-2 font-semibold text-gray-700 sticky left-0 bg-orange-50 min-w-[60px]">Day</th>
-            {usedTypes.map(type => (
-              <th key={type} className="text-left px-3 py-2 font-semibold text-gray-700 min-w-[130px]">
-                {MEAL_LABELS[type] || type}
-              </th>
-            ))}
-            <th className="text-left px-3 py-2 font-semibold text-gray-700 min-w-[90px]">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {days.map((day, idx) => {
-            const meals = (mealsByDay[day] || []).sort(
-              (a, b) => MEAL_ORDER.indexOf(a.meal_type) - MEAL_ORDER.indexOf(b.meal_type)
-            );
-            const totalCal = meals.reduce((sum, m) => sum + (m.calories || 0), 0);
-            const totalProtein = meals.reduce((sum, m) => sum + (m.protein || 0), 0);
-            const mealMap = {};
-            meals.forEach(m => { mealMap[m.meal_type] = m; });
+    <div className="space-y-4">
+      {/* ── Meal Table ── */}
+      <div className="overflow-x-auto rounded-xl border border-gray-200">
+        <table className="min-w-full text-xs border-collapse">
+          <thead>
+            <tr className="bg-orange-50 border-b border-orange-200">
+              <th className="text-left px-3 py-2.5 font-bold text-gray-700 sticky left-0 bg-orange-50 min-w-[55px] border-r border-orange-100">Day</th>
+              {usedTypes.map(type => (
+                <th key={type} className="text-left px-3 py-2.5 font-bold text-gray-700 min-w-[150px] border-r border-orange-100">
+                  {MEAL_LABELS[type] || type}
+                </th>
+              ))}
+              <th className="text-left px-3 py-2.5 font-bold text-gray-700 min-w-[90px]">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {days.map((day, idx) => {
+              const meals = (mealsByDay[day] || []).sort(
+                (a, b) => MEAL_ORDER.indexOf(a.meal_type) - MEAL_ORDER.indexOf(b.meal_type)
+              );
+              const totalCal = meals.reduce((sum, m) => sum + (m.calories || 0), 0);
+              const totalProtein = meals.reduce((sum, m) => sum + (m.protein || 0), 0);
+              const totalCarbs = meals.reduce((sum, m) => sum + (m.carbs || 0), 0);
+              const totalFats = meals.reduce((sum, m) => sum + (m.fats || 0), 0);
+              const mealMap = {};
+              meals.forEach(m => { mealMap[m.meal_type] = m; });
 
-            return (
-              <tr key={day} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                <td className="px-3 py-2 font-semibold text-orange-600 sticky left-0 bg-inherit">Day {day}</td>
-                {usedTypes.map(type => {
-                  const m = mealMap[type];
-                  return (
-                    <td key={type} className="px-3 py-2 align-top">
-                      {m ? (
-                        <div>
-                          <p className="font-medium text-gray-800 leading-tight">{m.meal_name || "—"}</p>
-                          {m.calories ? <p className="text-gray-400 mt-0.5">{m.calories} kcal</p> : null}
-                        </div>
-                      ) : <span className="text-gray-300">—</span>}
-                    </td>
-                  );
-                })}
-                <td className="px-3 py-2 align-top">
-                  <p className="font-semibold text-gray-800">{totalCal} kcal</p>
-                  {totalProtein > 0 && <p className="text-gray-400">P:{Math.round(totalProtein)}g</p>}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+              return (
+                <tr key={day} className={`border-b border-gray-100 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
+                  <td className="px-3 py-3 font-bold text-orange-600 sticky left-0 bg-inherit border-r border-gray-100 align-top">
+                    Day {day}
+                  </td>
+                  {usedTypes.map(type => {
+                    const m = mealMap[type];
+                    return (
+                      <td key={type} className="px-3 py-3 align-top border-r border-gray-100">
+                        {m ? (
+                          <div className="space-y-1">
+                            <p className="font-semibold text-gray-800 leading-tight">{m.meal_name || "—"}</p>
+                            {m.items?.length > 0 && (
+                              <ul className="space-y-0.5">
+                                {m.items.map((item, j) => (
+                                  <li key={j} className="text-gray-500 leading-snug flex gap-1">
+                                    <span className="text-orange-300 shrink-0">•</span>
+                                    <span>{item}{m.portion_sizes?.[j] ? ` — ${m.portion_sizes[j]}` : ""}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                            <div className="flex flex-wrap gap-1.5 pt-0.5">
+                              {m.calories > 0 && <span className="text-orange-600 font-medium">{m.calories} kcal</span>}
+                              {m.protein > 0 && <span className="text-blue-500">P:{m.protein}g</span>}
+                              {m.carbs > 0 && <span className="text-green-500">C:{m.carbs}g</span>}
+                              {m.fats > 0 && <span className="text-yellow-600">F:{m.fats}g</span>}
+                            </div>
+                          </div>
+                        ) : <span className="text-gray-300">—</span>}
+                      </td>
+                    );
+                  })}
+                  <td className="px-3 py-3 align-top">
+                    <p className="font-bold text-gray-800">{totalCal} kcal</p>
+                    {totalProtein > 0 && <p className="text-blue-500 text-xs">P:{Math.round(totalProtein)}g</p>}
+                    {totalCarbs > 0 && <p className="text-green-500 text-xs">C:{Math.round(totalCarbs)}g</p>}
+                    {totalFats > 0 && <p className="text-yellow-600 text-xs">F:{Math.round(totalFats)}g</p>}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {/* ── MPESS Guidance ── */}
+      <div className="rounded-xl border border-purple-200 bg-purple-50 p-4">
+        <h4 className="text-xs font-bold text-purple-700 uppercase tracking-wider mb-3">🌿 MPESS Holistic Guidance</h4>
+        <div className="grid grid-cols-1 gap-2">
+          {MPESS_TIPS.map((item) => (
+            <div key={item.label} className="flex gap-2 items-start">
+              <span className="font-semibold text-purple-700 text-xs min-w-[90px] shrink-0">{item.label}</span>
+              <span className="text-xs text-purple-600">{item.tip}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
