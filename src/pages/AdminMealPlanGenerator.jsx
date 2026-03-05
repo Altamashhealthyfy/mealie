@@ -678,9 +678,15 @@ export default function AdminMealPlanGenerator() {
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
               <ChefHat className="w-8 h-8 text-indigo-600" />Admin Meal Plan Generator
             </h1>
-            <p className="text-gray-500 mt-1">10-day plans + unique recipes • DB nutrition first, AI fallback</p>
+            <p className="text-gray-500 mt-1">10-day plans + unique recipes • Powered by Healthyfy Knowledge Base</p>
           </div>
-          <Badge className="bg-indigo-600 text-white px-4 py-2">👑 Admin Only</Badge>
+          <div className="flex items-center gap-2">
+            <Badge className={`px-3 py-1 flex items-center gap-1 ${knowledgeBase.length > 0 ? 'bg-green-600' : 'bg-yellow-500'} text-white`}>
+              <BookOpen className="w-3 h-3" />
+              {knowledgeBase.length > 0 ? `${knowledgeBase.length} KB Docs Active` : 'No KB Docs'}
+            </Badge>
+            <Badge className="bg-indigo-600 text-white px-4 py-2">👑 Admin Only</Badge>
+          </div>
         </div>
 
         <Tabs value={mainTab} onValueChange={setMainTab}>
