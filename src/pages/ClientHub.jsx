@@ -719,14 +719,14 @@ export default function ClientHub() {
                   <p className="text-gray-600 mb-4">Create a basic or clinical meal plan for this client.</p>
                   <div className="flex gap-3 justify-center">
                     <Button
-                      onClick={() => navigate(`${createPageUrl("MealPlanner")}?client=${clientId}`)}
+                      onClick={() => setShowBasicMealPlan(true)}
                       className="bg-green-500 hover:bg-green-600"
                     >
                       <ChefHat className="w-4 h-4 mr-2" /> Create Basic Plan
                     </Button>
                     {hasProAccess && (
                       <Button
-                        onClick={() => navigate(`${createPageUrl("MealPlansPro")}?client=${clientId}`)}
+                        onClick={() => setShowProMealPlan(true)}
                         className="bg-purple-500 hover:bg-purple-600"
                       >
                         <Crown className="w-4 h-4 mr-2" /> Create Pro Plan
