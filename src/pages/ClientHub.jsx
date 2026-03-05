@@ -790,15 +790,15 @@ export default function ClientHub() {
                             size="sm"
                             variant="outline"
                             className="text-blue-600 text-xs"
-                            onClick={() =>
-                              navigate(
-                                plan.plan_tier === "advanced"
-                                  ? `${createPageUrl("MealPlansPro")}?client=${clientId}`
-                                  : `${createPageUrl("MealPlanner")}?client=${clientId}`
-                              )
-                            }
+                            onClick={() => {
+                              if (plan.plan_tier === "advanced") {
+                                setShowProMealPlan(true);
+                              } else {
+                                setShowBasicMealPlan(true);
+                              }
+                            }}
                           >
-                            <Eye className="w-3 h-3 mr-1" /> View
+                            <Eye className="w-3 h-3 mr-1" /> New Plan
                           </Button>
                           <Button
                             size="sm"
