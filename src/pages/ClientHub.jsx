@@ -690,7 +690,7 @@ export default function ClientHub() {
               <div className="flex flex-wrap gap-2">
                 <Button
                   size="sm"
-                  onClick={() => navigate(`${createPageUrl("MealPlanner")}?client=${clientId}`)}
+                  onClick={() => setShowBasicMealPlan(true)}
                   className="bg-green-500 hover:bg-green-600"
                 >
                   <Plus className="w-4 h-4 mr-1" /> Basic Plan
@@ -698,7 +698,7 @@ export default function ClientHub() {
                 {hasProAccess ? (
                   <Button
                     size="sm"
-                    onClick={() => navigate(`${createPageUrl("MealPlansPro")}?client=${clientId}`)}
+                    onClick={() => setShowProMealPlan(true)}
                     className="bg-purple-500 hover:bg-purple-600"
                   >
                     <Crown className="w-4 h-4 mr-1" /> Pro Clinical Plan
