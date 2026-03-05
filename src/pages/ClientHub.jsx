@@ -16,6 +16,9 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import InlineAppointmentManager from "@/components/client/InlineAppointmentManager";
+import InlineProfileEditor from "@/components/client/InlineProfileEditor";
+import RealtimeChat from "@/components/communication/RealtimeChat";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function ClientHub() {
   const navigate = useNavigate();
