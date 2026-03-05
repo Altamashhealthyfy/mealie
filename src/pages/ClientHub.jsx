@@ -486,10 +486,10 @@ export default function ClientHub() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => navigate(`${createPageUrl("MealPlanner")}?client=${clientId}`)}
+                        onClick={() => setShowBasicMealPlan(true)}
                         className="text-green-600"
                       >
-                        <ExternalLink className="w-3 h-3 mr-1" /> Open in Meal Planner
+                        <Plus className="w-3 h-3 mr-1" /> Create New Plan
                       </Button>
                     </div>
                   ) : (
