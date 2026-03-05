@@ -1066,6 +1066,79 @@ export default function ClientHub() {
             </div>
           </TabsContent>
 
+          {/* MPESS TRACKER TAB */}
+          <TabsContent value="mpess" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900">MPESS Wellness Tracker</h2>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigate(`${createPageUrl("CoachMPESSTracker")}?clientId=${clientId}`)}
+              >
+                <ExternalLink className="w-4 h-4 mr-1" /> Full MPESS Page
+              </Button>
+            </div>
+
+            {mpessLogs.length === 0 ? (
+              <Card className="border-none shadow-lg">
+                <CardContent className="p-12 text-center">
+                  <Heart className="w-16 h-16 mx-auto text-gray-300 mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">No MPESS Submissions Yet</h3>
+                  <p className="text-gray-600">MPESS wellness assessments submitted by the client will appear here.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {mpessLogs.map((log) => (
+                  <Card key={log.id} className={`border-none shadow-lg bg-white ${!log.coach_reviewed ? "border-l-4 border-l-pink-400" : ""}`}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <p className="font-semibold text-gray-900">
+                              {log.submission_date ? format(new Date(log.submission_date), "MMMM d, yyyy") : "No date"}
+                            </p>
+                            {log.coach_reviewed ? (
+                              <Badge className="bg-green-100 text-green-700 text-xs">
+                                <CheckCircle className="w-3 h-3 mr-1" /> Reviewed
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-pink-100 text-pink-700 text-xs">Pending Review</Badge>
+                            )}
+                          </div>
+
+                          {/* MPESS Domain Pills */}
+                          {log.submission_data && (
+                            <div className="flex flex-wrap gap-2 mb-2">
+                              {["mind", "physical", "emotional", "social", "spiritual"].map((domain) => {
+                                const val = log.submission_data[domain];
+                                if (val === undefined || val === null) return null;
+                                const score = typeof val === "number" ? val : (typeof val === "object" ? val?.score : null);
+                                return (
+                                  <div key={domain} className="bg-purple-50 rounded-lg px-2 py-1 text-xs text-center">
+                                    <p className="text-gray-500 capitalize">{domain}</p>
+                                    {score !== null && <p className="font-bold text-purple-600">{score}/10</p>}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          {log.coach_notes && (
+                            <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg text-sm">
+                              <p className="font-medium text-green-800 text-xs mb-1">Coach Notes:</p>
+                              <p className="text-gray-700">{log.coach_notes}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
           {/* ASSESSMENTS TAB */}
           <TabsContent value="assessments" className="space-y-4">
             <div className="flex items-center justify-between">
