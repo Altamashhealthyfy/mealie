@@ -626,6 +626,12 @@ export default function AdminMealPlanGenerator() {
   const { data: user } = useQuery({ queryKey: ["currentUser"], queryFn: () => base44.auth.me() });
   const isSuperAdmin = user?.user_type === "super_admin";
 
+  const { data: knowledgeBase = [] } = useQuery({
+    queryKey: ["healthyfyKnowledgeBase"],
+    queryFn: () => base44.entities.HealthyfyKnowledgeBase.filter({ is_active: true }),
+    enabled: !!isSuperAdmin,
+  });
+
   if (!isSuperAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-8">
