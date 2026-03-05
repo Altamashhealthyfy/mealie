@@ -1053,6 +1053,81 @@ export default function ClientHub() {
             </div>
           </TabsContent>
 
+          {/* ASSESSMENTS TAB */}
+          <TabsContent value="assessments" className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-gray-900">Assessments & Reports</h2>
+              <Button
+                size="sm"
+                onClick={() => navigate(`${createPageUrl("ClientAssessments")}?clientId=${clientId}`)}
+                variant="outline"
+              >
+                <ExternalLink className="w-4 h-4 mr-1" /> Open Assessments Page
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Assessments */}
+              <Card className="border-none shadow-lg bg-white">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <ClipboardList className="w-4 h-4 text-blue-500" /> Client Assessments ({assessments.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {assessments.length === 0 ? (
+                    <p className="text-sm text-gray-500 text-center py-4">No assessments yet</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {assessments.slice(0, 5).map((a) => (
+                        <div key={a.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-2 text-sm">
+                          <span className="font-medium truncate">{a.title || "Assessment"}</span>
+                          <span className="text-xs text-gray-400 ml-2 shrink-0">
+                            {a.created_date ? format(new Date(a.created_date), "MMM d, yyyy") : "—"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Health Reports */}
+              <Card className="border-none shadow-lg bg-white">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-orange-500" /> Health Reports ({healthReports.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {healthReports.length === 0 ? (
+                    <div className="text-center py-4">
+                      <p className="text-sm text-gray-500 mb-2">No reports uploaded yet</p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => navigate(`${createPageUrl("CoachReportTracker")}?clientId=${clientId}`)}
+                      >
+                        <Upload className="w-3 h-3 mr-1" /> Upload Report
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {healthReports.slice(0, 5).map((r) => (
+                        <div key={r.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-2 text-sm">
+                          <span className="font-medium truncate">{r.report_type || "Health Report"}</span>
+                          <span className="text-xs text-gray-400 ml-2 shrink-0">
+                            {r.created_date ? format(new Date(r.created_date), "MMM d, yyyy") : "—"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
           {/* APPOINTMENTS TAB */}
           <TabsContent value="appointments" className="space-y-4">
             <InlineAppointmentManager client={client} />
