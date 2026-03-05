@@ -109,12 +109,7 @@ const clientManagementNav = [
     icon: Calendar,
     roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
   },
-  {
-    title: "📋 Client Assessments",
-    url: createPageUrl("ClientAssessments"),
-    icon: ClipboardList,
-    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
-  },
+
   {
     title: "💬 Clients Feedback",
     url: createPageUrl("ClientProgressReview"),
