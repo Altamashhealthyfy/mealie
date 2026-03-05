@@ -536,8 +536,10 @@ function DiseaseGenerator({ knowledgeBase = [] }) {
             lu = Math.round(kcalTarget * 0.33), es = Math.round(kcalTarget * 0.10), di = Math.round(kcalTarget * 0.25);
       const dietLabel = DIET_LABELS[dietType] || dietType;
       const dbRecipeNames = RECIPE_DB.map(r => r.name).join(", ");
+      const kbSection = buildKBPromptSection(knowledgeBase);
 
       const prompt = `# Admin 10-Day Disease-Specific Meal Plan
+${kbSection}
 Generate a complete 10-day Indian meal plan for: ${selectedDiseases.join(", ")}.
 Diet: ${dietLabel} | Target: ${kcalTarget} kcal (${calorieMin}–${calorieMax}) | Meals: ${numMeals} (${mealSeq})
 Breakdown: Early~10, Breakfast~${bk}, MidMorning~${mm}, Lunch~${lu}, Snack~${es}, Dinner~${di}, PostDinner~2 kcal
