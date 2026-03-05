@@ -145,12 +145,7 @@ const mealPlanningNav = [
     icon: FileText,
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
-  {
-    title: "🧘 MPESS Tracker",
-    url: createPageUrl("CoachMPESSTracker"),
-    icon: Heart,
-    roles: ['super_admin', 'team_member', 'student_coach'],
-  },
+
   {
     title: "📚 Resource Library",
     url: createPageUrl("ResourceLibrary"),
