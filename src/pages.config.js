@@ -96,6 +96,7 @@ import ClientReports from './pages/ClientReports';
 import ClientResourceLibrary from './pages/ClientResourceLibrary';
 import ClientResourceTracker from './pages/ClientResourceTracker';
 import ClientSegmentationReports from './pages/ClientSegmentationReports';
+import ClientTestimonial from './pages/ClientTestimonial';
 import ClientWeeklyMealPlans from './pages/ClientWeeklyMealPlans';
 import ClinicalIntake from './pages/ClinicalIntake';
 import CoachAnalyticsDashboard from './pages/CoachAnalyticsDashboard';
@@ -152,8 +153,8 @@ import MealPlanner from './pages/MealPlanner';
 import MealPlansPro from './pages/MealPlansPro';
 import MyAssessment from './pages/MyAssessment';
 import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
-import NotificationSettings from './pages/NotificationSettings';
 import Profile from './pages/Profile';
+import NotificationSettings from './pages/NotificationSettings';
 import Notifications from './pages/Notifications';
 import PaymentGatewaySettings from './pages/PaymentGatewaySettings';
 import PaymentHistory from './pages/PaymentHistory';
@@ -189,7 +190,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import ClientTestimonial from './pages/ClientTestimonial';
 import __Layout from './Layout.jsx';
 
 
@@ -243,6 +243,7 @@ export const PAGES = {
     "ClientResourceLibrary": ClientResourceLibrary,
     "ClientResourceTracker": ClientResourceTracker,
     "ClientSegmentationReports": ClientSegmentationReports,
+    "ClientTestimonial": ClientTestimonial,
     "ClientWeeklyMealPlans": ClientWeeklyMealPlans,
     "ClinicalIntake": ClinicalIntake,
     "CoachAnalyticsDashboard": CoachAnalyticsDashboard,
@@ -299,8 +300,8 @@ export const PAGES = {
     "MealPlansPro": MealPlansPro,
     "MyAssessment": MyAssessment,
     "MyAssignedMealPlan": MyAssignedMealPlan,
-    "NotificationSettings": NotificationSettings,
     "Profile": Profile,
+    "NotificationSettings": NotificationSettings,
     "Notifications": Notifications,
     "PaymentGatewaySettings": PaymentGatewaySettings,
     "PaymentHistory": PaymentHistory,
@@ -336,7 +337,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "ClientTestimonial": ClientTestimonial,
 }
 
 export const pagesConfig = {
