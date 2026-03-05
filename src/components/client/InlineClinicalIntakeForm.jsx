@@ -57,6 +57,7 @@ export default function InlineClinicalIntakeForm({ clientId, prefillData, isView
   const [allergiesText, setAllergiesText] = useState('');
   const [noGoText, setNoGoText] = useState('');
   const [aiFileUploading, setAiFileUploading] = useState(false);
+  const [aiFileCount, setAiFileCount] = useState(0);
   const [saving, setSaving] = useState(false);
 
   // Collapsible states
