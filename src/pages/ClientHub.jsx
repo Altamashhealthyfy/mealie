@@ -485,14 +485,24 @@ export default function ClientHub() {
                       <p className="text-xs text-gray-500">
                         Created: {format(new Date(activePlan.created_date), "MMM d, yyyy")}
                       </p>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setShowBasicMealPlan(true)}
-                        className="text-green-600"
-                      >
-                        <Plus className="w-3 h-3 mr-1" /> Create New Plan
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setViewingPlan(activePlan)}
+                          className="text-blue-600"
+                        >
+                          <Eye className="w-3 h-3 mr-1" /> View Plan
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setActiveTab("plans")}
+                          className="text-green-600"
+                        >
+                          All Plans
+                        </Button>
+                      </div>
                     </div>
                   ) : (
                     <div className="text-center py-4">
