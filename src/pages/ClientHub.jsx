@@ -449,7 +449,7 @@ export default function ClientHub() {
                           size="sm"
                           variant="link"
                           className="p-0 ml-1 h-auto text-orange-700"
-                          onClick={() => navigate(`${createPageUrl("ClinicalIntake")}?clientId=${clientId}`)}
+                          onClick={() => setShowNewIntakeForm(true)}
                         >
                           Fill now →
                         </Button>
