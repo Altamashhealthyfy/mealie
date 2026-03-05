@@ -14,7 +14,6 @@ import {
   ArrowDown,
   Paperclip,
   X,
-  Smile,
   Image as ImageIcon,
   Video,
   File as FileIcon,
