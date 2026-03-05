@@ -513,7 +513,7 @@ CRITICAL: unique_recipes must have ONE entry per unique dish. Mark source="DB" f
 }
 
 // ─── DISEASE GENERATOR (existing logic) ───
-function DiseaseGenerator() {
+function DiseaseGenerator({ knowledgeBase = [] }) {
   const [kcalTarget, setKcalTarget] = useState(1600);
   const [numMeals, setNumMeals] = useState(7);
   const [dietType, setDietType] = useState("veg");
