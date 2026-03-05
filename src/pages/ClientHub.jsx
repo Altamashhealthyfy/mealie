@@ -37,7 +37,11 @@ export default function ClientHub() {
   const [showMessageChat, setShowMessageChat] = useState(false);
   const [showBasicMealPlan, setShowBasicMealPlan] = useState(false);
   const [showProMealPlan, setShowProMealPlan] = useState(false);
-  const [viewingPlan, setViewingPlan] = useState(null); // plan object to view
+  const [viewingPlan, setViewingPlan] = useState(null);
+  // Clinical intake dialogs
+  const [showNewIntakeForm, setShowNewIntakeForm] = useState(false); // "Update New Intake"
+  const [editingIntake, setEditingIntake] = useState(null);          // edit a specific intake
+  const [viewingIntake, setViewingIntake] = useState(null);          // view a specific intake (read-only)
 
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
