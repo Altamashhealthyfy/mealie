@@ -138,15 +138,33 @@ export default function InlineClinicalIntakeForm({ clientId, prefillData, isView
     setMedications(updated);
   };
 
-  const handleAIFillFromFile = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const handleAIFillFromFiles = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
     setAiFileUploading(true);
+    setAiFileCount(files.length);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      // Upload all files in parallel
+      const uploadResults = await Promise.all(files.map(f => base44.integrations.Core.UploadFile({ file: f })));
+      const fileUrls = uploadResults.map(r => r.file_url);
+
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Extract all clinical information from this medical report and return structured JSON with: basic_info (age, gender, height, weight, activity_level), health_conditions (array), stage_severity, current_medications (array of {name,dosage,frequency}), lab_values (object), diet_type, likes, dislikes, allergies, goal (array), symptom_goals (array), daily_routine ({wake_up,breakfast_time,lunch_time,dinner_time,sleep_time}). Return ONLY valid JSON.`,
-        file_urls: [file_url],
+        prompt: `You have been given ${files.length} document(s) — which may include a filled client intake form AND/OR blood/lab reports. 
+Extract ALL available clinical information and return a single unified JSON object with:
+- basic_info: { age, gender, height, weight, activity_level }
+- health_conditions: array of strings (e.g. ["Diabetes", "Thyroid"])
+- stage_severity: string
+- current_medications: array of { name, dosage, frequency }
+- lab_values: object with keys like tsh, hba1c, total_cholesterol, ldl, hdl, triglycerides, sgot, sgpt, creatinine, vitamin_d, vitamin_b12, uric_acid, sodium, potassium, bun, urea, gfr
+- diet_type: one of "Veg", "Non-Veg", "Vegan", "Jain", "Eggetarian"
+- likes: comma-separated string of liked foods
+- dislikes: comma-separated string of disliked foods
+- allergies: comma-separated string
+- goal: array of strings from ["weight_loss","maintenance","energy","symptom_relief","disease_reversal","muscle_gain"]
+- symptom_goals: array of strings describing specific symptoms for relief
+- daily_routine: { wake_up, breakfast_time, lunch_time, dinner_time, sleep_time } in HH:MM format
+Combine information from all uploaded documents intelligently. Return ONLY valid JSON.`,
+        file_urls: fileUrls,
         response_json_schema: {
           type: "object",
           properties: {
@@ -165,6 +183,7 @@ export default function InlineClinicalIntakeForm({ clientId, prefillData, isView
           },
         },
       });
+
       setFormData(prev => ({
         ...prev,
         basic_info: { ...prev.basic_info, ...(result.basic_info || {}) },
@@ -180,11 +199,13 @@ export default function InlineClinicalIntakeForm({ clientId, prefillData, isView
       if (result.likes) setLikesText(result.likes);
       if (result.dislikes) setDislikesText(result.dislikes);
       if (result.allergies) setAllergiesText(result.allergies);
-      toast.success("✅ Form auto-filled from uploaded file!");
+      toast.success(`✅ Form auto-filled from ${files.length} uploaded file(s)! Please review and adjust.`);
     } catch (err) {
       toast.error("Failed to extract data. Please fill manually.");
     }
     setAiFileUploading(false);
+    // Reset input
+    e.target.value = "";
   };
 
   const buildFinalData = () => ({
