@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 Deno.serve(async (req) => {
   try {
@@ -9,7 +9,6 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const {
       clientId, duration = 7, adaptFromFeedback = false,
-      // Override / extra params from the form
       overrideGoal, overrideCalories, overrideProtein, overrideCarbs, overrideFats,
       additionalRestrictions = [], additionalAllergies = [],
       additionalConditions = [], mealFrequency = 5,
@@ -19,11 +18,12 @@ Deno.serve(async (req) => {
 
     if (!clientId) return Response.json({ error: 'Client ID required' }, { status: 400 });
 
-    const [clientArr, progressArr, clinicalArr, foodLogsArr] = await Promise.all([
+    const [clientArr, progressArr, clinicalArr, foodLogsArr, knowledgeBaseArr] = await Promise.all([
       base44.asServiceRole.entities.Client.filter({ id: clientId }),
       base44.asServiceRole.entities.ProgressLog.filter({ client_id: clientId }),
       base44.asServiceRole.entities.ClinicalIntake.filter({ client_id: clientId }),
       base44.asServiceRole.entities.FoodLog.filter({ client_id: clientId }),
+      base44.asServiceRole.entities.HealthyfyKnowledgeBase.filter({ is_active: true }),
     ]);
 
     const client = clientArr[0];
