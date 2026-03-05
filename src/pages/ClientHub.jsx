@@ -99,6 +99,13 @@ export default function ClientHub() {
     initialData: [],
   });
 
+  const { data: mpessLogs, refetch: refetchMpess } = useQuery({
+    queryKey: ["clientMpessLogs", clientId],
+    queryFn: () => base44.entities.MPESSTracker.filter({ client_id: clientId }, "-submission_date", 30),
+    enabled: !!clientId,
+    initialData: [],
+  });
+
   const { data: clinicalReports } = useQuery({
     queryKey: ["clientClinicalReports", clientId],
     queryFn: () => base44.entities.ClientReport.filter({ client_id: clientId }, "-created_date", 20),
