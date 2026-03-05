@@ -669,7 +669,7 @@ export default function ClientHub() {
                         <div className="mt-3">
                           <Button
                             size="sm"
-                            onClick={() => navigate(`${createPageUrl("MealPlansPro")}?client=${clientId}`)}
+                            onClick={() => setShowProMealPlan(true)}
                             className="bg-purple-500 hover:bg-purple-600"
                             disabled={!hasProAccess}
                           >
