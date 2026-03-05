@@ -17,6 +17,8 @@ import {
 import { format } from "date-fns";
 import InlineAppointmentManager from "@/components/client/InlineAppointmentManager";
 import InlineProfileEditor from "@/components/client/InlineProfileEditor";
+import InlineMealPlanForm from "@/components/client/InlineMealPlanForm";
+import InlineProPlanForm from "@/components/client/InlineProPlanForm";
 import RealtimeChat from "@/components/communication/RealtimeChat";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
