@@ -303,26 +303,7 @@ export default function RealtimeChat({ recipientId, recipientName, isCoach = fal
             className="hidden"
           />
 
-          <div className="relative">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              className="h-10 w-10 flex-shrink-0"
-            >
-              <Smile className="w-4 h-4" />
-            </Button>
-            {showEmojiPicker && (
-              <div ref={emojiRef} className="absolute bottom-12 left-0 z-50">
-                <EmojiPicker
-                  data={data}
-                  onEmojiSelect={addEmoji}
-                  theme="light"
-                  set="native"
-                />
-              </div>
-            )}
-          </div>
+
 
           <Textarea
             ref={textareaRef}
