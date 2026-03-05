@@ -184,22 +184,147 @@ Combine information from all uploaded documents intelligently. Return ONLY valid
         },
       });
 
-      setFormData(prev => ({
-        ...prev,
-        basic_info: { ...prev.basic_info, ...(result.basic_info || {}) },
-        health_conditions: result.health_conditions?.length ? result.health_conditions : prev.health_conditions,
-        stage_severity: result.stage_severity || prev.stage_severity,
-        lab_values: { ...prev.lab_values, ...(result.lab_values || {}) },
-        diet_type: result.diet_type || prev.diet_type,
-        goal: result.goal?.length ? result.goal : prev.goal,
-        daily_routine: { ...prev.daily_routine, ...(result.daily_routine || {}) },
-      }));
-      if (result.current_medications?.length) setMedications(result.current_medications);
-      if (result.symptom_goals?.length) setSymptomGoalsText(result.symptom_goals.join('\n'));
-      if (result.likes) setLikesText(result.likes);
-      if (result.dislikes) setDislikesText(result.dislikes);
-      if (result.allergies) setAllergiesText(result.allergies);
-      toast.success(`✅ Form auto-filled from ${files.length} uploaded file(s)! Please review and adjust.`);
+      // Track discrepancies (AI found value but field already has a different value)
+      const discrepancies = [];
+
+      setFormData(prev => {
+        const newBasicInfo = { ...prev.basic_info };
+        // For each basic_info field: fill only if blank, warn if different value exists
+        if (result.basic_info) {
+          ['age', 'gender', 'height', 'weight', 'activity_level'].forEach(key => {
+            const aiVal = result.basic_info[key];
+            const existingVal = prev.basic_info[key];
+            if (aiVal !== undefined && aiVal !== null && aiVal !== '') {
+              if (!existingVal || existingVal === '') {
+                newBasicInfo[key] = aiVal;
+              } else if (String(existingVal) !== String(aiVal)) {
+                discrepancies.push(`${key.replace('_', ' ')}: existing "${existingVal}" vs AI found "${aiVal}"`);
+              }
+            }
+          });
+        }
+
+        // Lab values: fill blank fields only, warn on conflicts
+        const newLabValues = { ...prev.lab_values };
+        if (result.lab_values) {
+          Object.entries(result.lab_values).forEach(([key, aiVal]) => {
+            if (aiVal !== undefined && aiVal !== null && aiVal !== '') {
+              const existingVal = prev.lab_values[key];
+              if (!existingVal || existingVal === '') {
+                newLabValues[key] = aiVal;
+              } else if (String(existingVal) !== String(aiVal)) {
+                discrepancies.push(`${key.toUpperCase()}: existing "${existingVal}" vs AI found "${aiVal}"`);
+              }
+            }
+          });
+        }
+
+        // Daily routine: fill blank fields only
+        const newDailyRoutine = { ...prev.daily_routine };
+        if (result.daily_routine) {
+          Object.entries(result.daily_routine).forEach(([key, aiVal]) => {
+            if (aiVal && (!prev.daily_routine[key] || prev.daily_routine[key] === '')) {
+              newDailyRoutine[key] = aiVal;
+            } else if (aiVal && prev.daily_routine[key] && prev.daily_routine[key] !== aiVal) {
+              discrepancies.push(`${key.replace('_', ' ')}: existing "${prev.daily_routine[key]}" vs AI found "${aiVal}"`);
+            }
+          });
+        }
+
+        // stage_severity: fill if blank, warn if different
+        let newStageSeverity = prev.stage_severity;
+        if (result.stage_severity) {
+          if (!prev.stage_severity || prev.stage_severity === '') {
+            newStageSeverity = result.stage_severity;
+          } else if (prev.stage_severity !== result.stage_severity) {
+            discrepancies.push(`Stage/Severity: existing "${prev.stage_severity}" vs AI found "${result.stage_severity}"`);
+          }
+        }
+
+        // health_conditions: fill if blank, warn if AI found different set
+        let newHealthConditions = prev.health_conditions;
+        if (result.health_conditions?.length) {
+          if (!prev.health_conditions?.length) {
+            newHealthConditions = result.health_conditions;
+          } else {
+            const aiExtra = result.health_conditions.filter(c => !prev.health_conditions.includes(c));
+            if (aiExtra.length) {
+              discrepancies.push(`Health Conditions: AI also found "${aiExtra.join(', ')}" not currently selected`);
+            }
+          }
+        }
+
+        // diet_type: fill if blank, warn if different
+        let newDietType = prev.diet_type;
+        if (result.diet_type) {
+          if (!prev.diet_type || prev.diet_type === '') {
+            newDietType = result.diet_type;
+          } else if (prev.diet_type !== result.diet_type) {
+            discrepancies.push(`Diet Type: existing "${prev.diet_type}" vs AI found "${result.diet_type}"`);
+          }
+        }
+
+        // goal: fill if blank, warn if different
+        let newGoal = prev.goal;
+        if (result.goal?.length) {
+          if (!prev.goal?.length) {
+            newGoal = result.goal;
+          } else {
+            const aiExtra = result.goal.filter(g => !prev.goal.includes(g));
+            if (aiExtra.length) {
+              discrepancies.push(`Goals: AI also found "${aiExtra.join(', ')}" not currently selected`);
+            }
+          }
+        }
+
+        return {
+          ...prev,
+          basic_info: newBasicInfo,
+          lab_values: newLabValues,
+          daily_routine: newDailyRoutine,
+          stage_severity: newStageSeverity,
+          health_conditions: newHealthConditions,
+          diet_type: newDietType,
+          goal: newGoal,
+        };
+      });
+
+      // Medications: fill only if empty
+      if (result.current_medications?.length) {
+        const hasExistingMeds = medications.some(m => m.name?.trim());
+        if (!hasExistingMeds) {
+          setMedications(result.current_medications);
+        } else {
+          discrepancies.push(`Medications: AI found data but existing medications kept. Review manually.`);
+        }
+      }
+
+      // Text fields: fill only if blank, warn if different
+      if (result.symptom_goals?.length) {
+        if (!symptomGoalsText.trim()) setSymptomGoalsText(result.symptom_goals.join('\n'));
+        else discrepancies.push(`Symptom Goals: existing text kept, AI also found data`);
+      }
+      if (result.likes) {
+        if (!likesText.trim()) setLikesText(result.likes);
+        else discrepancies.push(`Likes: existing text kept, AI found "${result.likes}"`);
+      }
+      if (result.dislikes) {
+        if (!dislikesText.trim()) setDislikesText(result.dislikes);
+        else discrepancies.push(`Dislikes: existing text kept, AI found "${result.dislikes}"`);
+      }
+      if (result.allergies) {
+        if (!allergiesText.trim()) setAllergiesText(result.allergies);
+        else discrepancies.push(`Allergies: existing text kept, AI found "${result.allergies}"`);
+      }
+
+      if (discrepancies.length > 0) {
+        toast.warning(
+          `⚠️ AI found ${discrepancies.length} discrepancy(ies) — existing values were kept:\n${discrepancies.slice(0, 5).join('\n')}${discrepancies.length > 5 ? `\n...and ${discrepancies.length - 5} more` : ''}`,
+          { duration: 8000 }
+        );
+      }
+
+      toast.success(`✅ Blanks auto-filled from ${files.length} file(s)! Existing values preserved.`);
     } catch (err) {
       toast.error("Failed to extract data. Please fill manually.");
     }
