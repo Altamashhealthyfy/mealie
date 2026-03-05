@@ -337,6 +337,9 @@ export default function ClientHub() {
                 <Badge className="ml-1 bg-green-500 text-white text-xs px-1">{progressLogs.length}</Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="assessments" className="flex items-center gap-1 text-xs sm:text-sm">
+              <ClipboardList className="w-3 h-3 sm:w-4 sm:h-4" /> Assessments
+            </TabsTrigger>
             <TabsTrigger value="appointments" className="flex items-center gap-1 text-xs sm:text-sm">
               <Calendar className="w-3 h-3 sm:w-4 sm:h-4" /> Appointments
             </TabsTrigger>
