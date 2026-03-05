@@ -57,9 +57,11 @@ const MPESS_TIPS = [
 ];
 
 function TableView({ mealsByDay, days }) {
-  const usedTypes = MEAL_ORDER.filter(type =>
-    days.some(d => (mealsByDay[d] || []).some(m => m.meal_type === type))
-  );
+  // Collect ALL unique raw meal_type values across all days, sorted by MEAL_ORDER
+  const rawTypesSet = new Set();
+  days.forEach(d => (mealsByDay[d] || []).forEach(m => { if (m.meal_type) rawTypesSet.add(m.meal_type); }));
+  // Sort by canonical order, then any unknowns at end alphabetically
+  const usedRawTypes = Array.from(rawTypesSet).sort((a, b) => getSortIndex(a) - getSortIndex(b));
 
   return (
     <div className="space-y-4">
@@ -69,9 +71,9 @@ function TableView({ mealsByDay, days }) {
           <thead>
             <tr className="bg-orange-50 border-b border-orange-200">
               <th className="text-left px-3 py-2.5 font-bold text-gray-700 sticky left-0 bg-orange-50 min-w-[55px] border-r border-orange-100">Day</th>
-              {usedTypes.map(type => (
-                <th key={type} className="text-left px-3 py-2.5 font-bold text-gray-700 min-w-[150px] border-r border-orange-100">
-                  {MEAL_LABELS[type] || type}
+              {usedRawTypes.map(type => (
+                <th key={type} className="text-left px-3 py-2.5 font-bold text-gray-700 min-w-[160px] border-r border-orange-100">
+                  {getMealLabel(type)}
                 </th>
               ))}
               <th className="text-left px-3 py-2.5 font-bold text-gray-700 min-w-[90px]">Total</th>
@@ -79,13 +81,12 @@ function TableView({ mealsByDay, days }) {
           </thead>
           <tbody>
             {days.map((day, idx) => {
-              const meals = (mealsByDay[day] || []).sort(
-                (a, b) => MEAL_ORDER.indexOf(a.meal_type) - MEAL_ORDER.indexOf(b.meal_type)
-              );
+              const meals = (mealsByDay[day] || []).sort((a, b) => getSortIndex(a.meal_type) - getSortIndex(b.meal_type));
               const totalCal = meals.reduce((sum, m) => sum + (m.calories || 0), 0);
               const totalProtein = meals.reduce((sum, m) => sum + (m.protein || 0), 0);
               const totalCarbs = meals.reduce((sum, m) => sum + (m.carbs || 0), 0);
               const totalFats = meals.reduce((sum, m) => sum + (m.fats || 0), 0);
+              // Map by raw meal_type string (exact match)
               const mealMap = {};
               meals.forEach(m => { mealMap[m.meal_type] = m; });
 
@@ -94,7 +95,7 @@ function TableView({ mealsByDay, days }) {
                   <td className="px-3 py-3 font-bold text-orange-600 sticky left-0 bg-inherit border-r border-gray-100 align-top">
                     Day {day}
                   </td>
-                  {usedTypes.map(type => {
+                  {usedRawTypes.map(type => {
                     const m = mealMap[type];
                     return (
                       <td key={type} className="px-3 py-3 align-top border-r border-gray-100">
