@@ -295,6 +295,7 @@ function SimpleGoalGenerator({ goal, knowledgeBase = [] }) {
 
   const buildPromptWithDBContext = () => {
     const dbRecipeNames = RECIPE_DB.map(r => r.name).join(", ");
+    const kbSection = buildKBPromptSection(knowledgeBase);
     const calorieMin = kcalTarget - 50;
     const calorieMax = kcalTarget + 50;
     const dietLabel = DIET_LABELS[dietType] || dietType;
