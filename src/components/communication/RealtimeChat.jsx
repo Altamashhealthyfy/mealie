@@ -22,8 +22,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import EmojiPicker from "@emoji-mart/react";
-import data from "@emoji-mart/data";
+
 
 export default function RealtimeChat({ recipientId, recipientName, isCoach = false, onClose }) {
   const queryClient = useQueryClient();
