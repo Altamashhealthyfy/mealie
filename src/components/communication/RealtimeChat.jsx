@@ -34,7 +34,7 @@ export default function RealtimeChat({ recipientId, recipientName, isCoach = fal
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
-  const emojiRef = useRef(null);
+
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
