@@ -36,6 +36,7 @@ export default function ClientHub() {
   const [showMessageChat, setShowMessageChat] = useState(false);
   const [showBasicMealPlan, setShowBasicMealPlan] = useState(false);
   const [showProMealPlan, setShowProMealPlan] = useState(false);
+  const [viewingPlan, setViewingPlan] = useState(null); // plan object to view
 
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
