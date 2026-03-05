@@ -230,12 +230,7 @@ const paymentNavigation = [
     roles: ['super_admin', 'team_member', 'student_coach'],
   },
 
-  {
-    title: "Assign Plans",
-    url: createPageUrl("ClientPlanManagement"),
-    icon: Crown,
-    roles: ['super_admin', 'team_member', 'student_coach'],
-  },
+
   {
     title: "Payment History",
     url: createPageUrl("PaymentHistory"),
