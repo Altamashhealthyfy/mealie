@@ -772,6 +772,14 @@ export default function ClientHub() {
                           </p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-blue-600 border-blue-200 hover:bg-blue-50 text-xs"
+                            onClick={() => setViewingPlan(plan)}
+                          >
+                            <Eye className="w-3 h-3 mr-1" /> View
+                          </Button>
                           {!plan.active && (
                             <Button
                               size="sm"
@@ -785,23 +793,9 @@ export default function ClientHub() {
                               }
                               disabled={setActivePlanMutation.isPending}
                             >
-                              Set Active
+                              Assign
                             </Button>
                           )}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-blue-600 text-xs"
-                            onClick={() => {
-                              if (plan.plan_tier === "advanced") {
-                                setShowProMealPlan(true);
-                              } else {
-                                setShowBasicMealPlan(true);
-                              }
-                            }}
-                          >
-                            <Eye className="w-3 h-3 mr-1" /> New Plan
-                          </Button>
                           <Button
                             size="sm"
                             variant="outline"
