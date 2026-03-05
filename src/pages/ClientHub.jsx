@@ -283,7 +283,7 @@ export default function ClientHub() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => navigate(`${createPageUrl("Appointments")}?client=${clientId}`)}
+                onClick={() => setActiveTab("appointments")}
               >
                 <Calendar className="w-4 h-4 mr-1" /> Appointment
               </Button>
