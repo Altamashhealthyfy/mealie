@@ -257,8 +257,31 @@ function ResultsPanel({ result, kcalTarget, numMeals, dietType, label, color }) 
   );
 }
 
+// ─── BUILD KB PROMPT SECTION ───
+function buildKBPromptSection(knowledgeBase) {
+  if (!knowledgeBase || knowledgeBase.length === 0) return '';
+  const byCategory = {};
+  for (const doc of knowledgeBase) {
+    if (!byCategory[doc.category]) byCategory[doc.category] = [];
+    byCategory[doc.category].push(doc);
+  }
+  let section = '\n## HEALTHYFY KNOWLEDGE BASE (AUTHORITATIVE CLINICAL RULES — FOLLOW STRICTLY)\n';
+  section += 'These rules are set by the Healthyfy clinical team and OVERRIDE general AI knowledge.\n\n';
+  for (const [category, docs] of Object.entries(byCategory)) {
+    section += `### ${category}\n`;
+    for (const doc of docs) {
+      section += `- **${doc.name}**`;
+      if (doc.description) section += `: ${doc.description}`;
+      if (doc.ai_instruction) section += `\n  → ${doc.ai_instruction}`;
+      section += '\n';
+    }
+    section += '\n';
+  }
+  return section;
+}
+
 // ─── WEIGHT LOSS / GAIN GENERATOR ───
-function SimpleGoalGenerator({ goal }) {
+function SimpleGoalGenerator({ goal, knowledgeBase = [] }) {
   const isLoss = goal === "weight_loss";
   const [kcalTarget, setKcalTarget] = useState(isLoss ? 1400 : 2200);
   const [numMeals, setNumMeals] = useState(6);
