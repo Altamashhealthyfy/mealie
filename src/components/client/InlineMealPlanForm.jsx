@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Sparkles, CheckCircle, Save, RefreshCw, AlertTriangle } from "lucide-react";
+import { Loader2, Sparkles, CheckCircle, Save, RefreshCw, AlertTriangle, Send } from "lucide-react";
 import MealPlanViewer from "./MealPlanViewer";
 
 export default function InlineMealPlanForm({ client, onSuccess, onCancel }) {
