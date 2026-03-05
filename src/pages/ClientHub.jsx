@@ -407,7 +407,7 @@ export default function ClientHub() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => navigate(`${createPageUrl("ClinicalIntake")}?clientId=${clientId}`)}
+                      onClick={() => setShowNewIntakeForm(true)}
                     >
                       {hasCompletedIntake ? <Edit className="w-3 h-3 mr-1" /> : <Plus className="w-3 h-3 mr-1" />}
                       {hasCompletedIntake ? "Update" : "Fill Intake"}
