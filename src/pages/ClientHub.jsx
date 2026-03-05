@@ -281,7 +281,7 @@ export default function ClientHub() {
             <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
               <Button
                 size="sm"
-                onClick={() => navigate(`${createPageUrl("Communication")}?client=${clientId}`)}
+                onClick={() => setShowMessageChat(true)}
                 className="bg-orange-500 hover:bg-orange-600 text-white"
               >
                 <MessageSquare className="w-4 h-4 mr-1" /> Message
