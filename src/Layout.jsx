@@ -859,6 +859,12 @@ export default function Layout({ children, currentPageName }) {
         show: true,
       },
       {
+        title: "My Testimonial",
+        url: createPageUrl("ClientTestimonial"),
+        icon: Star,
+        show: true,
+      },
+      {
         title: "My Profile",
         url: createPageUrl("Profile"),
         icon: User,
