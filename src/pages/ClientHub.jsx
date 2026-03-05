@@ -1175,6 +1175,42 @@ export default function ClientHub() {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Basic Meal Plan Dialog */}
+      <Dialog open={showBasicMealPlan} onOpenChange={setShowBasicMealPlan}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Generate Basic Meal Plan — {client.full_name}</DialogTitle>
+          </DialogHeader>
+          <InlineMealPlanForm
+            client={client}
+            onSuccess={(plan) => {
+              setShowBasicMealPlan(false);
+              queryClient.invalidateQueries(["clientMealPlans", clientId]);
+              setActiveTab("plans");
+            }}
+            onCancel={() => setShowBasicMealPlan(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Pro Meal Plan Dialog */}
+      <Dialog open={showProMealPlan} onOpenChange={setShowProMealPlan}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Pro Clinical Plan — {client.full_name}</DialogTitle>
+          </DialogHeader>
+          <InlineProPlanForm
+            client={client}
+            onSuccess={() => {
+              setShowProMealPlan(false);
+              queryClient.invalidateQueries(["clientClinicalIntakes", clientId]);
+              setActiveTab("plans");
+            }}
+            onCancel={() => setShowProMealPlan(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
