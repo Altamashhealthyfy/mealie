@@ -19,6 +19,24 @@ const MEAL_LABELS = {
   post_dinner: "Post Dinner",
 };
 
+// Normalize meal_type to a consistent lowercase_underscore key
+function normalizeMealType(raw = "") {
+  return raw.toLowerCase().replace(/\s+/g, "_").replace(/-/g, "_");
+}
+
+function getMealLabel(raw = "") {
+  const key = normalizeMealType(raw);
+  if (MEAL_LABELS[key]) return MEAL_LABELS[key];
+  // Fallback: capitalize words
+  return raw.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function getSortIndex(raw = "") {
+  const key = normalizeMealType(raw);
+  const idx = MEAL_ORDER.indexOf(key);
+  return idx === -1 ? 99 : idx;
+}
+
 function groupByDay(meals = []) {
   const map = {};
   meals.forEach((meal) => {
