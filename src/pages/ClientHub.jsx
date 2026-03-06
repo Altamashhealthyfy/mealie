@@ -21,6 +21,7 @@ import InlineMealPlanForm from "@/components/client/InlineMealPlanForm";
 import InlineProPlanForm from "@/components/client/InlineProPlanForm";
 import MealPlanViewer from "@/components/client/MealPlanViewer";
 import InlineClinicalIntakeForm from "@/components/client/InlineClinicalIntakeForm";
+import DiagnosticTab from "@/components/clinical/DiagnosticTab";
 import RealtimeChat from "@/components/communication/RealtimeChat";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
