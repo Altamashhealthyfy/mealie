@@ -414,8 +414,138 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated }) {
               </Card>
             )}
 
+            {/* ─── AI CHAT REGENERATION ─── */}
+            <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <RefreshCw className="w-5 h-5 text-purple-600" />
+                  <p className="font-semibold text-purple-800">Regenerate with Instructions</p>
+                  {generationCount > 1 && <Badge className="bg-purple-100 text-purple-700 border-0 text-xs">v{generationCount}</Badge>}
+                </div>
+                <p className="text-xs text-purple-600">
+                  Review the plan above, then type any changes you want — the AI will regenerate the full plan with your instructions applied.
+                </p>
+                <Textarea
+                  value={modificationInstructions}
+                  onChange={e => setModificationInstructions(e.target.value)}
+                  placeholder="e.g. Replace all breakfast cereals with cheela options, add more protein at dinner, avoid rajma at lunch, relax the sodium restriction slightly..."
+                  rows={3}
+                  className="text-sm border-purple-300 focus:border-purple-500 resize-none"
+                />
+                <div className="flex flex-wrap gap-2">
+                  {["Add more protein at dinner", "Swap cereals with cheela", "Make breakfasts lighter", "More variety in lunch dals", "Relax sodium restriction"].map(s => (
+                    <button key={s} onClick={() => setModificationInstructions(prev => prev ? prev + "; " + s : s)}
+                      className="text-xs bg-white border border-purple-300 text-purple-700 rounded-full px-2.5 py-1 hover:bg-purple-50 transition-colors">
+                      + {s}
+                    </button>
+                  ))}
+                </div>
+                <Button
+                  onClick={() => generateMutation.mutate(true)}
+                  disabled={generateMutation.isPending}
+                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                >
+                  {generateMutation.isPending ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Regenerating with your instructions...</>
+                  ) : (
+                    <><RefreshCw className="w-4 h-4 mr-2" />Regenerate Plan {modificationInstructions ? "with Instructions" : "(Fresh)"}</>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* ─── DIAGNOSTICS SECTION ─── */}
+            <div>
+              <button
+                onClick={() => setShowDiagnostics(v => !v)}
+                className="flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <Activity className="w-4 h-4" />
+                {showDiagnostics ? "Hide" : "Show"} Generation Diagnostics
+                {showDiagnostics ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
+
+              {showDiagnostics && (
+                <Card className="mt-3 border-gray-200 bg-gray-50">
+                  <CardContent className="p-4 space-y-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Shield className="w-4 h-4 text-gray-600" />
+                      <p className="text-sm font-semibold text-gray-700">Applied Constraints & Parameters</p>
+                      {generationCount > 1 && (
+                        <Badge className="bg-amber-100 text-amber-700 border-0 text-xs ml-auto">Generation #{generationCount}</Badge>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      {[
+                        { l: "Duration", v: `${duration} days` },
+                        { l: "Target Calories", v: `${overrideCalories || client.target_calories || client.tdee || 'auto'} kcal` },
+                        { l: "Goal", v: overrideGoal || client.goal?.replace(/_/g, ' ') || 'N/A' },
+                        { l: "Food Preference", v: client.food_preference || 'Mixed' },
+                        { l: "Regional", v: client.regional_preference || 'All' },
+                        { l: "Snack Style", v: snackPreference },
+                        { l: "Meal Frequency", v: `${mealFrequency} meals/day` },
+                        { l: "Adapt from Progress", v: adaptFromFeedback ? 'Yes' : 'No' },
+                      ].map(({ l, v }) => (
+                        <div key={l} className="p-2 bg-white rounded border">
+                          <p className="text-gray-500">{l}</p>
+                          <p className="font-medium text-gray-800">{v}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {cuisineNotes && (
+                      <div className="p-2 bg-white rounded border text-xs">
+                        <p className="text-gray-500">Cuisine Notes</p>
+                        <p className="font-medium text-gray-800">{cuisineNotes}</p>
+                      </div>
+                    )}
+
+                    {additionalRestrictions.length > 0 && (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">Dietary Restrictions Applied</p>
+                        <div className="flex flex-wrap gap-1">{additionalRestrictions.map((r, i) => <Badge key={i} className="bg-blue-100 text-blue-700 border-0 text-xs">{r}</Badge>)}</div>
+                      </div>
+                    )}
+                    {additionalAllergies.length > 0 && (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">Allergies Avoided</p>
+                        <div className="flex flex-wrap gap-1">{additionalAllergies.map((a, i) => <Badge key={i} className="bg-red-100 text-red-700 border-0 text-xs">⚠ {a}</Badge>)}</div>
+                      </div>
+                    )}
+                    {additionalConditions.length > 0 && (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">Medical Conditions Considered</p>
+                        <div className="flex flex-wrap gap-1">{additionalConditions.map((c, i) => <Badge key={i} className="bg-orange-100 text-orange-700 border-0 text-xs">🏥 {c}</Badge>)}</div>
+                      </div>
+                    )}
+                    {focusAreas.length > 0 && (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">Focus Areas</p>
+                        <div className="flex flex-wrap gap-1">{focusAreas.map((f, i) => <Badge key={i} className="bg-purple-100 text-purple-700 border-0 text-xs">{f}</Badge>)}</div>
+                      </div>
+                    )}
+                    {modificationInstructions && (
+                      <div className="p-2 bg-amber-50 border border-amber-200 rounded text-xs">
+                        <p className="text-amber-600 font-semibold mb-1">Modification Instructions Used</p>
+                        <p className="text-amber-800">{modificationInstructions}</p>
+                      </div>
+                    )}
+                    {result?.mealPlan && (
+                      <div className="p-2 bg-white border rounded text-xs text-gray-500">
+                        Plan ID: <span className="font-mono text-gray-700">{result.mealPlan.id}</span>
+                        <br/>KB Entries Active: <span className="font-medium text-gray-700">{result.mealPlan.kb_snapshot?.length || 'N/A'}</span>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
             <div className="flex justify-between gap-3 pt-2 border-t">
-              <Button variant="outline" onClick={() => setResult(null)}><Sparkles className="w-4 h-4 mr-2" />Generate Another</Button>
+              <Button variant="outline" onClick={() => { setResult(null); setModificationInstructions(""); setGenerationCount(1); }}>
+                <Sparkles className="w-4 h-4 mr-2" />Start Fresh
+              </Button>
               <Button onClick={() => setIsOpen(false)} className="bg-gradient-to-r from-green-500 to-emerald-600">Done – View in Meal Planner</Button>
             </div>
           </div>
