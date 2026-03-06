@@ -1,16 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Sparkles, Loader2, Brain, TrendingUp, AlertTriangle, CheckCircle2, X, Plus, ChevronDown, ChevronUp, Apple, Target, BookOpen, Info } from "lucide-react";
+import { Sparkles, Loader2, Brain, TrendingUp, AlertTriangle, CheckCircle2, X, Plus, ChevronDown, ChevronUp, Apple, Target, BookOpen, Info, Send, Bot, User, RefreshCw, Activity, Shield } from "lucide-react";
 import RecipeScaler from "@/components/mealplanner/RecipeScaler";
 import { toast } from "sonner";
 
