@@ -1013,7 +1013,6 @@ Return ONLY valid JSON, no explanation.`;
                       </div>
                     </div>
                     </div>
-                    </div>
 
                     {/* Egg frequency & meal preference */}
                     <div className="space-y-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
