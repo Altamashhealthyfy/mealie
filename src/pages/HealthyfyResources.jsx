@@ -139,6 +139,8 @@ export default function HealthyfyResources() {
 
   const handleEdit = (r) => {
     setEditingId(r.id);
+    setEditingItem(r);
+    setChangeSummary("");
     setForm({ name: r.name || "", description: r.description || "", category: r.category || "Clinical Guidelines", file_type: r.file_type || "PDF", file_url: r.file_url || "", ai_instruction: r.ai_instruction || "", version: r.version || "", is_active: r.is_active !== false, sort_order: r.sort_order || 0 });
     setShowForm(true);
   };
