@@ -504,6 +504,17 @@ Be practical, use real Indian/regional food names, realistic portions.`;
       });
     }
 
+    // ─── BUILD KB SNAPSHOT FOR AUDIT TRAIL ───
+    const kbSnapshot = knowledgeBase.map(doc => ({
+      kb_id: doc.id,
+      name: doc.name,
+      category: doc.category,
+      version_label: doc.version || '',
+      version_number: doc.version_number || 1,
+      ai_instruction: doc.ai_instruction || '',
+      description: doc.description || '',
+    }));
+
     // Save to DB
     const mealPlan = await base44.asServiceRole.entities.MealPlan.create({
       client_id: clientId,
@@ -516,6 +527,8 @@ Be practical, use real Indian/regional food names, realistic portions.`;
       meals: enrichedMeals,
       active: true,
       plan_tier: 'basic',
+      kb_snapshot: kbSnapshot,
+      kb_snapshot_generated_at: new Date().toISOString(),
     });
 
     // Notify client
