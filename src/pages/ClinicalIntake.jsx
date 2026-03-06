@@ -1431,7 +1431,7 @@ Return ONLY valid JSON, no explanation.`;
             </Button>
           </div>
         </form>
-          </TabsContent>
+        </TabsContent>
         </Tabs>
       </div>
     </div>
