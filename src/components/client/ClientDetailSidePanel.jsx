@@ -223,6 +223,15 @@ export default function ClientDetailSidePanel({
               )}
             </TabsContent>
 
+            {/* Diagnostic Tab */}
+            <TabsContent value="diagnostic" className="mt-4">
+              <DiagnosticTab
+                clientId={client?.id}
+                intakeId={clinicalIntake?.id}
+                intakeCompleted={!!clinicalIntake?.completed}
+              />
+            </TabsContent>
+
             {/* Meals Tab */}
             <TabsContent value="meals" className="space-y-3 mt-4">
               {mealView === "list" && (
