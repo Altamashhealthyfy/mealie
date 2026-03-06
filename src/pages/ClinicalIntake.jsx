@@ -396,19 +396,17 @@ Return ONLY valid JSON, no explanation.`;
     <div className="min-h-screen p-4 md:p-8 bg-gradient-to-br from-purple-50 to-indigo-50">
       <div className="max-w-5xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">🩺 Clinical Intake Form</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-1">🩺 Clinical Intake & Diagnostic</h1>
             <p className="text-gray-600">
               {existingIntake ? 'Update clinical intake' : 'Disease-specific meal planning'}
               {client ? ` for ${client.full_name}` : ''}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {existingIntake && (
-              <Badge className="bg-green-600 text-white px-3 py-1">
-                ✓ Previously Submitted
-              </Badge>
+              <Badge className="bg-green-600 text-white px-3 py-1">✓ Intake Submitted</Badge>
             )}
             <label className={`flex items-center gap-2 px-4 py-2 rounded-lg cursor-pointer font-semibold text-sm transition-all
               ${aiFileUploading ? 'bg-indigo-100 text-indigo-400 cursor-wait' : 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:opacity-90'}`}>
@@ -419,11 +417,29 @@ Return ONLY valid JSON, no explanation.`;
               )}
               <input type="file" accept="image/*,.pdf" onChange={handleAIFillFromFile} disabled={aiFileUploading} className="hidden" />
             </label>
-            <Badge className="bg-purple-600 text-white text-lg px-4 py-2">
-              💎 Mealie Pro
-            </Badge>
+            <Badge className="bg-purple-600 text-white text-lg px-4 py-2">💎 Mealie Pro</Badge>
           </div>
         </div>
+
+        {/* TABS */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-2 mb-2">
+            <TabsTrigger value="intake" className="font-semibold">📋 Clinical Intake</TabsTrigger>
+            <TabsTrigger value="diagnostic" className="font-semibold">
+              🔬 Diagnostic
+              {existingIntake?.diagnostic_notes && <Badge className="ml-2 bg-green-600 text-white text-xs px-1.5 py-0">✓</Badge>}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="diagnostic" className="mt-0">
+            <DiagnosticTab
+              clientId={formData.client_id}
+              intakeId={existingIntake?.id}
+              intakeCompleted={!!existingIntake?.completed}
+            />
+          </TabsContent>
+
+          <TabsContent value="intake" className="mt-0 space-y-6">
 
         {/* Client Selection */}
         <Card className="border-none shadow-lg">
