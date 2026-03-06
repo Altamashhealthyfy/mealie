@@ -55,7 +55,11 @@ export default function ClinicalIntake() {
       social: true,
       spiritual: true
     },
-    completed: false
+    completed: false,
+    non_veg_frequency_per_10_days: '',
+    non_veg_preferred_meals: [],
+    egg_frequency_per_10_days: '',
+    egg_preferred_meals: []
   });
 
   const [medications, setMedications] = useState([{ name: '', dosage: '', frequency: '' }]);

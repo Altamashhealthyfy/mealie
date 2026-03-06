@@ -94,6 +94,10 @@ Lab Values:
 ${labValuesText}
 
 Diet Type: ${intake.diet_type || 'Not specified'}
+${(intake.diet_type === 'Non-Veg') ? `Non-Veg Frequency: ${intake.non_veg_frequency_per_10_days || 'Not specified'} times in 10 days
+Non-Veg Preferred Meal Times: ${(intake.non_veg_preferred_meals || []).join(', ') || 'No preference'}` : ''}
+${(intake.diet_type === 'Eggetarian' || intake.diet_type === 'Non-Veg') ? `Egg Frequency: ${intake.egg_frequency_per_10_days || 'Not specified'} times in 10 days
+Egg Preferred Meal Times: ${(intake.egg_preferred_meals || []).join(', ') || 'No preference'}` : ''}
 Likes: ${(intake.likes_dislikes_allergies?.likes || []).join(', ') || 'None'}
 Dislikes: ${(intake.likes_dislikes_allergies?.dislikes || []).join(', ') || 'None'}
 Allergies: ${(intake.likes_dislikes_allergies?.allergies || []).join(', ') || 'None'}
