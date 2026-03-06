@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
       additionalRestrictions = [], additionalAllergies = [],
       additionalConditions = [], mealFrequency = 5,
       snackPreference = 'light', cuisineNotes = '',
-      focusAreas = []
+      focusAreas = [], modificationInstructions = '', generationCount = 1
     } = body;
 
     if (!clientId) return Response.json({ error: 'Client ID required' }, { status: 400 });
@@ -529,6 +529,27 @@ Be practical, use real Indian/regional food names, realistic portions.`;
       plan_tier: 'basic',
       kb_snapshot: kbSnapshot,
       kb_snapshot_generated_at: new Date().toISOString(),
+      generation_parameters: {
+        duration,
+        target_calories: targetCal,
+        target_protein: targetProtein,
+        target_carbs: targetCarbs,
+        target_fats: targetFats,
+        goal: goal || client.goal,
+        food_preference: client.food_preference,
+        regional_preference: client.regional_preference,
+        snack_preference: snackPreference,
+        meal_frequency: mealFrequency,
+        cuisine_notes: cuisineNotes,
+        adapt_from_feedback: adaptFromFeedback,
+        override_goal: overrideGoal || null,
+        focus_areas: focusAreas,
+        additional_restrictions: additionalRestrictions,
+        additional_allergies: additionalAllergies,
+        additional_conditions: additionalConditions,
+        modification_instructions: modificationInstructions || null,
+        generation_count: generationCount,
+      },
     });
 
     // Notify client
