@@ -329,7 +329,7 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated }) {
           </div>
         ) : (
           /* Results View */
-          <div className="p-5 space-y-5">
+          <div className="p-5 space-y-5 bg-white text-gray-900">
             {/* Success banner */}
             <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-xl">
               <CheckCircle2 className="w-6 h-6 text-green-600 shrink-0" />
