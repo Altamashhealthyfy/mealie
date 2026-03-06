@@ -370,9 +370,19 @@ Combine information from all uploaded documents intelligently. Return ONLY valid
     setSaving(true);
     try {
       // Always create a NEW intake record (never overwrite old ones)
-      await base44.entities.ClinicalIntake.create(buildFinalData());
+      const saved = await base44.entities.ClinicalIntake.create(buildFinalData());
       queryClient.invalidateQueries(['clientClinicalIntakes', clientId]);
-      toast.success('✅ Clinical intake saved!');
+      toast.success('✅ Clinical intake saved! Generating diagnostic...');
+      // Auto-generate diagnostic from KB (no AI fallback)
+      if (saved?.id) {
+        try {
+          await base44.functions.invoke('generateDiagnostic', { clinicalIntakeId: saved.id });
+          queryClient.invalidateQueries(['diagnostic', clientId, saved.id]);
+          toast.success('✅ Diagnostic generated from Knowledge Base!');
+        } catch {
+          toast.error('Intake saved but diagnostic generation failed. Retry from the Diagnostic tab.');
+        }
+      }
       onSuccess?.();
     } catch (err) {
       toast.error('Failed to save. Please try again.');
