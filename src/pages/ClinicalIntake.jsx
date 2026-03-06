@@ -74,7 +74,7 @@ export default function ClinicalIntake() {
   const [isHealthConditionsOpen, setIsHealthConditionsOpen] = useState(false);
   const [isMedicationsOpen, setIsMedicationsOpen] = useState(false);
   const [isLabValuesOpen, setIsLabValuesOpen] = useState(false);
-  const [isDietPreferencesOpen, setIsDietPreferencesOpen] = useState(false);
+  const [isDietPreferencesOpen, setIsDietPreferencesOpen] = useState(true);
   const [isDailyRoutineOpen, setIsDailyRoutineOpen] = useState(false);
   const [isCookingStyleOpen, setIsCookingStyleOpen] = useState(false);
   const [isGoalsOpen, setIsGoalsOpen] = useState(false);
