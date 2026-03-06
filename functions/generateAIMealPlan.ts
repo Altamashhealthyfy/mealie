@@ -326,7 +326,13 @@ RULE 5 - WEIGHT LOSS DIET MODIFICATIONS (goal = weight_loss):
   d) ALCOHOL-FREE: No wines, beers, or alcohol
   e) Light, high-protein dinners: Prefer fish curry, grilled chicken, egg white curry options
 
-RULE 6 - NON-VEG OPTIONS (ONLY if food_preference is non_veg or eggetarian):
+RULE 6 - NON-VEG & EGG FREQUENCY (from clinical intake):
+${clinical?.non_veg_frequency_per_10_days ? `  • Non-veg meals: EXACTLY ${clinical.non_veg_frequency_per_10_days} times in the ${duration}-day plan` : ''}
+${clinical?.non_veg_preferred_meals?.length ? `  • Non-veg preferred at: ${clinical.non_veg_preferred_meals.join(', ')}` : ''}
+${clinical?.egg_frequency_per_10_days ? `  • Egg meals: EXACTLY ${clinical.egg_frequency_per_10_days} times in the ${duration}-day plan` : ''}
+${clinical?.egg_preferred_meals?.length ? `  • Eggs preferred at: ${clinical.egg_preferred_meals.join(', ')}` : ''}
+
+RULE 6b - NON-VEG OPTIONS (ONLY if food_preference is non_veg or eggetarian):
   DINNER (2-3 days/week max): Grilled chicken with vegetables (no masala curry). NO fried, NO heavy gravy.
   LUNCH (2-3 days/week): Chicken breast curry (light gravy, minimal oil) with roti OR grilled fish with vegetables
   BREAKFAST/EARLY MORNING: Boiled eggs, egg omelette, egg salad with vegetables, egg bhurji
