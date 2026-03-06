@@ -1368,7 +1368,7 @@ Return ONLY valid JSON, no explanation.`;
                 </Collapsible>
 
                 {/* Submit Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
             <Button
               type="button"
               variant="outline"
