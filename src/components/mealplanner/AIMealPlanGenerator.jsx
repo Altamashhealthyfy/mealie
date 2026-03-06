@@ -11,8 +11,9 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Sparkles, Loader2, Brain, TrendingUp, AlertTriangle, CheckCircle2, X, Plus, ChevronDown, ChevronUp, Apple, Target, BookOpen, Info, Send, Bot, User, RefreshCw, Activity, Shield } from "lucide-react";
+import { Sparkles, Loader2, Brain, TrendingUp, AlertTriangle, CheckCircle2, X, Plus, ChevronDown, ChevronUp, Apple, Target, BookOpen, Info, RefreshCw } from "lucide-react";
 import RecipeScaler from "@/components/mealplanner/RecipeScaler";
+import DiagnosticsPanel from "@/components/mealplanner/DiagnosticsPanel";
 import { toast } from "sonner";
 
 const COMMON_RESTRICTIONS = ["Gluten-free", "Dairy-free", "Low-sodium", "Low-sugar", "Low-carb", "High-fiber", "Low-fat", "No onion/garlic (Jain)"];
