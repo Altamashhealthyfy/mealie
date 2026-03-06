@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Sparkles, Loader2, Brain, TrendingUp, AlertTriangle, CheckCircle2, X, Plus, ChevronDown, ChevronUp, Apple, Target, BookOpen, Info, RefreshCw } from "lucide-react";
 import RecipeScaler from "@/components/mealplanner/RecipeScaler";
 import DiagnosticsPanel from "@/components/mealplanner/DiagnosticsPanel";
+import PreGenerationDiagnostics from "@/components/mealplanner/PreGenerationDiagnostics";
 import { toast } from "sonner";
 
 const COMMON_RESTRICTIONS = ["Gluten-free", "Dairy-free", "Low-sodium", "Low-sugar", "Low-carb", "High-fiber", "Low-fat", "No onion/garlic (Jain)"];
