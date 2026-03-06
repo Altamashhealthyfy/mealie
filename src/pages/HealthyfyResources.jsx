@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { FileText, BookOpen, Database, ClipboardList, ExternalLink, Plus, Trash2, Edit2, Upload, Save, X, Check, AlertCircle } from "lucide-react";
+import { FileText, BookOpen, Database, ClipboardList, ExternalLink, Plus, Trash2, Edit2, Upload, Save, X, Check, AlertCircle, History, ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,39 @@ const fileTypeColors = {
 };
 
 const EMPTY_FORM = { name: "", description: "", category: "Clinical Guidelines", file_type: "PDF", file_url: "", ai_instruction: "", version: "", is_active: true, sort_order: 0 };
+
+function ChangeLogPanel({ item }) {
+  const [open, setOpen] = useState(false);
+  const log = item.change_log || [];
+  if (log.length === 0) return null;
+  return (
+    <div className="mt-2">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 font-medium"
+      >
+        <History className="w-3.5 h-3.5" />
+        {log.length} version{log.length !== 1 ? 's' : ''} history
+        {open ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+      </button>
+      {open && (
+        <div className="mt-2 border-l-2 border-purple-200 pl-3 space-y-2">
+          {[...log].reverse().map((entry, i) => (
+            <div key={i} className="text-xs">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-semibold text-purple-700">v{entry.version_number}</span>
+                {entry.version_label && <span className="text-gray-500 bg-gray-100 px-1.5 rounded">{entry.version_label}</span>}
+                <span className="text-gray-400">{entry.changed_at ? new Date(entry.changed_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                {entry.changed_by && <span className="text-gray-400">by {entry.changed_by}</span>}
+              </div>
+              {entry.change_summary && <p className="text-gray-600 mt-0.5 italic">"{entry.change_summary}"</p>}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function HealthyfyResources() {
   const queryClient = useQueryClient();

@@ -139,6 +139,7 @@ import HealthCoachPlans from './pages/HealthCoachPlans';
 import HealthCoachesManagement from './pages/HealthCoachesManagement';
 import HealthReportAnalysis from './pages/HealthReportAnalysis';
 import HealthReportAnalyzer from './pages/HealthReportAnalyzer';
+import HealthyfyResources from './pages/HealthyfyResources';
 import HelpCenter from './pages/HelpCenter';
 import Home from './pages/Home';
 import IncomeExpense from './pages/IncomeExpense';
@@ -152,8 +153,8 @@ import MealPlanDiagnostic from './pages/MealPlanDiagnostic';
 import MealPlanner from './pages/MealPlanner';
 import MealPlansPro from './pages/MealPlansPro';
 import MyAssessment from './pages/MyAssessment';
-import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
 import Profile from './pages/Profile';
+import MyAssignedMealPlan from './pages/MyAssignedMealPlan';
 import NotificationSettings from './pages/NotificationSettings';
 import Notifications from './pages/Notifications';
 import PaymentGatewaySettings from './pages/PaymentGatewaySettings';
@@ -190,7 +191,6 @@ import WebinarManagement from './pages/WebinarManagement';
 import WebinarPerformanceTracker from './pages/WebinarPerformanceTracker';
 import WeeklyMealPlans from './pages/WeeklyMealPlans';
 import WhiteLabelSubscription from './pages/WhiteLabelSubscription';
-import HealthyfyResources from './pages/HealthyfyResources';
 import __Layout from './Layout.jsx';
 
 
@@ -287,6 +287,7 @@ export const PAGES = {
     "HealthCoachesManagement": HealthCoachesManagement,
     "HealthReportAnalysis": HealthReportAnalysis,
     "HealthReportAnalyzer": HealthReportAnalyzer,
+    "HealthyfyResources": HealthyfyResources,
     "HelpCenter": HelpCenter,
     "Home": Home,
     "IncomeExpense": IncomeExpense,
@@ -300,8 +301,8 @@ export const PAGES = {
     "MealPlanner": MealPlanner,
     "MealPlansPro": MealPlansPro,
     "MyAssessment": MyAssessment,
-    "MyAssignedMealPlan": MyAssignedMealPlan,
     "Profile": Profile,
+    "MyAssignedMealPlan": MyAssignedMealPlan,
     "NotificationSettings": NotificationSettings,
     "Notifications": Notifications,
     "PaymentGatewaySettings": PaymentGatewaySettings,
@@ -338,7 +339,6 @@ export const PAGES = {
     "WebinarPerformanceTracker": WebinarPerformanceTracker,
     "WeeklyMealPlans": WeeklyMealPlans,
     "WhiteLabelSubscription": WhiteLabelSubscription,
-    "HealthyfyResources": HealthyfyResources,
 }
 
 export const pagesConfig = {
