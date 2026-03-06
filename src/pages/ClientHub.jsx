@@ -697,7 +697,7 @@ export default function ClientHub() {
           <TabsContent value="diagnostic" className="space-y-4">
             <DiagnosticTab
               clientId={clientId}
-              intakeId={latestIntake?.id}
+              clinicalIntakes={clinicalIntakes}
               intakeCompleted={!!latestIntake?.completed}
             />
           </TabsContent>
