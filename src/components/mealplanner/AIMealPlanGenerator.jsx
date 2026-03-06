@@ -330,6 +330,21 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated }) {
               </div>
             )}
 
+            {/* Pre-generation diagnostics */}
+            <PreGenerationDiagnostics
+              client={client}
+              additionalRestrictions={additionalRestrictions}
+              additionalAllergies={additionalAllergies}
+              additionalConditions={additionalConditions}
+              overrideGoal={overrideGoal}
+              overrideCalories={overrideCalories}
+              overrideProtein={overrideProtein}
+              overrideCarbs={overrideCarbs}
+              overrideFats={overrideFats}
+              focusAreas={focusAreas}
+              cuisineNotes={cuisineNotes}
+            />
+
             <div className="flex justify-end gap-3 pt-2 border-t">
               <Button variant="outline" onClick={() => setIsOpen(false)} disabled={generateMutation.isPending}>Cancel</Button>
               <Button onClick={() => generateMutation.mutate(false)} disabled={generateMutation.isPending} className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 px-6">
