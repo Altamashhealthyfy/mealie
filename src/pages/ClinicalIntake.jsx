@@ -71,6 +71,7 @@ export default function ClinicalIntake() {
   const [allergiesText, setAllergiesText] = useState('');
   const [noGoText, setNoGoText] = useState('');
   const [aiFileUploading, setAiFileUploading] = useState(false);
+  const [activeTab, setActiveTab] = useState('intake');
   
   // Collapsible states - all closed by default except basic info
   const [isHealthConditionsOpen, setIsHealthConditionsOpen] = useState(false);
