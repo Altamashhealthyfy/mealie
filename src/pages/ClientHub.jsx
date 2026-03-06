@@ -705,58 +705,15 @@ export default function ClientHub() {
 
           {/* MEAL PLANS TAB */}
           <TabsContent value="plans" className="space-y-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <h2 className="text-lg font-bold text-gray-900">All Meal Plans ({mealPlans.length})</h2>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => setShowBasicMealPlan(true)}
-                  className="bg-green-500 hover:bg-green-600"
-                >
-                  <Plus className="w-4 h-4 mr-1" /> Basic Plan
-                </Button>
-                {hasProAccess ? (
-                  <Button
-                    size="sm"
-                    onClick={() => setShowProMealPlan(true)}
-                    className="bg-purple-500 hover:bg-purple-600"
-                  >
-                    <Crown className="w-4 h-4 mr-1" /> Pro Clinical Plan
-                  </Button>
-                ) : (
-                  <Button size="sm" variant="outline" disabled className="opacity-60 cursor-not-allowed">
-                    <Crown className="w-4 h-4 mr-1" /> Pro Plan (Locked)
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {mealPlans.length === 0 ? (
-              <Card className="border-none shadow-lg">
-                <CardContent className="p-12 text-center">
-                  <ChefHat className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">No Meal Plans Yet</h3>
-                  <p className="text-gray-600 mb-4">Create a basic or clinical meal plan for this client.</p>
-                  <div className="flex gap-3 justify-center">
-                    <Button
-                      onClick={() => setShowBasicMealPlan(true)}
-                      className="bg-green-500 hover:bg-green-600"
-                    >
-                      <ChefHat className="w-4 h-4 mr-2" /> Create Basic Plan
-                    </Button>
-                    {hasProAccess && (
-                      <Button
-                        onClick={() => setShowProMealPlan(true)}
-                        className="bg-purple-500 hover:bg-purple-600"
-                      >
-                        <Crown className="w-4 h-4 mr-2" /> Create Pro Plan
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
+            {/* Existing Plans */}
+            {mealPlans.length > 0 && (
               <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base font-bold text-gray-900">Saved Plans ({mealPlans.length})</h2>
+                  <Button size="sm" variant="outline" onClick={() => setShowBasicMealPlan(true)} className="text-xs">
+                    <Plus className="w-3 h-3 mr-1" /> Quick Basic Plan
+                  </Button>
+                </div>
                 {mealPlans.map((plan) => (
                   <Card key={plan.id} className={`border-none shadow-lg bg-white hover:shadow-xl transition-all ${plan.active ? "border-l-4 border-l-green-500" : ""}`}>
                     <CardContent className="p-4">
@@ -764,65 +721,30 @@ export default function ClientHub() {
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-2 mb-2">
                             <h3 className="font-semibold text-gray-900 truncate">{plan.name}</h3>
-                            {plan.active && (
-                              <Badge className="bg-green-500 text-white text-xs">
-                                <CheckCircle className="w-3 h-3 mr-1" /> Active
-                              </Badge>
-                            )}
-                            {plan.plan_tier === "advanced" && (
-                              <Badge className="bg-purple-600 text-white text-xs">💎 Pro</Badge>
-                            )}
+                            {plan.active && <Badge className="bg-green-500 text-white text-xs"><CheckCircle className="w-3 h-3 mr-1" /> Active</Badge>}
+                            {plan.plan_tier === "advanced" && <Badge className="bg-purple-600 text-white text-xs">💎 Pro</Badge>}
                           </div>
                           <div className="flex flex-wrap gap-2 mb-2">
                             <Badge variant="outline" className="text-xs">{plan.duration} Days</Badge>
-                            {plan.food_preference && (
-                              <Badge variant="outline" className="text-xs capitalize">{plan.food_preference}</Badge>
-                            )}
-                            {plan.target_calories && (
-                              <Badge variant="outline" className="text-xs">{plan.target_calories} kcal</Badge>
-                            )}
-                            {plan.meal_pattern && (
-                              <Badge variant="outline" className="text-xs">{plan.meal_pattern}</Badge>
-                            )}
+                            {plan.food_preference && <Badge variant="outline" className="text-xs capitalize">{plan.food_preference}</Badge>}
+                            {plan.target_calories && <Badge variant="outline" className="text-xs">{plan.target_calories} kcal</Badge>}
                           </div>
-                          <p className="text-xs text-gray-400">
-                            Created: {format(new Date(plan.created_date), "MMM d, yyyy")}
-                          </p>
+                          <p className="text-xs text-gray-400">Created: {format(new Date(plan.created_date), "MMM d, yyyy")}</p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-blue-600 border-blue-200 hover:bg-blue-50 text-xs"
-                            onClick={() => setViewingPlan(plan)}
-                          >
+                          <Button size="sm" variant="outline" className="text-blue-600 border-blue-200 hover:bg-blue-50 text-xs" onClick={() => setViewingPlan(plan)}>
                             <Eye className="w-3 h-3 mr-1" /> View
                           </Button>
                           {!plan.active && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="text-green-600 border-green-300 hover:bg-green-50 text-xs"
-                              onClick={() =>
-                                setActivePlanMutation.mutate({
-                                  planId: plan.id,
-                                  allPlanIds: mealPlans.map((p) => p.id),
-                                })
-                              }
-                              disabled={setActivePlanMutation.isPending}
-                            >
+                            <Button size="sm" variant="outline" className="text-green-600 border-green-300 hover:bg-green-50 text-xs"
+                              onClick={() => setActivePlanMutation.mutate({ planId: plan.id, allPlanIds: mealPlans.map((p) => p.id) })}
+                              disabled={setActivePlanMutation.isPending}>
                               Assign
                             </Button>
                           )}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 border-red-200 hover:bg-red-50 text-xs"
-                            onClick={() => {
-                              if (window.confirm(`Delete "${plan.name}"?`)) deletePlanMutation.mutate(plan.id);
-                            }}
-                            disabled={deletePlanMutation.isPending}
-                          >
+                          <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 text-xs"
+                            onClick={() => { if (window.confirm(`Delete "${plan.name}"?`)) deletePlanMutation.mutate(plan.id); }}
+                            disabled={deletePlanMutation.isPending}>
                             <Trash2 className="w-3 h-3" />
                           </Button>
                         </div>
@@ -832,6 +754,29 @@ export default function ClientHub() {
                 ))}
               </div>
             )}
+
+            {/* Rule-Based Meal Planning Workflow */}
+            <Card className="border-none shadow-xl bg-white">
+              <CardHeader className="bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-t-xl">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <ChefHat className="w-5 h-5" /> Clinical Meal Planning Workflow
+                </CardTitle>
+                <p className="text-xs text-green-100">Diagnostic → Filter → Review → Generate → Modify → Save</p>
+              </CardHeader>
+              <CardContent className="p-4">
+                <MealPlanningWorkflow
+                  client={client}
+                  clinicalIntakes={clinicalIntakes}
+                  mealPlans={mealPlans}
+                  onPlanSaved={() => {
+                    queryClient.invalidateQueries(["clientMealPlans", clientId]);
+                  }}
+                  onPlanAssigned={() => {
+                    queryClient.invalidateQueries(["clientMealPlans", clientId]);
+                  }}
+                />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* PROGRESS TAB */}
