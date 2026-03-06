@@ -330,7 +330,7 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated }) {
 
             <div className="flex justify-end gap-3 pt-2 border-t">
               <Button variant="outline" onClick={() => setIsOpen(false)} disabled={generateMutation.isPending}>Cancel</Button>
-              <Button onClick={() => generateMutation.mutate()} disabled={generateMutation.isPending} className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 px-6">
+              <Button onClick={() => generateMutation.mutate(false)} disabled={generateMutation.isPending} className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 px-6">
                 {generateMutation.isPending ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating ({duration}-day plan)...</> : <><Sparkles className="w-4 h-4 mr-2" />Generate {duration}-Day Plan</>}
               </Button>
             </div>
