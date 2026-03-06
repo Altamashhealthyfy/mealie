@@ -46,6 +46,16 @@ export default function ClientDetailSidePanel({
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [profileEditMode, setProfileEditMode] = useState(false);
 
+  const { data: clinicalIntake } = useQuery({
+    queryKey: ['clinicalIntake', client?.id],
+    queryFn: async () => {
+      if (!client?.id) return null;
+      const intakes = await base44.entities.ClinicalIntake.filter({ client_id: client.id });
+      return intakes.length > 0 ? intakes[0] : null;
+    },
+    enabled: !!client?.id,
+  });
+
   const { data: mealPlans } = useQuery({
     queryKey: ['clientMealPlans', client?.id],
     queryFn: async () => {
