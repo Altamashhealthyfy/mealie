@@ -333,6 +333,10 @@ export default function ClientHub() {
             <TabsTrigger value="intake" className="flex items-center gap-1 text-xs sm:text-sm">
               <Stethoscope className="w-3 h-3 sm:w-4 sm:h-4" /> Clinical Intake
             </TabsTrigger>
+            <TabsTrigger value="diagnostic" className="flex items-center gap-1 text-xs sm:text-sm">
+              <Stethoscope className="w-3 h-3 sm:w-4 sm:h-4" /> 🔬 Diagnostic
+              {latestIntake?.diagnostic_notes && <Badge className="ml-1 bg-green-500 text-white text-xs px-1">✓</Badge>}
+            </TabsTrigger>
             <TabsTrigger value="plans" className="flex items-center gap-1 text-xs sm:text-sm">
               <ChefHat className="w-3 h-3 sm:w-4 sm:h-4" /> Meal Plans
               {mealPlans.length > 0 && (
