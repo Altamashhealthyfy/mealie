@@ -185,7 +185,7 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated }) {
           Generate AI Meal Plan
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto p-0 bg-white text-gray-900">
         <DialogHeader className="p-5 pb-0">
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Brain className="w-6 h-6 text-purple-500" />
