@@ -201,12 +201,22 @@ export default function ClinicalIntake() {
       }
       return base44.entities.ClinicalIntake.create(data);
     },
-    onSuccess: () => {
+    onSuccess: async (savedRecord) => {
       queryClient.invalidateQueries(['clinicalIntake']);
-      toast.success(existingIntake?.id ? '✅ Clinical intake updated! Redirecting to generate plan...' : '✅ Clinical intake saved! Redirecting to generate plan...');
-      setTimeout(() => {
-        navigate(`/MealPlansPro?client=${formData.client_id}`);
-      }, 1200);
+      toast.success('✅ Clinical intake saved! Generating diagnostic...');
+      // Auto-generate diagnostic in background
+      const intakeId = savedRecord?.id || existingIntake?.id;
+      if (intakeId) {
+        try {
+          await base44.functions.invoke('generateDiagnostic', { clinicalIntakeId: intakeId });
+          queryClient.invalidateQueries(['diagnostic', formData.client_id, intakeId]);
+          toast.success('✅ Diagnostic generated! View it in the Diagnostic tab.');
+          setActiveTab('diagnostic');
+        } catch (err) {
+          toast.error('Intake saved but diagnostic generation failed. You can retry from the Diagnostic tab.');
+          setActiveTab('diagnostic');
+        }
+      }
     },
     onError: (error) => {
       toast.error('Failed to save clinical intake. Please try again.');
