@@ -254,8 +254,19 @@ export default function HealthyfyResources() {
                   )}
                 </div>
               </div>
+              {editingId && (
+                <div>
+                  <label className="text-xs font-semibold text-gray-600 mb-1 block">Change Summary (for audit log)</label>
+                  <Input placeholder="e.g. Updated PCOS guidelines for 2026, added new food restrictions" value={changeSummary} onChange={(e) => setChangeSummary(e.target.value)} />
+                  {editingItem && (
+                    <p className="text-xs text-purple-600 mt-1">
+                      Currently at <strong>v{editingItem.version_number || 1}</strong>. Saving will create <strong>v{(editingItem.version_number || 1) + 1}</strong>.
+                    </p>
+                  )}
+                </div>
+              )}
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" size="sm" onClick={() => { setShowForm(false); setEditingId(null); setForm(EMPTY_FORM); }}>Cancel</Button>
+                <Button variant="outline" size="sm" onClick={() => { setShowForm(false); setEditingId(null); setEditingItem(null); setChangeSummary(""); setForm(EMPTY_FORM); }}>Cancel</Button>
                 <Button
                   size="sm"
                   className="bg-gradient-to-r from-orange-500 to-red-600 text-white"
