@@ -974,8 +974,7 @@ Return ONLY valid JSON, no explanation.`;
               </div>
               
               {/* Non-Veg frequency & meal preference */}
-              {formData.diet_type === 'Non-Veg' && (
-                <div className="space-y-4 p-4 bg-orange-50 rounded-lg border border-orange-200">
+              <div className="space-y-4 p-4 bg-orange-50 rounded-lg border border-orange-200">
                   <h4 className="font-semibold text-orange-800">🍗 Non-Veg Preferences</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
