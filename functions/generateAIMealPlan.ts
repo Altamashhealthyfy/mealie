@@ -569,6 +569,82 @@ Apply ONLY these requested modifications while keeping all other clinical rules,
       read: false,
     }).catch(() => {});
 
+    // ─── BUILD MEAL OPTION ANALYSIS (what was available vs restricted) ───
+    const foodPref = client.food_preference || 'mixed';
+    const isVeg = ['veg', 'jain'].includes(foodPref);
+    const isJain = foodPref === 'jain';
+    const allAllergyLower = allAllergies.map(a => a.toLowerCase());
+    const allRestrictionLower = allRestrictions.map(r => r.toLowerCase());
+
+    const mealOptionAnalysis = [];
+
+    // Helper to check if an option is excluded
+    function getExclusionReason(option, extraChecks = []) {
+      const optLower = option.toLowerCase();
+      for (const a of allAllergyLower) {
+        if (optLower.includes(a)) return `Allergy: ${a}`;
+      }
+      for (const r of allRestrictionLower) {
+        if (r.includes('dairy') && (optLower.includes('milk') || optLower.includes('paneer') || optLower.includes('buttermilk') || optLower.includes('yogurt') || optLower.includes('curd'))) return 'Restriction: dairy-free';
+        if (r.includes('gluten') && (optLower.includes('roti') || optLower.includes('bread') || optLower.includes('wheat') || optLower.includes('suji') || optLower.includes('daliya'))) return 'Restriction: gluten-free';
+        if (r.includes('jain') && (optLower.includes('onion') || optLower.includes('garlic') || optLower.includes('aalu') || optLower.includes('potato') || optLower.includes('carrot') || optLower.includes('radish'))) return 'Jain diet: no root vegetables/onion/garlic';
+      }
+      for (const [check, reason] of extraChecks) {
+        if (check(optLower)) return reason;
+      }
+      return null;
+    }
+
+    // Non-veg exclusion check
+    const nonVegCheck = (optLower) => isVeg && (optLower.includes('chicken') || optLower.includes('fish') || optLower.includes('egg') || optLower.includes('meat') || optLower.includes('mutton'));
+    const nonVegReason = 'Diet preference: veg';
+
+    const analyzeCategory = (label, options, extraChecks = []) => {
+      const available = [];
+      const excluded = [];
+      for (const opt of options) {
+        const nvExcluded = nonVegCheck(opt.toLowerCase());
+        const reason = nvExcluded ? nonVegReason : getExclusionReason(opt, extraChecks);
+        if (reason) {
+          excluded.push({ option: opt, reason });
+        } else {
+          available.push(opt);
+        }
+      }
+      return { category: label, total: options.length, available_count: available.length, excluded_count: excluded.length, excluded };
+    };
+
+    mealOptionAnalysis.push(analyzeCategory('Early Morning Drinks', mealOptions.early_morning));
+    mealOptionAnalysis.push(analyzeCategory('Breakfast: Cereals', mealOptions.breakfast_cereal));
+    mealOptionAnalysis.push(analyzeCategory('Breakfast: Poha', mealOptions.breakfast_poha));
+    mealOptionAnalysis.push(analyzeCategory('Breakfast: Non-Veg', mealOptions.breakfast_nonveg));
+    mealOptionAnalysis.push(analyzeCategory('Breakfast: Daliya', mealOptions.breakfast_daliya));
+    mealOptionAnalysis.push(analyzeCategory('Breakfast: Sandwich', mealOptions.breakfast_sandwich));
+    mealOptionAnalysis.push(analyzeCategory('Breakfast: Stuffed Roti', mealOptions.breakfast_stuffed_roti));
+    mealOptionAnalysis.push(analyzeCategory('Breakfast: Cheela', mealOptions.breakfast_cheela));
+    mealOptionAnalysis.push(analyzeCategory('Breakfast: Chholes/Sprouts', mealOptions.breakfast_chholes));
+    mealOptionAnalysis.push(analyzeCategory('Breakfast: Smoothies', mealOptions.breakfast_smoothies));
+    mealOptionAnalysis.push(analyzeCategory('Breakfast: Idli', mealOptions.breakfast_idli));
+    mealOptionAnalysis.push(analyzeCategory('Mid Morning Snacks', mealOptions.midmorning));
+    mealOptionAnalysis.push(analyzeCategory('Lunch: Roti + Veg', mealOptions.lunch_roti_veg));
+    mealOptionAnalysis.push(analyzeCategory('Lunch: Dal Options', mealOptions.lunch_dal));
+    mealOptionAnalysis.push(analyzeCategory('Lunch: Non-Veg', mealOptions.lunch_nonveg));
+    mealOptionAnalysis.push(analyzeCategory('Evening Snacks', mealOptions.evening));
+    mealOptionAnalysis.push(analyzeCategory('Dinner: Soups', mealOptions.dinner_soup));
+
+    // Build decision rules as shown in the screenshot
+    const targetCal2 = overrideCalories || client.target_calories || client.tdee || 1800;
+    const decisionRules = [
+      { rule: `Daily calorie target: ${targetCal2} kcal (BMR: ${client.bmr || 'N/A'}, TDEE: ${client.tdee || 'N/A'}, Goal: ${(goal || client.goal || 'N/A').replace(/_/g,' ')})`, category: 'Calorie Target' },
+      { rule: `Macros: Protein ~${targetProtein}g | Carbs ~${targetCarbs}g | Fats ~${targetFats}g`, category: 'Macros' },
+      { rule: `Diet type: ${foodPref.charAt(0).toUpperCase() + foodPref.slice(1)} — Meal options selected accordingly`, category: 'Diet Type' },
+      ...(allConditions.length > 0 ? allConditions.map(c => ({ rule: `${c}: Applied clinical dietary rules for this condition`, category: 'Medical Condition' })) : []),
+      ...(allAllergies.length > 0 ? [{ rule: `Allergies strictly avoided: ${allAllergies.join(', ')}`, category: 'Allergy' }] : []),
+      ...(allRestrictions.length > 0 ? [{ rule: `Dietary restrictions applied: ${allRestrictions.join(', ')}`, category: 'Restriction' }] : []),
+      ...(focusAreas.length > 0 ? [{ rule: `Nutrition focus areas: ${focusAreas.join(', ')}`, category: 'Focus' }] : []),
+      ...(cuisineNotes ? [{ rule: `Cuisine notes: ${cuisineNotes}`, category: 'Cuisine' }] : []),
+    ];
+
     return Response.json({
       success: true,
       mealPlan: { id: mealPlan.id, name: mealPlan.name, duration, meals: aiResponse.meals.length },
@@ -580,6 +656,8 @@ Apply ONLY these requested modifications while keeping all other clinical rules,
       day_summaries: recalculatedDaySummaries,
       coach_notes: aiResponse.coach_notes,
       meals: enrichedMeals,
+      meal_option_analysis: mealOptionAnalysis,
+      decision_rules: decisionRules,
     });
 
   } catch (error) {
