@@ -308,6 +308,7 @@ export default function HealthyfyResources() {
                             <div className="min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <p className="font-semibold text-sm text-gray-800">{item.name}</p>
+                                <span className="text-xs font-bold text-purple-600 bg-purple-100 px-1.5 py-0.5 rounded">v{item.version_number || 1}</span>
                                 {item.version && <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">{item.version}</span>}
                                 {item.is_active === false && <span className="text-xs text-gray-400 italic">inactive</span>}
                               </div>
@@ -315,6 +316,7 @@ export default function HealthyfyResources() {
                               {item.ai_instruction && (
                                 <p className="text-xs text-orange-600 mt-1 italic">🤖 {item.ai_instruction}</p>
                               )}
+                              <ChangeLogPanel item={item} />
                             </div>
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0">
