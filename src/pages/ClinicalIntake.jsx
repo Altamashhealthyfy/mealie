@@ -153,6 +153,8 @@ export default function ClinicalIntake() {
         setAllergiesText(existingIntake.likes_dislikes_allergies.allergies?.join(', ') || '');
         setNoGoText(existingIntake.likes_dislikes_allergies.no_go_foods?.join(', ') || '');
       }
+      // Auto-open diet section so new fields are visible
+      setIsDietPreferencesOpen(true);
     } else if (client && formData.client_id && !existingIntake) {
       // Pre-fill from client data only if no existing intake
       setFormData(prev => ({
