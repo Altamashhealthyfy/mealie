@@ -76,13 +76,44 @@ export default function HealthyfyResources() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: (data) => editingId
-      ? base44.entities.HealthyfyKnowledgeBase.update(editingId, data)
-      : base44.entities.HealthyfyKnowledgeBase.create(data),
+    mutationFn: async (data) => {
+      if (editingId && editingItem) {
+        // Increment version and record change log entry
+        const prevLog = editingItem.change_log || [];
+        const prevVersionNumber = editingItem.version_number || 1;
+        const newVersionNumber = prevVersionNumber + 1;
+        const logEntry = {
+          version_number: prevVersionNumber,
+          version_label: editingItem.version || '',
+          changed_at: new Date().toISOString(),
+          changed_by: (await base44.auth.me())?.email || 'admin',
+          change_summary: changeSummary || 'Updated',
+          snapshot: {
+            name: editingItem.name,
+            description: editingItem.description || '',
+            category: editingItem.category,
+            file_type: editingItem.file_type,
+            file_url: editingItem.file_url || '',
+            ai_instruction: editingItem.ai_instruction || '',
+            version: editingItem.version || '',
+            is_active: editingItem.is_active !== false,
+          }
+        };
+        return base44.entities.HealthyfyKnowledgeBase.update(editingId, {
+          ...data,
+          version_number: newVersionNumber,
+          change_log: [...prevLog, logEntry],
+        });
+      }
+      // New record: initialize version_number = 1
+      return base44.entities.HealthyfyKnowledgeBase.create({ ...data, version_number: 1, change_log: [] });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["healthyfyKB"] });
       setShowForm(false);
       setEditingId(null);
+      setEditingItem(null);
+      setChangeSummary("");
       setForm(EMPTY_FORM);
     },
   });
