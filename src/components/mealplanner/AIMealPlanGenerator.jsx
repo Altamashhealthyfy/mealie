@@ -157,7 +157,8 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated }) {
   const queryClient = useQueryClient();
 
   const generateMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (isRegeneration = false) => {
+      const nextCount = isRegeneration ? generationCount + 1 : 1;
       const res = await base44.functions.invoke('generateAIMealPlan', {
         clientId: client.id, duration, adaptFromFeedback, mealFrequency,
         snackPreference, cuisineNotes, focusAreas,
@@ -167,12 +168,15 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated }) {
         overrideCarbs: overrideCarbs ? parseInt(overrideCarbs) : undefined,
         overrideFats: overrideFats ? parseInt(overrideFats) : undefined,
         additionalRestrictions, additionalAllergies, additionalConditions,
+        modificationInstructions: isRegeneration ? modificationInstructions : '',
+        generationCount: nextCount,
       });
-      return res.data;
+      return { data: res.data, nextCount };
     },
-    onSuccess: (data) => {
+    onSuccess: ({ data, nextCount }) => {
       queryClient.invalidateQueries({ queryKey: ['mealPlans'] });
       setResult(data);
+      setGenerationCount(nextCount);
       toast.success("AI meal plan generated! 🎉");
       if (onPlanGenerated) onPlanGenerated(data.mealPlan);
     },
