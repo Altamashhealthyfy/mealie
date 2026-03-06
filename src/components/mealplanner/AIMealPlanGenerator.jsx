@@ -151,6 +151,9 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated }) {
   const [additionalConditions, setAdditionalConditions] = useState([]);
   const [focusAreas, setFocusAreas] = useState([]);
   const [result, setResult] = useState(null);
+  const [modificationInstructions, setModificationInstructions] = useState("");
+  const [generationCount, setGenerationCount] = useState(1);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
   const queryClient = useQueryClient();
 
   const generateMutation = useMutation({
