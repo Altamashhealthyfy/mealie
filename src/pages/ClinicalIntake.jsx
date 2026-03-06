@@ -1056,7 +1056,7 @@ Return ONLY valid JSON, no explanation.`;
                     </div>
                   </div>
                 </div>
-              )}
+              </div>
 
               <div className="space-y-2">
                 <Label>Foods You Like</Label>
