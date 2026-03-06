@@ -1012,13 +1012,11 @@ Return ONLY valid JSON, no explanation.`;
                         })}
                       </div>
                     </div>
-                  </div>
-                </div>
-              )}
+                    </div>
+                    </div>
 
-              {/* Egg frequency & meal preference */}
-              {(formData.diet_type === 'Eggetarian' || formData.diet_type === 'Non-Veg') && (
-                <div className="space-y-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                    {/* Egg frequency & meal preference */}
+                    <div className="space-y-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                   <h4 className="font-semibold text-yellow-800">🥚 Egg Preferences</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
