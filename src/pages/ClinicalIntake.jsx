@@ -971,6 +971,94 @@ Return ONLY valid JSON, no explanation.`;
                 </Select>
               </div>
               
+              {/* Non-Veg frequency & meal preference */}
+              {formData.diet_type === 'Non-Veg' && (
+                <div className="space-y-4 p-4 bg-orange-50 rounded-lg border border-orange-200">
+                  <h4 className="font-semibold text-orange-800">🍗 Non-Veg Preferences</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Non-Veg Times in 10 Days</Label>
+                      <Select
+                        value={formData.non_veg_frequency_per_10_days?.toString() || ''}
+                        onValueChange={(val) => setFormData({...formData, non_veg_frequency_per_10_days: parseInt(val)})}
+                      >
+                        <SelectTrigger><SelectValue placeholder="Select frequency" /></SelectTrigger>
+                        <SelectContent>
+                          {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                            <SelectItem key={n} value={n.toString()}>{n} time{n > 1 ? 's' : ''}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Preferred Meal Times for Non-Veg</Label>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {['breakfast', 'lunch', 'dinner', 'evening_snack'].map(meal => {
+                          const selected = (formData.non_veg_preferred_meals || []).includes(meal);
+                          return (
+                            <button key={meal} type="button"
+                              onClick={() => setFormData(prev => ({
+                                ...prev,
+                                non_veg_preferred_meals: selected
+                                  ? prev.non_veg_preferred_meals.filter(m => m !== meal)
+                                  : [...(prev.non_veg_preferred_meals || []), meal]
+                              }))}
+                              className={`px-3 py-1.5 rounded-full text-sm font-medium border-2 transition-all ${selected ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400'}`}
+                            >
+                              {meal.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Egg frequency & meal preference */}
+              {(formData.diet_type === 'Eggetarian' || formData.diet_type === 'Non-Veg') && (
+                <div className="space-y-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <h4 className="font-semibold text-yellow-800">🥚 Egg Preferences</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Egg Times in 10 Days</Label>
+                      <Select
+                        value={formData.egg_frequency_per_10_days?.toString() || ''}
+                        onValueChange={(val) => setFormData({...formData, egg_frequency_per_10_days: parseInt(val)})}
+                      >
+                        <SelectTrigger><SelectValue placeholder="Select frequency" /></SelectTrigger>
+                        <SelectContent>
+                          {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                            <SelectItem key={n} value={n.toString()}>{n} time{n > 1 ? 's' : ''}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Preferred Meal Times for Eggs</Label>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {['breakfast', 'lunch', 'dinner', 'evening_snack'].map(meal => {
+                          const selected = (formData.egg_preferred_meals || []).includes(meal);
+                          return (
+                            <button key={meal} type="button"
+                              onClick={() => setFormData(prev => ({
+                                ...prev,
+                                egg_preferred_meals: selected
+                                  ? prev.egg_preferred_meals.filter(m => m !== meal)
+                                  : [...(prev.egg_preferred_meals || []), meal]
+                              }))}
+                              className={`px-3 py-1.5 rounded-full text-sm font-medium border-2 transition-all ${selected ? 'bg-yellow-500 text-white border-yellow-500' : 'bg-white text-gray-700 border-gray-300 hover:border-yellow-400'}`}
+                            >
+                              {meal.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label>Foods You Like</Label>
                 <Textarea
