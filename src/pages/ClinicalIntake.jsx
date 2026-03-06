@@ -13,8 +13,10 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Stethoscope, Plus, X, CheckCircle, AlertTriangle, Heart, Brain, Users, Sparkles, Upload, Loader2, Wand2, ChevronDown } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import DiagnosticTab from "@/components/clinical/DiagnosticTab";
 
 export default function ClinicalIntake() {
   const navigate = useNavigate();
