@@ -65,7 +65,9 @@ export default function HealthyfyResources() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [editingItem, setEditingItem] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [changeSummary, setChangeSummary] = useState("");
   const [uploading, setUploading] = useState(false);
 
   const { data: resources = [], isLoading } = useQuery({
