@@ -358,7 +358,13 @@ RULE 10 - STRICT CALORIE COMPLIANCE:
   Herbal drink = ~0-5 kcal
   Count accurately, never exceed.
 
-Be practical, use real Indian/regional food names, realistic portions.`;
+Be practical, use real Indian/regional food names, realistic portions.${modificationInstructions ? `
+
+═══ COACH MODIFICATION INSTRUCTIONS (APPLY STRICTLY) ═══
+The coach has reviewed a previous version of this plan and requests the following changes:
+"${modificationInstructions}"
+
+Apply ONLY these requested modifications while keeping all other clinical rules, calorie targets, and meal patterns intact.` : ''}`;
 
     const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
