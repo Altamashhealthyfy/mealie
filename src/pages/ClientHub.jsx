@@ -693,6 +693,15 @@ export default function ClientHub() {
             )}
           </TabsContent>
 
+          {/* DIAGNOSTIC TAB */}
+          <TabsContent value="diagnostic" className="space-y-4">
+            <DiagnosticTab
+              clientId={clientId}
+              intakeId={latestIntake?.id}
+              intakeCompleted={!!latestIntake?.completed}
+            />
+          </TabsContent>
+
           {/* MEAL PLANS TAB */}
           <TabsContent value="plans" className="space-y-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
