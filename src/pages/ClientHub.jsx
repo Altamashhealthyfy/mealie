@@ -503,24 +503,13 @@ export default function ClientHub() {
                     <div className="text-center py-4">
                       <ChefHat className="w-8 h-8 mx-auto text-gray-300 mb-2" />
                       <p className="text-sm text-gray-500 mb-2">No active meal plan</p>
-                      <div className="flex gap-2 justify-center">
-                        <Button
-                          size="sm"
-                          onClick={() => setShowBasicMealPlan(true)}
-                          className="bg-green-500 hover:bg-green-600"
-                        >
-                          Basic Plan
-                        </Button>
-                        {hasProAccess && (
-                          <Button
-                            size="sm"
-                            onClick={() => setShowProMealPlan(true)}
-                            className="bg-purple-500 hover:bg-purple-600"
-                          >
-                            <Crown className="w-3 h-3 mr-1" /> Pro Plan
-                          </Button>
-                        )}
-                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => setActiveTab("plans")}
+                        className="bg-green-500 hover:bg-green-600"
+                      >
+                        <ChefHat className="w-3 h-3 mr-1" /> Create Meal Plan
+                      </Button>
                     </div>
                   )}
                 </CardContent>
