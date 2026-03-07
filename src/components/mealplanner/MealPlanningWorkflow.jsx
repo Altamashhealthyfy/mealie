@@ -472,27 +472,49 @@ Return JSON: { modified_meals: [...same structure as input meals...], ai_suggest
         <div className="space-y-4">
           <SectionHeader icon={<Sparkles />} title="Step 4 — Generate Final Meal Plan" subtitle="Build the plan using allowed meals, calorie targets, macro ratios, Indian meal structure, and all clinical rules." color="green" />
 
-          <Card className="border-none shadow-sm bg-green-50">
-            <CardContent className="p-4 space-y-2 text-sm">
-              <p className="font-semibold text-green-800 mb-2">Generation Parameters:</p>
-              {(filterResult?.decisionRules || []).slice(0, 5).map((r, i) => (
-                <div key={i} className="flex gap-2">
-                  <Badge className={`text-xs shrink-0 ${getCategoryColor(r.category)}`}>{r.category}</Badge>
-                  <span className="text-gray-700 text-xs">{r.rule}</span>
-                </div>
-              ))}
-              <p className="text-xs text-gray-500 mt-1">+ {finalRules.length} manual override rules + {getFinalAllowedMeals().length} approved meals</p>
-              <p className="text-xs text-gray-500">Duration: <strong>{duration} days</strong></p>
-            </CardContent>
-          </Card>
+          {!filterResult ? (
+            <Alert className="bg-amber-50 border-amber-300">
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+              <AlertDescription className="text-sm">
+                <strong>Step 2 not completed.</strong> You need to run the Meal Filter first before generating a plan.
+                <Button size="sm" className="ml-3 bg-amber-500 hover:bg-amber-600 text-white" onClick={() => setCurrentStep(2)}>Go to Step 2 →</Button>
+              </AlertDescription>
+            </Alert>
+          ) : getFinalAllowedMeals().length === 0 ? (
+            <Alert className="bg-red-50 border-red-300">
+              <AlertTriangle className="w-4 h-4 text-red-600" />
+              <AlertDescription className="text-sm">
+                <strong>No approved meals available.</strong> Go back to Step 3 and unblock some meals or add meals manually.
+                <Button size="sm" className="ml-3 bg-red-500 hover:bg-red-600 text-white" onClick={() => setCurrentStep(3)}>Go to Step 3 →</Button>
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <Card className="border-none shadow-sm bg-green-50">
+              <CardContent className="p-4 space-y-2 text-sm">
+                <p className="font-semibold text-green-800 mb-2">Generation Parameters:</p>
+                {(filterResult?.decisionRules || []).slice(0, 5).map((r, i) => (
+                  <div key={i} className="flex gap-2">
+                    <Badge className={`text-xs shrink-0 ${getCategoryColor(r.category)}`}>{r.category}</Badge>
+                    <span className="text-gray-700 text-xs">{r.rule}</span>
+                  </div>
+                ))}
+                <p className="text-xs text-gray-500 mt-1">+ {finalRules.length} manual override rules + {getFinalAllowedMeals().length} approved meals</p>
+                <p className="text-xs text-gray-500">Duration: <strong>{duration} days</strong></p>
+              </CardContent>
+            </Card>
+          )}
 
-          <Button onClick={generatePlan} disabled={generating} className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold py-3">
+          <Button
+            onClick={generatePlan}
+            disabled={generating || !filterResult || getFinalAllowedMeals().length === 0}
+            className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold py-3 disabled:opacity-50"
+          >
             {generating
               ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating from database rules...</>
               : <><Sparkles className="w-4 h-4 mr-2" /> Generate {duration}-Day Meal Plan</>}
           </Button>
 
-          <Button variant="ghost" size="sm" onClick={() => setCurrentStep(3)}><ArrowLeft className="w-3 h-3 mr-1" /> Back to Nutritionist Review</Button>
+          <Button variant="ghost" size="sm" onClick={() => setCurrentStep(filterResult ? 3 : 2)}><ArrowLeft className="w-3 h-3 mr-1" /> Back to {filterResult ? 'Nutritionist Review' : 'Filter Meals'}</Button>
         </div>
       )}
 
