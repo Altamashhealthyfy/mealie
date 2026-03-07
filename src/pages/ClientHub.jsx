@@ -132,23 +132,7 @@ export default function ClientHub() {
     enabled: !!coachSubscription?.plan_id,
   });
 
-  const deletePlanMutation = useMutation({
-    mutationFn: (id) => base44.entities.MealPlan.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["clientMealPlans", clientId]);
-    },
-  });
 
-  const setActivePlanMutation = useMutation({
-    mutationFn: async ({ planId, allPlanIds }) => {
-      // Deactivate all plans, then activate the selected one
-      await Promise.all(allPlanIds.map((id) => base44.entities.MealPlan.update(id, { active: false })));
-      await base44.entities.MealPlan.update(planId, { active: true });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(["clientMealPlans", clientId]);
-    },
-  });
 
   const hasProAccess =
     user?.user_type === "super_admin" ||
