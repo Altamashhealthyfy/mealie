@@ -234,7 +234,7 @@ function DiagnosticEntry({ intake, index, total, isExpanded, onToggle, clientId,
                 </div>
                 <div className="mt-3 space-y-2">
                   <TagRow label="Health Conditions" tags={diagnostic.client_summary?.health_conditions} color="red" />
-                  <TagRow label="Goals" tags={diagnostic.client_summary?.goals?.map(g => g.replace(/_/g, ' '))} color="green" />
+                  <TagRow label="Goals" tags={(Array.isArray(diagnostic.client_summary?.goals) ? diagnostic.client_summary.goals : (diagnostic.client_summary?.goals ? [diagnostic.client_summary.goals] : [])).map(g => g.replace(/_/g, ' '))} color="green" />
                   <TagRow label="Allergies" tags={diagnostic.client_summary?.allergies} color="orange" />
                   <TagRow label="No-Go Foods" tags={diagnostic.client_summary?.no_go_foods} color="gray" />
                   {diagnostic.client_summary?.medications?.length > 0 && (
