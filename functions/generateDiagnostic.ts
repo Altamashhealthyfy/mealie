@@ -133,8 +133,11 @@ Deno.serve(async (req) => {
     };
 
     // 5. Save back to the ClinicalIntake record
+    // Normalize goal to array in case old records stored it as a string
+    const goalValue = Array.isArray(intake.goal) ? intake.goal : (intake.goal ? [intake.goal] : []);
     await base44.asServiceRole.entities.ClinicalIntake.update(clinicalIntakeId, {
       diagnostic_notes: JSON.stringify(diagnosticData),
+      goal: goalValue,
     });
 
     return Response.json({ success: true, diagnostic: diagnosticData });
