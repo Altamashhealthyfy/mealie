@@ -184,8 +184,8 @@ async function fetchHealthyfyDishes() {
     const text = await resp.text();
     return parseHealthyfyCSV(text);
   } catch (err) {
-    console.error('WARNING: Could not fetch Healthyfy dish catalog:', err.message);
-    return buildFallbackDishes();
+    console.error('ERROR: Could not fetch Healthyfy dish catalog:', err.message);
+    return [];
   }
 }
 

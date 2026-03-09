@@ -246,8 +246,8 @@ async function fetchHealthyfyDishes() {
     const text = await resp.text();
     return parseHealthyfyCSV(text);
   } catch (err) {
-    console.error('WARNING: Could not fetch Healthyfy dish catalog from Google Sheet:', err.message, '— Using hardcoded fallback');
-    return buildFallbackDishes();
+    console.error('ERROR: Could not fetch Healthyfy dish catalog from Google Sheet:', err.message);
+    return [];
   }
 }
 
