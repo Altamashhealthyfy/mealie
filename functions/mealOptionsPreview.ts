@@ -143,10 +143,25 @@ Deno.serve(async (req) => {
       ...(cuisineNotes ? [{ rule: `Cuisine notes: ${cuisineNotes}`, category: 'Cuisine' }] : []),
     ];
 
+    // Compute allowed/restricted totals across all meal types
+    const totalAllowed = mealOptionAnalysis.reduce((s, c) => s + c.available_count, 0);
+    const totalRestricted = mealOptionAnalysis.reduce((s, c) => s + c.excluded_count, 0);
+
     return Response.json({
       success: true,
-      catalog_source: 'healthyfy_google_sheet',
-      total_catalog_dishes: healthyfyDishes.length,
+      // ═══ CATALOG SUMMARY (shown first) ═══
+      catalog_source: 'healthyfy_google_sheet_ONLY',
+      catalog_summary: {
+        total_dishes_in_sheet: healthyfyDishes.length,
+        total_allowed_for_client: totalAllowed,
+        total_restricted_for_client: totalRestricted,
+        breakdown_by_meal_type: mealOptionAnalysis.map(c => ({
+          meal_type: c.category,
+          total: c.total,
+          allowed: c.available_count,
+          restricted: c.excluded_count,
+        })),
+      },
       decision_rules: decisionRules,
       meal_option_analysis: mealOptionAnalysis,
       food_preference: foodPref,
