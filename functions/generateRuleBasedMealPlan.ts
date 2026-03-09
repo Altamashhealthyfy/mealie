@@ -104,12 +104,62 @@ Deno.serve(async (req) => {
       return finalPool[usedIds.length % finalPool.length];
     }
 
+    // ── Carb classification helpers (Rule L) ──────────────────────────────────
+    const RICE_KEYWORDS = ['rice', 'khichdi', 'pulao', 'biryani', 'khichri', 'pongal', 'curd rice', 'lemon rice'];
+    const WHEAT_KEYWORDS = ['roti', 'chapati', 'paratha', 'bread', 'naan', 'thepla', 'puri', 'bhatura', 'suji', 'rava', 'dalia', 'daliya', 'upma', 'cheela', 'dosa', 'uttapam', 'idli'];
+    const DAIRY_KEYWORDS = ['milk', 'curd', 'raita', 'lassi', 'buttermilk', 'paneer', 'ghee', 'cheese', 'cream', 'kheer', 'dahi'];
+    const NON_VEG_KEYWORDS = ['chicken', 'fish', 'mutton', 'meat', 'prawn', 'shrimp', 'egg', 'lamb'];
+
+    function isRiceBased(dish) {
+      const n = (dish.name || '').toLowerCase();
+      return RICE_KEYWORDS.some(k => n.includes(k));
+    }
+    function isWheatBased(dish) {
+      const n = (dish.name || '').toLowerCase();
+      return WHEAT_KEYWORDS.some(k => n.includes(k));
+    }
+    function isDairy(dish) {
+      const n = (dish.name || '').toLowerCase();
+      return DAIRY_KEYWORDS.some(k => n.includes(k));
+    }
+    function isNonVeg(dish) {
+      const n = (dish.name || '').toLowerCase();
+      return NON_VEG_KEYWORDS.some(k => n.includes(k));
+    }
+
+    // Infer portion size string from dish name (Rule M)
+    function inferPortion(dish) {
+      const n = (dish.name || '').toLowerCase();
+      if (['roti', 'chapati', 'thepla'].some(k => n.includes(k))) return '2 medium roti (60g total)';
+      if (n.includes('paratha')) return '1 paratha (80g)';
+      if (n.includes('dosa') || n.includes('uttapam')) return '1 medium (120g)';
+      if (n.includes('idli')) return '2 idli (100g total)';
+      if (['rice', 'pulao', 'biryani', 'khichdi'].some(k => n.includes(k))) return '1 small katori cooked (100g)';
+      if (['dal', 'sambhar', 'sambar', 'kadhi'].some(k => n.includes(k))) return '1 katori (150g)';
+      if (['sabzi', 'sabji', 'curry', 'vegetable', 'palak', 'bhindi', 'gobi', 'aloo', 'paneer'].some(k => n.includes(k))) return '1 medium katori (150g)';
+      if (['soup', 'broth'].some(k => n.includes(k))) return '1 bowl (200ml)';
+      if (['tea', 'coffee', 'milk', 'lassi', 'buttermilk', 'juice', 'water', 'smoothie'].some(k => n.includes(k))) return '1 glass (200ml)';
+      if (['oats', 'upma', 'poha', 'daliya', 'rava'].some(k => n.includes(k))) return '1 small bowl (150g cooked)';
+      if (n.includes('salad')) return '1 small bowl (100g)';
+      if (n.includes('raita')) return '1 small katori (100g)';
+      if (['chana', 'makhana', 'murmura', 'chaat'].some(k => n.includes(k))) return '1 small katori (30g)';
+      if (['fruit', 'apple', 'banana', 'orange', 'papaya'].some(k => n.includes(k))) return '1 medium piece (150g)';
+      if (['chicken', 'fish', 'mutton', 'egg'].some(k => n.includes(k))) return '1 serving (100g)';
+      return `1 serving (~${dish.approx_calories || 200} kcal)`;
+    }
+
     // 8. Pick 2-3 dishes for a slot to hit calorie target (combination mode for lunch/dinner)
+    //    Enforces Rule L: no two rice-based OR two wheat-based in same slot
+    //    Enforces Rule K: no dairy+non-veg in same slot
     function pickCombined(pool, usedIds, targetSlotCal, todayItems, count = 2) {
       if (!pool || pool.length === 0) return [];
       const selected = [];
       let remainingCal = targetSlotCal;
       const tempUsed = new Set(todayItems);
+      let hasRice = false;
+      let hasWheat = false;
+      let hasNonVeg = false;
+      let hasDairy = false;
 
       for (let i = 0; i < count; i++) {
         let candidates = pool.filter(m => !tempUsed.has(m.id));
@@ -120,8 +170,24 @@ Deno.serve(async (req) => {
         const fresh = candidates.filter(m => !recentlyUsed.includes(m.id));
         if (fresh.length > 0) candidates = fresh;
 
+        // Rule L: filter out double-carb violations
+        candidates = candidates.filter(m => {
+          if (isRiceBased(m) && hasRice) return false;  // already have a rice dish
+          if (isWheatBased(m) && hasWheat) return false; // already have a wheat dish
+          return true;
+        });
+
+        // Rule K: filter out dairy if we already have non-veg (and vice versa)
+        candidates = candidates.filter(m => {
+          if (hasNonVeg && isDairy(m)) return false;
+          if (hasDairy && isNonVeg(m)) return false;
+          return true;
+        });
+
+        if (candidates.length === 0) break;
+
         // Pick dish closest to remaining calorie share
-        const share = remainingCal / (count - i);
+        const share = remainingCal / Math.max(1, count - i);
         candidates.sort((a, b) =>
           Math.abs((a.approx_calories || 200) - share) - Math.abs((b.approx_calories || 200) - share)
         );
@@ -130,6 +196,12 @@ Deno.serve(async (req) => {
         selected.push(picked);
         remainingCal -= picked.approx_calories || 200;
         tempUsed.add(picked.id);
+
+        // Track carb/protein types for next iteration
+        if (isRiceBased(picked)) hasRice = true;
+        if (isWheatBased(picked)) hasWheat = true;
+        if (isNonVeg(picked)) hasNonVeg = true;
+        if (isDairy(picked)) hasDairy = true;
       }
 
       return selected;
