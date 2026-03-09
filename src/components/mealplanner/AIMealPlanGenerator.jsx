@@ -136,7 +136,7 @@ function DaySummaryView({ day, meals, summary }) {
   );
 }
 
-export default function AIMealPlanGenerator({ client, onPlanGenerated }) {
+export default function AIMealPlanGenerator({ client, onPlanGenerated, clinicalIntakes = [] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [duration, setDuration] = useState(7);
   const [adaptFromFeedback, setAdaptFromFeedback] = useState(true);
