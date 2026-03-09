@@ -200,6 +200,7 @@ If lunch uses rice-based dish → dinner must use roti/millet. Never rice-based 
 
     const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
+      model: 'claude_sonnet_4_6',
       response_json_schema: {
         type: "object",
         properties: {
