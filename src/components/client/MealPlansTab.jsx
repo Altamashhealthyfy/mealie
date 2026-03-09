@@ -230,7 +230,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, hasPr
 
       {/* ── Clinical Workflow (fullscreen modal) ── */}
       <Dialog open={showWorkflow} onOpenChange={setShowWorkflow}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[98vw] w-full max-h-[96vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-purple-700">
               <Sparkles className="w-5 h-5" /> Clinical Meal Planning Workflow — {client.full_name}
