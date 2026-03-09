@@ -307,48 +307,7 @@ function parseHealthyfyCSV(text) {
     }
   }
 
-  // Protocol: early morning herbal drinks (standard Healthyfy protocol)
-  const emDrinks = [
-    'Lemon Ginger Mint Cucumber Water', 'Zeera Water', 'Tulsi Water', 'Aloe Vera Juice with Water',
-    'Methi Water', 'Haldi Water', 'Chia Seeds Soaked Water', 'Dhaniya Pudina Water',
-    'Cinnamon Ginger Water', 'Saunf Water', 'Apple Cider Vinegar Water',
-  ];
-  emDrinks.forEach((name, idx) => dishes.push({ id: `em_${idx}`, name, meal_type: 'early_morning', approx_calories: 5, tags: ['drink', 'herbal'], source: 'healthyfy_catalog' }));
-
-  // Protocol: mid-morning fruits & light snacks
-  const mmItems = [
-    { name: 'Seasonal Fruit 150g with Lemon Shikanji', cal: 120, tags: ['fruit', 'drink'] },
-    { name: 'Low Fat Buttermilk with Zeera and Chia Seeds', cal: 80, tags: ['buttermilk', 'dairy', 'drink'] },
-    { name: 'Seasonal Fruit — Apple or Orange or Papaya or Pear or Guava or Pomegranate', cal: 100, tags: ['fruit'] },
-    { name: 'Cucumber Slices with Apple', cal: 80, tags: ['fruit', 'salad'] },
-    { name: 'Cucumber Slices with Pear', cal: 80, tags: ['fruit', 'salad'] },
-    { name: 'Bowl Papaya with Black Pepper', cal: 70, tags: ['fruit', 'papaya'] },
-    { name: 'Pomegranate with Lemon', cal: 90, tags: ['fruit', 'pomegranate'] },
-  ];
-  mmItems.forEach((item, idx) => dishes.push({ id: `mm_${idx}`, name: item.name, meal_type: 'mid_morning', approx_calories: item.cal, tags: item.tags, source: 'healthyfy_catalog' }));
-
-  // Protocol: evening snacks (standard Healthyfy options)
-  const eveningSnacks = [
-    { name: 'Tea or Coffee or Green Tea or Low Fat Milk or Buttermilk', cal: 30, tags: ['drink', 'dairy', 'tea'] },
-    { name: 'Roasted Chana or Roasted Chana Mix Green Salad', cal: 150, tags: ['roasted', 'chana', 'high_protein', 'salad'] },
-    { name: 'Dry Roasted Bajra Puffs Unsalted', cal: 120, tags: ['roasted', 'bajra', 'millet'] },
-    { name: 'Dry Roasted Popcorn', cal: 110, tags: ['roasted', 'corn'] },
-    { name: 'Dry Roasted Makhane', cal: 130, tags: ['roasted', 'makhane', 'foxnut'] },
-    { name: 'Steam Moong Sprouts Mix Green Salad', cal: 120, tags: ['sprouts', 'salad', 'high_protein'] },
-    { name: 'Roasted Wheat Puffs Unsalted', cal: 115, tags: ['roasted', 'wheat', 'gluten'] },
-    { name: 'Murmura Bhel with Lots of Vegetables', cal: 130, tags: ['murmura', 'rice', 'salad'] },
-    { name: 'Boiled Black Chana Saute with Veggies', cal: 140, tags: ['chana', 'high_protein', 'legume'] },
-    { name: 'Veg Grilled Sandwich with Green Chutney', cal: 220, tags: ['sandwich', 'gluten', 'bread'] },
-  ];
-
-  // Only add snacks if not already fetched from sheet
-  const existingSnackNames = new Set(dishes.filter(d => d.meal_type === 'evening_snack').map(d => d.name.toLowerCase()));
-  eveningSnacks.forEach((item, idx) => {
-    if (!existingSnackNames.has(item.name.toLowerCase())) {
-      dishes.push({ id: `es_${idx}`, name: item.name, meal_type: 'evening_snack', approx_calories: item.cal, tags: item.tags, source: 'healthyfy_catalog' });
-    }
-  });
-
+  // NON-COMPROMISING RULE: ONLY dishes from Google Sheet. No hardcoded additions.
   return dishes;
 }
 
