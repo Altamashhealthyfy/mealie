@@ -669,15 +669,3 @@ function deriveDishTags(dishName, ingredients) {
   if (allText.includes('soup') || allText.includes('broth')) tags.add('soup');
   return [...tags];
 }
-
-function buildFallbackDishes() {
-  const dishes = [];
-  const add = (mealType, name, cal, tags = []) => dishes.push({ id: `fb_${dishes.length}`, meal_type: mealType, name, approx_calories: cal, tags, source: 'fallback' });
-  ['Lemon Ginger Mint Cucumber Water', 'Zeera Water', 'Tulsi Water', 'Methi Water', 'Haldi Water', 'Chia Seeds Soaked Water', 'Cinnamon Ginger Water', 'Saunf Water', 'Apple Cider Vinegar Water'].forEach(n => add('early_morning', n, 5, ['drink', 'herbal']));
-  add('breakfast', 'Plain Paratha', 220, ['roti', 'gluten']); add('breakfast', 'Aloo Paratha', 260, ['roti', 'gluten', 'potato']); add('breakfast', 'Daliya Savory', 220, ['daliya', 'gluten']); add('breakfast', 'Oats Savory', 200, ['oats']); add('breakfast', 'Moong Dal Cheela', 210, ['cheela', 'dal', 'protein']);
-  add('mid_morning', 'Seasonal Fruit', 100, ['fruit']); add('mid_morning', 'Buttermilk with Zeera', 80, ['dairy', 'drink']);
-  add('lunch', 'Roti', 120, ['roti', 'gluten']); add('lunch', 'Ghee Roti', 142, ['roti', 'gluten', 'dairy']); add('lunch', 'Plain Rice', 180, ['rice']); add('lunch', 'Khichdi', 200, ['rice', 'dal']); add('lunch', 'Plain Dal', 140, ['dal', 'protein']); add('lunch', 'Dal Tadka', 165, ['dal', 'protein']); add('lunch', 'Rajma Curry', 210, ['rajma', 'protein']); add('lunch', 'Chole Masala', 220, ['chole', 'protein']);
-  add('evening_snack', 'Roasted Chana', 150, ['chana', 'protein']); add('evening_snack', 'Dry Roasted Makhane', 130, ['makhane']); add('evening_snack', 'Tea or Coffee', 30, ['drink', 'tea']);
-  add('dinner', 'Roti', 120, ['roti', 'gluten']); add('dinner', 'Khichdi', 200, ['rice', 'dal']); add('dinner', 'Plain Dal', 140, ['dal', 'protein']); add('dinner', 'Mix Veg Soup 250ml', 80, ['soup', 'light']);
-  return dishes;
-}

@@ -392,16 +392,3 @@ function deriveDishTags(dishName, ingredients) {
   if (allText.includes('soup') || allText.includes('broth')) tags.add('soup');
   return [...tags];
 }
-
-function buildFallbackDishes() {
-  // Hardcoded fallback used ONLY if Google Sheet is temporarily unavailable
-  const dishes = [];
-  const add = (mealType, name, cal, tags = []) => dishes.push({ id: `fb_${dishes.length}`, meal_type: mealType, name, approx_calories: cal, tags, source: 'fallback' });
-  ['Lemon Ginger Mint Cucumber Water', 'Zeera Water', 'Tulsi Water', 'Methi Water', 'Haldi Water', 'Chia Seeds Soaked Water', 'Cinnamon Ginger Water', 'Saunf Water', 'Apple Cider Vinegar Water'].forEach(n => add('early_morning', n, 5, ['drink', 'herbal']));
-  add('breakfast', 'Roti with Mixed Vegetables', 240, ['roti', 'gluten']); add('breakfast', 'Daliya Savory', 220, ['daliya', 'gluten']); add('breakfast', 'Moong Dal Cheela', 210, ['cheela', 'dal', 'protein']); add('breakfast', 'Besan Cheela', 215, ['cheela', 'besan']); add('breakfast', 'Idli with Green Chutney', 200, ['idli', 'fermented']); add('breakfast', 'Poha with Vegetables', 240, ['poha']);
-  add('mid_morning', 'Seasonal Fruit', 100, ['fruit']); add('mid_morning', 'Buttermilk with Zeera', 80, ['dairy', 'drink']);
-  add('lunch', 'Roti Bran Mix with Yellow Moong Dal', 340, ['roti', 'gluten', 'dal', 'protein']); add('lunch', 'Roti Bran Mix with Vegetable Curry', 360, ['roti', 'gluten']); add('lunch', 'Khichdi', 310, ['rice', 'dal']); add('lunch', 'Rajma Curry', 370, ['rajma', 'protein', 'legume']); add('lunch', 'Chole Masala', 380, ['chole', 'protein', 'legume']);
-  add('evening_snack', 'Roasted Chana', 150, ['chana', 'protein']); add('evening_snack', 'Dry Roasted Makhane', 130, ['makhane']); add('evening_snack', 'Tea or Coffee', 30, ['drink', 'tea']);
-  add('dinner', 'Roti Bran Mix with Dal and Salad', 320, ['roti', 'gluten', 'dal']); add('dinner', 'Roti Bran Mix with Sabzi', 310, ['roti', 'gluten']); add('dinner', 'Khichdi with Vegetables', 300, ['rice', 'dal']); add('dinner', 'Mix Veg Soup', 80, ['soup', 'light']);
-  return dishes;
-}

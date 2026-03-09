@@ -234,15 +234,3 @@ function parseHealthyfyCSV(text) {
   esItems.forEach((name,idx) => { if(!existingEs.has(name.toLowerCase())) dishes.push({ id:`es_${idx}`, name, meal_type:'evening_snack', source:'healthyfy_catalog' }); });
   return dishes;
 }
-
-function buildFallbackDishes() {
-  const dishes = [];
-  const add = (mt, name) => dishes.push({ id: `fb_${dishes.length}`, meal_type: mt, name, source: 'fallback' });
-  ['Lemon Ginger Mint Cucumber Water','Zeera Water','Tulsi Water','Methi Water','Haldi Water'].forEach(n => add('early_morning', n));
-  add('breakfast','Plain Paratha'); add('breakfast','Daliya Savory'); add('breakfast','Moong Dal Cheela');
-  add('mid_morning','Seasonal Fruit'); add('mid_morning','Buttermilk');
-  add('lunch','Roti'); add('lunch','Khichdi'); add('lunch','Plain Dal'); add('lunch','Rajma Curry');
-  add('evening_snack','Roasted Chana'); add('evening_snack','Tea or Coffee');
-  add('dinner','Roti'); add('dinner','Khichdi'); add('dinner','Mix Veg Soup 250ml');
-  return dishes;
-}
