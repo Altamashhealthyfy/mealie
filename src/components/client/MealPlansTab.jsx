@@ -260,21 +260,6 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, hasPr
         </DialogContent>
       </Dialog>
 
-      {/* ── Pro Quick Plan Dialog ── */}
-      <Dialog open={showProForm} onOpenChange={setShowProForm}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Pro Clinical Plan — {client.full_name}</DialogTitle>
-          </DialogHeader>
-          <InlineProPlanForm
-            client={client}
-            prefillIntake={clinicalIntakes?.[0]}
-            onSuccess={() => { setShowProForm(false); invalidatePlans(); setActiveSubTab("pro"); }}
-            onCancel={() => setShowProForm(false)}
-          />
-        </DialogContent>
-      </Dialog>
-
       {/* ── Template Selector Dialog ── */}
       <Dialog open={!!showTemplateSelector} onOpenChange={() => setShowTemplateSelector(null)}>
         <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
