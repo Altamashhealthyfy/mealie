@@ -558,7 +558,9 @@ If lunch uses rice-based dish → dinner must use roti/millet. Never rice-based 
       },
       intra_day_duplicate_audit: {
         duplicates_found: intraDayDuplicates.length,
-        duplicates: intraDayDuplicates,
+        auto_corrected: intraDayDuplicates.filter(d => d.replaced_with).length,
+        removed_no_replacement: intraDayDuplicates.filter(d => !d.replaced_with).length,
+        corrections: intraDayDuplicates,
       },
       overview: aiResponse.overview,
       nutritional_strategy: aiResponse.nutritional_strategy,
