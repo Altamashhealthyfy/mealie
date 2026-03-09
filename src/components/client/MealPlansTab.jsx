@@ -158,10 +158,6 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, hasPr
                     onClick={() => setShowTemplateSelector("pro")}>
                     <BookOpen className="w-3 h-3 mr-1" /> From Template
                   </Button>
-                  <Button size="sm" variant="outline" className="text-xs border-purple-400 text-purple-700"
-                    onClick={() => setShowProForm(true)}>
-                    <Crown className="w-3 h-3 mr-1" /> Quick Pro Plan
-                  </Button>
                   <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-xs"
                     onClick={() => setShowWorkflow(true)}>
                     <Sparkles className="w-3 h-3 mr-1" /> Clinical Workflow
