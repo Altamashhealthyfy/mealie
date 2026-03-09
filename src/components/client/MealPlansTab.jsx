@@ -14,7 +14,6 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import MealPlanViewer from "@/components/client/MealPlanViewer";
 import InlineMealPlanForm from "@/components/client/InlineMealPlanForm";
-import InlineProPlanForm from "@/components/client/InlineProPlanForm";
 import MealPlanningWorkflow from "@/components/mealplanner/MealPlanningWorkflow";
 import MealPlanTemplateSelector from "@/components/mealplanner/MealPlanTemplateSelector";
 import SaveAsTemplateDialog from "@/components/mealplanner/SaveAsTemplateDialog";
