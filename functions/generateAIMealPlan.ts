@@ -213,7 +213,25 @@ When building LUNCH or DINNER components:
 
 **RULE K — MILK/DAIRY WITH NON-VEG**
 STRICTLY AVOID combining MILK or MILK PRODUCTS (Curd, Raita, Lassi, Buttermilk, Milk) with NON-VEGETARIAN dishes (Chicken, Fish, Mutton, Egg curry) in the SAME meal slot.
-Exception: A very small Raita (cooling agent) may accompany Biryani only, as it is a widely accepted traditional pairing.`;
+Exception: A very small Raita (cooling agent) may accompany Biryani only, as it is a widely accepted traditional pairing.
+
+**RULE L — NO SIMILAR CARB DISHES IN SAME SLOT**
+NEVER combine two dishes that are both rice-based OR both wheat-based in the same meal slot. Examples of FORBIDDEN combinations:
+  - Khichdi + Jeera Rice (both rice-based) ← STRICTLY FORBIDDEN
+  - Vegetable Pulao + Plain Rice (both rice-based) ← STRICTLY FORBIDDEN
+  - Paratha + Roti (both wheat-based) ← STRICTLY FORBIDDEN
+Each meal slot may contain AT MOST ONE rice-based dish AND AT MOST ONE wheat-based dish.
+
+**RULE M — MANDATORY PORTION SIZES & CALORIES PER MEAL**
+For EVERY meal slot, you MUST provide:
+1. "portion_sizes" array: one entry per component, with EXACT Indian household quantity. Examples:
+   - "1 pc (30g atta)" for roti/paratha
+   - "1 katori (150g)" for dal/sabzi/curry
+   - "1 cup cooked (100g raw)" for rice
+   - "1 glass (200ml)" for drinks
+   - "1 bowl (200g)" for porridge/oats
+2. "calories" field: TOTAL kcal for the ENTIRE meal slot (sum of all components). This is MANDATORY — never leave it 0 or blank.
+3. "items" array: must match "components" exactly — same dish names, same order.`;
 
     const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
