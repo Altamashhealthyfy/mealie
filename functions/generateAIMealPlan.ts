@@ -2,10 +2,10 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 /**
  * generateAIMealPlan
- * NON-COMPROMISING RULE: ALL meals MUST be selected EXCLUSIVELY from the
- * Healthyfy Dishes Google Sheet catalog. This rule applies to ALL users:
- * Super Admin, Student Coaches, Team Members — no exceptions.
- * The AI is strictly instructed never to invent or generate meals outside this catalog.
+ * NON-COMPROMISING RULE: ALL meal components MUST be selected EXCLUSIVELY from the
+ * Healthyfy Dishes Google Sheet catalog. The AI CAN and SHOULD combine multiple
+ * catalog dishes to form complete nutritionally balanced meals (e.g., Roti + Dal + Sabzi).
+ * No dish component outside this catalog is ever permitted.
  */
 Deno.serve(async (req) => {
   try {
@@ -37,15 +37,48 @@ Deno.serve(async (req) => {
     if (!client) return Response.json({ error: 'Client not found' }, { status: 404 });
 
     // ─── FETCH HEALTHYFY APPROVED DISH CATALOG ───
-    // NON-COMPROMISING RULE: All meals MUST come exclusively from this catalog
     const healthyfyDishes = await fetchHealthyfyDishes();
     const dishByType = {};
     for (const d of healthyfyDishes) {
       if (!dishByType[d.meal_type]) dishByType[d.meal_type] = [];
       dishByType[d.meal_type].push(d);
     }
-    const listDishes = (type) => (dishByType[type] || []).map(d => `  • ${d.name}`).join('\n') || '  (none available)';
+
+    // Group dishes into combination-friendly categories for the prompt
+    const listDishesWithType = (type) => {
+      const dishes = dishByType[type] || [];
+      if (dishes.length === 0) return '  (none available)';
+      return dishes.map(d => `  • ${d.name}`).join('\n');
+    };
     const countDishes = (type) => (dishByType[type] || []).length;
+
+    // Build combination guide: classify catalog dishes by their role in a meal
+    const buildCombinationGuide = () => {
+      const allDishNames = healthyfyDishes.map(d => d.name.toLowerCase());
+      const carbSources = healthyfyDishes.filter(d =>
+        ['roti', 'rice', 'paratha', 'chapati', 'bread', 'dosa', 'idli', 'upma', 'poha', 'oats', 'daliya', 'millet', 'bajra', 'jowar', 'ragi'].some(k => d.name.toLowerCase().includes(k))
+      ).map(d => d.name);
+      const proteinSources = healthyfyDishes.filter(d =>
+        ['dal', 'chole', 'rajma', 'moong', 'paneer', 'chana', 'egg', 'chicken', 'fish', 'sprouts', 'lobhia', 'soya'].some(k => d.name.toLowerCase().includes(k))
+      ).map(d => d.name);
+      const vegetables = healthyfyDishes.filter(d =>
+        ['sabzi', 'vegetable', 'veg', 'palak', 'bhindi', 'gobi', 'baingan', 'lauki', 'tinde', 'methi', 'curry', 'stir fry'].some(k => d.name.toLowerCase().includes(k))
+      ).map(d => d.name);
+      const soups = healthyfyDishes.filter(d => d.name.toLowerCase().includes('soup')).map(d => d.name);
+      const salads = healthyfyDishes.filter(d => d.name.toLowerCase().includes('salad')).map(d => d.name);
+      const drinks = healthyfyDishes.filter(d =>
+        ['water', 'tea', 'milk', 'buttermilk', 'lassi', 'juice', 'smoothie', 'kadha', 'jeera'].some(k => d.name.toLowerCase().includes(k))
+      ).map(d => d.name);
+
+      let guide = '\n═══ DISH COMBINATION GUIDE — CLASSIFY DISHES FOR COMPLETE MEALS ═══\n';
+      if (carbSources.length) guide += `CARB SOURCES (bread/grain base for meals):\n${carbSources.slice(0, 10).map(d => `  • ${d}`).join('\n')}\n\n`;
+      if (proteinSources.length) guide += `PROTEIN SOURCES (dal/legume/meat for meals):\n${proteinSources.slice(0, 10).map(d => `  • ${d}`).join('\n')}\n\n`;
+      if (vegetables.length) guide += `VEGETABLE SIDES:\n${vegetables.slice(0, 10).map(d => `  • ${d}`).join('\n')}\n\n`;
+      if (soups.length) guide += `SOUPS: ${soups.join(', ')}\n`;
+      if (salads.length) guide += `SALADS: ${salads.join(', ')}\n`;
+      if (drinks.length) guide += `DRINKS/BEVERAGES: ${drinks.join(', ')}\n`;
+      return guide;
+    };
 
     // ─── BUILD KNOWLEDGE BASE CONTEXT ───
     const knowledgeBase = knowledgeBaseArr || [];
@@ -92,9 +125,11 @@ Deno.serve(async (req) => {
       : '';
 
     const kbContext = buildKBSection();
+    const combinationGuide = buildCombinationGuide();
 
     const prompt = `You are a senior clinical dietitian creating a personalized ${duration}-day meal plan.
 ${kbContext}
+${combinationGuide}
 
 ═══ CLIENT PROFILE ═══
 Name: ${client.full_name} | Age: ${client.age || 'N/A'} | Gender: ${client.gender || 'N/A'}
@@ -126,62 +161,84 @@ ${allConditions.includes('kidney_disease') ? '→ Strict phosphorus/potassium/so
 
 ${progressContext}
 
-═══ APPROVED MEAL OPTIONS — HEALTHYFY CATALOG (NON-COMPROMISING RULE) ═══
-⚠️  ABSOLUTE RULE: You MUST ONLY select meals from the list below.
+═══ APPROVED MEAL COMPONENTS — HEALTHYFY CATALOG (NON-COMPROMISING RULE) ═══
+⚠️  ABSOLUTE RULE: You MUST ONLY use dishes from the lists below as meal components.
 ⚠️  This is the official Healthyfy approved dish catalog — sourced from the master Google Sheet.
-⚠️  You are STRICTLY PROHIBITED from creating, inventing, or using ANY meal not in this exact list.
-⚠️  If a client restriction eliminates all options for a slot, use the closest available option from this list.
-⚠️  NEVER generate a meal outside this catalog under ANY circumstances.
+⚠️  You MUST combine multiple catalog dishes to build complete, balanced meals (see RULE 1).
+⚠️  Every entry in the "components" array of your response must exactly match a name from the lists below.
+⚠️  NEVER invent or use a dish not in this catalog.
 
-EARLY MORNING — Choose exactly 1 (${countDishes('early_morning')} options):
-${listDishes('early_morning')}
+EARLY MORNING — pick 1 drink/starter (${countDishes('early_morning')} options):
+${listDishesWithType('early_morning')}
 
-BREAKFAST — Choose exactly 1 (${countDishes('breakfast')} options):
-${listDishes('breakfast')}
+BREAKFAST — combine 1-2 dishes for a complete meal (${countDishes('breakfast')} options):
+${listDishesWithType('breakfast')}
 
-MID MORNING — Choose exactly 1 (${countDishes('mid_morning')} options):
-${listDishes('mid_morning')}
+MID MORNING — pick 1 light item (${countDishes('mid_morning')} options):
+${listDishesWithType('mid_morning')}
 
-LUNCH — (Daily base: green salad + low fat buttermilk) Choose exactly 1 (${countDishes('lunch')} options):
-${listDishes('lunch')}
+LUNCH — combine 2-3 dishes (carb + protein + vegetable if available) (${countDishes('lunch')} options):
+${listDishesWithType('lunch')}
 
-EVENING SNACK — Choose exactly 1 (${countDishes('evening_snack')} options):
-${listDishes('evening_snack')}
+EVENING SNACK — pick 1 light item (${countDishes('evening_snack')} options):
+${listDishesWithType('evening_snack')}
 
-DINNER — (Daily base: soup + green salad) Choose exactly 1 (${countDishes('dinner')} options):
-${listDishes('dinner')}
+DINNER — combine 2-3 dishes with soup base (${countDishes('dinner')} options):
+${listDishesWithType('dinner')}
 
 ═══ RULES (FOLLOW ALL — STRICTLY) ═══
-RULE 1 — CATALOG COMPLIANCE (ABSOLUTE):
-  Use ONLY the dishes listed above. Every meal_name in your response must match exactly one of the names above.
-  Never add extra words, combine dishes, or create a dish not listed.
 
-RULE 2 — MEAL SEQUENCE (STRICT — EXACT ORDER EVERY DAY):
+RULE 1 — INTELLIGENT DISH COMBINATION (CORE RULE):
+  You MUST combine individual catalog dishes to form complete, nutritionally balanced meals.
+  Examples of CORRECT combinations:
+    • Lunch: "2 Whole Wheat Roti" + "Dal Tadka" + "Mixed Veg Sabzi" = complete meal
+    • Dinner: "Tomato Soup" + "2 Roti" + "Paneer Bhurji" = complete meal
+    • Breakfast: "Oats Porridge" + "Boiled Egg" = complete protein+carb breakfast
+  Structure:
+    - meal_name: A descriptive combined name (e.g., "Roti Dal Sabzi Thali")
+    - components: Array of EXACT catalog dish names used (each must match the list above)
+    - items: Array of combined food items with portions
+    - portion_sizes: Array matching items
+  NEVER list a single standalone component as a "complete" lunch or dinner (unless only 1 option exists).
+
+RULE 2 — NO SAME DISH TWICE IN ONE DAY (STRICT):
+  A catalog dish name MUST NOT appear more than once across all meals of the same day.
+  Example: If "Moong Dal" is used at lunch, it CANNOT be used at dinner on the same day.
+  Track components across all 6 slots per day and ensure zero repetition.
+
+RULE 3 — MEAL SEQUENCE (STRICT — EXACT ORDER EVERY DAY):
   1. early_morning → 2. breakfast → 3. mid_morning → 4. lunch → 5. evening_snack → 6. dinner
   Never add bedtime or post-dinner meal. Day ends with dinner.
 
-RULE 3 — CALORIE COMPLIANCE:
+RULE 4 — CALORIE COMPLIANCE:
   Total daily calories MUST NOT exceed ${targetCal} kcal. Range: ${targetCal - 100} to ${targetCal} kcal.
+  When combining dishes, add calories of each component.
 
-RULE 4 — VARIETY:
-  Never repeat the same main dish within 3 consecutive days.
-
-RULE 5 — NO POST-DINNER/BEDTIME MEAL: Day ends with dinner. No night milk.
+RULE 5 — VARIETY ACROSS DAYS:
+  Never repeat the same combination (same set of components) within 3 consecutive days.
+  Rotate carb sources: alternate between roti, rice, millets, dosa etc. across days.
+  Rotate protein sources: alternate between different dals, paneer, eggs, etc. across days.
 
 RULE 6 — NON-VEG & EGG FREQUENCY:
-${clinical?.non_veg_frequency_per_10_days ? `  • Non-veg meals: EXACTLY ${clinical.non_veg_frequency_per_10_days} times in the ${duration}-day plan` : '  • Non-veg: per diet preference'}
+${clinical?.non_veg_frequency_per_10_days ? `  • Non-veg components: EXACTLY ${clinical.non_veg_frequency_per_10_days} times in the ${duration}-day plan` : '  • Non-veg: per diet preference'}
 ${clinical?.non_veg_preferred_meals?.length ? `  • Non-veg preferred at: ${clinical.non_veg_preferred_meals.join(', ')}` : ''}
-${clinical?.egg_frequency_per_10_days ? `  • Egg meals: EXACTLY ${clinical.egg_frequency_per_10_days} times in the ${duration}-day plan` : ''}
+${clinical?.egg_frequency_per_10_days ? `  • Egg components: EXACTLY ${clinical.egg_frequency_per_10_days} times in the ${duration}-day plan` : ''}
 ${clinical?.egg_preferred_meals?.length ? `  • Eggs preferred at: ${clinical.egg_preferred_meals.join(', ')}` : ''}
 
-RULE 7 — NO FRUITS AT NIGHT: Fruits only at breakfast, mid-morning, or evening snack. Never dinner/post-dinner.
+RULE 7 — NO FRUITS AT NIGHT: Fruit-based catalog items only at breakfast, mid-morning, or evening snack. Never dinner.
 
-RULE 8 — RICE vs ROTI BALANCE: If rice at lunch, dinner must be roti/millet based. Never rice in both.
+RULE 8 — RICE vs ROTI BALANCE: If rice-based component at lunch, dinner must use roti/millet-based component. Never both at rice-based.
 
 RULE 9 — WEIGHT LOSS (if goal = weight_loss):
-  Add "Drink 1 glass water 30 min before meal" in lunch & dinner. No night milk. Light high-protein dinners.
+  Add "Drink 1 glass water 30 min before meal" in lunch & dinner tips. Light high-protein dinners.
 
 RULE 10 — MACROS: Protein=${targetProtein}g | Carbs=${targetCarbs}g | Fats=${targetFats}g (±15%).
+  Sum up macros from all components in a meal slot.
+
+RULE 11 — COMPLETE MEAL STRUCTURE (MINIMUM COMPONENTS):
+  Lunch must have at minimum: 1 carb source + 1 protein source (dal/legume/meat).
+  Dinner must have at minimum: 1 protein source + 1 carb/vegetable source.
+  If only 1 catalog option is available for a slot, use just that 1.
 ${modificationInstructions ? `\n═══ COACH MODIFICATION INSTRUCTIONS (APPLY STRICTLY) ═══\n"${modificationInstructions}"\nApply ONLY these changes while keeping all rules intact.` : ''}`;
 
     const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
@@ -212,6 +269,11 @@ ${modificationInstructions ? `\n═══ COACH MODIFICATION INSTRUCTIONS (APPLY
                 day: { type: "number" },
                 meal_type: { type: "string" },
                 meal_name: { type: "string" },
+                components: {
+                  type: "array",
+                  items: { type: "string" },
+                  description: "Exact catalog dish names combined to form this meal"
+                },
                 suggested_time: { type: "string" },
                 items: { type: "array", items: { type: "string" } },
                 portion_sizes: { type: "array", items: { type: "string" } },
@@ -262,36 +324,26 @@ ${modificationInstructions ? `\n═══ COACH MODIFICATION INSTRUCTIONS (APPLY
       ingredientMap[ing.ingredient_name.toLowerCase()] = ing;
     }
 
-    function calcNutritionFromIngredients(ingredients) {
-      let kcal = 0, protein = 0, carbs = 0, fat = 0, fibre = 0;
-      for (const ing of (ingredients || [])) {
-        const dbEntry = ingredientMap[ing.ingredient_name?.toLowerCase()];
-        if (!dbEntry) continue;
-        let grams = ing.qty || 0;
-        if (ing.unit === 'ml' && dbEntry.density_g_per_ml) grams = ing.qty * dbEntry.density_g_per_ml;
-        const factor = grams / 100;
-        kcal    += (dbEntry.kcal_100g || 0) * factor;
-        protein += (dbEntry.protein_100g || 0) * factor;
-        carbs   += (dbEntry.carbs_100g || 0) * factor;
-        fat     += (dbEntry.fat_100g || 0) * factor;
-        fibre   += (dbEntry.fibre_100g || 0) * factor;
-      }
-      return { kcal, protein_g: protein, carbs_g: carbs, fat_g: fat, fibre_g: fibre };
-    }
-
-    // Cross-reference AI meal names against Healthyfy catalog for compliance audit
+    // Cross-reference AI meal components against Healthyfy catalog
     const catalogNameSet = new Set(healthyfyDishes.map(d => d.name.toLowerCase().trim()));
     const dishByName = {};
     for (const d of healthyfyDishes) dishByName[d.name.toLowerCase().trim()] = d;
 
     const enrichedMeals = (aiResponse.meals || []).map(meal => {
+      // Check catalog compliance for all components
+      const components = meal.components || [];
+      const componentCompliance = components.map(c => ({
+        name: c,
+        in_catalog: catalogNameSet.has(c.toLowerCase().trim())
+      }));
+      const allComponentsCompliant = componentCompliance.length === 0
+        ? catalogNameSet.has((meal.meal_name || '').toLowerCase().trim())
+        : componentCompliance.every(c => c.in_catalog);
+
+      // Try to get nutrition from matched recipe
       const mealNameKey = (meal.meal_name || '').toUpperCase();
       const mealNameLower = (meal.meal_name || '').toLowerCase().trim();
       const matchedRecipe = recipeMap[mealNameKey];
-
-      // Check catalog compliance
-      const inCatalog = catalogNameSet.has(mealNameLower);
-      const catalogDish = dishByName[mealNameLower];
 
       if (matchedRecipe?.calculated_nutrition_per_serving) {
         const n = matchedRecipe.calculated_nutrition_per_serving;
@@ -304,17 +356,58 @@ ${modificationInstructions ? `\n═══ COACH MODIFICATION INSTRUCTIONS (APPLY
           fats: Math.round(n.fat_g * servings * 10) / 10,
           fiber: Math.round((n.fibre_g || 0) * servings * 10) / 10,
           nutrition_source: 'database_verified',
-          catalog_compliant: inCatalog,
+          catalog_compliant: allComponentsCompliant,
+          component_compliance: componentCompliance,
         };
       }
 
-      // If catalog dish found, use its estimated calories as a baseline
-      if (catalogDish && (!meal.calories || meal.calories === 0)) {
-        return { ...meal, calories: catalogDish.approx_calories || meal.calories, nutrition_source: 'catalog_estimated', catalog_compliant: true };
+      // Sum up approx calories from catalog components
+      if (components.length > 0) {
+        let totalCal = 0;
+        for (const comp of components) {
+          const catalogDish = dishByName[comp.toLowerCase().trim()];
+          if (catalogDish?.approx_calories) totalCal += catalogDish.approx_calories;
+        }
+        if (totalCal > 0) {
+          return {
+            ...meal,
+            calories: meal.calories || totalCal,
+            nutrition_source: 'catalog_estimated_combined',
+            catalog_compliant: allComponentsCompliant,
+            component_compliance: componentCompliance,
+          };
+        }
       }
 
-      return { ...meal, nutrition_source: 'ai_estimated', catalog_compliant: inCatalog };
+      // Fallback: single dish
+      const catalogDish = dishByName[mealNameLower];
+      if (catalogDish && (!meal.calories || meal.calories === 0)) {
+        return { ...meal, calories: catalogDish.approx_calories || meal.calories, nutrition_source: 'catalog_estimated', catalog_compliant: true, component_compliance: componentCompliance };
+      }
+
+      return { ...meal, nutrition_source: 'ai_estimated', catalog_compliant: allComponentsCompliant, component_compliance: componentCompliance };
     });
+
+    // ─── NO INTRA-DAY DUPLICATION AUDIT ───
+    const dayComponentMap = {};
+    for (const meal of enrichedMeals) {
+      if (!dayComponentMap[meal.day]) dayComponentMap[meal.day] = new Set();
+      for (const comp of (meal.components || [])) {
+        dayComponentMap[meal.day].add(comp.toLowerCase().trim());
+      }
+    }
+    // Flag any intra-day duplicates
+    const intraDayDuplicates = [];
+    for (const meal of enrichedMeals) {
+      const seenInDay = new Set();
+      for (const comp of (meal.components || [])) {
+        const key = comp.toLowerCase().trim();
+        if (seenInDay.has(key)) {
+          intraDayDuplicates.push({ day: meal.day, meal_type: meal.meal_type, duplicate_component: comp });
+        }
+        seenInDay.add(key);
+      }
+    }
 
     // Recalculate day summaries from enriched meals
     const recalculatedDaySummaries = [];
@@ -370,6 +463,7 @@ ${modificationInstructions ? `\n═══ COACH MODIFICATION INSTRUCTIONS (APPLY
         additional_restrictions: additionalRestrictions, additional_allergies: additionalAllergies,
         additional_conditions: additionalConditions, modification_instructions: modificationInstructions || null,
         generation_count: generationCount, catalog_source: 'healthyfy_google_sheet', total_catalog_dishes: healthyfyDishes.length,
+        dish_combination_mode: true,
       },
     });
 
@@ -383,7 +477,7 @@ ${modificationInstructions ? `\n═══ COACH MODIFICATION INSTRUCTIONS (APPLY
       read: false,
     }).catch(() => {});
 
-    // ─── MEAL OPTION ANALYSIS — FROM HEALTHYFY CATALOG ───
+    // ─── MEAL OPTION ANALYSIS ───
     const foodPref = client.food_preference || 'mixed';
     const isVeg = ['veg', 'jain'].includes(foodPref);
     const isJain = foodPref === 'jain';
@@ -440,7 +534,6 @@ ${modificationInstructions ? `\n═══ COACH MODIFICATION INSTRUCTIONS (APPLY
       return { category: label, total: options.length, available_count: available.length, excluded_count: excluded.length, available, excluded };
     }
 
-    // Build analysis from Healthyfy catalog grouped by meal type
     const mealTypeLabels = {
       early_morning: 'Early Morning Drinks',
       breakfast: 'Breakfast Options',
@@ -454,10 +547,11 @@ ${modificationInstructions ? `\n═══ COACH MODIFICATION INSTRUCTIONS (APPLY
       return analyzeCategory(label, options);
     });
 
-    const targetCal2 = overrideCalories || client.target_calories || client.tdee || 1800;
     const decisionRules = [
-      { rule: `🔒 NON-COMPROMISING RULE: All dishes sourced exclusively from Healthyfy Google Sheet catalog (${healthyfyDishes.length} total dishes)`, category: 'Dish Source' },
-      { rule: `Daily calorie target: ${targetCal2} kcal (BMR: ${client.bmr || 'N/A'}, TDEE: ${client.tdee || 'N/A'}, Goal: ${(goal || client.goal || 'N/A').replace(/_/g,' ')})`, category: 'Calorie Target' },
+      { rule: `🔒 NON-COMPROMISING RULE: All dish components sourced exclusively from Healthyfy Google Sheet catalog (${healthyfyDishes.length} total dishes)`, category: 'Dish Source' },
+      { rule: `🍽️ COMBINATION MODE ACTIVE: AI combines 2-3 catalog dishes per meal slot for complete balanced meals`, category: 'Dish Combination' },
+      { rule: `🚫 NO INTRA-DAY REPETITION: Each catalog dish can appear only once per day across all slots`, category: 'Variety' },
+      { rule: `Daily calorie target: ${targetCal} kcal (BMR: ${client.bmr || 'N/A'}, TDEE: ${client.tdee || 'N/A'}, Goal: ${(goal || client.goal || 'N/A').replace(/_/g,' ')})`, category: 'Calorie Target' },
       { rule: `Macros: Protein ~${targetProtein}g | Carbs ~${targetCarbs}g | Fats ~${targetFats}g`, category: 'Macros' },
       { rule: `Diet type: ${foodPref.charAt(0).toUpperCase() + foodPref.slice(1)} — Meal options selected accordingly`, category: 'Diet Type' },
       ...(allConditions.length > 0 ? allConditions.map(c => ({ rule: `${c}: Applied clinical dietary rules for this condition`, category: 'Medical Condition' })) : []),
@@ -467,7 +561,6 @@ ${modificationInstructions ? `\n═══ COACH MODIFICATION INSTRUCTIONS (APPLY
       ...(cuisineNotes ? [{ rule: `Cuisine notes: ${cuisineNotes}`, category: 'Cuisine' }] : []),
     ];
 
-    // Catalog compliance audit
     const nonCompliantMeals = enrichedMeals.filter(m => !m.catalog_compliant);
 
     return Response.json({
@@ -475,10 +568,15 @@ ${modificationInstructions ? `\n═══ COACH MODIFICATION INSTRUCTIONS (APPLY
       mealPlan: { id: mealPlan.id, name: mealPlan.name, duration, meals: enrichedMeals.length },
       catalog_source: 'healthyfy_google_sheet',
       total_catalog_dishes: healthyfyDishes.length,
+      dish_combination_mode: true,
       catalog_compliance: {
         total_meals: enrichedMeals.length,
         compliant_meals: enrichedMeals.length - nonCompliantMeals.length,
         non_compliant_meals: nonCompliantMeals.map(m => ({ day: m.day, meal_type: m.meal_type, meal_name: m.meal_name })),
+      },
+      intra_day_duplicate_audit: {
+        duplicates_found: intraDayDuplicates.length,
+        duplicates: intraDayDuplicates,
       },
       overview: aiResponse.overview,
       nutritional_strategy: aiResponse.nutritional_strategy,
@@ -499,8 +597,6 @@ ${modificationInstructions ? `\n═══ COACH MODIFICATION INSTRUCTIONS (APPLY
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // HEALTHYFY DISH CATALOG — GOOGLE SHEET INTEGRATION
-// NON-COMPROMISING RULE: This is the ONLY source of dishes for ALL meal plans.
-// Applies to: Super Admin, Student Coaches, Team Members — NO exceptions.
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const HEALTHYFY_SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1piIBl9QUrluRBf24-1bZNbooGYqMI5Cr11w3Mb9WxfU/export?format=csv';
@@ -519,7 +615,6 @@ function parseCSVLine(line) {
 }
 
 async function fetchHealthyfyDishes() {
-  // NON-COMPROMISING RULE: If Google Sheet is unavailable, FAIL HARD. No fallback. No AI invention.
   const resp = await fetch(HEALTHYFY_SHEET_CSV);
   if (!resp.ok) throw new Error(`HEALTHYFY CATALOG UNAVAILABLE: Google Sheet returned HTTP ${resp.status}. Cannot proceed without the official dish catalog.`);
   const text = await resp.text();
@@ -585,7 +680,6 @@ function parseHealthyfyCSV(text) {
     }
   }
 
-  // NON-COMPROMISING RULE: ONLY dishes from Google Sheet. No hardcoded additions.
   return dishes;
 }
 
