@@ -249,14 +249,11 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, hasPr
 
       {/* ── Basic Plan Dialog ── */}
       <Dialog open={showBasicForm} onOpenChange={setShowBasicForm}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Generate Basic Meal Plan — {client.full_name}</DialogTitle>
-          </DialogHeader>
-          <InlineMealPlanForm
+        <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto p-0">
+          <AIMealPlanGenerator
             client={client}
-            onSuccess={() => { setShowBasicForm(false); invalidatePlans(); setActiveSubTab("basic"); }}
-            onCancel={() => setShowBasicForm(false)}
+            clinicalIntakes={clinicalIntakes || []}
+            onPlanGenerated={() => { invalidatePlans(); setActiveSubTab("basic"); }}
           />
         </DialogContent>
       </Dialog>
