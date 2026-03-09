@@ -178,15 +178,14 @@ function parseCSVLine(line) {
 }
 
 async function fetchHealthyfyDishes() {
-  try {
-    const resp = await fetch(HEALTHYFY_SHEET_CSV);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const text = await resp.text();
-    return parseHealthyfyCSV(text);
-  } catch (err) {
-    console.error('ERROR: Could not fetch Healthyfy dish catalog:', err.message);
-    return [];
-  }
+  // NON-COMPROMISING RULE: If Google Sheet is unavailable, FAIL HARD. No fallback. No AI invention.
+  const resp = await fetch(HEALTHYFY_SHEET_CSV);
+  if (!resp.ok) throw new Error(`HEALTHYFY CATALOG UNAVAILABLE: Google Sheet returned HTTP ${resp.status}. Cannot proceed without the official dish catalog.`);
+  const text = await resp.text();
+  const dishes = parseHealthyfyCSV(text);
+  if (dishes.length === 0) throw new Error('HEALTHYFY CATALOG EMPTY: Google Sheet returned 0 dishes. Cannot generate meal plan.');
+  console.log(`✅ Healthyfy catalog loaded: ${dishes.length} dishes from Google Sheet`);
+  return dishes;
 }
 
 function parseHealthyfyCSV(text) {
@@ -225,12 +224,6 @@ function parseHealthyfyCSV(text) {
     }
   }
 
-  const emDrinks = ['Lemon Ginger Mint Cucumber Water','Zeera Water','Tulsi Water','Aloe Vera Juice with Water','Methi Water','Haldi Water','Chia Seeds Soaked Water','Dhaniya Pudina Water','Cinnamon Ginger Water','Saunf Water','Apple Cider Vinegar Water'];
-  emDrinks.forEach((name,idx) => dishes.push({ id:`em_${idx}`, name, meal_type:'early_morning', source:'healthyfy_catalog' }));
-  const mmItems = ['Seasonal Fruit 150g with Lemon Shikanji','Low Fat Buttermilk with Zeera and Chia Seeds','Seasonal Fruit — Apple or Orange or Papaya or Pear or Guava or Pomegranate','Cucumber Slices with Apple','Cucumber Slices with Pear','Bowl Papaya with Black Pepper','Pomegranate with Lemon'];
-  mmItems.forEach((name,idx) => dishes.push({ id:`mm_${idx}`, name, meal_type:'mid_morning', source:'healthyfy_catalog' }));
-  const esItems = ['Tea or Coffee or Green Tea or Low Fat Milk or Buttermilk','Roasted Chana or Roasted Chana Mix Green Salad','Dry Roasted Bajra Puffs Unsalted','Dry Roasted Popcorn','Dry Roasted Makhane','Steam Moong Sprouts Mix Green Salad','Roasted Wheat Puffs Unsalted','Murmura Bhel with Lots of Vegetables','Boiled Black Chana Saute with Veggies','Veg Grilled Sandwich with Green Chutney'];
-  const existingEs = new Set(dishes.filter(d=>d.meal_type==='evening_snack').map(d=>d.name.toLowerCase()));
-  esItems.forEach((name,idx) => { if(!existingEs.has(name.toLowerCase())) dishes.push({ id:`es_${idx}`, name, meal_type:'evening_snack', source:'healthyfy_catalog' }); });
+  // NON-COMPROMISING RULE: ONLY dishes from Google Sheet. No hardcoded additions.
   return dishes;
 }
