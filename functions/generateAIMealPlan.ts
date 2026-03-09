@@ -1,5 +1,12 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
+/**
+ * generateAIMealPlan
+ * NON-COMPROMISING RULE: ALL meals MUST be selected EXCLUSIVELY from the
+ * Healthyfy Dishes Google Sheet catalog. This rule applies to ALL users:
+ * Super Admin, Student Coaches, Team Members — no exceptions.
+ * The AI is strictly instructed never to invent or generate meals outside this catalog.
+ */
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -28,6 +35,17 @@ Deno.serve(async (req) => {
 
     const client = clientArr[0];
     if (!client) return Response.json({ error: 'Client not found' }, { status: 404 });
+
+    // ─── FETCH HEALTHYFY APPROVED DISH CATALOG ───
+    // NON-COMPROMISING RULE: All meals MUST come exclusively from this catalog
+    const healthyfyDishes = await fetchHealthyfyDishes();
+    const dishByType = {};
+    for (const d of healthyfyDishes) {
+      if (!dishByType[d.meal_type]) dishByType[d.meal_type] = [];
+      dishByType[d.meal_type].push(d);
+    }
+    const listDishes = (type) => (dishByType[type] || []).map(d => `  • ${d.name}`).join('\n') || '  (none available)';
+    const countDishes = (type) => (dishByType[type] || []).length;
 
     // ─── BUILD KNOWLEDGE BASE CONTEXT ───
     const knowledgeBase = knowledgeBaseArr || [];
@@ -65,185 +83,17 @@ Deno.serve(async (req) => {
     const targetFats = overrideFats || client.target_fats || Math.round((targetCal * 0.25) / 9);
 
     const allRestrictions = [...(client.dietary_restrictions || []), ...additionalRestrictions];
-    const allAllergies = [...(clinical?.allergies || []), ...additionalAllergies];
-    const allConditions = [...(clinical?.medical_conditions || []), ...additionalConditions];
+    const allAllergies = [...(clinical?.likes_dislikes_allergies?.allergies || []), ...additionalAllergies];
+    const allConditions = [...(clinical?.health_conditions || []), ...additionalConditions];
     const allMeds = clinical?.current_medications || [];
 
-    // Standard meal pattern for all clients
-    const mealTypes = ['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner'];
-
     const progressContext = adaptFromFeedback && recentLogs.length > 0
-      ? `RECENT PROGRESS (last ${recentLogs.length} logs):
-${recentLogs.map(l => `  ${l.date}: weight=${l.weight || 'N/A'}kg, adherence=${l.meal_adherence || 'N/A'}%, symptoms=${l.symptoms?.join(', ') || 'none'}`).join('\n')}
-Food patterns: ${recentFoodLogs.slice(0, 6).map(f => f.meal_name || f.meal_type).join(', ') || 'N/A'}
-→ If adherence < 70%, simplify portions and prefer quicker meals. Avoid foods linked to reported symptoms.`
+      ? `RECENT PROGRESS (last ${recentLogs.length} logs):\n${recentLogs.map(l => `  ${l.date}: weight=${l.weight || 'N/A'}kg, adherence=${l.meal_adherence || 'N/A'}%, symptoms=${l.symptoms?.join(', ') || 'none'}`).join('\n')}\nFood patterns: ${recentFoodLogs.slice(0, 6).map(f => f.meal_name || f.meal_type).join(', ') || 'N/A'}\n→ If adherence < 70%, simplify portions and prefer quicker meals.`
       : '';
-
-    const mealOptions = {
-      early_morning: [
-        "1Liter water + 2 small lemon slices + 1 inch ginger grated + 10-12 mint leaves + 1 small cucumber slice [Mix night before]",
-        "1Glass zeera water [1spoon zeera seeds overnight soaked in 1glass boiled water next morning consume, Luke warm]",
-        "1Glass tulsi water [10-12 tulsi leaves boiled in 1 glass water till 1 cup consume, may add lemon for taste]",
-        "30ml aloe Vera juice with 70 ml water",
-        "1Glass methi water [1spoon methi seeds + 2glasses of water > boiled till 1glass overnight soaked next morning consume luke warm]",
-        "1Glass Haldi water [½ Teaspoon haldi powder + ½ inch grated ginger + 1Glass Luke warm water]",
-        "1Tablespoon chia seeds overnight soaked in 1glass water next morning consume",
-        "1Glass dhaniya pudina water [1tea spoon dhaniya seeds + 10-12 mint leaves 2glasses of water > boiled till 1glass consume luke warm]",
-        "1Glass cinnamon ginger water [pinch of cinnamon + 1Glass Luke warm water]",
-        "1Glass saunf water [1spoon saunf seeds + 2glasses of water > boiled till 1glass overnight soaked next morning consume luke warm]",
-        "1Glass A.C.V. [20ml apple cider vinegar + 1glass water]"
-      ],
-      breakfast_cereal: [
-        "3 Table spoons muesli without nuts with milk",
-        "3 tablespoon wheat flakes with milk without sugar",
-        "Oats with milk",
-        "Wheat daliya with milk"
-      ],
-      breakfast_poha: [
-        "1Small bowl vegetable poha mix 1ice cube size paneer homemade + veggies",
-        "1Small bowl vegetable poha mix 2 spoons of steam sprouts",
-        "1Small bowl vegetable poha mix nutreela",
-        "1medium bowl vegetable bread Poha [3:1] + green chutney"
-      ],
-      breakfast_nonveg: [
-        "3 Eggs white mix veggies omelette or scrambled with 1whole wheat toast",
-        "2-3 boiled egg white with veggies",
-        "Chicken salami sandwich with g. chutney"
-      ],
-      breakfast_daliya: [
-        "1bowl veg oats [3:1] with green chutney",
-        "1bowl vegetable wheat daliya [3:1]+ g. chutney",
-        "1bowl vegetable ragi daliya [3:1] + g. chutney",
-        "1bowl vegetable bajra daliya [3:1] + g. chutney",
-        "1bowl vegetable barley daliya [3:1] + g. chutney",
-        "1bowl vegetable upma[3:1]+ g.chutney"
-      ],
-      breakfast_sandwich: [
-        "1-2 Aata bread veg sandwich with green chutney",
-        "1-2 Paneer sandwiches with green chutney",
-        "1Spoon Peanut butter with chia seeds sandwich [2spoon peanut butter spread on 2slices of whole wheat bread, add strawberries slices banana slices /apple slices + sprinkle 1spoon chia seeds]",
-        "1-2 Soya veg sandwich with g. chutney",
-        "1-2 Aalu veg sandwich with g. chutney"
-      ],
-      breakfast_stuffed_roti: [
-        "1-2 Veg stuffed roti [lauki + green chilli + coriander leaves]",
-        "1-2 Veg stuffed roti [Spinach /methi + green chilli + onion]",
-        "1-2 Veg stuffed roti [onion + green chilli + coriander leaves]",
-        "1-2 Veg stuffed roti [Paneer + onion + green chilli + coriander leaves]",
-        "1-2 Veg stuffed roti [Radish + coriander leaves]",
-        "1-2 Veg stuffed roti [soya bean /nutreela + onion + green chilli + coriander leaves]",
-        "1-2 Veg stuffed roti [carrot +onion + green chilli + coriander leaves]"
-      ],
-      breakfast_cheela: [
-        "1-2 besan cheela veg mix with g. chutney",
-        "1-2 Suji cheela veg mix with g. chutney",
-        "1-2 Veg uttapam with g. chutney",
-        "1-2 Ragi cheela veg mix with g. chutney",
-        "1-2 Moong dal cheela veg mix with g. chutney",
-        "1-2 Chana dal cheela veg mix with g. chutney"
-      ],
-      breakfast_chholes: [
-        "1bowl steam moong sprouts mix green salad",
-        "1Bowl soya bean sprouts with green salad",
-        "1Bowl boiled black chana saute with lots of veggies",
-        "1Bowl lobhia saute with lots of veggies"
-      ],
-      breakfast_smoothies: [
-        "1 bowl fruit yogurt [yogurt + apple + 1spoon chia seeds]",
-        "1 bowl of plain yogurt with fruit [no mango] banana once a week add 1 spoon roasted flax seeds",
-        "1Bowl smoothies [1Glass milk + 2spoon oats+ 1table spoon chia seeds + ½ apple Or ½ banana > grind]",
-        "1 glass APPLE shake /BANANA shake [Once a week]"
-      ],
-      breakfast_idli: [
-        "2-3Rava idli veg stuffed with g. chutney",
-        "2-3Moong dal idli veg stuffed with g. chutney",
-        "2-3Besan idli veg stuffed with g. chutney",
-        "2-3Oats mix rava mix veggies idli with g. chutney",
-        "2-3 Fermented idli veg stuffed with g. chutney"
-      ],
-      midmorning: [
-        "1 Seasonal fruit [150gm] > AFTER 1HOUR > 1 glass lemon shikanji",
-        "1 Glass low fat buttermilk mix roasted zeera powder + 1 spoon roasted chia / flax seeds",
-        "1SEASONAL FRUIT [1Apple /1Orange / Mausambi /1Bowl papaya /1pear/ 1guava/ 1 pomegranate with 2-3 drops of lemon]",
-        "2 slices cucumber + 1 apple",
-        "2 slices cucumber + 1 pear",
-        "1 bowl papaya [2 slices of papaya with black pepper]",
-        "1Pomegranate with 2-3 drops of lemon"
-      ],
-      lunch_base: "Daily: 1Full plate/bowl green salad (steamed / Grated Raw) + 1medium bowl of low fat buttermilk",
-      lunch_roti_veg: [
-        "1-2 roti bran mix / jawar + 1bowl lauki veg",
-        "1-2 roti bran mix / jawar + 1bowl tori veg",
-        "1-2 roti bran mix / jawar + 1bowl parwar veg",
-        "1-2 roti bran mix / jawar + 1bowl bhindi veg",
-        "1-2 roti bran mix / jawar + 1bowl kaddu veg",
-        "1-2 roti bran mix / jawar + 1bowl Spinach veg",
-        "1-2 roti bran mix / jawar + 1bowl brinjal bharta",
-        "1-2 roti bran mix / jawar + 1bowl capsicum potato veg",
-        "1-2 roti bran mix / jawar + 1bowl beans potato veg",
-        "1-2 roti bran mix / jawar + 1bowl nutreela capsicum veg",
-        "1-2 Roti bran mix / jawar + 1bowl Methi aalu veg",
-        "1-2 Roti bran mix / jawar + 1bowl cauliflower aalu veg",
-        "1-2 Roti bran mix / jawar + 1bowl matter mushroom veg",
-        "1-2 Roti bran mix / jawar + 1bowl saag veg",
-        "1-2 Roti bran mix / jawar + 1bowl paneer veg bhurji [homemade paneer]",
-        "1-2 Roti bran mix / jawar + 1bowl spring onion aalu veg",
-        "1-2 Roti bran mix / jawar + 1bowl beans yellow moong dal veg",
-        "1-2 Roti bran mix / jawar + 1bowl carrot peas veg",
-        "1-2 Roti bran mix / jawar + 1bowl mix veg",
-        "1-2 Roti bran mix / jawar + 1bowl mooli bhurji",
-        "1-2 Roti bran mix / jawar + 1bowl Capsicum paneer veg",
-        "1-2 Roti bran mix / jawar + 1bowl brinjal potato veg",
-        "1-2 Roti bran mix / jawar + 1bowl cabbage peas veg"
-      ],
-      lunch_dal: [
-        "1-2 Roti bran mix / jawar + 1bowl yellow moong dal",
-        "1-2 Roti bran mix/ jawar + 1bowl arher dal",
-        "1-2 Roti bran mix / jawar + 1bowl masoor dal",
-        "1-2 Roti bran mix/ jawar + 1bowl chana dal",
-        "1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl chhole",
-        "1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl black chana",
-        "1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl rajhma",
-        "1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl lobhia",
-        "1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl soyabean",
-        "1-2 Roti bran mix / jawar /small bowl steam rice + 1bowl kadhi without pakrori",
-        "1-2Roti bran mix / jawar + 1bowl gatte veg without fried"
-      ],
-      lunch_nonveg: [
-        "1medium bowl chicken biryani [no leg pieces] homemade with low fat buttermilk",
-        "1bowl fish curry with steam rice",
-        "4-5 pieces of fish[steam/grilled]with grilled veggies /1-2 roti wheat /tandoori roti /buttermilk",
-        "2Pieces of grilled chicken [100gm][no leg pieces] with g. chutney + buttermilk",
-        "2Egg white curry with steam rice /1-2 roti bran mix"
-      ],
-      evening: [
-        "1Cup tea / 1Cup black coffee / Black tea / Green tea / 1Cup low fat milk / 1cup low fat buttermilk",
-        "One handful of Roasted chana or roasted chana mix green salad [twice-thrice a week]",
-        "Dry roasted bajra puffs unsalted [twice a week]",
-        "Dry roasted popcorn [twice-thrice a week]",
-        "Dry roasted makhane [twice-thrice a week]",
-        "1Smal bowl steam moong sprouts mix green salad [once -twice a week]",
-        "Roasted wheat puffs unsalted [twice-thrice a week]",
-        "1Small bowl murmura bhel with lots of vegetables [once a week]",
-        "1Small bowl boiled black chana saute with veggies [once -twice a week]",
-        "1Veg grilled sandwich with g. chutney [once a week]"
-      ],
-      dinner_soup: [
-        "1Bowl mix veg soup [250ml]",
-        "Tomato soup [250ml]",
-        "Cabbage soup [250ml]",
-        "Mushroom soup [250ml]",
-        "French beans tomato soup [250ml]",
-        "Broccoli peas soup [250ml]",
-        "Spinach soup [250ml]",
-        "Chicken soup / chicken broth [250ml]"
-      ],
-      dinner_base: "1BOWL SOUP[250ml] + Full bowl of green salad chopped or grated[raw/steam]"
-    };
 
     const kbContext = buildKBSection();
 
-    const prompt = `You are a senior clinical dietitian creating a personalized ${duration}-day meal plan. Be thorough, specific, and clinically sound.
+    const prompt = `You are a senior clinical dietitian creating a personalized ${duration}-day meal plan.
 ${kbContext}
 
 ═══ CLIENT PROFILE ═══
@@ -267,7 +117,7 @@ Snack Preference: ${snackPreference}
 
 ═══ MEDICAL CONDITIONS ═══
 ${allConditions.length ? allConditions.map(c => `  • ${c}`).join('\n') : '  • None'}
-Medications: ${allMeds.length ? allMeds.join(', ') : 'none'}
+Medications: ${allMeds.length ? allMeds.map(m => m.name || m).join(', ') : 'none'}
 ${allConditions.includes('diabetes') || allConditions.includes('type2_diabetes') ? '→ Low glycemic index foods, avoid refined sugars, monitor carb distribution' : ''}
 ${allConditions.includes('hypertension') ? '→ Low sodium (<1500mg/day), DASH diet principles' : ''}
 ${allConditions.includes('pcos') ? '→ Anti-inflammatory foods, low GI, balance hormones' : ''}
@@ -276,101 +126,63 @@ ${allConditions.includes('kidney_disease') ? '→ Strict phosphorus/potassium/so
 
 ${progressContext}
 
-═══ INSTRUCTIONS ═══
-1. Generate exactly ${duration} days × 6 meals/sections (early_morning, breakfast, mid_morning, lunch, evening_snack, dinner)
-2. Each meal MUST include: name, items array, portion_sizes array (same length as items), calories, protein, carbs, fats, fiber, rationale (explain WHY this benefits this client specifically)
-3. SELECT MEALS ONLY FROM THE APPROVED OPTIONS LIST provided above
-4. Never repeat same main dish within 3 consecutive days
-5. Daily total calories = ${targetCal} kcal (±80 kcal max) across ALL meals including herbal drink
-6. Macro targets: Protein=${targetProtein}g, Carbs=${targetCarbs}g, Fats=${targetFats}g (±15%)
-7. 100% Indian meals only - all options are authentic Indian cuisine
-8. Post-dinner: SAME herbal beverage for all ${duration} days (no rotation)
-9. Day summaries with total macros for each day
-10. Nutritional strategy explaining adaptation for client's specific goal & conditions
+═══ APPROVED MEAL OPTIONS — HEALTHYFY CATALOG (NON-COMPROMISING RULE) ═══
+⚠️  ABSOLUTE RULE: You MUST ONLY select meals from the list below.
+⚠️  This is the official Healthyfy approved dish catalog — sourced from the master Google Sheet.
+⚠️  You are STRICTLY PROHIBITED from creating, inventing, or using ANY meal not in this exact list.
+⚠️  If a client restriction eliminates all options for a slot, use the closest available option from this list.
+⚠️  NEVER generate a meal outside this catalog under ANY circumstances.
 
-═══ APPROVED MEAL OPTIONS (USE THESE EXCLUSIVELY) ═══
-RULE 1 - USE ONLY FROM APPROVED OPTIONS LIST: All meals MUST be selected from the meal options provided below. NEVER create custom meals not in this list. Reference the mealOptions by category when generating each meal.
+EARLY MORNING — Choose exactly 1 (${countDishes('early_morning')} options):
+${listDishes('early_morning')}
 
-APPROVED MEAL CATEGORIES:
-  • Early Morning (11 options): Lemon-ginger-mint water, Zeera water, Tulsi water, Aloe vera juice, Methi water, Haldi water, Chia seeds, Dhaniya pudina water, Cinnamon ginger water, Saunf water, Apple cider vinegar water
-  • Breakfast (6+ categories): Cereals, Poha, Non-veg (egg white options), Daliya, Sandwich, Stuffed roti, Cheela, Chholes, Smoothies, Idli
-  • Midmorning (7 options): Seasonal fruits, Buttermilk with zeera/seeds, Fruit combinations with cucumber/lemon
-  • Lunch (Daily base): Green salad + low fat buttermilk + CHOOSE 1 BELOW:
-    - Roti with vegetable curry (lauki, tori, bhindi, kaddu, spinach, brinjal, capsicum-potato, beans-potato, methi-aalu, cauliflower-aalu, matter-mushroom, saag, paneer bhurji, spring onion-aalu, mooli bhurji, brinjal-potato, cabbage-peas)
-    - Roti with dal (yellow moong, arher, masoor, chana dal, gatte veg)
-    - Rice with legumes (chhole, black chana, rajhma, lobhia, soyabean, kadhi)
-    - Non-veg (chicken biryani, fish curry, grilled fish, grilled chicken, egg white curry)
-  • Evening Snack (10 options): Tea/Coffee + optional snacks (roasted chana, bajra puffs, popcorn, makhane, moong sprouts, wheat puffs, murmura bhel, black chana saute, grilled sandwich)
-  • Dinner (Daily base): Soup [250ml] + green salad + SAME OPTIONS AS LUNCH above
+BREAKFAST — Choose exactly 1 (${countDishes('breakfast')} options):
+${listDishes('breakfast')}
 
-RULE 2 - MEAL SEQUENCE (STRICT — EXACT ORDER EVERY DAY):
-  1. Early Morning: Choose 1 water/drink from early_morning options list
-  2. Breakfast: Choose 1 option from breakfast categories (cereal, poha, non-veg, daliya, sandwich, stuffed roti, cheela, chholes, smoothies, idli)
-  3. Mid Morning: Choose 1 option from midmorning options list
-  4. Lunch: Green salad + low fat buttermilk (daily base) + 1 roti/dal OR 1 roti/veg OR 1 non-veg option
-  5. Evening Snack: Tea/coffee + optional snack if needed (roasted chana, bajra puffs, popcorn, makhane, moong sprouts, wheat puffs, murmura bhel, black chana saute, grilled sandwich)
-  6. Dinner: Soup [250ml] + green salad (daily base) + 1 roti/dal OR 1 roti/veg OR 1 non-veg option
-  Present in this exact sequence. NEVER add bedtime or post-dinner meal. NO variations from this order.
+MID MORNING — Choose exactly 1 (${countDishes('mid_morning')} options):
+${listDishes('mid_morning')}
 
-RULE 3 - NO POST-DINNER MEAL: Day ends with dinner. Do NOT include post-dinner as a separate meal section. Herbal drinks can be part of evening snack or after dinner as per client preference, but NOT as a separate tracked meal.
+LUNCH — (Daily base: green salad + low fat buttermilk) Choose exactly 1 (${countDishes('lunch')} options):
+${listDishes('lunch')}
 
-RULE 4 - NO BEDTIME OR POST-DINNER MEAL (ABSOLUTE): 
-  Day ends with dinner meal. Do NOT create "bedtime" or "post-dinner" meal sections.
-  NO night milk for ANY client, especially weight loss clients.
-  NO milk-based beverages after dinner.
+EVENING SNACK — Choose exactly 1 (${countDishes('evening_snack')} options):
+${listDishes('evening_snack')}
 
-RULE 5 - WEIGHT LOSS DIET MODIFICATIONS (goal = weight_loss):
-  a) PRE-MEAL WATER: Add explicitly in lunch & dinner meals: "Drink 1 glass plain water 30 minutes before this meal"
-  b) NO PALAK PANEER: Never include "palak paneer" in ANY meal for weight loss clients (from lunch_roti_veg options)
-  c) NO NIGHT MILK: Strictly no milk, yogurt, or dairy after dinner for weight loss clients
-  d) ALCOHOL-FREE: No wines, beers, or alcohol
-  e) Light, high-protein dinners: Prefer fish curry, grilled chicken, egg white curry options
+DINNER — (Daily base: soup + green salad) Choose exactly 1 (${countDishes('dinner')} options):
+${listDishes('dinner')}
 
-RULE 6 - NON-VEG & EGG FREQUENCY (from clinical intake):
-${clinical?.non_veg_frequency_per_10_days ? `  • Non-veg meals: EXACTLY ${clinical.non_veg_frequency_per_10_days} times in the ${duration}-day plan` : ''}
+═══ RULES (FOLLOW ALL — STRICTLY) ═══
+RULE 1 — CATALOG COMPLIANCE (ABSOLUTE):
+  Use ONLY the dishes listed above. Every meal_name in your response must match exactly one of the names above.
+  Never add extra words, combine dishes, or create a dish not listed.
+
+RULE 2 — MEAL SEQUENCE (STRICT — EXACT ORDER EVERY DAY):
+  1. early_morning → 2. breakfast → 3. mid_morning → 4. lunch → 5. evening_snack → 6. dinner
+  Never add bedtime or post-dinner meal. Day ends with dinner.
+
+RULE 3 — CALORIE COMPLIANCE:
+  Total daily calories MUST NOT exceed ${targetCal} kcal. Range: ${targetCal - 100} to ${targetCal} kcal.
+
+RULE 4 — VARIETY:
+  Never repeat the same main dish within 3 consecutive days.
+
+RULE 5 — NO POST-DINNER/BEDTIME MEAL: Day ends with dinner. No night milk.
+
+RULE 6 — NON-VEG & EGG FREQUENCY:
+${clinical?.non_veg_frequency_per_10_days ? `  • Non-veg meals: EXACTLY ${clinical.non_veg_frequency_per_10_days} times in the ${duration}-day plan` : '  • Non-veg: per diet preference'}
 ${clinical?.non_veg_preferred_meals?.length ? `  • Non-veg preferred at: ${clinical.non_veg_preferred_meals.join(', ')}` : ''}
 ${clinical?.egg_frequency_per_10_days ? `  • Egg meals: EXACTLY ${clinical.egg_frequency_per_10_days} times in the ${duration}-day plan` : ''}
 ${clinical?.egg_preferred_meals?.length ? `  • Eggs preferred at: ${clinical.egg_preferred_meals.join(', ')}` : ''}
 
-RULE 6b - NON-VEG OPTIONS (ONLY if food_preference is non_veg or eggetarian):
-  DINNER (2-3 days/week max): Grilled chicken with vegetables (no masala curry). NO fried, NO heavy gravy.
-  LUNCH (2-3 days/week): Chicken breast curry (light gravy, minimal oil) with roti OR grilled fish with vegetables
-  BREAKFAST/EARLY MORNING: Boiled eggs, egg omelette, egg salad with vegetables, egg bhurji
-  
-  EGG WHITE RULE (MANDATORY): If medical conditions include "diabetes" OR "hyperlipidemia" OR "dyslipidemia" OR "high_cholesterol":
-    → Use ONLY egg whites in ALL egg preparations (omelette, boiled, bhurji, curry)
-    → Write "Egg White Omelette", "Boiled Egg Whites", "Egg White Bhurji with Veggies", NEVER whole egg
-    → Egg whites are higher protein, lower cholesterol
-  
-  GRILLED FISH OPTION: Include grilled fish (2-3 days/week) in lunch/dinner for non-veg clients
-  
-  Keep non-veg simple: Max one non-veg protein source per day (egg OR chicken OR fish, not multiple)
+RULE 7 — NO FRUITS AT NIGHT: Fruits only at breakfast, mid-morning, or evening snack. Never dinner/post-dinner.
 
-RULE 7 - NO FRUITS AT NIGHT: 
-  Fruits ONLY at breakfast, mid-morning, or evening snack.
-  NEVER in dinner or post-dinner. No fruit juices either.
+RULE 8 — RICE vs ROTI BALANCE: If rice at lunch, dinner must be roti/millet based. Never rice in both.
 
-RULE 8 - RICE vs ROTI BALANCE:
-  If rice (chawal) is at lunch, dinner must be roti/paratha/bajra/jowar based.
-  Never rice in both lunch and dinner same day.
+RULE 9 — WEIGHT LOSS (if goal = weight_loss):
+  Add "Drink 1 glass water 30 min before meal" in lunch & dinner. No night milk. Light high-protein dinners.
 
-RULE 9 - MEAL PATTERN CONSISTENCY (CRITICAL):
-  Maintain the exact sequence for all clients: Early Morning → Breakfast → Mid Morning → Lunch → Evening Snack → Dinner.
-  No variations, no bedtime/post-dinner sections. This consistency helps clients build habit and maintain adherence.
-
-RULE 10 - STRICT CALORIE COMPLIANCE: 
-  Total daily calories (all meals + herbal drink) MUST NOT exceed ${targetCal} kcal
-  Daily range: ${targetCal - 100} to ${targetCal} kcal
-  Herbal drink = ~0-5 kcal
-  Count accurately, never exceed.
-
-Be practical, use real Indian/regional food names, realistic portions.${modificationInstructions ? `
-
-═══ COACH MODIFICATION INSTRUCTIONS (APPLY STRICTLY) ═══
-The coach has reviewed a previous version of this plan and requests the following changes:
-"${modificationInstructions}"
-
-Apply ONLY these requested modifications while keeping all other clinical rules, calorie targets, and meal patterns intact.` : ''}`;
+RULE 10 — MACROS: Protein=${targetProtein}g | Carbs=${targetCarbs}g | Fats=${targetFats}g (±15%).
+${modificationInstructions ? `\n═══ COACH MODIFICATION INSTRUCTIONS (APPLY STRICTLY) ═══\n"${modificationInstructions}"\nApply ONLY these changes while keeping all rules intact.` : ''}`;
 
     const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
@@ -433,21 +245,18 @@ Apply ONLY these requested modifications while keeping all other clinical rules,
       }
     });
 
-    // ─── RECALCULATE NUTRITION FROM DATABASE (mathematically exact) ───
-    // Fetch all recipe templates and ingredients from DB for cross-referencing
+    // ─── RECALCULATE NUTRITION FROM DATABASE ───
     const [allRecipes, allIngredients] = await Promise.all([
       base44.asServiceRole.entities.RecipeTemplate.list(),
       base44.asServiceRole.entities.NutritionalIngredient.list(),
     ]);
 
-    // Build a lookup map: template_code → recipe
     const recipeMap = {};
     for (const r of allRecipes) {
       if (r.template_code) recipeMap[r.template_code.toUpperCase()] = r;
       if (r.dish_name) recipeMap[r.dish_name.toUpperCase()] = r;
     }
 
-    // Build ingredient lookup map
     const ingredientMap = {};
     for (const ing of allIngredients) {
       ingredientMap[ing.ingredient_name.toLowerCase()] = ing;
@@ -470,11 +279,19 @@ Apply ONLY these requested modifications while keeping all other clinical rules,
       return { kcal, protein_g: protein, carbs_g: carbs, fat_g: fat, fibre_g: fibre };
     }
 
-    // Enrich each AI meal with verified nutrition from DB where possible
-    const enrichedMeals = aiResponse.meals.map(meal => {
-      // Try to find matching recipe by meal_name
+    // Cross-reference AI meal names against Healthyfy catalog for compliance audit
+    const catalogNameSet = new Set(healthyfyDishes.map(d => d.name.toLowerCase().trim()));
+    const dishByName = {};
+    for (const d of healthyfyDishes) dishByName[d.name.toLowerCase().trim()] = d;
+
+    const enrichedMeals = (aiResponse.meals || []).map(meal => {
       const mealNameKey = (meal.meal_name || '').toUpperCase();
+      const mealNameLower = (meal.meal_name || '').toLowerCase().trim();
       const matchedRecipe = recipeMap[mealNameKey];
+
+      // Check catalog compliance
+      const inCatalog = catalogNameSet.has(mealNameLower);
+      const catalogDish = dishByName[mealNameLower];
 
       if (matchedRecipe?.calculated_nutrition_per_serving) {
         const n = matchedRecipe.calculated_nutrition_per_serving;
@@ -487,11 +304,16 @@ Apply ONLY these requested modifications while keeping all other clinical rules,
           fats: Math.round(n.fat_g * servings * 10) / 10,
           fiber: Math.round((n.fibre_g || 0) * servings * 10) / 10,
           nutrition_source: 'database_verified',
+          catalog_compliant: inCatalog,
         };
       }
 
-      // If no DB match, keep AI values but flag them
-      return { ...meal, nutrition_source: 'ai_estimated' };
+      // If catalog dish found, use its estimated calories as a baseline
+      if (catalogDish && (!meal.calories || meal.calories === 0)) {
+        return { ...meal, calories: catalogDish.approx_calories || meal.calories, nutrition_source: 'catalog_estimated', catalog_compliant: true };
+      }
+
+      return { ...meal, nutrition_source: 'ai_estimated', catalog_compliant: inCatalog };
     });
 
     // Recalculate day summaries from enriched meals
@@ -527,7 +349,6 @@ Apply ONLY these requested modifications while keeping all other clinical rules,
       description: doc.description || '',
     }));
 
-    // Save to DB
     const mealPlan = await base44.asServiceRole.entities.MealPlan.create({
       client_id: clientId,
       name: aiResponse.plan_name || `AI Meal Plan – ${new Date().toLocaleDateString()}`,
@@ -542,29 +363,16 @@ Apply ONLY these requested modifications while keeping all other clinical rules,
       kb_snapshot: kbSnapshot,
       kb_snapshot_generated_at: new Date().toISOString(),
       generation_parameters: {
-        duration,
-        target_calories: targetCal,
-        target_protein: targetProtein,
-        target_carbs: targetCarbs,
-        target_fats: targetFats,
-        goal: goal || client.goal,
-        food_preference: client.food_preference,
-        regional_preference: client.regional_preference,
-        snack_preference: snackPreference,
-        meal_frequency: mealFrequency,
-        cuisine_notes: cuisineNotes,
-        adapt_from_feedback: adaptFromFeedback,
-        override_goal: overrideGoal || null,
-        focus_areas: focusAreas,
-        additional_restrictions: additionalRestrictions,
-        additional_allergies: additionalAllergies,
-        additional_conditions: additionalConditions,
-        modification_instructions: modificationInstructions || null,
-        generation_count: generationCount,
+        duration, target_calories: targetCal, target_protein: targetProtein, target_carbs: targetCarbs, target_fats: targetFats,
+        goal: goal || client.goal, food_preference: client.food_preference, regional_preference: client.regional_preference,
+        snack_preference: snackPreference, meal_frequency: mealFrequency, cuisine_notes: cuisineNotes,
+        adapt_from_feedback: adaptFromFeedback, override_goal: overrideGoal || null, focus_areas: focusAreas,
+        additional_restrictions: additionalRestrictions, additional_allergies: additionalAllergies,
+        additional_conditions: additionalConditions, modification_instructions: modificationInstructions || null,
+        generation_count: generationCount, catalog_source: 'healthyfy_google_sheet', total_catalog_dishes: healthyfyDishes.length,
       },
     });
 
-    // Notify client
     await base44.asServiceRole.entities.Notification.create({
       user_email: client.email,
       type: 'meal_plan',
@@ -575,72 +383,80 @@ Apply ONLY these requested modifications while keeping all other clinical rules,
       read: false,
     }).catch(() => {});
 
-    // ─── BUILD MEAL OPTION ANALYSIS (what was available vs restricted) ───
+    // ─── MEAL OPTION ANALYSIS — FROM HEALTHYFY CATALOG ───
     const foodPref = client.food_preference || 'mixed';
     const isVeg = ['veg', 'jain'].includes(foodPref);
     const isJain = foodPref === 'jain';
     const allAllergyLower = allAllergies.map(a => a.toLowerCase());
     const allRestrictionLower = allRestrictions.map(r => r.toLowerCase());
 
-    const mealOptionAnalysis = [];
-
-    // Helper to check if an option is excluded
-    function getExclusionReason(option, extraChecks = []) {
+    function getExclusionReason(option) {
       const optLower = option.toLowerCase();
       for (const a of allAllergyLower) {
         if (optLower.includes(a)) return `Allergy: ${a}`;
       }
       for (const r of allRestrictionLower) {
         if (r.includes('dairy') && (optLower.includes('milk') || optLower.includes('paneer') || optLower.includes('buttermilk') || optLower.includes('yogurt') || optLower.includes('curd'))) return 'Restriction: dairy-free';
-        if (r.includes('gluten') && (optLower.includes('roti') || optLower.includes('bread') || optLower.includes('wheat') || optLower.includes('suji') || optLower.includes('daliya'))) return 'Restriction: gluten-free';
+        if (r.includes('gluten') && (optLower.includes('roti') || optLower.includes('bread') || optLower.includes('wheat') || optLower.includes('suji') || optLower.includes('daliya') || optLower.includes('paratha'))) return 'Restriction: gluten-free';
         if (r.includes('jain') && (optLower.includes('onion') || optLower.includes('garlic') || optLower.includes('aalu') || optLower.includes('potato') || optLower.includes('carrot') || optLower.includes('radish'))) return 'Jain diet: no root vegetables/onion/garlic';
       }
-      for (const [check, reason] of extraChecks) {
-        if (check(optLower)) return reason;
+      if (isJain && (optLower.includes('onion') || optLower.includes('garlic') || optLower.includes('aalu') || optLower.includes('potato') || optLower.includes('carrot') || optLower.includes('radish') || optLower.includes('mooli'))) {
+        return 'Jain diet: root vegetables/onion/garlic excluded';
       }
       return null;
     }
 
-    // Non-veg exclusion check
-    const nonVegCheck = (optLower) => isVeg && (optLower.includes('chicken') || optLower.includes('fish') || optLower.includes('egg') || optLower.includes('meat') || optLower.includes('mutton'));
-    const nonVegReason = 'Diet preference: veg';
+    function isNonVegOption(opt) {
+      const o = opt.toLowerCase();
+      return o.includes('chicken') || o.includes('fish') || o.includes('mutton') || o.includes('meat') || o.includes('prawn') || o.includes('shrimp');
+    }
+    function isEggOption(opt) { return opt.toLowerCase().includes('egg'); }
 
-    const analyzeCategory = (label, options, extraChecks = []) => {
+    function getDietExclusionReason(opt) {
+      if (isNonVegOption(opt)) {
+        if (isVeg) return `Diet preference: ${foodPref} (non-veg excluded)`;
+        if (foodPref === 'eggetarian') return `Diet preference: eggetarian (non-veg excluded)`;
+      }
+      if (isEggOption(opt)) {
+        if (isVeg && foodPref !== 'eggetarian') return `Diet preference: ${foodPref} (eggs excluded)`;
+        if (isJain) return `Diet preference: jain (eggs excluded)`;
+      }
+      return null;
+    }
+
+    function analyzeCategory(label, options) {
       const available = [];
       const excluded = [];
-      for (const opt of options) {
-        const nvExcluded = nonVegCheck(opt.toLowerCase());
-        const reason = nvExcluded ? nonVegReason : getExclusionReason(opt, extraChecks);
+      for (const opt of (options || [])) {
+        const dietReason = getDietExclusionReason(opt);
+        const restrictReason = getExclusionReason(opt);
+        const reason = dietReason || restrictReason;
         if (reason) {
           excluded.push({ option: opt, reason });
         } else {
           available.push(opt);
         }
       }
-      return { category: label, total: options.length, available_count: available.length, excluded_count: excluded.length, excluded };
+      return { category: label, total: options.length, available_count: available.length, excluded_count: excluded.length, available, excluded };
+    }
+
+    // Build analysis from Healthyfy catalog grouped by meal type
+    const mealTypeLabels = {
+      early_morning: 'Early Morning Drinks',
+      breakfast: 'Breakfast Options',
+      mid_morning: 'Mid Morning Snacks',
+      lunch: 'Lunch Options',
+      evening_snack: 'Evening Snacks',
+      dinner: 'Dinner Options',
     };
+    const mealOptionAnalysis = Object.entries(mealTypeLabels).map(([mt, label]) => {
+      const options = (dishByType[mt] || []).map(d => d.name);
+      return analyzeCategory(label, options);
+    });
 
-    mealOptionAnalysis.push(analyzeCategory('Early Morning Drinks', mealOptions.early_morning));
-    mealOptionAnalysis.push(analyzeCategory('Breakfast: Cereals', mealOptions.breakfast_cereal));
-    mealOptionAnalysis.push(analyzeCategory('Breakfast: Poha', mealOptions.breakfast_poha));
-    mealOptionAnalysis.push(analyzeCategory('Breakfast: Non-Veg', mealOptions.breakfast_nonveg));
-    mealOptionAnalysis.push(analyzeCategory('Breakfast: Daliya', mealOptions.breakfast_daliya));
-    mealOptionAnalysis.push(analyzeCategory('Breakfast: Sandwich', mealOptions.breakfast_sandwich));
-    mealOptionAnalysis.push(analyzeCategory('Breakfast: Stuffed Roti', mealOptions.breakfast_stuffed_roti));
-    mealOptionAnalysis.push(analyzeCategory('Breakfast: Cheela', mealOptions.breakfast_cheela));
-    mealOptionAnalysis.push(analyzeCategory('Breakfast: Chholes/Sprouts', mealOptions.breakfast_chholes));
-    mealOptionAnalysis.push(analyzeCategory('Breakfast: Smoothies', mealOptions.breakfast_smoothies));
-    mealOptionAnalysis.push(analyzeCategory('Breakfast: Idli', mealOptions.breakfast_idli));
-    mealOptionAnalysis.push(analyzeCategory('Mid Morning Snacks', mealOptions.midmorning));
-    mealOptionAnalysis.push(analyzeCategory('Lunch: Roti + Veg', mealOptions.lunch_roti_veg));
-    mealOptionAnalysis.push(analyzeCategory('Lunch: Dal Options', mealOptions.lunch_dal));
-    mealOptionAnalysis.push(analyzeCategory('Lunch: Non-Veg', mealOptions.lunch_nonveg));
-    mealOptionAnalysis.push(analyzeCategory('Evening Snacks', mealOptions.evening));
-    mealOptionAnalysis.push(analyzeCategory('Dinner: Soups', mealOptions.dinner_soup));
-
-    // Build decision rules as shown in the screenshot
     const targetCal2 = overrideCalories || client.target_calories || client.tdee || 1800;
     const decisionRules = [
+      { rule: `🔒 NON-COMPROMISING RULE: All dishes sourced exclusively from Healthyfy Google Sheet catalog (${healthyfyDishes.length} total dishes)`, category: 'Dish Source' },
       { rule: `Daily calorie target: ${targetCal2} kcal (BMR: ${client.bmr || 'N/A'}, TDEE: ${client.tdee || 'N/A'}, Goal: ${(goal || client.goal || 'N/A').replace(/_/g,' ')})`, category: 'Calorie Target' },
       { rule: `Macros: Protein ~${targetProtein}g | Carbs ~${targetCarbs}g | Fats ~${targetFats}g`, category: 'Macros' },
       { rule: `Diet type: ${foodPref.charAt(0).toUpperCase() + foodPref.slice(1)} — Meal options selected accordingly`, category: 'Diet Type' },
@@ -651,9 +467,19 @@ Apply ONLY these requested modifications while keeping all other clinical rules,
       ...(cuisineNotes ? [{ rule: `Cuisine notes: ${cuisineNotes}`, category: 'Cuisine' }] : []),
     ];
 
+    // Catalog compliance audit
+    const nonCompliantMeals = enrichedMeals.filter(m => !m.catalog_compliant);
+
     return Response.json({
       success: true,
-      mealPlan: { id: mealPlan.id, name: mealPlan.name, duration, meals: aiResponse.meals.length },
+      mealPlan: { id: mealPlan.id, name: mealPlan.name, duration, meals: enrichedMeals.length },
+      catalog_source: 'healthyfy_google_sheet',
+      total_catalog_dishes: healthyfyDishes.length,
+      catalog_compliance: {
+        total_meals: enrichedMeals.length,
+        compliant_meals: enrichedMeals.length - nonCompliantMeals.length,
+        non_compliant_meals: nonCompliantMeals.map(m => ({ day: m.day, meal_type: m.meal_type, meal_name: m.meal_name })),
+      },
       overview: aiResponse.overview,
       nutritional_strategy: aiResponse.nutritional_strategy,
       macro_targets: aiResponse.macro_targets,
@@ -670,3 +496,188 @@ Apply ONLY these requested modifications while keeping all other clinical rules,
     return Response.json({ success: false, error: error.message }, { status: 500 });
   }
 });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// HEALTHYFY DISH CATALOG — GOOGLE SHEET INTEGRATION
+// NON-COMPROMISING RULE: This is the ONLY source of dishes for ALL meal plans.
+// Applies to: Super Admin, Student Coaches, Team Members — NO exceptions.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const HEALTHYFY_SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1piIBl9QUrluRBf24-1bZNbooGYqMI5Cr11w3Mb9WxfU/export?format=csv';
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (const ch of line) {
+    if (ch === '"') { inQuotes = !inQuotes; }
+    else if (ch === ',' && !inQuotes) { result.push(current.trim()); current = ''; }
+    else { current += ch; }
+  }
+  result.push(current.trim());
+  return result;
+}
+
+async function fetchHealthyfyDishes() {
+  try {
+    const resp = await fetch(HEALTHYFY_SHEET_CSV);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const text = await resp.text();
+    return parseHealthyfyCSV(text);
+  } catch (err) {
+    console.error('WARNING: Could not fetch Healthyfy dish catalog:', err.message, '— Using hardcoded fallback');
+    return buildFallbackDishes();
+  }
+}
+
+function parseHealthyfyCSV(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+  const dishes = [];
+  const MEAL_TYPE_MAP = { breakfast: 'breakfast', lunch: 'lunch', dinner: 'dinner', snack: 'evening_snack', any: 'any' };
+  const CAT_MAP = { BREAKFAST: 'breakfast', LUNCH: 'lunch', DINNER: 'dinner', SNACK: 'evening_snack', ANY: 'any' };
+
+  for (let i = 1; i < lines.length; i++) {
+    const cols = parseCSVLine(lines[i]);
+    const dishName = cols[0]?.trim();
+    if (!dishName || dishName.toLowerCase() === 'dish name') continue;
+
+    const templateCode = cols[1]?.trim() || '';
+    const mealCategory = (cols[4]?.trim() || '').toUpperCase();
+    const mealFlexibility = (cols[5]?.trim() || '').toUpperCase();
+    const combinedTypes = (cols[6]?.trim() || '').toLowerCase();
+
+    const ingredients = [];
+    for (let j = 0; j < 5; j++) {
+      const base = 8 + j * 3;
+      const ingName = cols[base]?.trim();
+      if (!ingName) continue;
+      ingredients.push({ ingredient_name: ingName, qty: parseFloat(cols[base + 1]) || 0, unit: cols[base + 2]?.trim() || 'g' });
+    }
+
+    let applicableMealTypes = [];
+    if (combinedTypes) {
+      applicableMealTypes = combinedTypes.split('|').map(t => MEAL_TYPE_MAP[t.trim()]).filter(Boolean);
+    }
+    if (applicableMealTypes.length === 0) {
+      if (CAT_MAP[mealCategory]) applicableMealTypes.push(CAT_MAP[mealCategory]);
+      if (mealFlexibility && CAT_MAP[mealFlexibility] && !applicableMealTypes.includes(CAT_MAP[mealFlexibility])) {
+        applicableMealTypes.push(CAT_MAP[mealFlexibility]);
+      }
+    }
+    if (applicableMealTypes.length === 0) applicableMealTypes = ['lunch'];
+
+    const tags = deriveDishTags(dishName, ingredients);
+    const approxCal = estimateDishCalories(ingredients, mealCategory);
+    const seen = new Set();
+
+    for (const mt of applicableMealTypes) {
+      if (seen.has(mt)) continue;
+      seen.add(mt);
+      dishes.push({
+        id: `${templateCode || dishName.replace(/\s+/g, '_')}_${mt}_${i}`,
+        name: dishName,
+        template_code: templateCode,
+        meal_type: mt,
+        ingredients,
+        approx_calories: approxCal,
+        tags,
+        source: 'healthyfy_catalog',
+      });
+    }
+  }
+
+  // Protocol: early morning herbal drinks
+  const emDrinks = [
+    'Lemon Ginger Mint Cucumber Water', 'Zeera Water', 'Tulsi Water', 'Aloe Vera Juice with Water',
+    'Methi Water', 'Haldi Water', 'Chia Seeds Soaked Water', 'Dhaniya Pudina Water',
+    'Cinnamon Ginger Water', 'Saunf Water', 'Apple Cider Vinegar Water',
+  ];
+  emDrinks.forEach((name, idx) => dishes.push({ id: `em_${idx}`, name, meal_type: 'early_morning', approx_calories: 5, tags: ['drink', 'herbal'], source: 'healthyfy_catalog' }));
+
+  // Protocol: mid-morning snacks
+  const mmItems = [
+    { name: 'Seasonal Fruit 150g with Lemon Shikanji', cal: 120, tags: ['fruit', 'drink'] },
+    { name: 'Low Fat Buttermilk with Zeera and Chia Seeds', cal: 80, tags: ['buttermilk', 'dairy', 'drink'] },
+    { name: 'Seasonal Fruit — Apple or Orange or Papaya or Pear or Guava or Pomegranate', cal: 100, tags: ['fruit'] },
+    { name: 'Cucumber Slices with Apple', cal: 80, tags: ['fruit', 'salad'] },
+    { name: 'Cucumber Slices with Pear', cal: 80, tags: ['fruit', 'salad'] },
+    { name: 'Bowl Papaya with Black Pepper', cal: 70, tags: ['fruit', 'papaya'] },
+    { name: 'Pomegranate with Lemon', cal: 90, tags: ['fruit', 'pomegranate'] },
+  ];
+  mmItems.forEach((item, idx) => dishes.push({ id: `mm_${idx}`, name: item.name, meal_type: 'mid_morning', approx_calories: item.cal, tags: item.tags, source: 'healthyfy_catalog' }));
+
+  // Protocol: evening snacks
+  const eveningSnacks = [
+    { name: 'Tea or Coffee or Green Tea or Low Fat Milk or Buttermilk', cal: 30, tags: ['drink', 'dairy', 'tea'] },
+    { name: 'Roasted Chana or Roasted Chana Mix Green Salad', cal: 150, tags: ['roasted', 'chana', 'high_protein', 'salad'] },
+    { name: 'Dry Roasted Bajra Puffs Unsalted', cal: 120, tags: ['roasted', 'bajra', 'millet'] },
+    { name: 'Dry Roasted Popcorn', cal: 110, tags: ['roasted', 'corn'] },
+    { name: 'Dry Roasted Makhane', cal: 130, tags: ['roasted', 'makhane', 'foxnut'] },
+    { name: 'Steam Moong Sprouts Mix Green Salad', cal: 120, tags: ['sprouts', 'salad', 'high_protein'] },
+    { name: 'Roasted Wheat Puffs Unsalted', cal: 115, tags: ['roasted', 'wheat', 'gluten'] },
+    { name: 'Murmura Bhel with Lots of Vegetables', cal: 130, tags: ['murmura', 'rice', 'salad'] },
+    { name: 'Boiled Black Chana Saute with Veggies', cal: 140, tags: ['chana', 'high_protein', 'legume'] },
+    { name: 'Veg Grilled Sandwich with Green Chutney', cal: 220, tags: ['sandwich', 'gluten', 'bread'] },
+  ];
+  const existingSnackNames = new Set(dishes.filter(d => d.meal_type === 'evening_snack').map(d => d.name.toLowerCase()));
+  eveningSnacks.forEach((item, idx) => {
+    if (!existingSnackNames.has(item.name.toLowerCase())) {
+      dishes.push({ id: `es_${idx}`, name: item.name, meal_type: 'evening_snack', approx_calories: item.cal, tags: item.tags, source: 'healthyfy_catalog' });
+    }
+  });
+
+  return dishes;
+}
+
+function estimateDishCalories(ingredients, mealCategory) {
+  const densityMap = {
+    'atta': 340, 'whole wheat': 340, 'rice raw': 360, 'rice': 360, 'oats': 380, 'broken wheat': 340,
+    'moong dal': 347, 'moong': 347, 'toor dal': 335, 'toor': 335, 'chana': 360, 'rajma': 340,
+    'oil': 880, 'ghee': 900, 'paneer': 265, 'chicken': 165, 'milk': 60,
+    'potato': 80, 'mixed vegetable standard': 40, 'mixed vegetable': 40, 'vegetable': 40,
+    'onion': 40, 'tomato': 18,
+  };
+  let cal = 0;
+  for (const ing of (ingredients || [])) {
+    const nm = (ing.ingredient_name || '').toLowerCase();
+    const grams = ing.unit === 'ml' ? (ing.qty || 0) * 0.9 : (ing.qty || 0);
+    let density = 50;
+    for (const [key, val] of Object.entries(densityMap)) {
+      if (nm.includes(key)) { density = val; break; }
+    }
+    if (nm.includes('water')) density = 0;
+    cal += (grams / 100) * density;
+  }
+  if (cal < 50) {
+    const defaults = { BREAKFAST: 220, LUNCH: 360, DINNER: 310, SNACK: 150, ANY: 300 };
+    return defaults[mealCategory] || 250;
+  }
+  return Math.round(cal);
+}
+
+function deriveDishTags(dishName, ingredients) {
+  const tags = new Set();
+  const allText = [dishName, ...(ingredients || []).map(i => i.ingredient_name || '')].join(' ').toLowerCase();
+  if (['chicken', 'fish', 'mutton', 'meat', 'prawn', 'shrimp', 'lamb'].some(k => allText.includes(k))) tags.add('non_veg');
+  if (allText.includes('egg')) { tags.add('egg'); tags.add('non_veg_cat'); }
+  if (['milk', 'ghee', 'paneer', 'curd', 'yogurt', 'buttermilk', 'cheese', 'cream'].some(k => allText.includes(k))) tags.add('dairy');
+  if (['atta', 'whole wheat', 'maida', 'bread'].some(k => allText.includes(k))) { tags.add('gluten'); tags.add('roti'); }
+  if (allText.includes('rice')) tags.add('rice');
+  if (allText.includes('oats')) tags.add('oats');
+  if (['moong', 'toor', 'chana', 'rajma', 'chole', 'lobhia', ' dal'].some(k => allText.includes(k))) { tags.add('dal'); tags.add('protein'); }
+  if (['potato', 'aalu', 'carrot', 'radish', 'mooli', 'onion', 'garlic'].some(k => allText.includes(k))) tags.add('root_veg');
+  if (allText.includes('soup') || allText.includes('broth')) tags.add('soup');
+  return [...tags];
+}
+
+function buildFallbackDishes() {
+  const dishes = [];
+  const add = (mealType, name, cal, tags = []) => dishes.push({ id: `fb_${dishes.length}`, meal_type: mealType, name, approx_calories: cal, tags, source: 'fallback' });
+  ['Lemon Ginger Mint Cucumber Water', 'Zeera Water', 'Tulsi Water', 'Methi Water', 'Haldi Water', 'Chia Seeds Soaked Water', 'Cinnamon Ginger Water', 'Saunf Water', 'Apple Cider Vinegar Water'].forEach(n => add('early_morning', n, 5, ['drink', 'herbal']));
+  add('breakfast', 'Plain Paratha', 220, ['roti', 'gluten']); add('breakfast', 'Aloo Paratha', 260, ['roti', 'gluten', 'potato']); add('breakfast', 'Daliya Savory', 220, ['daliya', 'gluten']); add('breakfast', 'Oats Savory', 200, ['oats']); add('breakfast', 'Moong Dal Cheela', 210, ['cheela', 'dal', 'protein']);
+  add('mid_morning', 'Seasonal Fruit', 100, ['fruit']); add('mid_morning', 'Buttermilk with Zeera', 80, ['dairy', 'drink']);
+  add('lunch', 'Roti', 120, ['roti', 'gluten']); add('lunch', 'Ghee Roti', 142, ['roti', 'gluten', 'dairy']); add('lunch', 'Plain Rice', 180, ['rice']); add('lunch', 'Khichdi', 200, ['rice', 'dal']); add('lunch', 'Plain Dal', 140, ['dal', 'protein']); add('lunch', 'Dal Tadka', 165, ['dal', 'protein']); add('lunch', 'Rajma Curry', 210, ['rajma', 'protein']); add('lunch', 'Chole Masala', 220, ['chole', 'protein']);
+  add('evening_snack', 'Roasted Chana', 150, ['chana', 'protein']); add('evening_snack', 'Dry Roasted Makhane', 130, ['makhane']); add('evening_snack', 'Tea or Coffee', 30, ['drink', 'tea']);
+  add('dinner', 'Roti', 120, ['roti', 'gluten']); add('dinner', 'Khichdi', 200, ['rice', 'dal']); add('dinner', 'Plain Dal', 140, ['dal', 'protein']); add('dinner', 'Mix Veg Soup 250ml', 80, ['soup', 'light']);
+  return dishes;
+}

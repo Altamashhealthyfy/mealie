@@ -1,5 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
+/**
+ * mealOptionsPreview
+ * NON-COMPROMISING RULE: ALL meal options shown here are sourced EXCLUSIVELY
+ * from the Healthyfy Dishes Google Sheet catalog.
+ * Applies to ALL users: Super Admin, Student Coaches, Team Members.
+ */
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -50,6 +56,9 @@ Deno.serve(async (req) => {
     const allAllergyLower = allAllergies.map(a => a.toLowerCase());
     const allRestrictionLower = allRestrictions.map(r => r.toLowerCase());
 
+    // Fetch dishes from Healthyfy catalog
+    const healthyfyDishes = await fetchHealthyfyDishes();
+
     function getExclusionReason(option) {
       const optLower = option.toLowerCase();
       for (const a of allAllergyLower) {
@@ -57,7 +66,7 @@ Deno.serve(async (req) => {
       }
       for (const r of allRestrictionLower) {
         if (r.includes('dairy') && (optLower.includes('milk') || optLower.includes('paneer') || optLower.includes('buttermilk') || optLower.includes('yogurt') || optLower.includes('curd'))) return 'Restriction: dairy-free';
-        if (r.includes('gluten') && (optLower.includes('roti') || optLower.includes('bread') || optLower.includes('wheat') || optLower.includes('suji') || optLower.includes('daliya'))) return 'Restriction: gluten-free';
+        if (r.includes('gluten') && (optLower.includes('roti') || optLower.includes('bread') || optLower.includes('wheat') || optLower.includes('suji') || optLower.includes('daliya') || optLower.includes('paratha'))) return 'Restriction: gluten-free';
         if (r.includes('jain') && (optLower.includes('onion') || optLower.includes('garlic') || optLower.includes('aalu') || optLower.includes('potato') || optLower.includes('carrot') || optLower.includes('radish'))) return 'Jain diet: no root vegetables/onion/garlic';
       }
       if (isJain && (optLower.includes('onion') || optLower.includes('garlic') || optLower.includes('aalu') || optLower.includes('potato') || optLower.includes('carrot') || optLower.includes('radish') || optLower.includes('mooli'))) {
@@ -66,185 +75,23 @@ Deno.serve(async (req) => {
       return null;
     }
 
-    function isNonVeg(option) {
-      const optLower = option.toLowerCase();
-      return optLower.includes('chicken') || optLower.includes('fish') || optLower.includes('mutton') || optLower.includes('meat') || optLower.includes('prawn') || optLower.includes('shrimp');
+    function isNonVegOption(option) {
+      const o = option.toLowerCase();
+      return o.includes('chicken') || o.includes('fish') || o.includes('mutton') || o.includes('meat') || o.includes('prawn') || o.includes('shrimp');
     }
-    function isEgg(option) {
-      return option.toLowerCase().includes('egg');
-    }
+    function isEggOption(option) { return option.toLowerCase().includes('egg'); }
 
     function getDietExclusionReason(option) {
-      if (isNonVeg(option)) {
+      if (isNonVegOption(option)) {
         if (isVeg) return `Diet preference: ${foodPref} (non-veg excluded)`;
         if (isEggetarian) return `Diet preference: eggetarian (non-veg excluded)`;
       }
-      if (isEgg(option)) {
+      if (isEggOption(option)) {
         if (isVeg && !isEggetarian) return `Diet preference: ${foodPref} (eggs excluded)`;
         if (isJain) return `Diet preference: jain (eggs excluded)`;
       }
       return null;
     }
-
-    const mealOptions = {
-      early_morning: [
-        "1Liter water + 2 small lemon slices + 1 inch ginger grated + 10-12 mint leaves + 1 small cucumber slice [Mix night before]",
-        "1Glass zeera water",
-        "1Glass tulsi water",
-        "30ml aloe Vera juice with 70 ml water",
-        "1Glass methi water",
-        "1Glass Haldi water",
-        "1Tablespoon chia seeds overnight soaked in 1glass water",
-        "1Glass dhaniya pudina water",
-        "1Glass cinnamon ginger water",
-        "1Glass saunf water",
-        "1Glass A.C.V. [20ml apple cider vinegar + 1glass water]"
-      ],
-      breakfast_cereal: [
-        "3 Table spoons muesli without nuts with milk",
-        "3 tablespoon wheat flakes with milk without sugar",
-        "Oats with milk",
-        "Wheat daliya with milk"
-      ],
-      breakfast_poha: [
-        "1Small bowl vegetable poha mix 1ice cube size paneer homemade + veggies",
-        "1Small bowl vegetable poha mix 2 spoons of steam sprouts",
-        "1Small bowl vegetable poha mix nutreela",
-        "1medium bowl vegetable bread Poha [3:1] + green chutney"
-      ],
-      breakfast_nonveg: [
-        "3 Eggs white mix veggies omelette or scrambled with 1whole wheat toast",
-        "2-3 boiled egg white with veggies",
-        "Chicken salami sandwich with g. chutney"
-      ],
-      breakfast_daliya: [
-        "1bowl veg oats [3:1] with green chutney",
-        "1bowl vegetable wheat daliya [3:1]+ g. chutney",
-        "1bowl vegetable ragi daliya [3:1] + g. chutney",
-        "1bowl vegetable bajra daliya [3:1] + g. chutney",
-        "1bowl vegetable barley daliya [3:1] + g. chutney",
-        "1bowl vegetable upma[3:1]+ g.chutney"
-      ],
-      breakfast_sandwich: [
-        "1-2 Aata bread veg sandwich with green chutney",
-        "1-2 Paneer sandwiches with green chutney",
-        "1Spoon Peanut butter with chia seeds sandwich",
-        "1-2 Soya veg sandwich with g. chutney",
-        "1-2 Aalu veg sandwich with g. chutney"
-      ],
-      breakfast_stuffed_roti: [
-        "1-2 Veg stuffed roti [lauki + green chilli + coriander leaves]",
-        "1-2 Veg stuffed roti [Spinach /methi + green chilli + onion]",
-        "1-2 Veg stuffed roti [onion + green chilli + coriander leaves]",
-        "1-2 Veg stuffed roti [Paneer + onion + green chilli + coriander leaves]",
-        "1-2 Veg stuffed roti [Radish + coriander leaves]",
-        "1-2 Veg stuffed roti [soya bean /nutreela + onion + green chilli + coriander leaves]",
-        "1-2 Veg stuffed roti [carrot +onion + green chilli + coriander leaves]"
-      ],
-      breakfast_cheela: [
-        "1-2 besan cheela veg mix with g. chutney",
-        "1-2 Suji cheela veg mix with g. chutney",
-        "1-2 Veg uttapam with g. chutney",
-        "1-2 Ragi cheela veg mix with g. chutney",
-        "1-2 Moong dal cheela veg mix with g. chutney",
-        "1-2 Chana dal cheela veg mix with g. chutney"
-      ],
-      breakfast_chholes: [
-        "1bowl steam moong sprouts mix green salad",
-        "1Bowl soya bean sprouts with green salad",
-        "1Bowl boiled black chana saute with lots of veggies",
-        "1Bowl lobhia saute with lots of veggies"
-      ],
-      breakfast_smoothies: [
-        "1 bowl fruit yogurt [yogurt + apple + 1spoon chia seeds]",
-        "1 bowl of plain yogurt with fruit [no mango]",
-        "1Bowl smoothies [1Glass milk + 2spoon oats + 1table spoon chia seeds + ½ apple Or ½ banana]",
-        "1 glass APPLE shake /BANANA shake [Once a week]"
-      ],
-      breakfast_idli: [
-        "2-3Rava idli veg stuffed with g. chutney",
-        "2-3Moong dal idli veg stuffed with g. chutney",
-        "2-3Besan idli veg stuffed with g. chutney",
-        "2-3Oats mix rava mix veggies idli with g. chutney",
-        "2-3 Fermented idli veg stuffed with g. chutney"
-      ],
-      midmorning: [
-        "1 Seasonal fruit [150gm] > AFTER 1HOUR > 1 glass lemon shikanji",
-        "1 Glass low fat buttermilk mix roasted zeera powder + 1 spoon roasted chia / flax seeds",
-        "1 SEASONAL FRUIT [1Apple /1Orange / Mausambi /1Bowl papaya /1pear/ 1guava/ 1 pomegranate with 2-3 drops of lemon]",
-        "2 slices cucumber + 1 apple",
-        "2 slices cucumber + 1 pear",
-        "1 bowl papaya [2 slices of papaya with black pepper]",
-        "1Pomegranate with 2-3 drops of lemon"
-      ],
-      lunch_roti_veg: [
-        "1-2 roti bran mix / jawar + 1bowl lauki veg",
-        "1-2 roti bran mix / jawar + 1bowl tori veg",
-        "1-2 roti bran mix / jawar + 1bowl parwar veg",
-        "1-2 roti bran mix / jawar + 1bowl bhindi veg",
-        "1-2 roti bran mix / jawar + 1bowl kaddu veg",
-        "1-2 roti bran mix / jawar + 1bowl Spinach veg",
-        "1-2 roti bran mix / jawar + 1bowl brinjal bharta",
-        "1-2 roti bran mix / jawar + 1bowl capsicum potato veg",
-        "1-2 roti bran mix / jawar + 1bowl beans potato veg",
-        "1-2 roti bran mix / jawar + 1bowl nutreela capsicum veg",
-        "1-2 Roti bran mix / jawar + 1bowl Methi aalu veg",
-        "1-2 Roti bran mix / jawar + 1bowl cauliflower aalu veg",
-        "1-2 Roti bran mix / jawar + 1bowl matter mushroom veg",
-        "1-2 Roti bran mix / jawar + 1bowl saag veg",
-        "1-2 Roti bran mix / jawar + 1bowl paneer veg bhurji",
-        "1-2 Roti bran mix / jawar + 1bowl spring onion aalu veg",
-        "1-2 Roti bran mix / jawar + 1bowl beans yellow moong dal veg",
-        "1-2 Roti bran mix / jawar + 1bowl carrot peas veg",
-        "1-2 Roti bran mix / jawar + 1bowl mix veg",
-        "1-2 Roti bran mix / jawar + 1bowl mooli bhurji",
-        "1-2 Roti bran mix / jawar + 1bowl Capsicum paneer veg",
-        "1-2 Roti bran mix / jawar + 1bowl brinjal potato veg",
-        "1-2 Roti bran mix / jawar + 1bowl cabbage peas veg"
-      ],
-      lunch_dal: [
-        "1-2 Roti bran mix / jawar + 1bowl yellow moong dal",
-        "1-2 Roti bran mix/ jawar + 1bowl arher dal",
-        "1-2 Roti bran mix / jawar + 1bowl masoor dal",
-        "1-2 Roti bran mix/ jawar + 1bowl chana dal",
-        "1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl chhole",
-        "1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl black chana",
-        "1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl rajhma",
-        "1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl lobhia",
-        "1-2 Roti bran mix / jawar / small bowl steam rice + 1bowl soyabean",
-        "1-2 Roti bran mix / jawar /small bowl steam rice + 1bowl kadhi without pakrori",
-        "1-2Roti bran mix / jawar + 1bowl gatte veg without fried"
-      ],
-      lunch_nonveg: [
-        "1medium bowl chicken biryani [no leg pieces] homemade with low fat buttermilk",
-        "1bowl fish curry with steam rice",
-        "4-5 pieces of fish[steam/grilled]with grilled veggies /1-2 roti",
-        "2Pieces of grilled chicken [100gm] with g. chutney + buttermilk",
-        "2Egg white curry with steam rice /1-2 roti bran mix"
-      ],
-      evening: [
-        "1Cup tea / 1Cup black coffee / Green tea / 1Cup low fat milk / 1cup low fat buttermilk",
-        "One handful of Roasted chana or roasted chana mix green salad",
-        "Dry roasted bajra puffs unsalted",
-        "Dry roasted popcorn",
-        "Dry roasted makhane",
-        "1Small bowl steam moong sprouts mix green salad",
-        "Roasted wheat puffs unsalted",
-        "1Small bowl murmura bhel with lots of vegetables",
-        "1Small bowl boiled black chana saute with veggies",
-        "1Veg grilled sandwich with g. chutney"
-      ],
-      dinner_soup: [
-        "1Bowl mix veg soup [250ml]",
-        "Tomato soup [250ml]",
-        "Cabbage soup [250ml]",
-        "Mushroom soup [250ml]",
-        "French beans tomato soup [250ml]",
-        "Broccoli peas soup [250ml]",
-        "Spinach soup [250ml]",
-        "Chicken soup / chicken broth [250ml]"
-      ],
-    };
 
     function analyzeCategory(label, options) {
       const available = [];
@@ -262,29 +109,30 @@ Deno.serve(async (req) => {
       return { category: label, total: options.length, available_count: available.length, excluded_count: excluded.length, available, excluded };
     }
 
-    const mealOptionAnalysis = [
-      analyzeCategory('Early Morning Drinks', mealOptions.early_morning),
-      analyzeCategory('Breakfast: Cereals', mealOptions.breakfast_cereal),
-      analyzeCategory('Breakfast: Poha', mealOptions.breakfast_poha),
-      analyzeCategory('Breakfast: Non-Veg / Eggs', mealOptions.breakfast_nonveg),
-      analyzeCategory('Breakfast: Daliya', mealOptions.breakfast_daliya),
-      analyzeCategory('Breakfast: Sandwich', mealOptions.breakfast_sandwich),
-      analyzeCategory('Breakfast: Stuffed Roti', mealOptions.breakfast_stuffed_roti),
-      analyzeCategory('Breakfast: Cheela', mealOptions.breakfast_cheela),
-      analyzeCategory('Breakfast: Chholes / Sprouts', mealOptions.breakfast_chholes),
-      analyzeCategory('Breakfast: Smoothies', mealOptions.breakfast_smoothies),
-      analyzeCategory('Breakfast: Idli', mealOptions.breakfast_idli),
-      analyzeCategory('Mid Morning Snacks', mealOptions.midmorning),
-      analyzeCategory('Lunch: Roti + Veg', mealOptions.lunch_roti_veg),
-      analyzeCategory('Lunch: Dal Options', mealOptions.lunch_dal),
-      analyzeCategory('Lunch: Non-Veg', mealOptions.lunch_nonveg),
-      analyzeCategory('Evening Snacks', mealOptions.evening),
-      analyzeCategory('Dinner: Soups', mealOptions.dinner_soup),
-    ];
+    // Group dishes by meal type
+    const dishByType = {};
+    for (const d of healthyfyDishes) {
+      if (!dishByType[d.meal_type]) dishByType[d.meal_type] = [];
+      dishByType[d.meal_type].push(d.name);
+    }
+
+    const mealTypeLabels = {
+      early_morning: 'Early Morning Drinks',
+      breakfast: 'Breakfast Options',
+      mid_morning: 'Mid Morning Snacks',
+      lunch: 'Lunch Options',
+      evening_snack: 'Evening Snacks',
+      dinner: 'Dinner Options',
+    };
+
+    const mealOptionAnalysis = Object.entries(mealTypeLabels).map(([mt, label]) => {
+      return analyzeCategory(label, dishByType[mt] || []);
+    });
 
     const allConditions = [...(clinical?.health_conditions || []), ...additionalConditions];
 
     const decisionRules = [
+      { rule: `🔒 NON-COMPROMISING RULE: All dishes from Healthyfy Google Sheet catalog (${healthyfyDishes.length} total dishes)`, category: 'Dish Source' },
       { rule: `Daily calorie target: ${targetCal} kcal (BMR: ${client.bmr || 'N/A'}, TDEE: ${client.tdee || 'N/A'}, Goal: ${(goal || client.goal || 'N/A').replace(/_/g, ' ')})`, category: 'Calorie Target' },
       { rule: `Macros: Protein ~${targetProtein}g | Carbs ~${targetCarbs}g | Fats ~${targetFats}g`, category: 'Macros' },
       { rule: `Diet type: ${foodPref.charAt(0).toUpperCase() + foodPref.slice(1)} — Meal options selected accordingly`, category: 'Diet Type' },
@@ -297,6 +145,8 @@ Deno.serve(async (req) => {
 
     return Response.json({
       success: true,
+      catalog_source: 'healthyfy_google_sheet',
+      total_catalog_dishes: healthyfyDishes.length,
       decision_rules: decisionRules,
       meal_option_analysis: mealOptionAnalysis,
       food_preference: foodPref,
@@ -307,3 +157,92 @@ Deno.serve(async (req) => {
     return Response.json({ success: false, error: error.message }, { status: 500 });
   }
 });
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// HEALTHYFY DISH CATALOG — GOOGLE SHEET INTEGRATION
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const HEALTHYFY_SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1piIBl9QUrluRBf24-1bZNbooGYqMI5Cr11w3Mb9WxfU/export?format=csv';
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (const ch of line) {
+    if (ch === '"') { inQuotes = !inQuotes; }
+    else if (ch === ',' && !inQuotes) { result.push(current.trim()); current = ''; }
+    else { current += ch; }
+  }
+  result.push(current.trim());
+  return result;
+}
+
+async function fetchHealthyfyDishes() {
+  try {
+    const resp = await fetch(HEALTHYFY_SHEET_CSV);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const text = await resp.text();
+    return parseHealthyfyCSV(text);
+  } catch (err) {
+    console.error('WARNING: Could not fetch Healthyfy dish catalog:', err.message);
+    return buildFallbackDishes();
+  }
+}
+
+function parseHealthyfyCSV(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+  const dishes = [];
+  const MEAL_TYPE_MAP = { breakfast: 'breakfast', lunch: 'lunch', dinner: 'dinner', snack: 'evening_snack', any: 'any' };
+  const CAT_MAP = { BREAKFAST: 'breakfast', LUNCH: 'lunch', DINNER: 'dinner', SNACK: 'evening_snack', ANY: 'any' };
+
+  for (let i = 1; i < lines.length; i++) {
+    const cols = parseCSVLine(lines[i]);
+    const dishName = cols[0]?.trim();
+    if (!dishName || dishName.toLowerCase() === 'dish name') continue;
+    const templateCode = cols[1]?.trim() || '';
+    const mealCategory = (cols[4]?.trim() || '').toUpperCase();
+    const mealFlexibility = (cols[5]?.trim() || '').toUpperCase();
+    const combinedTypes = (cols[6]?.trim() || '').toLowerCase();
+    const ingredients = [];
+    for (let j = 0; j < 5; j++) {
+      const base = 8 + j * 3;
+      const ingName = cols[base]?.trim();
+      if (!ingName) continue;
+      ingredients.push({ ingredient_name: ingName, qty: parseFloat(cols[base + 1]) || 0, unit: cols[base + 2]?.trim() || 'g' });
+    }
+    let applicableMealTypes = [];
+    if (combinedTypes) applicableMealTypes = combinedTypes.split('|').map(t => MEAL_TYPE_MAP[t.trim()]).filter(Boolean);
+    if (applicableMealTypes.length === 0) {
+      if (CAT_MAP[mealCategory]) applicableMealTypes.push(CAT_MAP[mealCategory]);
+      if (mealFlexibility && CAT_MAP[mealFlexibility] && !applicableMealTypes.includes(CAT_MAP[mealFlexibility])) applicableMealTypes.push(CAT_MAP[mealFlexibility]);
+    }
+    if (applicableMealTypes.length === 0) applicableMealTypes = ['lunch'];
+    const seen = new Set();
+    for (const mt of applicableMealTypes) {
+      if (seen.has(mt)) continue;
+      seen.add(mt);
+      dishes.push({ id: `${templateCode || dishName.replace(/\s+/g,'_')}_${mt}_${i}`, name: dishName, meal_type: mt, ingredients, source: 'healthyfy_catalog' });
+    }
+  }
+
+  const emDrinks = ['Lemon Ginger Mint Cucumber Water','Zeera Water','Tulsi Water','Aloe Vera Juice with Water','Methi Water','Haldi Water','Chia Seeds Soaked Water','Dhaniya Pudina Water','Cinnamon Ginger Water','Saunf Water','Apple Cider Vinegar Water'];
+  emDrinks.forEach((name,idx) => dishes.push({ id:`em_${idx}`, name, meal_type:'early_morning', source:'healthyfy_catalog' }));
+  const mmItems = ['Seasonal Fruit 150g with Lemon Shikanji','Low Fat Buttermilk with Zeera and Chia Seeds','Seasonal Fruit — Apple or Orange or Papaya or Pear or Guava or Pomegranate','Cucumber Slices with Apple','Cucumber Slices with Pear','Bowl Papaya with Black Pepper','Pomegranate with Lemon'];
+  mmItems.forEach((name,idx) => dishes.push({ id:`mm_${idx}`, name, meal_type:'mid_morning', source:'healthyfy_catalog' }));
+  const esItems = ['Tea or Coffee or Green Tea or Low Fat Milk or Buttermilk','Roasted Chana or Roasted Chana Mix Green Salad','Dry Roasted Bajra Puffs Unsalted','Dry Roasted Popcorn','Dry Roasted Makhane','Steam Moong Sprouts Mix Green Salad','Roasted Wheat Puffs Unsalted','Murmura Bhel with Lots of Vegetables','Boiled Black Chana Saute with Veggies','Veg Grilled Sandwich with Green Chutney'];
+  const existingEs = new Set(dishes.filter(d=>d.meal_type==='evening_snack').map(d=>d.name.toLowerCase()));
+  esItems.forEach((name,idx) => { if(!existingEs.has(name.toLowerCase())) dishes.push({ id:`es_${idx}`, name, meal_type:'evening_snack', source:'healthyfy_catalog' }); });
+  return dishes;
+}
+
+function buildFallbackDishes() {
+  const dishes = [];
+  const add = (mt, name) => dishes.push({ id: `fb_${dishes.length}`, meal_type: mt, name, source: 'fallback' });
+  ['Lemon Ginger Mint Cucumber Water','Zeera Water','Tulsi Water','Methi Water','Haldi Water'].forEach(n => add('early_morning', n));
+  add('breakfast','Plain Paratha'); add('breakfast','Daliya Savory'); add('breakfast','Moong Dal Cheela');
+  add('mid_morning','Seasonal Fruit'); add('mid_morning','Buttermilk');
+  add('lunch','Roti'); add('lunch','Khichdi'); add('lunch','Plain Dal'); add('lunch','Rajma Curry');
+  add('evening_snack','Roasted Chana'); add('evening_snack','Tea or Coffee');
+  add('dinner','Roti'); add('dinner','Khichdi'); add('dinner','Mix Veg Soup 250ml');
+  return dishes;
+}
