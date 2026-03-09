@@ -207,7 +207,7 @@ Deno.serve(async (req) => {
       return selected;
     }
 
-    // 9. Build meal entry from one or more dishes
+    // 9. Build meal entry from one or more dishes (Rule M: real portions + per-meal kcal total)
     function buildEntry(day, mealType, dishes, targetSlotCal, tip) {
       const totalCal = dishes.reduce((s, d) => s + (d.approx_calories || 0), 0) || targetSlotCal;
       const calRatio = totalCal / (cal || 1800);
@@ -217,8 +217,8 @@ Deno.serve(async (req) => {
         meal_name: dishes.map(d => d.name).join(' + '),
         components: dishes.map(d => d.name),
         items: dishes.map(d => d.name),
-        portion_sizes: dishes.map(() => 'As described'),
-        calories: totalCal,
+        portion_sizes: dishes.map(d => inferPortion(d)),   // Rule M: exact portions
+        calories: totalCal,                                  // Rule M: real kcal total
         protein: Math.round(prot * calRatio),
         carbs: Math.round(carbs * calRatio),
         fats: Math.round(fats * calRatio),
