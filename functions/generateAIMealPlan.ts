@@ -346,24 +346,48 @@ If lunch uses rice-based dish → dinner must use roti/millet. Never rice-based 
       return { ...meal, nutrition_source: 'ai_estimated', catalog_compliant: allComponentsCompliant, component_compliance: componentCompliance };
     });
 
-    // ─── NO INTRA-DAY DUPLICATION AUDIT ───
-    const dayComponentMap = {};
+    // ─── SERVER-SIDE FIX: Remove intra-day duplicate components ───
+    // Group meals by day, then scan for duplicates and remove them
+    const dayMealGroups = {};
     for (const meal of enrichedMeals) {
-      if (!dayComponentMap[meal.day]) dayComponentMap[meal.day] = new Set();
-      for (const comp of (meal.components || [])) {
-        dayComponentMap[meal.day].add(comp.toLowerCase().trim());
-      }
+      if (!dayMealGroups[meal.day]) dayMealGroups[meal.day] = [];
+      dayMealGroups[meal.day].push(meal);
     }
-    // Flag any intra-day duplicates
+
     const intraDayDuplicates = [];
-    for (const meal of enrichedMeals) {
-      const seenInDay = new Set();
-      for (const comp of (meal.components || [])) {
-        const key = comp.toLowerCase().trim();
-        if (seenInDay.has(key)) {
-          intraDayDuplicates.push({ day: meal.day, meal_type: meal.meal_type, duplicate_component: comp });
+    for (const [day, meals] of Object.entries(dayMealGroups)) {
+      // Sort by meal slot order so early meals "claim" dishes first
+      const slotOrder = { early_morning: 1, breakfast: 2, mid_morning: 3, lunch: 4, evening_snack: 5, dinner: 6 };
+      meals.sort((a, b) => (slotOrder[a.meal_type] || 9) - (slotOrder[b.meal_type] || 9));
+
+      const usedOnDay = new Set();
+      for (const meal of meals) {
+        const cleanedComponents = [];
+        for (const comp of (meal.components || [])) {
+          const key = comp.toLowerCase().trim();
+          if (usedOnDay.has(key)) {
+            // Find a replacement from the same meal type slot that hasn't been used today
+            const alternatives = (dishByType[meal.meal_type] || [])
+              .map(d => d.name)
+              .filter(n => !usedOnDay.has(n.toLowerCase().trim()) && n.toLowerCase().trim() !== key);
+            if (alternatives.length > 0) {
+              const replacement = alternatives[Math.floor(Math.random() * Math.min(alternatives.length, 5))];
+              intraDayDuplicates.push({ day: meal.day, meal_type: meal.meal_type, removed: comp, replaced_with: replacement });
+              cleanedComponents.push(replacement);
+              usedOnDay.add(replacement.toLowerCase().trim());
+            } else {
+              intraDayDuplicates.push({ day: meal.day, meal_type: meal.meal_type, removed: comp, replaced_with: null });
+            }
+          } else {
+            cleanedComponents.push(comp);
+            usedOnDay.add(key);
+          }
         }
-        seenInDay.add(key);
+        meal.components = cleanedComponents;
+        // Update items to reflect corrected components
+        if (cleanedComponents.length > 0 && cleanedComponents.length !== (meal.components || []).length) {
+          meal.items = cleanedComponents.map(c => c);
+        }
       }
     }
 
