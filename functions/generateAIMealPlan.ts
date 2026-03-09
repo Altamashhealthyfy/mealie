@@ -196,7 +196,24 @@ ${clinical?.non_veg_frequency_per_10_days ? `Non-veg: use EXACTLY ${clinical.non
 ${clinical?.egg_frequency_per_10_days ? `Eggs: use EXACTLY ${clinical.egg_frequency_per_10_days} times across the ${duration}-day plan` : ''}
 
 **RULE H — RICE vs ROTI**
-If lunch uses rice-based dish → dinner must use roti/millet. Never rice-based at both lunch AND dinner.`;
+If lunch uses rice-based dish → dinner must use roti/millet. Never rice-based at both lunch AND dinner.
+
+**RULE I — BREAKFAST COMBINATIONS**
+For BREAKFAST: prioritize one substantial dish that is a complete meal (e.g., "Masala Poha", "Aloo Paratha", "Idli Sambar").
+If combining, ONLY pair one main dish with a NATURAL LIGHT ACCOMPANIMENT:
+  - Dry/semi-dry items (Paratha, Cheela, Poha, Upma) → pair with Curd, Chutney, or Pickle
+  - Idli/Dosa → pair with Sambar OR Chutney (not both mandatory)
+  - NEVER combine two separate "main course" type dishes at breakfast.
+
+**RULE J — NO DOUBLE CURRY / NO CROSS-DIET CURRY**
+When building LUNCH or DINNER components:
+  - NEVER include two different rice-based dishes in the same meal slot (e.g., Brown Rice + Vegetable Pulao is FORBIDDEN).
+  - NEVER combine a VEGETARIAN CURRY/GRAVY with a NON-VEGETARIAN CURRY/GRAVY in the same meal slot.
+  - If the meal already has a rich gravy (Dal Makhani, Chicken Curry, Rajma etc.) as main protein, add ONLY a light dry vegetable OR a salad/raita — NOT another cooked sabzi gravy.
+
+**RULE K — MILK/DAIRY WITH NON-VEG**
+STRICTLY AVOID combining MILK or MILK PRODUCTS (Curd, Raita, Lassi, Buttermilk, Milk) with NON-VEGETARIAN dishes (Chicken, Fish, Mutton, Egg curry) in the SAME meal slot.
+Exception: A very small Raita (cooling agent) may accompany Biryani only, as it is a widely accepted traditional pairing.`;
 
     const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
