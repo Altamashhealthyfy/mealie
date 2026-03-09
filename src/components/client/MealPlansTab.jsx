@@ -26,7 +26,6 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, hasPr
   const [activeSubTab, setActiveSubTab] = useState("basic");
   const [viewingPlan, setViewingPlan] = useState(null);
   const [showBasicForm, setShowBasicForm] = useState(false);
-  const [showProForm, setShowProForm] = useState(false);
   const [showTemplateSelector, setShowTemplateSelector] = useState(null); // "basic" | "pro" | null
   const [savingTemplate, setSavingTemplate] = useState(null); // plan object
   const [showWorkflow, setShowWorkflow] = useState(false);
