@@ -2,9 +2,10 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 /**
  * generateRuleBasedMealPlan
- * STEP 5-6: Build the final meal plan using ONLY the allowed meals,
- * applying calorie targets, macro distribution, Indian meal structure,
- * variety rules, non-veg/egg frequency, MPESS recommendations, etc.
+ * NON-COMPROMISING RULE: ALL dishes are sourced EXCLUSIVELY from the
+ * Healthyfy Dishes Google Sheet catalog. If allowedMeals[] is passed from
+ * filterMealOptions, those are already pre-filtered from the catalog.
+ * Applies to ALL users: Super Admin, Student Coaches, Team Members.
  *
  * Input:
  *   clientId, intakeId, duration, allowedMeals[], decisionRules[],
