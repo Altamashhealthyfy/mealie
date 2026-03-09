@@ -527,7 +527,7 @@ Return JSON: { modified_meals: [...same structure as input meals...], ai_suggest
           {audit && <AuditCard audit={audit} />}
 
           {/* Plan preview */}
-          <div className="max-h-[50vh] overflow-y-auto border rounded-xl">
+          <div className="border rounded-xl overflow-hidden">
             <MealPlanViewer plan={generatedPlan} allPlanIds={[]} hideActions={true} />
           </div>
 
