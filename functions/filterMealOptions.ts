@@ -240,15 +240,14 @@ function parseCSVLine(line) {
 }
 
 async function fetchHealthyfyDishes() {
-  try {
-    const resp = await fetch(HEALTHYFY_SHEET_CSV);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const text = await resp.text();
-    return parseHealthyfyCSV(text);
-  } catch (err) {
-    console.error('ERROR: Could not fetch Healthyfy dish catalog from Google Sheet:', err.message);
-    return [];
-  }
+  // NON-COMPROMISING RULE: If Google Sheet is unavailable, FAIL HARD. No fallback. No AI invention.
+  const resp = await fetch(HEALTHYFY_SHEET_CSV);
+  if (!resp.ok) throw new Error(`HEALTHYFY CATALOG UNAVAILABLE: Google Sheet returned HTTP ${resp.status}. Cannot proceed without the official dish catalog.`);
+  const text = await resp.text();
+  const dishes = parseHealthyfyCSV(text);
+  if (dishes.length === 0) throw new Error('HEALTHYFY CATALOG EMPTY: Google Sheet returned 0 dishes. Cannot generate meal plan.');
+  console.log(`✅ Healthyfy catalog loaded: ${dishes.length} dishes from Google Sheet`);
+  return dishes;
 }
 
 function parseHealthyfyCSV(text) {
