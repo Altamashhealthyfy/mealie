@@ -89,13 +89,30 @@ Deno.serve(async (req) => {
 
     const decisionRules = buildDecisionRules({ client, intake, diagnostic, manualRules, foodPref });
 
+    // Build per-meal-type counts
+    const mealTypes = ['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner'];
+    const catalogBreakdown = {};
+    for (const mt of mealTypes) {
+      const total = mealDatabase.filter(d => d.meal_type === mt).length;
+      const allowedCount = allowed.filter(d => d.meal_type === mt).length;
+      const blockedCount = blocked.filter(d => d.meal_type === mt).length;
+      catalogBreakdown[mt] = { total, allowed: allowedCount, blocked: blockedCount };
+    }
+
     return Response.json({
       success: true,
+      // ═══ CATALOG SUMMARY (shown first) ═══
+      catalog_source: 'healthyfy_google_sheet_ONLY',
+      catalog_summary: {
+        total_dishes_in_sheet: mealDatabase.length,
+        total_allowed_for_client: allowed.length,
+        total_restricted_for_client: blocked.length,
+        breakdown_by_meal_type: catalogBreakdown,
+      },
       allowed,
       blocked,
       decisionRules,
       diagnostic,
-      catalog_source: 'healthyfy_google_sheet',
       total_catalog_dishes: mealDatabase.length,
       client: { id: client.id, full_name: client.full_name, target_calories: client.target_calories, target_protein: client.target_protein, target_carbs: client.target_carbs, target_fats: client.target_fats, bmr: client.bmr, tdee: client.tdee },
       intake: intake ? { id: intake.id, intake_date: intake.intake_date, health_conditions: intake.health_conditions, diet_type: intake.diet_type, goal: intake.goal, basic_info: intake.basic_info, daily_routine: intake.daily_routine, likes_dislikes_allergies: intake.likes_dislikes_allergies, non_veg_frequency_per_10_days: intake.non_veg_frequency_per_10_days, egg_frequency_per_10_days: intake.egg_frequency_per_10_days } : null,
