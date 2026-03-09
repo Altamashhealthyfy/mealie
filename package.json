@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@base44/sdk": "^0.8.3",
+    "@base44/sdk": "^0.8.0",
     "@hello-pangea/dnd": "^17.0.0",
     "@hookform/resolvers": "^4.1.2",
     "@radix-ui/react-accordion": "^1.2.3",
@@ -69,7 +69,8 @@
     "zod": "^3.24.2",
     "driver.js": "^1.3.1",
     "xlsx": "^0.18.5",
-    "jspdf": "^2.5.2"
+    "jspdf": "^2.5.2",
+    "@base44/vite-plugin": "^1.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
