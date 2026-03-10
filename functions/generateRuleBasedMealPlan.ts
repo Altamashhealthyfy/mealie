@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
       // Calorie range filter
       const inRange = candidates.filter(m => {
         const c = m.approx_calories || 0;
-        return c >= targetSlotCal * 0.5 && c <= targetSlotCal * 1.4;
+        return c >= targetSlotCal * 0.90 && c <= targetSlotCal * 1.10;
       });
       const finalPool = inRange.length > 0 ? inRange : candidates;
       return finalPool[usedIds.length % finalPool.length];
