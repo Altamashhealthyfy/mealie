@@ -151,6 +151,16 @@ Deno.serve(async (req) => {
     // 8. Pick 2-3 dishes for a slot to hit calorie target (combination mode for lunch/dinner)
     //    Enforces Rule L: no two rice-based OR two wheat-based in same slot
     //    Enforces Rule K: no dairy+non-veg in same slot
+    //    Enforces One-Pot Rule: if first dish is a one-pot meal, only add one side dish
+
+    const ONE_POT_KEYWORDS = ['khichdi', 'biryani', 'pulao', 'one pot', 'daliya khichdi', 'veg khichdi', 'moong khichdi', 'oats khichdi'];
+    const SIDE_DISH_KEYWORDS = ['curd', 'raita', 'chutney', 'papad'];
+
+    function isOnePot(dish) {
+      const n = (dish.name || '').toLowerCase();
+      return ONE_POT_KEYWORDS.some(k => n.includes(k));
+    }
+
     function pickCombined(pool, usedIds, targetSlotCal, todayItems, count = 2) {
       if (!pool || pool.length === 0) return [];
       const selected = [];
@@ -172,8 +182,8 @@ Deno.serve(async (req) => {
 
         // Rule L: filter out double-carb violations
         candidates = candidates.filter(m => {
-          if (isRiceBased(m) && hasRice) return false;  // already have a rice dish
-          if (isWheatBased(m) && hasWheat) return false; // already have a wheat dish
+          if (isRiceBased(m) && hasRice) return false;
+          if (isWheatBased(m) && hasWheat) return false;
           return true;
         });
 
@@ -196,6 +206,16 @@ Deno.serve(async (req) => {
         selected.push(picked);
         remainingCal -= picked.approx_calories || 200;
         tempUsed.add(picked.id);
+
+        // One-Pot Rule: if first dish is a one-pot meal, only add one side dish and stop
+        if (i === 0 && isOnePot(picked)) {
+          const sideDish = pool.find(m =>
+            !tempUsed.has(m.id) &&
+            SIDE_DISH_KEYWORDS.some(k => (m.name || '').toLowerCase().includes(k))
+          );
+          if (sideDish) selected.push(sideDish);
+          break;
+        }
 
         // Track carb/protein types for next iteration
         if (isRiceBased(picked)) hasRice = true;
