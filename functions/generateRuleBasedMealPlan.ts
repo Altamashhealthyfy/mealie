@@ -515,7 +515,8 @@ function buildAudit(meals, duration, targetCal, targetProt, targetCarbs, targetF
   }
   const avgCal    = dayCount > 0 ? Math.round(totalCal / dayCount) : 0;
   const deviation = Math.abs(avgCal - targetCal);
-  const calCompliance = deviation <= 150 ? 'Within range (±150 kcal)' : deviation <= 300 ? 'Slightly off (±300 kcal)' : 'Out of range';
+  const tenPercent = Math.round(targetCal * 0.10);
+  const calCompliance = deviation <= tenPercent ? `Within 10% (±${tenPercent} kcal)` : `Out of 10% range — avg: ${avgCal} kcal, target: ${targetCal} kcal`;
   return {
     avg_calories_per_day: avgCal,
     target_calories: targetCal,
