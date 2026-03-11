@@ -162,7 +162,7 @@ Deno.serve(async (req) => {
     // ─── 10. 3-day variety tracking ──────────────────────────────────────────────
     const usedByDay = {}; // day => Set of dish IDs
 
-    function getRecentDishIds(currentDay, lookback = 3) {
+    function getRecentDishIds(currentDay, lookback = 4) {
       const ids = new Set();
       for (let d = Math.max(1, currentDay - lookback); d < currentDay; d++) {
         if (usedByDay[d]) usedByDay[d].forEach(id => ids.add(id));
