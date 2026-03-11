@@ -214,12 +214,12 @@ Deno.serve(async (req) => {
       const hasRice  = isRiceBased(primary);
       const hasWheat = isWheatBased(primary);
 
-      // Add a light side if calorie-short (e.g. chutney with dosa, raita with paratha)
+      // Add a light side only if calorie-short AND primary is not already a full grain meal
+      // Side must be a non-grain accompaniment (chutney, raita, dal, fruit, egg) — NOT another grain
       const primaryCal = primary.approx_calories || 0;
       if (primaryCal < targetSlotCal * 0.7) {
         const secondaries = freshFrom(m => {
-          if (isRiceBased(m) && hasRice) return false;
-          if (isWheatBased(m) && hasWheat) return false;
+          if (isGrain(m)) return false; // Never add grain on top of grain at breakfast
           return true;
         });
         const side = pickClosest(secondaries, targetSlotCal - primaryCal);
