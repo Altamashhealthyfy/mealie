@@ -89,8 +89,8 @@ Deno.serve(async (req) => {
     const eggPreferredMeals = intake?.egg_preferred_meals || ['breakfast'];
 
     // ─── 6. Dish classification helpers ─────────────────────────────────────────
-    const RICE_KEYWORDS      = ['rice', 'khichdi', 'pulao', 'biryani', 'khichri', 'pongal', 'curd rice', 'lemon rice'];
-    const WHEAT_KEYWORDS     = ['roti', 'chapati', 'paratha', 'bread', 'naan', 'thepla', 'puri', 'bhatura', 'suji', 'rava', 'dalia', 'daliya', 'upma', 'cheela', 'dosa', 'uttapam', 'idli'];
+    const RICE_KEYWORDS      = ['rice', 'khichdi', 'pulao', 'biryani', 'khichri', 'pongal', 'curd rice', 'lemon rice', 'poha', 'chivda', 'beaten rice'];
+    const WHEAT_KEYWORDS     = ['roti', 'chapati', 'paratha', 'bread', 'naan', 'thepla', 'puri', 'bhatura', 'suji', 'rava', 'dalia', 'daliya', 'upma', 'cheela', 'dosa', 'uttapam', 'idli', 'oats', 'oatmeal', 'porridge', 'cornflakes', 'muesli', 'dhokla'];
     const DAIRY_KEYWORDS     = ['milk', 'curd', 'raita', 'lassi', 'buttermilk', 'paneer', 'ghee', 'cheese', 'cream', 'kheer', 'dahi'];
     const NON_VEG_KEYWORDS   = ['chicken', 'fish', 'mutton', 'meat', 'prawn', 'shrimp', 'egg', 'lamb'];
     const DAL_KEYWORDS       = ['dal', 'daal', 'sambar', 'sambhar', 'rasam', 'rajma', 'chole', 'chana', 'kadhi', 'lobhia', 'lentil', 'moong soup'];
