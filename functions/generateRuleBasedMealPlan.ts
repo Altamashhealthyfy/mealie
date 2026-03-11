@@ -458,7 +458,9 @@ Deno.serve(async (req) => {
       const dinnerPool = wantNVDinner
         ? dinners
         : dinners.filter(m => !m.tags?.includes('non_veg') && !m.tags?.includes('chicken') && !m.tags?.includes('fish'));
-      const dinnerDishes = pickIndianCompleteMeal(dinnerPool, todayItems, day, calDist.dinner);
+      // Dinner uses opposite grain to lunch for variety within the same day
+      const dinnerGrain = grainOrder(day) === 'wheat' ? 'rice' : 'wheat';
+      const dinnerDishes = pickIndianCompleteMeal(dinnerPool, todayItems, day, calDist.dinner, dinnerGrain);
       if (dinnerDishes.length > 0) {
         if (dinnerDishes.some(d => d.tags?.includes('non_veg'))) nonVegUsed++;
         meals.push(buildEntry(day, 'dinner', dinnerDishes, calDist.dinner, 'Light digestible dinner — supports overnight repair'));
