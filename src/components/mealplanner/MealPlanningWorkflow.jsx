@@ -779,7 +779,7 @@ function AllowedMealsReview({ allowed, manuallyBlocked, onToggleBlock, extraAllo
   return (
     <Card className="border-green-200 shadow-sm">
       <div className="flex items-center justify-between px-4 py-2 cursor-pointer" onClick={() => setExpanded(!expanded)}>
-        <span className="text-sm font-semibold text-green-700">✅ Allowed Meals ({allowed.length + extraAllowed.length}) — click to review & modify</span>
+        <span className="text-sm font-semibold text-green-700">✅ Allowed Dishes ({new Set([...allowed, ...extraAllowed].map(m => m.name)).size}) — click to review & modify</span>
         {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
       </div>
       {expanded && (
