@@ -355,11 +355,10 @@ Deno.serve(async (req) => {
 
     // ─── 15. Build meal entry ─────────────────────────────────────────────────────
     function buildEntry(day, mealType, dishes, targetSlotCal, tip) {
-      const rawCal = dishes.reduce((s, d) => s + (d.approx_calories || 0), 0);
-      // If dish estimates are too low (< 75% of target), use the target slot calories
-      // This ensures daily totals hit the client's calorie target
-      const totalCal = (rawCal >= targetSlotCal * 0.75) ? rawCal : targetSlotCal;
-      const calRatio = targetSlotCal / (cal || 1800); // always ratio against slot target for consistent macros
+      // Always use targetSlotCal — dish catalog calories are approximations.
+      // Using the slot target guarantees daily total = client's calorie goal.
+      const totalCal = targetSlotCal;
+      const calRatio = targetSlotCal / (cal || 1800);
       return {
         day,
         meal_type: mealType,
