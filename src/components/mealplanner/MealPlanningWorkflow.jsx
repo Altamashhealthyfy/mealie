@@ -734,7 +734,7 @@ function BlockedMealsSection({ blocked }) {
   return (
     <Card className="border-red-100 shadow-sm">
       <div className="flex items-center justify-between px-4 py-2 cursor-pointer" onClick={() => setExpanded(!expanded)}>
-        <span className="text-sm font-semibold text-red-600">⛔ Blocked Meals ({blocked.length}) — click to review</span>
+        <span className="text-sm font-semibold text-red-600">⛔ Blocked Dishes ({new Set(blocked.map(m => m.name)).size}) — click to review</span>
         {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
       </div>
       {expanded && (
