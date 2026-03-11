@@ -390,6 +390,10 @@ Deno.serve(async (req) => {
     const nonVegAllowedTotal = Math.round((duration / 10) * nonVegFreq);
     const eggAllowedTotal    = Math.round((duration / 10) * eggFreq);
 
+    // Alternate grain base: odd days = wheat-first, even days = rice-first
+    // This prevents all-rice or all-roti days
+    const grainOrder = (day) => day % 2 === 1 ? 'wheat' : 'rice';
+
     for (let day = 1; day <= duration; day++) {
       const todayItems = new Set();
       usedByDay[day] = new Set();
