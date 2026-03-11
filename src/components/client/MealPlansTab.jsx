@@ -240,7 +240,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, hasPr
             client={client}
             clinicalIntakes={clinicalIntakes}
             mealPlans={mealPlans}
-            onPlanSaved={() => { invalidatePlans(); }}
+            onPlanSaved={() => { invalidatePlans(); setShowWorkflow(false); setActiveSubTab("pro"); }}
             onPlanAssigned={() => { invalidatePlans(); setShowWorkflow(false); setActiveSubTab("pro"); }}
           />
         </DialogContent>
