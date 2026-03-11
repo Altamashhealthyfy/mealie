@@ -34,7 +34,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
   );
   const latestIntake = sortedIntakes[0];
 
-  const [currentStep, setCurrentStep] = useState(1);
+  const [openSections, setOpenSections] = useState({ s1: true, s2: false, s3: false, s4: false, s5: true, s6: true });
   const [selectedIntakeId, setSelectedIntakeId] = useState(latestIntake?.id || null);
   const [duration, setDuration] = useState(10);
 
@@ -84,6 +84,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
         manualRules,
       });
       setFilterResult(res.data);
+      setOpenSections(prev => ({ ...prev, s2: false, s3: true }));
       toast.success('✅ Meal options filtered from database');
     } catch (err) {
       toast.error('Filter failed: ' + (err.message || 'Unknown error'));
@@ -152,7 +153,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       setGeneratedPlan({ ...res.data.plan, created_date: new Date().toISOString(), id: null });
       setAudit(res.data.audit);
       toast.success('✅ Meal plan generated from allowed database options!');
-      setCurrentStep(5);
+      setOpenSections(prev => ({ ...prev, s5: true, s6: true }));
     } catch (err) {
       toast.error('Generation failed: ' + (err.message || 'Unknown error'));
     }
