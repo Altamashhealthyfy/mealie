@@ -447,6 +447,30 @@ Deno.serve(async (req) => {
         meals.push(buildEntry(day, 'dinner', dinnerDishes, calDist.dinner, 'Light digestible dinner — supports overnight repair'));
         trackUsed(dinnerDishes);
       }
+
+      // ── Calorie top-up: if any slot was skipped (empty pool), redistribute
+      // the shortfall equally between lunch and dinner so daily total = cal target.
+      const dayMeals = meals.filter(m => m.day === day);
+      const dayTotal = dayMeals.reduce((s, m) => s + (m.calories || 0), 0);
+      const shortfall = cal - dayTotal;
+      if (shortfall > 10) {
+        const lunchEntry  = dayMeals.find(m => m.meal_type === 'lunch');
+        const dinnerEntry = dayMeals.find(m => m.meal_type === 'dinner');
+        const split = Math.round(shortfall / 2);
+        const calRatio = (baseSlotCal) => (baseSlotCal + split) / (cal || 1800);
+        if (lunchEntry) {
+          lunchEntry.calories += split;
+          lunchEntry.protein   = Math.round(prot  * calRatio(lunchEntry.calories - split));
+          lunchEntry.carbs     = Math.round(carbs * calRatio(lunchEntry.calories - split));
+          lunchEntry.fats      = Math.round(fats  * calRatio(lunchEntry.calories - split));
+        }
+        if (dinnerEntry) {
+          dinnerEntry.calories += (shortfall - split);
+          dinnerEntry.protein   = Math.round(prot  * calRatio(dinnerEntry.calories - (shortfall - split)));
+          dinnerEntry.carbs     = Math.round(carbs * calRatio(dinnerEntry.calories - (shortfall - split)));
+          dinnerEntry.fats      = Math.round(fats  * calRatio(dinnerEntry.calories - (shortfall - split)));
+        }
+      }
     }
 
     // ─── 17. MPESS + Audit + Response ────────────────────────────────────────────
