@@ -297,7 +297,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, hasPr
 
       {/* ── View Plan Dialog ── */}
       <Dialog open={!!viewingPlan} onOpenChange={() => setViewingPlan(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] w-full max-h-[95vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="truncate">{viewingPlan?.name}</DialogTitle>
           </DialogHeader>
