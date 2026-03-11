@@ -860,8 +860,11 @@ function AuditCard({ meals, targetCalories, targetProtein, targetCarbs, targetFa
   const avgFats  = Math.round(days.reduce((s, d) => s + d.fats,  0) / dayCount);
   const tCal = targetCalories || 1800;
   const deviation = Math.abs(avgCal - tCal);
-  const isGood = deviation <= 150;
-  const compliance = deviation <= 150 ? 'Within range (±150 kcal)' : deviation <= 300 ? 'Slightly off (±300 kcal)' : 'Out of range';
+  const tenPct = Math.round(tCal * 0.10);
+  const isGood = deviation <= tenPct;
+  const compliance = isGood
+    ? `✅ Within 10% (±${tenPct} kcal) — Avg: ${avgCal} kcal`
+    : `⚠️ Out of 10% range — Avg: ${avgCal} kcal, Target: ${tCal} kcal (±${deviation} kcal off)`;
 
   return (
     <Card className={`border-none shadow-sm ${isGood ? 'bg-green-50' : 'bg-amber-50'}`}>
