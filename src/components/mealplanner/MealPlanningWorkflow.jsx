@@ -393,15 +393,15 @@ Return JSON: { modified_meals: [...same structure as input meals...], ai_suggest
                 <Card className="border-green-200 shadow-sm">
                   <CardContent className="p-3 text-center">
                     <CheckCircle className="w-6 h-6 text-green-500 mx-auto mb-1" />
-                    <p className="text-2xl font-bold text-green-600">{filterResult.allowed?.length || 0}</p>
-                    <p className="text-xs text-gray-500">Allowed Meals</p>
+                    <p className="text-2xl font-bold text-green-600">{new Set(filterResult.allowed?.map(m => m.name)).size || 0}</p>
+                    <p className="text-xs text-gray-500">Allowed Dishes</p>
                   </CardContent>
                 </Card>
                 <Card className="border-red-200 shadow-sm">
                   <CardContent className="p-3 text-center">
                     <XCircle className="w-6 h-6 text-red-400 mx-auto mb-1" />
-                    <p className="text-2xl font-bold text-red-500">{filterResult.blocked?.length || 0}</p>
-                    <p className="text-xs text-gray-500">Blocked Meals</p>
+                    <p className="text-2xl font-bold text-red-500">{new Set(filterResult.blocked?.map(m => m.name)).size || 0}</p>
+                    <p className="text-xs text-gray-500">Blocked Dishes</p>
                   </CardContent>
                 </Card>
               </div>
