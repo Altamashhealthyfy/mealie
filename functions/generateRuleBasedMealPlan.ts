@@ -42,11 +42,10 @@ Deno.serve(async (req) => {
     if (!clientId) return Response.json({ error: 'clientId required' }, { status: 400 });
 
     // ─── 1. Load client + intake ────────────────────────────────────────────────
+    // Always fetch ALL intakes for the client and pick the latest — intakeId is ignored intentionally
     const [clientArr, intakeArr] = await Promise.all([
       base44.asServiceRole.entities.Client.filter({ id: clientId }),
-      intakeId
-        ? base44.asServiceRole.entities.ClinicalIntake.filter({ id: intakeId })
-        : base44.asServiceRole.entities.ClinicalIntake.filter({ client_id: clientId }),
+      base44.asServiceRole.entities.ClinicalIntake.filter({ client_id: clientId }),
     ]);
 
     const client = clientArr[0];
@@ -182,7 +181,7 @@ Deno.serve(async (req) => {
       if (candidates.length === 0) candidates = pool;
       const inRange = candidates.filter(m => {
         const c = m.approx_calories || 0;
-        return c >= targetSlotCal * 0.75 && c <= targetSlotCal * 1.25;
+        return c >= targetSlotCal * 0.9 && c <= targetSlotCal * 1.1;
       });
       const finalPool = inRange.length > 0 ? inRange : candidates;
       return finalPool[currentDay % finalPool.length];
