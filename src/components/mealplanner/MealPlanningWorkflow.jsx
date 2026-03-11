@@ -524,7 +524,15 @@ Return JSON: { modified_meals: [...same structure as input meals...], ai_suggest
           <SectionHeader icon={<MessageSquare />} title="Step 5 — Review, Advise & Modify" subtitle="Review the generated plan. Request changes. AI will try database first, LLM only if needed." color="pink" />
 
           {/* Audit */}
-          {audit && <AuditCard audit={audit} />}
+          {generatedPlan?.meals && (
+            <AuditCard
+              meals={generatedPlan.meals}
+              targetCalories={generatedPlan.target_calories}
+              targetProtein={filterResult?.client?.target_protein}
+              targetCarbs={filterResult?.client?.target_carbs}
+              targetFats={filterResult?.client?.target_fats}
+            />
+          )}
 
           {/* Plan preview */}
           <div className="border rounded-xl overflow-hidden">
@@ -834,8 +842,27 @@ function AllowedMealsReview({ allowed, manuallyBlocked, onToggleBlock, extraAllo
   );
 }
 
-function AuditCard({ audit }) {
-  const isGood = audit.calorie_compliance?.includes('Within');
+function AuditCard({ meals, targetCalories, targetProtein, targetCarbs, targetFats }) {
+  // Compute averages live from actual meal entries (always in sync with viewer)
+  const daysMap = {};
+  for (const m of meals || []) {
+    if (!daysMap[m.day]) daysMap[m.day] = { cal: 0, prot: 0, carbs: 0, fats: 0 };
+    daysMap[m.day].cal   += m.calories || 0;
+    daysMap[m.day].prot  += m.protein  || 0;
+    daysMap[m.day].carbs += m.carbs    || 0;
+    daysMap[m.day].fats  += m.fats     || 0;
+  }
+  const days = Object.values(daysMap);
+  const dayCount = days.length || 1;
+  const avgCal   = Math.round(days.reduce((s, d) => s + d.cal,   0) / dayCount);
+  const avgProt  = Math.round(days.reduce((s, d) => s + d.prot,  0) / dayCount);
+  const avgCarbs = Math.round(days.reduce((s, d) => s + d.carbs, 0) / dayCount);
+  const avgFats  = Math.round(days.reduce((s, d) => s + d.fats,  0) / dayCount);
+  const tCal = targetCalories || 1800;
+  const deviation = Math.abs(avgCal - tCal);
+  const isGood = deviation <= 150;
+  const compliance = deviation <= 150 ? 'Within range (±150 kcal)' : deviation <= 300 ? 'Slightly off (±300 kcal)' : 'Out of range';
+
   return (
     <Card className={`border-none shadow-sm ${isGood ? 'bg-green-50' : 'bg-amber-50'}`}>
       <CardContent className="p-4">
@@ -843,27 +870,27 @@ function AuditCard({ audit }) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
           <div className="bg-white rounded-lg p-2 text-center">
             <p className="text-gray-500">Avg Cal/Day</p>
-            <p className="font-bold text-orange-600">{audit.avg_calories_per_day} kcal</p>
-            <p className="text-gray-400">Target: {audit.target_calories}</p>
+            <p className="font-bold text-orange-600">{avgCal} kcal</p>
+            <p className="text-gray-400">Target: {tCal}</p>
           </div>
           <div className="bg-white rounded-lg p-2 text-center">
             <p className="text-gray-500">Avg Protein</p>
-            <p className="font-bold text-blue-600">{audit.avg_protein_per_day}g</p>
-            <p className="text-gray-400">Target: {audit.target_protein}g</p>
+            <p className="font-bold text-blue-600">{avgProt}g</p>
+            <p className="text-gray-400">Target: {targetProtein || '—'}g</p>
           </div>
           <div className="bg-white rounded-lg p-2 text-center">
             <p className="text-gray-500">Avg Carbs</p>
-            <p className="font-bold text-green-600">{audit.avg_carbs_per_day}g</p>
-            <p className="text-gray-400">Target: {audit.target_carbs}g</p>
+            <p className="font-bold text-green-600">{avgCarbs}g</p>
+            <p className="text-gray-400">Target: {targetCarbs || '—'}g</p>
           </div>
           <div className="bg-white rounded-lg p-2 text-center">
             <p className="text-gray-500">Avg Fats</p>
-            <p className="font-bold text-yellow-600">{audit.avg_fats_per_day}g</p>
-            <p className="text-gray-400">Target: {audit.target_fats}g</p>
+            <p className="font-bold text-yellow-600">{avgFats}g</p>
+            <p className="text-gray-400">Target: {targetFats || '—'}g</p>
           </div>
         </div>
         <p className={`text-xs mt-2 font-medium ${isGood ? 'text-green-700' : 'text-amber-700'}`}>
-          Calorie compliance: {audit.calorie_compliance}
+          Calorie compliance: {compliance}
         </p>
       </CardContent>
     </Card>
