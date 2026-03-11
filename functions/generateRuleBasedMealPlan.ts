@@ -262,8 +262,15 @@ Deno.serve(async (req) => {
           const onePot = pickClosest(onePotOptions, targetSlotCal * 0.7);
           if (onePot) {
             track(onePot);
-            // Add ONE side dish only (curd/raita/chutney)
-            const side = freshFrom(isSideDish)[0];
+            const onePotIsRice = isRiceBased(onePot);
+            const onePotIsWheat = isWheatBased(onePot);
+            // Add ONE side dish only — must NOT be same grain type as one-pot
+            const sideOptions = freshFrom(m =>
+              isSideDish(m) &&
+              !(onePotIsRice && isRiceBased(m)) &&
+              !(onePotIsWheat && isWheatBased(m))
+            );
+            const side = sideOptions[0];
             if (side) track(side);
             return selected;
           }
