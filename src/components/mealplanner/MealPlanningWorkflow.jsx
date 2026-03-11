@@ -16,14 +16,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import MealPlanViewer from "@/components/client/MealPlanViewer";
 
-const STEPS = [
-  { id: 1, label: "Review Diagnostic", icon: Stethoscope, color: "purple" },
-  { id: 2, label: "Filter Meal Options", icon: Filter, color: "blue" },
-  { id: 3, label: "Nutritionist Review", icon: UserCheck, color: "orange" },
-  { id: 4, label: "Generate Plan", icon: Sparkles, color: "green" },
-  { id: 5, label: "Advise & Modify", icon: MessageSquare, color: "pink" },
-  { id: 6, label: "Save & Assign", icon: Save, color: "emerald" },
-];
+
 
 export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlans, onPlanSaved, onPlanAssigned }) {
   const queryClient = useQueryClient();
@@ -550,32 +543,7 @@ Return JSON: { modified_meals: [...same structure as input meals...], ai_suggest
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
-function StepBar({ steps, current, onStepClick }) {
-  const colorMap = { purple: 'bg-purple-500', blue: 'bg-blue-500', orange: 'bg-orange-500', green: 'bg-green-500', pink: 'bg-pink-500', emerald: 'bg-emerald-500' };
-  return (
-    <div className="flex gap-1 overflow-x-auto pb-1">
-      {steps.map(step => (
-        <button key={step.id} onClick={() => onStepClick(step.id)}
-          className={`flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all border ${current === step.id ? `${colorMap[step.color]} text-white border-transparent` : current > step.id ? 'bg-gray-100 text-gray-500 border-gray-200' : 'bg-white text-gray-400 border-gray-200'}`}>
-          {current > step.id ? <CheckCircle className="w-3 h-3" /> : <step.icon className="w-3 h-3" />}
-          {step.id}. {step.label}
-        </button>
-      ))}
-    </div>
-  );
-}
 
-function SectionHeader({ icon, title, subtitle, color }) {
-  const colorMap = { purple: 'text-purple-600', blue: 'text-blue-600', orange: 'text-orange-600', green: 'text-green-600', pink: 'text-pink-600', emerald: 'text-emerald-600' };
-  return (
-    <div>
-      <h3 className={`font-bold text-lg flex items-center gap-2 ${colorMap[color]}`}>
-        {React.cloneElement(icon, { className: 'w-5 h-5' })} {title}
-      </h3>
-      <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>
-    </div>
-  );
-}
 
 function DiagnosticSummaryCard({ diagnostic, intake }) {
   const [expanded, setExpanded] = useState(false);
