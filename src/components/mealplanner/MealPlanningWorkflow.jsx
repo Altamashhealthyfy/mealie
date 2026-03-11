@@ -291,350 +291,258 @@ Return JSON: { modified_meals: [...same structure as input meals...], ai_suggest
   };
 
   // ── RENDER ──────────────────────────────────────────────────────────────────
+  const toggle = (key) => setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
+
+  const SectionShell = ({ sectionKey, icon, title, subtitle, color, badge, children }) => {
+    const colorMap = { purple: 'border-purple-300 bg-purple-50', blue: 'border-blue-300 bg-blue-50', orange: 'border-orange-300 bg-orange-50', green: 'border-green-300 bg-green-50', pink: 'border-pink-300 bg-pink-50', emerald: 'border-emerald-300 bg-emerald-50' };
+    const textMap =  { purple: 'text-purple-700', blue: 'text-blue-700', orange: 'text-orange-700', green: 'text-green-700', pink: 'text-pink-700', emerald: 'text-emerald-700' };
+    const isOpen = openSections[sectionKey];
+    return (
+      <div className={`rounded-xl border-2 overflow-hidden ${colorMap[color]}`}>
+        <button
+          className="w-full flex items-center justify-between px-4 py-3 text-left"
+          onClick={() => toggle(sectionKey)}
+        >
+          <div className="flex items-center gap-2">
+            {React.cloneElement(icon, { className: `w-4 h-4 ${textMap[color]}` })}
+            <span className={`font-bold text-sm ${textMap[color]}`}>{title}</span>
+            {badge && <span className="ml-2">{badge}</span>}
+          </div>
+          {isOpen ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+        </button>
+        {isOpen && (
+          <div className="px-4 pb-4 bg-white border-t border-gray-100 space-y-3 pt-3">
+            {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+            {children}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div className="space-y-4">
-      {/* Step Progress Bar */}
-      <StepBar steps={STEPS} current={currentStep} onStepClick={setCurrentStep} />
+    <div className="space-y-3">
 
       {/* ─ STEP 1: Review Diagnostic ─ */}
-      {currentStep === 1 && (
-        <div className="space-y-4">
-          <SectionHeader icon={<Stethoscope />} title="Step 1 — Review Diagnostic" subtitle="Select the intake and review the clinical diagnostic before starting meal planning." color="purple" />
-
-          {/* Intake selector */}
-          {sortedIntakes.length > 1 && (
-            <div className="flex flex-wrap gap-2">
-              <span className="text-sm text-gray-500 self-center">Intake to use:</span>
-              {sortedIntakes.map((intake, idx) => (
-                <button key={intake.id}
-                  onClick={() => setSelectedIntakeId(intake.id)}
-                  className={`px-3 py-1 rounded-full text-xs border transition-all ${selectedIntakeId === intake.id ? 'bg-purple-600 text-white border-purple-600' : 'border-gray-300 text-gray-600'}`}
-                >
-                  Intake #{sortedIntakes.length - idx} — {intake.intake_date ? format(new Date(intake.intake_date), 'MMM d, yyyy') : 'No date'}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {!selectedIntake ? (
-            <Alert className="bg-amber-50 border-amber-300">
-              <AlertTriangle className="w-4 h-4 text-amber-600" />
-              <AlertDescription>No clinical intake found. Complete the Clinical Intake form first.</AlertDescription>
-            </Alert>
-          ) : !diagnostic ? (
-            <Alert className="bg-orange-50 border-orange-300">
-              <AlertTriangle className="w-4 h-4 text-orange-600" />
-              <AlertDescription>No diagnostic generated for this intake. Go to the Diagnostic tab and generate one first before meal planning.</AlertDescription>
-            </Alert>
-          ) : (
-            <div className="space-y-3">
-              {/* Diagnostic Summary */}
-              <DiagnosticSummaryCard diagnostic={diagnostic} intake={selectedIntake} />
-
-              {/* Duration selector */}
-              <Card className="border-none shadow-sm">
-                <CardContent className="p-4">
-                  <p className="text-sm font-semibold text-gray-700 mb-2">Plan Duration</p>
-                  <div className="flex gap-2">
-                    {[7, 10, 15, 21, 30].map(d => (
-                      <button key={d} onClick={() => setDuration(d)}
-                        className={`px-3 py-1.5 rounded-full text-xs border font-medium transition-all ${duration === d ? 'bg-green-600 text-white border-green-600' : 'border-gray-300 text-gray-600 hover:border-green-400'}`}>
-                        {d} Days
-                      </button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Button onClick={() => setCurrentStep(2)} className="w-full bg-purple-600 hover:bg-purple-700">
-                <ArrowRight className="w-4 h-4 mr-2" /> Proceed to Filter Meal Options
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
+      <SectionShell sectionKey="s1" icon={<Stethoscope />} title="Step 1 — Review Diagnostic" subtitle="Select the intake and review the clinical diagnostic before starting meal planning." color="purple"
+        badge={diagnostic ? <Badge className="bg-green-100 text-green-700 text-xs"><CheckCircle className="w-3 h-3 mr-1 inline" />Ready</Badge> : <Badge className="bg-amber-100 text-amber-700 text-xs">Pending</Badge>}
+      >
+        {sortedIntakes.length > 1 && (
+          <div className="flex flex-wrap gap-2">
+            <span className="text-sm text-gray-500 self-center">Intake to use:</span>
+            {sortedIntakes.map((intake, idx) => (
+              <button key={intake.id} onClick={() => setSelectedIntakeId(intake.id)}
+                className={`px-3 py-1 rounded-full text-xs border transition-all ${selectedIntakeId === intake.id ? 'bg-purple-600 text-white border-purple-600' : 'border-gray-300 text-gray-600'}`}>
+                Intake #{sortedIntakes.length - idx} — {intake.intake_date ? format(new Date(intake.intake_date), 'MMM d, yyyy') : 'No date'}
+              </button>
+            ))}
+          </div>
+        )}
+        {!selectedIntake ? (
+          <Alert className="bg-amber-50 border-amber-300"><AlertTriangle className="w-4 h-4 text-amber-600" /><AlertDescription>No clinical intake found. Complete the Clinical Intake form first.</AlertDescription></Alert>
+        ) : !diagnostic ? (
+          <Alert className="bg-orange-50 border-orange-300"><AlertTriangle className="w-4 h-4 text-orange-600" /><AlertDescription>No diagnostic generated. Go to the Diagnostic tab and generate one first.</AlertDescription></Alert>
+        ) : (
+          <>
+            <DiagnosticSummaryCard diagnostic={diagnostic} intake={selectedIntake} />
+            <Card className="border-none shadow-sm">
+              <CardContent className="p-4">
+                <p className="text-sm font-semibold text-gray-700 mb-2">Plan Duration</p>
+                <div className="flex gap-2 flex-wrap">
+                  {[7, 10, 15, 21, 30].map(d => (
+                    <button key={d} onClick={() => setDuration(d)}
+                      className={`px-3 py-1.5 rounded-full text-xs border font-medium transition-all ${duration === d ? 'bg-green-600 text-white border-green-600' : 'border-gray-300 text-gray-600 hover:border-green-400'}`}>
+                      {d} Days
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            <Button onClick={() => setOpenSections(prev => ({ ...prev, s1: false, s2: true }))} className="w-full bg-purple-600 hover:bg-purple-700">
+              <ArrowRight className="w-4 h-4 mr-2" /> Proceed to Filter Meal Options
+            </Button>
+          </>
+        )}
+      </SectionShell>
 
       {/* ─ STEP 2: Filter Meal Options ─ */}
-      {currentStep === 2 && (
-        <div className="space-y-4">
-          <SectionHeader icon={<Filter />} title="Step 2 — Filter Available Meal Options" subtitle="Filter all meals from the Healthyfy database against diagnostic rules, allergies, diet type, and disease restrictions." color="blue" />
-
-          {/* Manual rules before filtering */}
-          <Card className="border-dashed border-2 border-blue-200 shadow-none">
-            <CardHeader className="py-3 px-4 bg-blue-50">
-              <CardTitle className="text-sm text-blue-800 flex items-center gap-2"><Plus className="w-4 h-4" /> Pre-Filter Manual Rules (Optional)</CardTitle>
-            </CardHeader>
-            <CardContent className="p-3 space-y-2">
-              {manualRules.map((r, i) => (
-                <div key={i} className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-100 rounded-lg">
-                  <p className="flex-1 text-xs text-gray-700">{r.rule}</p>
-                  <button onClick={() => setManualRules(prev => prev.filter((_, j) => j !== i))}><Trash2 className="w-3 h-3 text-red-400" /></button>
-                </div>
-              ))}
-              <div className="flex gap-2">
-                <Textarea value={newRule} onChange={e => setNewRule(e.target.value)} placeholder="e.g. Avoid all millets. No rice at dinner. Limit paneer to 2 times a week." rows={2} className="flex-1 text-xs" />
-                <Button size="sm" variant="outline" onClick={() => { if (newRule.trim()) { setManualRules(prev => [...prev, { rule: newRule.trim(), added_at: new Date().toISOString() }]); setNewRule(''); } }} className="self-end">
-                  <Plus className="w-4 h-4" />
-                </Button>
+      <SectionShell sectionKey="s2" icon={<Filter />} title="Step 2 — Filter Meal Options" subtitle="Filter all meals from the Healthyfy database against diagnostic rules, allergies, diet type, and disease restrictions." color="blue"
+        badge={filterResult ? <Badge className="bg-green-100 text-green-700 text-xs"><CheckCircle className="w-3 h-3 mr-1 inline" />{new Set(filterResult.allowed?.map(m=>m.name)).size} allowed</Badge> : null}
+      >
+        <Card className="border-dashed border-2 border-blue-200 shadow-none">
+          <CardHeader className="py-3 px-4 bg-blue-50">
+            <CardTitle className="text-sm text-blue-800 flex items-center gap-2"><Plus className="w-4 h-4" /> Pre-Filter Manual Rules (Optional)</CardTitle>
+          </CardHeader>
+          <CardContent className="p-3 space-y-2">
+            {manualRules.map((r, i) => (
+              <div key={i} className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-100 rounded-lg">
+                <p className="flex-1 text-xs text-gray-700">{r.rule}</p>
+                <button onClick={() => setManualRules(prev => prev.filter((_, j) => j !== i))}><Trash2 className="w-3 h-3 text-red-400" /></button>
               </div>
-            </CardContent>
-          </Card>
-
-          <Button onClick={runFilter} disabled={filterLoading} className="w-full bg-blue-600 hover:bg-blue-700">
-            {filterLoading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Filtering meals from database...</> : <><Filter className="w-4 h-4 mr-2" /> Run Meal Filter</>}
-          </Button>
-
-          {filterResult && (
-            <div className="space-y-3">
-              {/* Decision Rules applied */}
-              <DecisionRulesCard rules={filterResult.decisionRules} />
-
-              {/* Allowed / Blocked summary */}
-              <div className="grid grid-cols-2 gap-3">
-                <Card className="border-green-200 shadow-sm">
-                  <CardContent className="p-3 text-center">
-                    <CheckCircle className="w-6 h-6 text-green-500 mx-auto mb-1" />
-                    <p className="text-2xl font-bold text-green-600">{new Set(filterResult.allowed?.map(m => m.name)).size || 0}</p>
-                    <p className="text-xs text-gray-500">Allowed Dishes</p>
-                  </CardContent>
-                </Card>
-                <Card className="border-red-200 shadow-sm">
-                  <CardContent className="p-3 text-center">
-                    <XCircle className="w-6 h-6 text-red-400 mx-auto mb-1" />
-                    <p className="text-2xl font-bold text-red-500">{new Set(filterResult.blocked?.map(m => m.name)).size || 0}</p>
-                    <p className="text-xs text-gray-500">Blocked Dishes</p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Blocked meals expandable */}
-              <BlockedMealsSection blocked={filterResult.blocked || []} />
-
-              <Button onClick={() => setCurrentStep(3)} className="w-full bg-blue-600 hover:bg-blue-700">
-                <ArrowRight className="w-4 h-4 mr-2" /> Proceed to Nutritionist Review
-              </Button>
+            ))}
+            <div className="flex gap-2">
+              <Textarea value={newRule} onChange={e => setNewRule(e.target.value)} placeholder="e.g. Avoid all millets. No rice at dinner." rows={2} className="flex-1 text-xs" />
+              <Button size="sm" variant="outline" onClick={() => { if (newRule.trim()) { setManualRules(prev => [...prev, { rule: newRule.trim(), added_at: new Date().toISOString() }]); setNewRule(''); } }} className="self-end"><Plus className="w-4 h-4" /></Button>
             </div>
-          )}
-
-          <Button variant="ghost" size="sm" onClick={() => setCurrentStep(1)}><ArrowLeft className="w-3 h-3 mr-1" /> Back</Button>
-        </div>
-      )}
+          </CardContent>
+        </Card>
+        <Button onClick={runFilter} disabled={filterLoading} className="w-full bg-blue-600 hover:bg-blue-700">
+          {filterLoading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Filtering...</> : <><Filter className="w-4 h-4 mr-2" /> Run Meal Filter</>}
+        </Button>
+        {filterResult && (
+          <>
+            <DecisionRulesCard rules={filterResult.decisionRules} />
+            <div className="grid grid-cols-2 gap-3">
+              <Card className="border-green-200 shadow-sm"><CardContent className="p-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto mb-1" /><p className="text-2xl font-bold text-green-600">{new Set(filterResult.allowed?.map(m => m.name)).size || 0}</p><p className="text-xs text-gray-500">Allowed Dishes</p></CardContent></Card>
+              <Card className="border-red-200 shadow-sm"><CardContent className="p-3 text-center"><XCircle className="w-6 h-6 text-red-400 mx-auto mb-1" /><p className="text-2xl font-bold text-red-500">{new Set(filterResult.blocked?.map(m => m.name)).size || 0}</p><p className="text-xs text-gray-500">Blocked Dishes</p></CardContent></Card>
+            </div>
+            <BlockedMealsSection blocked={filterResult.blocked || []} />
+          </>
+        )}
+      </SectionShell>
 
       {/* ─ STEP 3: Nutritionist Review ─ */}
-      {currentStep === 3 && (
-        <div className="space-y-4">
-          <SectionHeader icon={<UserCheck />} title="Step 3 — Nutritionist Review & Final Override" subtitle="Add meals, remove meals, add extra rules. Your input is the final authority." color="orange" />
-
-          {/* Allowed meals with option to block */}
-          <AllowedMealsReview
-            allowed={filterResult?.allowed || []}
-            manuallyBlocked={manuallyBlocked}
-            onToggleBlock={toggleBlockMeal}
-            extraAllowed={extraAllowed}
-            onAddExtra={addExtraMeal}
-            onRemoveExtra={(id) => setExtraAllowed(prev => prev.filter(m => m.id !== id))}
-          />
-
-          {/* Final override rules */}
-          <Card className="border-dashed border-2 border-orange-200">
-            <CardHeader className="py-3 px-4 bg-orange-50">
-              <CardTitle className="text-sm text-orange-800 flex items-center gap-2"><Plus className="w-4 h-4" /> Final Override Rules</CardTitle>
-            </CardHeader>
-            <CardContent className="p-3 space-y-2">
-              {finalRules.map((r, i) => (
-                <div key={i} className="flex items-center gap-2 p-2 bg-orange-50 border border-orange-100 rounded-lg">
-                  <p className="flex-1 text-xs text-gray-700">{r.rule}</p>
-                  <button onClick={() => setFinalRules(prev => prev.filter((_, j) => j !== i))}><Trash2 className="w-3 h-3 text-red-400" /></button>
-                </div>
-              ))}
-              <div className="flex gap-2">
-                <Textarea value={newFinalRule} onChange={e => setNewFinalRule(e.target.value)} placeholder="e.g. Increase protein at breakfast. No legumes at dinner. Strictly no sugar in any form." rows={2} className="flex-1 text-xs" />
-                <Button size="sm" variant="outline" onClick={() => { if (newFinalRule.trim()) { setFinalRules(prev => [...prev, { rule: newFinalRule.trim(), added_at: new Date().toISOString() }]); setNewFinalRule(''); } }} className="self-end">
-                  <Plus className="w-4 h-4" />
-                </Button>
+      <SectionShell sectionKey="s3" icon={<UserCheck />} title="Step 3 — Nutritionist Review & Override" subtitle="Add meals, remove meals, add extra rules. Your input is the final authority." color="orange"
+        badge={<Badge className="bg-orange-100 text-orange-700 text-xs">{getFinalAllowedMeals().length} approved</Badge>}
+      >
+        <AllowedMealsReview
+          allowed={filterResult?.allowed || []}
+          manuallyBlocked={manuallyBlocked}
+          onToggleBlock={toggleBlockMeal}
+          extraAllowed={extraAllowed}
+          onAddExtra={addExtraMeal}
+          onRemoveExtra={(id) => setExtraAllowed(prev => prev.filter(m => m.id !== id))}
+        />
+        <Card className="border-dashed border-2 border-orange-200">
+          <CardHeader className="py-3 px-4 bg-orange-50"><CardTitle className="text-sm text-orange-800 flex items-center gap-2"><Plus className="w-4 h-4" /> Final Override Rules</CardTitle></CardHeader>
+          <CardContent className="p-3 space-y-2">
+            {finalRules.map((r, i) => (
+              <div key={i} className="flex items-center gap-2 p-2 bg-orange-50 border border-orange-100 rounded-lg">
+                <p className="flex-1 text-xs text-gray-700">{r.rule}</p>
+                <button onClick={() => setFinalRules(prev => prev.filter((_, j) => j !== i))}><Trash2 className="w-3 h-3 text-red-400" /></button>
               </div>
-            </CardContent>
-          </Card>
-
-          <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl text-sm text-gray-600">
-            <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-            <span><strong>{getFinalAllowedMeals().length}</strong> meals approved for plan generation.</span>
-          </div>
-
-          <Button onClick={() => setCurrentStep(4)} className="w-full bg-orange-500 hover:bg-orange-600">
-            <ArrowRight className="w-4 h-4 mr-2" /> Confirm & Proceed to Generate
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setCurrentStep(2)}><ArrowLeft className="w-3 h-3 mr-1" /> Back</Button>
+            ))}
+            <div className="flex gap-2">
+              <Textarea value={newFinalRule} onChange={e => setNewFinalRule(e.target.value)} placeholder="e.g. Increase protein at breakfast. No legumes at dinner." rows={2} className="flex-1 text-xs" />
+              <Button size="sm" variant="outline" onClick={() => { if (newFinalRule.trim()) { setFinalRules(prev => [...prev, { rule: newFinalRule.trim(), added_at: new Date().toISOString() }]); setNewFinalRule(''); } }} className="self-end"><Plus className="w-4 h-4" /></Button>
+            </div>
+          </CardContent>
+        </Card>
+        <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl text-sm text-gray-600">
+          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+          <span><strong>{getFinalAllowedMeals().length}</strong> meals approved for plan generation.</span>
         </div>
-      )}
+      </SectionShell>
 
       {/* ─ STEP 4: Generate Plan ─ */}
-      {currentStep === 4 && (
-        <div className="space-y-4">
-          <SectionHeader icon={<Sparkles />} title="Step 4 — Generate Final Meal Plan" subtitle="Build the plan using allowed meals, calorie targets, macro ratios, Indian meal structure, and all clinical rules." color="green" />
-
-          {!filterResult ? (
-            <Alert className="bg-amber-50 border-amber-300">
-              <AlertTriangle className="w-4 h-4 text-amber-600" />
-              <AlertDescription className="text-sm">
-                <strong>Step 2 not completed.</strong> You need to run the Meal Filter first before generating a plan.
-                <Button size="sm" className="ml-3 bg-amber-500 hover:bg-amber-600 text-white" onClick={() => setCurrentStep(2)}>Go to Step 2 →</Button>
-              </AlertDescription>
-            </Alert>
-          ) : getFinalAllowedMeals().length === 0 ? (
-            <Alert className="bg-red-50 border-red-300">
-              <AlertTriangle className="w-4 h-4 text-red-600" />
-              <AlertDescription className="text-sm">
-                <strong>No approved meals available.</strong> Go back to Step 3 and unblock some meals or add meals manually.
-                <Button size="sm" className="ml-3 bg-red-500 hover:bg-red-600 text-white" onClick={() => setCurrentStep(3)}>Go to Step 3 →</Button>
-              </AlertDescription>
-            </Alert>
-          ) : (
-            <Card className="border-none shadow-sm bg-green-50">
-              <CardContent className="p-4 space-y-2 text-sm">
-                <p className="font-semibold text-green-800 mb-2">Generation Parameters:</p>
-                {(filterResult?.decisionRules || []).slice(0, 5).map((r, i) => (
-                  <div key={i} className="flex gap-2">
-                    <Badge className={`text-xs shrink-0 ${getCategoryColor(r.category)}`}>{r.category}</Badge>
-                    <span className="text-gray-700 text-xs">{r.rule}</span>
-                  </div>
-                ))}
-                <p className="text-xs text-gray-500 mt-1">+ {finalRules.length} manual override rules + {getFinalAllowedMeals().length} approved meals</p>
-                <p className="text-xs text-gray-500">Duration: <strong>{duration} days</strong></p>
-              </CardContent>
-            </Card>
-          )}
-
-          <Button
-            onClick={generatePlan}
-            disabled={generating || !filterResult || getFinalAllowedMeals().length === 0}
-            className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold py-3 disabled:opacity-50"
-          >
-            {generating
-              ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating from database rules...</>
-              : <><Sparkles className="w-4 h-4 mr-2" /> Generate {duration}-Day Meal Plan</>}
-          </Button>
-
-          <Button variant="ghost" size="sm" onClick={() => setCurrentStep(filterResult ? 3 : 2)}><ArrowLeft className="w-3 h-3 mr-1" /> Back to {filterResult ? 'Nutritionist Review' : 'Filter Meals'}</Button>
-        </div>
-      )}
-
-      {/* ─ STEP 5: Advise & Modify ─ */}
-      {currentStep === 5 && generatedPlan && (
-        <div className="space-y-4">
-          <SectionHeader icon={<MessageSquare />} title="Step 5 — Review, Advise & Modify" subtitle="Review the generated plan. Request changes. AI will try database first, LLM only if needed." color="pink" />
-
-          {/* Audit */}
-          {generatedPlan?.meals && (
-            <AuditCard
-              meals={generatedPlan.meals}
-              targetCalories={generatedPlan.target_calories}
-              targetProtein={filterResult?.client?.target_protein}
-              targetCarbs={filterResult?.client?.target_carbs}
-              targetFats={filterResult?.client?.target_fats}
-            />
-          )}
-
-          {/* Plan preview */}
-          <div className="border rounded-xl overflow-hidden">
-            <MealPlanViewer plan={generatedPlan} allPlanIds={[]} hideActions={true} />
-          </div>
-
-          {/* MPESS recommendations */}
-          {generatedPlan.mpess_recommendations?.length > 0 && (
-            <Card className="border-purple-200 shadow-sm">
-              <CardHeader className="py-2 px-4 bg-purple-50"><CardTitle className="text-xs text-purple-700 font-bold uppercase">🌿 MPESS Holistic Recommendations</CardTitle></CardHeader>
-              <CardContent className="p-3">
-                <ul className="space-y-1">
-                  {generatedPlan.mpess_recommendations.map((r, i) => (
-                    <li key={i} className="text-xs text-gray-700 flex gap-2"><span className="text-purple-400 shrink-0">•</span>{r}</li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Modification history */}
-          {modificationHistory.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-gray-500">Modification History ({modificationHistory.length}):</p>
-              {modificationHistory.map((h, i) => (
-                <div key={i} className={`p-2 rounded-lg text-xs border ${h.ai_used ? 'bg-yellow-50 border-yellow-200' : 'bg-green-50 border-green-200'}`}>
-                  <p className="font-medium">{h.request}</p>
-                  <p className="text-gray-500 mt-0.5">{h.explanation}</p>
-                  {h.ai_used && <Badge className="bg-yellow-400 text-yellow-900 text-xs mt-1">AI suggestion used</Badge>}
+      <SectionShell sectionKey="s4" icon={<Sparkles />} title="Step 4 — Generate Meal Plan" subtitle="Build the plan using allowed meals, calorie targets, macro ratios, Indian meal structure, and all clinical rules." color="green">
+        {!filterResult ? (
+          <Alert className="bg-amber-50 border-amber-300"><AlertTriangle className="w-4 h-4 text-amber-600" /><AlertDescription className="text-sm"><strong>Step 2 not completed.</strong> Run the Meal Filter first.</AlertDescription></Alert>
+        ) : getFinalAllowedMeals().length === 0 ? (
+          <Alert className="bg-red-50 border-red-300"><AlertTriangle className="w-4 h-4 text-red-600" /><AlertDescription className="text-sm"><strong>No approved meals.</strong> Go to Step 3 and unblock or add meals.</AlertDescription></Alert>
+        ) : (
+          <Card className="border-none shadow-sm bg-green-50">
+            <CardContent className="p-4 space-y-2 text-sm">
+              <p className="font-semibold text-green-800 mb-2">Generation Parameters:</p>
+              {(filterResult?.decisionRules || []).slice(0, 5).map((r, i) => (
+                <div key={i} className="flex gap-2">
+                  <Badge className={`text-xs shrink-0 ${getCategoryColor(r.category)}`}>{r.category}</Badge>
+                  <span className="text-gray-700 text-xs">{r.rule}</span>
                 </div>
               ))}
-            </div>
-          )}
+              <p className="text-xs text-gray-500 mt-1">+ {finalRules.length} manual override rules · {getFinalAllowedMeals().length} approved meals · <strong>{duration} days</strong></p>
+            </CardContent>
+          </Card>
+        )}
+        <Button
+          onClick={generatePlan}
+          disabled={generating || !filterResult || getFinalAllowedMeals().length === 0}
+          className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold py-3 disabled:opacity-50"
+        >
+          {generating
+            ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating from database rules...</>
+            : <><Sparkles className="w-4 h-4 mr-2" /> Generate {duration}-Day Meal Plan</>}
+        </Button>
+      </SectionShell>
 
-          {/* Modification input */}
-          <Card className="border-dashed border-2 border-pink-200">
-            <CardHeader className="py-2 px-4 bg-pink-50"><CardTitle className="text-sm text-pink-800">Request Changes</CardTitle></CardHeader>
-            <CardContent className="p-3 space-y-2">
-              <Textarea
-                value={modificationText}
-                onChange={e => setModificationText(e.target.value)}
-                placeholder="e.g. Replace oats at breakfast on days 3 and 7 with besan cheela. Add more iron-rich options at lunch. Remove paneer from all dinners."
-                rows={3}
-                className="text-sm"
+      {/* ─ STEP 5 & 6: Shown only after plan is generated ─ */}
+      {generatedPlan && (
+        <>
+          {/* ─ STEP 5: Advise & Modify ─ */}
+          <SectionShell sectionKey="s5" icon={<MessageSquare />} title="Step 5 — Review, Advise & Modify" subtitle="Review the generated plan. Request changes. AI will try database first, LLM only if needed." color="pink">
+            {generatedPlan?.meals && (
+              <AuditCard
+                meals={generatedPlan.meals}
+                targetCalories={generatedPlan.target_calories}
+                targetProtein={filterResult?.client?.target_protein}
+                targetCarbs={filterResult?.client?.target_carbs}
+                targetFats={filterResult?.client?.target_fats}
               />
-              <Button onClick={applyModification} disabled={modifying || !modificationText.trim()} className="w-full bg-pink-500 hover:bg-pink-600">
-                {modifying ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Applying changes...</> : <><RefreshCw className="w-4 h-4 mr-2" /> Apply Modifications</>}
-              </Button>
-            </CardContent>
-          </Card>
-
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => { setGeneratedPlan(null); setAudit(null); setCurrentStep(4); }} className="flex-1 text-gray-600">
-              <ArrowLeft className="w-4 h-4 mr-1" /> Regenerate
-            </Button>
-            <Button onClick={() => setCurrentStep(6)} className="flex-1 bg-emerald-600 hover:bg-emerald-700">
-              <ArrowRight className="w-4 h-4 mr-2" /> Proceed to Save
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* ─ STEP 6: Save & Assign ─ */}
-      {currentStep === 6 && generatedPlan && (
-        <div className="space-y-4">
-          <SectionHeader icon={<Save />} title="Step 6 — Save & Assign" subtitle="Save the plan to the client's records or assign it as the active plan." color="emerald" />
-
-          <Card className="border-none shadow-sm bg-emerald-50">
-            <CardContent className="p-4 text-sm space-y-2">
-              <p className="font-semibold text-emerald-800">{generatedPlan.name}</p>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="outline">{generatedPlan.duration} Days</Badge>
-                <Badge variant="outline">{generatedPlan.target_calories} kcal/day</Badge>
-                <Badge variant="outline" className="capitalize">{generatedPlan.food_preference}</Badge>
-                <Badge className="bg-purple-600 text-white text-xs">💎 Pro Clinical</Badge>
+            )}
+            <div className="border rounded-xl overflow-hidden">
+              <MealPlanViewer plan={generatedPlan} allPlanIds={[]} hideActions={true} />
+            </div>
+            {generatedPlan.mpess_recommendations?.length > 0 && (
+              <Card className="border-purple-200 shadow-sm">
+                <CardHeader className="py-2 px-4 bg-purple-50"><CardTitle className="text-xs text-purple-700 font-bold uppercase">🌿 MPESS Holistic Recommendations</CardTitle></CardHeader>
+                <CardContent className="p-3">
+                  <ul className="space-y-1">{generatedPlan.mpess_recommendations.map((r, i) => <li key={i} className="text-xs text-gray-700 flex gap-2"><span className="text-purple-400 shrink-0">•</span>{r}</li>)}</ul>
+                </CardContent>
+              </Card>
+            )}
+            {modificationHistory.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-gray-500">Modification History ({modificationHistory.length}):</p>
+                {modificationHistory.map((h, i) => (
+                  <div key={i} className={`p-2 rounded-lg text-xs border ${h.ai_used ? 'bg-yellow-50 border-yellow-200' : 'bg-green-50 border-green-200'}`}>
+                    <p className="font-medium">{h.request}</p>
+                    <p className="text-gray-500 mt-0.5">{h.explanation}</p>
+                    {h.ai_used && <Badge className="bg-yellow-400 text-yellow-900 text-xs mt-1">AI suggestion used</Badge>}
+                  </div>
+                ))}
               </div>
-              <p className="text-xs text-gray-500">{(generatedPlan.meals || []).length} meal slots · {modificationHistory.length} modification{modificationHistory.length !== 1 ? 's' : ''} applied</p>
-            </CardContent>
-          </Card>
-
-          {/* Existing plans warning */}
-          {mealPlans?.some(p => p.active) && (
-            <Alert className="bg-amber-50 border-amber-300">
-              <AlertTriangle className="w-4 h-4 text-amber-600" />
-              <AlertDescription className="text-sm">There is already an active plan. Assigning this plan will deactivate it.</AlertDescription>
-            </Alert>
-          )}
-
-          <div className="grid grid-cols-2 gap-3">
-            <Button onClick={() => savePlan(false)} disabled={saving} variant="outline" className="border-emerald-400 text-emerald-700">
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-              Save Only
+            )}
+            <Card className="border-dashed border-2 border-pink-200">
+              <CardHeader className="py-2 px-4 bg-pink-50"><CardTitle className="text-sm text-pink-800">Request Changes</CardTitle></CardHeader>
+              <CardContent className="p-3 space-y-2">
+                <Textarea value={modificationText} onChange={e => setModificationText(e.target.value)} placeholder="e.g. Replace oats at breakfast on days 3 and 7 with besan cheela." rows={3} className="text-sm" />
+                <Button onClick={applyModification} disabled={modifying || !modificationText.trim()} className="w-full bg-pink-500 hover:bg-pink-600">
+                  {modifying ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Applying changes...</> : <><RefreshCw className="w-4 h-4 mr-2" /> Apply Modifications</>}
+                </Button>
+              </CardContent>
+            </Card>
+            <Button variant="outline" onClick={() => { setGeneratedPlan(null); setAudit(null); }} className="w-full text-gray-600">
+              <ArrowLeft className="w-4 h-4 mr-1" /> Discard & Regenerate
             </Button>
-            <Button onClick={() => savePlan(true)} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
-              Save & Assign
-            </Button>
-          </div>
+          </SectionShell>
 
-          <Button variant="ghost" size="sm" onClick={() => setCurrentStep(5)}><ArrowLeft className="w-3 h-3 mr-1" /> Back to Review</Button>
-        </div>
+          {/* ─ STEP 6: Save & Assign ─ */}
+          <SectionShell sectionKey="s6" icon={<Save />} title="Step 6 — Save & Assign" subtitle="Save the plan to the client's records or assign it as the active plan." color="emerald">
+            <Card className="border-none shadow-sm bg-emerald-50">
+              <CardContent className="p-4 text-sm space-y-2">
+                <p className="font-semibold text-emerald-800">{generatedPlan.name}</p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline">{generatedPlan.duration} Days</Badge>
+                  <Badge variant="outline">{generatedPlan.target_calories} kcal/day</Badge>
+                  <Badge variant="outline" className="capitalize">{generatedPlan.food_preference}</Badge>
+                  <Badge className="bg-purple-600 text-white text-xs">💎 Pro Clinical</Badge>
+                </div>
+                <p className="text-xs text-gray-500">{(generatedPlan.meals || []).length} meal slots · {modificationHistory.length} modification{modificationHistory.length !== 1 ? 's' : ''} applied</p>
+              </CardContent>
+            </Card>
+            {mealPlans?.some(p => p.active) && (
+              <Alert className="bg-amber-50 border-amber-300"><AlertTriangle className="w-4 h-4 text-amber-600" /><AlertDescription className="text-sm">There is already an active plan. Assigning this plan will deactivate it.</AlertDescription></Alert>
+            )}
+            <div className="grid grid-cols-2 gap-3">
+              <Button onClick={() => savePlan(false)} disabled={saving} variant="outline" className="border-emerald-400 text-emerald-700">
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Save Only
+              </Button>
+              <Button onClick={() => savePlan(true)} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 mr-2" />} Save & Assign
+              </Button>
+            </div>
+          </SectionShell>
+        </>
       )}
     </div>
   );
