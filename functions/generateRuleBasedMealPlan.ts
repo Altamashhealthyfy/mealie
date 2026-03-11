@@ -236,7 +236,7 @@ Deno.serve(async (req) => {
     //   - No dairy + non-veg
     //   - No non-veg curry + veg curry in same meal
     //   - No dry standalone (grain without any wet dish)
-    function pickIndianCompleteMeal(pool, todayItems, currentDay, targetSlotCal) {
+    function pickIndianCompleteMeal(pool, todayItems, currentDay, targetSlotCal, preferredGrain = null) {
       if (!pool || pool.length === 0) return [];
       const recentIds = getRecentDishIds(currentDay);
       const tempUsed = new Set(todayItems);
