@@ -277,8 +277,14 @@ Deno.serve(async (req) => {
         }
       }
 
-      // STEP 1: Grain (roti/rice/millet — the base)
-      const grainOptions = freshFrom(m => isGrain(m) && !isOnePot(m));
+      // STEP 1: Grain (roti/rice/millet — the base), prefer alternating type
+      const preferredGrainOptions = freshFrom(m =>
+        isGrain(m) && !isOnePot(m) &&
+        (preferredGrain === 'wheat' ? isWheatBased(m) : preferredGrain === 'rice' ? isRiceBased(m) : true)
+      );
+      const grainOptions = preferredGrainOptions.length > 0
+        ? preferredGrainOptions
+        : freshFrom(m => isGrain(m) && !isOnePot(m));
       const grain = pickClosest(grainOptions, targetSlotCal * 0.28);
       let hasRice = false, hasWheat = false;
       if (grain) {
