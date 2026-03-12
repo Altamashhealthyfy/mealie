@@ -205,7 +205,9 @@ export default function ClientDetailSidePanel({
                 </Card>
               )}
 
-              <ClientMedicalProgress client={client} />
+              <Button size="sm" variant="outline" onClick={() => navigate(`${createPageUrl("ClientHub")}?clientId=${client.id}`)} className="w-full text-xs text-purple-600 hover:bg-purple-50 border-purple-200">
+                <FileText className="w-3 h-3 mr-1" /> View Clinical History & Reports on Client Page
+              </Button>
               </>
               )}
             </TabsContent>
