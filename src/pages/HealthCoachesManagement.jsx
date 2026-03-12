@@ -981,6 +981,55 @@ export default function HealthCoachesManagement() {
           </CardContent>
         </Card>
 
+        {/* Pending Coaches Section */}
+        {pendingCoaches.length > 0 && (
+          <Card className="border-2 border-amber-300 bg-amber-50/80 shadow">
+            <CardHeader className="border-b border-amber-200 py-3">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-amber-600" />
+                <CardTitle className="text-base text-amber-800">Pending Login ({pendingCoaches.length})</CardTitle>
+                <Badge className="bg-amber-200 text-amber-800 text-xs">Awaiting First Login</Badge>
+              </div>
+              <p className="text-xs text-amber-700 mt-1">These coaches have been invited but haven't logged in yet. Once they log in, they'll be auto-promoted to Health Coach role.</p>
+            </CardHeader>
+            <CardContent className="pt-3 px-0">
+              <Table className="text-sm">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs py-2">Name</TableHead>
+                    <TableHead className="text-xs py-2">Email</TableHead>
+                    <TableHead className="text-xs py-2">Invited On</TableHead>
+                    <TableHead className="text-xs py-2 text-right">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pendingCoaches.map((h, idx) => (
+                    <TableRow key={idx} className="hover:bg-amber-100/50">
+                      <TableCell className="py-2 text-xs font-medium">{h.coach_name || '—'}</TableCell>
+                      <TableCell className="py-2 text-xs text-gray-600">{h.coach_email}</TableCell>
+                      <TableCell className="py-2 text-xs text-gray-500">
+                        {h.created_date ? new Date(h.created_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
+                      </TableCell>
+                      <TableCell className="py-2 text-right">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 text-xs hover:bg-green-50 hover:text-green-700 border-green-300"
+                          onClick={() => promoteCoachMutation.mutate(h.coach_email)}
+                          disabled={promoteCoachMutation.isPending}
+                        >
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          Promote Now
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Coaches Table */}
         <Card className="border-none shadow bg-white/80 backdrop-blur">
           <CardHeader className="border-b border-gray-100 py-3">
