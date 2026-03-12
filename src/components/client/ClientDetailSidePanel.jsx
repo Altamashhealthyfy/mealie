@@ -266,22 +266,16 @@ export default function ClientDetailSidePanel({
                           </CardContent>
                         </Card>
                       ))}
-                      <Button variant="outline" size="sm" onClick={() => setMealView("create")} className="w-full text-xs">
-                        <Plus className="w-3 h-3 mr-1" /> Create Plan
-                      </Button>
-                      <Button size="sm" onClick={() => setMealView("pro")} className="w-full bg-purple-600 hover:bg-purple-700 text-xs">
-                        <Stethoscope className="w-3 h-3 mr-1" /> Create Pro Plan
-                      </Button>
                     </>
                   ) : (
                     <div className="text-center py-6">
                       <ChefHat className="w-12 h-12 mx-auto text-gray-300 mb-2" />
                       <p className="text-sm text-gray-600 mb-3">No meal plans yet</p>
-                      <Button size="sm" onClick={() => setMealView("create")} className="w-full text-xs">
-                        <Plus className="w-3 h-3 mr-1" /> Create Plan
-                      </Button>
                     </div>
                   )}
+                  <Button size="sm" onClick={() => navigate(`${createPageUrl("ClientHub")}?clientId=${client.id}`)} className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-xs mt-2">
+                    <ChefHat className="w-3 h-3 mr-1" /> Go to Client Page to Manage Plans
+                  </Button>
                 </>
               )}
               
