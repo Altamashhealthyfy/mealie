@@ -312,39 +312,7 @@ export default function ClientDetailSidePanel({
                 </div>
               )}
               
-              {mealView === "create" && (
-                <div className="space-y-3">
-                  <Button variant="outline" size="sm" onClick={() => setMealView("list")} className="w-full text-xs">
-                    ← Back to Plans
-                  </Button>
-                  <InlineMealPlanForm
-                    client={client}
-                    onSuccess={(plan) => {
-                      setMealView("list");
-                      queryClient.invalidateQueries(['clientMealPlans']);
-                      alert("✅ Meal plan created successfully!");
-                    }}
-                    onCancel={() => setMealView("list")}
-                  />
-                </div>
-              )}
-              
-              {mealView === "pro" && (
-                <div className="space-y-3">
-                  <Button variant="outline" size="sm" onClick={() => setMealView("list")} className="w-full text-xs">
-                    ← Back to Plans
-                  </Button>
-                  <InlineProPlanForm
-                    client={client}
-                    onSuccess={() => {
-                      setMealView("list");
-                      queryClient.invalidateQueries(['clientMealPlans']);
-                      toast.success("✅ Clinical intake saved! Pro plan ready to generate.");
-                    }}
-                    onCancel={() => setMealView("list")}
-                  />
-                </div>
-              )}
+
             </TabsContent>
 
             {/* Messages Tab */}
