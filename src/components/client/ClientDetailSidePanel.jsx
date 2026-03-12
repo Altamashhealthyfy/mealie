@@ -336,10 +336,10 @@ export default function ClientDetailSidePanel({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onEmail(client)}
+                onClick={() => navigate(`${createPageUrl("Communication")}?client=${client.id}`)}
                 className="w-full text-xs"
               >
-                <Mail className="w-3 h-3 mr-1" /> Send Message
+                <MessageSquare className="w-3 h-3 mr-1" /> Open Chat
               </Button>
             </TabsContent>
 
