@@ -129,12 +129,8 @@ export default function ClientDetailSidePanel({
         <div className="mt-6 space-y-4">
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5 lg:grid-cols-6">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-5">
               <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-              <TabsTrigger value="diagnostic" className="text-xs sm:text-sm">
-                🔬 Diag
-                {clinicalIntake?.diagnostic_notes && <span className="ml-1 w-2 h-2 bg-green-500 rounded-full inline-block" />}
-              </TabsTrigger>
               <TabsTrigger value="meals" className="text-xs sm:text-sm">Meals</TabsTrigger>
               <TabsTrigger value="messages" className="text-xs sm:text-sm">Chat</TabsTrigger>
               <TabsTrigger value="appointments" className="text-xs sm:text-sm">Appts</TabsTrigger>
