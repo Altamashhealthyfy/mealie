@@ -13,6 +13,9 @@ import {
   Sparkles, Stethoscope, Calculator, Send, BarChart3, Sparkles as SparklesIcon,
   Phone, AlertTriangle
 } from "lucide-react";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import { createPageUrl } from "@/utils";
 import { format } from "date-fns";
 import ClientMedicalProgress from "@/components/client/ClientMedicalProgress";
 import InlineMealPlanForm from "@/components/client/InlineMealPlanForm";
