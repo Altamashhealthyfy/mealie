@@ -44,8 +44,9 @@ export default function ClientDetailSidePanel({
   isDeleting,
 }) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
-  const [mealView, setMealView] = useState("list"); // 'list', 'detail', 'create', 'pro'
+  const [mealView, setMealView] = useState("list"); // 'list', 'detail'
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [profileEditMode, setProfileEditMode] = useState(false);
 
