@@ -40,14 +40,18 @@ export default function CoachReferralLink() {
   const { data: clients } = useQuery({
     queryKey: ['coachClients', user?.email],
     queryFn: async () => {
-      return await base44.entities.Client.filter({ created_by: user?.email });
+      const allClients = await base44.entities.Client.list('-created_date', 1000);
+      return allClients.filter(client => {
+        const assignedCoaches = Array.isArray(client.assigned_coach) ? client.assigned_coach : client.assigned_coach ? [client.assigned_coach] : [];
+        return client.created_by === user?.email || assignedCoaches.includes(user?.email);
+      });
     },
     enabled: !!user,
     initialData: [],
   });
 
   // Generate referral link
-  const referralLink = `https://app.mealiepro.com/?ref=${encodeURIComponent(user?.email || '')}`;
+  const referralLink = `https://app.mealiepro.com/ClientOnboarding?ref=${encodeURIComponent(user?.email || '')}`;
   
   // Generate QR code URL
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(referralLink)}`;

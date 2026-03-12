@@ -188,6 +188,10 @@ function ClientManagementInner() {
         return await base44.entities.Client.update(editingClient.id, cleanData);
       } else {
         cleanData.initial_weight = data.weight ? parseFloat(data.weight) : null;
+        // Auto-assign the creating coach to the client
+        if (user?.user_type === 'student_coach') {
+          cleanData.assigned_coach = [user.email];
+        }
         const newClient = await base44.entities.Client.create(cleanData);
         try {
           await base44.functions.invoke('createUserWithPassword', { email: newClient.email, full_name: newClient.full_name, user_type: 'client', password: 'Client@123' });
