@@ -336,7 +336,7 @@ Combine information from all uploaded documents intelligently. Return ONLY valid
   const buildFinalData = () => ({
     ...formData,
     client_id: clientId,
-    intake_date: format(new Date(), 'yyyy-MM-dd'),
+    intake_date: prefillData?.id ? (formData.intake_date || format(new Date(), 'yyyy-MM-dd')) : format(new Date(), 'yyyy-MM-dd'),
     basic_info: {
       ...formData.basic_info,
       age: parseFloat(formData.basic_info.age) || 0,
