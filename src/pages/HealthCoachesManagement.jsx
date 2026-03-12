@@ -675,6 +675,27 @@ export default function HealthCoachesManagement() {
     return diffDays;
   };
 
+  // Pending coaches = in history as account_created but NOT yet in allUsers
+  const pendingCoaches = (coachHistory || []).filter(
+    h => !allUsers?.some(u => u.email?.toLowerCase() === h.coach_email?.toLowerCase())
+  );
+
+  // Handle promoting a pending coach manually
+  const promoteCoachMutation = useMutation({
+    mutationFn: async (coachEmail) => {
+      const allU = await base44.entities.User.list();
+      const found = allU.find(u => u.email?.toLowerCase() === coachEmail.toLowerCase());
+      if (!found) throw new Error('User has not logged in yet. Ask them to log in first.');
+      await base44.entities.User.update(found.id, { user_type: 'student_coach' });
+      return found;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['allHealthCoaches']);
+      toast.success('Coach promoted to student_coach successfully!');
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
   if (user?.user_type !== 'super_admin') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 p-6">
