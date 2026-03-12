@@ -45,7 +45,9 @@ Deno.serve(async (req) => {
     // Always fetch ALL intakes for the client and pick the latest — intakeId is ignored intentionally
     const [clientArr, intakeArr] = await Promise.all([
       base44.asServiceRole.entities.Client.filter({ id: clientId }),
-      base44.asServiceRole.entities.ClinicalIntake.filter({ client_id: clientId }),
+      intakeId
+        ? base44.asServiceRole.entities.ClinicalIntake.filter({ id: intakeId })
+        : base44.asServiceRole.entities.ClinicalIntake.filter({ client_id: clientId }),
     ]);
 
     const client = clientArr[0];

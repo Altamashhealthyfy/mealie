@@ -136,7 +136,7 @@ function DaySummaryView({ day, meals, summary }) {
   );
 }
 
-export default function AIMealPlanGenerator({ client, onPlanGenerated, clinicalIntakes = [] }) {
+export default function AIMealPlanGenerator({ client, onPlanGenerated, clinicalIntakes = [], inlineMode = false, onClose }) {
   const [isOpen, setIsOpen] = useState(false);
   const [duration, setDuration] = useState(7);
   const [adaptFromFeedback, setAdaptFromFeedback] = useState(true);
@@ -187,24 +187,17 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated, clinicalI
 
   const days = result ? [...new Set(result.meals?.map(m => m.day) || [])].sort((a, b) => a - b) : [];
 
-  return (
-    <Dialog open={isOpen} onOpenChange={v => { setIsOpen(v); if (!v) setResult(null); }}>
-      <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
-          <Sparkles className="w-4 h-4 mr-2" />
-          Generate AI Meal Plan
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto p-0 bg-white text-gray-900">
-        <DialogHeader className="p-5 pb-0">
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <Brain className="w-6 h-6 text-purple-500" />
-            AI Meal Plan Generator
-            <Badge className="bg-purple-100 text-purple-700 border-0 ml-1">for {client.full_name}</Badge>
-          </DialogTitle>
-        </DialogHeader>
+  const planContent = (
+    <>
+      <div className="p-5 pb-0">
+        <h2 className="flex items-center gap-2 text-xl font-semibold">
+          <Brain className="w-6 h-6 text-purple-500" />
+          AI Meal Plan Generator
+          <Badge className="bg-purple-100 text-purple-700 border-0 ml-1">for {client.full_name}</Badge>
+        </h2>
+      </div>
 
-        {!result ? (
+      {!result ? (
           <div className="p-5 space-y-5">
             {/* Clinical intake warning */}
             {clinicalIntakes.length === 0 && (
@@ -356,7 +349,7 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated, clinicalI
             />
 
             <div className="flex justify-end gap-3 pt-2 border-t">
-              <Button variant="outline" onClick={() => setIsOpen(false)} disabled={generateMutation.isPending}>Cancel</Button>
+              <Button variant="outline" onClick={() => inlineMode ? onClose?.() : setIsOpen(false)} disabled={generateMutation.isPending}>Cancel</Button>
               <Button onClick={() => generateMutation.mutate(false)} disabled={generateMutation.isPending} className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 px-6">
                 {generateMutation.isPending ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating ({duration}-day plan)...</> : <><Sparkles className="w-4 h-4 mr-2" />Generate {duration}-Day Plan</>}
               </Button>
@@ -492,10 +485,25 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated, clinicalI
               <Button variant="outline" onClick={() => { setResult(null); setModificationInstructions(""); setGenerationCount(1); }}>
                 <Sparkles className="w-4 h-4 mr-2" />Start Fresh
               </Button>
-              <Button onClick={() => setIsOpen(false)} className="bg-gradient-to-r from-green-500 to-emerald-600">Done – View in Meal Planner</Button>
+              <Button onClick={() => inlineMode ? onClose?.() : setIsOpen(false)} className="bg-gradient-to-r from-green-500 to-emerald-600">Done – View in Meal Planner</Button>
             </div>
           </div>
         )}
+    </>
+  );
+
+  if (inlineMode) return <div className="bg-white text-gray-900">{planContent}</div>;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={v => { setIsOpen(v); if (!v) setResult(null); }}>
+      <DialogTrigger asChild>
+        <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+          <Sparkles className="w-4 h-4 mr-2" />
+          Generate AI Meal Plan
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto p-0 bg-white text-gray-900">
+        {planContent}
       </DialogContent>
     </Dialog>
   );

@@ -20,6 +20,7 @@ export default function InlineProfileEditor({ client, onSuccess, onCancel }) {
     gender: client.gender || "male",
     height: client.height || "",
     weight: client.weight || "",
+    initial_weight: client.initial_weight || "",
     target_weight: client.target_weight || "",
     activity_level: client.activity_level || "moderately_active",
     goal: client.goal || "weight_loss",
@@ -109,6 +110,7 @@ export default function InlineProfileEditor({ client, onSuccess, onCancel }) {
         gender: formData.gender,
         height: formData.height ? parseFloat(formData.height) : null,
         weight: formData.weight ? parseFloat(formData.weight) : null,
+        initial_weight: formData.initial_weight ? parseFloat(formData.initial_weight) : null,
         target_weight: formData.target_weight ? parseFloat(formData.target_weight) : null,
         activity_level: formData.activity_level,
         goal: formData.goal,
@@ -225,6 +227,15 @@ export default function InlineProfileEditor({ client, onSuccess, onCancel }) {
                 type="number"
                 value={formData.weight}
                 onChange={(e) => setFormData({...formData, weight: e.target.value})}
+                className="h-9 text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Starting Weight (kg)</Label>
+              <Input
+                type="number"
+                value={formData.initial_weight}
+                onChange={(e) => setFormData({...formData, initial_weight: e.target.value})}
                 className="h-9 text-sm"
               />
             </div>

@@ -78,7 +78,7 @@ export default function InlineClinicalIntakeForm({ clientId, prefillData, isView
         ...emptyForm,
         ...prefillData,
         client_id: clientId,
-        intake_date: format(new Date(), 'yyyy-MM-dd'), // always today for a new entry
+        intake_date: prefillData?.id ? (prefillData.intake_date || format(new Date(), 'yyyy-MM-dd')) : format(new Date(), 'yyyy-MM-dd'),
         goal: Array.isArray(loadedGoal) ? loadedGoal : (loadedGoal ? [loadedGoal] : []),
         basic_info: {
           age: prefillData.basic_info?.age ?? '',
@@ -369,11 +369,16 @@ Combine information from all uploaded documents intelligently. Return ONLY valid
 
     setSaving(true);
     try {
-      // Always create a NEW intake record (never overwrite old ones)
-      const saved = await base44.entities.ClinicalIntake.create(buildFinalData());
-      queryClient.invalidateQueries(['clientClinicalIntakes', clientId]);
-      toast.success('✅ Clinical intake saved! Generating diagnostic...');
-      // Auto-generate diagnostic from KB (no AI fallback)
+      let saved;
+      if (prefillData?.id) {
+        saved = await base44.entities.ClinicalIntake.update(prefillData.id, buildFinalData());
+        queryClient.invalidateQueries(['clientClinicalIntakes', clientId]);
+        toast.success('✅ Clinical intake updated! Re-generating diagnostic...');
+      } else {
+        saved = await base44.entities.ClinicalIntake.create(buildFinalData());
+        queryClient.invalidateQueries(['clientClinicalIntakes', clientId]);
+        toast.success('✅ Clinical intake saved! Generating diagnostic...');
+      }
       if (saved?.id) {
         try {
           await base44.functions.invoke('generateDiagnostic', { clinicalIntakeId: saved.id });
@@ -846,7 +851,7 @@ Combine information from all uploaded documents intelligently. Return ONLY valid
           </Button>
           <Button type="submit" disabled={saving}
             className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
-            {saving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</> : <><CheckCircle className="w-4 h-4 mr-2" /> Save New Intake</>}
+            {saving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</> : <><CheckCircle className="w-4 h-4 mr-2" /> {prefillData?.id ? 'Update Intake' : 'Save New Intake'}</>}
           </Button>
         </div>
       )}

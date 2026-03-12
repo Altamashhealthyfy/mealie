@@ -252,7 +252,9 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, hasPr
           <AIMealPlanGenerator
             client={client}
             clinicalIntakes={clinicalIntakes || []}
-            onPlanGenerated={() => { invalidatePlans(); setActiveSubTab("basic"); }}
+            inlineMode={true}
+            onClose={() => setShowBasicForm(false)}
+            onPlanGenerated={() => { invalidatePlans(); setShowBasicForm(false); setActiveSubTab("basic"); }}
           />
         </DialogContent>
       </Dialog>
