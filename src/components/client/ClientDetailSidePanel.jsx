@@ -17,7 +17,6 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { format } from "date-fns";
-import ClientMedicalProgress from "@/components/client/ClientMedicalProgress";
 import InlineProfileEditor from "@/components/client/InlineProfileEditor";
 import InlineAppointmentManager from "@/components/client/InlineAppointmentManager";
 
