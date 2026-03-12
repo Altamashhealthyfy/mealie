@@ -139,6 +139,13 @@ export default function HealthCoachesManagement() {
     initialData: [],
   });
 
+  // Fetch pending coaches (invited but not yet logged in)
+  const { data: coachHistory } = useQuery({
+    queryKey: ['coachHistory'],
+    queryFn: () => base44.entities.CoachSubscriptionHistory.filter({ action_type: 'account_created' }),
+    initialData: [],
+  });
+
   // Fetch all subscriptions
   const { data: subscriptions } = useQuery({
     queryKey: ['healthCoachSubscriptions'],
