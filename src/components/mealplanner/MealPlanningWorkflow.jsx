@@ -118,24 +118,31 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
     console.log('🚀 generatePlan fired — filterResult:', filterResult, 'generating:', generating);
     setGenerating(true);
     try {
-      const primaryCondition = diagnostic?.primary_conditions?.[0] || (intake?.health_conditions?.[0] || null);
-      const additionalConditions = diagnostic?.primary_conditions?.slice(1) || intake?.health_conditions?.slice(1) || [];
+      console.log('Step 1 - checking client:', client?.id);
+      const selectedIntake = sortedIntakes.find(i => i.id === selectedIntakeId) || latestIntake;
+      console.log('Step 2 - filterResult:', filterResult);
+      console.log('Step 3 - about to call generateAIMealPlan');
+
+      const primaryCondition = diagnostic?.primary_conditions?.[0] || (selectedIntake?.health_conditions?.[0] || null);
+      const additionalConditions = diagnostic?.primary_conditions?.slice(1) || selectedIntake?.health_conditions?.slice(1) || [];
 
       const res = await base44.functions.invoke('generateAIMealPlan', {
         clientId: client.id,
         duration,
         calorieTarget: filterResult?.client?.target_calories || client.target_calories,
-        dietType: intake?.diet_type || client.food_preference,
+        dietType: selectedIntake?.diet_type || client.food_preference,
         condition: primaryCondition,
         numDays: duration,
         additionalConditions,
         overrideGoal: diagnostic?.goals?.[0] || client.goal,
       });
 
+      console.log('Step 4 - API response:', res);
       setGeneratedPlan({ ...res.data.mealPlan, meals: res.data.meals, created_date: new Date().toISOString(), id: null });
       toast.success('✅ AI meal plan generated with HMRE engine!');
       setOpenSections(prev => ({ ...prev, s5: true, s6: true }));
     } catch (err) {
+      console.error('❌ generatePlan error:', err);
       toast.error('Generation failed: ' + (err.message || 'Unknown error'));
     }
     setGenerating(false);
