@@ -1,5 +1,10 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
+// ═══ CACHE: Store parsed catalog in memory to avoid re-fetching ═══
+let cachedHealthyfyDishes = null;
+let cacheTimestamp = null;
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
 /**
  * filterMealOptions — STEP 3
  * NON-COMPROMISING RULE: ALL dishes are sourced EXCLUSIVELY from the
