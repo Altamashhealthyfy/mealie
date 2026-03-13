@@ -666,7 +666,7 @@ Plan duration: ${duration} day(s)`;
     }).catch(() => {});
 
     // ─── MEAL OPTION ANALYSIS ───
-    const foodPref = client.food_preference || 'mixed';
+    const foodPref = resolvedDietType;
     const isVeg = ['veg', 'jain'].includes(foodPref);
     const isJain = foodPref === 'jain';
     const allAllergyLower = allAllergies.map(a => a.toLowerCase());
