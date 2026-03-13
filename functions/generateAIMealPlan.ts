@@ -2,10 +2,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 /**
  * generateAIMealPlan
- * NON-COMPROMISING RULE: ALL meal components MUST be selected EXCLUSIVELY from the
- * Healthyfy Dishes Google Sheet catalog. The AI CAN and SHOULD combine multiple
- * catalog dishes to form complete nutritionally balanced meals (e.g., Roti + Dal + Sabzi).
- * No dish component outside this catalog is ever permitted.
+ * Generates meal plans in 3-day batches to avoid Claude API timeouts on large plans
  */
 Deno.serve(async (req) => {
   try {
@@ -134,29 +131,25 @@ Deno.serve(async (req) => {
     const combinationGuide = buildCombinationGuide();
 
     // ── Build concise, focused catalog lists for the prompt ──
-    // Filter by diet preference and cap to 20 diverse dishes per slot
     const buildCompactCatalog = (dietFilter) => {
       const MAX_PER_SLOT = 20;
       const types = ['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner'];
       return types.map(t => {
         let dishes = (dishByType[t] || []);
-        // Filter by diet preference
         if (dietFilter && dietFilter !== 'mixed') {
           const filtered = dishes.filter(d => {
-            if (!d.food_preference) return true; // no preference set → include
+            if (!d.food_preference) return true;
             if (dietFilter === 'veg' || dietFilter === 'jain') {
-              // exclude non_veg and egg dishes
               return !d.food_preference.includes('non_veg') && !d.food_preference.includes('egg');
             }
             if (dietFilter === 'eggetarian') {
               return !d.food_preference.includes('non_veg');
             }
-            return true; // non_veg: include all
+            return true;
           });
           if (filtered.length > 0) dishes = filtered;
         }
         if (!dishes.length) return null;
-        // Pick up to MAX_PER_SLOT dishes, varied by dish_type
         if (dishes.length > MAX_PER_SLOT) {
           const byType = {};
           for (const d of dishes) {
@@ -302,87 +295,106 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
       const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
         prompt: batchPrompt,
         model: 'claude_sonnet_4_6',
-      response_json_schema: {
-        type: "object",
-        properties: {
-          plan_name: { type: "string" },
-          overview: { type: "string" },
-          nutritional_strategy: { type: "string" },
-          daily_calorie_target: { type: "number" },
-          macro_targets: {
-            type: "object",
-            properties: {
-              protein_g: { type: "number" },
-              carbs_g: { type: "number" },
-              fats_g: { type: "number" },
-              fiber_g: { type: "number" }
-            }
-          },
-          key_foods_included: { type: "array", items: { type: "string" } },
-          foods_avoided: { type: "array", items: { type: "string" } },
-          meals: {
-            type: "array",
-            items: {
+        response_json_schema: {
+          type: "object",
+          properties: {
+            plan_name: { type: "string" },
+            overview: { type: "string" },
+            nutritional_strategy: { type: "string" },
+            daily_calorie_target: { type: "number" },
+            macro_targets: {
               type: "object",
               properties: {
-                day: { type: "number" },
-                meal_type: { type: "string", enum: ["early_morning", "breakfast", "mid_morning", "lunch", "evening_snack", "dinner"] },
-                meal_name: { type: "string" },
-                components: {
-                  type: "array",
-                  items: { type: "string" },
-                  description: "Exact catalog dish names combined to form this meal"
-                },
-                suggested_time: { type: "string" },
-                items: { type: "array", items: { type: "string" } },
-                portion_sizes: { type: "array", items: { type: "string" } },
-                calories: { type: "number" },
-                protein: { type: "number" },
-                carbs: { type: "number" },
-                fats: { type: "number" },
-                fiber: { type: "number" },
-                nutritional_tip: { type: "string" },
-                disease_rationale: { type: "string" },
-                rationale: { type: "string" }
+                protein_g: { type: "number" },
+                carbs_g: { type: "number" },
+                fats_g: { type: "number" },
+                fiber_g: { type: "number" }
               }
-            }
-          },
-          day_summaries: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                day: { type: "number" },
-                total_calories: { type: "number" },
-                total_protein: { type: "number" },
-                total_carbs: { type: "number" },
-                total_fats: { type: "number" },
-                notes: { type: "string" }
+            },
+            key_foods_included: { type: "array", items: { type: "string" } },
+            foods_avoided: { type: "array", items: { type: "string" } },
+            meals: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  day: { type: "number" },
+                  meal_type: { type: "string", enum: ["early_morning", "breakfast", "mid_morning", "lunch", "evening_snack", "dinner"] },
+                  meal_name: { type: "string" },
+                  components: { type: "array", items: { type: "string" } },
+                  suggested_time: { type: "string" },
+                  items: { type: "array", items: { type: "string" } },
+                  portion_sizes: { type: "array", items: { type: "string" } },
+                  calories: { type: "number" },
+                  protein: { type: "number" },
+                  carbs: { type: "number" },
+                  fats: { type: "number" },
+                  fiber: { type: "number" },
+                  nutritional_tip: { type: "string" },
+                  disease_rationale: { type: "string" },
+                  rationale: { type: "string" }
+                }
               }
-            }
-          },
-          mpess: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                day: { type: "number" },
-                sleep: { type: "string" },
-                stress: { type: "string" },
-                movement: { type: "string" },
-                mindfulness: { type: "string" },
-                pranayam: { type: "string" }
+            },
+            day_summaries: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  day: { type: "number" },
+                  total_calories: { type: "number" },
+                  total_protein: { type: "number" },
+                  total_carbs: { type: "number" },
+                  total_fats: { type: "number" },
+                  notes: { type: "string" }
+                }
               }
-            }
-          },
-          coach_notes: { type: "string" }
+            },
+            mpess: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  day: { type: "number" },
+                  sleep: { type: "string" },
+                  stress: { type: "string" },
+                  movement: { type: "string" },
+                  mindfulness: { type: "string" },
+                  pranayam: { type: "string" }
+                }
+              }
+            },
+            coach_notes: { type: "string" }
+          }
         }
-      }
-    });
+      });
 
-    // Unwrap nested response if InvokeLLM returns { response: { ... } }
-    const aiData = aiResponse?.response ?? aiResponse;
-    console.log('🤖 AI response meals count:', (aiData.meals || []).length);
+      const batchData = aiResponse?.response ?? aiResponse;
+      console.log(`✅ Batch ${batch + 1} complete — ${(batchData.meals || []).length} meals generated`);
+
+      // Map day numbers back to global day range (1-indexed)
+      const mealsBatch = (batchData.meals || []).map(m => ({ ...m, day: startDay + (m.day - 1) }));
+      const summariesBatch = (batchData.day_summaries || []).map(s => ({ ...s, day: startDay + (s.day - 1) }));
+
+      allMeals.push(...mealsBatch);
+      allDaySummaries.push(...summariesBatch);
+      if (batchData.mpess) allMpessRecommendations.push(...(batchData.mpess || []));
+    }
+
+    // Merge all batches
+    const aiData = {
+      plan_name: `AI Meal Plan – ${duration} Days`,
+      overview: 'Personalized meal plan generated optimally for quality.',
+      nutritional_strategy: 'Balanced nutrition across all meal slots.',
+      daily_calorie_target: targetCal,
+      macro_targets: { protein_g: targetProtein, carbs_g: targetCarbs, fats_g: targetFats, fiber_g: 25 },
+      key_foods_included: [],
+      foods_avoided: allAllergies,
+      meals: allMeals,
+      day_summaries: allDaySummaries,
+      mpess: allMpessRecommendations,
+      coach_notes: `Plan generated in ${totalBatches} batch(es) for optimal quality.`
+    };
 
     // ─── RECALCULATE NUTRITION FROM DATABASE ───
     const [allRecipes, allIngredients] = await Promise.all([
@@ -401,13 +413,11 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
       ingredientMap[ing.ingredient_name.toLowerCase()] = ing;
     }
 
-    // Cross-reference AI meal components against Healthyfy catalog
     const catalogNameSet = new Set(healthyfyDishes.map(d => d.name.toLowerCase().trim()));
     const dishByName = {};
     for (const d of healthyfyDishes) dishByName[d.name.toLowerCase().trim()] = d;
 
     const enrichedMeals = (aiData.meals || []).map(meal => {
-      // Check catalog compliance for all components
       const components = meal.components || [];
       const componentCompliance = components.map(c => ({
         name: c,
@@ -417,7 +427,6 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
         ? catalogNameSet.has((meal.meal_name || '').toLowerCase().trim())
         : componentCompliance.every(c => c.in_catalog);
 
-      // Try to get nutrition from matched recipe
       const mealNameKey = (meal.meal_name || '').toUpperCase();
       const mealNameLower = (meal.meal_name || '').toLowerCase().trim();
       const matchedRecipe = recipeMap[mealNameKey];
@@ -438,7 +447,6 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
         };
       }
 
-      // Sum up calories & macros from catalog components (using actual nutritional_info)
       if (components.length > 0) {
         let totalCal = 0, totalProtein = 0, totalCarbs = 0, totalFats = 0;
         for (const comp of components) {
@@ -466,7 +474,6 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
         }
       }
 
-      // Fallback: single dish
       const catalogDish = dishByName[mealNameLower];
       if (catalogDish && (!meal.calories || meal.calories === 0)) {
         return {
@@ -485,7 +492,6 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
     });
 
     // ─── SERVER-SIDE FIX: Remove intra-day duplicate components ───
-    // Group meals by day, then scan for duplicates and remove them
     const dayMealGroups = {};
     for (const meal of enrichedMeals) {
       if (!dayMealGroups[meal.day]) dayMealGroups[meal.day] = [];
@@ -494,7 +500,6 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
 
     const intraDayDuplicates = [];
     for (const [day, meals] of Object.entries(dayMealGroups)) {
-      // Sort by meal slot order so early meals "claim" dishes first
       const slotOrder = { early_morning: 1, breakfast: 2, mid_morning: 3, lunch: 4, evening_snack: 5, dinner: 6 };
       meals.sort((a, b) => (slotOrder[a.meal_type] || 9) - (slotOrder[b.meal_type] || 9));
 
@@ -504,7 +509,6 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
         for (const comp of (meal.components || [])) {
           const key = comp.toLowerCase().trim();
           if (usedOnDay.has(key)) {
-            // Find a replacement from the same meal type slot that hasn't been used today
             const alternatives = (dishByType[meal.meal_type] || [])
               .map(d => d.name)
               .filter(n => !usedOnDay.has(n.toLowerCase().trim()) && n.toLowerCase().trim() !== key);
@@ -522,14 +526,12 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
           }
         }
         meal.components = cleanedComponents;
-        // Update items to reflect corrected components
         if (cleanedComponents.length > 0 && cleanedComponents.length !== (meal.components || []).length) {
           meal.items = cleanedComponents.map(c => c);
         }
       }
     }
 
-    // Recalculate day summaries from enriched meals
     const recalculatedDaySummaries = [];
     const dayNumbers = [...new Set(enrichedMeals.map(m => m.day))].sort((a, b) => a - b);
     for (const day of dayNumbers) {
@@ -551,8 +553,7 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
       });
     }
 
-    // ─── POST-GENERATION CALORIE COMPLIANCE ENFORCEMENT ───
-    const CALORIE_TOLERANCE = 0.10; // ±10%
+    const CALORIE_TOLERANCE = 0.10;
     const calorieCorrections = [];
 
     for (const daySummary of recalculatedDaySummaries) {
@@ -582,7 +583,6 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
           within_range: correctedTotal >= minCal && correctedTotal <= maxCal,
         });
 
-        // Update day summary to reflect corrected values
         daySummary.total_calories = correctedTotal;
         daySummary.total_protein  = Math.round(dayMeals.reduce((sum, m) => sum + (m.protein || 0), 0));
         daySummary.total_carbs    = Math.round(dayMeals.reduce((sum, m) => sum + (m.carbs   || 0), 0));
@@ -590,7 +590,6 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
       }
     }
 
-    // ─── HMRE AUDIT ───
     const violations = [];
     const daySlots = {};
     aiData.meals.forEach(meal => {
@@ -626,14 +625,12 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
       console.log('✅ HMRE audit passed — no violations');
     }
 
-    // ─── SLOT COUNT LOG ───
     const slotCounts = {};
     enrichedMeals.forEach(m => {
       slotCounts[m.meal_type || m.slot] = (slotCounts[m.meal_type || m.slot] || 0) + 1;
     });
     console.log('🍽️ Meals by slot before save:', JSON.stringify(slotCounts));
 
-    // ─── BUILD KB SNAPSHOT FOR AUDIT TRAIL ───
     const kbSnapshot = knowledgeBase.map(doc => ({
       kb_id: doc.id,
       name: doc.name,
@@ -644,7 +641,6 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
       description: doc.description || '',
     }));
 
-    // Deactivate all existing active plans for this client before creating new one
     const existingActivePlans = await base44.asServiceRole.entities.MealPlan.filter({ client_id: clientId, active: true });
     if (existingActivePlans.length > 0) {
       await Promise.all(existingActivePlans.map(p => base44.asServiceRole.entities.MealPlan.update(p.id, { active: false })));
@@ -686,7 +682,6 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
       read: false,
     }).catch(() => {});
 
-    // ─── MEAL OPTION ANALYSIS ───
     const foodPref = resolvedDietType;
     const isVeg = ['veg', 'jain'].includes(foodPref);
     const isJain = foodPref === 'jain';
@@ -812,10 +807,6 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
   }
 });
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// HEALTHYFY DISH CATALOG — GOOGLE SHEET INTEGRATION
-// ═══════════════════════════════════════════════════════════════════════════════
-
 function parseCSVLine(line) {
   const result = [];
   let current = '';
@@ -857,7 +848,6 @@ function parseHealthyfyCSV(text) {
     'any':           ['breakfast', 'lunch', 'dinner', 'evening_snack'],
   };
 
-  // Build header → index map from first row
   const headers = parseCSVLine(lines[0]);
   const colIndex = {};
   headers.forEach((h, i) => { colIndex[h.trim().toLowerCase()] = i; });
@@ -870,7 +860,6 @@ function parseHealthyfyCSV(text) {
     const mealTypeRaw = (cols[colIndex['meal_type']]?.trim() || '').toLowerCase();
     const foodPref = (cols[colIndex['food_preference']]?.trim() || '').toLowerCase();
 
-    // Parse ingredients from JSON column
     let ingredients = [];
     try {
       const ingJson = cols[colIndex['ingredients']]?.trim();
@@ -882,9 +871,8 @@ function parseHealthyfyCSV(text) {
           unit: ing.unit || 'g',
         }));
       }
-    } catch (e) { /* ignore parse errors */ }
+    } catch (e) {}
 
-    // Parse nutritional_info from JSON column — actual pre-computed values
     let approxCal = 0;
     let nutritionData = {};
     try {
@@ -893,14 +881,12 @@ function parseHealthyfyCSV(text) {
         nutritionData = JSON.parse(nutJson);
         approxCal = nutritionData.calories || 0;
       }
-    } catch (e) { /* ignore parse errors */ }
+    } catch (e) {}
 
-    // Fall back to ingredient-based estimate if nutritional_info missing
     if (approxCal === 0) {
       approxCal = estimateDishCalories(ingredients, '');
     }
 
-    // Parse meal_type: comma-separated values e.g. "lunch,dinner"
     let applicableMealTypes = [];
     mealTypeRaw.split(',').forEach(t => {
       const mapped = MEAL_TYPE_MAP[t.trim()];
@@ -909,7 +895,6 @@ function parseHealthyfyCSV(text) {
       });
     });
 
-    // Fallback: infer from dish name if meal_type column is empty
     if (applicableMealTypes.length === 0) {
       const nameLower = dishName.toLowerCase();
       if (['tea', 'water', 'lemon', 'jeera water', 'warm water', 'kadha', 'soaked'].some(k => nameLower.includes(k))) {
