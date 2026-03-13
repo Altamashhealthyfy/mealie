@@ -130,53 +130,30 @@ Deno.serve(async (req) => {
       ? `RECENT PROGRESS (last ${recentLogs.length} logs):\n${recentLogs.map(l => `  ${l.date}: weight=${l.weight || 'N/A'}kg, adherence=${l.meal_adherence || 'N/A'}%, symptoms=${l.symptoms?.join(', ') || 'none'}`).join('\n')}\nFood patterns: ${recentFoodLogs.slice(0, 6).map(f => f.meal_name || f.meal_type).join(', ') || 'N/A'}\n→ If adherence < 70%, simplify portions and prefer quicker meals.`
       : '';
 
-    const kbContext = buildKBSection();
-    const combinationGuide = buildCombinationGuide();
-
-    // ── Build concise, focused catalog lists for the prompt ──
-    const buildCompactCatalog = (dietFilter) => {
-      const MAX_PER_SLOT = 5;
-      const types = ['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner'];
-      return types.map(t => {
-        let dishes = (dishByType[t] || []);
-        if (dietFilter && dietFilter !== 'mixed') {
-          const filtered = dishes.filter(d => {
-            if (!d.food_preference) return true;
-            if (dietFilter === 'veg' || dietFilter === 'jain') {
-              return !d.food_preference.includes('non_veg') && !d.food_preference.includes('egg');
-            }
-            if (dietFilter === 'eggetarian') {
-              return !d.food_preference.includes('non_veg');
-            }
-            return true;
-          });
-          if (filtered.length > 0) dishes = filtered;
+    // ── Categorize dishes by slot for lean prompt ──
+    const filterByDiet = (dishes) => {
+      if (!resolvedDietType || resolvedDietType === 'mixed') return dishes;
+      return dishes.filter(d => {
+        if (!d.food_preference) return true;
+        if (resolvedDietType === 'veg' || resolvedDietType === 'jain') {
+          return !d.food_preference.includes('non_veg') && !d.food_preference.includes('egg');
         }
-        if (!dishes.length) return null;
-        if (dishes.length > MAX_PER_SLOT) {
-          const byType = {};
-          for (const d of dishes) {
-            const key = d.dish_type || 'other';
-            if (!byType[key]) byType[key] = [];
-            byType[key].push(d);
-          }
-          const selected = [];
-          const typeKeys = Object.keys(byType);
-          let i = 0;
-          while (selected.length < MAX_PER_SLOT) {
-            const key = typeKeys[i % typeKeys.length];
-            if (byType[key].length > 0) selected.push(byType[key].shift());
-            i++;
-            if (typeKeys.every(k => byType[k].length === 0)) break;
-          }
-          dishes = selected;
+        if (resolvedDietType === 'eggetarian') {
+          return !d.food_preference.includes('non_veg');
         }
-        return `${t.toUpperCase().replace('_',' ')} (${dishes.length} options):\n${dishes.map(d=>`  - ${d.name} (${d.approx_calories || d.nutrition?.calories || 0} kcal, ${d.nutrition?.protein || 0}g protein)`).join('\n')}`;
-      }).filter(Boolean).join('\n\n');
+        return true;
+      });
     };
 
-    const compactCatalog = buildCompactCatalog(resolvedDietType);
-    console.log(`📋 Filtered catalog size for diet=${resolvedDietType}:`, compactCatalog.split('\n').length, 'lines');
+    const breakfastDishes = filterByDiet(dishByType['breakfast'] || []);
+    const grainDishes = filterByDiet((dishByType['lunch'] || []).filter(d => d.tags?.includes('roti') || d.tags?.includes('rice')));
+    const dalDishes = filterByDiet((dishByType['lunch'] || []).filter(d => d.tags?.includes('dal') || d.tags?.includes('protein')));
+    const sabziDishes = filterByDiet((dishByType['lunch'] || []).filter(d => d.tags?.includes('root_veg')));
+    const dinnerDishes = filterByDiet(dishByType['dinner'] || []);
+    const snackDishes = filterByDiet(dishByType['evening_snack'] || []);
+    const drinkDishes = filterByDiet(dishByType['early_morning'] || []);
+
+    console.log(`📋 Categorized dishes: breakfast=${breakfastDishes.length}, grains=${grainDishes.length}, dal=${dalDishes.length}, sabzi=${sabziDishes.length}, dinner=${dinnerDishes.length}, snacks=${snackDishes.length}, drinks=${drinkDishes.length}`);
 
     // ─── SINGLE API CALL: Generate 4 day templates (A, B, C, D), then rotate across N days ───
     const ROTATION_PATTERN = [0, 1, 2, 3, 1, 0, 3, 2, 0, 1]; // Template indices: A(0), B(1), C(2), D(3)
