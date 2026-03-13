@@ -297,11 +297,11 @@ Add this to the JSON output after the meals array:
   }
 ]
 
-Plan duration: ${duration} day(s)`;
+Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (Days ${startDay}–${endDay})`;
 
-    const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
-      prompt,
-      model: 'claude_sonnet_4_6',
+      const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        prompt: batchPrompt,
+        model: 'claude_sonnet_4_6',
       response_json_schema: {
         type: "object",
         properties: {
