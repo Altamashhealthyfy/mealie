@@ -682,8 +682,6 @@ For EVERY meal slot, you MUST provide:
 // HEALTHYFY DISH CATALOG — GOOGLE SHEET INTEGRATION
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const HEALTHYFY_SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1piIBl9QUrluRBf24-1bZNbooGYqMI5Cr11w3Mb9WxfU/export?format=csv';
-
 function parseCSVLine(line) {
   const result = [];
   let current = '';
