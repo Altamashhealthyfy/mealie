@@ -713,11 +713,14 @@ function parseHealthyfyCSV(text) {
   const lines = text.split('\n').map(l => l.trim()).filter(l => l);
   const dishes = [];
   const MEAL_TYPE_MAP = {
-    breakfast: 'breakfast', lunch: 'lunch', dinner: 'dinner',
-    snack: 'evening_snack', evening_snack: 'evening_snack', evening: 'evening_snack',
-    early_morning: 'early_morning', 'early morning': 'early_morning', earlymorning: 'early_morning', morning: 'early_morning',
-    mid_morning: 'mid_morning', 'mid morning': 'mid_morning', midmorning: 'mid_morning',
-    any: 'any', all: 'any',
+    'breakfast':     ['breakfast'],
+    'lunch':         ['lunch'],
+    'dinner':        ['dinner'],
+    'snack':         ['evening_snack'],
+    'post_dinner':   ['post_dinner'],
+    'early_morning': ['early_morning'],
+    'mid_morning':   ['mid_morning'],
+    'any':           ['breakfast', 'lunch', 'dinner', 'evening_snack'],
   };
 
   // Build header → index map from first row
