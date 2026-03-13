@@ -689,6 +689,12 @@ async function fetchHealthyfyDishes() {
 }
 
 function parseHealthyfyCSV(text) {
+  // CSV column structure (new clean format):
+  // 0: name, 1: description, 2: category, 3: meal_type (comma-separated),
+  // 4: food_preference, 5: regional_cuisine, 6: ingredients (JSON array),
+  // 7: instructions, 8: prep_time, 9: cook_time, 10: servings,
+  // 11: nutritional_info (JSON: {calories, protein, carbs, fats}),
+  // 12: dietary_tags, 13: allergens, 14: tags, ...
   const lines = text.split('\n').map(l => l.trim()).filter(l => l);
   const dishes = [];
   const MEAL_TYPE_MAP = {
@@ -698,44 +704,55 @@ function parseHealthyfyCSV(text) {
     mid_morning: 'mid_morning', 'mid morning': 'mid_morning', midmorning: 'mid_morning',
     any: 'any', all: 'any',
   };
-  const CAT_MAP = {
-    BREAKFAST: 'breakfast', LUNCH: 'lunch', DINNER: 'dinner',
-    SNACK: 'evening_snack', 'EVENING SNACK': 'evening_snack', EVENING_SNACK: 'evening_snack', EVENING: 'evening_snack',
-    'EARLY MORNING': 'early_morning', EARLY_MORNING: 'early_morning', EARLYMORNING: 'early_morning', MORNING: 'early_morning',
-    'MID MORNING': 'mid_morning', MID_MORNING: 'mid_morning', MIDMORNING: 'mid_morning',
-    ANY: 'any', ALL: 'any',
-  };
 
   for (let i = 1; i < lines.length; i++) {
     const cols = parseCSVLine(lines[i]);
     const dishName = cols[0]?.trim();
-    if (!dishName || dishName.toLowerCase() === 'dish name') continue;
+    if (!dishName || dishName.toLowerCase() === 'name') continue;
 
-    const templateCode = cols[1]?.trim() || '';
-    const mealCategory = (cols[4]?.trim() || '').toUpperCase();
-    const mealFlexibility = (cols[5]?.trim() || '').toUpperCase();
-    const combinedTypes = (cols[6]?.trim() || '').toLowerCase();
+    const mealTypeRaw = (cols[3]?.trim() || '').toLowerCase();
+    const foodPref = (cols[4]?.trim() || '').toLowerCase();
 
-    const ingredients = [];
-    for (let j = 0; j < 5; j++) {
-      const base = 8 + j * 3;
-      const ingName = cols[base]?.trim();
-      if (!ingName) continue;
-      ingredients.push({ ingredient_name: ingName, qty: parseFloat(cols[base + 1]) || 0, unit: cols[base + 2]?.trim() || 'g' });
-    }
-
-    let applicableMealTypes = [];
-    if (combinedTypes) {
-      applicableMealTypes = combinedTypes.split('|').map(t => MEAL_TYPE_MAP[t.trim()]).filter(Boolean);
-    }
-    if (applicableMealTypes.length === 0) {
-      if (CAT_MAP[mealCategory]) applicableMealTypes.push(CAT_MAP[mealCategory]);
-      if (mealFlexibility && CAT_MAP[mealFlexibility] && !applicableMealTypes.includes(CAT_MAP[mealFlexibility])) {
-        applicableMealTypes.push(CAT_MAP[mealFlexibility]);
+    // Parse ingredients from JSON column (col 6)
+    let ingredients = [];
+    try {
+      const ingJson = cols[6]?.trim();
+      if (ingJson && ingJson.startsWith('[')) {
+        const parsed = JSON.parse(ingJson);
+        ingredients = parsed.map(ing => ({
+          ingredient_name: ing.item || '',
+          qty: ing.quantity || 0,
+          unit: ing.unit || 'g',
+        }));
       }
+    } catch (e) { /* ignore parse errors */ }
+
+    // Parse nutritional_info from JSON column (col 11) — actual pre-computed values
+    let approxCal = 0;
+    let nutritionData = {};
+    try {
+      const nutJson = cols[11]?.trim();
+      if (nutJson && nutJson.startsWith('{')) {
+        nutritionData = JSON.parse(nutJson);
+        approxCal = nutritionData.calories || 0;
+      }
+    } catch (e) { /* ignore parse errors */ }
+
+    // Fall back to ingredient-based estimate if nutritional_info missing
+    if (approxCal === 0) {
+      approxCal = estimateDishCalories(ingredients, '');
     }
+
+    // Parse meal_type: comma-separated values e.g. "lunch,dinner"
+    let applicableMealTypes = [];
+    if (mealTypeRaw) {
+      applicableMealTypes = mealTypeRaw.split(',')
+        .map(t => MEAL_TYPE_MAP[t.trim()])
+        .filter(Boolean);
+    }
+
+    // Fallback: infer from dish name if meal_type column is empty
     if (applicableMealTypes.length === 0) {
-      // Infer meal type from dish name rather than blindly defaulting to lunch
       const nameLower = dishName.toLowerCase();
       if (['tea', 'water', 'lemon', 'jeera water', 'warm water', 'kadha', 'soaked'].some(k => nameLower.includes(k))) {
         applicableMealTypes = ['early_morning'];
@@ -751,19 +768,19 @@ function parseHealthyfyCSV(text) {
     }
 
     const tags = deriveDishTags(dishName, ingredients);
-    const approxCal = estimateDishCalories(ingredients, mealCategory);
     const seen = new Set();
 
     for (const mt of applicableMealTypes) {
       if (seen.has(mt)) continue;
       seen.add(mt);
       dishes.push({
-        id: `${templateCode || dishName.replace(/\s+/g, '_')}_${mt}_${i}`,
+        id: `${dishName.replace(/\s+/g, '_')}_${mt}_${i}`,
         name: dishName,
-        template_code: templateCode,
         meal_type: mt,
+        food_preference: foodPref,
         ingredients,
         approx_calories: approxCal,
+        nutrition: nutritionData,
         tags,
         source: 'healthyfy_catalog',
       });
