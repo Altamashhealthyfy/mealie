@@ -770,7 +770,7 @@ function parseHealthyfyCSV(text) {
     let applicableMealTypes = [];
     if (mealTypeRaw) {
       applicableMealTypes = mealTypeRaw.split(',')
-        .map(t => MEAL_TYPE_MAP[t.trim()])
+        .flatMap(t => MEAL_TYPE_MAP[t.trim()] || [])
         .filter(Boolean);
     }
 
