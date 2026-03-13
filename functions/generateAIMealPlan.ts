@@ -354,18 +354,28 @@ For EVERY meal slot, you MUST provide:
         };
       }
 
-      // Sum up approx calories from catalog components
+      // Sum up calories & macros from catalog components (using actual nutritional_info)
       if (components.length > 0) {
-        let totalCal = 0;
+        let totalCal = 0, totalProtein = 0, totalCarbs = 0, totalFats = 0;
         for (const comp of components) {
           const catalogDish = dishByName[comp.toLowerCase().trim()];
-          if (catalogDish?.approx_calories) totalCal += catalogDish.approx_calories;
+          if (catalogDish?.nutrition?.calories) {
+            totalCal     += catalogDish.nutrition.calories || 0;
+            totalProtein += catalogDish.nutrition.protein  || 0;
+            totalCarbs   += catalogDish.nutrition.carbs    || 0;
+            totalFats    += catalogDish.nutrition.fats     || 0;
+          } else if (catalogDish?.approx_calories) {
+            totalCal += catalogDish.approx_calories;
+          }
         }
         if (totalCal > 0) {
           return {
             ...meal,
-            calories: meal.calories || totalCal,
-            nutrition_source: 'catalog_estimated_combined',
+            calories: meal.calories || Math.round(totalCal),
+            protein:  meal.protein  || Math.round(totalProtein * 10) / 10,
+            carbs:    meal.carbs    || Math.round(totalCarbs   * 10) / 10,
+            fats:     meal.fats     || Math.round(totalFats    * 10) / 10,
+            nutrition_source: 'catalog_actual_combined',
             catalog_compliant: allComponentsCompliant,
             component_compliance: componentCompliance,
           };
@@ -375,7 +385,16 @@ For EVERY meal slot, you MUST provide:
       // Fallback: single dish
       const catalogDish = dishByName[mealNameLower];
       if (catalogDish && (!meal.calories || meal.calories === 0)) {
-        return { ...meal, calories: catalogDish.approx_calories || meal.calories, nutrition_source: 'catalog_estimated', catalog_compliant: true, component_compliance: componentCompliance };
+        return {
+          ...meal,
+          calories: catalogDish.nutrition?.calories || catalogDish.approx_calories || meal.calories,
+          protein:  catalogDish.nutrition?.protein  || meal.protein,
+          carbs:    catalogDish.nutrition?.carbs     || meal.carbs,
+          fats:     catalogDish.nutrition?.fats      || meal.fats,
+          nutrition_source: 'catalog_actual',
+          catalog_compliant: true,
+          component_compliance: componentCompliance,
+        };
       }
 
       return { ...meal, nutrition_source: 'ai_estimated', catalog_compliant: allComponentsCompliant, component_compliance: componentCompliance };
