@@ -312,7 +312,7 @@ Plan duration: ${duration} day(s)`;
               type: "object",
               properties: {
                 day: { type: "number" },
-                meal_type: { type: "string" },
+                meal_type: { type: "string", enum: ["early_morning", "breakfast", "mid_morning", "lunch", "evening_snack", "dinner"] },
                 meal_name: { type: "string" },
                 components: {
                   type: "array",
