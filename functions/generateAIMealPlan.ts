@@ -290,12 +290,12 @@ Add this to the JSON output after the meals array:
   }
 ]
 
-Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (Days ${startDay}–${endDay})`;
+Plan duration: ${batchDuration} template day(s) — These 4 templates (A, B, C, D) will be rotated across your ${duration}-day plan using the pattern: ${ROTATION_PATTERN.slice(0, duration).join(', ')}`;
 
-      let batchResponse = null;
-      try {
-        batchResponse = await Promise.race([
-          base44.asServiceRole.integrations.Core.InvokeLLM({
+    let batchResponse = null;
+    try {
+      batchResponse = await Promise.race([
+        base44.asServiceRole.integrations.Core.InvokeLLM({
             prompt: batchPrompt,
             model: 'claude_sonnet_4_6',
             response_json_schema: {
@@ -370,35 +370,60 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
             coach_notes: { type: "string" }
           }
         }
-          }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error(`Batch ${batch + 1} timed out (90s)`)), 92000))
-        ]);
-      } catch (batchErr) {
-        console.error(`❌ Batch ${batch + 1}/${totalBatches} FAILED:`, batchErr.message);
-        if (batch === totalBatches - 1 && allMeals.length === 0) {
-          throw new Error(`Generation failed: All ${totalBatches} batch(es) timed out or errored. Last error: ${batchErr.message}`);
-        }
-        console.warn(`⏱️ Skipping batch ${batch + 1}, continuing to next...`);
-        continue;
-      }
-
-      const batchData = batchResponse?.response ?? batchResponse;
-      console.log(`✅ Batch ${batch + 1} complete — ${(batchData.meals || []).length} meals generated`);
-
-      // Map day numbers back to global day range (1-indexed)
-      const mealsBatch = (batchData.meals || []).map(m => ({ ...m, day: startDay + (m.day - 1) }));
-      const summariesBatch = (batchData.day_summaries || []).map(s => ({ ...s, day: startDay + (s.day - 1) }));
-
-      allMeals.push(...mealsBatch);
-      allDaySummaries.push(...summariesBatch);
-      if (batchData.mpess) allMpessRecommendations.push(...(batchData.mpess || []));
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error(`Template generation timed out (90s)`)), 92000))
+      ]);
+    } catch (err) {
+      throw new Error(`Template generation failed: ${err.message}`);
     }
+
+    const batchData = batchResponse?.response ?? batchResponse;
+    const templateMeals = batchData.meals || [];
+    console.log(`✅ Generated 4 day templates — ${templateMeals.length} total meals`);
+
+    if (templateMeals.length === 0) {
+      throw new Error(`Template generation produced 0 meals. Cannot proceed.`);
+    }
+
+    // ─── EXPAND 4 TEMPLATES INTO N DAYS USING ROTATION PATTERN ───
+    // Group meals by template day (1, 2, 3, 4)
+    const templatesByDay = {};
+    for (const meal of templateMeals) {
+      const templateDay = meal.day || 1;
+      if (!templatesByDay[templateDay]) templatesByDay[templateDay] = [];
+      templatesByDay[templateDay].push(meal);
+    }
+
+    // Rotate templates across actual plan days (1 through duration)
+    for (let actualDay = 1; actualDay <= duration; actualDay++) {
+      const templateIndex = ROTATION_PATTERN[actualDay - 1] || 0; // Map to template A(0), B(1), C(2), D(3)
+      const sourceTemplateDay = templateIndex + 1; // Convert 0-indexed to 1-indexed
+      const sourceMeals = templatesByDay[sourceTemplateDay] || [];
+
+      for (const meal of sourceMeals) {
+        const expandedMeal = {
+          ...meal,
+          day: actualDay,
+        };
+        allMeals.push(expandedMeal);
+      }
+    }
+
+    console.log(`✅ Rotated 4 templates across ${duration} days — ${allMeals.length} total meals`);
 
     if (allMeals.length === 0) {
-      throw new Error(`Generation produced 0 meals after ${totalBatches} batch(es). Check backend logs for batch errors.`);
+      throw new Error(`Rotation failed: no meals generated.`);
     }
 
-    console.log(`✅ All batches complete — ${allMeals.length} total meals generated across ${totalBatches} batch(es)`);
+    // Extract MPESS from templates
+    const mpessTemplates = batchData.mpess || [];
+    for (let actualDay = 1; actualDay <= duration; actualDay++) {
+      const templateIndex = ROTATION_PATTERN[actualDay - 1] || 0;
+      const sourceMpess = mpessTemplates.find(m => m.day === (templateIndex + 1));
+      if (sourceMpess) {
+        allMpessRecommendations.push({ ...sourceMpess, day: actualDay });
+      }
+    }
 
     // Merge all batches
     const aiData = {
