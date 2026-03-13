@@ -131,9 +131,9 @@ Deno.serve(async (req) => {
     const buildCompactCatalog = () => {
       const types = ['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner'];
       return types.map(t => {
-        const dishes = (dishByType[t] || []).map(d => d.name);
+        const dishes = (dishByType[t] || []);
         if (!dishes.length) return null;
-        return `${t.toUpperCase().replace('_',' ')} (${dishes.length} options):\n${dishes.map(d=>`  - ${d} (${d.approx_calories || d.calories || 0} kcal, ${d.protein || 0}g protein)`).join('\n')}`;
+        return `${t.toUpperCase().replace('_',' ')} (${dishes.length} options):\n${dishes.map(d=>`  - ${d.name} (${d.approx_calories || d.nutrition?.calories || 0} kcal, ${d.nutrition?.protein || 0}g protein)`).join('\n')}`;
       }).filter(Boolean).join('\n\n');
     };
 
