@@ -174,7 +174,7 @@ For EVENING SNACK: 1 item is acceptable. For optional EARLY MORNING / MID MORNIN
 Before placing a dish in a meal slot, check all OTHER meal slots on that same day.
 If the dish name already appears anywhere on that day → pick a DIFFERENT dish.
 Example: If "Moong Dal" is at lunch → do NOT use "Moong Dal" at dinner on the same day.
-This rule applies across ALL 6 meal slots of each day.
+This rule applies across ALL meal slots of each day (4 mandatory + any optional bonus slots included).
 
 **RULE C — EXACT DISH NAMES**
 Every name in the "components" array must EXACTLY match a dish name from the catalog above.
