@@ -304,6 +304,12 @@ For EVERY meal slot, you MUST provide:
       }
     });
 
+    console.log('🤖 AI response meals count:', (aiResponse.meals || []).length);
+    console.log('🤖 AI response keys:', Object.keys(aiResponse || {}).join(', '));
+    if ((aiResponse.meals || []).length === 0) {
+      console.log('⚠️ AI returned 0 meals. Full response snippet:', JSON.stringify(aiResponse).substring(0, 500));
+    }
+
     // ─── RECALCULATE NUTRITION FROM DATABASE ───
     const [allRecipes, allIngredients] = await Promise.all([
       base44.asServiceRole.entities.RecipeTemplate.list(),
