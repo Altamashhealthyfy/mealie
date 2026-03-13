@@ -842,8 +842,18 @@ Plan duration: ${batchDuration} template days — GENERATE EXACTLY 4 unique day 
       decision_rules: decisionRules,
     });
 
-  } catch (error) {
-    return Response.json({ success: false, error: error.message }, { status: 500 });
+    } catch (innerError) {
+      throw innerError;
+    }
+  } catch (globalErr) {
+    console.error('💥 GLOBAL ERROR:', globalErr.message);
+    console.error('💥 STACK:', globalErr.stack);
+    return Response.json({
+      success: false,
+      error: globalErr.message,
+      stack: globalErr.stack,
+      type: globalErr.constructor.name,
+    }, { status: 500 });
   }
 });
 
