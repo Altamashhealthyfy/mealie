@@ -128,16 +128,53 @@ Deno.serve(async (req) => {
     const combinationGuide = buildCombinationGuide();
 
     // ── Build concise, focused catalog lists for the prompt ──
-    const buildCompactCatalog = () => {
+    // Filter by diet preference and cap to 20 diverse dishes per slot
+    const buildCompactCatalog = (dietFilter) => {
+      const MAX_PER_SLOT = 20;
       const types = ['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner'];
       return types.map(t => {
-        const dishes = (dishByType[t] || []);
+        let dishes = (dishByType[t] || []);
+        // Filter by diet preference
+        if (dietFilter && dietFilter !== 'mixed') {
+          const filtered = dishes.filter(d => {
+            if (!d.food_preference) return true; // no preference set → include
+            if (dietFilter === 'veg' || dietFilter === 'jain') {
+              // exclude non_veg and egg dishes
+              return !d.food_preference.includes('non_veg') && !d.food_preference.includes('egg');
+            }
+            if (dietFilter === 'eggetarian') {
+              return !d.food_preference.includes('non_veg');
+            }
+            return true; // non_veg: include all
+          });
+          if (filtered.length > 0) dishes = filtered;
+        }
         if (!dishes.length) return null;
+        // Pick up to MAX_PER_SLOT dishes, varied by dish_type
+        if (dishes.length > MAX_PER_SLOT) {
+          const byType = {};
+          for (const d of dishes) {
+            const key = d.dish_type || 'other';
+            if (!byType[key]) byType[key] = [];
+            byType[key].push(d);
+          }
+          const selected = [];
+          const typeKeys = Object.keys(byType);
+          let i = 0;
+          while (selected.length < MAX_PER_SLOT) {
+            const key = typeKeys[i % typeKeys.length];
+            if (byType[key].length > 0) selected.push(byType[key].shift());
+            i++;
+            if (typeKeys.every(k => byType[k].length === 0)) break;
+          }
+          dishes = selected;
+        }
         return `${t.toUpperCase().replace('_',' ')} (${dishes.length} options):\n${dishes.map(d=>`  - ${d.name} (${d.approx_calories || d.nutrition?.calories || 0} kcal, ${d.nutrition?.protein || 0}g protein)`).join('\n')}`;
       }).filter(Boolean).join('\n\n');
     };
 
-    const compactCatalog = buildCompactCatalog();
+    const compactCatalog = buildCompactCatalog(client.food_preference);
+    console.log(`📋 Filtered catalog size for diet=${client.food_preference}:`, compactCatalog.split('\n').length, 'lines');
 
     const prompt = `You are a senior clinical dietitian. Generate a ${duration}-day meal plan.
 
