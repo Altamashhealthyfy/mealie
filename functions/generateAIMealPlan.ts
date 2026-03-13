@@ -374,10 +374,11 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
           new Promise((_, reject) => setTimeout(() => reject(new Error(`Batch ${batch + 1} timed out (30s)`)), 32000))
         ]);
       } catch (batchErr) {
-        console.warn(`⏱️ Batch ${batch + 1} timeout/error: ${batchErr.message}. Returning partial results.`);
+        console.error(`❌ Batch ${batch + 1}/${totalBatches} FAILED:`, batchErr.message);
         if (batch === totalBatches - 1 && allMeals.length === 0) {
-          throw new Error(`All batches failed. ${batchErr.message}`);
+          throw new Error(`Generation failed: All ${totalBatches} batch(es) timed out or errored. Last error: ${batchErr.message}`);
         }
+        console.warn(`⏱️ Skipping batch ${batch + 1}, continuing to next...`);
         continue;
       }
 
@@ -392,6 +393,12 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
       allDaySummaries.push(...summariesBatch);
       if (batchData.mpess) allMpessRecommendations.push(...(batchData.mpess || []));
     }
+
+    if (allMeals.length === 0) {
+      throw new Error(`Generation produced 0 meals after ${totalBatches} batch(es). Check backend logs for batch errors.`);
+    }
+
+    console.log(`✅ All batches complete — ${allMeals.length} total meals generated across ${totalBatches} batch(es)`);
 
     // Merge all batches
     const aiData = {

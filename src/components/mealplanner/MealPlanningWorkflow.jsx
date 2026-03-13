@@ -118,11 +118,12 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
     console.log('🚀 generatePlan fired — filterResult:', filterResult, 'generating:', generating);
     setGenerating(true);
     
-    // Add 3-minute timeout for the entire generation
+    // Add 5-minute timeout for the entire generation (Base44 backend = 5 min limit)
     const timeoutId = setTimeout(() => {
       setGenerating(false);
-      toast.error('⏱️ Generation timed out (3 min) — try a shorter plan duration (3-5 days)');
-    }, 180000);
+      toast.error('⏱️ Generation took too long (5 min limit) — try a 3-5 day plan instead');
+      console.error('❌ Frontend timeout reached after 5 minutes of generation');
+    }, 300000);
     
     try {
       if (!client?.id) {
@@ -135,7 +136,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       console.log('Step 1 - checking client:', client?.id);
       const selectedIntake = sortedIntakes.find(i => i.id === selectedIntakeId) || latestIntake;
       console.log('Step 2 - filterResult:', filterResult);
-      console.log('Step 3 - about to call generateAIMealPlan with 3-min timeout');
+      console.log('Step 3 - about to call generateAIMealPlan with 5-min timeout');
 
       const primaryCondition = diagnostic?.primary_conditions?.[0] || (selectedIntake?.health_conditions?.[0] || null);
       const additionalConditions = diagnostic?.primary_conditions?.slice(1) || selectedIntake?.health_conditions?.slice(1) || [];
@@ -181,7 +182,10 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
     } catch (err) {
       clearTimeout(timeoutId);
       console.error('❌ generatePlan error:', err);
-      toast.error('Generation failed: ' + (err.message || 'Unknown error'));
+      const errMsg = err.message || 'Unknown error';
+      toast.error('❌ ' + errMsg);
+      // Log full error for debugging
+      if (err.response?.data) console.error('API error details:', err.response.data);
     }
     setGenerating(false);
   };
