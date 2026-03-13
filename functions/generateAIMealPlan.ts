@@ -734,7 +734,21 @@ function parseHealthyfyCSV(text) {
         applicableMealTypes.push(CAT_MAP[mealFlexibility]);
       }
     }
-    if (applicableMealTypes.length === 0) applicableMealTypes = ['lunch'];
+    if (applicableMealTypes.length === 0) {
+      // Infer meal type from dish name rather than blindly defaulting to lunch
+      const nameLower = dishName.toLowerCase();
+      if (['tea', 'water', 'lemon', 'jeera water', 'warm water', 'kadha', 'soaked'].some(k => nameLower.includes(k))) {
+        applicableMealTypes = ['early_morning'];
+      } else if (['fruit', 'nuts', 'sprouts', 'buttermilk', 'lassi', 'roasted', 'makhana', 'energy bar'].some(k => nameLower.includes(k))) {
+        applicableMealTypes = ['mid_morning', 'evening_snack'];
+      } else if (['oats', 'poha', 'upma', 'idli', 'dosa', 'paratha', 'cheela', 'besan', 'egg', 'bread'].some(k => nameLower.includes(k))) {
+        applicableMealTypes = ['breakfast'];
+      } else if (['soup', 'khichdi', 'dal', 'sabzi', 'roti', 'rice', 'pulao', 'curry', 'chicken', 'fish', 'paneer', 'rajma', 'chole'].some(k => nameLower.includes(k))) {
+        applicableMealTypes = ['lunch', 'dinner'];
+      } else {
+        applicableMealTypes = ['lunch'];
+      }
+    }
 
     const tags = deriveDishTags(dishName, ingredients);
     const approxCal = estimateDishCalories(ingredients, mealCategory);
