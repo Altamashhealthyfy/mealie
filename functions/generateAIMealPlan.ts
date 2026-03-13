@@ -370,9 +370,18 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
             coach_notes: { type: "string" }
           }
         }
-      });
+          }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error(`Batch ${batch + 1} timed out (30s)`)), 32000))
+        ]);
+      } catch (batchErr) {
+        console.warn(`⏱️ Batch ${batch + 1} timeout/error: ${batchErr.message}. Returning partial results.`);
+        if (batch === totalBatches - 1 && allMeals.length === 0) {
+          throw new Error(`All batches failed. ${batchErr.message}`);
+        }
+        continue;
+      }
 
-      const batchData = aiResponse?.response ?? aiResponse;
+      const batchData = batchResponse?.response ?? batchResponse;
       console.log(`✅ Batch ${batch + 1} complete — ${(batchData.meals || []).length} meals generated`);
 
       // Map day numbers back to global day range (1-indexed)
