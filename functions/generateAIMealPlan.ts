@@ -38,8 +38,11 @@ Deno.serve(async (req) => {
     const healthyfyDishes = await fetchHealthyfyDishes(base44);
     const dishByType = {};
     for (const d of healthyfyDishes) {
-      if (!dishByType[d.meal_type]) dishByType[d.meal_type] = [];
-      dishByType[d.meal_type].push(d);
+      const slots = (d.meal_type || 'lunch').split(',').map(s => s.trim());
+      for (const slot of slots) {
+        if (!dishByType[slot]) dishByType[slot] = [];
+        dishByType[slot].push(d);
+      }
     }
 
     // Group dishes into combination-friendly categories for the prompt
