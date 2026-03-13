@@ -496,11 +496,47 @@ Deno.serve(async (req) => {
 
     // ─── 17. MPESS + Audit + Response ────────────────────────────────────────────
     const mpessRecs = extractMpessRecs(diagnostic);
-    const audit     = buildAudit(meals, duration, cal, prot, carbs, fats);
-    const conditions = (intake?.health_conditions || []).join(', ') || 'General Wellness';
-    const planName   = `${client.full_name} — ${conditions} Plan (${duration} Days)`;
+     const audit     = buildAudit(meals, duration, cal, prot, carbs, fats);
+     const conditions = (intake?.health_conditions || []).join(', ') || 'General Wellness';
+     const planName   = `${client.full_name} — ${conditions} Plan (${duration} Days)`;
 
-    return Response.json({
+     // CRITICAL: Save plan to database (backend only — no UI save required)
+     // Deactivate all existing active plans first to ensure NEW plan becomes active
+     const existingActivePlans = await base44.asServiceRole.entities.MealPlan.filter({ client_id: clientId, active: true });
+     if (existingActivePlans.length > 0) {
+       await Promise.all(existingActivePlans.map(p => base44.asServiceRole.entities.MealPlan.update(p.id, { active: false })));
+       console.log(`🔄 Deactivated ${existingActivePlans.length} existing active plan(s) for client`);
+     }
+
+     const savedPlan = await base44.asServiceRole.entities.MealPlan.create({
+       client_id: clientId,
+       name: planName,
+       duration,
+       meal_pattern: 'daily',
+       target_calories: cal,
+       meals,
+       food_preference: intake?.diet_type || client.food_preference,
+       regional_preference: client.regional_preference,
+       plan_tier: 'advanced',
+       disease_focus: intake?.health_conditions || [],
+       active: true,
+       mpess_integration: mpessRecs.length > 0 ? { recommendations: mpessRecs } : undefined,
+       decision_rules_applied: [
+         '🔒 All dishes sourced exclusively from Healthyfy approved Google Sheet catalog',
+         '🍽️ Complete Indian Meal: Lunch & Dinner = Grain + Dal/Protein + Sabzi',
+         '🥘 One-Pot meals (khichdi/biryani) + one side dish only',
+         '❌ No double-carb (rice+rice or roti+roti) in same meal',
+         '❌ No dairy + non-veg in same meal',
+         '❌ No non-veg curry + veg curry in same meal',
+         '✅ No dry standalone at lunch/dinner — wet/dal dish always included',
+         '🔄 3-day dish variety enforced',
+         '🌿 Dietitian manual rules applied to meal pools',
+         `Daily target: ${cal} kcal (Protein: ${prot}g | Carbs: ${carbs}g | Fats: ${fats}g)`,
+       ],
+     });
+     console.log(`✅ Plan saved and set active for client: ${savedPlan.id}`);
+
+     return Response.json({
       success: true,
       plan: {
         name: planName,
