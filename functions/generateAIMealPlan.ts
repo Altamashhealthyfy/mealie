@@ -695,13 +695,17 @@ function parseCSVLine(line) {
   return result;
 }
 
-async function fetchHealthyfyDishes() {
-  const resp = await fetch(HEALTHYFY_SHEET_CSV);
-  if (!resp.ok) throw new Error(`HEALTHYFY CATALOG UNAVAILABLE: Google Sheet returned HTTP ${resp.status}. Cannot proceed without the official dish catalog.`);
+async function fetchHealthyfyDishes(base44) {
+  const kbRecords = await base44.asServiceRole.entities.HealthyfyKnowledgeBase.filter({ name: 'Dish Catalog Primary (HEALTHYFY DISHES 1)', is_active: true });
+  if (!kbRecords || kbRecords.length === 0) throw new Error('HEALTHYFY CATALOG NOT FOUND: No active record named "Dish Catalog Primary (HEALTHYFY DISHES 1)" in HealthyfyKnowledgeBase.');
+  const fileUrl = kbRecords[0].file_url;
+  if (!fileUrl) throw new Error('HEALTHYFY CATALOG URL MISSING: The HealthyfyKnowledgeBase record has no file_url set.');
+  const resp = await fetch(fileUrl);
+  if (!resp.ok) throw new Error(`HEALTHYFY CATALOG UNAVAILABLE: file_url returned HTTP ${resp.status}. Cannot proceed without the official dish catalog.`);
   const text = await resp.text();
   const dishes = parseHealthyfyCSV(text);
-  if (dishes.length === 0) throw new Error('HEALTHYFY CATALOG EMPTY: Google Sheet returned 0 dishes. Cannot generate meal plan.');
-  console.log(`✅ Healthyfy catalog loaded: ${dishes.length} dishes from Google Sheet`);
+  if (dishes.length === 0) throw new Error('HEALTHYFY CATALOG EMPTY: file_url returned 0 dishes. Cannot generate meal plan.');
+  console.log(`✅ Healthyfy catalog loaded: ${dishes.length} dishes from ${fileUrl}`);
   return dishes;
 }
 
