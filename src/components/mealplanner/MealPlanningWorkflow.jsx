@@ -118,6 +118,12 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
     console.log('🚀 generatePlan fired — filterResult:', filterResult, 'generating:', generating);
     setGenerating(true);
     try {
+      if (!client?.id) {
+        console.error('❌ client is undefined or missing id:', client);
+        toast.error('Client data not loaded. Please close and reopen the workflow.');
+        setGenerating(false);
+        return;
+      }
       console.log('Step 1 - checking client:', client?.id);
       const selectedIntake = sortedIntakes.find(i => i.id === selectedIntakeId) || latestIntake;
       console.log('Step 2 - filterResult:', filterResult);
