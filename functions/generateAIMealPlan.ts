@@ -256,6 +256,27 @@ For EVERY meal slot you MUST provide:
 - "meal_type": one of early_morning | breakfast | mid_morning | lunch | evening_snack | dinner
 MANDATORY slots every day: breakfast, lunch, evening_snack, dinner
 OPTIONAL slots (only if a suitable catalog item exists): early_morning, mid_morning
+
+MPESS RULES:
+- Include one MPESS entry per day
+- Vary suggestions across days — never repeat the same tip on consecutive days
+- If condition is PCOS: emphasize stress management and breathwork
+- If condition is Thyroid: include specific pranayam (Ujjayi, Bhramari)
+- If condition is Diabetes: emphasize post-meal walks and sleep timing
+- Keep all suggestions practical, specific, and time-bound
+
+Add this to the JSON output after the meals array:
+"mpess": [
+  {
+    "day": 1,
+    "sleep": "Sleep by 10:30pm, 7–8 hours minimum",
+    "stress": "10 min box breathing before bed",
+    "movement": "30 min brisk walk after lunch",
+    "mindfulness": "5 min gratitude journaling in morning",
+    "pranayam": "Anulom Vilom 5 min after waking"
+  }
+]
+
 Plan duration: ${duration} day(s)`;
 
     const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
