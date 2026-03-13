@@ -110,11 +110,16 @@ Deno.serve(async (req) => {
     const recentLogs = [...progressArr].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 7);
     const recentFoodLogs = [...foodLogsArr].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 14);
 
+    // ─── PARAM OVERRIDE BLOCK: explicit params always win over client profile ───
+    const duration = numDays || rawDuration || 7;
     const goal = overrideGoal || client.goal;
-    const targetCal = overrideCalories || client.target_calories || client.tdee || 1800;
+    const targetCal = calorieTarget || overrideCalories || client.target_calories || client.tdee || 1800;
     const targetProtein = overrideProtein || client.target_protein || Math.round(client.weight * 1.6) || 120;
     const targetCarbs = overrideCarbs || client.target_carbs || Math.round((targetCal * 0.45) / 4);
     const targetFats = overrideFats || client.target_fats || Math.round((targetCal * 0.25) / 9);
+    const resolvedDietType = dietType || client.food_preference || 'veg';
+    const resolvedConditions = condition ? [condition, ...additionalConditions] : additionalConditions;
+    console.log(`📌 Resolved inputs → cal:${targetCal} diet:${resolvedDietType} conditions:[${[...(clinicalArr[0]?.health_conditions||[]), ...resolvedConditions].join(',')}] duration:${duration}days`);
 
     const allRestrictions = [...(client.dietary_restrictions || []), ...additionalRestrictions];
     const allAllergies = [...(clinical?.likes_dislikes_allergies?.allergies || []), ...additionalAllergies];
