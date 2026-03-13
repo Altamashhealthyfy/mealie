@@ -501,7 +501,7 @@ For EVERY meal slot, you MUST provide:
         carbs: acc.carbs + (Number(m.carbs) || 0),
         fats: acc.fats + (Number(m.fats) || 0),
       }), { calories: 0, protein: 0, carbs: 0, fats: 0 });
-      const existing = aiResponse.day_summaries?.find(s => s.day === day) || {};
+      const existing = aiData.day_summaries?.find(s => s.day === day) || {};
       recalculatedDaySummaries.push({
         ...existing,
         day,
