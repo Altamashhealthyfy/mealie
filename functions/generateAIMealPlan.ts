@@ -535,6 +535,41 @@ Plan duration: ${duration} day(s)`;
       }
     }
 
+    // ─── HMRE AUDIT ───
+    const violations = [];
+    const daySlots = {};
+    aiData.meals.forEach(meal => {
+      const key = `day${meal.day}`;
+      if (!daySlots[key]) daySlots[key] = [];
+      daySlots[key].push(meal);
+    });
+
+    Object.keys(daySlots).forEach(day => {
+      const slots = daySlots[day];
+      let nonVegCount = 0;
+      let totalCal = 0;
+      const dishesSeenToday = [];
+
+      slots.forEach(meal => {
+        totalCal += meal.calories || 0;
+        if (meal.dishes?.some(d =>
+          ['Chicken','Fish','Mutton','Prawn'].some(nv => d.includes(nv))
+        )) nonVegCount++;
+        meal.dishes?.forEach(d => dishesSeenToday.push(d));
+      });
+
+      if (nonVegCount > 1)
+        violations.push(`${day}: ${nonVegCount} non-veg dishes (max 1/day)`);
+      if (totalCal > targetCal + 50)
+        violations.push(`${day}: ${totalCal} kcal exceeds target ${targetCal} + 50 buffer`);
+    });
+
+    if (violations.length > 0) {
+      console.warn('⚠️ HMRE violations:', JSON.stringify(violations));
+    } else {
+      console.log('✅ HMRE audit passed — no violations');
+    }
+
     // ─── BUILD KB SNAPSHOT FOR AUDIT TRAIL ───
     const kbSnapshot = knowledgeBase.map(doc => ({
       kb_id: doc.id,
