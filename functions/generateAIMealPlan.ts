@@ -256,8 +256,6 @@ ${modificationInstructions ? `\nCOACH INSTRUCTIONS (APPLY STRICTLY): "${modifica
 ━━━ APPROVED DISH CATALOG (USE ONLY THESE — NO EXCEPTIONS) ━━━
 ${compactCatalog}
 
-${combinationGuide}
-
 ━━━ OUTPUT FORMAT — return valid JSON only, no markdown, no explanation ━━━
 For EVERY meal slot you MUST provide:
 - "components" array: exact catalog dish names (2–3 for lunch/dinner, 1–2 for breakfast, 1 for snacks)
