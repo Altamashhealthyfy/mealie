@@ -133,7 +133,7 @@ Deno.serve(async (req) => {
       return types.map(t => {
         const dishes = (dishByType[t] || []).map(d => d.name);
         if (!dishes.length) return null;
-        return `${t.toUpperCase().replace('_',' ')} (${dishes.length} options):\n${dishes.map(d=>`  - ${d}`).join('\n')}`;
+        return `${t.toUpperCase().replace('_',' ')} (${dishes.length} options):\n${dishes.map(d=>`  - ${d} (${d.approx_calories || d.calories || 0} kcal, ${d.protein || 0}g protein)`).join('\n')}`;
       }).filter(Boolean).join('\n\n');
     };
 
