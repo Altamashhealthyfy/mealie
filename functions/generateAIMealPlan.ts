@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
     if (!client) return Response.json({ error: 'Client not found' }, { status: 404 });
 
     // ─── FETCH HEALTHYFY APPROVED DISH CATALOG ───
-    const healthyfyDishes = await fetchHealthyfyDishes();
+    const healthyfyDishes = await fetchHealthyfyDishes(base44);
     const dishByType = {};
     for (const d of healthyfyDishes) {
       if (!dishByType[d.meal_type]) dishByType[d.meal_type] = [];
