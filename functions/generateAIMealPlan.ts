@@ -164,106 +164,24 @@ Deno.serve(async (req) => {
     const batchDuration = 4; // Generate 4 template days
     console.log(`⏳ Generating 4 day templates (A, B, C, D) — will rotate across ${duration}-day plan`);
 
-    const batchPrompt = `You are HMRE — the Healthyfy Meal Rule Engine. Every meal plan you generate must follow these rules exactly.
+    const batchPrompt = `You are HMRE. Generate 4 day templates (A/B/C/D) for a ${duration}-day Indian meal plan.
+Client: ${resolvedDietType}, ${targetCal} kcal/day, Condition: ${allConditions.length ? allConditions.join(', ') : 'none'}
 
-DIET HIERARCHY: Jain ⊂ Veg ⊂ Eggetarian ⊂ NonVeg
-- Veg client: can eat veg + jain dishes only
-- Eggetarian: can eat veg + jain + egg dishes
-- NonVeg: can eat all dishes
+SLOTS: early_morning(5%), breakfast(22%), mid_morning(8%), lunch(35%), evening_snack(8%), dinner(22%)
+RULES: 1 grain/meal, 1 protein/meal, no dairy+nonveg, max 1 nonveg/day, 3-day repeat gap
+DISEASE: ${allConditions.length ? allConditions.join(', ') : 'none'} rules apply
+ALLERGIES: ${allAllergies.length ? allAllergies.join(', ') : 'none'}
 
-STEP 1 — SLOT CALORIE DISTRIBUTION (always within ±30 kcal of target):
-- Early Morning: 5–7% of daily target
-- Breakfast: 20–25%
-- Mid Morning: 8–10%
-- Lunch: 30–35%
-- Evening Snack: 8–10%
-- Dinner: 20–25%
-- Total must never exceed daily target. Always aim for same or up to 50 kcal LESS, never more.
+AVAILABLE DISHES (use ONLY these):
+BREAKFAST: ${breakfastDishes.slice(0, 8).map(d => d.name).join(', ')}
+LUNCH GRAINS: ${grainDishes.slice(0, 5).map(d => d.name).join(', ')}
+LUNCH DAL: ${dalDishes.slice(0, 5).map(d => d.name).join(', ')}
+LUNCH SABZI: ${sabziDishes.slice(0, 5).map(d => d.name).join(', ')}
+DINNER: ${dinnerDishes.slice(0, 6).map(d => d.name).join(', ')}
+SNACKS: ${snackDishes.slice(0, 5).map(d => d.name).join(', ')}
+DRINKS: ${drinkDishes.slice(0, 4).map(d => d.name).join(', ')}
 
-STEP 2 — MEAL STRUCTURE RULES:
-Breakfast = 1 Primary + 1 Protein + 1 Support
-Lunch = 1 Grain + 1 Dal/Protein + 1 Sabzi + 1 Salad/Support
-Dinner = 1 Grain (smaller) + 1 Protein + 1 Vegetable (lighter than lunch)
-Snack = 1 functional snack only
-
-STEP 3 — COMBINATION RULES (never violate these):
-- Max 1 grain per meal. No roti + rice. No rice + rice dish. No roti + paratha.
-- Every main meal must have at least 1 protein (dal, paneer, sprouts, egg, chicken, fish)
-- No dairy + non-veg in same meal (no chicken + curd, no fish + milk)
-- Every main meal must include 1 sabzi
-- Lunch must include salad or raw/steamed vegetables
-- Oil: max 2.5–5ml per meal only
-- Max 1 non-veg dish per day
-- Max 4 non-veg meals in any 10-day block
-- Non-veg preferred at lunch and dinner only
-- Eggetarian egg dishes preferred at breakfast
-
-STEP 4 — VARIETY RULES:
-- Same dish cannot repeat within 3 days
-- Rotate grains: wheat → rice → millet → oats → back
-- Rotate proteins: dal → paneer → sprouts → egg/chicken
-
-STEP 5 — DISEASE RULES (apply when condition is present):
-- PCOS: prefer low GI carbs, high fiber, high protein. Avoid refined carbs.
-- BP: reduce salt, pickles, processed food
-- Liver: reduce fried food, refined sugar
-- Thyroid: avoid soy, excess iodine, raw goitrogens
-- Diabetes: low GI only, no sugar, no refined grains
-
-STEP 6 — PORTIONS:
-Use only dishes from the provided catalog. Use the kcal values shown in the catalog — do not estimate calories yourself.
-
-STEP 7 — NON-REPETITION (10-day plans):
-Minimum 3-day gap before repeating any dish across the full plan.
-
-${kbContext}
-
-━━━ CLIENT ━━━
-Name: ${client.full_name} | Age: ${client.age || '?'}yr | Gender: ${client.gender || 'N/A'} | Weight: ${client.weight || '?'}kg → Target: ${client.target_weight || '?'}kg
-Goal: ${(goal||'general health').replace(/_/g,' ')} | Daily Calories: ${targetCal} kcal | Protein: ${targetProtein}g | Carbs: ${targetCarbs}g | Fats: ${targetFats}g
-Diet: ${resolvedDietType} | Cuisine: ${client.regional_preference || 'all'}${cuisineNotes ? ` (${cuisineNotes})` : ''}
-ALLERGIES (NEVER USE): ${allAllergies.length ? allAllergies.join(', ') : 'none'}
-Restrictions: ${allRestrictions.length ? allRestrictions.join(', ') : 'none'}
-Conditions: ${allConditions.length ? allConditions.join(', ') : 'none'}
-Medications: ${allMeds.length ? allMeds.map(m=>m.name||m).join(', ') : 'none'}
-${allConditions.includes('diabetes')||allConditions.includes('type2_diabetes') ? 'Clinical override: Low GI, no refined sugar, spread carbs evenly' : ''}${allConditions.includes('hypertension') ? 'Clinical override: Low sodium <1500mg/day' : ''}${allConditions.includes('pcos') ? 'Clinical override: Anti-inflammatory, low GI, high protein' : ''}${allConditions.includes('kidney_disease') ? 'Clinical override: Restrict phosphorus/potassium/sodium' : ''}
-${progressContext}
-${modificationInstructions ? `\nCOACH INSTRUCTIONS (APPLY STRICTLY): "${modificationInstructions}"` : ''}
-
-━━━ APPROVED DISH CATALOG (USE ONLY THESE — NO EXCEPTIONS) ━━━
-${compactCatalog}
-
-━━━ OUTPUT FORMAT — return valid JSON only, no markdown, no explanation ━━━
-For EVERY meal slot you MUST provide:
-- "components" array: exact catalog dish names (2–3 for lunch/dinner, 1–2 for breakfast, 1 for snacks)
-- "items" array: must mirror "components" exactly
-- "portion_sizes" array: one Indian household quantity per component (e.g. "1 katori (150g)", "2 pcs (60g atta)", "1 glass (200ml)")
-- "calories": TOTAL kcal for the slot (sum of all components) — NEVER 0 or blank
-- "meal_type": one of early_morning | breakfast | mid_morning | lunch | evening_snack | dinner
-MANDATORY slots every day: breakfast, lunch, evening_snack, dinner
-OPTIONAL slots (only if a suitable catalog item exists): early_morning, mid_morning
-
-MPESS RULES:
-- Include one MPESS entry per day
-- Vary suggestions across days — never repeat the same tip on consecutive days
-- If condition is PCOS: emphasize stress management and breathwork
-- If condition is Thyroid: include specific pranayam (Ujjayi, Bhramari)
-- If condition is Diabetes: emphasize post-meal walks and sleep timing
-- Keep all suggestions practical, specific, and time-bound
-
-Add this to the JSON output after the meals array:
-"mpess": [
-  {
-    "day": 1,
-    "sleep": "Sleep by 10:30pm, 7–8 hours minimum",
-    "stress": "10 min box breathing before bed",
-    "movement": "30 min brisk walk after lunch",
-    "mindfulness": "5 min gratitude journaling in morning",
-    "pranayam": "Anulom Vilom 5 min after waking"
-  }
-]
-
-Plan duration: ${batchDuration} template days — GENERATE EXACTLY 4 unique day templates (labeled day 1, 2, 3, 4), each with different dishes from the others. These will be rotated across your ${duration}-day plan.`;
+Return JSON only: {"templates": {"A": {day: 1, meals: [{meal_type, components, items, portion_sizes, calories}]}, "B": {...}, "C": {...}, "D": {...}}, "mpess": [{day, sleep, stress, movement, mindfulness, pranayam}]}`;
 
     let batchResponse = null;
     try {
