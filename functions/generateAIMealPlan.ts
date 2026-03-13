@@ -367,7 +367,7 @@ For EVERY meal slot, you MUST provide:
     const dishByName = {};
     for (const d of healthyfyDishes) dishByName[d.name.toLowerCase().trim()] = d;
 
-    const enrichedMeals = (aiResponse.meals || []).map(meal => {
+    const enrichedMeals = (aiData.meals || []).map(meal => {
       // Check catalog compliance for all components
       const components = meal.components || [];
       const componentCompliance = components.map(c => ({
