@@ -448,6 +448,45 @@ For EVERY meal slot, you MUST provide:
       });
     }
 
+    // ─── POST-GENERATION CALORIE COMPLIANCE ENFORCEMENT ───
+    const CALORIE_TOLERANCE = 0.10; // ±10%
+    const calorieCorrections = [];
+
+    for (const daySummary of recalculatedDaySummaries) {
+      const day = daySummary.day;
+      const totalCal = daySummary.total_calories;
+      const minCal = targetCal * (1 - CALORIE_TOLERANCE);
+      const maxCal = targetCal * (1 + CALORIE_TOLERANCE);
+
+      if (totalCal > 0 && (totalCal < minCal || totalCal > maxCal)) {
+        const scaleFactor = targetCal / totalCal;
+        const dayMeals = enrichedMeals.filter(m => m.day === day);
+
+        for (const meal of dayMeals) {
+          meal.calories = Math.round((meal.calories || 0) * scaleFactor);
+          meal.protein  = Math.round((meal.protein  || 0) * scaleFactor * 10) / 10;
+          meal.carbs    = Math.round((meal.carbs    || 0) * scaleFactor * 10) / 10;
+          meal.fats     = Math.round((meal.fats     || 0) * scaleFactor * 10) / 10;
+        }
+
+        const correctedTotal = dayMeals.reduce((sum, m) => sum + (m.calories || 0), 0);
+
+        calorieCorrections.push({
+          day,
+          original_calories: totalCal,
+          corrected_calories: correctedTotal,
+          scale_factor: Math.round(scaleFactor * 100) / 100,
+          within_range: correctedTotal >= minCal && correctedTotal <= maxCal,
+        });
+
+        // Update day summary to reflect corrected values
+        daySummary.total_calories = correctedTotal;
+        daySummary.total_protein  = Math.round(dayMeals.reduce((sum, m) => sum + (m.protein || 0), 0));
+        daySummary.total_carbs    = Math.round(dayMeals.reduce((sum, m) => sum + (m.carbs   || 0), 0));
+        daySummary.total_fats     = Math.round(dayMeals.reduce((sum, m) => sum + (m.fats    || 0), 0));
+      }
+    }
+
     // ─── BUILD KB SNAPSHOT FOR AUDIT TRAIL ───
     const kbSnapshot = knowledgeBase.map(doc => ({
       kb_id: doc.id,
