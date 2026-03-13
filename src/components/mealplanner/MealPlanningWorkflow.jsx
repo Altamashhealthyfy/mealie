@@ -436,11 +436,11 @@ Return JSON: { modified_meals: [...same structure as input meals...], ai_suggest
         )}
         <Button
           onClick={generatePlan}
-          disabled={generating || !filterResult || getFinalAllowedMeals().length === 0}
+          disabled={generating || !filterResult}
           className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold py-3 disabled:opacity-50"
         >
           {generating
-            ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating from database rules...</>
+            ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating AI meal plan...</>
             : <><Sparkles className="w-4 h-4 mr-2" /> Generate {duration}-Day Meal Plan</>}
         </Button>
       </SectionShell>
