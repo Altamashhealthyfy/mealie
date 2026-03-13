@@ -371,7 +371,7 @@ For EVERY meal slot, you MUST provide:
         if (totalCal > 0) {
           return {
             ...meal,
-            calories: meal.calories || Math.round(totalCal),
+            calories: Math.round(totalCal) || meal.calories || 0,
             protein:  meal.protein  || Math.round(totalProtein * 10) / 10,
             carbs:    meal.carbs    || Math.round(totalCarbs   * 10) / 10,
             fats:     meal.fats     || Math.round(totalFats    * 10) / 10,
