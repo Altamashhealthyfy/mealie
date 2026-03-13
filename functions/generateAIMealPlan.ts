@@ -179,8 +179,8 @@ Deno.serve(async (req) => {
       }).filter(Boolean).join('\n\n');
     };
 
-    const compactCatalog = buildCompactCatalog(client.food_preference);
-    console.log(`📋 Filtered catalog size for diet=${client.food_preference}:`, compactCatalog.split('\n').length, 'lines');
+    const compactCatalog = buildCompactCatalog(resolvedDietType);
+    console.log(`📋 Filtered catalog size for diet=${resolvedDietType}:`, compactCatalog.split('\n').length, 'lines');
 
     const prompt = `You are HMRE — the Healthyfy Meal Rule Engine. Every meal plan you generate must follow these rules exactly.
 
