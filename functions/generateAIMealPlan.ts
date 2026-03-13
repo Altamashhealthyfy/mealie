@@ -787,7 +787,7 @@ function parseHealthyfyCSV(text) {
       } else if (['soup', 'khichdi', 'dal', 'sabzi', 'roti', 'rice', 'pulao', 'curry', 'chicken', 'fish', 'paneer', 'rajma', 'chole'].some(k => nameLower.includes(k))) {
         applicableMealTypes = ['lunch', 'dinner'];
       } else {
-        applicableMealTypes = ['lunch'];
+        applicableMealTypes = ['lunch', 'dinner'];
       }
     }
 
