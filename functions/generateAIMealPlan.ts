@@ -768,11 +768,12 @@ function parseHealthyfyCSV(text) {
 
     // Parse meal_type: comma-separated values e.g. "lunch,dinner"
     let applicableMealTypes = [];
-    if (mealTypeRaw) {
-      applicableMealTypes = mealTypeRaw.split(',')
-        .flatMap(t => MEAL_TYPE_MAP[t.trim()] || [])
-        .filter(Boolean);
-    }
+    mealTypeRaw.split(',').forEach(t => {
+      const mapped = MEAL_TYPE_MAP[t.trim()];
+      if (mapped) mapped.forEach(slot => {
+        if (!applicableMealTypes.includes(slot)) applicableMealTypes.push(slot);
+      });
+    });
 
     // Fallback: infer from dish name if meal_type column is empty
     if (applicableMealTypes.length === 0) {
