@@ -691,8 +691,20 @@ async function fetchHealthyfyDishes() {
 function parseHealthyfyCSV(text) {
   const lines = text.split('\n').map(l => l.trim()).filter(l => l);
   const dishes = [];
-  const MEAL_TYPE_MAP = { breakfast: 'breakfast', lunch: 'lunch', dinner: 'dinner', snack: 'evening_snack', any: 'any' };
-  const CAT_MAP = { BREAKFAST: 'breakfast', LUNCH: 'lunch', DINNER: 'dinner', SNACK: 'evening_snack', ANY: 'any' };
+  const MEAL_TYPE_MAP = {
+    breakfast: 'breakfast', lunch: 'lunch', dinner: 'dinner',
+    snack: 'evening_snack', evening_snack: 'evening_snack', evening: 'evening_snack',
+    early_morning: 'early_morning', 'early morning': 'early_morning', earlymorning: 'early_morning', morning: 'early_morning',
+    mid_morning: 'mid_morning', 'mid morning': 'mid_morning', midmorning: 'mid_morning',
+    any: 'any', all: 'any',
+  };
+  const CAT_MAP = {
+    BREAKFAST: 'breakfast', LUNCH: 'lunch', DINNER: 'dinner',
+    SNACK: 'evening_snack', 'EVENING SNACK': 'evening_snack', EVENING_SNACK: 'evening_snack', EVENING: 'evening_snack',
+    'EARLY MORNING': 'early_morning', EARLY_MORNING: 'early_morning', EARLYMORNING: 'early_morning', MORNING: 'early_morning',
+    'MID MORNING': 'mid_morning', MID_MORNING: 'mid_morning', MIDMORNING: 'mid_morning',
+    ANY: 'any', ALL: 'any',
+  };
 
   for (let i = 1; i < lines.length; i++) {
     const cols = parseCSVLine(lines[i]);
