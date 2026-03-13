@@ -118,12 +118,12 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
     console.log('🚀 generatePlan fired — filterResult:', filterResult, 'generating:', generating);
     setGenerating(true);
     
-    // Add 5-minute timeout for the entire generation (Base44 backend = 5 min limit)
+    // Add 3-minute timeout for the entire generation (10 calls × ~15s + buffer = ~150s safe)
     const timeoutId = setTimeout(() => {
       setGenerating(false);
-      toast.error('⏱️ Generation took too long (5 min limit) — try a 3-5 day plan instead');
-      console.error('❌ Frontend timeout reached after 5 minutes of generation');
-    }, 300000);
+      toast.error('⏱️ Generation took too long (3 min) — try a shorter plan (3-5 days)');
+      console.error('❌ Frontend timeout reached after 3 minutes');
+    }, 180000);
     
     try {
       if (!client?.id) {

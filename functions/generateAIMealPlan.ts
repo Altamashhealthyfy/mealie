@@ -175,8 +175,8 @@ Deno.serve(async (req) => {
     const compactCatalog = buildCompactCatalog(resolvedDietType);
     console.log(`📋 Filtered catalog size for diet=${resolvedDietType}:`, compactCatalog.split('\n').length, 'lines');
 
-    // ─── BATCH GENERATION: Split large plans into 2-day chunks (faster, smaller API calls) ───
-    const BATCH_SIZE = 2;
+    // ─── BATCH GENERATION: Split large plans into 1-day chunks (10 calls × ~15s = ~150s total) ───
+    const BATCH_SIZE = 1;
     const totalBatches = Math.ceil(duration / BATCH_SIZE);
     const allMeals = [];
     const allDaySummaries = [];
@@ -371,7 +371,7 @@ Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (D
           }
         }
           }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error(`Batch ${batch + 1} timed out (30s)`)), 32000))
+          new Promise((_, reject) => setTimeout(() => reject(new Error(`Batch ${batch + 1} timed out (90s)`)), 92000))
         ]);
       } catch (batchErr) {
         console.error(`❌ Batch ${batch + 1}/${totalBatches} FAILED:`, batchErr.message);
