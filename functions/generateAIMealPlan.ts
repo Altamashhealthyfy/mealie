@@ -801,6 +801,8 @@ function parseHealthyfyCSV(text) {
         ingredients,
         approx_calories: approxCal,
         nutrition: nutritionData,
+        portion_label: cols[colIndex['portion_label']]?.trim() || '',
+        dish_type: cols[colIndex['dish_type']]?.trim() || '',
         tags,
         source: 'healthyfy_catalog',
       });
