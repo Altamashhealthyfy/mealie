@@ -15,8 +15,9 @@ Deno.serve(async (req) => {
 
     const body = await req.json();
     const {
-      clientId, duration = 7, adaptFromFeedback = false,
+      clientId, duration: rawDuration, adaptFromFeedback = false,
       overrideGoal, overrideCalories, overrideProtein, overrideCarbs, overrideFats,
+      calorieTarget, dietType, condition, numDays,
       additionalRestrictions = [], additionalAllergies = [],
       additionalConditions = [], mealFrequency = 5,
       snackPreference = 'light', cuisineNotes = '',
