@@ -115,6 +115,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
 
   // ── STEP 4: Generate plan ───────────────────────────────────────────────────
   const generatePlan = async () => {
+    console.log('🚀 generatePlan fired — filterResult:', filterResult, 'generating:', generating);
     setGenerating(true);
     try {
       const primaryCondition = diagnostic?.primary_conditions?.[0] || (intake?.health_conditions?.[0] || null);
@@ -435,7 +436,7 @@ Return JSON: { modified_meals: [...same structure as input meals...], ai_suggest
           </Card>
         )}
         <Button
-          onClick={generatePlan}
+          onClick={() => { console.log('🔴 button clicked'); generatePlan(); }}
           disabled={generating || !filterResult}
           className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold py-3 disabled:opacity-50"
         >
