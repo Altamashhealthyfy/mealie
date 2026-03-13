@@ -630,6 +630,13 @@ Plan duration: ${duration} day(s)`;
       description: doc.description || '',
     }));
 
+    // Deactivate all existing active plans for this client before creating new one
+    const existingActivePlans = await base44.asServiceRole.entities.MealPlan.filter({ client_id: clientId, active: true });
+    if (existingActivePlans.length > 0) {
+      await Promise.all(existingActivePlans.map(p => base44.asServiceRole.entities.MealPlan.update(p.id, { active: false })));
+      console.log(`🔄 Deactivated ${existingActivePlans.length} existing active plan(s) for client`);
+    }
+
     const mealPlan = await base44.asServiceRole.entities.MealPlan.create({
       client_id: clientId,
       name: aiData.plan_name || `AI Meal Plan – ${new Date().toLocaleDateString()}`,
