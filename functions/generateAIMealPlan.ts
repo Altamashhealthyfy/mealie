@@ -341,6 +341,20 @@ Plan duration: ${duration} day(s)`;
               }
             }
           },
+          mpess: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                day: { type: "number" },
+                sleep: { type: "string" },
+                stress: { type: "string" },
+                movement: { type: "string" },
+                mindfulness: { type: "string" },
+                pranayam: { type: "string" }
+              }
+            }
+          },
           coach_notes: { type: "string" }
         }
       }
