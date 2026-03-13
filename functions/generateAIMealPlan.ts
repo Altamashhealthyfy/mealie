@@ -369,7 +369,7 @@ Plan duration: ${batchDuration} template days — GENERATE EXACTLY 4 unique day 
           }
         }
         }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error(`Template generation timed out (90s)`)), 92000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error(`Template generation timed out (120s)`)), 122000))
       ]);
     } catch (err) {
       throw new Error(`Template generation failed: ${err.message}`);
