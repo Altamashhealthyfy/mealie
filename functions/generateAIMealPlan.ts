@@ -567,7 +567,7 @@ For EVERY meal slot, you MUST provide:
       name: aiData.plan_name || `AI Meal Plan – ${new Date().toLocaleDateString()}`,
       duration,
       meal_pattern: 'daily',
-      target_calories: aiResponse.daily_calorie_target || targetCal,
+      target_calories: aiData.daily_calorie_target || targetCal,
       food_preference: client.food_preference,
       regional_preference: client.regional_preference,
       meals: enrichedMeals,
