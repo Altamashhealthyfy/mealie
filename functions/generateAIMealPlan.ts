@@ -587,10 +587,11 @@ Plan duration: ${duration} day(s)`;
 
       slots.forEach(meal => {
         totalCal += meal.calories || 0;
-        if (meal.dishes?.some(d =>
+        const dishList = meal.components || meal.dishes || meal.items || [];
+        if (dishList.some(d =>
           ['Chicken','Fish','Mutton','Prawn'].some(nv => d.includes(nv))
         )) nonVegCount++;
-        meal.dishes?.forEach(d => dishesSeenToday.push(d));
+        dishList.forEach(d => dishesSeenToday.push(d));
       });
 
       if (nonVegCount > 1)
