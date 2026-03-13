@@ -630,6 +630,12 @@ For EVERY meal slot, you MUST provide:
         compliant_meals: enrichedMeals.length - nonCompliantMeals.length,
         non_compliant_meals: nonCompliantMeals.map(m => ({ day: m.day, meal_type: m.meal_type, meal_name: m.meal_name })),
       },
+      calorie_compliance_audit: {
+        target_calories: targetCal,
+        tolerance_percent: 10,
+        days_corrected: calorieCorrections.length,
+        corrections: calorieCorrections,
+      },
       intra_day_duplicate_audit: {
         duplicates_found: intraDayDuplicates.length,
         auto_corrected: intraDayDuplicates.filter(d => d.replaced_with).length,
