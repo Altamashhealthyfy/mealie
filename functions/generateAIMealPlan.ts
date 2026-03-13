@@ -175,8 +175,8 @@ Deno.serve(async (req) => {
     const compactCatalog = buildCompactCatalog(resolvedDietType);
     console.log(`📋 Filtered catalog size for diet=${resolvedDietType}:`, compactCatalog.split('\n').length, 'lines');
 
-    // ─── BATCH GENERATION: Split large plans into 3-day chunks ───
-    const BATCH_SIZE = 3;
+    // ─── BATCH GENERATION: Split large plans into 2-day chunks (faster, smaller API calls) ───
+    const BATCH_SIZE = 2;
     const totalBatches = Math.ceil(duration / BATCH_SIZE);
     const allMeals = [];
     const allDaySummaries = [];
@@ -292,10 +292,17 @@ Add this to the JSON output after the meals array:
 
 Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (Days ${startDay}–${endDay})`;
 
-      const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
-        prompt: batchPrompt,
-        model: 'claude_sonnet_4_6',
-        response_json_schema: {
+      // Add timeout wrapper — 30 second max per batch call
+      let batchResponse = null;
+      try {
+        const controller = new AbortController();
+        const timeoutHandle = setTimeout(() => controller.abort(), 30000);
+        
+        batchResponse = await Promise.race([
+          base44.asServiceRole.integrations.Core.InvokeLLM({
+            prompt: batchPrompt,
+            model: 'claude_sonnet_4_6',
+            response_json_schema: {
           type: "object",
           properties: {
             plan_name: { type: "string" },

@@ -117,17 +117,25 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
   const generatePlan = async () => {
     console.log('🚀 generatePlan fired — filterResult:', filterResult, 'generating:', generating);
     setGenerating(true);
+    
+    // Add 3-minute timeout for the entire generation
+    const timeoutId = setTimeout(() => {
+      setGenerating(false);
+      toast.error('⏱️ Generation timed out (3 min) — try a shorter plan duration (3-5 days)');
+    }, 180000);
+    
     try {
       if (!client?.id) {
         console.error('❌ client is undefined or missing id:', client);
         toast.error('Client data not loaded. Please close and reopen the workflow.');
+        clearTimeout(timeoutId);
         setGenerating(false);
         return;
       }
       console.log('Step 1 - checking client:', client?.id);
       const selectedIntake = sortedIntakes.find(i => i.id === selectedIntakeId) || latestIntake;
       console.log('Step 2 - filterResult:', filterResult);
-      console.log('Step 3 - about to call generateAIMealPlan');
+      console.log('Step 3 - about to call generateAIMealPlan with 3-min timeout');
 
       const primaryCondition = diagnostic?.primary_conditions?.[0] || (selectedIntake?.health_conditions?.[0] || null);
       const additionalConditions = diagnostic?.primary_conditions?.slice(1) || selectedIntake?.health_conditions?.slice(1) || [];
@@ -143,6 +151,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
         overrideGoal: diagnostic?.goals?.[0] || client.goal,
       });
 
+      clearTimeout(timeoutId);
       console.log('Step 4 - API response:', res);
       const d = res.data;
       if (!d || !d.meals || d.meals.length === 0) {
@@ -170,6 +179,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       toast.success('✅ AI meal plan generated with HMRE engine!');
       setOpenSections(prev => ({ ...prev, s5: true, s6: true }));
     } catch (err) {
+      clearTimeout(timeoutId);
       console.error('❌ generatePlan error:', err);
       toast.error('Generation failed: ' + (err.message || 'Unknown error'));
     }
