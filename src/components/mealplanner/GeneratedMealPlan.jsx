@@ -28,7 +28,7 @@ export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGe
     setEditablePlan(plan);
   }, [plan]);
 
-  const mealTypes = ["Early Morning", "Breakfast", "Mid-Morning", "Lunch", "Evening Snack", "Dinner"];
+  const mealTypes = ["early_morning", "breakfast", "mid_morning", "lunch", "evening_snack", "dinner"];
 
   const groupedMeals = {};
   editablePlan.meals?.forEach(meal => {
