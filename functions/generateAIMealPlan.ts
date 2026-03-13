@@ -564,7 +564,7 @@ For EVERY meal slot, you MUST provide:
 
     const mealPlan = await base44.asServiceRole.entities.MealPlan.create({
       client_id: clientId,
-      name: aiResponse.plan_name || `AI Meal Plan – ${new Date().toLocaleDateString()}`,
+      name: aiData.plan_name || `AI Meal Plan – ${new Date().toLocaleDateString()}`,
       duration,
       meal_pattern: 'daily',
       target_calories: aiResponse.daily_calorie_target || targetCal,
