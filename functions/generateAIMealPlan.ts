@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
 
     const allRestrictions = [...(client.dietary_restrictions || []), ...additionalRestrictions];
     const allAllergies = [...(clinical?.likes_dislikes_allergies?.allergies || []), ...additionalAllergies];
-    const allConditions = [...(clinical?.health_conditions || []), ...additionalConditions];
+    const allConditions = [...new Set([...(clinical?.health_conditions || []), ...resolvedConditions])];
     const allMeds = clinical?.current_medications || [];
 
     const progressContext = adaptFromFeedback && recentLogs.length > 0
