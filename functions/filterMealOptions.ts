@@ -71,13 +71,18 @@ Deno.serve(async (req) => {
     const isEggetarian = foodPref === 'eggetarian';
     const isNonVeg = foodPref === 'non_veg' || foodPref === 'non-veg';
 
-    // NON-COMPROMISING RULE: Fetch ONLY from Healthyfy Dishes Google Sheet
-    const mealDatabase = await fetchHealthyfyDishes();
+    // NON-COMPROMISING RULE: Fetch ONLY from Healthyfy Dishes Google Sheet (with caching)
+    const mealDatabase = await fetchHealthyfyDishesWithCache();
 
     const allowed = [];
     const blocked = [];
+    const mealTypeStats = {};
 
     for (const meal of mealDatabase) {
+      const mt = meal.meal_type;
+      if (!mealTypeStats[mt]) mealTypeStats[mt] = { total: 0, allowed: 0, blocked: 0 };
+      mealTypeStats[mt].total++;
+
       const reasons = getBlockReasons(meal, {
         foodPref, isVeg, isJain, isEggetarian, isNonVeg,
         allergies, dislikes, noGoFoods,
@@ -86,8 +91,10 @@ Deno.serve(async (req) => {
       });
 
       if (reasons.length > 0) {
-        blocked.push({ ...meal, block_reasons: reasons });
+        mealTypeStats[mt].blocked++;
+        blocked.push({ name: meal.name, meal_type: meal.meal_type, block_reasons: reasons });
       } else {
+        mealTypeStats[mt].allowed++;
         allowed.push(meal);
       }
     }
