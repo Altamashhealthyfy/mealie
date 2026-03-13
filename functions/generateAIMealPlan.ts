@@ -841,18 +841,18 @@ Plan duration: ${batchDuration} template days — GENERATE EXACTLY 4 unique day 
       decision_rules: decisionRules,
     });
 
-    } catch (innerError) {
-      throw innerError;
-    }
   } catch (globalErr) {
     console.error('💥 GLOBAL ERROR:', globalErr.message);
     console.error('💥 STACK:', globalErr.stack);
-    return Response.json({
+    return new Response(JSON.stringify({
       success: false,
-      error: globalErr.message,
-      stack: globalErr.stack,
-      type: globalErr.constructor.name,
-    }, { status: 500 });
+      error: String(globalErr.message || '(no message)'),
+      type: String(globalErr.name || 'Error'),
+      hint: String(globalErr.stack ? globalErr.stack.split('\n')[0] : 'No stack trace')
+    }), { 
+      status: 500, 
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 });
 
