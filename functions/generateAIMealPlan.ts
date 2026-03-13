@@ -605,6 +605,13 @@ Plan duration: ${duration} day(s)`;
       console.log('✅ HMRE audit passed — no violations');
     }
 
+    // ─── SLOT COUNT LOG ───
+    const slotCounts = {};
+    enrichedMeals.forEach(m => {
+      slotCounts[m.meal_type || m.slot] = (slotCounts[m.meal_type || m.slot] || 0) + 1;
+    });
+    console.log('🍽️ Meals by slot before save:', JSON.stringify(slotCounts));
+
     // ─── BUILD KB SNAPSHOT FOR AUDIT TRAIL ───
     const kbSnapshot = knowledgeBase.map(doc => ({
       kb_id: doc.id,
