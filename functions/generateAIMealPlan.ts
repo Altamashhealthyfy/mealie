@@ -180,9 +180,13 @@ This rule applies across ALL 6 meal slots of each day.
 Every name in the "components" array must EXACTLY match a dish name from the catalog above.
 Do NOT paraphrase, shorten, or invent dish names.
 
-**RULE D — DAILY SEQUENCE (6 slots every day, no exceptions)**
-1. early_morning  2. breakfast  3. mid_morning  4. lunch  5. evening_snack  6. dinner
-No bedtime meal. No post-dinner. Exactly these 6 per day.
+**RULE D — DAILY SEQUENCE (4 MANDATORY + 2 optional bonus slots)**
+MANDATORY every day (no exceptions): 1. breakfast  2. lunch  3. evening_snack  4. dinner
+OPTIONAL BONUS — include ONLY if a suitable catalog item exists, never fabricate:
+  • early_morning — one detox water or herbal drink (e.g., "Lemon Ginger Mint Cucumber Water", "Jeera Water", "Methi Water")
+  • mid_morning — one light fruit or snack from the catalog if appropriate
+If no catalog item fits for early_morning or mid_morning, OMIT those slots entirely.
+No bedtime meal. No post-dinner slot.
 
 **RULE E — CALORIE RANGE**
 Daily total: ${targetCal-100}–${targetCal} kcal. Sum calories from each component in a slot.
