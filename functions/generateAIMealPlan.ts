@@ -176,19 +176,69 @@ Deno.serve(async (req) => {
     const compactCatalog = buildCompactCatalog(client.food_preference);
     console.log(`📋 Filtered catalog size for diet=${client.food_preference}:`, compactCatalog.split('\n').length, 'lines');
 
-    const prompt = `You are a senior clinical dietitian. Generate a ${duration}-day meal plan.
+    const prompt = `You are HMRE — the Healthyfy Meal Rule Engine. Every meal plan you generate must follow these rules exactly.
+
+DIET HIERARCHY: Jain ⊂ Veg ⊂ Eggetarian ⊂ NonVeg
+- Veg client: can eat veg + jain dishes only
+- Eggetarian: can eat veg + jain + egg dishes
+- NonVeg: can eat all dishes
+
+STEP 1 — SLOT CALORIE DISTRIBUTION (always within ±30 kcal of target):
+- Early Morning: 5–7% of daily target
+- Breakfast: 20–25%
+- Mid Morning: 8–10%
+- Lunch: 30–35%
+- Evening Snack: 8–10%
+- Dinner: 20–25%
+- Total must never exceed daily target. Always aim for same or up to 50 kcal LESS, never more.
+
+STEP 2 — MEAL STRUCTURE RULES:
+Breakfast = 1 Primary + 1 Protein + 1 Support
+Lunch = 1 Grain + 1 Dal/Protein + 1 Sabzi + 1 Salad/Support
+Dinner = 1 Grain (smaller) + 1 Protein + 1 Vegetable (lighter than lunch)
+Snack = 1 functional snack only
+
+STEP 3 — COMBINATION RULES (never violate these):
+- Max 1 grain per meal. No roti + rice. No rice + rice dish. No roti + paratha.
+- Every main meal must have at least 1 protein (dal, paneer, sprouts, egg, chicken, fish)
+- No dairy + non-veg in same meal (no chicken + curd, no fish + milk)
+- Every main meal must include 1 sabzi
+- Lunch must include salad or raw/steamed vegetables
+- Oil: max 2.5–5ml per meal only
+- Max 1 non-veg dish per day
+- Max 4 non-veg meals in any 10-day block
+- Non-veg preferred at lunch and dinner only
+- Eggetarian egg dishes preferred at breakfast
+
+STEP 4 — VARIETY RULES:
+- Same dish cannot repeat within 3 days
+- Rotate grains: wheat → rice → millet → oats → back
+- Rotate proteins: dal → paneer → sprouts → egg/chicken
+
+STEP 5 — DISEASE RULES (apply when condition is present):
+- PCOS: prefer low GI carbs, high fiber, high protein. Avoid refined carbs.
+- BP: reduce salt, pickles, processed food
+- Liver: reduce fried food, refined sugar
+- Thyroid: avoid soy, excess iodine, raw goitrogens
+- Diabetes: low GI only, no sugar, no refined grains
+
+STEP 6 — PORTIONS:
+Use only dishes from the provided catalog. Use the kcal values shown in the catalog — do not estimate calories yourself.
+
+STEP 7 — NON-REPETITION (10-day plans):
+Minimum 3-day gap before repeating any dish across the full plan.
 
 ${kbContext}
 
 ━━━ CLIENT ━━━
-${client.full_name} | ${client.age || '?'}yr ${client.gender || ''} | ${client.weight || '?'}kg → target ${client.target_weight || '?'}kg
-Goal: ${(goal||'general health').replace(/_/g,' ')} | Calories: ${targetCal} kcal/day | Protein: ${targetProtein}g | Carbs: ${targetCarbs}g | Fats: ${targetFats}g
+Name: ${client.full_name} | Age: ${client.age || '?'}yr | Gender: ${client.gender || 'N/A'} | Weight: ${client.weight || '?'}kg → Target: ${client.target_weight || '?'}kg
+Goal: ${(goal||'general health').replace(/_/g,' ')} | Daily Calories: ${targetCal} kcal | Protein: ${targetProtein}g | Carbs: ${targetCarbs}g | Fats: ${targetFats}g
 Diet: ${client.food_preference || 'mixed'} | Cuisine: ${client.regional_preference || 'all'}${cuisineNotes ? ` (${cuisineNotes})` : ''}
 ALLERGIES (NEVER USE): ${allAllergies.length ? allAllergies.join(', ') : 'none'}
 Restrictions: ${allRestrictions.length ? allRestrictions.join(', ') : 'none'}
 Conditions: ${allConditions.length ? allConditions.join(', ') : 'none'}
 Medications: ${allMeds.length ? allMeds.map(m=>m.name||m).join(', ') : 'none'}
-${allConditions.includes('diabetes')||allConditions.includes('type2_diabetes') ? 'Clinical: Low GI, no refined sugar, spread carbs' : ''}${allConditions.includes('hypertension') ? 'Clinical: Low sodium <1500mg/day' : ''}${allConditions.includes('pcos') ? 'Clinical: Anti-inflammatory, low GI' : ''}${allConditions.includes('kidney_disease') ? 'Clinical: Restrict phosphorus/potassium/sodium' : ''}
+${allConditions.includes('diabetes')||allConditions.includes('type2_diabetes') ? 'Clinical override: Low GI, no refined sugar, spread carbs evenly' : ''}${allConditions.includes('hypertension') ? 'Clinical override: Low sodium <1500mg/day' : ''}${allConditions.includes('pcos') ? 'Clinical override: Anti-inflammatory, low GI, high protein' : ''}${allConditions.includes('kidney_disease') ? 'Clinical override: Restrict phosphorus/potassium/sodium' : ''}
 ${progressContext}
 ${modificationInstructions ? `\nCOACH INSTRUCTIONS (APPLY STRICTLY): "${modificationInstructions}"` : ''}
 
@@ -197,82 +247,16 @@ ${compactCatalog}
 
 ${combinationGuide}
 
-━━━ MANDATORY RULES ━━━
-
-**RULE A — COMBINE DISHES (MOST IMPORTANT RULE)**
-For LUNCH and DINNER you MUST select 2-3 dishes from the catalog and combine them into one meal.
-CORRECT example for lunch: components = ["Whole Wheat Roti", "Dal Tadka", "Mixed Veg Sabzi"]
-CORRECT example for dinner: components = ["Tomato Soup", "Roti", "Paneer Bhurji"]
-WRONG: components = ["Dal Tadka"] ← single item is NOT acceptable for lunch/dinner
-For BREAKFAST: combine 1-2 dishes (e.g., ["Oats Porridge", "Boiled Egg"])
-For EVENING SNACK: 1 item is acceptable. For optional EARLY MORNING / MID MORNING bonus slots: 1 item only, strictly from catalog.
-
-**RULE B — NO DISH USED TWICE ON THE SAME DAY**
-Before placing a dish in a meal slot, check all OTHER meal slots on that same day.
-If the dish name already appears anywhere on that day → pick a DIFFERENT dish.
-Example: If "Moong Dal" is at lunch → do NOT use "Moong Dal" at dinner on the same day.
-This rule applies across ALL meal slots of each day (4 mandatory + any optional bonus slots included).
-
-**RULE C — EXACT DISH NAMES**
-Every name in the "components" array must EXACTLY match a dish name from the catalog above.
-Do NOT paraphrase, shorten, or invent dish names.
-
-**RULE D — DAILY SEQUENCE (4 MANDATORY + 2 optional bonus slots)**
-MANDATORY every day (no exceptions): 1. breakfast  2. lunch  3. evening_snack  4. dinner
-OPTIONAL BONUS — include ONLY if a suitable catalog item exists, never fabricate:
-  • early_morning — one detox water or herbal drink (e.g., "Lemon Ginger Mint Cucumber Water", "Jeera Water", "Methi Water")
-  • mid_morning — one light fruit or snack from the catalog if appropriate
-If no catalog item fits for early_morning or mid_morning, OMIT those slots entirely.
-No bedtime meal. No post-dinner slot.
-
-**RULE E — CALORIE RANGE**
-Daily total: ${targetCal-100}–${targetCal} kcal. Sum calories from each component in a slot.
-
-**RULE F — VARIETY**
-Never repeat the exact same component combination within 3 consecutive days.
-Rotate: roti ↔ rice ↔ millet across days. Rotate dal types across days.
-
-**RULE G — NON-VEG & EGGS**
-${clinical?.non_veg_frequency_per_10_days ? `Non-veg: use EXACTLY ${clinical.non_veg_frequency_per_10_days} times across the ${duration}-day plan${clinical.non_veg_preferred_meals?.length ? ` (preferred at: ${clinical.non_veg_preferred_meals.join(', ')})` : ''}` : `Follow diet preference: ${client.food_preference}`}
-${clinical?.egg_frequency_per_10_days ? `Eggs: use EXACTLY ${clinical.egg_frequency_per_10_days} times across the ${duration}-day plan` : ''}
-
-**RULE H — RICE vs ROTI**
-If lunch uses rice-based dish → dinner must use roti/millet. Never rice-based at both lunch AND dinner.
-
-**RULE I — BREAKFAST COMBINATIONS**
-For BREAKFAST: prioritize one substantial dish that is a complete meal (e.g., "Masala Poha", "Aloo Paratha", "Idli Sambar").
-If combining, ONLY pair one main dish with a NATURAL LIGHT ACCOMPANIMENT:
-  - Dry/semi-dry items (Paratha, Cheela, Poha, Upma) → pair with Curd, Chutney, or Pickle
-  - Idli/Dosa → pair with Sambar OR Chutney (not both mandatory)
-  - NEVER combine two separate "main course" type dishes at breakfast.
-
-**RULE J — NO DOUBLE CURRY / NO CROSS-DIET CURRY**
-When building LUNCH or DINNER components:
-  - NEVER include two different rice-based dishes in the same meal slot (e.g., Brown Rice + Vegetable Pulao is FORBIDDEN).
-  - NEVER combine a VEGETARIAN CURRY/GRAVY with a NON-VEGETARIAN CURRY/GRAVY in the same meal slot.
-  - If the meal already has a rich gravy (Dal Makhani, Chicken Curry, Rajma etc.) as main protein, add ONLY a light dry vegetable OR a salad/raita — NOT another cooked sabzi gravy.
-
-**RULE K — MILK/DAIRY WITH NON-VEG**
-STRICTLY AVOID combining MILK or MILK PRODUCTS (Curd, Raita, Lassi, Buttermilk, Milk) with NON-VEGETARIAN dishes (Chicken, Fish, Mutton, Egg curry) in the SAME meal slot.
-Exception: A very small Raita (cooling agent) may accompany Biryani only, as it is a widely accepted traditional pairing.
-
-**RULE L — NO SIMILAR CARB DISHES IN SAME SLOT**
-NEVER combine two dishes that are both rice-based OR both wheat-based in the same meal slot. Examples of FORBIDDEN combinations:
-  - Khichdi + Jeera Rice (both rice-based) ← STRICTLY FORBIDDEN
-  - Vegetable Pulao + Plain Rice (both rice-based) ← STRICTLY FORBIDDEN
-  - Paratha + Roti (both wheat-based) ← STRICTLY FORBIDDEN
-Each meal slot may contain AT MOST ONE rice-based dish AND AT MOST ONE wheat-based dish.
-
-**RULE M — MANDATORY PORTION SIZES & CALORIES PER MEAL**
-For EVERY meal slot, you MUST provide:
-1. "portion_sizes" array: one entry per component, with EXACT Indian household quantity. Examples:
-   - "1 pc (30g atta)" for roti/paratha
-   - "1 katori (150g)" for dal/sabzi/curry
-   - "1 cup cooked (100g raw)" for rice
-   - "1 glass (200ml)" for drinks
-   - "1 bowl (200g)" for porridge/oats
-2. "calories" field: TOTAL kcal for the ENTIRE meal slot (sum of all components). This is MANDATORY — never leave it 0 or blank.
-3. "items" array: must match "components" exactly — same dish names, same order.`;
+━━━ OUTPUT FORMAT — return valid JSON only, no markdown, no explanation ━━━
+For EVERY meal slot you MUST provide:
+- "components" array: exact catalog dish names (2–3 for lunch/dinner, 1–2 for breakfast, 1 for snacks)
+- "items" array: must mirror "components" exactly
+- "portion_sizes" array: one Indian household quantity per component (e.g. "1 katori (150g)", "2 pcs (60g atta)", "1 glass (200ml)")
+- "calories": TOTAL kcal for the slot (sum of all components) — NEVER 0 or blank
+- "meal_type": one of early_morning | breakfast | mid_morning | lunch | evening_snack | dinner
+MANDATORY slots every day: breakfast, lunch, evening_snack, dinner
+OPTIONAL slots (only if a suitable catalog item exists): early_morning, mid_morning
+Plan duration: ${duration} day(s)`;
 
     const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
       prompt,
