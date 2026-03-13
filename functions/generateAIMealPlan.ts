@@ -710,12 +710,6 @@ async function fetchHealthyfyDishes(base44) {
 }
 
 function parseHealthyfyCSV(text) {
-  // CSV column structure (new clean format):
-  // 0: name, 1: description, 2: category, 3: meal_type (comma-separated),
-  // 4: food_preference, 5: regional_cuisine, 6: ingredients (JSON array),
-  // 7: instructions, 8: prep_time, 9: cook_time, 10: servings,
-  // 11: nutritional_info (JSON: {calories, protein, carbs, fats}),
-  // 12: dietary_tags, 13: allergens, 14: tags, ...
   const lines = text.split('\n').map(l => l.trim()).filter(l => l);
   const dishes = [];
   const MEAL_TYPE_MAP = {
@@ -726,18 +720,23 @@ function parseHealthyfyCSV(text) {
     any: 'any', all: 'any',
   };
 
+  // Build header → index map from first row
+  const headers = parseCSVLine(lines[0]);
+  const colIndex = {};
+  headers.forEach((h, i) => { colIndex[h.trim().toLowerCase()] = i; });
+
   for (let i = 1; i < lines.length; i++) {
     const cols = parseCSVLine(lines[i]);
-    const dishName = cols[0]?.trim();
+    const dishName = cols[colIndex['name']]?.trim();
     if (!dishName || dishName.toLowerCase() === 'name') continue;
 
-    const mealTypeRaw = (cols[3]?.trim() || '').toLowerCase();
-    const foodPref = (cols[4]?.trim() || '').toLowerCase();
+    const mealTypeRaw = (cols[colIndex['meal_type']]?.trim() || '').toLowerCase();
+    const foodPref = (cols[colIndex['food_preference']]?.trim() || '').toLowerCase();
 
-    // Parse ingredients from JSON column (col 6)
+    // Parse ingredients from JSON column
     let ingredients = [];
     try {
-      const ingJson = cols[6]?.trim();
+      const ingJson = cols[colIndex['ingredients']]?.trim();
       if (ingJson && ingJson.startsWith('[')) {
         const parsed = JSON.parse(ingJson);
         ingredients = parsed.map(ing => ({
@@ -748,11 +747,11 @@ function parseHealthyfyCSV(text) {
       }
     } catch (e) { /* ignore parse errors */ }
 
-    // Parse nutritional_info from JSON column (col 11) — actual pre-computed values
+    // Parse nutritional_info from JSON column — actual pre-computed values
     let approxCal = 0;
     let nutritionData = {};
     try {
-      const nutJson = cols[11]?.trim();
+      const nutJson = cols[colIndex['nutritional_info']]?.trim();
       if (nutJson && nutJson.startsWith('{')) {
         nutritionData = JSON.parse(nutJson);
         approxCal = nutritionData.calories || 0;
