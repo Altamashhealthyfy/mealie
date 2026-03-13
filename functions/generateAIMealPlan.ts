@@ -712,7 +712,7 @@ For EVERY meal slot, you MUST provide:
       key_foods_included: aiData.key_foods_included,
       foods_avoided: aiData.foods_avoided,
       day_summaries: recalculatedDaySummaries,
-      coach_notes: aiResponse.coach_notes,
+      coach_notes: aiData.coach_notes,
       meals: enrichedMeals,
       meal_option_analysis: mealOptionAnalysis,
       decision_rules: decisionRules,
