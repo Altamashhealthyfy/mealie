@@ -188,79 +188,7 @@ Return JSON only: {"templates": {"A": {day: 1, meals: [{meal_type, components, i
       batchResponse = await Promise.race([
         base44.asServiceRole.integrations.Core.InvokeLLM({
             prompt: batchPrompt,
-            model: 'claude_sonnet_4_6',
-            response_json_schema: {
-          type: "object",
-          properties: {
-            plan_name: { type: "string" },
-            overview: { type: "string" },
-            nutritional_strategy: { type: "string" },
-            daily_calorie_target: { type: "number" },
-            macro_targets: {
-              type: "object",
-              properties: {
-                protein_g: { type: "number" },
-                carbs_g: { type: "number" },
-                fats_g: { type: "number" },
-                fiber_g: { type: "number" }
-              }
-            },
-            key_foods_included: { type: "array", items: { type: "string" } },
-            foods_avoided: { type: "array", items: { type: "string" } },
-            meals: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  day: { type: "number" },
-                  meal_type: { type: "string", enum: ["early_morning", "breakfast", "mid_morning", "lunch", "evening_snack", "dinner"] },
-                  meal_name: { type: "string" },
-                  components: { type: "array", items: { type: "string" } },
-                  suggested_time: { type: "string" },
-                  items: { type: "array", items: { type: "string" } },
-                  portion_sizes: { type: "array", items: { type: "string" } },
-                  calories: { type: "number" },
-                  protein: { type: "number" },
-                  carbs: { type: "number" },
-                  fats: { type: "number" },
-                  fiber: { type: "number" },
-                  nutritional_tip: { type: "string" },
-                  disease_rationale: { type: "string" },
-                  rationale: { type: "string" }
-                }
-              }
-            },
-            day_summaries: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  day: { type: "number" },
-                  total_calories: { type: "number" },
-                  total_protein: { type: "number" },
-                  total_carbs: { type: "number" },
-                  total_fats: { type: "number" },
-                  notes: { type: "string" }
-                }
-              }
-            },
-            mpess: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  day: { type: "number" },
-                  sleep: { type: "string" },
-                  stress: { type: "string" },
-                  movement: { type: "string" },
-                  mindfulness: { type: "string" },
-                  pranayam: { type: "string" }
-                }
-              }
-            },
-            coach_notes: { type: "string" }
-          }
-        }
+            model: 'claude_sonnet_4_6'
         }),
         new Promise((_, reject) => setTimeout(() => reject(new Error(`Template generation timed out (120s)`)), 122000))
       ]);
@@ -268,7 +196,13 @@ Return JSON only: {"templates": {"A": {day: 1, meals: [{meal_type, components, i
       throw new Error(`Template generation failed: ${err.message}`);
     }
 
-    const batchData = batchResponse?.response ?? batchResponse;
+    let batchData = {};
+    try {
+      const responseText = typeof batchResponse === 'string' ? batchResponse : batchResponse?.data || JSON.stringify(batchResponse);
+      batchData = JSON.parse(responseText);
+    } catch (parseErr) {
+      throw new Error(`Failed to parse AI response as JSON: ${parseErr.message}`);
+    }
     const templateMeals = batchData.meals || [];
     console.log(`✅ Generated 4 day templates — ${templateMeals.length} total meals`);
 
