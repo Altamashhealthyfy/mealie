@@ -144,7 +144,29 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       });
 
       console.log('Step 4 - API response:', res);
-      setGeneratedPlan({ ...res.data.mealPlan, meals: res.data.meals, created_date: new Date().toISOString(), id: null });
+      const d = res.data;
+      if (!d || !d.meals || d.meals.length === 0) {
+        console.error('❌ No meals in response:', d);
+        toast.error('Generation returned empty plan. Check backend logs.');
+        setGenerating(false);
+        return;
+      }
+      const selectedIntakeForPlan = sortedIntakes.find(i => i.id === selectedIntakeId) || latestIntake;
+      setGeneratedPlan({
+        name: d.mealPlan?.name || `AI Meal Plan – ${duration} Days`,
+        duration: d.mealPlan?.duration || duration,
+        target_calories: d.calorie_compliance_audit?.target_calories || filterResult?.client?.target_calories || client.target_calories,
+        food_preference: selectedIntakeForPlan?.diet_type || client.food_preference,
+        meals: d.meals,
+        overview: d.overview,
+        nutritional_strategy: d.nutritional_strategy,
+        macro_targets: d.macro_targets,
+        day_summaries: d.day_summaries,
+        decision_rules_applied: d.decision_rules || [],
+        coach_notes: d.coach_notes,
+        created_date: new Date().toISOString(),
+        id: null,
+      });
       toast.success('✅ AI meal plan generated with HMRE engine!');
       setOpenSections(prev => ({ ...prev, s5: true, s6: true }));
     } catch (err) {
