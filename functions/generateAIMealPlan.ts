@@ -182,7 +182,21 @@ Deno.serve(async (req) => {
     const compactCatalog = buildCompactCatalog(resolvedDietType);
     console.log(`📋 Filtered catalog size for diet=${resolvedDietType}:`, compactCatalog.split('\n').length, 'lines');
 
-    const prompt = `You are HMRE — the Healthyfy Meal Rule Engine. Every meal plan you generate must follow these rules exactly.
+    // ─── BATCH GENERATION: Split large plans into 3-day chunks ───
+    const BATCH_SIZE = 3;
+    const totalBatches = Math.ceil(duration / BATCH_SIZE);
+    const allMeals = [];
+    const allDaySummaries = [];
+    const allMpessRecommendations = [];
+
+    for (let batch = 0; batch < totalBatches; batch++) {
+      const startDay = batch * BATCH_SIZE + 1;
+      const endDay = Math.min(startDay + BATCH_SIZE - 1, duration);
+      const batchDuration = endDay - startDay + 1;
+      
+      console.log(`⏳ Batch ${batch + 1}/${totalBatches} — Generating days ${startDay}–${endDay} (${batchDuration} days)`);
+
+      const batchPrompt = `You are HMRE — the Healthyfy Meal Rule Engine. Every meal plan you generate must follow these rules exactly.
 
 DIET HIERARCHY: Jain ⊂ Veg ⊂ Eggetarian ⊂ NonVeg
 - Veg client: can eat veg + jain dishes only
