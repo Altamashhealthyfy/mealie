@@ -292,12 +292,8 @@ Add this to the JSON output after the meals array:
 
 Plan duration: ${batchDuration} day(s) — BATCH ${batch + 1}/${totalBatches} (Days ${startDay}–${endDay})`;
 
-      // Add timeout wrapper — 30 second max per batch call
       let batchResponse = null;
       try {
-        const controller = new AbortController();
-        const timeoutHandle = setTimeout(() => controller.abort(), 30000);
-        
         batchResponse = await Promise.race([
           base44.asServiceRole.integrations.Core.InvokeLLM({
             prompt: batchPrompt,
