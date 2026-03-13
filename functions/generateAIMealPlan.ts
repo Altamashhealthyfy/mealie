@@ -341,11 +341,9 @@ For EVERY meal slot, you MUST provide:
       }
     });
 
-    console.log('🤖 AI response meals count:', (aiResponse.meals || []).length);
-    console.log('🤖 AI response keys:', Object.keys(aiResponse || {}).join(', '));
-    if ((aiResponse.meals || []).length === 0) {
-      console.log('⚠️ AI returned 0 meals. Full response snippet:', JSON.stringify(aiResponse).substring(0, 500));
-    }
+    // Unwrap nested response if InvokeLLM returns { response: { ... } }
+    const aiData = aiResponse?.response ?? aiResponse;
+    console.log('🤖 AI response meals count:', (aiData.meals || []).length);
 
     // ─── RECALCULATE NUTRITION FROM DATABASE ───
     const [allRecipes, allIngredients] = await Promise.all([
