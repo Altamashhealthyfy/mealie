@@ -379,7 +379,7 @@ Return JSON: { modified_meals: [...same structure as input meals...], ai_suggest
               <CardContent className="p-4">
                 <p className="text-sm font-semibold text-gray-700 mb-2">Plan Duration</p>
                 <div className="flex gap-2 flex-wrap">
-                  {[7, 10, 15, 21, 30].map(d => (
+                  {[3, 7, 10, 15, 21, 30].map(d => (
                     <button key={d} onClick={() => setDuration(d)}
                       className={`px-3 py-1.5 rounded-full text-xs border font-medium transition-all ${duration === d ? 'bg-green-600 text-white border-green-600' : 'border-gray-300 text-gray-600 hover:border-green-400'}`}>
                       {d} Days
