@@ -117,35 +117,22 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
   const generatePlan = async () => {
     setGenerating(true);
     try {
-      const finalAllowed = getFinalAllowedMeals();
-      if (finalAllowed.length === 0) {
-        toast.error('No allowed meals available. Please adjust filters or add meals manually.');
-        setGenerating(false);
-        return;
-      }
+      const primaryCondition = diagnostic?.primary_conditions?.[0] || (intake?.health_conditions?.[0] || null);
+      const additionalConditions = diagnostic?.primary_conditions?.slice(1) || intake?.health_conditions?.slice(1) || [];
 
-      const allRules = [
-        ...(filterResult?.decisionRules || []),
-        ...finalRules,
-        ...manualRules,
-      ];
-
-      const res = await base44.functions.invoke('generateRuleBasedMealPlan', {
+      const res = await base44.functions.invoke('generateAIMealPlan', {
         clientId: client.id,
-        intakeId: selectedIntakeId,
         duration,
-        allowedMeals: finalAllowed,
-        decisionRules: allRules,
-        manualRules: finalRules,
-        targetCalories: filterResult?.client?.target_calories,
-        targetProtein: filterResult?.client?.target_protein,
-        targetCarbs: filterResult?.client?.target_carbs,
-        targetFats: filterResult?.client?.target_fats,
+        calorieTarget: filterResult?.client?.target_calories || client.target_calories,
+        dietType: intake?.diet_type || client.food_preference,
+        condition: primaryCondition,
+        numDays: duration,
+        additionalConditions,
+        overrideGoal: diagnostic?.goals?.[0] || client.goal,
       });
 
-      setGeneratedPlan({ ...res.data.plan, created_date: new Date().toISOString(), id: null });
-      setAudit(res.data.audit);
-      toast.success('✅ Meal plan generated from allowed database options!');
+      setGeneratedPlan({ ...res.data.mealPlan, meals: res.data.meals, created_date: new Date().toISOString(), id: null });
+      toast.success('✅ AI meal plan generated with HMRE engine!');
       setOpenSections(prev => ({ ...prev, s5: true, s6: true }));
     } catch (err) {
       toast.error('Generation failed: ' + (err.message || 'Unknown error'));
