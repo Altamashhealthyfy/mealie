@@ -813,6 +813,12 @@ function parseHealthyfyCSV(text) {
     }
   }
 
+  const slotSummary = {};
+  for (const d of dishes) {
+    slotSummary[d.meal_type] = (slotSummary[d.meal_type] || 0) + 1;
+  }
+  console.log('✅ Catalog slot distribution:', JSON.stringify(slotSummary));
+
   return dishes;
 }
 
