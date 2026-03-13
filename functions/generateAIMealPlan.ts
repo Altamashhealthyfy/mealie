@@ -168,7 +168,7 @@ CORRECT example for lunch: components = ["Whole Wheat Roti", "Dal Tadka", "Mixed
 CORRECT example for dinner: components = ["Tomato Soup", "Roti", "Paneer Bhurji"]
 WRONG: components = ["Dal Tadka"] ← single item is NOT acceptable for lunch/dinner
 For BREAKFAST: combine 1-2 dishes (e.g., ["Oats Porridge", "Boiled Egg"])
-For EARLY MORNING / MID MORNING / EVENING SNACK: 1 item is acceptable
+For EVENING SNACK: 1 item is acceptable. For optional EARLY MORNING / MID MORNING bonus slots: 1 item only, strictly from catalog.
 
 **RULE B — NO DISH USED TWICE ON THE SAME DAY**
 Before placing a dish in a meal slot, check all OTHER meal slots on that same day.
