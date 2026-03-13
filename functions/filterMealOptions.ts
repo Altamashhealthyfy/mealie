@@ -261,14 +261,24 @@ function parseCSVLine(line) {
   return result;
 }
 
-async function fetchHealthyfyDishes() {
-  // NON-COMPROMISING RULE: If Google Sheet is unavailable, FAIL HARD. No fallback. No AI invention.
+async function fetchHealthyfyDishesWithCache() {
+  const now = Date.now();
+  // Return cached if fresh (< 5 min old)
+  if (cachedHealthyfyDishes && cacheTimestamp && (now - cacheTimestamp) < CACHE_TTL_MS) {
+    console.log(`✅ Healthyfy catalog cached: ${cachedHealthyfyDishes.length} dishes`);
+    return cachedHealthyfyDishes;
+  }
+
+  // Fetch and cache
   const resp = await fetch(HEALTHYFY_SHEET_CSV);
   if (!resp.ok) throw new Error(`HEALTHYFY CATALOG UNAVAILABLE: Google Sheet returned HTTP ${resp.status}. Cannot proceed without the official dish catalog.`);
   const text = await resp.text();
   const dishes = parseHealthyfyCSV(text);
   if (dishes.length === 0) throw new Error('HEALTHYFY CATALOG EMPTY: Google Sheet returned 0 dishes. Cannot generate meal plan.');
-  console.log(`✅ Healthyfy catalog loaded: ${dishes.length} dishes from Google Sheet`);
+  
+  cachedHealthyfyDishes = dishes;
+  cacheTimestamp = now;
+  console.log(`✅ Healthyfy catalog fetched & cached: ${dishes.length} dishes`);
   return dishes;
 }
 
