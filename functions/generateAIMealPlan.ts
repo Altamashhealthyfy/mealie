@@ -155,16 +155,8 @@ Deno.serve(async (req) => {
 
     console.log(`📋 Categorized dishes: breakfast=${breakfastDishes.length}, grains=${grainDishes.length}, dal=${dalDishes.length}, sabzi=${sabziDishes.length}, dinner=${dinnerDishes.length}, snacks=${snackDishes.length}, drinks=${drinkDishes.length}`);
 
-    // ─── SINGLE API CALL: Generate 4 day templates (A, B, C, D), then rotate across N days ───
-    const ROTATION_PATTERN = [0, 1, 2, 3, 1, 0, 3, 2, 0, 1]; // Template indices: A(0), B(1), C(2), D(3)
-    const allMeals = [];
-    const allDaySummaries = [];
-    const allMpessRecommendations = [];
-
-    const batchDuration = 4; // Generate 4 template days
-    console.log(`⏳ Generating 4 day templates (A, B, C, D) — will rotate across ${duration}-day plan`);
-
-    const batchPrompt = `You are HMRE. Generate 4 day templates (A/B/C/D) for a ${duration}-day Indian meal plan.
+    // ─── DIRECT ANTHROPIC API CALL ───
+    const prompt = `You are HMRE (Healthyfy Meal Rule Engine). Generate a complete ${duration}-day Indian meal plan.
 Client: ${resolvedDietType}, ${targetCal} kcal/day, Condition: ${allConditions.length ? allConditions.join(', ') : 'none'}
 
 SLOTS: early_morning(5%), breakfast(22%), mid_morning(8%), lunch(35%), evening_snack(8%), dinner(22%)
@@ -181,74 +173,43 @@ DINNER: ${dinnerDishes.slice(0, 6).map(d => d.name).join(', ')}
 SNACKS: ${snackDishes.slice(0, 5).map(d => d.name).join(', ')}
 DRINKS: ${drinkDishes.slice(0, 4).map(d => d.name).join(', ')}
 
-Return JSON only: {"templates": {"A": {day: 1, meals: [{meal_type, components, items, portion_sizes, calories}]}, "B": {...}, "C": {...}, "D": {...}}, "mpess": [{day, sleep, stress, movement, mindfulness, pranayam}]}`;
+Return JSON only: {"meals": [{day, meal_type, meal_name, items, portion_sizes, calories, protein, carbs, fats}], "mpess": [{day, sleep, stress, movement, mindfulness}]}`;
 
-    let batchResponse = null;
-    try {
-      batchResponse = await Promise.race([
-        base44.asServiceRole.integrations.Core.InvokeLLM({
-            prompt: batchPrompt,
-            model: 'claude_sonnet_4_6'
-        }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error(`Template generation timed out (120s)`)), 122000))
-      ]);
-    } catch (err) {
-      throw new Error(`Template generation failed: ${err.message}`);
-    }
+    const aiResponse = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY"),
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 4000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
 
-    let batchData = {};
+    const aiData = await aiResponse.json();
+    if (aiData.error) throw new Error("Claude API: " + aiData.error.message);
+    const aiResult = aiData.content?.[0]?.text || "";
+    console.log("✅ Claude direct response length:", aiResult.length);
+
+    let mealData = {};
     try {
-      const responseText = typeof batchResponse === 'string' ? batchResponse : batchResponse?.data || JSON.stringify(batchResponse);
-      batchData = JSON.parse(responseText);
+      mealData = JSON.parse(aiResult);
     } catch (parseErr) {
       throw new Error(`Failed to parse AI response as JSON: ${parseErr.message}`);
     }
-    const templateMeals = batchData.meals || [];
-    console.log(`✅ Generated 4 day templates — ${templateMeals.length} total meals`);
 
-    if (templateMeals.length === 0) {
-      throw new Error(`Template generation produced 0 meals. Cannot proceed.`);
-    }
-
-    // ─── EXPAND 4 TEMPLATES INTO N DAYS USING ROTATION PATTERN ───
-    // Group meals by template day (1, 2, 3, 4)
-    const templatesByDay = {};
-    for (const meal of templateMeals) {
-      const templateDay = meal.day || 1;
-      if (!templatesByDay[templateDay]) templatesByDay[templateDay] = [];
-      templatesByDay[templateDay].push(meal);
-    }
-
-    // Rotate templates across actual plan days (1 through duration)
-    for (let actualDay = 1; actualDay <= duration; actualDay++) {
-      const templateIndex = ROTATION_PATTERN[actualDay - 1] || 0; // Map to template A(0), B(1), C(2), D(3)
-      const sourceTemplateDay = templateIndex + 1; // Convert 0-indexed to 1-indexed
-      const sourceMeals = templatesByDay[sourceTemplateDay] || [];
-
-      for (const meal of sourceMeals) {
-        const expandedMeal = {
-          ...meal,
-          day: actualDay,
-        };
-        allMeals.push(expandedMeal);
-      }
-    }
-
-    console.log(`✅ Rotated 4 templates across ${duration} days — ${allMeals.length} total meals`);
+    const allMeals = mealData.meals || [];
+    const allMpessRecommendations = mealData.mpess || [];
+    console.log(`✅ Generated ${allMeals.length} meals for ${duration}-day plan`);
 
     if (allMeals.length === 0) {
-      throw new Error(`Rotation failed: no meals generated.`);
+      throw new Error(`Plan generation produced 0 meals. Cannot proceed.`);
     }
-
-    // Extract MPESS from templates
-    const mpessTemplates = batchData.mpess || [];
-    for (let actualDay = 1; actualDay <= duration; actualDay++) {
-      const templateIndex = ROTATION_PATTERN[actualDay - 1] || 0;
-      const sourceMpess = mpessTemplates.find(m => m.day === (templateIndex + 1));
-      if (sourceMpess) {
-        allMpessRecommendations.push({ ...sourceMpess, day: actualDay });
-      }
-    }
+    
+    const allDaySummaries = [];
 
     // Merge all batches
     const aiData = {
