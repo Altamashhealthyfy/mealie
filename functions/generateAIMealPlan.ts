@@ -239,7 +239,7 @@ ${kbContext}
 ━━━ CLIENT ━━━
 Name: ${client.full_name} | Age: ${client.age || '?'}yr | Gender: ${client.gender || 'N/A'} | Weight: ${client.weight || '?'}kg → Target: ${client.target_weight || '?'}kg
 Goal: ${(goal||'general health').replace(/_/g,' ')} | Daily Calories: ${targetCal} kcal | Protein: ${targetProtein}g | Carbs: ${targetCarbs}g | Fats: ${targetFats}g
-Diet: ${client.food_preference || 'mixed'} | Cuisine: ${client.regional_preference || 'all'}${cuisineNotes ? ` (${cuisineNotes})` : ''}
+Diet: ${resolvedDietType} | Cuisine: ${client.regional_preference || 'all'}${cuisineNotes ? ` (${cuisineNotes})` : ''}
 ALLERGIES (NEVER USE): ${allAllergies.length ? allAllergies.join(', ') : 'none'}
 Restrictions: ${allRestrictions.length ? allRestrictions.join(', ') : 'none'}
 Conditions: ${allConditions.length ? allConditions.join(', ') : 'none'}
