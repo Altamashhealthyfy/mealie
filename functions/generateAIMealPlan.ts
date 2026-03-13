@@ -135,7 +135,7 @@ Deno.serve(async (req) => {
 
     // ── Build concise, focused catalog lists for the prompt ──
     const buildCompactCatalog = (dietFilter) => {
-      const MAX_PER_SLOT = 20;
+      const MAX_PER_SLOT = 5;
       const types = ['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner'];
       return types.map(t => {
         let dishes = (dishByType[t] || []);
