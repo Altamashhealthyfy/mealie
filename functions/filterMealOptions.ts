@@ -101,15 +101,8 @@ Deno.serve(async (req) => {
 
     const decisionRules = buildDecisionRules({ client, intake, diagnostic, manualRules, foodPref });
 
-    // Build per-meal-type counts
-    const mealTypes = ['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner'];
-    const catalogBreakdown = {};
-    for (const mt of mealTypes) {
-      const total = mealDatabase.filter(d => d.meal_type === mt).length;
-      const allowedCount = allowed.filter(d => d.meal_type === mt).length;
-      const blockedCount = blocked.filter(d => d.meal_type === mt).length;
-      catalogBreakdown[mt] = { total, allowed: allowedCount, blocked: blockedCount };
-    }
+    // Build per-meal-type counts (already calculated above for efficiency)
+    const catalogBreakdown = mealTypeStats;
 
     return Response.json({
       success: true,
