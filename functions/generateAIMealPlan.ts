@@ -129,7 +129,7 @@ Deno.serve(async (req) => {
 
     // ── Build concise, focused catalog lists for the prompt ──
     const buildCompactCatalog = () => {
-      const types = ['early_morning','breakfast','mid_morning','lunch','evening_snack','dinner'];
+      const types = ['early_morning', 'breakfast', 'mid_morning', 'lunch', 'evening_snack', 'dinner'];
       return types.map(t => {
         const dishes = (dishByType[t] || []).map(d => d.name);
         if (!dishes.length) return null;
