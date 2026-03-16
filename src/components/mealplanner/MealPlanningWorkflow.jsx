@@ -31,8 +31,14 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
   const [selectedIntakeId, setSelectedIntakeId] = useState(latestIntake?.id || null);
   const [duration, setDuration] = useState(10);
 
-  // Step 2: Coach override rules
-  const defaultOverrideRules = latestIntake?.additional_rules || latestIntake?.dietitian_remarks || '';
+  // Step 2: Coach override rules — pre-populate with clinical notes + non-veg/egg frequency
+  const defaultOverrideRules = [
+    latestIntake?.additional_rules || latestIntake?.dietitian_remarks || '',
+    latestIntake?.non_veg_frequency ? `Non-veg: ${latestIntake.non_veg_frequency} times in 10 days` : '',
+    latestIntake?.egg_frequency ? `Eggs: ${latestIntake.egg_frequency} times in 10 days` : '',
+    latestIntake?.non_veg_meal_times?.length ? `Non-veg meal times: ${latestIntake.non_veg_meal_times.join(', ')}` : '',
+    latestIntake?.egg_preferred_meals?.length ? `Egg meal times: ${latestIntake.egg_preferred_meals.join(', ')}` : '',
+  ].filter(Boolean).join('\n');
   const [overrideRulesText, setOverrideRulesText] = useState(defaultOverrideRules);
 
   // Step 4: Generated plan
