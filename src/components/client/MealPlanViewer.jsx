@@ -306,6 +306,46 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
     }
   };
 
+  const addMpessPage = (doc, plan, margin, usableW) => {
+    const mpessData = plan.mpess?.[0] || plan.mpess_integration || null;
+    if (!mpessData) return;
+
+    doc.addPage();
+    let y = 20;
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(107, 33, 168);
+    doc.text("MPESS - Holistic Guidance", margin, y);
+    y += 10;
+    doc.setDrawColor(180, 150, 220);
+    doc.line(margin, y, doc.internal.pageSize.getWidth() - margin, y);
+    y += 8;
+
+    const mpessItems = [
+      { label: "Mind / Mindfulness:", key: "mindfulness" },
+      { label: "Physical / Movement:", key: "movement" },
+      { label: "Emotional / Stress:", key: "stress" },
+      { label: "Sleep:", key: "sleep" },
+      { label: "Pranayam:", key: "pranayam" },
+    ];
+
+    mpessItems.forEach(({ label, key }) => {
+      const value = mpessData[key];
+      if (!value) return;
+      if (y > 260) { doc.addPage(); y = 20; }
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(107, 33, 168);
+      doc.text(label, margin, y);
+      y += 6;
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(50, 20, 80);
+      const lines = doc.splitTextToSize(value, usableW);
+      doc.text(lines, margin + 2, y);
+      y += lines.length * 5 + 6;
+    });
+  };
+
   const handleDownloadPDF = () => {
     setDownloading(true);
     try {
