@@ -343,28 +343,27 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
       doc.line(margin, y, pageW - margin, y);
       y += 4;
 
-      if (viewMode === "table") {
-        // ── TABLE PDF ──
+      if (isTable) {
+        // ── TABLE PDF (A3 Landscape) ──
         const usedTypes = MEAL_ORDER.filter(type =>
           days.some(d => (mealsByDay[d] || []).some(m => m.meal_type === type))
         );
-        const colCount = usedTypes.length + 2; // Day + meals + Total
-        const dayColW = 14;
-        const totalColW = 22;
+        const dayColW = 16;
+        const totalColW = 28;
         const mealColW = Math.floor((usableW - dayColW - totalColW) / usedTypes.length);
 
         // Header row
         doc.setFillColor(255, 237, 213);
-        doc.rect(margin, y, usableW, 7, "F");
-        doc.setFontSize(7);
+        doc.rect(margin, y, usableW, 8, "F");
+        doc.setFontSize(8);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(60, 60, 60);
-        doc.text("Day", margin + 2, y + 5);
+        doc.text("Day", margin + 2, y + 5.5);
         usedTypes.forEach((type, i) => {
-          doc.text(MEAL_LABELS[type] || type, margin + dayColW + i * mealColW + 1, y + 5);
+          doc.text(MEAL_LABELS[type] || type, margin + dayColW + i * mealColW + 2, y + 5.5);
         });
-        doc.text("Total", margin + dayColW + usedTypes.length * mealColW + 1, y + 5);
-        y += 7;
+        doc.text("Total", margin + dayColW + usedTypes.length * mealColW + 2, y + 5.5);
+        y += 8;
 
         days.forEach((day, idx) => {
           const meals = mealsByDay[day] || [];
@@ -373,8 +372,17 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
           const totalCal = meals.reduce((s, m) => s + (m.calories || 0), 0);
           const totalProt = meals.reduce((s, m) => s + (m.protein || 0), 0);
 
-          // Calculate row height (up to 2 lines per cell)
-          const rowH = 10;
+          // Pre-calculate row height based on wrapped text
+          doc.setFontSize(8);
+          let maxLines = 1;
+          usedTypes.forEach(type => {
+            const m = mealMap[type];
+            if (m?.meal_name) {
+              const lines = doc.splitTextToSize(m.meal_name, mealColW - 3).length;
+              if (lines > maxLines) maxLines = lines;
+            }
+          });
+          const rowH = Math.max(12, maxLines * 5 + 5);
           checkPage(rowH + 2);
 
           if (idx % 2 === 0) {
@@ -382,45 +390,77 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
             doc.rect(margin, y, usableW, rowH, "F");
           }
 
-          doc.setFontSize(7);
           doc.setFont("helvetica", "bold");
           doc.setTextColor(234, 88, 12);
-          doc.text(`Day ${day}`, margin + 2, y + 4);
+          doc.text(`Day ${day}`, margin + 2, y + 5);
 
           doc.setFont("helvetica", "normal");
           doc.setTextColor(50, 50, 50);
           usedTypes.forEach((type, i) => {
             const m = mealMap[type];
-            const cellX = margin + dayColW + i * mealColW + 1;
+            const cellX = margin + dayColW + i * mealColW + 2;
             if (m) {
-              const name = doc.splitTextToSize(m.meal_name || "—", mealColW - 2);
-              doc.text(name[0] || "", cellX, y + 4);
+              const nameLines = doc.splitTextToSize(m.meal_name || "—", mealColW - 3);
+              doc.text(nameLines, cellX, y + 5);
               if (m.calories) {
-                doc.setTextColor(150, 150, 150);
-                doc.text(`${m.calories} kcal`, cellX, y + 8);
+                doc.setTextColor(150, 100, 0);
+                doc.text(`${m.calories} kcal`, cellX, y + rowH - 2);
                 doc.setTextColor(50, 50, 50);
               }
             } else {
               doc.setTextColor(180, 180, 180);
-              doc.text("—", cellX, y + 4);
+              doc.text("—", cellX, y + 5);
               doc.setTextColor(50, 50, 50);
             }
           });
 
           // Total col
-          const totalX = margin + dayColW + usedTypes.length * mealColW + 1;
+          const totalX = margin + dayColW + usedTypes.length * mealColW + 2;
           doc.setFont("helvetica", "bold");
           doc.setTextColor(40, 40, 40);
-          doc.text(`${totalCal} kcal`, totalX, y + 4);
+          doc.text(`${totalCal} kcal`, totalX, y + 5);
           doc.setFont("helvetica", "normal");
-          doc.setTextColor(150, 150, 150);
-          if (totalProt > 0) doc.text(`P:${Math.round(totalProt)}g`, totalX, y + 8);
+          doc.setTextColor(100, 100, 100);
+          if (totalProt > 0) doc.text(`P:${Math.round(totalProt)}g`, totalX, y + 10);
 
-          // Row border
-          doc.setDrawColor(230, 230, 230);
+          doc.setDrawColor(220, 220, 220);
           doc.line(margin, y + rowH, pageW - margin, y + rowH);
           y += rowH;
         });
+
+        // MPESS section at end of table PDF
+        const mpessArr = plan.mpess || [];
+        const mpessEntry = mpessArr[0];
+        if (mpessEntry) {
+          doc.addPage();
+          y = 14;
+          doc.setFontSize(12);
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(107, 33, 168);
+          doc.text("MPESS — Holistic Guidance", margin, y);
+          y += 8;
+          const mpessFields = [
+            { label: "Sleep", key: "sleep" },
+            { label: "Stress", key: "stress" },
+            { label: "Movement", key: "movement" },
+            { label: "Mindfulness", key: "mindfulness" },
+            { label: "Pranayam", key: "pranayam" },
+          ];
+          mpessFields.forEach(({ label, key }) => {
+            if (mpessEntry[key]) {
+              checkPage(12);
+              doc.setFontSize(9);
+              doc.setFont("helvetica", "bold");
+              doc.setTextColor(107, 33, 168);
+              doc.text(`${label}:`, margin, y);
+              doc.setFont("helvetica", "normal");
+              doc.setTextColor(60, 20, 100);
+              const wrapped = doc.splitTextToSize(mpessEntry[key], usableW - 25);
+              doc.text(wrapped, margin + 22, y);
+              y += wrapped.length * 5 + 2;
+            }
+          });
+        }
 
       } else {
         // ── DETAIL PDF ──
