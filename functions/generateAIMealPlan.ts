@@ -175,6 +175,8 @@ DRINKS: ${drinkDishes.slice(0, 4).map(d => d.name).join(', ')}
 
 Return JSON only: {"meals": [{day, meal_type, meal_name, items, portion_sizes, calories, protein, carbs, fats}], "mpess": [{day, sleep, stress, movement, mindfulness}]}`;
 
+    console.log("📤 PROMPT SENT TO LLM:\n" + prompt);
+
     const aiResponse = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -211,8 +213,8 @@ Return JSON only: {"meals": [{day, meal_type, meal_name, items, portion_sizes, c
     
     const allDaySummaries = [];
 
-    // Merge all batches
-    const aiData = {
+    // Plan data object
+    const planData = {
       plan_name: `AI Meal Plan – ${duration} Days`,
       overview: 'Personalized meal plan generated optimally for quality.',
       nutritional_strategy: 'Balanced nutrition across all meal slots.',
