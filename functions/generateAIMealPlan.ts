@@ -610,6 +610,11 @@ Required JSON format: {"meals": [{"day": 1, "meal_type": "breakfast", "meal_name
     return Response.json({
       success: true,
       mealPlan: { id: mealPlan.id, name: mealPlan.name, duration, meals: enrichedMeals.length },
+      // Pass back conversation context so frontend can continue the conversation for modifications
+      conversationContext: {
+        originalPrompt: prompt,
+        assistantResponse: aiResult,
+      },
       catalog_source: 'healthyfy_google_sheet',
       total_catalog_dishes: healthyfyDishes.length,
       dish_combination_mode: true,
