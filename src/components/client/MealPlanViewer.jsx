@@ -306,15 +306,21 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
     }
   };
 
+  const getMpessData = (plan) => {
+    if (plan.mpess && Array.isArray(plan.mpess) && plan.mpess.length > 0) return plan.mpess[0];
+    if (plan.mpess_integration && typeof plan.mpess_integration === 'object' && !Array.isArray(plan.mpess_integration)) return plan.mpess_integration;
+    return null;
+  };
+
   const addMpessPage = (doc, plan, margin, usableW) => {
-    const mpessData = plan.mpess?.[0] || plan.mpess_integration || null;
-    if (!mpessData) return;
+    const mpessData = getMpessData(plan);
+    if (!mpessData || !(mpessData.sleep || mpessData.movement || mpessData.stress || mpessData.mindfulness || mpessData.pranayam)) return;
 
     doc.addPage();
     let y = 20;
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(107, 33, 168);
+    doc.setTextColor(108, 95, 199);
     doc.text("MPESS - Holistic Guidance", margin, y);
     y += 10;
     doc.setDrawColor(180, 150, 220);
@@ -322,10 +328,10 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
     y += 8;
 
     const mpessItems = [
-      { label: "Mind / Mindfulness:", key: "mindfulness" },
-      { label: "Physical / Movement:", key: "movement" },
-      { label: "Emotional / Stress:", key: "stress" },
       { label: "Sleep:", key: "sleep" },
+      { label: "Stress:", key: "stress" },
+      { label: "Movement:", key: "movement" },
+      { label: "Mindfulness:", key: "mindfulness" },
       { label: "Pranayam:", key: "pranayam" },
     ];
 
@@ -335,14 +341,13 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
       if (y > 260) { doc.addPage(); y = 20; }
       doc.setFontSize(10);
       doc.setFont("helvetica", "bold");
-      doc.setTextColor(107, 33, 168);
+      doc.setTextColor(108, 95, 199);
       doc.text(label, margin, y);
-      y += 6;
       doc.setFont("helvetica", "normal");
       doc.setTextColor(50, 20, 80);
-      const lines = doc.splitTextToSize(value, usableW);
-      doc.text(lines, margin + 2, y);
-      y += lines.length * 5 + 6;
+      const lines = doc.splitTextToSize(value, usableW - 30);
+      doc.text(lines, margin + 30, y);
+      y += lines.length * 5 + 4;
     });
   };
 
@@ -564,10 +569,10 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
           });
 
           // MPESS for this day — stored as plan.mpess array
-          const mpessSource = plan.mpess?.length ? plan.mpess : [];
-          const dayMpessEntry = mpessSource.find(m => String(m.day) === String(day)) || mpessSource[0];
+          const mpessSource = (plan.mpess && Array.isArray(plan.mpess)) ? plan.mpess : [];
+          const dayMpessEntry = mpessSource.find(m => String(m.day) === String(day)) || getMpessData(plan);
 
-          if (dayMpessEntry) {
+          if (dayMpessEntry && (dayMpessEntry.sleep || dayMpessEntry.movement || dayMpessEntry.stress || dayMpessEntry.mindfulness || dayMpessEntry.pranayam)) {
             checkPage(30);
             doc.setFontSize(8);
             doc.setFont("helvetica", "bold");
