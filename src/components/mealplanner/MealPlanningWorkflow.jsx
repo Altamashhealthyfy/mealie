@@ -221,6 +221,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
         meal_pattern: 'daily',
         target_calories: generatedPlan.target_calories,
         meals: generatedPlan.meals,
+        mpess: generatedPlan.mpess || [],
         food_preference: generatedPlan.food_preference || client.food_preference,
         regional_preference: client.regional_preference,
         plan_tier: 'advanced',
