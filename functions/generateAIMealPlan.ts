@@ -35,6 +35,9 @@ Deno.serve(async (req) => {
     const client = clientArr[0];
     if (!client) return Response.json({ error: 'Client not found' }, { status: 404 });
 
+    const clinicalIntakes = await base44.asServiceRole.entities.ClinicalIntake.filter({ client_id: clientId });
+    const clinicalIntake = clinicalIntakes?.sort((a,b) => new Date(b.created_date) - new Date(a.created_date))[0] || null;
+
     // ─── FETCH HEALTHYFY APPROVED DISH CATALOG ───
     const healthyfyDishes = await fetchHealthyfyDishes(base44);
     const dishByType = {};
@@ -299,16 +302,98 @@ OUTPUT FORMAT — return valid JSON only. No markdown. No explanation. No code f
   ]
 }`;
 
-    const prompt = `Generate a complete ${duration}-day Indian meal plan.
-Client: ${resolvedDietType}, ${targetCal} kcal/day, Condition: ${allConditions.length ? allConditions.join(', ') : 'none'}
-Allergies: ${allAllergies.length ? allAllergies.join(', ') : 'none'}
-${allRestrictions.length ? `Restrictions: ${allRestrictions.join(', ')}` : ''}
-${progressContext}
+    const userPrompt = `Generate a complete ${duration}-day Indian meal plan.
 
-CRITICAL FORMATTING RULES:
-- Return ONLY raw JSON. No markdown, no code fences, no backticks, no explanation text.
-- Start your response with { and end with }
-- Do NOT wrap in \`\`\`json or any other formatting.`;
+CLIENT PROFILE:
+Name: ${client.full_name || 'Client'}
+Age: ${client.age || clinicalIntake?.basic_info?.age || 'not specified'}
+Gender: ${client.gender || clinicalIntake?.basic_info?.gender || 'not specified'}
+Height: ${client.height || clinicalIntake?.basic_info?.height || 'not specified'} cm
+Weight: ${client.weight || clinicalIntake?.basic_info?.weight || 'not specified'} kg
+BMI: ${clinicalIntake?.basic_info?.bmi || 'not specified'}
+Activity Level: ${client.activity_level || clinicalIntake?.daily_routine?.activity_level || 'moderately active'}
+Diet Type: ${resolvedDietType}
+Calorie Target: ${targetCal} kcal/day
+Goal: ${overrideGoal || client.goal || 'weight loss'}
+
+HEALTH CONDITIONS:
+Primary: ${allConditions.length ? allConditions.join(', ') : 'none'}
+Stage/Severity: ${clinicalIntake?.stage_severity || 'not specified'}
+Specific Symptoms: ${clinicalIntake?.symptom_goals?.join(', ') || 'none'}
+
+CURRENT MEDICATIONS:
+${clinicalIntake?.current_medications?.length ? clinicalIntake.current_medications.map(m => `${m.medicine_name || m} ${m.dosage || ''} ${m.frequency || ''}`).join(' | ') : 'none'}
+
+LAB VALUES — use to personalise plan:
+TSH: ${clinicalIntake?.lab_values?.tsh || 'not provided'}
+HbA1c: ${clinicalIntake?.lab_values?.hba1c || 'not provided'}
+Total Cholesterol: ${clinicalIntake?.lab_values?.total_cholesterol || 'not provided'}
+LDL: ${clinicalIntake?.lab_values?.ldl || 'not provided'}
+HDL: ${clinicalIntake?.lab_values?.hdl || 'not provided'}
+Triglycerides: ${clinicalIntake?.lab_values?.triglycerides || 'not provided'}
+SGOT: ${clinicalIntake?.lab_values?.sgot || 'not provided'}
+SGPT: ${clinicalIntake?.lab_values?.sgpt || 'not provided'}
+Creatinine: ${clinicalIntake?.lab_values?.creatinine || 'not provided'}
+Vitamin D: ${clinicalIntake?.lab_values?.vitamin_d || 'not provided'}
+Vitamin B12: ${clinicalIntake?.lab_values?.vitamin_b12 || 'not provided'}
+Uric Acid: ${clinicalIntake?.lab_values?.uric_acid || 'not provided'}
+Sodium: ${clinicalIntake?.lab_values?.sodium || 'not provided'}
+Potassium: ${clinicalIntake?.lab_values?.potassium || 'not provided'}
+GFR: ${clinicalIntake?.lab_values?.gfr || 'not provided'}
+
+FOOD PREFERENCES:
+Foods Liked: ${clinicalIntake?.likes_dislikes_allergies?.likes || 'not specified'}
+Foods Disliked: ${clinicalIntake?.likes_dislikes_allergies?.dislikes || 'none'}
+Allergies: ${allAllergies.length ? allAllergies.join(', ') : 'none'}
+No-Go Foods: ${clinicalIntake?.likes_dislikes_allergies?.no_go_foods || 'none'}
+
+NON-VEG PREFERENCES:
+Non-veg times in 10 days: ${clinicalIntake?.non_veg_frequency || 'not specified'}
+Preferred non-veg meal times: ${clinicalIntake?.non_veg_meal_times?.join(', ') || 'lunch and dinner only'}
+Egg times in 10 days: ${clinicalIntake?.egg_frequency || 'not specified'}
+Preferred egg meal times: ${clinicalIntake?.egg_meal_times?.join(', ') || 'breakfast and dinner'}
+
+MEAL TIMINGS:
+Wake up: ${clinicalIntake?.daily_routine?.wake_up || 'not specified'}
+Breakfast: ${clinicalIntake?.daily_routine?.breakfast_time || 'not specified'}
+Lunch: ${clinicalIntake?.daily_routine?.lunch_time || 'not specified'}
+Dinner: ${clinicalIntake?.daily_routine?.dinner_time || 'not specified'}
+Sleep: ${clinicalIntake?.daily_routine?.sleep_time || 'not specified'}
+
+COOKING STYLE: ${clinicalIntake?.cooking_style || 'standard Indian home cooking'}
+
+MPESS PREFERENCES:
+${clinicalIntake?.mpess_preferences ? Object.entries(clinicalIntake.mpess_preferences).filter(([k,v])=>v).map(([k])=>k).join(', ') : 'Mind, Physical, Emotional, Social, Spiritual'}
+
+COACH CLINICAL NOTES AND OVERRIDE RULES — these override everything else:
+${clinicalIntake?.additional_rules || clinicalIntake?.dietitian_remarks || clinicalIntake?.diagnostic_notes || 'none'}
+
+LAB-BASED ADJUSTMENTS — apply automatically if lab values provided:
+- TSH high: strict thyroid rules, no raw goitrogens at all
+- HbA1c above 7: strict diabetes rules, glycemic index critical
+- LDL high: reduce saturated fat, add oats and flaxseeds daily
+- Triglycerides high: no sugar, no refined carbs, no fruit juice
+- SGPT or SGOT high: liver protocol, no fried food, add turmeric and karela daily
+- Creatinine high or GFR low: reduce protein portions, limit dal and meat
+- Vitamin D low: add mushrooms, include sunlight guidance in MPESS movement
+- B12 low: add eggs or dairy daily, note supplement recommendation in MPESS
+- Uric Acid high: no red meat, limit dal to once daily, recommend 3L water daily
+- Sodium low/high: adjust salt and sodium-containing foods accordingly
+- Potassium low: add banana, sweet potato, spinach
+
+MEDICATION INTERACTIONS — apply if medications provided:
+- Eltroxin or Thyronorm: take empty stomach, no calcium foods within 4 hours of medication
+- Metformin: all meals with food, no gap more than 4 hours between meals
+- Blood thinners (warfarin): consistent vitamin K, no sudden increase in spinach or broccoli
+- Statins: no grapefruit in any form
+- BP medication: no grapefruit, monitor potassium intake
+- Insulin: strict meal timing, no skipping meals
+
+CRITICAL FORMATTING:
+Return ONLY raw JSON. No markdown. No code fences. No explanation.
+Start with { and end with }`;
+
+    const prompt = userPrompt;
 
     console.log("📤 PROMPT SENT TO LLM:\n" + prompt);
 
