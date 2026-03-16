@@ -55,9 +55,29 @@ Return the full updated plan: {"meals": [...all meals...], "mpess": [...]}`;
     });
 
     const aiData = await aiResponse.json();
-    if (aiData.error) throw new Error("Claude API: " + aiData.error.message);
+    const callDurationMs = Date.now() - callStartTime;
+
+    if (aiData.error) {
+      await base44.asServiceRole.entities.AICallLog.create({
+        function_name: 'modifyMealPlan',
+        model: 'claude-sonnet-4-5',
+        status: 'error',
+        client_id: clientId || '',
+        client_name: clientName || '',
+        client_email: clientEmail || '',
+        triggered_by: user.email || '',
+        duration_ms: callDurationMs,
+        error_message: aiData.error.message,
+        prompt_summary: modificationRequest.slice(0, 500),
+        context_metadata: { modification_request: modificationRequest },
+      }).catch(() => {});
+      throw new Error("Claude API: " + aiData.error.message);
+    }
 
     const aiResult = aiData.content?.[0]?.text || "";
+    const promptTokens = aiData.usage?.input_tokens || 0;
+    const completionTokens = aiData.usage?.output_tokens || 0;
+    const estimatedCost = (promptTokens * 3 + completionTokens * 15) / 1_000_000;
     console.log("✅ Modification response length:", aiResult.length);
 
     const cleanResult = aiResult.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
