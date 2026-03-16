@@ -309,7 +309,8 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
   const handleDownloadPDF = () => {
     setDownloading(true);
     try {
-      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      const isTable = viewMode === "table";
+      const doc = new jsPDF({ orientation: isTable ? "landscape" : "portrait", unit: "mm", format: isTable ? "a3" : "a4" });
       const pageW = doc.internal.pageSize.getWidth();
       const margin = 14;
       const usableW = pageW - margin * 2;
