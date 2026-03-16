@@ -56,27 +56,29 @@ const MPESS_TIPS = [
   { label: "Spiritual 🌿", tip: "5-min mindful eating practice — chew slowly, eat without screens, appreciate each bite." },
 ];
 
-function TableView({ mealsByDay, days }) {
+function TableView({ mealsByDay, days, mpess }) {
   // Collect ALL unique raw meal_type values across all days, sorted by MEAL_ORDER
   const rawTypesSet = new Set();
   days.forEach(d => (mealsByDay[d] || []).forEach(m => { if (m.meal_type) rawTypesSet.add(m.meal_type); }));
-  // Sort by canonical order, then any unknowns at end alphabetically
   const usedRawTypes = Array.from(rawTypesSet).sort((a, b) => getSortIndex(a) - getSortIndex(b));
+
+  // Use day 1 MPESS as representative (same for all days in rotation model)
+  const mpessEntry = mpess?.find(m => String(m.day) === "1") || mpess?.[0];
 
   return (
     <div className="space-y-4">
       {/* ── Meal Table ── */}
       <div className="overflow-x-auto rounded-xl border border-gray-200">
-        <table className="min-w-full text-xs border-collapse">
+        <table style={{ tableLayout: "fixed", minWidth: `${55 + usedRawTypes.length * 180 + 100}px` }} className="w-full text-xs border-collapse">
           <thead>
             <tr className="bg-orange-50 border-b border-orange-200">
-              <th className="text-left px-3 py-2.5 font-bold text-gray-700 sticky left-0 bg-orange-50 min-w-[55px] border-r border-orange-100">Day</th>
+              <th style={{ width: 55, minWidth: 55 }} className="text-left px-3 py-2.5 font-bold text-gray-700 sticky left-0 bg-orange-50 border-r border-orange-100">Day</th>
               {usedRawTypes.map(type => (
-                <th key={type} className="text-left px-3 py-2.5 font-bold text-gray-700 min-w-[160px] border-r border-orange-100">
+                <th key={type} style={{ width: 180, minWidth: 150 }} className="text-left px-3 py-2.5 font-bold text-gray-700 border-r border-orange-100">
                   {getMealLabel(type)}
                 </th>
               ))}
-              <th className="text-left px-3 py-2.5 font-bold text-gray-700 min-w-[90px]">Total</th>
+              <th style={{ width: 100, minWidth: 90 }} className="text-left px-3 py-2.5 font-bold text-gray-700">Total</th>
             </tr>
           </thead>
           <tbody>
@@ -86,7 +88,6 @@ function TableView({ mealsByDay, days }) {
               const totalProtein = meals.reduce((sum, m) => sum + (m.protein || 0), 0);
               const totalCarbs = meals.reduce((sum, m) => sum + (m.carbs || 0), 0);
               const totalFats = meals.reduce((sum, m) => sum + (m.fats || 0), 0);
-              // Map by raw meal_type string (exact match)
               const mealMap = {};
               meals.forEach(m => { mealMap[m.meal_type] = m; });
 
@@ -98,16 +99,16 @@ function TableView({ mealsByDay, days }) {
                   {usedRawTypes.map(type => {
                     const m = mealMap[type];
                     return (
-                      <td key={type} className="px-3 py-3 align-top border-r border-gray-100">
+                      <td key={type} style={{ wordWrap: "break-word", whiteSpace: "normal" }} className="px-3 py-3 align-top border-r border-gray-100">
                         {m ? (
                           <div className="space-y-1">
-                            <p className="font-semibold text-gray-800 leading-tight">{m.meal_name || "—"}</p>
+                            <p className="font-semibold text-gray-800 leading-tight break-words">{m.meal_name || "—"}</p>
                             {m.items?.length > 0 && (
                               <ul className="space-y-0.5">
                                 {m.items.map((item, j) => (
                                   <li key={j} className="text-gray-500 leading-snug flex gap-1">
                                     <span className="text-orange-300 shrink-0">•</span>
-                                    <span>{item}{m.portion_sizes?.[j] ? ` — ${m.portion_sizes[j]}` : ""}</span>
+                                    <span className="break-words">{item}{m.portion_sizes?.[j] ? ` — ${m.portion_sizes[j]}` : ""}</span>
                                   </li>
                                 ))}
                               </ul>
@@ -136,11 +137,24 @@ function TableView({ mealsByDay, days }) {
         </table>
       </div>
 
-      {/* ── MPESS Guidance ── */}
+      {/* ── MPESS Guidance — use actual data if available, fallback to tips ── */}
       <div className="rounded-xl border border-purple-200 bg-purple-50 p-4">
         <h4 className="text-xs font-bold text-purple-700 uppercase tracking-wider mb-3">🌿 MPESS Holistic Guidance</h4>
         <div className="grid grid-cols-1 gap-2">
-          {MPESS_TIPS.map((item) => (
+          {mpessEntry ? (
+            [
+              { icon: "😴", label: "Sleep", key: "sleep" },
+              { icon: "🧘", label: "Stress", key: "stress" },
+              { icon: "🏃", label: "Movement", key: "movement" },
+              { icon: "🧠", label: "Mindfulness", key: "mindfulness" },
+              { icon: "🌬️", label: "Pranayam", key: "pranayam" },
+            ].filter(f => mpessEntry[f.key]).map(({ icon, label, key }) => (
+              <div key={key} className="flex gap-2 items-start">
+                <span className="font-semibold text-purple-700 text-xs min-w-[100px] shrink-0">{icon} {label}</span>
+                <span className="text-xs text-purple-600">{mpessEntry[key]}</span>
+              </div>
+            ))
+          ) : MPESS_TIPS.map((item) => (
             <div key={item.label} className="flex gap-2 items-start">
               <span className="font-semibold text-purple-700 text-xs min-w-[90px] shrink-0">{item.label}</span>
               <span className="text-xs text-purple-600">{item.tip}</span>
