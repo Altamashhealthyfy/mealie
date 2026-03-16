@@ -181,7 +181,7 @@ Return JSON only: {"meals": [{day, meal_type, meal_name, items, portion_sizes, c
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY"),
+        "x-api-key": Deno.env.get("CLAUDE"),
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
