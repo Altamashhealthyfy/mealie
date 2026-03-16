@@ -812,6 +812,7 @@ Return JSON in this exact structure:
     console.log(`🔄 Deactivated ${existingActivePlans.length} existing active plan(s) for client`);
 
     const mealPlan = await base44.asServiceRole.entities.MealPlan.create({
+      mpess: allMpessRecommendations,
       client_id: clientId,
       name: (() => {
         const now = new Date();
