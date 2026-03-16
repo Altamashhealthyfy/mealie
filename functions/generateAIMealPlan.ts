@@ -883,7 +883,7 @@ Start with { and end with }`;
     // ─── LOG SUCCESSFUL LLM CALL ───
     await base44.asServiceRole.entities.AICallLog.create({
       function_name: 'generateAIMealPlan',
-      model: 'claude-sonnet-4-5',
+      model: 'claude-haiku-4-5-20251001',
       status: 'success',
       client_id: clientId,
       client_name: client.full_name || '',
