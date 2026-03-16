@@ -7,9 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Stethoscope, ChefHat, Filter, UserCheck, Sparkles, Save, Send,
-  CheckCircle, AlertTriangle, Loader2, Plus, Trash2, RefreshCw,
-  ChevronDown, ChevronRight, XCircle, Eye, EyeOff, MessageSquare,
+  Stethoscope, Sparkles, Save, Send,
+  CheckCircle, AlertTriangle, Loader2, RefreshCw,
+  ChevronDown, ChevronRight, MessageSquare,
   ArrowRight, ArrowLeft
 } from "lucide-react";
 import { toast } from "sonner";
@@ -27,21 +27,13 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
   );
   const latestIntake = sortedIntakes[0];
 
-  const [openSections, setOpenSections] = useState({ s1: true, s2: false, s3: false, s4: false, s5: true, s6: true });
+  const [openSections, setOpenSections] = useState({ s1: true, s2: true, s3: false, s5: true, s6: true });
   const [selectedIntakeId, setSelectedIntakeId] = useState(latestIntake?.id || null);
   const [duration, setDuration] = useState(10);
 
-  // Step 2: Filter results
-  const [filterLoading, setFilterLoading] = useState(false);
-  const [filterResult, setFilterResult] = useState(null); // { allowed, blocked, decisionRules, diagnostic, client, intake }
-  const [manualRules, setManualRules] = useState([]);
-  const [newRule, setNewRule] = useState('');
-
-  // Step 3: Nutritionist overrides
-  const [extraAllowed, setExtraAllowed] = useState([]); // meals manually added
-  const [manuallyBlocked, setManuallyBlocked] = useState([]); // meal ids manually blocked by nutritionist
-  const [finalRules, setFinalRules] = useState([]);
-  const [newFinalRule, setNewFinalRule] = useState('');
+  // Step 2: Coach override rules
+  const defaultOverrideRules = latestIntake?.additional_rules || latestIntake?.dietitian_remarks || '';
+  const [overrideRulesText, setOverrideRulesText] = useState(defaultOverrideRules);
 
   // Step 4: Generated plan
   const [generating, setGenerating] = useState(false);
