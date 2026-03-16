@@ -365,9 +365,9 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
               <AuditCard
                 meals={generatedPlan.meals}
                 targetCalories={generatedPlan.target_calories}
-                targetProtein={filterResult?.client?.target_protein}
-                targetCarbs={filterResult?.client?.target_carbs}
-                targetFats={filterResult?.client?.target_fats}
+                targetProtein={client?.target_protein}
+                targetCarbs={client?.target_carbs}
+                targetFats={client?.target_fats}
               />
             )}
             <div className="border rounded-xl overflow-hidden">
