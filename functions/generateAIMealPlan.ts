@@ -190,8 +190,8 @@ Required JSON format: {"meals": [{"day": 1, "meal_type": "breakfast", "meal_name
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 8000,
+        model: "claude-sonnet-4-5-20251001",
+        max_tokens: 16000,
         messages: [{ role: "user", content: prompt }]
       })
     });
