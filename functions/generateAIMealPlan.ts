@@ -407,59 +407,80 @@ Start with { and end with }`;
 
     console.log("📤 PROMPT SENT TO LLM:\n" + prompt);
 
-    const aiResponse = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": Deno.env.get("CLAUDE"),
-        "anthropic-version": "2023-06-01"
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-5",
-        max_tokens: 16000,
-        system: systemPrompt,
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
+    // ─── BATCH GENERATION (3 days per batch to avoid timeouts) ───
+    const BATCH_SIZE = 3;
+    const totalBatches = Math.ceil(duration / BATCH_SIZE);
+    const allMeals = [];
+    const allMpessRecommendations = [];
+    let totalPromptTokens = 0;
+    let totalCompletionTokens = 0;
 
-    const aiData = await aiResponse.json();
+    for (let batch = 0; batch < totalBatches; batch++) {
+      const startDay = batch * BATCH_SIZE + 1;
+      const endDay = Math.min(startDay + BATCH_SIZE - 1, duration);
+
+      const batchUserPrompt = prompt + `\n\nGenerate ONLY days ${startDay} to ${endDay}. Do not generate any other days.`;
+
+      console.log(`📤 Batch ${batch + 1}/${totalBatches} — days ${startDay}-${endDay}`);
+
+      const batchResponse = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": Deno.env.get("CLAUDE"),
+          "anthropic-version": "2023-06-01"
+        },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 8000,
+          system: systemPrompt,
+          messages: [{ role: "user", content: batchUserPrompt }]
+        })
+      });
+
+      const batchData = await batchResponse.json();
+      if (batchData.error) {
+        await base44.asServiceRole.entities.AICallLog.create({
+          function_name: 'generateAIMealPlan',
+          model: 'claude-haiku-4-5-20251001',
+          status: 'error',
+          client_id: clientId,
+          client_name: client.full_name || '',
+          client_email: client.email || '',
+          triggered_by: user.email || '',
+          duration_ms: Date.now() - callStartTime,
+          error_message: `Batch ${batch + 1} failed: ${batchData.error.message}`,
+          prompt_summary: prompt.slice(0, 500),
+          context_metadata: { duration_days: duration, calorie_target: targetCal, diet_type: resolvedDietType, conditions: allConditions, catalog_dishes_count: healthyfyDishes.length },
+        }).catch(() => {});
+        throw new Error(`Batch ${batch + 1} failed: ${batchData.error.message}`);
+      }
+
+      totalPromptTokens += batchData.usage?.input_tokens || 0;
+      totalCompletionTokens += batchData.usage?.output_tokens || 0;
+
+      const batchText = batchData.content?.[0]?.text || "";
+      const batchClean = batchText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+      let batchParsed = {};
+      try {
+        batchParsed = JSON.parse(batchClean);
+      } catch (parseErr) {
+        throw new Error(`Batch ${batch + 1} JSON parse failed: ${parseErr.message}`);
+      }
+
+      if (batchParsed.meals) allMeals.push(...batchParsed.meals);
+      if (batchParsed.mpess) allMpessRecommendations.push(...batchParsed.mpess);
+
+      console.log(`✅ Batch ${batch + 1}/${totalBatches} complete — days ${startDay}-${endDay} (${batchParsed.meals?.length || 0} meals)`);
+    }
+
     const callDurationMs = Date.now() - callStartTime;
-    if (aiData.error) {
-      // Log error
-      await base44.asServiceRole.entities.AICallLog.create({
-        function_name: 'generateAIMealPlan',
-        model: 'claude-sonnet-4-5',
-        status: 'error',
-        client_id: clientId,
-        client_name: client.full_name || '',
-        client_email: client.email || '',
-        triggered_by: user.email || '',
-        duration_ms: callDurationMs,
-        error_message: aiData.error.message,
-        prompt_summary: prompt.slice(0, 500),
-        context_metadata: { duration_days: duration, calorie_target: targetCal, diet_type: resolvedDietType, conditions: allConditions, catalog_dishes_count: healthyfyDishes.length },
-      }).catch(() => {});
-      throw new Error("Claude API: " + aiData.error.message);
-    }
-    const aiResult = aiData.content?.[0]?.text || "";
-    const promptTokens = aiData.usage?.input_tokens || 0;
-    const completionTokens = aiData.usage?.output_tokens || 0;
-    // claude-sonnet-4-5 pricing: $3/M input, $15/M output
-    const estimatedCost = (promptTokens * 3 + completionTokens * 15) / 1_000_000;
-    console.log("✅ Claude direct response length:", aiResult.length);
-
-    // Strip markdown code fences if Claude wraps JSON in ```json ... ```
-    const cleanResult = aiResult.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
-
-    let mealData = {};
-    try {
-      mealData = JSON.parse(cleanResult);
-    } catch (parseErr) {
-      throw new Error(`Failed to parse AI response as JSON: ${parseErr.message}`);
-    }
-
-    const allMeals = mealData.meals || [];
-    const allMpessRecommendations = mealData.mpess || [];
+    const promptTokens = totalPromptTokens;
+    const completionTokens = totalCompletionTokens;
+    // claude-haiku-4-5 pricing: $0.80/M input, $4/M output
+    const estimatedCost = (promptTokens * 0.80 + completionTokens * 4) / 1_000_000;
+    const aiResult = `[batched: ${totalBatches} batches, ${allMeals.length} meals total]`;
     console.log(`✅ Generated ${allMeals.length} meals for ${duration}-day plan`);
 
     if (allMeals.length === 0) {
