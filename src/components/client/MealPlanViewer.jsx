@@ -153,12 +153,14 @@ function TableView({ mealsByDay, days }) {
 }
 
 // ─── DETAIL VIEW ─────────────────────────────────────────────────────────────
-function DetailView({ mealsByDay, days }) {
+function DetailView({ mealsByDay, days, mpess }) {
   const [selectedDay, setSelectedDay] = useState(days[0] || "1");
 
   const dayMeals = (mealsByDay[selectedDay] || []).sort(
     (a, b) => MEAL_ORDER.indexOf(a.meal_type) - MEAL_ORDER.indexOf(b.meal_type)
   );
+
+  const dayMpess = mpess?.find(m => String(m.day) === String(selectedDay));
 
   return (
     <>
@@ -210,6 +212,13 @@ function DetailView({ mealsByDay, days }) {
                   </ul>
                 )}
 
+                {meal.ingredients?.length > 0 && (
+                  <div className="mt-1 mb-2 p-2 bg-amber-50 rounded-lg">
+                    <p className="text-xs font-semibold text-amber-700 mb-1">🧄 Ingredients:</p>
+                    <p className="text-xs text-amber-800 leading-relaxed">{meal.ingredients.join(" | ")}</p>
+                  </div>
+                )}
+
                 <div className="flex flex-wrap gap-2 text-xs text-gray-500">
                   {meal.protein > 0 && <span>P: <strong>{meal.protein}g</strong></span>}
                   {meal.carbs > 0 && <span>C: <strong>{meal.carbs}g</strong></span>}
@@ -226,6 +235,30 @@ function DetailView({ mealsByDay, days }) {
           ))
         )}
       </div>
+
+      {/* MPESS for selected day */}
+      {dayMpess && (
+        <div className="rounded-xl border border-purple-200 bg-purple-50 p-4 mt-2">
+          <h4 className="text-xs font-bold text-purple-700 uppercase tracking-wider mb-3">🌿 MPESS — Day {selectedDay}</h4>
+          <div className="space-y-2">
+            {[
+              { icon: "😴", label: "Sleep", key: "sleep" },
+              { icon: "🧘", label: "Stress", key: "stress" },
+              { icon: "🏃", label: "Movement", key: "movement" },
+              { icon: "🧠", label: "Mindfulness", key: "mindfulness" },
+              { icon: "🌬️", label: "Pranayam", key: "pranayam" },
+            ].map(({ icon, label, key }) => dayMpess[key] ? (
+              <div key={key} className="flex gap-2 items-start">
+                <span className="text-sm shrink-0">{icon}</span>
+                <div>
+                  <span className="text-xs font-semibold text-purple-700">{label}: </span>
+                  <span className="text-xs text-purple-600">{dayMpess[key]}</span>
+                </div>
+              </div>
+            ) : null)}
+          </div>
+        </div>
+      )}
     </>
   );
 }
