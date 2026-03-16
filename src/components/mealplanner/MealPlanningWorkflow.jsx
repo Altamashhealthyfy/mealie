@@ -179,6 +179,10 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
         created_date: new Date().toISOString(),
         id: null,
       });
+      // Store conversation context so modifications can continue the same Claude conversation
+      if (d.conversationContext) {
+        setConversationContext(d.conversationContext);
+      }
       toast.success('✅ AI meal plan generated with HMRE engine!');
       setOpenSections(prev => ({ ...prev, s5: true, s6: true }));
     } catch (err) {
