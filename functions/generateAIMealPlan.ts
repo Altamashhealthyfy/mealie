@@ -407,80 +407,132 @@ Start with { and end with }`;
 
     console.log("📤 PROMPT SENT TO LLM:\n" + prompt);
 
-    // ─── BATCH GENERATION (3 days per batch to avoid timeouts) ───
-    const BATCH_SIZE = 3;
-    const totalBatches = Math.ceil(duration / BATCH_SIZE);
-    const allMeals = [];
-    const allMpessRecommendations = [];
-    let totalPromptTokens = 0;
-    let totalCompletionTokens = 0;
+    // ─── 4-TEMPLATE ROTATION GENERATION (single API call, no timeout) ───
+    const templateUserPrompt = prompt + `
 
-    for (let batch = 0; batch < totalBatches; batch++) {
-      const startDay = batch * BATCH_SIZE + 1;
-      const endDay = Math.min(startDay + BATCH_SIZE - 1, duration);
+IMPORTANT: Generate exactly 4 different day templates labeled A, B, C, D.
+Each template = 1 complete day with all meal slots (early_morning, breakfast, mid_morning, lunch, evening_snack, dinner).
+All 4 templates must use completely different dishes from each other.
+These 4 templates will be rotated across ${duration} days.
 
-      const batchUserPrompt = prompt + `\n\nGenerate ONLY days ${startDay} to ${endDay}. Do not generate any other days.`;
+Return JSON in this exact structure:
+{
+  "templates": {
+    "A": {
+      "early_morning": {"meal_name": "...", "items": [...], "portion_sizes": [...], "ingredients": [...], "calories": 0, "protein": 0, "carbs": 0, "fats": 0},
+      "breakfast": { same fields },
+      "mid_morning": { same fields },
+      "lunch": { same fields },
+      "evening_snack": { same fields },
+      "dinner": { same fields }
+    },
+    "B": { same structure, completely different dishes },
+    "C": { same structure, completely different dishes },
+    "D": { same structure, completely different dishes }
+  },
+  "mpess": {
+    "sleep": "...",
+    "stress": "...",
+    "movement": "...",
+    "mindfulness": "...",
+    "pranayam": "..."
+  }
+}`;
 
-      console.log(`📤 Batch ${batch + 1}/${totalBatches} — days ${startDay}-${endDay}`);
+    const apiResponse = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": Deno.env.get("CLAUDE"),
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 8000,
+        system: systemPrompt,
+        messages: [{ role: "user", content: templateUserPrompt }]
+      })
+    });
 
-      const batchResponse = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": Deno.env.get("CLAUDE"),
-          "anthropic-version": "2023-06-01"
-        },
-        body: JSON.stringify({
-          model: "claude-haiku-4-5-20251001",
-          max_tokens: 8000,
-          system: systemPrompt,
-          messages: [{ role: "user", content: batchUserPrompt }]
-        })
-      });
-
-      const batchData = await batchResponse.json();
-      if (batchData.error) {
-        await base44.asServiceRole.entities.AICallLog.create({
-          function_name: 'generateAIMealPlan',
-          model: 'claude-haiku-4-5-20251001',
-          status: 'error',
-          client_id: clientId,
-          client_name: client.full_name || '',
-          client_email: client.email || '',
-          triggered_by: user.email || '',
-          duration_ms: Date.now() - callStartTime,
-          error_message: `Batch ${batch + 1} failed: ${batchData.error.message}`,
-          prompt_summary: prompt.slice(0, 500),
-          context_metadata: { duration_days: duration, calorie_target: targetCal, diet_type: resolvedDietType, conditions: allConditions, catalog_dishes_count: healthyfyDishes.length },
-        }).catch(() => {});
-        throw new Error(`Batch ${batch + 1} failed: ${batchData.error.message}`);
-      }
-
-      totalPromptTokens += batchData.usage?.input_tokens || 0;
-      totalCompletionTokens += batchData.usage?.output_tokens || 0;
-
-      const batchText = batchData.content?.[0]?.text || "";
-      const batchClean = batchText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-
-      let batchParsed = {};
-      try {
-        batchParsed = JSON.parse(batchClean);
-      } catch (parseErr) {
-        throw new Error(`Batch ${batch + 1} JSON parse failed: ${parseErr.message}`);
-      }
-
-      if (batchParsed.meals) allMeals.push(...batchParsed.meals);
-      if (batchParsed.mpess) allMpessRecommendations.push(...batchParsed.mpess);
-
-      console.log(`✅ Batch ${batch + 1}/${totalBatches} complete — days ${startDay}-${endDay} (${batchParsed.meals?.length || 0} meals)`);
+    const apiData = await apiResponse.json();
+    if (apiData.error) {
+      await base44.asServiceRole.entities.AICallLog.create({
+        function_name: 'generateAIMealPlan',
+        model: 'claude-haiku-4-5-20251001',
+        status: 'error',
+        client_id: clientId,
+        client_name: client.full_name || '',
+        client_email: client.email || '',
+        triggered_by: user.email || '',
+        duration_ms: Date.now() - callStartTime,
+        error_message: apiData.error.message,
+        prompt_summary: prompt.slice(0, 500),
+        context_metadata: { duration_days: duration, calorie_target: targetCal, diet_type: resolvedDietType, conditions: allConditions, catalog_dishes_count: healthyfyDishes.length },
+      }).catch(() => {});
+      throw new Error("Claude API: " + apiData.error.message);
     }
 
     const callDurationMs = Date.now() - callStartTime;
-    const promptTokens = totalPromptTokens;
-    const completionTokens = totalCompletionTokens;
+    const promptTokens = apiData.usage?.input_tokens || 0;
+    const completionTokens = apiData.usage?.output_tokens || 0;
     // claude-haiku-4-5 pricing: $0.80/M input, $4/M output
     const estimatedCost = (promptTokens * 0.80 + completionTokens * 4) / 1_000_000;
-    const aiResult = `[batched: ${totalBatches} batches, ${allMeals.length} meals total]`;
+
+    const rawText = apiData.content?.[0]?.text || "";
+    const cleanText = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const aiResult = rawText;
+
+    let parsed = {};
+    try {
+      parsed = JSON.parse(cleanText);
+    } catch (parseErr) {
+      throw new Error(`Failed to parse AI response as JSON: ${parseErr.message}`);
+    }
+
+    const templates = parsed.templates || {};
+    const mpessData = parsed.mpess || {};
+    console.log(`✅ Templates generated: ${Object.keys(templates).join(', ')}`);
+
+    // ─── ROTATE TEMPLATES ACROSS ALL DAYS ───
+    const ROTATION = [0, 1, 2, 3, 1, 0, 3, 2, 0, 1]; // A,B,C,D,B,A,D,C,A,B
+    const templateKeys = ['A', 'B', 'C', 'D'];
+    const SLOT_PCT = {
+      early_morning: 0.06, breakfast: 0.22, mid_morning: 0.09,
+      lunch: 0.33, evening_snack: 0.08, dinner: 0.22
+    };
+
+    const allMeals = [];
+    for (let day = 1; day <= duration; day++) {
+      const tKey = templateKeys[ROTATION[(day - 1) % ROTATION.length]];
+      const template = templates[tKey] || templates['A'] || {};
+      for (const [slot, pct] of Object.entries(SLOT_PCT)) {
+        const m = template[slot] || {};
+        if (m.meal_name || m.dish) {
+          allMeals.push({
+            day,
+            meal_type: slot,
+            meal_name: m.meal_name || m.dish || '',
+            items: m.items || [m.meal_name || m.dish || ''],
+            portion_sizes: m.portion_sizes || [],
+            ingredients: m.ingredients || [],
+            calories: m.calories || Math.round(targetCal * pct),
+            protein: m.protein || 0,
+            carbs: m.carbs || 0,
+            fats: m.fats || 0,
+          });
+        }
+      }
+    }
+
+    // ─── MPESS — one entry per day ───
+    const allMpessRecommendations = Array.from({ length: duration }, (_, i) => ({
+      day: i + 1,
+      sleep: mpessData.sleep || '',
+      stress: mpessData.stress || '',
+      movement: mpessData.movement || '',
+      mindfulness: mpessData.mindfulness || '',
+      pranayam: mpessData.pranayam || '',
+    }));
     console.log(`✅ Generated ${allMeals.length} meals for ${duration}-day plan`);
 
     if (allMeals.length === 0) {
