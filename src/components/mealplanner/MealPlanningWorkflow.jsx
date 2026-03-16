@@ -196,85 +196,46 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
     setGenerating(false);
   };
 
-  // ── STEP 5: Modification via AI ────────────────────────────────────────────
+  // ── STEP 5: Modification via AI (continues the same Claude conversation) ──
   const applyModification = async () => {
     if (!modificationText.trim() || !generatedPlan) return;
     setModifying(true);
     try {
-      const prompt = `You are a clinical nutritionist AI assistant. You have a meal plan and the nutritionist wants modifications.
+      if (!conversationContext?.originalPrompt || !conversationContext?.assistantResponse) {
+        toast.error('Conversation context missing — please regenerate the plan first.');
+        setModifying(false);
+        return;
+      }
 
-CURRENT PLAN SUMMARY:
-- Duration: ${generatedPlan.duration} days
-- Target Calories: ${generatedPlan.target_calories} kcal/day
-- Conditions: ${(generatedPlan.disease_focus || []).join(', ')}
-- Total meals: ${(generatedPlan.meals || []).length}
-
-CURRENT MEALS (first 5 days sample):
-${JSON.stringify((generatedPlan.meals || []).filter(m => m.day <= 5).slice(0, 20), null, 2)}
-
-MODIFICATION REQUEST:
-"${modificationText}"
-
-RULES:
-- Try to use foods from the Healthyfy database of Indian meals first.
-- If substitution is from database: return modified meals array only for the affected days/slots.
-- If AI must suggest: clearly flag it as AI suggestion and explain why database didn't have it.
-- Maintain calorie targets, disease restrictions, and all clinical rules.
-- Return ONLY the modified meals that need to change.
-
-Return JSON: { modified_meals: [...same structure as input meals...], ai_suggestions_used: boolean, explanation: string }`;
-
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt,
-        response_json_schema: {
-          type: 'object',
-          properties: {
-            modified_meals: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  day: { type: 'number' },
-                  meal_type: { type: 'string' },
-                  meal_name: { type: 'string' },
-                  items: { type: 'array', items: { type: 'string' } },
-                  portion_sizes: { type: 'array', items: { type: 'string' } },
-                  calories: { type: 'number' },
-                  protein: { type: 'number' },
-                  carbs: { type: 'number' },
-                  fats: { type: 'number' },
-                  nutritional_tip: { type: 'string' },
-                  disease_rationale: { type: 'string' },
-                },
-              },
-            },
-            ai_suggestions_used: { type: 'boolean' },
-            explanation: { type: 'string' },
-          },
-        },
+      const res = await base44.functions.invoke('modifyMealPlan', {
+        originalPrompt: conversationContext.originalPrompt,
+        originalResponse: conversationContext.assistantResponse,
+        modificationRequest: modificationText,
       });
 
-      if (response?.modified_meals?.length > 0) {
-        // Merge modified meals into plan
-        const updatedMeals = [...(generatedPlan.meals || [])];
-        for (const mod of response.modified_meals) {
-          const idx = updatedMeals.findIndex(m => m.day === mod.day && m.meal_type === mod.meal_type);
-          if (idx >= 0) updatedMeals[idx] = mod;
-          else updatedMeals.push(mod);
-        }
-        setGeneratedPlan(prev => ({ ...prev, meals: updatedMeals }));
-        setModificationHistory(prev => [...prev, {
-          request: modificationText,
-          explanation: response.explanation || '',
-          ai_used: response.ai_suggestions_used || false,
-          timestamp: new Date().toISOString(),
-        }]);
-        toast.success(response.ai_suggestions_used
-          ? '⚠️ Modified using AI (database option not available)'
-          : '✅ Modified using database options');
-      } else {
-        toast.info('No changes were made. Try rephrasing your request.');
+      const d = res.data;
+      if (!d?.success || !d.meals?.length) {
+        throw new Error(d?.error || 'Modification returned no meals');
       }
+
+      // Replace the entire meals array with the updated full plan
+      setGeneratedPlan(prev => ({ ...prev, meals: d.meals }));
+
+      // Update conversation context so next modification continues from here
+      if (d.updatedAssistantResponse) {
+        setConversationContext(prev => ({
+          ...prev,
+          assistantResponse: d.updatedAssistantResponse,
+        }));
+      }
+
+      setModificationHistory(prev => [...prev, {
+        request: modificationText,
+        explanation: `Plan updated via continued Claude conversation (${d.meals.length} meals).`,
+        ai_used: true,
+        timestamp: new Date().toISOString(),
+      }]);
+      toast.success('✅ Plan modified with full dish catalog context!');
     } catch (err) {
       toast.error('Modification failed: ' + (err.message || 'Unknown error'));
     }
