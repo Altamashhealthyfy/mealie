@@ -63,43 +63,43 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
 
   // ── STEP 3: Generate plan ───────────────────────────────────────────────────
   const generatePlan = async () => {
-    console.log('🚀 generatePlan fired — filterResult:', filterResult, 'generating:', generating);
+    console.log('🚀 generatePlan fired');
     setGenerating(true);
     
-    // Add 3-minute timeout for the entire generation (10 calls × ~15s + buffer = ~150s safe)
     const timeoutId = setTimeout(() => {
       setGenerating(false);
       toast.error('⏱️ Generation took too long (3 min) — try a shorter plan (3-5 days)');
-      console.error('❌ Frontend timeout reached after 3 minutes');
     }, 180000);
     
     try {
       if (!client?.id) {
-        console.error('❌ client is undefined or missing id:', client);
         toast.error('Client data not loaded. Please close and reopen the workflow.');
         clearTimeout(timeoutId);
         setGenerating(false);
         return;
       }
-      console.log('Step 1 - checking client:', client?.id);
-      const selectedIntake = sortedIntakes.find(i => i.id === selectedIntakeId) || latestIntake;
-      console.log('Step 2 - filterResult:', filterResult);
-      console.log('Step 3 - about to call generateAIMealPlan with 5-min timeout');
 
-      const primaryCondition = diagnostic?.primary_conditions?.[0] || (selectedIntake?.health_conditions?.[0] || null);
+      const selectedIntake = sortedIntakes.find(i => i.id === selectedIntakeId) || latestIntake;
+      const primaryCondition = diagnostic?.primary_conditions?.[0] || selectedIntake?.health_conditions?.[0] || null;
       const additionalConditions = diagnostic?.primary_conditions?.slice(1) || selectedIntake?.health_conditions?.slice(1) || [];
+
+      // Resolve calorie target from override rules text or client profile
+      const resolveCalories = () => {
+        const rulesText = overrideRulesText || selectedIntake?.additional_rules || selectedIntake?.dietitian_remarks || '';
+        const calMatch = rulesText.match(/target\s*(\d{3,4})\s*kcal/i) || rulesText.match(/(\d{3,4})\s*kcal/i);
+        if (calMatch) return parseInt(calMatch[1]);
+        return client.target_calories || 1800;
+      };
 
       const res = await base44.functions.invoke('generateAIMealPlan', {
         clientId: client.id,
-        duration,
-        calorieTarget: filterResult?.decisionRules?.targetCalories || filterResult?.client?.target_calories || client.target_calories || 1800,
-        dietType: filterResult?.client?.food_preference || client.food_preference,
-        condition: filterResult?.primaryCondition || diagnostic?.primary_conditions?.[0] || null,
+        numDays: duration,
+        calorieTarget: resolveCalories(),
         dietType: selectedIntake?.diet_type || client.food_preference,
         condition: primaryCondition,
-        numDays: duration,
         additionalConditions,
-        overrideGoal: diagnostic?.goals?.[0] || client.goal,
+        overrideGoal: client.goal || 'weight loss',
+        modificationInstructions: overrideRulesText || selectedIntake?.additional_rules || '',
         planTier: 'advanced',
       });
 
