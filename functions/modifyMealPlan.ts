@@ -13,11 +13,13 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
-    const { originalPrompt, originalResponse, modificationRequest, currentMeals } = body;
+    const { originalPrompt, originalResponse, modificationRequest, currentMeals, clientId, clientName, clientEmail } = body;
 
     if (!originalPrompt || !originalResponse || !modificationRequest) {
       return Response.json({ error: 'originalPrompt, originalResponse, and modificationRequest are required' }, { status: 400 });
     }
+
+    const callStartTime = Date.now();
 
     // Build the modification instruction as a follow-up turn
     const modificationPrompt = `The nutritionist wants to modify the meal plan. Apply the following changes and return the COMPLETE updated meal plan (all days, all slots — not just the changed ones).
