@@ -429,38 +429,7 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
         });
 
         // MPESS section at end of table PDF
-        const mpessArr = plan.mpess || [];
-        const mpessEntry = mpessArr[0];
-        if (mpessEntry) {
-          doc.addPage();
-          y = 14;
-          doc.setFontSize(12);
-          doc.setFont("helvetica", "bold");
-          doc.setTextColor(107, 33, 168);
-          doc.text("MPESS — Holistic Guidance", margin, y);
-          y += 8;
-          const mpessFields = [
-            { label: "Sleep", key: "sleep" },
-            { label: "Stress", key: "stress" },
-            { label: "Movement", key: "movement" },
-            { label: "Mindfulness", key: "mindfulness" },
-            { label: "Pranayam", key: "pranayam" },
-          ];
-          mpessFields.forEach(({ label, key }) => {
-            if (mpessEntry[key]) {
-              checkPage(12);
-              doc.setFontSize(9);
-              doc.setFont("helvetica", "bold");
-              doc.setTextColor(107, 33, 168);
-              doc.text(`${label}:`, margin, y);
-              doc.setFont("helvetica", "normal");
-              doc.setTextColor(60, 20, 100);
-              const wrapped = doc.splitTextToSize(mpessEntry[key], usableW - 25);
-              doc.text(wrapped, margin + 22, y);
-              y += wrapped.length * 5 + 2;
-            }
-          });
-        }
+        addMpessPage(doc, plan, margin, usableW);
 
       } else {
         // ── DETAIL PDF ──
