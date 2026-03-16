@@ -520,7 +520,7 @@ Required JSON format: {"meals": [{"day": 1, "meal_type": "breakfast", "meal_name
       regional_preference: client.regional_preference,
       meals: enrichedMeals,
       active: true,
-      plan_tier: 'basic',
+      plan_tier: planTier,
       kb_snapshot: kbSnapshot,
       kb_snapshot_generated_at: new Date().toISOString(),
       generation_parameters: {
