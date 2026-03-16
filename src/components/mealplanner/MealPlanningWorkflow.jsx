@@ -314,98 +314,40 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
         )}
       </SectionShell>
 
-      {/* ─ STEP 2: Filter Meal Options ─ */}
-      <SectionShell sectionKey="s2" icon={<Filter />} title="Step 2 — Filter Meal Options" subtitle="Filter all meals from the Healthyfy database against diagnostic rules, allergies, diet type, and disease restrictions." color="blue"
-        badge={filterResult ? <Badge className="bg-green-100 text-green-700 text-xs"><CheckCircle className="w-3 h-3 mr-1 inline" />{new Set(filterResult.allowed?.map(m=>m.name)).size} allowed</Badge> : null}
-      >
-        <Card className="border-dashed border-2 border-blue-200 shadow-none">
-          <CardHeader className="py-3 px-4 bg-blue-50">
-            <CardTitle className="text-sm text-blue-800 flex items-center gap-2"><Plus className="w-4 h-4" /> Pre-Filter Manual Rules (Optional)</CardTitle>
-          </CardHeader>
-          <CardContent className="p-3 space-y-2">
-            {manualRules.map((r, i) => (
-              <div key={i} className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-100 rounded-lg">
-                <p className="flex-1 text-xs text-gray-700">{r.rule}</p>
-                <button onClick={() => setManualRules(prev => prev.filter((_, j) => j !== i))}><Trash2 className="w-3 h-3 text-red-400" /></button>
-              </div>
-            ))}
-            <div className="flex gap-2">
-              <Textarea value={newRule} onChange={e => setNewRule(e.target.value)} placeholder="e.g. Avoid all millets. No rice at dinner." rows={2} className="flex-1 text-xs" />
-              <Button size="sm" variant="outline" onClick={() => { if (newRule.trim()) { setManualRules(prev => [...prev, { rule: newRule.trim(), added_at: new Date().toISOString() }]); setNewRule(''); } }} className="self-end"><Plus className="w-4 h-4" /></Button>
-            </div>
-          </CardContent>
-        </Card>
-        <Button onClick={runFilter} disabled={filterLoading} className="w-full bg-blue-600 hover:bg-blue-700">
-          {filterLoading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Filtering...</> : <><Filter className="w-4 h-4 mr-2" /> Run Meal Filter</>}
-        </Button>
-        {filterResult && (
-          <>
-            <DecisionRulesCard rules={filterResult.decisionRules} />
-            <div className="grid grid-cols-2 gap-3">
-              <Card className="border-green-200 shadow-sm"><CardContent className="p-3 text-center"><CheckCircle className="w-6 h-6 text-green-500 mx-auto mb-1" /><p className="text-2xl font-bold text-green-600">{new Set(filterResult.allowed?.map(m => m.name)).size || 0}</p><p className="text-xs text-gray-500">Allowed Dishes</p></CardContent></Card>
-              <Card className="border-red-200 shadow-sm"><CardContent className="p-3 text-center"><XCircle className="w-6 h-6 text-red-400 mx-auto mb-1" /><p className="text-2xl font-bold text-red-500">{new Set(filterResult.blocked?.map(m => m.name)).size || 0}</p><p className="text-xs text-gray-500">Blocked Dishes</p></CardContent></Card>
-            </div>
-            <BlockedMealsSection blocked={filterResult.blocked || []} />
-          </>
-        )}
-      </SectionShell>
-
-      {/* ─ STEP 3: Nutritionist Review ─ */}
-      <SectionShell sectionKey="s3" icon={<UserCheck />} title="Step 3 — Nutritionist Review & Override" subtitle="Add meals, remove meals, add extra rules. Your input is the final authority." color="orange"
-        badge={<Badge className="bg-orange-100 text-orange-700 text-xs">{getFinalAllowedMeals().length} approved</Badge>}
-      >
-        <AllowedMealsReview
-          allowed={filterResult?.allowed || []}
-          manuallyBlocked={manuallyBlocked}
-          onToggleBlock={toggleBlockMeal}
-          extraAllowed={extraAllowed}
-          onAddExtra={addExtraMeal}
-          onRemoveExtra={(id) => setExtraAllowed(prev => prev.filter(m => m.id !== id))}
+      {/* ─ STEP 2: Coach Override Rules ─ */}
+      <SectionShell sectionKey="s2" icon={<Stethoscope />} title="Step 2 — Coach Override Rules" subtitle="Auto-populated from clinical intake. Edit or add any custom rules before generating." color="orange">
+        <Textarea
+          value={overrideRulesText}
+          onChange={e => setOverrideRulesText(e.target.value)}
+          placeholder="e.g. Target 1511 kcal. No millets. Include karela daily. Increase protein at breakfast."
+          rows={5}
+          className="text-sm w-full"
         />
-        <Card className="border-dashed border-2 border-orange-200">
-          <CardHeader className="py-3 px-4 bg-orange-50"><CardTitle className="text-sm text-orange-800 flex items-center gap-2"><Plus className="w-4 h-4" /> Final Override Rules</CardTitle></CardHeader>
-          <CardContent className="p-3 space-y-2">
-            {finalRules.map((r, i) => (
-              <div key={i} className="flex items-center gap-2 p-2 bg-orange-50 border border-orange-100 rounded-lg">
-                <p className="flex-1 text-xs text-gray-700">{r.rule}</p>
-                <button onClick={() => setFinalRules(prev => prev.filter((_, j) => j !== i))}><Trash2 className="w-3 h-3 text-red-400" /></button>
-              </div>
-            ))}
-            <div className="flex gap-2">
-              <Textarea value={newFinalRule} onChange={e => setNewFinalRule(e.target.value)} placeholder="e.g. Increase protein at breakfast. No legumes at dinner." rows={2} className="flex-1 text-xs" />
-              <Button size="sm" variant="outline" onClick={() => { if (newFinalRule.trim()) { setFinalRules(prev => [...prev, { rule: newFinalRule.trim(), added_at: new Date().toISOString() }]); setNewFinalRule(''); } }} className="self-end"><Plus className="w-4 h-4" /></Button>
-            </div>
-          </CardContent>
-        </Card>
-        <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl text-sm text-gray-600">
-          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-          <span><strong>{getFinalAllowedMeals().length}</strong> meals approved for plan generation.</span>
-        </div>
+        <p className="text-xs text-gray-400">These rules are passed directly to the AI and override all other instructions.</p>
+        <Button onClick={() => setOpenSections(prev => ({ ...prev, s2: false, s3: true }))} className="w-full bg-orange-500 hover:bg-orange-600">
+          <ArrowRight className="w-4 h-4 mr-2" /> Proceed to Generate
+        </Button>
       </SectionShell>
 
-      {/* ─ STEP 4: Generate Plan ─ */}
-      <SectionShell sectionKey="s4" icon={<Sparkles />} title="Step 4 — Generate Meal Plan" subtitle="Build the plan using allowed meals, calorie targets, macro ratios, Indian meal structure, and all clinical rules." color="green">
-        {!filterResult ? (
-          <Alert className="bg-amber-50 border-amber-300"><AlertTriangle className="w-4 h-4 text-amber-600" /><AlertDescription className="text-sm"><strong>Step 2 not completed.</strong> Run the Meal Filter first.</AlertDescription></Alert>
-        ) : getFinalAllowedMeals().length === 0 ? (
-          <Alert className="bg-red-50 border-red-300"><AlertTriangle className="w-4 h-4 text-red-600" /><AlertDescription className="text-sm"><strong>No approved meals.</strong> Go to Step 3 and unblock or add meals.</AlertDescription></Alert>
+      {/* ─ STEP 3: Generate Plan ─ */}
+      <SectionShell sectionKey="s3" icon={<Sparkles />} title="Step 3 — Generate Meal Plan" subtitle="Generate the plan using clinical data, calorie targets, macro ratios, and all override rules." color="green">
+        {!selectedIntake ? (
+          <Alert className="bg-amber-50 border-amber-300"><AlertTriangle className="w-4 h-4 text-amber-600" /><AlertDescription className="text-sm"><strong>Step 1 not completed.</strong> Select a clinical intake first.</AlertDescription></Alert>
         ) : (
           <Card className="border-none shadow-sm bg-green-50">
-            <CardContent className="p-4 space-y-2 text-sm">
-              <p className="font-semibold text-green-800 mb-2">Generation Parameters:</p>
-              {(filterResult?.decisionRules || []).slice(0, 5).map((r, i) => (
-                <div key={i} className="flex gap-2">
-                  <Badge className={`text-xs shrink-0 ${getCategoryColor(r.category)}`}>{r.category}</Badge>
-                  <span className="text-gray-700 text-xs">{r.rule}</span>
-                </div>
-              ))}
-              <p className="text-xs text-gray-500 mt-1">+ {finalRules.length} manual override rules · {getFinalAllowedMeals().length} approved meals · <strong>{duration} days</strong></p>
+            <CardContent className="p-4 space-y-1 text-xs text-gray-700">
+              <p className="font-semibold text-green-800 text-sm mb-2">Generation Parameters:</p>
+              <p>📅 Duration: <strong>{duration} days</strong></p>
+              <p>🥗 Diet: <strong>{selectedIntake?.diet_type || client.food_preference || 'veg'}</strong></p>
+              <p>🎯 Condition: <strong>{diagnostic?.primary_conditions?.[0] || selectedIntake?.health_conditions?.[0] || 'none'}</strong></p>
+              <p>🔥 Calories: <strong>{client.target_calories || 1800} kcal (override from rules if specified)</strong></p>
+              {overrideRulesText && <p className="text-orange-700 mt-1">⚙️ Override rules: {overrideRulesText.slice(0, 100)}{overrideRulesText.length > 100 ? '...' : ''}</p>}
             </CardContent>
           </Card>
         )}
         <Button
-          onClick={() => { console.log('🔴 button clicked'); generatePlan(); }}
-          disabled={generating || !filterResult}
+          onClick={generatePlan}
+          disabled={generating || !selectedIntake}
           className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold py-3 disabled:opacity-50"
         >
           {generating
