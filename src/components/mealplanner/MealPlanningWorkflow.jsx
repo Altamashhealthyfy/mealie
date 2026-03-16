@@ -61,53 +61,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
   // ── STEP 1 helpers ─────────────────────────────────────────────────────────
   const canProceedStep1 = !!selectedIntake;
 
-  // ── STEP 2: Filter meals ────────────────────────────────────────────────────
-  const runFilter = async () => {
-    setFilterLoading(true);
-    try {
-      const res = await base44.functions.invoke('filterMealOptions', {
-        clientId: client.id,
-        intakeId: selectedIntakeId,
-        manualRules,
-      });
-      setFilterResult(res.data);
-      setOpenSections(prev => ({ ...prev, s2: false, s3: true }));
-      toast.success('✅ Meal options filtered from database');
-    } catch (err) {
-      toast.error('Filter failed: ' + (err.message || 'Unknown error'));
-    }
-    setFilterLoading(false);
-  };
-
-  // ── STEP 3: Nutritionist overrides ─────────────────────────────────────────
-  const getFinalAllowedMeals = () => {
-    if (!filterResult) return [];
-    const fromFilter = (filterResult.allowed || []).filter(m => !manuallyBlocked.includes(m.id));
-    return [...fromFilter, ...extraAllowed];
-  };
-
-  const toggleBlockMeal = (meal) => {
-    if (manuallyBlocked.includes(meal.id)) {
-      setManuallyBlocked(prev => prev.filter(id => id !== meal.id));
-    } else {
-      setManuallyBlocked(prev => [...prev, meal.id]);
-    }
-  };
-
-  const addExtraMeal = (name, mealType, cal) => {
-    if (!name.trim()) return;
-    const newMeal = {
-      id: `manual_${Date.now()}`,
-      name: name.trim(),
-      meal_type: mealType,
-      approx_calories: parseInt(cal) || 200,
-      tags: ['manual'],
-      category: 'Manual',
-    };
-    setExtraAllowed(prev => [...prev, newMeal]);
-  };
-
-  // ── STEP 4: Generate plan ───────────────────────────────────────────────────
+  // ── STEP 3: Generate plan ───────────────────────────────────────────────────
   const generatePlan = async () => {
     console.log('🚀 generatePlan fired — filterResult:', filterResult, 'generating:', generating);
     setGenerating(true);
