@@ -156,6 +156,7 @@ Deno.serve(async (req) => {
     console.log(`📋 Categorized dishes: breakfast=${breakfastDishes.length}, grains=${grainDishes.length}, dal=${dalDishes.length}, sabzi=${sabziDishes.length}, dinner=${dinnerDishes.length}, snacks=${snackDishes.length}, drinks=${drinkDishes.length}`);
 
     // ─── DIRECT ANTHROPIC API CALL ───
+    const callStartTime = Date.now();
     const prompt = `You are HMRE (Healthyfy Meal Rule Engine). Generate a complete ${duration}-day Indian meal plan.
 Client: ${resolvedDietType}, ${targetCal} kcal/day, Condition: ${allConditions.length ? allConditions.join(', ') : 'none'}
 
