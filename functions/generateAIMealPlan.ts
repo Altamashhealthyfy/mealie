@@ -802,10 +802,14 @@ Return JSON in this exact structure:
     }));
 
     const existingActivePlans = await base44.asServiceRole.entities.MealPlan.filter({ client_id: clientId, active: true });
-    if (existingActivePlans.length > 0) {
-      await Promise.all(existingActivePlans.map(p => base44.asServiceRole.entities.MealPlan.update(p.id, { active: false })));
-      console.log(`🔄 Deactivated ${existingActivePlans.length} existing active plan(s) for client`);
+    for (const p of existingActivePlans) {
+      try {
+        await base44.asServiceRole.entities.MealPlan.update(p.id, { active: false });
+      } catch (e) {
+        console.log('Could not deactivate old plan:', p.id, e.message);
+      }
     }
+    console.log(`🔄 Deactivated ${existingActivePlans.length} existing active plan(s) for client`);
 
     const mealPlan = await base44.asServiceRole.entities.MealPlan.create({
       client_id: clientId,
