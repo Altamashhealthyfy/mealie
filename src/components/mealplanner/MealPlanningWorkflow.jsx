@@ -532,15 +532,7 @@ Return JSON: { modified_meals: [...same structure as input meals...], ai_suggest
                 ))}
               </div>
             )}
-            <Card className="border-dashed border-2 border-pink-200">
-              <CardHeader className="py-2 px-4 bg-pink-50"><CardTitle className="text-sm text-pink-800">Request Changes</CardTitle></CardHeader>
-              <CardContent className="p-3 space-y-2">
-                <Textarea value={modificationText} onChange={e => setModificationText(e.target.value)} placeholder="e.g. Replace oats at breakfast on days 3 and 7 with besan cheela." rows={3} className="text-sm" />
-                <Button onClick={applyModification} disabled={modifying || !modificationText.trim()} className="w-full bg-pink-500 hover:bg-pink-600">
-                  {modifying ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Applying changes...</> : <><RefreshCw className="w-4 h-4 mr-2" /> Apply Modifications</>}
-                </Button>
-              </CardContent>
-            </Card>
+            <ModificationCard modificationText={modificationText} setModificationText={setModificationText} applyModification={applyModification} modifying={modifying} />
             <Button variant="outline" onClick={() => { setGeneratedPlan(null); setAudit(null); }} className="w-full text-gray-600">
               <ArrowLeft className="w-4 h-4 mr-1" /> Discard & Regenerate
             </Button>
