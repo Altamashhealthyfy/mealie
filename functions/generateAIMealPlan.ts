@@ -18,7 +18,8 @@ Deno.serve(async (req) => {
       additionalRestrictions = [], additionalAllergies = [],
       additionalConditions = [], mealFrequency = 5,
       snackPreference = 'light', cuisineNotes = '',
-      focusAreas = [], modificationInstructions = '', generationCount = 1
+      focusAreas = [], modificationInstructions = '', generationCount = 1,
+      planTier = 'basic'
     } = body;
 
     if (!clientId) return Response.json({ error: 'Client ID required' }, { status: 400 });
