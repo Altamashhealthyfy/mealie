@@ -993,6 +993,8 @@ Return JSON in this exact structure:
       day_summaries: recalculatedDaySummaries,
       coach_notes: planData.coach_notes,
       meals: enrichedMeals,
+      mpess: allMpessRecommendations,
+      mpess_recommendations: allMpessRecommendations.map(m => `${m.sleep || ''} ${m.stress || ''} ${m.movement || ''} ${m.mindfulness || ''} ${m.pranayam || ''}`.trim()),
       meal_option_analysis: mealOptionAnalysis,
       decision_rules: decisionRules,
     });
