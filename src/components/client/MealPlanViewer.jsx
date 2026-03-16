@@ -621,7 +621,7 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
       {/* Content */}
       {days.length > 0 ? (
         viewMode === "table" ? (
-          <TableView mealsByDay={mealsByDay} days={days} />
+          <TableView mealsByDay={mealsByDay} days={days} mpess={plan?.mpess} />
         ) : (
           <DetailView mealsByDay={mealsByDay} days={days} mpess={plan?.mpess} />
         )
