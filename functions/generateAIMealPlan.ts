@@ -198,8 +198,29 @@ Required JSON format: {"meals": [{"day": 1, "meal_type": "breakfast", "meal_name
     });
 
     const aiData = await aiResponse.json();
-    if (aiData.error) throw new Error("Claude API: " + aiData.error.message);
+    const callDurationMs = Date.now() - callStartTime;
+    if (aiData.error) {
+      // Log error
+      await base44.asServiceRole.entities.AICallLog.create({
+        function_name: 'generateAIMealPlan',
+        model: 'claude-sonnet-4-5',
+        status: 'error',
+        client_id: clientId,
+        client_name: client.full_name || '',
+        client_email: client.email || '',
+        triggered_by: user.email || '',
+        duration_ms: callDurationMs,
+        error_message: aiData.error.message,
+        prompt_summary: prompt.slice(0, 500),
+        context_metadata: { duration_days: duration, calorie_target: targetCal, diet_type: resolvedDietType, conditions: allConditions, catalog_dishes_count: healthyfyDishes.length },
+      }).catch(() => {});
+      throw new Error("Claude API: " + aiData.error.message);
+    }
     const aiResult = aiData.content?.[0]?.text || "";
+    const promptTokens = aiData.usage?.input_tokens || 0;
+    const completionTokens = aiData.usage?.output_tokens || 0;
+    // claude-sonnet-4-5 pricing: $3/M input, $15/M output
+    const estimatedCost = (promptTokens * 3 + completionTokens * 15) / 1_000_000;
     console.log("✅ Claude direct response length:", aiResult.length);
 
     // Strip markdown code fences if Claude wraps JSON in ```json ... ```
