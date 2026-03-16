@@ -225,11 +225,10 @@ COMBINATION RULES — never break under any circumstance:
 - Rotate grains and proteins across all days
 
 NON-VEG FREQUENCY RULES:
-- Chicken or fish must appear at lunch or dinner minimum once every 2 days
 - Eggs can appear at breakfast or dinner
 - Never non-veg at breakfast except eggs
 - Maximum 1 non-veg dish per day
-- Maximum 4 non-veg meals in any 10-day plan
+- STRICT RULE: Chicken + fish combined must not exceed 4 times in any 10-day plan. Count carefully before placing each non-veg meal. If chicken appears on days 1, 2, 3, 4 that is already the maximum — no more chicken or fish allowed after that. Do not exceed this limit under any circumstance.
 
 JAIN DIET RULES:
 Strictly no onion, garlic, potato, carrot, beetroot, radish, turnip or any root vegetable in any meal.
