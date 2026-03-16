@@ -376,7 +376,7 @@ MPESS PREFERENCES:
 ${clinicalIntake?.mpess_preferences ? Object.entries(clinicalIntake.mpess_preferences).filter(([k,v])=>v).map(([k])=>k).join(', ') : 'Mind, Physical, Emotional, Social, Spiritual'}
 
 COACH CLINICAL NOTES AND OVERRIDE RULES — these override everything else:
-${clinicalIntake?.additional_rules || clinicalIntake?.dietitian_remarks || clinicalIntake?.diagnostic_notes || 'none'}
+${modificationInstructions || clinicalIntake?.additional_rules || clinicalIntake?.dietitian_remarks || clinicalIntake?.diagnostic_notes || 'none'}
 
 LAB-BASED ADJUSTMENTS — apply automatically if lab values provided:
 - TSH high: strict thyroid rules, no raw goitrogens at all
