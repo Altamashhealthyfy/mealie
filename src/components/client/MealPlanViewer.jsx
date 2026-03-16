@@ -349,6 +349,7 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
   const handleDownloadPDF = () => {
     setDownloading(true);
     try {
+      console.log('📋 MPESS for PDF:', JSON.stringify(plan.mpess?.slice(0,1)));
       const isTable = viewMode === "table";
       const doc = new jsPDF({ orientation: isTable ? "landscape" : "portrait", unit: "mm", format: isTable ? "a3" : "a4" });
       const pageW = doc.internal.pageSize.getWidth();
