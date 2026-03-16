@@ -471,6 +471,20 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
               y += 4;
             }
 
+            // Ingredients
+            if (meal.ingredients?.length > 0) {
+              checkPage(6);
+              doc.setFont("helvetica", "bold");
+              doc.setTextColor(180, 120, 20);
+              doc.text("Ingredients:", margin, y);
+              y += 4;
+              doc.setFont("helvetica", "normal");
+              doc.setTextColor(120, 80, 20);
+              const ingLine = meal.ingredients.join(" | ");
+              const ingWrapped = doc.splitTextToSize(ingLine, usableW - 4);
+              ingWrapped.forEach(line => { checkPage(4); doc.text(line, margin + 2, y); y += 4; });
+            }
+
             // Tip
             if (meal.nutritional_tip || meal.disease_rationale) {
               checkPage(6);
@@ -483,6 +497,37 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
 
             y += 3;
           });
+
+          // MPESS for this day
+          const dayMpessEntry = (plan.mpess || []).find(m => String(m.day) === String(day));
+          if (dayMpessEntry) {
+            checkPage(30);
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "bold");
+            doc.setTextColor(107, 33, 168);
+            doc.text("MPESS — Holistic Guidance", margin, y);
+            y += 5;
+            const mpessFields = [
+              { label: "Sleep", key: "sleep" },
+              { label: "Stress", key: "stress" },
+              { label: "Movement", key: "movement" },
+              { label: "Mindfulness", key: "mindfulness" },
+              { label: "Pranayam", key: "pranayam" },
+            ];
+            mpessFields.forEach(({ label, key }) => {
+              if (dayMpessEntry[key]) {
+                checkPage(8);
+                doc.setFont("helvetica", "bold");
+                doc.setTextColor(107, 33, 168);
+                doc.text(`${label}:`, margin, y);
+                doc.setFont("helvetica", "normal");
+                doc.setTextColor(88, 28, 135);
+                const wrapped = doc.splitTextToSize(dayMpessEntry[key], usableW - 20);
+                doc.text(wrapped, margin + 18, y);
+                y += wrapped.length * 4 + 1;
+              }
+            });
+          }
 
           y += 4;
         });
