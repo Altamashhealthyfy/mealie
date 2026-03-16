@@ -196,9 +196,12 @@ Return JSON only: {"meals": [{day, meal_type, meal_name, items, portion_sizes, c
     const aiResult = aiData.content?.[0]?.text || "";
     console.log("✅ Claude direct response length:", aiResult.length);
 
+    // Strip markdown code fences if Claude wraps JSON in ```json ... ```
+    const cleanResult = aiResult.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+
     let mealData = {};
     try {
-      mealData = JSON.parse(aiResult);
+      mealData = JSON.parse(cleanResult);
     } catch (parseErr) {
       throw new Error(`Failed to parse AI response as JSON: ${parseErr.message}`);
     }
