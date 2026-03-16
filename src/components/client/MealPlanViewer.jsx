@@ -553,8 +553,9 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
             y += 3;
           });
 
-          // MPESS for this day
-          const dayMpessEntry = (plan.mpess || []).find(m => String(m.day) === String(day));
+          // MPESS for this day — stored as plan.mpess array [{day, sleep, stress, movement, mindfulness, pranayam}]
+          const mpessSource = plan.mpess?.length ? plan.mpess : [];
+          const dayMpessEntry = mpessSource.find(m => String(m.day) === String(day)) || mpessSource[0];
           if (dayMpessEntry) {
             checkPage(30);
             doc.setFontSize(8);
