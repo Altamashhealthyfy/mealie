@@ -629,6 +629,27 @@ Required JSON format: {"meals": [{"day": 1, "meal_type": "breakfast", "meal_name
 
     const nonCompliantMeals = enrichedMeals.filter(m => !m.catalog_compliant);
 
+    // ─── LOG SUCCESSFUL LLM CALL ───
+    await base44.asServiceRole.entities.AICallLog.create({
+      function_name: 'generateAIMealPlan',
+      model: 'claude-sonnet-4-5',
+      status: 'success',
+      client_id: clientId,
+      client_name: client.full_name || '',
+      client_email: client.email || '',
+      triggered_by: user.email || '',
+      prompt_tokens: promptTokens,
+      completion_tokens: completionTokens,
+      total_tokens: promptTokens + completionTokens,
+      estimated_cost_usd: Math.round(estimatedCost * 100000) / 100000,
+      duration_ms: callDurationMs,
+      prompt_summary: prompt.slice(0, 500),
+      response_summary: aiResult.slice(0, 500),
+      full_prompt: prompt,
+      full_response: aiResult,
+      context_metadata: { duration_days: duration, calorie_target: targetCal, diet_type: resolvedDietType, conditions: allConditions, catalog_dishes_count: healthyfyDishes.length, generation_count: generationCount },
+    }).catch(e => console.warn('AICallLog write failed:', e.message));
+
     return Response.json({
       success: true,
       mealPlan: { id: mealPlan.id, name: mealPlan.name, duration, meals: enrichedMeals.length },
