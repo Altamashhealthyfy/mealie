@@ -249,7 +249,7 @@ Return JSON only: {"meals": [{day, meal_type, meal_name, items, portion_sizes, c
     const dishByName = {};
     for (const d of healthyfyDishes) dishByName[d.name.toLowerCase().trim()] = d;
 
-    const enrichedMeals = (aiData.meals || []).map(meal => {
+    const enrichedMeals = (planData.meals || []).map(meal => {
       const components = meal.components || [];
       const componentCompliance = components.map(c => ({
         name: c,
@@ -374,7 +374,7 @@ Return JSON only: {"meals": [{day, meal_type, meal_name, items, portion_sizes, c
         carbs: acc.carbs + (Number(m.carbs) || 0),
         fats: acc.fats + (Number(m.fats) || 0),
       }), { calories: 0, protein: 0, carbs: 0, fats: 0 });
-      const existing = aiData.day_summaries?.find(s => s.day === day) || {};
+      const existing = planData.day_summaries?.find(s => s.day === day) || {};
       recalculatedDaySummaries.push({
         ...existing,
         day,
@@ -424,7 +424,7 @@ Return JSON only: {"meals": [{day, meal_type, meal_name, items, portion_sizes, c
 
     const violations = [];
     const daySlots = {};
-    aiData.meals.forEach(meal => {
+    planData.meals.forEach(meal => {
       const key = `day${meal.day}`;
       if (!daySlots[key]) daySlots[key] = [];
       daySlots[key].push(meal);
@@ -481,10 +481,10 @@ Return JSON only: {"meals": [{day, meal_type, meal_name, items, portion_sizes, c
 
     const mealPlan = await base44.asServiceRole.entities.MealPlan.create({
       client_id: clientId,
-      name: aiData.plan_name || `AI Meal Plan – ${new Date().toLocaleDateString()}`,
+      name: planData.plan_name || `AI Meal Plan – ${new Date().toLocaleDateString()}`,
       duration,
       meal_pattern: 'daily',
-      target_calories: aiData.daily_calorie_target || targetCal,
+      target_calories: planData.daily_calorie_target || targetCal,
       food_preference: client.food_preference,
       regional_preference: client.regional_preference,
       meals: enrichedMeals,
@@ -622,13 +622,13 @@ Return JSON only: {"meals": [{day, meal_type, meal_name, items, portion_sizes, c
         removed_no_replacement: intraDayDuplicates.filter(d => !d.replaced_with).length,
         corrections: intraDayDuplicates,
       },
-      overview: aiData.overview,
-      nutritional_strategy: aiData.nutritional_strategy,
-      macro_targets: aiData.macro_targets,
-      key_foods_included: aiData.key_foods_included,
-      foods_avoided: aiData.foods_avoided,
+      overview: planData.overview,
+      nutritional_strategy: planData.nutritional_strategy,
+      macro_targets: planData.macro_targets,
+      key_foods_included: planData.key_foods_included,
+      foods_avoided: planData.foods_avoided,
       day_summaries: recalculatedDaySummaries,
-      coach_notes: aiData.coach_notes,
+      coach_notes: planData.coach_notes,
       meals: enrichedMeals,
       meal_option_analysis: mealOptionAnalysis,
       decision_rules: decisionRules,
