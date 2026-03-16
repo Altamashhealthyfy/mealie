@@ -100,7 +100,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, hasPr
             {basicPlans.length > 0 && <Badge className="ml-1 bg-green-100 text-green-700 text-xs">{basicPlans.length}</Badge>}
           </TabsTrigger>
           <TabsTrigger value="pro" className="flex-1 text-xs sm:text-sm rounded-lg data-[state=active]:bg-purple-600 data-[state=active]:text-white">
-            <Crown className="w-3.5 h-3.5 mr-1" /> Pro Plans
+            <Crown className="w-3.5 h-3.5 mr-1" /> Clinical Plans
             {proPlans.length > 0 && <Badge className="ml-1 bg-purple-100 text-purple-700 text-xs">{proPlans.length}</Badge>}
           </TabsTrigger>
           <TabsTrigger value="templates" className="flex-1 text-xs sm:text-sm rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white">
