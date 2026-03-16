@@ -119,6 +119,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
         target_calories: d.calorie_compliance_audit?.target_calories || client.target_calories,
         food_preference: selectedIntakeForPlan?.diet_type || client.food_preference,
         meals: d.meals,
+        mpess: d.mpess || [],
         overview: d.overview,
         nutritional_strategy: d.nutritional_strategy,
         macro_targets: d.macro_targets,
