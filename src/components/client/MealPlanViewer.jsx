@@ -557,6 +557,9 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
 
           y += 4;
         });
+
+        // MPESS page at end of detail PDF
+        addMpessPage(doc, plan, margin, usableW);
       }
 
       doc.save(`${plan.name?.replace(/\s+/g, "_") || "meal_plan"}_${viewMode}.pdf`);
