@@ -464,6 +464,14 @@ function DiagnosticSummaryCard({ diagnostic, intake }) {
           {diagnostic?.combined_summary?.final_priorities?.slice(0, 5).map((p, i) => (
             <p key={i} className="text-xs text-gray-700 flex gap-1"><span className="text-green-500">✅</span>{p}</p>
           ))}
+          {/* Non-veg / egg frequency */}
+          {(intake.non_veg_frequency || intake.egg_frequency) && (
+            <div className="p-2 bg-amber-50 rounded-lg">
+              <p className="text-xs font-semibold text-amber-700 mb-1">🍗 Non-Veg & Egg Frequency:</p>
+              {intake.non_veg_frequency && <p className="text-xs text-gray-700">• Non-veg: <strong>{intake.non_veg_frequency}</strong> times in 10 days {intake.non_veg_meal_times?.length ? `(${intake.non_veg_meal_times.join(', ')})` : ''}</p>}
+              {intake.egg_frequency && <p className="text-xs text-gray-700">• Eggs: <strong>{intake.egg_frequency}</strong> times in 10 days {intake.egg_preferred_meals?.length ? `(${intake.egg_preferred_meals.join(', ')})` : ''}</p>}
+            </div>
+          )}
           {/* Manual rules from dietitian_remarks */}
           {intake.dietitian_remarks && (() => {
             try {
