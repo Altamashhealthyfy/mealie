@@ -116,7 +116,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       setGeneratedPlan({
         name: d.mealPlan?.name || `AI Meal Plan – ${duration} Days`,
         duration: d.mealPlan?.duration || duration,
-        target_calories: d.calorie_compliance_audit?.target_calories || filterResult?.client?.target_calories || client.target_calories,
+        target_calories: d.calorie_compliance_audit?.target_calories || client.target_calories,
         food_preference: selectedIntakeForPlan?.diet_type || client.food_preference,
         meals: d.meals,
         overview: d.overview,
