@@ -47,6 +47,8 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
   const [generating, setGenerating] = useState(false);
   const [generatedPlan, setGeneratedPlan] = useState(null);
   const [audit, setAudit] = useState(null);
+  // Store conversation context for modifications
+  const [conversationContext, setConversationContext] = useState(null); // { originalPrompt, assistantResponse }
 
   // Step 5: Modification chat
   const [modificationText, setModificationText] = useState('');
