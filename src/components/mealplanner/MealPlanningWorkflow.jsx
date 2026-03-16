@@ -146,7 +146,9 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       const res = await base44.functions.invoke('generateAIMealPlan', {
         clientId: client.id,
         duration,
-        calorieTarget: filterResult?.client?.target_calories || client.target_calories,
+        calorieTarget: filterResult?.decisionRules?.targetCalories || filterResult?.client?.target_calories || client.target_calories || 1800,
+        dietType: filterResult?.client?.food_preference || client.food_preference,
+        condition: filterResult?.primaryCondition || diagnostic?.primary_conditions?.[0] || null,
         dietType: selectedIntake?.diet_type || client.food_preference,
         condition: primaryCondition,
         numDays: duration,

@@ -38,6 +38,16 @@ Deno.serve(async (req) => {
     const clinicalIntakes = await base44.asServiceRole.entities.ClinicalIntake.filter({ client_id: clientId });
     const clinicalIntake = clinicalIntakes?.sort((a,b) => new Date(b.created_date) - new Date(a.created_date))[0] || null;
 
+    console.log('🔍 Clinical intake found:', clinicalIntake ? 'YES' : 'NO');
+    console.log('🔍 Clinical intake data:', JSON.stringify({
+      conditions: clinicalIntake?.health_conditions,
+      lab_values: clinicalIntake?.lab_values,
+      additional_rules: clinicalIntake?.additional_rules,
+      dietitian_remarks: clinicalIntake?.dietitian_remarks,
+      diet_type: clinicalIntake?.diet_type,
+      likes: clinicalIntake?.likes_dislikes_allergies
+    }));
+
     // ─── FETCH HEALTHYFY APPROVED DISH CATALOG ───
     const healthyfyDishes = await fetchHealthyfyDishes(base44);
     const dishByType = {};
@@ -726,7 +736,12 @@ Start with { and end with }`;
 
     const mealPlan = await base44.asServiceRole.entities.MealPlan.create({
       client_id: clientId,
-      name: planData.plan_name || `AI Meal Plan – ${new Date().toLocaleDateString()}`,
+      name: (() => {
+        const now = new Date();
+        const timestamp = now.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'}) + ' ' + now.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit', hour12:true});
+        const conditionLabel = allConditions.length ? allConditions[0] : (resolvedDietType || 'General');
+        return `${client.full_name} — ${conditionLabel} Plan (${duration} Days) | ${timestamp}`;
+      })(),
       duration,
       meal_pattern: 'daily',
       target_calories: planData.daily_calorie_target || targetCal,
