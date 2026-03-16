@@ -308,7 +308,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
               </CardContent>
             </Card>
             <Button onClick={() => setOpenSections(prev => ({ ...prev, s1: false, s2: true }))} className="w-full bg-purple-600 hover:bg-purple-700">
-              <ArrowRight className="w-4 h-4 mr-2" /> Proceed to Filter Meal Options
+              <ArrowRight className="w-4 h-4 mr-2" /> Proceed to Coach Override Rules
             </Button>
           </>
         )}
