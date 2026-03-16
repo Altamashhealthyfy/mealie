@@ -322,6 +322,7 @@ CRITICAL FORMATTING RULES:
       body: JSON.stringify({
         model: "claude-sonnet-4-5",
         max_tokens: 16000,
+        system: systemPrompt,
         messages: [{ role: "user", content: prompt }]
       })
     });
