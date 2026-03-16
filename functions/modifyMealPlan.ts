@@ -92,6 +92,25 @@ Return the full updated plan: {"meals": [...all meals...], "mpess": [...]}`;
     const meals = mealData.meals || [];
     if (meals.length === 0) throw new Error('Modification returned 0 meals.');
 
+    await base44.asServiceRole.entities.AICallLog.create({
+      function_name: 'modifyMealPlan',
+      model: 'claude-sonnet-4-5',
+      status: 'success',
+      client_id: clientId || '',
+      client_name: clientName || '',
+      client_email: clientEmail || '',
+      triggered_by: user.email || '',
+      prompt_tokens: promptTokens,
+      completion_tokens: completionTokens,
+      total_tokens: promptTokens + completionTokens,
+      estimated_cost_usd: Math.round(estimatedCost * 100000) / 100000,
+      duration_ms: callDurationMs,
+      prompt_summary: modificationRequest.slice(0, 500),
+      response_summary: aiResult.slice(0, 500),
+      full_response: aiResult,
+      context_metadata: { modification_request: modificationRequest },
+    }).catch(e => console.warn('AICallLog write failed:', e.message));
+
     return Response.json({
       success: true,
       meals,
