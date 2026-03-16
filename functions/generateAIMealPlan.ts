@@ -173,7 +173,12 @@ DINNER: ${dinnerDishes.slice(0, 6).map(d => d.name).join(', ')}
 SNACKS: ${snackDishes.slice(0, 5).map(d => d.name).join(', ')}
 DRINKS: ${drinkDishes.slice(0, 4).map(d => d.name).join(', ')}
 
-Return JSON only: {"meals": [{day, meal_type, meal_name, items, portion_sizes, calories, protein, carbs, fats}], "mpess": [{day, sleep, stress, movement, mindfulness}]}`;
+CRITICAL FORMATTING RULES:
+- Return ONLY raw JSON. No markdown, no code fences, no backticks, no explanation text.
+- Start your response with { and end with }
+- Do NOT wrap in \`\`\`json or any other formatting.
+
+Required JSON format: {"meals": [{"day": 1, "meal_type": "breakfast", "meal_name": "...", "items": [...], "portion_sizes": [...], "calories": 0, "protein": 0, "carbs": 0, "fats": 0}], "mpess": [{"day": 1, "sleep": "...", "stress": "...", "movement": "...", "mindfulness": "..."}]}`;
 
     console.log("📤 PROMPT SENT TO LLM:\n" + prompt);
 
