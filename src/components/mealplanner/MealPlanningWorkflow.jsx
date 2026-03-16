@@ -152,6 +152,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
         numDays: duration,
         additionalConditions,
         overrideGoal: diagnostic?.goals?.[0] || client.goal,
+        planTier: 'advanced',
       });
 
       clearTimeout(timeoutId);
