@@ -564,7 +564,7 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
         viewMode === "table" ? (
           <TableView mealsByDay={mealsByDay} days={days} />
         ) : (
-          <DetailView mealsByDay={mealsByDay} days={days} mpess={plan?.meals?.[0]?.mpess || plan?.mpess} />
+          <DetailView mealsByDay={mealsByDay} days={days} mpess={plan?.mpess} />
         )
       ) : (
         <div className="text-center py-8">
