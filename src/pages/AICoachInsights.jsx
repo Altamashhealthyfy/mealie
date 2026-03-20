@@ -53,6 +53,13 @@ export default function AICoachInsights() {
     enabled: !!user,
   });
 
+  // Auto-select client from URL once clients are loaded
+  React.useEffect(() => {
+    if (urlClientId && clients.length > 0 && !selectedClient) {
+      setSelectedClient(urlClientId);
+    }
+  }, [clients, urlClientId]);
+
   const client = clients.find(c => c.id === selectedClient);
 
   const filteredClients = clients.filter(c =>
