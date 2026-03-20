@@ -192,16 +192,14 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated, clinicalI
 
       {!result ? (
           <div className="p-5 space-y-5">
-            {/* Clinical intake warning */}
-            {clinicalIntakes.length === 0 && (
-              <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-300 rounded-xl">
-                <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-amber-800">No Clinical Intake Found</p>
-                  <p className="text-xs text-amber-700 mt-0.5">For best results, complete the Clinical Intake form first. The AI will use clinical data (conditions, medications, diet history) to generate a medically appropriate plan. You can still generate a basic plan using the client profile only.</p>
-                </div>
+            {/* Basic plan info banner */}
+            <div className="flex items-start gap-3 p-4 bg-yellow-50 border border-yellow-300 rounded-xl">
+              <Info className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-yellow-800">Basic Plan — General Healthy Nutrition</p>
+                <p className="text-xs text-yellow-700 mt-0.5">Generates a balanced healthy Indian meal plan based on calorie target and diet preference. For disease-specific clinical plans (Diabetes, PCOS, Thyroid, etc.), please use the <strong>Clinical Workflow</strong> instead.</p>
               </div>
-            )}
+            </div>
             {/* Client snapshot */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-100">
               {[
