@@ -23,6 +23,8 @@ import InlineClinicalIntakeForm from "@/components/client/InlineClinicalIntakeFo
 import DiagnosticTab from "@/components/clinical/DiagnosticTab";
 import RealtimeChat from "@/components/communication/RealtimeChat";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import AICoachInsightsPage from "@/pages/AICoachInsights";
+import AdvancedCoachAnalyticsPage from "@/pages/AdvancedCoachAnalytics";
 
 export default function ClientHub() {
   const navigate = useNavigate();
