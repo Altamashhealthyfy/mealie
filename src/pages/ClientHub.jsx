@@ -688,11 +688,12 @@ export default function ClientHub() {
                 ))}
               </div>
             )}
+            </>}
           </TabsContent>
 
           {/* DIAGNOSTIC TAB */}
           <TabsContent value="diagnostic" className="space-y-4">
-            <DiagnosticTab
+            {!hasProAccess ? <ProLockedTab /> : <DiagnosticTab
               clientId={clientId}
               clinicalIntakes={clinicalIntakes}
               intakeCompleted={!!latestIntake?.completed}
