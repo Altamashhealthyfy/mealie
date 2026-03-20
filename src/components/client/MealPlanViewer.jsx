@@ -307,8 +307,8 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
   };
 
   const getMpessData = (plan) => {
+    // Always prefer mpess array (has sleep/stress/movement/mindfulness/pranayam)
     if (plan.mpess && Array.isArray(plan.mpess) && plan.mpess.length > 0) return plan.mpess[0];
-    if (plan.mpess_integration && typeof plan.mpess_integration === 'object' && !Array.isArray(plan.mpess_integration)) return plan.mpess_integration;
     return null;
   };
 
