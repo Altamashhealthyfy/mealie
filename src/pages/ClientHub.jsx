@@ -15,7 +15,6 @@ import {
   Phone, Mail, Scale, Activity, Target, Crown
 } from "lucide-react";
 import { format } from "date-fns";
-import InlineAppointmentManager from "@/components/client/InlineAppointmentManager";
 import InlineProfileEditor from "@/components/client/InlineProfileEditor";
 import MealPlanViewer from "@/components/client/MealPlanViewer";
 import MealPlansTab from "@/components/client/MealPlansTab";
