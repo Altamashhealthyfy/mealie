@@ -717,12 +717,12 @@ export default function ClientHub() {
 
           {/* MPESS TRACKER TAB */}
           <TabsContent value="mpess">
-            <MPESSTab clientId={clientId} />
+            {!hasProAccess ? <ProLockedTab /> : <MPESSTab clientId={clientId} />}
           </TabsContent>
 
           {/* ASSESSMENTS TAB */}
           <TabsContent value="assessments">
-            <AssessmentsTab clientId={clientId} client={client} />
+            {!hasProAccess ? <ProLockedTab /> : <AssessmentsTab clientId={clientId} client={client} />}
           </TabsContent>
 
           {/* APPOINTMENTS TAB */}
