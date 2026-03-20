@@ -319,11 +319,10 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated, clinicalI
             </Tabs>
 
             {/* Active inputs summary */}
-            {(additionalAllergies.length > 0 || additionalConditions.length > 0) && (
+            {additionalAllergies.length > 0 && (
               <div className="flex flex-wrap gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                 <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
                 {additionalAllergies.map((a, i) => <Badge key={i} className="bg-red-100 text-red-700 border-0 text-xs">⚠ {a}</Badge>)}
-                {additionalConditions.map((c, i) => <Badge key={i} className="bg-orange-100 text-orange-700 border-0 text-xs">🏥 {c}</Badge>)}
               </div>
             )}
 
