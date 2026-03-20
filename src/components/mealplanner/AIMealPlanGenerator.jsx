@@ -149,7 +149,6 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated, clinicalI
   const [cuisineNotes, setCuisineNotes] = useState("");
   const [additionalRestrictions, setAdditionalRestrictions] = useState([]);
   const [additionalAllergies, setAdditionalAllergies] = useState([]);
-  const [additionalConditions, setAdditionalConditions] = useState([]);
   const [focusAreas, setFocusAreas] = useState([]);
   const [result, setResult] = useState(null);
   const [modificationInstructions, setModificationInstructions] = useState("");
