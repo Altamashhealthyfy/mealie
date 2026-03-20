@@ -11,8 +11,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   User, ChefHat, TrendingUp, MessageSquare, Calendar, ClipboardList, Stethoscope,
   Plus, ArrowLeft, Edit, Eye, CheckCircle, FileText, Upload,
-  Activity, Scale, Heart, Sparkles, Loader2, AlertTriangle, ExternalLink,
-  Phone, Mail, Target, Crown
+  Heart, Sparkles, Loader2, AlertTriangle,
+  Phone, Mail, Scale, CheckCircle as CheckCircleIcon
 } from "lucide-react";
 import { format } from "date-fns";
 import InlineAppointmentManager from "@/components/client/InlineAppointmentManager";
