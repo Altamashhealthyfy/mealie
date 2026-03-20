@@ -159,17 +159,12 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated, clinicalI
   const generateMutation = useMutation({
     mutationFn: async (isRegeneration = false) => {
       const nextCount = isRegeneration ? generationCount + 1 : 1;
-      const res = await base44.functions.invoke('generateAIMealPlan', {
-        clientId: client.id, duration, adaptFromFeedback, mealFrequency,
-        snackPreference, cuisineNotes, focusAreas,
-        overrideGoal: overrideGoal || undefined,
-        overrideCalories: overrideCalories ? parseInt(overrideCalories) : undefined,
-        overrideProtein: overrideProtein ? parseInt(overrideProtein) : undefined,
-        overrideCarbs: overrideCarbs ? parseInt(overrideCarbs) : undefined,
-        overrideFats: overrideFats ? parseInt(overrideFats) : undefined,
-        additionalRestrictions, additionalAllergies, additionalConditions,
-        modificationInstructions: isRegeneration ? modificationInstructions : '',
-        generationCount: nextCount,
+      const res = await base44.functions.invoke('generateBasicMealPlan', {
+        clientId: client.id,
+        numDays: duration,
+        calorieTarget: overrideCalories ? parseInt(overrideCalories) : undefined,
+        dietType: client.food_preference,
+        goal: overrideGoal || client.goal,
       });
       return { data: res.data, nextCount };
     },
