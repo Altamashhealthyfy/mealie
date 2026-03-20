@@ -29,6 +29,22 @@ import AppointmentsTab from "@/components/clienthub/AppointmentsTab";
 import AnalyticsTab from "@/components/clienthub/AnalyticsTab";
 import AIInsightsTab from "@/components/clienthub/AIInsightsTab";
 
+function ProLockedTab() {
+  const navigate = useNavigate();
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="text-5xl mb-4">🔒</div>
+      <h3 className="text-xl font-bold text-gray-800 mb-2">Pro Plan Required</h3>
+      <p className="text-gray-500 text-sm max-w-sm mb-6">
+        Upgrade to Mealie Pro to access Clinical Intake, Diagnostics, Disease-specific meal plans, MPESS tracking, AI Insights, and more.
+      </p>
+      <Button onClick={() => navigate(createPageUrl("CoachSubscriptions"))} className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+        <Crown className="w-4 h-4 mr-2" /> Upgrade to Pro
+      </Button>
+    </div>
+  );
+}
+
 export default function ClientHub() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
