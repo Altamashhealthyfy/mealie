@@ -63,7 +63,13 @@ Return ONLY valid JSON:
     const data = await response.json();
     if (data.error) throw new Error("Claude API: " + data.error.message);
     const text = data.content?.[0]?.text || "";
-    const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    let clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    // Extract the outermost JSON object robustly
+    const firstBrace = clean.indexOf('{');
+    const lastBrace = clean.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1) {
+      clean = clean.slice(firstBrace, lastBrace + 1);
+    }
     const parsed = JSON.parse(clean);
     const templates = parsed.templates;
     const mpessData = parsed.mpess || {};
