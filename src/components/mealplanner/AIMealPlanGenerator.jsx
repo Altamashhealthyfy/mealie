@@ -287,9 +287,12 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated, clinicalI
 
               {/* Health & Diet */}
               <TabsContent value="health" className="space-y-4 pt-3">
-                <TagInput label="Additional Dietary Restrictions" items={additionalRestrictions} setItems={setAdditionalRestrictions} suggestions={COMMON_RESTRICTIONS} placeholder="Add restriction..." color="blue" />
+                <div className="flex items-start gap-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                  <AlertTriangle className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                  <p className="text-xs text-orange-700">Disease-specific plans (Diabetes, PCOS, Thyroid, Kidney, etc.) require the <strong>Clinical Workflow</strong>. Basic Plan is for general healthy nutrition only.</p>
+                </div>
+                <TagInput label="Dietary Restrictions" items={additionalRestrictions} setItems={setAdditionalRestrictions} suggestions={COMMON_RESTRICTIONS} placeholder="Add restriction..." color="blue" />
                 <TagInput label="Allergies (AI will strictly avoid)" items={additionalAllergies} setItems={setAdditionalAllergies} suggestions={COMMON_ALLERGIES} placeholder="Add allergy..." color="red" />
-                <TagInput label="Medical Conditions" items={additionalConditions} setItems={setAdditionalConditions} suggestions={COMMON_CONDITIONS} placeholder="Add condition..." color="orange" />
                 <TagInput label="Nutrition Focus Areas" items={focusAreas} setItems={setFocusAreas} suggestions={FOCUS_AREAS} placeholder="Add focus area..." color="purple" />
               </TabsContent>
 
