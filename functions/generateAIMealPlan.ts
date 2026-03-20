@@ -800,16 +800,7 @@ Return JSON in this exact structure:
       description: doc.description || '',
     }));
 
-    const existingActivePlans = await base44.asServiceRole.entities.MealPlan.filter({ client_id: clientId, active: true });
-    for (const p of existingActivePlans) {
-      try {
-        await base44.asServiceRole.entities.MealPlan.update(p.id, { active: false });
-      } catch (e) {
-        console.log('Could not deactivate old plan:', p.id, e.message);
-      }
-    }
-    console.log(`🔄 Deactivated ${existingActivePlans.length} existing active plan(s) for client`);
-
+    // Do NOT deactivate existing plans here — let the coach decide via Save & Assign
     const mealPlan = await base44.asServiceRole.entities.MealPlan.create({
       mpess: allMpessRecommendations,
       client_id: clientId,
@@ -825,7 +816,7 @@ Return JSON in this exact structure:
       food_preference: client.food_preference,
       regional_preference: client.regional_preference,
       meals: enrichedMeals,
-      active: true,
+      active: false,
       plan_tier: planTier,
       kb_snapshot: kbSnapshot,
       kb_snapshot_generated_at: new Date().toISOString(),
