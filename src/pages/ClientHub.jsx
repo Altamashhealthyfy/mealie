@@ -139,6 +139,26 @@ export default function ClientHub() {
 
 
 
+  // Live BMR/TDEE/Protein calculation from client data
+  const calcBMR = (c) => {
+    if (!c?.weight || !c?.height || !c?.age) return null;
+    return c.gender === "female"
+      ? (10 * c.weight) + (6.25 * c.height) - (5 * c.age) - 161
+      : (10 * c.weight) + (6.25 * c.height) - (5 * c.age) + 5;
+  };
+  const activityMultipliers = {
+    sedentary: 1.2,
+    lightly_active: 1.375,
+    moderately_active: 1.55,
+    very_active: 1.725,
+    extremely_active: 1.9,
+  };
+  const computedBMR = client ? Math.round(calcBMR(client)) : null;
+  const computedTDEE = computedBMR
+    ? Math.round(computedBMR * (activityMultipliers[client?.activity_level] || 1.55))
+    : null;
+  const computedProtein = client?.weight ? Math.round(client.weight * 1.6) : null;
+
   const hasProAccess =
     user?.user_type === "super_admin" ||
     (user?.user_type === "student_coach" && coachSubscription && coachPlan?.can_access_pro_plans);
