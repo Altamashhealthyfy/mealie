@@ -19,7 +19,6 @@ import { toast } from "sonner";
 
 const COMMON_RESTRICTIONS = ["Gluten-free", "Dairy-free", "Low-sodium", "Low-sugar", "Low-carb", "High-fiber", "Low-fat", "No onion/garlic (Jain)"];
 const COMMON_ALLERGIES = ["Nuts", "Peanuts", "Shellfish", "Eggs", "Soy", "Wheat", "Milk", "Fish", "Sesame"];
-const COMMON_CONDITIONS = ["Type 2 Diabetes", "Hypertension", "PCOS", "Hypothyroidism", "Kidney Disease", "GERD/Acid Reflux", "High Cholesterol", "Fatty Liver", "Anemia", "Obesity"];
 const FOCUS_AREAS = ["Gut Health", "Anti-inflammatory", "Bone Health", "Heart Health", "Hormone Balance", "Energy Boost", "Immunity", "Muscle Recovery"];
 
 function TagInput({ label, items, setItems, suggestions, placeholder, color = "blue" }) {
