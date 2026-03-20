@@ -238,12 +238,11 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       });
 
       toast.success(assign ? '✅ Plan saved and assigned to client successfully!' : '✅ Plan saved!');
-      queryClient.invalidateQueries(['clientMealPlans', client.id]);
+      await queryClient.invalidateQueries(['clientMealPlans', client.id]);
+      await queryClient.refetchQueries(['clientMealPlans', client.id]);
       window.dispatchEvent(new CustomEvent('mealPlanSaved', { detail: { clientId: client.id } }));
-      setTimeout(() => {
-        if (onPlanSaved) onPlanSaved(saved);
-        if (assign && onPlanAssigned) onPlanAssigned(saved);
-      }, 500);
+      if (onPlanSaved) onPlanSaved(saved);
+      if (assign && onPlanAssigned) onPlanAssigned(saved);
     } catch (err) {
       toast.error('Save failed: ' + (err.message || 'Unknown error'));
     }
