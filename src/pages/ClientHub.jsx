@@ -690,34 +690,32 @@ export default function ClientHub() {
 
           {/* PROGRESS TAB */}
           <TabsContent value="progress">
-            <ClientReportsPage />
-          </TabsContent>
-
-
-
-          {/* ANALYTICS TAB */}
-          <TabsContent value="analytics">
-            <AdvancedCoachAnalyticsPage />
-          </TabsContent>
-
-          {/* AI INSIGHTS TAB */}
-          <TabsContent value="ai_insights">
-            <AICoachInsightsPage />
+            <ProgressTab clientId={clientId} client={client} />
           </TabsContent>
 
           {/* MPESS TRACKER TAB */}
           <TabsContent value="mpess">
-            <CoachMPESSTrackerPage />
+            <MPESSTab clientId={clientId} />
           </TabsContent>
 
           {/* ASSESSMENTS TAB */}
           <TabsContent value="assessments">
-            <ClientAssessmentsPage />
+            <AssessmentsTab clientId={clientId} client={client} />
           </TabsContent>
 
           {/* APPOINTMENTS TAB */}
-          <TabsContent value="appointments" className="space-y-4">
-            <InlineAppointmentManager client={client} />
+          <TabsContent value="appointments">
+            <AppointmentsTab clientId={clientId} client={client} coachEmail={user?.email} />
+          </TabsContent>
+
+          {/* ANALYTICS TAB */}
+          <TabsContent value="analytics">
+            <AnalyticsTab clientId={clientId} client={client} />
+          </TabsContent>
+
+          {/* AI INSIGHTS TAB */}
+          <TabsContent value="ai_insights">
+            <AIInsightsTab clientId={clientId} client={client} />
           </TabsContent>
         </Tabs>
       </div>
