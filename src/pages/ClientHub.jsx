@@ -762,72 +762,8 @@ export default function ClientHub() {
           </TabsContent>
 
           {/* AI INSIGHTS TAB */}
-          <TabsContent value="ai_insights" className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-900">AI Insights for {client.full_name}</h2>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => navigate(createPageUrl("AICoachInsights"))}
-              >
-                <ExternalLink className="w-4 h-4 mr-1" /> Overall AI Dashboard
-              </Button>
-            </div>
-            <Card className="border-none shadow-lg bg-white">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-1">Client-Specific AI Analysis</h3>
-                    <p className="text-sm text-gray-600 mb-3">
-                      Get AI-powered insights specific to {client.full_name}'s health journey, meal adherence, and progress patterns.
-                    </p>
-                    <Button
-                      onClick={() => navigate(`${createPageUrl("AICoachInsights")}?clientId=${clientId}`)}
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                    >
-                      <Sparkles className="w-4 h-4 mr-2" /> Generate AI Insights
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick summary cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50">
-                <CardContent className="p-4">
-                  <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                    <Target className="w-4 h-4 text-blue-500" /> Goal Alignment
-                  </h4>
-                  <div className="space-y-1 text-sm">
-                    <p className="text-gray-600">Primary Goal: <strong className="capitalize">{client.goal?.replace(/_/g, " ") || "Not set"}</strong></p>
-                    <p className="text-gray-600">Current Weight: <strong>{progressLogs[0]?.weight || client.weight || "—"} kg</strong></p>
-                    <p className="text-gray-600">Target Weight: <strong>{client.target_weight || "—"} kg</strong></p>
-                    {client.target_weight && (progressLogs[0]?.weight || client.weight) && (
-                      <p className="text-gray-600">Remaining: <strong className="text-orange-600">
-                        {Math.abs((progressLogs[0]?.weight || client.weight) - client.target_weight).toFixed(1)} kg
-                      </strong></p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="border-none shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
-                <CardContent className="p-4">
-                  <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                    <Heart className="w-4 h-4 text-green-500" /> Health Summary
-                  </h4>
-                  <div className="space-y-1 text-sm">
-                    <p className="text-gray-600">Progress Entries: <strong>{progressLogs.length}</strong></p>
-                    <p className="text-gray-600">Meal Plans: <strong>{mealPlans.length}</strong></p>
-                    <p className="text-gray-600">Assessments: <strong>{assessments.length}</strong></p>
-                    <p className="text-gray-600">Clinical Intakes: <strong>{clinicalIntakes.length}</strong></p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+          <TabsContent value="ai_insights">
+            <AICoachInsightsPage />
           </TabsContent>
 
           {/* MPESS TRACKER TAB */}
