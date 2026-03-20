@@ -393,9 +393,9 @@ export default function ClientHub() {
                       { label: "Initial Weight", value: client.initial_weight ? `${client.initial_weight} kg` : "—" },
                       { label: "Activity Level", value: client.activity_level?.replace(/_/g, " ") || "—" },
                       { label: "Regional Pref.", value: client.regional_preference || "—" },
-                      { label: "BMR", value: client.bmr ? `${client.bmr} kcal` : "—" },
-                      { label: "TDEE", value: client.tdee ? `${client.tdee} kcal` : "—" },
-                      { label: "Protein Target", value: client.target_protein ? `${client.target_protein}g` : "—" },
+                      { label: "BMR", value: client.bmr ? `${client.bmr} kcal` : computedBMR ? `~${computedBMR} kcal` : "—" },
+                      { label: "TDEE", value: client.tdee ? `${client.tdee} kcal` : computedTDEE ? `~${computedTDEE} kcal` : "—" },
+                      { label: "Protein Target", value: client.target_protein ? `${client.target_protein}g` : computedProtein ? `~${computedProtein}g` : "—" },
                     ].map(({ label, value }) => (
                       <div key={label} className="bg-gray-50 rounded-lg p-2">
                         <p className="text-xs text-gray-500">{label}</p>
