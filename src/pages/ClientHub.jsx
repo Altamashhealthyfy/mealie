@@ -12,7 +12,7 @@ import {
   User, ChefHat, TrendingUp, MessageSquare, Calendar, ClipboardList, Stethoscope,
   Plus, ArrowLeft, Edit, Eye, CheckCircle, FileText, Upload,
   Heart, Sparkles, Loader2, AlertTriangle, ExternalLink,
-  Phone, Mail, Scale, Activity, Target, Crown
+  Phone, Mail, Scale, Activity, Target, Crown, Lock
 } from "lucide-react";
 import { format } from "date-fns";
 import InlineProfileEditor from "@/components/client/InlineProfileEditor";
