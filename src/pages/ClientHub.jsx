@@ -704,7 +704,7 @@ export default function ClientHub() {
                 ))}
               </div>
             )}
-            </>}
+            </div>}
           </TabsContent>
 
           {/* DIAGNOSTIC TAB */}
