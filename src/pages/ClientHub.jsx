@@ -25,6 +25,9 @@ import RealtimeChat from "@/components/communication/RealtimeChat";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import AICoachInsightsPage from "@/pages/AICoachInsights";
 import AdvancedCoachAnalyticsPage from "@/pages/AdvancedCoachAnalytics";
+import CoachMPESSTrackerPage from "@/pages/CoachMPESSTracker";
+import ClientAssessmentsPage from "@/pages/ClientAssessments";
+import ClientReportsPage from "@/pages/ClientReports";
 
 export default function ClientHub() {
   const navigate = useNavigate();
