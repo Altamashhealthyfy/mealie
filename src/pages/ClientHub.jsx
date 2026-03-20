@@ -688,73 +688,8 @@ export default function ClientHub() {
           </TabsContent>
 
           {/* PROGRESS TAB */}
-          <TabsContent value="progress" className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-gray-900">Progress Logs ({progressLogs.length})</h2>
-              <Button
-                size="sm"
-                onClick={() => navigate(`${createPageUrl("ClientReports")}?clientId=${clientId}`)}
-                variant="outline"
-              >
-                <ExternalLink className="w-4 h-4 mr-1" /> Full Analytics
-              </Button>
-            </div>
-
-            {progressLogs.length === 0 ? (
-              <Card className="border-none shadow-lg">
-                <CardContent className="p-12 text-center">
-                  <Scale className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">No Progress Logs Yet</h3>
-                  <p className="text-gray-600">Progress logs will appear here as the client submits them.</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-3">
-                {progressLogs.map((log) => (
-                  <Card key={log.id} className="border-none shadow-lg bg-white">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <p className="font-semibold text-gray-900">
-                              {log.date ? format(new Date(log.date), "MMMM d, yyyy") : "No date"}
-                            </p>
-                            {log.reviewed && (
-                              <Badge className="bg-green-100 text-green-700 text-xs">
-                                <CheckCircle className="w-3 h-3 mr-1" /> Reviewed
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="flex flex-wrap gap-2 mb-2 text-sm">
-                            {log.weight && (
-                              <span className="text-gray-700">⚖️ <strong>{log.weight} kg</strong></span>
-                            )}
-                            {log.meal_adherence != null && (
-                              <span className="text-gray-700">🍽️ Adherence: <strong>{log.meal_adherence}%</strong></span>
-                            )}
-                            {log.wellness_metrics?.energy_level && (
-                              <span className="text-gray-700">⚡ Energy: <strong>{log.wellness_metrics.energy_level}/10</strong></span>
-                            )}
-                            {log.wellness_metrics?.mood && (
-                              <span className="text-gray-700 capitalize">😊 Mood: <strong>{log.wellness_metrics.mood}</strong></span>
-                            )}
-                          </div>
-                          {log.notes && (
-                            <p className="text-sm text-gray-600 bg-gray-50 rounded p-2">{log.notes}</p>
-                          )}
-                          {log.coach_feedback && (
-                            <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-lg text-sm">
-                              <p className="font-medium text-green-800 text-xs mb-1">Coach Feedback:</p>
-                              <p className="text-gray-700">{log.coach_feedback.feedback_text}</p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
+          <TabsContent value="progress">
+            <ClientReportsPage />
           </TabsContent>
 
 
