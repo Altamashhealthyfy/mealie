@@ -331,7 +331,7 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated, clinicalI
               client={client}
               additionalRestrictions={additionalRestrictions}
               additionalAllergies={additionalAllergies}
-              additionalConditions={additionalConditions}
+              additionalConditions={[]}
               overrideGoal={overrideGoal}
               overrideCalories={overrideCalories}
               overrideProtein={overrideProtein}
