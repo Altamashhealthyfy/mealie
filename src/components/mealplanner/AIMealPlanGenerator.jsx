@@ -200,6 +200,24 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated, clinicalI
                 <p className="text-xs text-yellow-700 mt-0.5">Generates a balanced healthy Indian meal plan based on calorie target and diet preference. For disease-specific clinical plans (Diabetes, PCOS, Thyroid, etc.), please use the <strong>Clinical Workflow</strong> instead.</p>
               </div>
             </div>
+
+            {/* Disease reminder banner */}
+            <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-400 rounded-xl">
+              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <p className="text-xs text-amber-800">
+                <strong>⚠️ Basic Plan does not account for medical conditions</strong> like Diabetes, PCOS, Thyroid, BP, Kidney Disease etc. If your client has any health condition — please use <strong>Clinical Workflow</strong> for a medically appropriate plan.
+              </p>
+            </div>
+
+            {/* Inputs summary */}
+            <div className="p-3 bg-sky-50 border border-sky-200 rounded-xl text-xs text-sky-900 space-y-1">
+              <p className="font-semibold text-sky-800 mb-1.5">Plan will be generated using:</p>
+              <p>🥗 <strong>Diet Type:</strong> {client.food_preference || "Mixed"}</p>
+              <p>🔥 <strong>Calorie Target:</strong> {client.target_calories || client.tdee || "Auto-calculated"} kcal/day</p>
+              <p>🎯 <strong>Goal:</strong> {(client.goal || "health_improvement").replace(/_/g, " ")}</p>
+              <p className="text-sky-600 pt-1">These are taken from client profile. Edit client profile to change these values.</p>
+            </div>
+
             {/* Client snapshot */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-3 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-100">
               {[
