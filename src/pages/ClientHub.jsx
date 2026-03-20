@@ -737,7 +737,7 @@ export default function ClientHub() {
 
           {/* AI INSIGHTS TAB */}
           <TabsContent value="ai_insights">
-            <AIInsightsTab clientId={clientId} client={client} />
+            {!hasProAccess ? <ProLockedTab /> : <AIInsightsTab clientId={clientId} client={client} />}
           </TabsContent>
         </Tabs>
       </div>
