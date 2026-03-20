@@ -697,7 +697,7 @@ export default function ClientHub() {
               clientId={clientId}
               clinicalIntakes={clinicalIntakes}
               intakeCompleted={!!latestIntake?.completed}
-            />
+            />}
           </TabsContent>
 
           {/* MEAL PLANS TAB */}
