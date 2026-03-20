@@ -597,7 +597,7 @@ export default function ClientHub() {
 
           {/* CLINICAL INTAKE TAB */}
           <TabsContent value="intake" className="space-y-4">
-            {!hasProAccess ? <ProLockedTab /> : <>
+            {!hasProAccess ? <ProLockedTab /> : <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-900">Clinical Intake History</h2>
               <Button
