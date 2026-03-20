@@ -23,11 +23,12 @@ import InlineClinicalIntakeForm from "@/components/client/InlineClinicalIntakeFo
 import DiagnosticTab from "@/components/clinical/DiagnosticTab";
 import RealtimeChat from "@/components/communication/RealtimeChat";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import AICoachInsightsPage from "@/pages/AICoachInsights";
-import AdvancedCoachAnalyticsPage from "@/pages/AdvancedCoachAnalytics";
-import CoachMPESSTrackerPage from "@/pages/CoachMPESSTracker";
-import ClientAssessmentsPage from "@/pages/ClientAssessments";
-import ClientReportsPage from "@/pages/ClientReports";
+import ProgressTab from "@/components/clienthub/ProgressTab";
+import MPESSTab from "@/components/clienthub/MPESSTab";
+import AssessmentsTab from "@/components/clienthub/AssessmentsTab";
+import AppointmentsTab from "@/components/clienthub/AppointmentsTab";
+import AnalyticsTab from "@/components/clienthub/AnalyticsTab";
+import AIInsightsTab from "@/components/clienthub/AIInsightsTab";
 
 export default function ClientHub() {
   const navigate = useNavigate();
