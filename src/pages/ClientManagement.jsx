@@ -551,7 +551,7 @@ function ClientManagementInner() {
           })}
         </div>
 
-        {filteredAndSortedClients.length === 0 && (
+        {filteredAndSortedClients.length === 0 && !clientsLoading && (
           <Card className="border-none shadow-lg">
             <CardContent className="p-8 md:p-12 text-center">
               <Users className="w-12 h-12 md:w-16 md:h-16 mx-auto text-gray-300 mb-4" />
