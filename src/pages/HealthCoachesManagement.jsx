@@ -930,6 +930,7 @@ export default function HealthCoachesManagement() {
             </DialogContent>
           </Dialog>
           </div>
+        </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
