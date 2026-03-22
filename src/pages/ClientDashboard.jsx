@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import OnboardingChecklist from "@/components/onboarding/OnboardingChecklist";
 import OnboardingProgressTracker from "@/components/onboarding/OnboardingProgressTracker";
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { TrendingDown, TrendingUp, Calendar, CheckCircle, Target, Activity, Heart, Scale, Flame, Award, AlertCircle, Download, FileText, ChefHat, MessageSquare, Send, Eye, Star, Clock, CreditCard, ArrowRight, Zap } from "lucide-react";
+import { TrendingDown, TrendingUp, Calendar, CheckCircle, Target, Activity, Heart, Scale, Flame, Award, AlertCircle, Download, FileText, ChefHat, MessageSquare, Send, Eye, Star, Clock, CreditCard, ArrowRight, Zap, User } from "lucide-react";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import DailyProgressLogger from "../components/progress/DailyProgressLogger";
