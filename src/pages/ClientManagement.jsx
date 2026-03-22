@@ -100,7 +100,7 @@ function ClientManagementInner() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: clients } = useQuery({
+  const { data: clients = [], isLoading: clientsLoading } = useQuery({
     queryKey: ['clients', user?.email, user?.user_type],
     queryFn: async () => {
       const allClients = await base44.entities.Client.list('-created_date', 1000);
@@ -122,7 +122,7 @@ function ClientManagementInner() {
       return nonCoachClients.filter(client => client.created_by === user?.email);
     },
     enabled: !!user,
-    initialData: [],
+    staleTime: 0,
   });
 
   const { data: mealPlans } = useQuery({
