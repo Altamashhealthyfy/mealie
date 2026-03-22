@@ -59,18 +59,35 @@ export default function DietitianDashboard() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: clients } = useQuery({
+  const { data: clients = [] } = useQuery({
     queryKey: ['dashboardClients', user?.email, user?.user_type, viewMode],
     queryFn: async () => {
+      // Re-fetch fresh user to avoid stale cache user_type issue
+      const freshUser = await base44.auth.me();
+      const userType = freshUser?.user_type || user?.user_type;
+      const userEmail = freshUser?.email || user?.email;
+
       let allClients = [];
-      // Admin view - show all
-      if (user?.user_type === 'super_admin' && viewMode === 'admin') {
+      if (userType === 'super_admin' && viewMode === 'admin') {
         allClients = await base44.entities.Client.list('-created_date', 50);
+      } else if (userType === 'student_coach') {
+        // Fetch by created_by AND assigned_coach to cover all cases
+        const [createdByMe, assignedToMe] = await Promise.all([
+          base44.entities.Client.filter({ created_by: userEmail }, '-created_date', 200),
+          base44.entities.Client.list('-created_date', 200),
+        ]);
+        // Merge and deduplicate
+        const allMap = new Map();
+        [...createdByMe, ...assignedToMe.filter(c => {
+          const coaches = Array.isArray(c.assigned_coach) ? c.assigned_coach : c.assigned_coach ? [c.assigned_coach] : [];
+          return coaches.includes(userEmail);
+        })].forEach(c => allMap.set(c.id, c));
+        allClients = Array.from(allMap.values());
       } else {
-        // All other views - show only user's own clients
-        allClients = await base44.entities.Client.filter({ created_by: user?.email }, '-created_date', 50);
+        allClients = await base44.entities.Client.filter({ created_by: userEmail }, '-created_date', 50);
       }
-      // Fetch all users to get coach/team emails and exclude them
+
+      // Filter out coaches/team members from client list
       const allUsers = await base44.entities.User.list();
       const coachEmails = new Set(
         allUsers
@@ -78,12 +95,10 @@ export default function DietitianDashboard() {
           .map(u => u.email?.toLowerCase())
           .filter(Boolean)
       );
-      // Filter out coaches/team members from client list
       return allClients.filter(client => !coachEmails.has(client.email?.toLowerCase()));
     },
     enabled: !!user,
-    initialData: [],
-    staleTime: 60000,
+    staleTime: 0,
   });
 
   const { data: mealPlans } = useQuery({
