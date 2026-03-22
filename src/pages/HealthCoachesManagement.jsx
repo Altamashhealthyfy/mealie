@@ -791,6 +791,8 @@ export default function HealthCoachesManagement() {
                 Add Coach
               </Button>
             </DialogTrigger>
+            </Dialog>
+          </div>
             <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="text-xl md:text-2xl font-bold flex items-center gap-2">
