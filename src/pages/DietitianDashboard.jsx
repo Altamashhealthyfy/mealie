@@ -162,10 +162,20 @@ export default function DietitianDashboard() {
   });
 
   const { data: mealPlansData } = useQuery({
-    queryKey: ['dashboardMealPlansData'],
-    queryFn: () => base44.entities.MealPlan.list('-created_date', 200),
+    queryKey: ['dashboardMealPlansData', user?.email, user?.user_type],
+    queryFn: async () => {
+      if (user?.user_type === 'super_admin') {
+        return await base44.entities.MealPlan.list('-created_date', 200);
+      }
+      // Fetch all plans and filter by coach's clients (handles service-account-created plans)
+      const allPlans = await base44.entities.MealPlan.list('-created_date', 200);
+      const myClients = await base44.entities.Client.filter({ created_by: user?.email }, '-created_date', 200);
+      const myClientIds = new Set(myClients.map(c => c.id));
+      return allPlans.filter(p => myClientIds.has(p.client_id));
+    },
+    enabled: !!user,
     initialData: [],
-    staleTime: 60000,
+    staleTime: 30000,
   });
 
   // Get unique clients who have tracked MPESS
