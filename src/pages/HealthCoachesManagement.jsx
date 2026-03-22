@@ -680,6 +680,14 @@ export default function HealthCoachesManagement() {
     h => !allUsers?.some(u => u.email?.toLowerCase() === h.coach_email?.toLowerCase())
   );
 
+  // Coaches with wrong role (in allUsers via data.user_type but top-level role is still 'user')
+  const wrongRoleCoaches = (allUsers || []).filter(u => {
+    const topLevelType = u.user_type;
+    const dataType = u.data?.user_type;
+    // If top-level user_type is wrong but data.user_type is correct, role needs fixing
+    return topLevelType !== 'student_coach' && dataType === 'student_coach';
+  });
+
   // Handle promoting a pending coach manually
   const promoteCoachMutation = useMutation({
     mutationFn: async (coachEmail) => {
