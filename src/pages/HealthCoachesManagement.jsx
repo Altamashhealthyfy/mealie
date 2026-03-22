@@ -756,7 +756,35 @@ export default function HealthCoachesManagement() {
             </h1>
             <p className="text-gray-600 text-sm md:text-base mt-1">Manage onboarding, subscriptions, and AI credits</p>
           </div>
-          <Dialog open={addCoachDialog} onOpenChange={setAddCoachDialog}>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="h-10 px-4 text-sm border-amber-400 text-amber-700 hover:bg-amber-50"
+              onClick={async () => {
+                const allU = await base44.entities.User.list();
+                const coachHistoryEmails = (coachHistory || []).map(h => h.coach_email?.toLowerCase());
+                const stuckCoaches = allU.filter(u => {
+                  const email = u.email?.toLowerCase();
+                  const dataType = u.data?.user_type;
+                  const topType = u.user_type;
+                  return coachHistoryEmails.includes(email) && dataType === 'student_coach' && topType !== 'student_coach';
+                });
+                if (stuckCoaches.length === 0) {
+                  toast.success('All coaches have correct roles!');
+                  return;
+                }
+                toast.info(`Fixing roles for ${stuckCoaches.length} coach(es)...`);
+                for (const c of stuckCoaches) {
+                  await base44.functions.invoke('createUserWithPassword', { email: c.email, user_type: 'student_coach' });
+                }
+                queryClient.invalidateQueries(['allHealthCoaches']);
+                toast.success(`Fixed ${stuckCoaches.length} coach role(s)!`);
+              }}
+            >
+              <Shield className="w-4 h-4 mr-2" />
+              Bulk Fix Roles
+            </Button>
+            <Dialog open={addCoachDialog} onOpenChange={setAddCoachDialog}>
             <DialogTrigger asChild>
               <Button className="bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-lg hover:shadow-xl transition-all h-10 px-4 text-sm">
                 <UserPlus className="w-4 h-4 mr-2" />
