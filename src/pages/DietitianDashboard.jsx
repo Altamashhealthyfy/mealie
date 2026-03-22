@@ -493,6 +493,62 @@ export default function DietitianDashboard() {
           ))}
         </div>
 
+        {/* Meal Plan Adherence Feed */}
+        {(() => {
+          const adherenceLogs = progressLogs
+            .filter(log => log.meal_adherence !== undefined && log.meal_adherence !== null)
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .slice(0, 10);
+          
+          if (adherenceLogs.length === 0) return null;
+
+          return (
+            <Card className="border-none shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <ChefHat className="w-5 h-5 text-green-600" />
+                    Meal Plan Adherence Reports
+                  </CardTitle>
+                  <Badge className="bg-green-100 text-green-700">
+                    {adherenceLogs.filter(l => l.meal_adherence >= 100).length} fully followed today
+                  </Badge>
+                </div>
+                <p className="text-sm text-gray-500">Clients who have submitted their meal adherence check-ins</p>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 max-h-80 overflow-y-auto">
+                  {adherenceLogs.map(log => {
+                    const client = clients.find(c => c.id === log.client_id);
+                    const pct = log.meal_adherence;
+                    const color = pct >= 90 ? 'bg-green-500' : pct >= 70 ? 'bg-yellow-500' : 'bg-red-500';
+                    const textColor = pct >= 90 ? 'text-green-700' : pct >= 70 ? 'text-yellow-700' : 'text-red-700';
+                    const bgColor = pct >= 90 ? 'bg-green-50 border-green-200' : pct >= 70 ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200';
+                    return (
+                      <div key={log.id} className={`flex items-center gap-4 p-3 rounded-lg border ${bgColor}`}>
+                        <div className="w-9 h-9 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-white text-sm font-bold">{client?.full_name?.charAt(0) || 'C'}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-gray-900 text-sm truncate">{client?.full_name || 'Client'}</p>
+                          <p className="text-xs text-gray-500">{log.date ? format(new Date(log.date), 'MMM d, yyyy') : ''}</p>
+                        </div>
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          <div className="w-24 bg-gray-200 rounded-full h-2">
+                            <div className={`h-2 rounded-full ${color}`} style={{ width: `${Math.min(100, pct)}%` }} />
+                          </div>
+                          <span className={`text-sm font-bold w-12 text-right ${textColor}`}>{pct}%</span>
+                          {pct >= 100 && <CheckCircle2 className="w-4 h-4 text-green-600" />}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
+
         {/* Action Items */}
         <ActionItemsPanel
           clients={clients}
