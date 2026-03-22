@@ -1659,6 +1659,5 @@ export default function HealthCoachesManagement() {
         </AlertDialog>
       </div>
     </div>
-    </div>
   );
 }
