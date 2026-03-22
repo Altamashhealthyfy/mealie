@@ -588,12 +588,18 @@ export default function ClientDashboard() {
           <CardHeader>
             <CardTitle className="text-blue-800 flex items-center gap-2">
               <AlertCircle className="w-5 h-5" />
-              Admin / Coach View
+              Coach / Admin View
             </CardTitle>
           </CardHeader>
           <CardContent className="text-blue-800 space-y-3">
-            <p className="text-sm">You are logged in as <strong>{user.user_type?.replace(/_/g, ' ')}</strong>. This page is the Client Dashboard.</p>
-            <p className="text-sm text-blue-700">To preview this as a client, switch to "Client View" using the view mode selector in the top bar.</p>
+            <p className="text-sm">You are logged in as <strong>{user.user_type?.replace(/_/g, ' ')}</strong>. This page is the Client Dashboard — it is only visible to clients.</p>
+            <p className="text-sm text-blue-700">To manage your clients, go to the <strong>Clients Hub</strong> from the sidebar.</p>
+            <Button
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-2"
+              onClick={() => navigate(createPageUrl("ClientManagement"))}
+            >
+              Go to Clients Hub
+            </Button>
           </CardContent>
         </Card>
       </div>
