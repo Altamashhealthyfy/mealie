@@ -1009,6 +1009,43 @@ export default function HealthCoachesManagement() {
           </CardContent>
         </Card>
 
+        {/* Wrong Role Section */}
+        {wrongRoleCoaches.length > 0 && (
+          <Card className="border-2 border-red-300 bg-red-50/80 shadow">
+            <CardHeader className="border-b border-red-200 py-3">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-600" />
+                <CardTitle className="text-base text-red-800">Wrong Role Detected ({wrongRoleCoaches.length})</CardTitle>
+                <Badge className="bg-red-200 text-red-800 text-xs">Needs Fix</Badge>
+              </div>
+              <p className="text-xs text-red-700 mt-1">These coaches have correct data internally but wrong top-level role. Click Fix Role to correct them.</p>
+            </CardHeader>
+            <CardContent className="pt-3 px-0">
+              <Table className="text-sm">
+                <TableBody>
+                  {wrongRoleCoaches.map((coach, idx) => (
+                    <TableRow key={idx} className="hover:bg-red-100/50">
+                      <TableCell className="py-2 text-xs font-medium">{coach.full_name || '—'}</TableCell>
+                      <TableCell className="py-2 text-xs text-gray-600">{coach.email}</TableCell>
+                      <TableCell className="py-2 text-right">
+                        <Button
+                          size="sm"
+                          className="h-7 text-xs bg-red-600 hover:bg-red-700 text-white"
+                          onClick={() => fixRoleMutation.mutate(coach)}
+                          disabled={fixRoleMutation.isPending}
+                        >
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          Fix Role
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Pending Coaches Section */}
         {pendingCoaches.length > 0 && (
           <Card className="border-2 border-amber-300 bg-amber-50/80 shadow">
