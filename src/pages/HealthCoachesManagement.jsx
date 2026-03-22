@@ -683,15 +683,35 @@ export default function HealthCoachesManagement() {
   // Handle promoting a pending coach manually
   const promoteCoachMutation = useMutation({
     mutationFn: async (coachEmail) => {
-      const allU = await base44.entities.User.list();
-      const found = allU.find(u => u.email?.toLowerCase() === coachEmail.toLowerCase());
-      if (!found) throw new Error('User has not logged in yet. Ask them to log in first.');
-      await base44.entities.User.update(found.id, { user_type: 'student_coach' });
-      return found;
+      const response = await base44.functions.invoke('createUserWithPassword', {
+        email: coachEmail,
+        user_type: 'student_coach',
+      });
+      if (response.data?.error) throw new Error(response.data.error);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['allHealthCoaches']);
-      toast.success('Coach promoted to student_coach successfully!');
+      queryClient.invalidateQueries(['coachHistory']);
+      toast.success('Coach role fixed to student_coach successfully!');
+    },
+    onError: (error) => toast.error(error.message),
+  });
+
+  // Fix role for a coach already in the table but with wrong role
+  const fixRoleMutation = useMutation({
+    mutationFn: async (coach) => {
+      const response = await base44.functions.invoke('createUserWithPassword', {
+        email: coach.email,
+        full_name: coach.full_name,
+        user_type: 'student_coach',
+      });
+      if (response.data?.error) throw new Error(response.data.error);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['allHealthCoaches']);
+      toast.success('Role fixed successfully!');
     },
     onError: (error) => toast.error(error.message),
   });
