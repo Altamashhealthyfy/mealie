@@ -103,6 +103,11 @@ function ClientManagementInner() {
   const { data: clients = [], isLoading: clientsLoading } = useQuery({
     queryKey: ['clients', user?.email, user?.user_type],
     queryFn: async () => {
+      // Re-fetch the current user fresh to get the correct user_type (avoids stale cache issue)
+      const freshUser = await base44.auth.me();
+      const userType = freshUser?.user_type || user?.user_type;
+      const userEmail = freshUser?.email || user?.email;
+
       const allClients = await base44.entities.Client.list('-created_date', 1000);
       const allUsers = await base44.entities.User.list();
       const coachEmails = new Set(
@@ -112,14 +117,14 @@ function ClientManagementInner() {
           .filter(Boolean)
       );
       const nonCoachClients = allClients.filter(client => !coachEmails.has(client.email?.toLowerCase()));
-      if (user?.user_type === 'super_admin') return nonCoachClients;
-      if (user?.user_type === 'student_coach') {
+      if (userType === 'super_admin') return nonCoachClients;
+      if (userType === 'student_coach') {
         return nonCoachClients.filter(client => {
           const assignedCoaches = Array.isArray(client.assigned_coach) ? client.assigned_coach : client.assigned_coach ? [client.assigned_coach] : [];
-          return client.created_by === user?.email || assignedCoaches.includes(user?.email);
+          return client.created_by === userEmail || assignedCoaches.includes(userEmail);
         });
       }
-      return nonCoachClients.filter(client => client.created_by === user?.email);
+      return nonCoachClients.filter(client => client.created_by === userEmail);
     },
     enabled: !!user,
     staleTime: 0,
