@@ -92,11 +92,18 @@ export default function DietitianDashboard() {
       if (user?.user_type === 'super_admin' && viewMode === 'admin') {
         return await base44.entities.MealPlan.list('-created_date', 20);
       }
-      return await base44.entities.MealPlan.filter({ created_by: user?.email }, '-created_date', 20);
+      // For non-admin coaches, get client IDs first, then fetch their meal plans
+      // (AI-generated plans are created by service account, not coach email)
+      const myClients = await base44.entities.Client.filter({ created_by: user?.email }, '-created_date', 50);
+      const assignedClients = await base44.entities.Client.filter({ assigned_coach: user?.email }, '-created_date', 50);
+      const allMyClientIds = [...new Set([...myClients, ...assignedClients].map(c => c.id))];
+      if (allMyClientIds.length === 0) return [];
+      const allPlans = await base44.entities.MealPlan.list('-created_date', 100);
+      return allPlans.filter(p => allMyClientIds.includes(p.client_id));
     },
     enabled: !!user,
     initialData: [],
-    staleTime: 60000,
+    staleTime: 30000,
   });
 
   const { data: appointments } = useQuery({
