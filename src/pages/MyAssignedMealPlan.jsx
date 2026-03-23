@@ -432,7 +432,7 @@ export default function MyAssignedMealPlan() {
 
         {/* Daily Meal Plans */}
         {displayedPlan && (
-          <Tabs defaultValue="day-1" className="space-y-4">
+          <Tabs defaultValue={`day-${Object.keys(groupedMeals).sort((a, b) => a - b)[0]}`} className="space-y-4">
           <div className="bg-white/80 backdrop-blur rounded-xl p-2 shadow-lg overflow-x-auto">
             <TabsList className="flex flex-nowrap">
               {Object.keys(groupedMeals).sort((a, b) => a - b).map(day => (
