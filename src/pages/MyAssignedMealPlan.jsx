@@ -199,14 +199,12 @@ export default function MyAssignedMealPlan() {
               Previous Plans
             </Button>
             {displayedPlan && (
-              <Button
-                variant="outline"
-                onClick={() => setShowPDFDialog(true)}
-                className="border-green-500 text-green-600"
+              <button
+                onClick={() => window.print()}
+                style={{background:'#6c5fc7', color:'white', padding:'8px 16px', borderRadius:'8px', border:'none', cursor:'pointer'}}
               >
-                <Download className="w-4 h-4 mr-2" />
-                Download PDF
-              </Button>
+                📄 Download / Print Plan
+              </button>
             )}
           </div>
         </div>
