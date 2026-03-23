@@ -554,69 +554,28 @@ export default function MyAssignedMealPlan() {
         )}
       </div>
 
-      {/* MPESS Wellness Section */}
-       {displayedPlan?.mpess && displayedPlan.mpess.length > 0 && (
+      {/* MPESS Wellness Section — using exact TableView pattern */}
+      {displayedPlan?.mpess && displayedPlan.mpess.length > 0 && (
         <div className="mt-8 max-w-7xl mx-auto">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <Heart className="w-6 h-6 text-pink-500" />
-            Wellness Practices Recommended (MPESS)
-          </h2>
-          <Card className="border-none shadow-lg bg-gradient-to-br from-pink-50 to-purple-50">
-            <CardContent className="p-6 space-y-4">
-              {displayedPlan.mpess.map((mpess, idx) => (
-                <div key={idx} className="border-b border-pink-200 pb-4 last:border-0">
-                  <div className="text-sm font-semibold text-gray-500 mb-2">Day {mpess.day}</div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                    {mpess.sleep && (
-                      <div className="flex gap-2">
-                        <span className="text-lg">😴</span>
-                        <div>
-                          <p className="font-semibold text-gray-900">Sleep</p>
-                          <p className="text-gray-700">{mpess.sleep}</p>
-                        </div>
-                      </div>
-                    )}
-                    {mpess.stress && (
-                      <div className="flex gap-2">
-                        <span className="text-lg">🧘</span>
-                        <div>
-                          <p className="font-semibold text-gray-900">Stress Management</p>
-                          <p className="text-gray-700">{mpess.stress}</p>
-                        </div>
-                      </div>
-                    )}
-                    {mpess.movement && (
-                      <div className="flex gap-2">
-                        <span className="text-lg">🏃</span>
-                        <div>
-                          <p className="font-semibold text-gray-900">Movement</p>
-                          <p className="text-gray-700">{mpess.movement}</p>
-                        </div>
-                      </div>
-                    )}
-                    {mpess.mindfulness && (
-                      <div className="flex gap-2">
-                        <span className="text-lg">🧠</span>
-                        <div>
-                          <p className="font-semibold text-gray-900">Mindfulness</p>
-                          <p className="text-gray-700">{mpess.mindfulness}</p>
-                        </div>
-                      </div>
-                    )}
-                    {mpess.pranayam && (
-                      <div className="flex gap-2">
-                        <span className="text-lg">💨</span>
-                        <div>
-                          <p className="font-semibold text-gray-900">Pranayam</p>
-                          <p className="text-gray-700">{mpess.pranayam}</p>
-                        </div>
-                      </div>
-                    )}
+          <div className="rounded-xl border border-purple-200 bg-purple-50 p-4">
+            <h4 className="text-xs font-bold text-purple-700 uppercase tracking-wider mb-3">🌿 MPESS Holistic Guidance</h4>
+            <div className="grid grid-cols-1 gap-2">
+              {displayedPlan.mpess[0] ? (
+                [
+                  { icon: "😴", label: "Sleep", key: "sleep" },
+                  { icon: "🧘", label: "Stress", key: "stress" },
+                  { icon: "🏃", label: "Movement", key: "movement" },
+                  { icon: "🧠", label: "Mindfulness", key: "mindfulness" },
+                  { icon: "🌬️", label: "Pranayam", key: "pranayam" },
+                ].filter(f => displayedPlan.mpess[0][f.key]).map(({ icon, label, key }) => (
+                  <div key={key} className="flex gap-2 items-start">
+                    <span className="font-semibold text-purple-700 text-xs min-w-[100px] shrink-0">{icon} {label}</span>
+                    <span className="text-xs text-purple-600">{displayedPlan.mpess[0][key]}</span>
                   </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+                ))
+              ) : null}
+            </div>
+          </div>
         </div>
       )}
 
