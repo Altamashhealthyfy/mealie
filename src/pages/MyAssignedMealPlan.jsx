@@ -549,6 +549,48 @@ export default function MyAssignedMealPlan() {
         )}
       </div>
 
+      {/* MPESS Wellness Section */}
+      {mpessLogs && mpessLogs.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <Heart className="w-6 h-6 text-pink-500" />
+            Your Wellness Practices (MPESS)
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {mpessLogs.map((log, idx) => {
+              const d = log.submission_data || {};
+              const categoryColors = {
+                mind: 'bg-purple-50 border-purple-200',
+                physical: 'bg-green-50 border-green-200',
+                emotional: 'bg-pink-50 border-pink-200',
+                social: 'bg-blue-50 border-blue-200',
+                spiritual: 'bg-amber-50 border-amber-200',
+              };
+              const categoryEmojis = { mind: '🧠', physical: '🏃', emotional: '💛', social: '🤝', spiritual: '🌿' };
+              const cat = d.category || 'mind';
+              return (
+                <Card key={idx} className={`border ${categoryColors[cat] || 'bg-gray-50 border-gray-200'} shadow-md`}>
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-2xl">{categoryEmojis[cat] || '✨'}</span>
+                      <Badge className="capitalize bg-white text-gray-700 border border-gray-300">{cat}</Badge>
+                      {d.frequency && <Badge variant="outline" className="text-xs">{d.frequency}</Badge>}
+                    </div>
+                    <p className="font-semibold text-gray-900 text-base mb-1">{d.practice}</p>
+                    {d.duration && <p className="text-sm text-gray-600">⏱ {d.duration}</p>}
+                    {d.notes && <p className="text-sm text-gray-500 mt-2 italic">"{d.notes}"</p>}
+                    {log.coach_notes && (
+                      <p className="text-xs text-purple-700 mt-2 bg-purple-50 rounded p-2">
+                        💬 Coach: {log.coach_notes}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
     </div>
   );
