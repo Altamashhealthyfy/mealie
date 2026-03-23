@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Scale, Plus, TrendingUp, TrendingDown } from "lucide-react";
+import { Loader2, Scale, Plus, TrendingUp, TrendingDown, Utensils, BookOpen } from "lucide-react";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -20,6 +20,12 @@ export default function ProgressTab({ clientId, client }) {
   const { data: logs = [], isLoading, refetch } = useQuery({
     queryKey: ["progressLogs", clientId],
     queryFn: () => base44.entities.ProgressLog.filter({ client_id: clientId }, "-date", 10),
+    enabled: !!clientId,
+  });
+
+  const { data: foodLogs = [] } = useQuery({
+    queryKey: ["foodLogs", clientId],
+    queryFn: () => base44.entities.FoodLog.filter({ client_id: clientId }, "-date", 7),
     enabled: !!clientId,
   });
 
@@ -116,6 +122,79 @@ export default function ProgressTab({ clientId, client }) {
           ))}
         </div>
       )}
+
+      {/* Meal Adherence Section */}
+      <div className="space-y-3">
+        <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+          <Utensils className="w-4 h-4 text-orange-500" />
+          Meal Adherence
+        </h3>
+        {logs.filter(l => l.meal_adherence != null).length === 0 ? (
+          <Card className="border-none shadow bg-gray-50">
+            <CardContent className="p-4 text-center text-sm text-gray-400">No adherence data logged yet.</CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-2">
+            {logs.filter(l => l.meal_adherence != null).map(log => (
+              <Card key={log.id} className="border-none shadow bg-white">
+                <CardContent className="p-3 flex items-center justify-between">
+                  <p className="text-sm font-medium text-gray-700">{log.date ? format(new Date(log.date), "MMM d, yyyy") : "—"}</p>
+                  <div className="flex items-center gap-2">
+                    <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${Math.min(100, log.meal_adherence)}%`,
+                          backgroundColor: log.meal_adherence >= 80 ? '#22c55e' : log.meal_adherence >= 50 ? '#f59e0b' : '#ef4444'
+                        }}
+                      />
+                    </div>
+                    <Badge className={log.meal_adherence >= 80 ? "bg-green-100 text-green-700" : log.meal_adherence >= 50 ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"}>
+                      {log.meal_adherence}%
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Food Log Section */}
+      <div className="space-y-3">
+        <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+          <BookOpen className="w-4 h-4 text-blue-500" />
+          Recent Food Log (Last 7 entries)
+        </h3>
+        {foodLogs.length === 0 ? (
+          <Card className="border-none shadow bg-gray-50">
+            <CardContent className="p-4 text-center text-sm text-gray-400">No food logs recorded yet.</CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-2">
+            {foodLogs.map(log => (
+              <Card key={log.id} className="border-none shadow bg-white">
+                <CardContent className="p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-sm font-medium text-gray-700">{log.date ? format(new Date(log.date), "MMM d") : "—"}</p>
+                        <Badge variant="outline" className="text-xs capitalize">{log.meal_type?.replace(/_/g, ' ')}</Badge>
+                      </div>
+                      {log.meal_name && <p className="text-sm font-semibold text-gray-800 truncate">{log.meal_name}</p>}
+                      {log.items?.length > 0 && (
+                        <p className="text-xs text-gray-500 truncate">{log.items.slice(0, 3).join(', ')}{log.items.length > 3 ? '...' : ''}</p>
+                      )}
+                      {log.notes && <p className="text-xs text-gray-400 italic mt-1">{log.notes}</p>}
+                    </div>
+                    {log.calories && <span className="text-xs text-orange-600 font-bold shrink-0">{log.calories} kcal</span>}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
 
       <Dialog open={showLogForm} onOpenChange={setShowLogForm}>
         <DialogContent className="max-w-md">
