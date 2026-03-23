@@ -86,10 +86,13 @@ export default function Appointments() {
   const { data: coaches } = useQuery({
     queryKey: ['coaches'],
     queryFn: async () => {
+      if (user?.user_type !== 'super_admin') return [];
       const allUsers = await base44.entities.User.list();
       return allUsers.filter(u => ['super_admin', 'team_member', 'student_coach'].includes(u.user_type));
     },
+    enabled: !!user && user?.user_type === 'super_admin',
     initialData: [],
+    retry: 0,
   });
 
   const { data: appointments } = useQuery({
