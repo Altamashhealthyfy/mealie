@@ -169,6 +169,10 @@ export default function MyAssignedMealPlan() {
     );
   }
 
+  if (!displayedPlan && viewMode === "current" && clientProfile) {
+    return <div style={{padding:'2rem'}}>Loading your meal plan...</div>;
+  }
+
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
