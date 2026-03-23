@@ -69,18 +69,30 @@ export default function MyAssignedMealPlan() {
       y += 5;
     });
 
-    const mpess = plan?.mpess_integration;
-    if (mpess) {
+    if (mpessLogs && mpessLogs.length > 0) {
       if (y > 250) { doc.addPage(); y = 20; }
       doc.setFontSize(12);
       doc.setTextColor(108, 95, 199);
-      doc.text('MPESS Holistic Guidance', margin, y); y += 7;
+      doc.text('🌿 Wellness Practices (MPESS)', margin, y); y += 7;
       doc.setFontSize(9);
       doc.setTextColor(0, 0, 0);
-      if (mpess.mind?.length) { doc.text(`Mind: ${mpess.mind.join(', ')}`, margin, y); y += 6; }
-      if (mpess.physical?.length) { doc.text(`Physical: ${mpess.physical.join(', ')}`, margin, y); y += 6; }
-      if (mpess.emotional?.length) { doc.text(`Emotional: ${mpess.emotional.join(', ')}`, margin, y); y += 6; }
-      if (mpess.spiritual?.length) { doc.text(`Spiritual: ${mpess.spiritual.join(', ')}`, margin, y); y += 6; }
+      mpessLogs.forEach(log => {
+        const d = log.submission_data || {};
+        if (d.practice) {
+          if (y > 270) { doc.addPage(); y = 20; }
+          const label = `${(d.category || 'practice').toUpperCase()}: ${d.practice}${d.frequency ? ` (${d.frequency})` : ''}${d.duration ? ` — ${d.duration}` : ''}`;
+          const lines = doc.splitTextToSize(label, 165);
+          doc.text(lines, margin + 4, y);
+          y += lines.length * 5 + 2;
+          if (d.notes) {
+            const noteLines = doc.splitTextToSize(`Notes: ${d.notes}`, 155);
+            doc.setTextColor(100, 100, 100);
+            doc.text(noteLines, margin + 8, y);
+            doc.setTextColor(0, 0, 0);
+            y += noteLines.length * 4 + 2;
+          }
+        }
+      });
     }
 
     doc.save(`${plan?.name || 'meal-plan'}.pdf`);
