@@ -62,32 +62,14 @@ export default function DietitianDashboard() {
   const { data: clients = [] } = useQuery({
     queryKey: ['dashboardClients', user?.email, user?.user_type, viewMode],
     queryFn: async () => {
-      // Re-fetch fresh user to avoid stale cache user_type issue
-      const freshUser = await base44.auth.me();
-      const userType = freshUser?.user_type || user?.user_type;
-      const userEmail = freshUser?.email || user?.email;
-
-      let allClients = [];
-      if (userType === 'super_admin' && viewMode === 'admin') {
-        allClients = await base44.entities.Client.list('-created_date', 50);
-      } else if (userType === 'student_coach') {
-        // Fetch by created_by AND assigned_coach to cover all cases
-        const [createdByMe, assignedToMe] = await Promise.all([
-          base44.entities.Client.filter({ created_by: userEmail }, '-created_date', 200),
-          base44.entities.Client.list('-created_date', 200),
-        ]);
-        // Merge and deduplicate
-        const allMap = new Map();
-        [...createdByMe, ...assignedToMe.filter(c => {
-          const coaches = Array.isArray(c.assigned_coach) ? c.assigned_coach : c.assigned_coach ? [c.assigned_coach] : [];
-          return coaches.includes(userEmail);
-        })].forEach(c => allMap.set(c.id, c));
-        allClients = Array.from(allMap.values());
-      } else {
-        allClients = await base44.entities.Client.filter({ created_by: userEmail }, '-created_date', 50);
+      if (!user?.email) return [];
+      if (user?.user_type === 'super_admin' || user?.role === 'super_admin') {
+        return await base44.entities.Client.list();
       }
-
-      return allClients;
+      const byCreated = await base44.entities.Client.filter({ created_by: user.email });
+      const byAssigned = await base44.entities.Client.filter({ assigned_coach: user.email });
+      const combined = [...byCreated, ...byAssigned];
+      return combined.filter((c, i, self) => self.findIndex(x => x.id === c.id) === i);
     },
     enabled: !!user,
     staleTime: 0,
