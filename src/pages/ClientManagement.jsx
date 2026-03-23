@@ -150,6 +150,7 @@ function ClientManagementInner() {
     },
     enabled: !!user && user?.user_type === 'super_admin',
     initialData: [],
+    retry: 0,
   });
 
   const { data: progressLogs } = useQuery({
