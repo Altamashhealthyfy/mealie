@@ -103,40 +103,27 @@ function ClientManagementInner() {
   const { data: clients = [], isLoading: clientsLoading } = useQuery({
     queryKey: ['clients', user?.email, user?.user_type],
     queryFn: async () => {
-      // Re-fetch the current user fresh to get the correct user_type (avoids stale cache issue)
       const freshUser = await base44.auth.me();
       const userType = freshUser?.user_type || user?.user_type;
       const userEmail = freshUser?.email || user?.email;
 
-      console.log('🔍 Current user:', userEmail, 'user_type:', userType, 'role:', freshUser?.role);
-
-      const allClients = await base44.entities.Client.list('-created_date', 1000);
-      console.log('🔍 ALL clients in system:', allClients?.length, allClients?.map(c => c.email));
-
-      const allUsers = await base44.entities.User.list();
-      const coachEmails = new Set(
-        allUsers
-          .filter(u => ['student_coach', 'team_member', 'student_team_member', 'super_admin'].includes(u.user_type))
-          .map(u => u.email?.toLowerCase())
-          .filter(Boolean)
-      );
-      console.log('🔍 Coach emails set (filtered out):', [...coachEmails]);
-
-      const nonCoachClients = allClients.filter(client => !coachEmails.has(client.email?.toLowerCase()));
-      console.log('🔍 Non-coach clients:', nonCoachClients?.length, nonCoachClients?.map(c => c.email));
-
-      if (userType === 'super_admin') return nonCoachClients;
-      if (userType === 'student_coach') {
-        const filtered = nonCoachClients.filter(client => {
-          const assignedCoaches = Array.isArray(client.assigned_coach) ? client.assigned_coach : client.assigned_coach ? [client.assigned_coach] : [];
-          const match = client.created_by === userEmail || assignedCoaches.includes(userEmail);
-          console.log(`🔍 Client ${client.email}: created_by=${client.created_by}, assignedCoaches=${JSON.stringify(assignedCoaches)}, match=${match}`);
-          return match;
-        });
-        console.log('🔍 Final filtered clients for coach:', filtered?.length, filtered?.map(c => c.email));
-        return filtered;
+      if (userType === 'super_admin') {
+        return await base44.entities.Client.list('-created_date', 1000);
       }
-      return nonCoachClients.filter(client => client.created_by === userEmail);
+      if (userType === 'student_coach') {
+        const [createdByMe, allClients] = await Promise.all([
+          base44.entities.Client.filter({ created_by: userEmail }, '-created_date', 1000),
+          base44.entities.Client.list('-created_date', 1000),
+        ]);
+        const assignedToMe = allClients.filter(c => {
+          const coaches = Array.isArray(c.assigned_coach) ? c.assigned_coach : c.assigned_coach ? [c.assigned_coach] : [];
+          return coaches.includes(userEmail);
+        });
+        const allMap = new Map();
+        [...createdByMe, ...assignedToMe].forEach(c => allMap.set(c.id, c));
+        return Array.from(allMap.values());
+      }
+      return await base44.entities.Client.filter({ created_by: userEmail }, '-created_date', 1000);
     },
     enabled: !!user,
     staleTime: 0,
