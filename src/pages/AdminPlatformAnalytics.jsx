@@ -71,10 +71,13 @@ export default function AdminPlatformAnalytics() {
   const { data: allCoaches } = useQuery({
     queryKey: ["allCoaches"],
     queryFn: async () => {
+      if (user?.user_type !== "super_admin") return [];
       const users = await base44.entities.User.list();
       return users.filter((u) => u.user_type === "student_coach");
     },
+    enabled: !!user && user?.user_type === "super_admin",
     initialData: [],
+    retry: 0,
   });
 
   const { data: allClients } = useQuery({
