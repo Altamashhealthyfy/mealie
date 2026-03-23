@@ -66,11 +66,13 @@ export default function TeamManagement() {
   const { data: allUsers } = useQuery({
     queryKey: ['allUsers'],
     queryFn: async () => {
+      if (user?.user_type !== 'super_admin' && user?.user_type !== 'student_coach') return [];
       const users = await base44.entities.User.list();
       return users;
     },
-    enabled: !!user,
+    enabled: !!user && (user?.user_type === 'super_admin' || user?.user_type === 'student_coach'),
     initialData: [],
+    retry: 0,
   });
 
   const { data: mySubscription } = useQuery({
