@@ -18,7 +18,7 @@ export default function MyAssignedMealPlan() {
   const [viewMode, setViewMode] = useState("current"); // "current" or "history"
   const [selectedPlanId, setSelectedPlanId] = useState(null);
   const [dateFilter, setDateFilter] = useState(null);
-  const [showPDFDialog, setShowPDFDialog] = useState(false);
+
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
