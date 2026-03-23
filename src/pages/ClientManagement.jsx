@@ -101,32 +101,20 @@ function ClientManagementInner() {
   });
 
   const { data: clients = [], isLoading: clientsLoading } = useQuery({
-    queryKey: ['clients', user?.email, user?.user_type],
+    queryKey: ['clients', user?.email],
     queryFn: async () => {
-      const freshUser = await base44.auth.me();
-      const userType = freshUser?.user_type || user?.user_type;
-      const userEmail = freshUser?.email || user?.email;
-
-      if (userType === 'super_admin') {
-        return await base44.entities.Client.list('-created_date', 1000);
+      if (!user?.email) return [];
+      if (user?.user_type === 'super_admin' || user?.role === 'super_admin') {
+        return await base44.entities.Client.list();
       }
-      if (userType === 'student_coach') {
-        const [createdByMe, allClients] = await Promise.all([
-          base44.entities.Client.filter({ created_by: userEmail }, '-created_date', 1000),
-          base44.entities.Client.list('-created_date', 1000),
-        ]);
-        const assignedToMe = allClients.filter(c => {
-          const coaches = Array.isArray(c.assigned_coach) ? c.assigned_coach : c.assigned_coach ? [c.assigned_coach] : [];
-          return coaches.includes(userEmail);
-        });
-        const allMap = new Map();
-        [...createdByMe, ...assignedToMe].forEach(c => allMap.set(c.id, c));
-        return Array.from(allMap.values());
-      }
-      return await base44.entities.Client.filter({ created_by: userEmail }, '-created_date', 1000);
+      const byCreated = await base44.entities.Client.filter({ created_by: user.email });
+      const byAssigned = await base44.entities.Client.filter({ assigned_coach: user.email });
+      const combined = [...byCreated, ...byAssigned];
+      return combined.filter((c, i, self) => self.findIndex(x => x.id === c.id) === i);
     },
-    enabled: !!user,
+    enabled: !!user?.email,
     staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 
   const { data: mealPlans } = useQuery({
