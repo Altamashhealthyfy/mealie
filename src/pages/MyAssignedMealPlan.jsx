@@ -180,13 +180,19 @@ export default function MyAssignedMealPlan() {
     return mealTypeOrder[key] ?? 999;
   };
 
-  const groupedMeals = {};
-  displayedPlan?.meals?.forEach(meal => {
-    if (!groupedMeals[meal.day]) {
-      groupedMeals[meal.day] = [];
-    }
-    groupedMeals[meal.day].push(meal);
-  });
+  const groupedMeals = useMemo(() => {
+    const groups = {};
+    (displayedPlan?.meals || []).forEach(meal => {
+      const day = meal.day;
+      if (!groups[day]) groups[day] = [];
+      groups[day].push(meal);
+    });
+    // Sort meals within each day by meal type order
+    Object.keys(groups).forEach(day => {
+      groups[day].sort((a, b) => getMealOrder(a.meal_type) - getMealOrder(b.meal_type));
+    });
+    return groups;
+  }, [displayedPlan]);
 
   const toggleMealComplete = async (day, meal) => {
     const key = `${day}-${meal.meal_type}`;
