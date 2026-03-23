@@ -259,6 +259,10 @@ export default function MyAssignedMealPlan() {
     return <div style={{padding:'2rem'}}>Loading your meal plan...</div>;
   }
 
+  console.log('🔍 assignedPlan:', assignedPlan?.name, '| meals count:', assignedPlan?.meals?.length);
+  console.log('🔍 displayedPlan:', displayedPlan?.name, '| meals:', displayedPlan?.meals?.slice(0,5).map(m => m.meal_type));
+  console.log('🔍 groupedMeals keys:', Object.keys(groupedMeals));
+
   return (
     <div className="min-h-screen p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
