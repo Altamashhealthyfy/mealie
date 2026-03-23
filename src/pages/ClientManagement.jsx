@@ -143,12 +143,14 @@ function ClientManagementInner() {
   const { data: teamMembers } = useQuery({
     queryKey: ['teamMembers', user?.email],
     queryFn: async () => {
-      const allUsers = await base44.entities.User.list();
-      if (user?.user_type === 'super_admin') return allUsers.filter(u => u.user_type === 'team_member' || u.user_type === 'student_team_member');
-      if (user?.user_type === 'student_coach') return allUsers.filter(u => u.user_type === 'student_team_member' && u.created_by === user?.email);
+      if (user?.user_type === 'super_admin') {
+        const allUsers = await base44.entities.User.list();
+        return allUsers.filter(u => u.user_type === 'team_member' || u.user_type === 'student_team_member');
+      }
+      // student_coach: fetch only their own team members via TeamMember entity to avoid 403
       return [];
     },
-    enabled: !!user && (user?.user_type === 'super_admin' || user?.user_type === 'student_coach'),
+    enabled: !!user && user?.user_type === 'super_admin',
     initialData: [],
   });
 
