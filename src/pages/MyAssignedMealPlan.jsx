@@ -141,12 +141,12 @@ export default function MyAssignedMealPlan() {
   });
 
   const { data: mpessLogs } = useQuery({
-    queryKey: ['clientMpess', clientProfile?.email],
+    queryKey: ['clientMpess', clientProfile?.id],
     queryFn: async () => {
-      const logs = await base44.entities.MPESSTracker.filter({ client_id: clientProfile?.email });
+      const logs = await base44.entities.MPESSTracker.filter({ client_id: clientProfile?.id });
       return logs.sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
     },
-    enabled: !!clientProfile?.email,
+    enabled: !!clientProfile?.id,
   });
 
   const { data: allMealPlans } = useQuery({
