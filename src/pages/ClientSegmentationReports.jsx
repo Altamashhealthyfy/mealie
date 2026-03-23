@@ -75,9 +75,12 @@ export default function ClientSegmentationReports() {
   const { data: coaches } = useQuery({
     queryKey: ['allCoaches'],
     queryFn: async () => {
+      if (user?.user_type !== 'super_admin') return [];
       return await base44.entities.User.filter({ user_type: 'student_coach' });
     },
+    enabled: !!user && user?.user_type === 'super_admin',
     initialData: [],
+    retry: 0,
   });
 
   const { data: coachProfiles } = useQuery({
