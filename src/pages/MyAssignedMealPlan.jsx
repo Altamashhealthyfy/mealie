@@ -168,6 +168,8 @@ export default function MyAssignedMealPlan() {
     Object.keys(groups).forEach(day => {
       groups[day].sort((a, b) => getOrder(a.meal_type) - getOrder(b.meal_type));
     });
+    console.log('🔍 Raw meals meal_types:', (displayedPlan?.meals || []).map(m => `day${m.day}:${JSON.stringify(m.meal_type)}`));
+    console.log('🔍 Day 1 meals after sort:', groups[1]?.map(m => m.meal_type + ':' + m.meal_name));
     return groups;
   }, [displayedPlan]);
 
