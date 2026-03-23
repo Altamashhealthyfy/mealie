@@ -87,15 +87,7 @@ export default function DietitianDashboard() {
         allClients = await base44.entities.Client.filter({ created_by: userEmail }, '-created_date', 50);
       }
 
-      // Filter out coaches/team members from client list
-      const allUsers = await base44.entities.User.list();
-      const coachEmails = new Set(
-        allUsers
-          .filter(u => ['student_coach', 'team_member', 'student_team_member', 'super_admin'].includes(u.user_type))
-          .map(u => u.email?.toLowerCase())
-          .filter(Boolean)
-      );
-      return allClients.filter(client => !coachEmails.has(client.email?.toLowerCase()));
+      return allClients;
     },
     enabled: !!user,
     staleTime: 0,
