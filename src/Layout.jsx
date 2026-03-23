@@ -812,10 +812,10 @@ export default function Layout({ children, currentPageName }) {
       },
 
       {
-        title: "MPESS Wellness",
+        title: "💚 MPESS Wellness",
         url: createPageUrl("MPESSTracker"),
         icon: Heart,
-        show: (coachAccess.show_mpess_wellness ?? true) && (permissions?.can_view_mpess ?? true),
+        show: true,
       },
       {
         title: "Messages",
