@@ -464,7 +464,7 @@ export default function MyAssignedMealPlan() {
           {Object.keys(groupedMeals).sort((a, b) => a - b).map(day => (
             <TabsContent key={day} value={`day-${day}`} className="space-y-4">
               {groupedMeals[day]
-                .sort((a, b) => (mealTypeOrder[a.meal_type] || 999) - (mealTypeOrder[b.meal_type] || 999))
+                .sort((a, b) => getMealOrder(a.meal_type) - getMealOrder(b.meal_type))
                 .map((meal, idx) => {
                   const mealKey = `${day}-${meal.meal_type}`;
                   const isCompleted = completedMeals[mealKey];
