@@ -158,12 +158,26 @@ export default function MyAssignedMealPlan() {
 
   const mealTypeOrder = {
     "early_morning": 0,
+    "early morning": 0,
+    "earlymorning": 0,
     "breakfast": 1,
     "mid_morning": 2,
+    "mid morning": 2,
+    "midmorning": 2,
     "lunch": 3,
     "evening_snack": 4,
+    "evening snack": 4,
+    "eveningsnack": 4,
+    "snack": 4,
     "dinner": 5,
-    "post_dinner": 6
+    "post_dinner": 6,
+    "post dinner": 6,
+    "postdinner": 6
+  };
+
+  const getMealOrder = (meal_type) => {
+    const key = (meal_type || '').toLowerCase().trim();
+    return mealTypeOrder[key] ?? 999;
   };
 
   const groupedMeals = {};
