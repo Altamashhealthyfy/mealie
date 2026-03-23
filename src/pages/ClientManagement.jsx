@@ -135,11 +135,11 @@ function ClientManagementInner() {
         const allUsers = await base44.entities.User.list();
         return allUsers.filter(u => u.user_type === 'team_member' || u.user_type === 'student_team_member');
       }
-      // student_coach: fetch only their own team members via TeamMember entity to avoid 403
       return [];
     },
     enabled: !!user && user?.user_type === 'super_admin',
     initialData: [],
+    retry: 0,
   });
 
   const { data: healthCoaches } = useQuery({
