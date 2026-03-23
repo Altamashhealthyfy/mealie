@@ -157,12 +157,8 @@ export default function MyAssignedMealPlan() {
     : (selectedPlanId ? allMealPlans?.find(p => p.id === selectedPlanId) : filteredPlans?.[0]);
 
   const groupedMeals = useMemo(() => {
-    const ORDER = ["early_morning","early morning","breakfast","mid_morning","mid morning","lunch","evening_snack","evening snack","snack","dinner","post_dinner","post dinner"];
-    const getOrder = (t) => {
-      const key = (t || '').toLowerCase().trim();
-      const idx = ORDER.findIndex(o => o === key);
-      return idx === -1 ? 999 : idx;
-    };
+    const ORDER = {"early_morning":0,"early morning":0,"breakfast":1,"mid_morning":2,"mid morning":2,"lunch":3,"evening_snack":4,"evening snack":4,"snack":4,"dinner":5,"post_dinner":6,"post dinner":6};
+    const getOrder = (t) => ORDER[(t || '').toLowerCase().trim()] ?? 999;
     const groups = {};
     (displayedPlan?.meals || []).forEach(meal => {
       const day = meal.day;
