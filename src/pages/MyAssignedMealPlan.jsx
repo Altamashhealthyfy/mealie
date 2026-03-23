@@ -454,14 +454,7 @@ export default function MyAssignedMealPlan() {
         )}
       </div>
 
-      {showPDFDialog && displayedPlan && (
-        <MealPlanPDFDownload
-          plan={displayedPlan}
-          mpessData={displayedPlan?.mpess_integration}
-          open={showPDFDialog}
-          onOpenChange={setShowPDFDialog}
-        />
-      )}
+
     </div>
   );
 }
