@@ -128,6 +128,15 @@ export default function MyAssignedMealPlan() {
     enabled: !!clientProfile,
   });
 
+  const { data: mpessLogs } = useQuery({
+    queryKey: ['clientMpess', clientProfile?.email],
+    queryFn: async () => {
+      const logs = await base44.entities.MPESSTracker.filter({ client_id: clientProfile?.email });
+      return logs.sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
+    },
+    enabled: !!clientProfile?.email,
+  });
+
   const { data: allMealPlans } = useQuery({
     queryKey: ['allClientMealPlans', clientProfile?.id],
     queryFn: async () => {
