@@ -399,7 +399,7 @@ export default function MyAssignedMealPlan() {
                           <div className="flex items-start gap-4 flex-1">
                             <Checkbox
                               checked={isCompleted}
-                              onCheckedChange={() => toggleMealComplete(day, meal.meal_type)}
+                              onCheckedChange={() => toggleMealComplete(day, meal)}
                               className="mt-1"
                             />
                             <div className="flex-1">
