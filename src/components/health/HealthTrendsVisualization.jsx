@@ -22,7 +22,7 @@ import {
   Radar
 } from "recharts";
 import { format } from "date-fns";
-import { TrendingUp, Activity, Moon, Zap, CloudRain, Heart, AlertCircle } from "lucide-react";
+import { TrendingUp, Activity, Moon, Zap, CloudRain, Heart, AlertCircle, Droplets } from "lucide-react";
 
 export default function HealthTrendsVisualization({ progressLogs }) {
   // Process data for different visualizations
