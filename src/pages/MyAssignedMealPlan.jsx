@@ -162,7 +162,8 @@ export default function MyAssignedMealPlan() {
     "mid_morning": 2,
     "lunch": 3,
     "evening_snack": 4,
-    "dinner": 5
+    "dinner": 5,
+    "post_dinner": 6
   };
 
   const groupedMeals = {};
