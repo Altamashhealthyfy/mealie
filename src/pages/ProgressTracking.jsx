@@ -576,14 +576,52 @@ export default function ProgressTracking() {
         {/* Daily Progress Logger */}
         <DailyProgressLogger clientId={clientProfile?.id} />
 
-        {/* Macro Adherence Dashboard */}
+        {/* Nutrition Adherence from Progress Logs (meal ticks) */}
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Nutrition Adherence</h2>
-          <MacroAdherenceDashboard 
-            foodLogs={foodLogs} 
-            mealPlan={mealPlan} 
-            clientProfile={clientProfile} 
-          />
+          {(() => {
+            const recentLogs = progressLogs.filter(l => l.meal_adherence != null).slice(-7);
+            if (recentLogs.length === 0) {
+              return (
+                <Card className="border-none shadow-lg">
+                  <CardContent className="p-8 text-center">
+                    <Target className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                    <p className="text-gray-500">No adherence data yet. Log your daily progress with meal adherence %.</p>
+                  </CardContent>
+                </Card>
+              );
+            }
+            const avgAdherence = Math.round(recentLogs.reduce((s, l) => s + l.meal_adherence, 0) / recentLogs.length);
+            return (
+              <div className="space-y-4">
+                <Card className="border-none shadow-xl bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                  <CardContent className="p-6 flex items-center justify-between">
+                    <div>
+                      <p className="text-white/80 mb-1">Overall Meal Adherence</p>
+                      <p className="text-5xl font-bold">{avgAdherence}%</p>
+                      <p className="text-sm text-white/90 mt-2">Average over last {recentLogs.length} log{recentLogs.length > 1 ? 's' : ''}</p>
+                    </div>
+                    <Target className="w-16 h-16 text-white/30" />
+                  </CardContent>
+                </Card>
+                <div className="space-y-2">
+                  {recentLogs.slice().reverse().map(log => (
+                    <Card key={log.id} className="border-none shadow">
+                      <CardContent className="p-4 flex items-center justify-between">
+                        <p className="text-sm font-medium text-gray-700">{log.date ? format(new Date(log.date), 'MMM d, yyyy') : '—'}</p>
+                        <div className="flex items-center gap-3">
+                          <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="h-full rounded-full" style={{ width: `${Math.min(100, log.meal_adherence)}%`, backgroundColor: log.meal_adherence >= 80 ? '#22c55e' : log.meal_adherence >= 50 ? '#f59e0b' : '#ef4444' }} />
+                          </div>
+                          <span className={`text-sm font-bold ${log.meal_adherence >= 80 ? 'text-green-600' : log.meal_adherence >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>{log.meal_adherence}%</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Goals Section */}
