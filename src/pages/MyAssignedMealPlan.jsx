@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar, ChefHat, Utensils, Lightbulb, CheckCircle2, History, CalendarDays } from "lucide-react";
+import { Calendar, ChefHat, Utensils, Lightbulb, CheckCircle2, History, CalendarDays, Download } from "lucide-react";
+import MealPlanPDFDownload from "@/components/mealplanner/MealPlanPDFDownload";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -18,6 +19,7 @@ export default function MyAssignedMealPlan() {
   const [viewMode, setViewMode] = useState("current"); // "current" or "history"
   const [selectedPlanId, setSelectedPlanId] = useState(null);
   const [dateFilter, setDateFilter] = useState(null);
+  const [showPDFDialog, setShowPDFDialog] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -176,7 +178,7 @@ export default function MyAssignedMealPlan() {
             <h1 className="text-4xl font-bold text-gray-900 mb-2">My Meal Plan</h1>
             <p className="text-gray-600">Follow your personalized nutrition plan</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button
               variant={viewMode === "current" ? "default" : "outline"}
               onClick={() => {
@@ -197,6 +199,16 @@ export default function MyAssignedMealPlan() {
               <History className="w-4 h-4 mr-2" />
               Previous Plans
             </Button>
+            {displayedPlan && (
+              <Button
+                variant="outline"
+                onClick={() => setShowPDFDialog(true)}
+                className="border-green-500 text-green-600"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download PDF
+              </Button>
+            )}
           </div>
         </div>
 
@@ -444,6 +456,15 @@ export default function MyAssignedMealPlan() {
           </Tabs>
         )}
       </div>
+
+      {showPDFDialog && displayedPlan && (
+        <MealPlanPDFDownload
+          plan={displayedPlan}
+          mpessData={displayedPlan?.mpess_integration}
+          open={showPDFDialog}
+          onOpenChange={setShowPDFDialog}
+        />
+      )}
     </div>
   );
 }
