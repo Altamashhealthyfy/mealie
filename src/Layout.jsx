@@ -817,18 +817,7 @@ export default function Layout({ children, currentPageName }) {
         icon: MessageSquare,
         show: (coachAccess.show_messages ?? true) && (permissions?.can_view_messages ?? true),
       },
-      {
-        title: "MPESS Assessment",
-        url: createPageUrl("ClientMPESSAssessment"),
-        icon: Heart,
-        show: (coachAccess.show_mpess_wellness ?? true) && (permissions?.can_view_mpess ?? true),
-      },
-      {
-        title: "MPESS Analytics",
-        url: createPageUrl("ClientMPESSAnalytics"),
-        icon: TrendingUp,
-        show: (coachAccess.show_mpess_wellness ?? true) && (permissions?.can_view_mpess ?? true),
-      },
+
       {
         title: "My Assessments",
         url: createPageUrl("ClientAssessments"),
