@@ -156,40 +156,21 @@ export default function MyAssignedMealPlan() {
     ? assignedPlan 
     : (selectedPlanId ? allMealPlans?.find(p => p.id === selectedPlanId) : filteredPlans?.[0]);
 
-  const mealTypeOrder = {
-    "early_morning": 0,
-    "early morning": 0,
-    "earlymorning": 0,
-    "breakfast": 1,
-    "mid_morning": 2,
-    "mid morning": 2,
-    "midmorning": 2,
-    "lunch": 3,
-    "evening_snack": 4,
-    "evening snack": 4,
-    "eveningsnack": 4,
-    "snack": 4,
-    "dinner": 5,
-    "post_dinner": 6,
-    "post dinner": 6,
-    "postdinner": 6
-  };
-
-  const getMealOrder = (meal_type) => {
-    const key = (meal_type || '').toLowerCase().trim();
-    return mealTypeOrder[key] ?? 999;
-  };
-
   const groupedMeals = useMemo(() => {
+    const ORDER = ["early_morning","early morning","breakfast","mid_morning","mid morning","lunch","evening_snack","evening snack","snack","dinner","post_dinner","post dinner"];
+    const getOrder = (t) => {
+      const key = (t || '').toLowerCase().trim();
+      const idx = ORDER.findIndex(o => o === key);
+      return idx === -1 ? 999 : idx;
+    };
     const groups = {};
     (displayedPlan?.meals || []).forEach(meal => {
       const day = meal.day;
       if (!groups[day]) groups[day] = [];
       groups[day].push(meal);
     });
-    // Sort meals within each day by meal type order
     Object.keys(groups).forEach(day => {
-      groups[day].sort((a, b) => getMealOrder(a.meal_type) - getMealOrder(b.meal_type));
+      groups[day].sort((a, b) => getOrder(a.meal_type) - getOrder(b.meal_type));
     });
     return groups;
   }, [displayedPlan]);
