@@ -32,10 +32,12 @@ export default function BroadcastNotification() {
   const { data: allUsers = [] } = useQuery({
     queryKey: ['allClientUsers'],
     queryFn: async () => {
+      if (user?.user_type !== 'super_admin') return [];
       const users = await base44.entities.User.list();
       return users.filter(u => u.user_type === 'client');
     },
-    enabled: isDietitian,
+    enabled: !!user && user?.user_type === 'super_admin',
+    retry: 0,
   });
 
   const { data: clients = [] } = useQuery({
