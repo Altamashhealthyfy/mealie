@@ -112,6 +112,12 @@ const clientManagementNav = [
   },
 
   {
+    title: "💚 MPESS Submissions",
+    url: createPageUrl("CoachMPESSTracker"),
+    icon: Heart,
+    roles: ['super_admin', 'team_member', 'student_coach', 'student_team_member'],
+  },
+  {
     title: "💬 Clients Feedback",
     url: createPageUrl("ClientProgressReview"),
     icon: ClipboardList,
