@@ -23,6 +23,7 @@ import {
 } from "recharts";
 import { format } from "date-fns";
 import { TrendingUp, Activity, Moon, Zap, CloudRain, Heart, AlertCircle, Droplets } from "lucide-react";
+// fix: Droplets import
 
 export default function HealthTrendsVisualization({ progressLogs }) {
   // Process data for different visualizations
