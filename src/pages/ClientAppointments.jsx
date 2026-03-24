@@ -53,7 +53,7 @@ export default function ClientAppointments() {
     queryKey: ['myAppointments', clientProfile?.id],
     queryFn: async () => {
       if (!clientProfile?.id) return [];
-      return await base44.entities.Appointment.filter({ client_id: clientProfile.id }, '-date');
+      return await base44.entities.Appointment.filter({ client_id: clientProfile.id }, '-appointment_date');
     },
     enabled: !!clientProfile,
     initialData: [],
