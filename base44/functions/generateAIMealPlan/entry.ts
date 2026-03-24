@@ -806,7 +806,8 @@ Return JSON in this exact structure:
       client_id: clientId,
       name: (() => {
         const now = new Date();
-        const timestamp = now.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'}) + ' ' + now.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit', hour12:true});
+        const istTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+        const timestamp = istTime.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' }) + ' ' + istTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' });
         const conditionLabel = allConditions.length ? allConditions[0] : (resolvedDietType || 'General');
         return `${client.full_name} — ${conditionLabel} Plan (${duration} Days) | ${timestamp}`;
       })(),

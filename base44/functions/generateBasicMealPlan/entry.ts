@@ -115,7 +115,8 @@ Return ONLY valid JSON:
     }
 
     const now = new Date();
-    const timestamp = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+    const istTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+    const timestamp = istTime.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' }) + ' ' + istTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' });
     const planName = `${client.full_name} — Basic Plan (${days} Days) | ${timestamp}`;
 
     const mealPlan = await base44.asServiceRole.entities.MealPlan.create({

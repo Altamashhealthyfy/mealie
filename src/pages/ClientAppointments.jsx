@@ -95,18 +95,18 @@ export default function ClientAppointments() {
   };
 
   const todayAppointments = appointments.filter(apt => 
-    isSameDay(new Date(apt.date), new Date())
+    isSameDay(new Date(apt.appointment_date), new Date())
   );
 
   const upcomingAppointments = appointments.filter(apt => {
-    const aptDate = new Date(apt.date);
+    const aptDate = new Date(apt.appointment_date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return aptDate > today;
   });
 
   const pastAppointments = appointments.filter(apt => {
-    const aptDate = new Date(apt.date);
+    const aptDate = new Date(apt.appointment_date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return aptDate < today;
@@ -179,7 +179,7 @@ export default function ClientAppointments() {
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="flex items-center gap-2">
                 <CalendarIcon className="w-4 h-4 text-gray-400" />
-                <span>{format(new Date(appointment.date), 'MMM d, yyyy')}</span>
+                <span>{format(new Date(appointment.appointment_date), 'MMM d, yyyy')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-gray-400" />
