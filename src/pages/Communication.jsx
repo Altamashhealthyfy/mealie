@@ -159,9 +159,9 @@ export default function Communication() {
       return [];
     },
     enabled: !!user && user?.user_type !== 'client',
-    staleTime: 30 * 1000,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
+    staleTime: 5 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   const [allMessages, setAllMessages] = useState([]);

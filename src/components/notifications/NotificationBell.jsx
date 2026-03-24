@@ -27,7 +27,7 @@ export default function NotificationBell({ userEmail }) {
       );
     },
     enabled: !!userEmail,
-    refetchInterval: 8000,
+    refetchInterval: 60000,
   });
 
   // Real-time subscription for instant notification updates

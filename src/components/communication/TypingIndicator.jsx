@@ -23,7 +23,7 @@ export default function TypingIndicator({ clientId, groupId, currentUserEmail })
       return recent;
     },
     enabled: !!(clientId || groupId),
-    refetchInterval: 2000,
+    refetchInterval: 15000,
     initialData: [],
   });
 
