@@ -136,12 +136,9 @@ export default function InlineClinicalIntakeForm({ clientId, prefillData, isView
     setMedications(updated);
   };
 
-  const handleAIFillFromFiles = async (e) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    setAiFileUploading(true);
-    setAiFileCount(files.length);
-    try {
+  const handleAIFillFromFiles_REMOVED = async (e) => {
+    // removed
+    if (false) {
       // Upload all files in parallel
       const uploadResults = await Promise.all(files.map(f => base44.integrations.Core.UploadFile({ file: f })));
       const fileUrls = uploadResults.map(r => r.file_url);
