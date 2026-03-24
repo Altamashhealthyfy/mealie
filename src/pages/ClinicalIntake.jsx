@@ -24,6 +24,9 @@ export default function ClinicalIntake() {
   const [searchParams] = useSearchParams();
   const clientId = searchParams.get('clientId');
 
+  // Debug logging — remove after confirming pre-fill works
+  console.log('🔍 ClinicalIntake rendered, clientId from URL:', new URLSearchParams(window.location.search).get('clientId'));
+
   const [formData, setFormData] = useState({
     client_id: clientId,
     intake_date: format(new Date(), 'yyyy-MM-dd'),
