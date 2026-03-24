@@ -6,7 +6,7 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { clientId, calorieTarget, dietType, numDays = 7, goal } = await req.json();
+    const { clientId, calorieTarget, dietType, numDays = 7, goal: goalParam } = await req.json();
     if (!clientId) return Response.json({ error: 'clientId required' }, { status: 400 });
 
     const clients = await base44.asServiceRole.entities.Client.filter({ id: clientId });
@@ -16,6 +16,7 @@ Deno.serve(async (req) => {
     const targetCal = parseInt(calorieTarget || client.target_calories || 1800);
     const diet = dietType || client.food_preference || 'veg';
     const days = parseInt(numDays) || 7;
+    const goal = goalParam || client.goal || 'general_health';
 
     const systemPrompt = `You are a professional Indian dietitian. Generate healthy balanced Indian meal plans.
 

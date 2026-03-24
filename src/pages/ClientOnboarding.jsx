@@ -254,6 +254,8 @@ Provide a warm, personalized tip that's relevant to their situation.`,
       // If client came via a coach referral link, assign that coach
       if (coachRefEmail) {
         clientData.assigned_coach = [coachRefEmail];
+        clientData.created_by = coachRefEmail;
+        clientData.assigned_to = coachRefEmail;
       }
 
       return await base44.entities.Client.create(clientData);

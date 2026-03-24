@@ -192,7 +192,7 @@ function ClientManagementInner() {
           await base44.functions.invoke('createUserWithPassword', { email: newClient.email, full_name: newClient.full_name, user_type: 'client', password: 'Client@123' });
         } catch (userError) { console.error("⚠️ Failed to create user account:", userError); }
         try {
-          const welcomeBody = `Dear ${newClient.full_name},\n\nWelcome to Mealie Pro! 🎉\n\nWe're thrilled to have you join us.\n\nAccess Your Dashboard:\nhttps://mealiepro.com\n\nBest regards,\nMealie Pro Team`;
+          const welcomeBody = `Dear ${newClient.full_name},\n\nWelcome to Mealie Pro! 🎉\n\nYour health coaching account has been created by your coach.\n\n🔐 Login Details:\nURL: https://app.mealiepro.com\nEmail: ${newClient.email}\nPassword: Client@123\n\n⚠️ Please change your password after your first login.\n\nBest regards,\nMealie Pro Team`;
           await base44.functions.invoke('sendEmail', { to: newClient.email, subject: "Welcome to Mealie Pro - Your Health Journey Begins!", body: welcomeBody });
         } catch (emailError) { console.error("⚠️ Failed to send welcome email:", emailError); }
         if (newClient.phone) {

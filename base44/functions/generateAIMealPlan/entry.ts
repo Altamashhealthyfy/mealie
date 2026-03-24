@@ -126,7 +126,7 @@ Deno.serve(async (req) => {
 
     // ─── PARAM OVERRIDE BLOCK: explicit params always win over client profile ───
     const duration = numDays || rawDuration || 7;
-    const goal = overrideGoal || client.goal;
+    const goal = overrideGoal || client.goal || clinicalIntake?.goal?.[0] || 'general_health';
     const targetCal = calorieTarget || overrideCalories || client.target_calories || client.tdee || 1800;
     const targetProtein = overrideProtein || client.target_protein || Math.round(client.weight * 1.6) || 120;
     const targetCarbs = overrideCarbs || client.target_carbs || Math.round((targetCal * 0.45) / 4);
@@ -323,7 +323,7 @@ BMI: ${clinicalIntake?.basic_info?.bmi || 'not specified'}
 Activity Level: ${client.activity_level || clinicalIntake?.daily_routine?.activity_level || 'moderately active'}
 Diet Type: ${resolvedDietType}
 Calorie Target: ${targetCal} kcal/day
-Goal: ${overrideGoal || client.goal || 'weight loss'}
+Goal: ${overrideGoal || client.goal || clinicalIntake?.goal?.[0] || 'general_health'}
 
 HEALTH CONDITIONS:
 Primary: ${allConditions.length ? allConditions.join(', ') : 'none'}
