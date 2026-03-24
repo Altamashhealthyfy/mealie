@@ -18,6 +18,7 @@ import HealthMetricsSection from "@/components/profile/HealthMetricsSection";
 import LifestyleSection from "@/components/profile/LifestyleSection";
 import FamilyHistorySection from "@/components/profile/FamilyHistorySection";
 import ConsentsSection from "@/components/profile/ConsentsSection";
+import ClientSelfEditProfile from "@/components/client/ClientSelfEditProfile";
 
 export default function Profile() {
   const queryClient = useQueryClient();
@@ -626,6 +627,14 @@ export default function Profile() {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {/* CLIENT HEALTH DATA SELF-EDIT - ONLY FOR CLIENTS */}
+        {isClient && canEditProfile && clientProfile && (
+          <ClientSelfEditProfile
+            client={clientProfile}
+            onSaved={() => queryClient.invalidateQueries(['clientProfile'])}
+          />
         )}
 
         {/* CLIENT PROFILE SECTION - ONLY FOR CLIENTS */}
