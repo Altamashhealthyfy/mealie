@@ -568,6 +568,9 @@ export default function Layout({ children, currentPageName }) {
     },
     enabled: !!user,
     initialData: 0,
+    staleTime: 60 * 1000,
+    refetchInterval: 60000,
+    refetchOnWindowFocus: false,
   });
 
   // Listen for view mode changes from DietitianDashboard
