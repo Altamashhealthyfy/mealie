@@ -128,9 +128,9 @@ export default function ClinicalIntake() {
   });
 
   // Load existing intake OR pre-fill from basic profile
-  // Wait until both queries resolve (intakeLoading === false) before deciding
+  // Wait until BOTH queries resolve before deciding
   useEffect(() => {
-    if (!formData.client_id || intakeLoading) return;
+    if (!formData.client_id || intakeLoading || clientLoading) return;
 
     if (existingIntake) {
       // Load existing intake data
