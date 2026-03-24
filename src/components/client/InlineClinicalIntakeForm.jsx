@@ -11,8 +11,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
-  Stethoscope, Plus, X, CheckCircle, Sparkles, Upload, Loader2, Wand2, ChevronDown,
-  Heart, Brain, Users, FileText, Trash2
+  Plus, X, CheckCircle, Sparkles, Loader2, ChevronDown,
+  Heart, Brain, Users
 } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { format } from "date-fns";
