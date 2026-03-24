@@ -98,6 +98,8 @@ function ClientManagementInner() {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: clients = [], isLoading: clientsLoading } = useQuery({
@@ -113,8 +115,8 @@ function ClientManagementInner() {
       return combined.filter((c, i, self) => self.findIndex(x => x.id === c.id) === i);
     },
     enabled: !!user?.email,
-    staleTime: 0,
-    refetchOnWindowFocus: true,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: mealPlans } = useQuery({
@@ -126,6 +128,8 @@ function ClientManagementInner() {
     },
     enabled: !!user,
     initialData: [],
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: teamMembers } = useQuery({
@@ -140,6 +144,8 @@ function ClientManagementInner() {
     enabled: !!user && user?.user_type === 'super_admin',
     initialData: [],
     retry: 0,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: healthCoaches } = useQuery({
@@ -151,18 +157,24 @@ function ClientManagementInner() {
     enabled: !!user && user?.user_type === 'super_admin',
     initialData: [],
     retry: 0,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: progressLogs } = useQuery({
     queryKey: ['allProgressLogs'],
     queryFn: () => base44.entities.ProgressLog.list('-date', 1000),
     initialData: [],
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: foodLogs } = useQuery({
     queryKey: ['allFoodLogs'],
     queryFn: () => base44.entities.FoodLog.list('-date', 1000),
     initialData: [],
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const saveClientMutation = useMutation({

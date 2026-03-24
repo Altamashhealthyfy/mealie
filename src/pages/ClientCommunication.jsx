@@ -91,6 +91,8 @@ export default function ClientCommunication() {
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
     retry: false,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: clientProfile, isLoading: profileLoading } = useQuery({
@@ -103,6 +105,8 @@ export default function ClientCommunication() {
       return allClients.find(c => c.email?.toLowerCase() === user.email?.toLowerCase()) || null;
     },
     enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: messages = [] } = useQuery({
@@ -114,7 +118,9 @@ export default function ClientCommunication() {
     },
     enabled: !!clientProfile?.id,
     initialData: [],
-    refetchInterval: 15000,
+    staleTime: 30000,
+    refetchInterval: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: clientGroups = [] } = useQuery({
@@ -126,7 +132,8 @@ export default function ClientCommunication() {
     },
     enabled: !!clientProfile?.id,
     initialData: [],
-    refetchInterval: 30000,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: groupMessages = [] } = useQuery({
@@ -138,7 +145,9 @@ export default function ClientCommunication() {
     },
     enabled: clientGroups.length > 0,
     initialData: [],
-    refetchInterval: 15000,
+    staleTime: 30000,
+    refetchInterval: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const coachEmail = Array.isArray(clientProfile?.assigned_coach)
@@ -153,6 +162,8 @@ export default function ClientCommunication() {
       return users[0] || null;
     },
     enabled: !!coachEmail,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const sendMessageMutation = useMutation({
