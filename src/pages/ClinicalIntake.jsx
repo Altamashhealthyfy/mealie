@@ -130,6 +130,11 @@ export default function ClinicalIntake() {
     enabled: !!formData.client_id,
   });
 
+  // Debug logging — remove after confirming pre-fill works
+  console.log('🔍 formData.client_id:', formData?.client_id);
+  console.log('🔍 client object:', client);
+  console.log('🔍 intakeLoading:', intakeLoading, 'clientLoading:', clientLoading);
+
   // Load existing intake OR pre-fill from basic profile
   // Wait until BOTH queries resolve before deciding
   useEffect(() => {
