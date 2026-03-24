@@ -160,28 +160,31 @@ export default function ClinicalIntake() {
         setNoGoText(existingIntake.likes_dislikes_allergies.no_go_foods?.join(', ') || '');
       }
       setIsDietPreferencesOpen(true);
-    } else if (client) {
+    } else if (client?.id) {
       // No existing intake — pre-fill from basic client profile
       const fp = client.food_preference || '';
       const dietMap = { veg: 'Veg', non_veg: 'Non-Veg', vegan: 'Vegan', jain: 'Jain', eggetarian: 'Eggetarian', mixed: 'Non-Veg' };
+      console.log('✅ Pre-filled from client:', client.age, client.gender, client.height, client.weight);
       setFormData(prev => ({
         ...prev,
+        client_id: client.id,
         basic_info: {
-          age: client.age || '',
-          gender: client.gender || '',
-          height: client.height || '',
-          weight: client.weight || '',
+          ...prev.basic_info,
+          age: client.age || prev.basic_info?.age || '',
+          gender: client.gender || prev.basic_info?.gender || '',
+          height: client.height || prev.basic_info?.height || '',
+          weight: client.weight || prev.basic_info?.weight || '',
+          activity_level: client.activity_level || prev.basic_info?.activity_level || '',
           bmi: client.height && client.weight
             ? parseFloat((client.weight / ((client.height / 100) ** 2)).toFixed(1))
-            : '',
-          activity_level: client.activity_level || ''
+            : prev.basic_info?.bmi || '',
         },
-        health_conditions: client.health_conditions || [],
-        diet_type: dietMap[fp] || fp,
-        goal: client.goal ? [client.goal] : []
+        health_conditions: client.health_conditions?.length ? client.health_conditions : prev.health_conditions,
+        diet_type: dietMap[fp] || fp || prev.diet_type,
+        goal: prev.goal?.length > 0 ? prev.goal : (client.goal ? [client.goal] : []),
       }));
     }
-  }, [formData.client_id, existingIntake, intakeLoading, client]);
+  }, [formData.client_id, existingIntake, intakeLoading, clientLoading, client?.id]);
 
   // Auto-calculate BMI
   useEffect(() => {
