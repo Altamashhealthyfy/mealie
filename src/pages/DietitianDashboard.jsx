@@ -43,20 +43,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export default function DietitianDashboard() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState(() => {
-    // Load viewMode from localStorage on mount
     return localStorage.getItem('admin_view_mode') || 'admin';
   });
 
-  // Save viewMode to localStorage whenever it changes
   React.useEffect(() => {
     localStorage.setItem('admin_view_mode', viewMode);
-    // Trigger a custom event to notify Layout component
     window.dispatchEvent(new CustomEvent('viewModeChanged', { detail: viewMode }));
   }, [viewMode]);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: clients = [] } = useQuery({
@@ -72,7 +71,8 @@ export default function DietitianDashboard() {
       return combined.filter((c, i, self) => self.findIndex(x => x.id === c.id) === i);
     },
     enabled: !!user,
-    staleTime: 0,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: mealPlans } = useQuery({
@@ -81,8 +81,6 @@ export default function DietitianDashboard() {
       if (user?.user_type === 'super_admin' && viewMode === 'admin') {
         return await base44.entities.MealPlan.list('-created_date', 20);
       }
-      // For non-admin coaches, get client IDs first, then fetch their meal plans
-      // (AI-generated plans are created by service account, not coach email)
       const myClients = await base44.entities.Client.filter({ created_by: user?.email }, '-created_date', 50);
       const assignedClients = await base44.entities.Client.filter({ assigned_coach: user?.email }, '-created_date', 50);
       const allMyClientIds = [...new Set([...myClients, ...assignedClients].map(c => c.id))];
@@ -93,13 +91,15 @@ export default function DietitianDashboard() {
     enabled: !!user,
     initialData: [],
     staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: appointments } = useQuery({
     queryKey: ['dashboardAppointments'],
     queryFn: () => base44.entities.Appointment.filter({ status: 'scheduled' }, '-date', 5),
     initialData: [],
-    staleTime: 60000,
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: messages } = useQuery({
@@ -107,27 +107,31 @@ export default function DietitianDashboard() {
     queryFn: () => base44.entities.Message.filter({ read: false }, '-created_date', 20),
     initialData: [],
     staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: mpessTracking } = useQuery({
     queryKey: ['dashboardMpess'],
     queryFn: () => base44.entities.MPESSTracker.list('-created_date', 20),
     initialData: [],
-    staleTime: 60000,
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: progressLogs } = useQuery({
     queryKey: ['dashboardProgress'],
     queryFn: () => base44.entities.ProgressLog.list('-date', 500),
     initialData: [],
-    staleTime: 60000,
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: foodLogs } = useQuery({
     queryKey: ['dashboardFoodLogs'],
     queryFn: () => base44.entities.FoodLog.list('-date', 500),
     initialData: [],
-    staleTime: 60000,
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: assessments } = useQuery({
@@ -140,14 +144,16 @@ export default function DietitianDashboard() {
     },
     enabled: !!user,
     initialData: [],
-    staleTime: 60000,
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: goals } = useQuery({
     queryKey: ['dashboardGoals'],
     queryFn: () => base44.entities.ProgressGoal.list('-created_date'),
     initialData: [],
-    staleTime: 60000,
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: mealPlansData } = useQuery({
@@ -156,7 +162,6 @@ export default function DietitianDashboard() {
       if (user?.user_type === 'super_admin') {
         return await base44.entities.MealPlan.list('-created_date', 200);
       }
-      // Fetch all plans and filter by coach's clients (handles service-account-created plans)
       const allPlans = await base44.entities.MealPlan.list('-created_date', 200);
       const myClients = await base44.entities.Client.filter({ created_by: user?.email }, '-created_date', 200);
       const myClientIds = new Set(myClients.map(c => c.id));
@@ -165,6 +170,7 @@ export default function DietitianDashboard() {
     enabled: !!user,
     initialData: [],
     staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   // Get unique clients who have tracked MPESS
@@ -196,8 +202,6 @@ export default function DietitianDashboard() {
   const handleCreatePlan = (clientId) => {
     navigate(`${createPageUrl("MealPlanner")}?client=${clientId}`);
   };
-
-   
 
   const stats = [
     {
@@ -252,41 +256,14 @@ export default function DietitianDashboard() {
 
   const isAdmin = user?.user_type === 'super_admin';
 
-  // Simulate plan permissions based on view mode
   const getViewPermissions = () => {
     switch(viewMode) {
-      case 'admin':
-        return { all: true };
-      case 'pro_user':
-        return {
-          max_clients: -1,
-          ai_generation_limit: -1,
-          can_access_pro_plans: true,
-          can_create_templates: true,
-          can_access_business_tools: true,
-        };
-      case 'basic_user':
-        return {
-          max_clients: 25,
-          ai_generation_limit: 50,
-          can_access_pro_plans: false,
-          can_create_templates: false,
-          can_access_business_tools: false,
-        };
-      case 'trial':
-        return {
-          max_clients: 25,
-          ai_generation_limit: 50,
-          can_access_pro_plans: false,
-          is_trial: true,
-          trial_days_left: 5,
-        };
-      case 'client':
-        return {
-          is_client_view: true,
-        };
-      default:
-        return { all: true };
+      case 'admin': return { all: true };
+      case 'pro_user': return { max_clients: -1, ai_generation_limit: -1, can_access_pro_plans: true, can_create_templates: true, can_access_business_tools: true };
+      case 'basic_user': return { max_clients: 25, ai_generation_limit: 50, can_access_pro_plans: false, can_create_templates: false, can_access_business_tools: false };
+      case 'trial': return { max_clients: 25, ai_generation_limit: 50, can_access_pro_plans: false, is_trial: true, trial_days_left: 5 };
+      case 'client': return { is_client_view: true };
+      default: return { all: true };
     }
   };
 
@@ -341,61 +318,11 @@ export default function DietitianDashboard() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  {viewMode === 'admin' && (
-                    <>
-                      <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center">
-                        <Crown className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-gray-900">Platform Admin View</h3>
-                        <p className="text-sm text-gray-600">Full access to all platform data and analytics</p>
-                      </div>
-                    </>
-                  )}
-                  {viewMode === 'pro_user' && (
-                    <>
-                      <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
-                        <Crown className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-gray-900">Mealie Pro User</h3>
-                        <p className="text-sm text-gray-600">Unlimited clients • Unlimited AI • Pro Plans • Business Tools</p>
-                      </div>
-                    </>
-                  )}
-                  {viewMode === 'basic_user' && (
-                    <>
-                      <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
-                        <Users className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-gray-900">Mealie Basic User</h3>
-                        <p className="text-sm text-gray-600">Up to 25 clients • 50 AI generations • Basic features</p>
-                      </div>
-                    </>
-                  )}
-                  {viewMode === 'trial' && (
-                    <>
-                      <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center">
-                        <Sparkles className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-gray-900">Trial User (Free Trial)</h3>
-                        <p className="text-sm text-gray-600">7-day free trial • Basic plan features • 5 days remaining</p>
-                      </div>
-                    </>
-                  )}
-                  {viewMode === 'client' && (
-                    <>
-                      <div className="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center">
-                        <Heart className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-gray-900">Client View</h3>
-                        <p className="text-sm text-gray-600">Client portal with meal plans and progress tracking</p>
-                      </div>
-                    </>
-                  )}
+                  {viewMode === 'admin' && (<><div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center"><Crown className="w-5 h-5 text-white" /></div><div><h3 className="font-bold text-gray-900">Platform Admin View</h3><p className="text-sm text-gray-600">Full access to all platform data and analytics</p></div></>)}
+                  {viewMode === 'pro_user' && (<><div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center"><Crown className="w-5 h-5 text-white" /></div><div><h3 className="font-bold text-gray-900">Mealie Pro User</h3><p className="text-sm text-gray-600">Unlimited clients • Unlimited AI • Pro Plans • Business Tools</p></div></>)}
+                  {viewMode === 'basic_user' && (<><div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center"><Users className="w-5 h-5 text-white" /></div><div><h3 className="font-bold text-gray-900">Mealie Basic User</h3><p className="text-sm text-gray-600">Up to 25 clients • 50 AI generations • Basic features</p></div></>)}
+                  {viewMode === 'trial' && (<><div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center"><Sparkles className="w-5 h-5 text-white" /></div><div><h3 className="font-bold text-gray-900">Trial User (Free Trial)</h3><p className="text-sm text-gray-600">7-day free trial • Basic plan features • 5 days remaining</p></div></>)}
+                  {viewMode === 'client' && (<><div className="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center"><Heart className="w-5 h-5 text-white" /></div><div><h3 className="font-bold text-gray-900">Client View</h3><p className="text-sm text-gray-600">Client portal with meal plans and progress tracking</p></div></>)}
                 </div>
                 {(viewMode === 'basic_user' || viewMode === 'trial') && (
                   <div className="text-right">
@@ -422,11 +349,11 @@ export default function DietitianDashboard() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                 {[
-                  { step: 1, title: "Complete Profile", desc: "Set up your coach profile & branding", link: "CoachProfileManager", done: false },
-                  { step: 2, title: "Share App Link", desc: "Send your referral link to clients so they can join", link: "CoachReferralLink", done: false },
-                  { step: 3, title: "Add First Client", desc: "Add a client manually or they join via your link", link: "ClientManagement", done: false },
-                  { step: 4, title: "Create Meal Plan", desc: "Create and assign a meal plan for your client", link: "MealPlanner", done: false },
-                  { step: 5, title: "Schedule Check-in", desc: "Book an appointment or send a message", link: "Appointments", done: false },
+                  { step: 1, title: "Complete Profile", desc: "Set up your coach profile & branding", link: "CoachProfileManager" },
+                  { step: 2, title: "Share App Link", desc: "Send your referral link to clients so they can join", link: "CoachReferralLink" },
+                  { step: 3, title: "Add First Client", desc: "Add a client manually or they join via your link", link: "ClientManagement" },
+                  { step: 4, title: "Create Meal Plan", desc: "Create and assign a meal plan for your client", link: "MealPlanner" },
+                  { step: 5, title: "Schedule Check-in", desc: "Book an appointment or send a message", link: "Appointments" },
                 ].map((s) => (
                   <Link key={s.step} to={createPageUrl(s.link)}>
                     <div className="p-4 bg-white rounded-xl border-2 border-blue-100 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer h-full">
@@ -443,23 +370,12 @@ export default function DietitianDashboard() {
           </Card>
         )}
 
-        {/* Coach Guide Panel */}
         <CoachGuidePanel />
 
-        {/* Client Overview Dashboard */}
-        <ClientOverviewWidget
-          clients={clients}
-          appointments={appointments}
-          progressLogs={progressLogs}
-          foodLogs={foodLogs}
-          goals={goals}
-          mealPlans={mealPlansData}
-        />
+        <ClientOverviewWidget clients={clients} appointments={appointments} progressLogs={progressLogs} foodLogs={foodLogs} goals={goals} mealPlans={mealPlansData} />
 
-        {/* Notification Center */}
         <NotificationCenter user={user} />
 
-        {/* Limitations Warning for Basic/Trial */}
         {isAdmin && (viewMode === 'basic_user' || viewMode === 'trial') && (
           <Card className="border-2 border-orange-500 bg-orange-50">
             <CardContent className="p-4">
@@ -485,9 +401,7 @@ export default function DietitianDashboard() {
                     <div className="flex-1">
                       <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
                       <p className="text-3xl font-bold text-gray-900 mb-1">{stat.value}</p>
-                      {stat.subtitle && (
-                        <p className="text-xs text-gray-500">{stat.subtitle}</p>
-                      )}
+                      {stat.subtitle && <p className="text-xs text-gray-500">{stat.subtitle}</p>}
                     </div>
                     <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg`}>
                       <stat.icon className="w-7 h-7 text-white" />
@@ -501,24 +415,14 @@ export default function DietitianDashboard() {
 
         {/* Meal Plan Adherence Feed */}
         {(() => {
-          const adherenceLogs = progressLogs
-            .filter(log => log.meal_adherence !== undefined && log.meal_adherence !== null)
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
-            .slice(0, 10);
-          
+          const adherenceLogs = progressLogs.filter(log => log.meal_adherence !== undefined && log.meal_adherence !== null).sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
           if (adherenceLogs.length === 0) return null;
-
           return (
             <Card className="border-none shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
-                    <ChefHat className="w-5 h-5 text-green-600" />
-                    Meal Plan Adherence Reports
-                  </CardTitle>
-                  <Badge className="bg-green-100 text-green-700">
-                    {adherenceLogs.filter(l => l.meal_adherence >= 100).length} fully followed today
-                  </Badge>
+                  <CardTitle className="flex items-center gap-2"><ChefHat className="w-5 h-5 text-green-600" />Meal Plan Adherence Reports</CardTitle>
+                  <Badge className="bg-green-100 text-green-700">{adherenceLogs.filter(l => l.meal_adherence >= 100).length} fully followed today</Badge>
                 </div>
                 <p className="text-sm text-gray-500">Clients who have submitted their meal adherence check-ins</p>
               </CardHeader>
@@ -555,91 +459,42 @@ export default function DietitianDashboard() {
           );
         })()}
 
-        {/* Action Items */}
-        <ActionItemsPanel
-          clients={clients}
-          progressLogs={progressLogs}
-          foodLogs={foodLogs}
-          assessments={assessments}
-          goals={goals}
-          appointments={appointments}
-        />
+        <ActionItemsPanel clients={clients} progressLogs={progressLogs} foodLogs={foodLogs} assessments={assessments} goals={goals} appointments={appointments} />
 
-        {/* Client Growth Chart */}
         <Card className="border-none shadow-lg bg-gradient-to-br from-blue-50 to-cyan-50" id="client-growth">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-blue-500" />
-              Client Growth Analytics
-            </CardTitle>
+            <CardTitle className="flex items-center gap-2"><TrendingUp className="w-5 h-5 text-blue-500" />Client Growth Analytics</CardTitle>
             <CardDescription>Track your client base growth and engagement</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 bg-white rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Total Clients</p>
-                <p className="text-2xl font-bold text-blue-600">{clients.length}</p>
-                <p className="text-xs text-gray-500 mt-1">All time</p>
-              </div>
-              <div className="p-4 bg-white rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Active Clients</p>
-                <p className="text-2xl font-bold text-green-600">{activeClients.length}</p>
-                <p className="text-xs text-gray-500 mt-1">{((activeClients.length / Math.max(clients.length, 1)) * 100).toFixed(0)}% of total</p>
-              </div>
-              <div className="p-4 bg-white rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">New This Month</p>
-                <p className="text-2xl font-bold text-orange-600">{newClientsThisMonth}</p>
-                <p className="text-xs text-gray-500 mt-1">Last 30 days</p>
-              </div>
+              <div className="p-4 bg-white rounded-lg"><p className="text-sm text-gray-600 mb-1">Total Clients</p><p className="text-2xl font-bold text-blue-600">{clients.length}</p><p className="text-xs text-gray-500 mt-1">All time</p></div>
+              <div className="p-4 bg-white rounded-lg"><p className="text-sm text-gray-600 mb-1">Active Clients</p><p className="text-2xl font-bold text-green-600">{activeClients.length}</p><p className="text-xs text-gray-500 mt-1">{((activeClients.length / Math.max(clients.length, 1)) * 100).toFixed(0)}% of total</p></div>
+              <div className="p-4 bg-white rounded-lg"><p className="text-sm text-gray-600 mb-1">New This Month</p><p className="text-2xl font-bold text-orange-600">{newClientsThisMonth}</p><p className="text-xs text-gray-500 mt-1">Last 30 days</p></div>
             </div>
           </CardContent>
         </Card>
 
-        {/* MPESS Wellness Tracking */}
         <Card className="border-none shadow-lg bg-gradient-to-br from-pink-50 to-rose-50" id="mpess-wellness">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Heart className="w-5 h-5 text-pink-500" />
-              MPESS Wellness Tracking
-            </CardTitle>
+            <CardTitle className="flex items-center gap-2"><Heart className="w-5 h-5 text-pink-500" />MPESS Wellness Tracking</CardTitle>
             <CardDescription>Client wellness activity and engagement</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 bg-white rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Total Sessions</p>
-                <p className="text-2xl font-bold text-pink-600">{totalMPESSSessions}</p>
-                <p className="text-xs text-gray-500 mt-1">All time tracking</p>
-              </div>
-              <div className="p-4 bg-white rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Avg Rating</p>
-                <p className="text-2xl font-bold text-purple-600">{avgMPESSRating}/5</p>
-                <p className="text-xs text-gray-500 mt-1">Wellness score</p>
-              </div>
-              <div className="p-4 bg-white rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Last 7 Days</p>
-                <p className="text-2xl font-bold text-orange-600">{recentMPESS.length}</p>
-                <p className="text-xs text-gray-500 mt-1">Recent sessions</p>
-              </div>
+              <div className="p-4 bg-white rounded-lg"><p className="text-sm text-gray-600 mb-1">Total Sessions</p><p className="text-2xl font-bold text-pink-600">{totalMPESSSessions}</p><p className="text-xs text-gray-500 mt-1">All time tracking</p></div>
+              <div className="p-4 bg-white rounded-lg"><p className="text-sm text-gray-600 mb-1">Avg Rating</p><p className="text-2xl font-bold text-purple-600">{avgMPESSRating}/5</p><p className="text-xs text-gray-500 mt-1">Wellness score</p></div>
+              <div className="p-4 bg-white rounded-lg"><p className="text-sm text-gray-600 mb-1">Last 7 Days</p><p className="text-2xl font-bold text-orange-600">{recentMPESS.length}</p><p className="text-xs text-gray-500 mt-1">Recent sessions</p></div>
             </div>
           </CardContent>
         </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recent Clients */}
           <Card className="border-none shadow-lg bg-white/80 backdrop-blur" id="recent-clients">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-blue-500" />
-                  Recent Clients
-                </CardTitle>
-                <Link to={createPageUrl("ClientManagement")}>
-                  <Button variant="ghost" size="sm">
-                    View All
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
+                <CardTitle className="flex items-center gap-2"><Users className="w-5 h-5 text-blue-500" />Recent Clients</CardTitle>
+                <Link to={createPageUrl("ClientManagement")}><Button variant="ghost" size="sm">View All<ArrowRight className="w-4 h-4 ml-2" /></Button></Link>
               </div>
             </CardHeader>
             <CardContent>
@@ -647,61 +502,31 @@ export default function DietitianDashboard() {
                 <div className="text-center py-8">
                   <Users className="w-12 h-12 mx-auto text-gray-300 mb-3" />
                   <p className="text-gray-600 mb-4">No clients yet</p>
-                  <Link to={createPageUrl("ClientManagement")}>
-                    <Button className="bg-gradient-to-r from-orange-500 to-red-500">
-                      <UserPlus className="w-4 h-4 mr-2" />
-                      Add First Client
-                    </Button>
-                  </Link>
+                  <Link to={createPageUrl("ClientManagement")}><Button className="bg-gradient-to-r from-orange-500 to-red-500"><UserPlus className="w-4 h-4 mr-2" />Add First Client</Button></Link>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {recentClients.map((client) => {
                     const clientPlans = mealPlans.filter(p => p.client_id === client.id);
                     const activePlan = clientPlans.find(p => p.active);
-                    
                     return (
                       <div key={client.id} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3 flex-1">
                             <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
-                              <span className="text-white font-medium">
-                                {client.full_name.charAt(0)}
-                              </span>
+                              <span className="text-white font-medium">{client.full_name.charAt(0)}</span>
                             </div>
                             <div className="flex-1">
                               <p className="font-semibold text-gray-900">{client.full_name}</p>
                               <div className="flex gap-2 mt-1">
-                                <Badge className={
-                                  client.status === 'active' ? 'bg-green-100 text-green-700' :
-                                  'bg-gray-100 text-gray-700'
-                                }>
-                                  {client.status}
-                                </Badge>
-                                {clientPlans.length > 0 && (
-                                  <Badge className="bg-purple-100 text-purple-700">
-                                    {clientPlans.length} {clientPlans.length === 1 ? 'Plan' : 'Plans'}
-                                  </Badge>
-                                )}
+                                <Badge className={client.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>{client.status}</Badge>
+                                {clientPlans.length > 0 && <Badge className="bg-purple-100 text-purple-700">{clientPlans.length} {clientPlans.length === 1 ? 'Plan' : 'Plans'}</Badge>}
                               </div>
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            {clientPlans.length > 0 && (
-                              <Link to={createPageUrl("MealPlanner")}>
-                                <Button variant="outline" size="sm">
-                                  <Eye className="w-4 h-4" />
-                                </Button>
-                              </Link>
-                            )}
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => handleCreatePlan(client.id)}
-                              className="border-orange-500 text-orange-600 hover:bg-orange-50"
-                            >
-                              <Plus className="w-4 h-4" />
-                            </Button>
+                            {clientPlans.length > 0 && (<Link to={createPageUrl("MealPlanner")}><Button variant="outline" size="sm"><Eye className="w-4 h-4" /></Button></Link>)}
+                            <Button variant="outline" size="sm" onClick={() => handleCreatePlan(client.id)} className="border-orange-500 text-orange-600 hover:bg-orange-50"><Plus className="w-4 h-4" /></Button>
                           </div>
                         </div>
                       </div>
@@ -712,28 +537,16 @@ export default function DietitianDashboard() {
             </CardContent>
           </Card>
 
-          {/* Upcoming Appointments */}
           <Card className="border-none shadow-lg bg-white/80 backdrop-blur" id="upcoming-appointments">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-purple-500" />
-                  Upcoming Appointments
-                </CardTitle>
-                <Link to={createPageUrl("Appointments")}>
-                  <Button variant="ghost" size="sm">
-                    View All
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </Link>
+                <CardTitle className="flex items-center gap-2"><Calendar className="w-5 h-5 text-purple-500" />Upcoming Appointments</CardTitle>
+                <Link to={createPageUrl("Appointments")}><Button variant="ghost" size="sm">View All<ArrowRight className="w-4 h-4 ml-2" /></Button></Link>
               </div>
             </CardHeader>
             <CardContent>
               {upcomingAppointments.length === 0 ? (
-                <div className="text-center py-8">
-                  <Calendar className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                  <p className="text-gray-600">No upcoming appointments</p>
-                </div>
+                <div className="text-center py-8"><Calendar className="w-12 h-12 mx-auto text-gray-300 mb-3" /><p className="text-gray-600">No upcoming appointments</p></div>
               ) : (
                 <div className="space-y-3">
                   {upcomingAppointments.map((appointment) => {
@@ -744,21 +557,10 @@ export default function DietitianDashboard() {
                           <p className="font-semibold text-gray-900">{appointment.title}</p>
                           <Badge variant="outline">{appointment.type}</Badge>
                         </div>
-                        {client && (
-                          <p className="text-sm text-gray-600 mb-2">
-                            <Users className="w-3 h-3 inline mr-1" />
-                            {client.full_name}
-                          </p>
-                        )}
+                        {client && <p className="text-sm text-gray-600 mb-2"><Users className="w-3 h-3 inline mr-1" />{client.full_name}</p>}
                         <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {appointment.appointment_date ? format(new Date(appointment.appointment_date), 'MMM d, yyyy') : 'TBD'}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {appointment.time}
-                          </span>
+                          <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{appointment.appointment_date ? format(new Date(appointment.appointment_date), 'MMM d, yyyy') : 'TBD'}</span>
+                          <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{appointment.time}</span>
                         </div>
                       </div>
                     );
@@ -770,56 +572,31 @@ export default function DietitianDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Progress Tracking Activity */}
           <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Scale className="w-5 h-5 text-blue-500" />
-                  Recent Progress Updates
-                </CardTitle>
-                <Badge className="bg-blue-100 text-blue-700">
-                  {progressClients.length} Tracking
-                </Badge>
+                <CardTitle className="flex items-center gap-2"><Scale className="w-5 h-5 text-blue-500" />Recent Progress Updates</CardTitle>
+                <Badge className="bg-blue-100 text-blue-700">{progressClients.length} Tracking</Badge>
               </div>
               <CardDescription>Client weight and measurement tracking</CardDescription>
             </CardHeader>
             <CardContent>
               {progressLogs.length === 0 ? (
-                <div className="text-center py-8">
-                  <Scale className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                  <p className="text-gray-600 mb-2">No progress tracking yet</p>
-                  <p className="text-sm text-gray-500">Clients haven't logged their progress</p>
-                </div>
+                <div className="text-center py-8"><Scale className="w-12 h-12 mx-auto text-gray-300 mb-3" /><p className="text-gray-600 mb-2">No progress tracking yet</p><p className="text-sm text-gray-500">Clients haven't logged their progress</p></div>
               ) : (
                 <div className="space-y-3 max-h-96 overflow-y-auto">
                   {progressLogs.slice(0, 10).map((log) => {
                     const client = clients.find(c => c.id === log.client_id);
-                    const previousLogs = progressLogs.filter(p => 
-                      p.client_id === log.client_id && 
-                      new Date(p.date) < new Date(log.date)
-                    );
+                    const previousLogs = progressLogs.filter(p => p.client_id === log.client_id && new Date(p.date) < new Date(log.date));
                     const previousLog = previousLogs.length > 0 ? previousLogs[0] : null;
-                    const weightChange = previousLog && log.weight 
-                      ? (log.weight - previousLog.weight).toFixed(1)
-                      : null;
-                    
+                    const weightChange = previousLog && log.weight ? (log.weight - previousLog.weight).toFixed(1) : null;
                     return (
                       <div key={log.id} className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-100">
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
-                                <span className="text-white text-xs font-bold">
-                                  {client?.full_name?.charAt(0) || 'C'}
-                                </span>
-                              </div>
-                              <div>
-                                <p className="font-semibold text-gray-900">{client?.full_name || 'Client'}</p>
-                                <p className="text-xs text-gray-500">
-                                  {log.date ? format(new Date(log.date), 'MMM d, yyyy') : 'N/A'}
-                                </p>
-                              </div>
+                              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center"><span className="text-white text-xs font-bold">{client?.full_name?.charAt(0) || 'C'}</span></div>
+                              <div><p className="font-semibold text-gray-900">{client?.full_name || 'Client'}</p><p className="text-xs text-gray-500">{log.date ? format(new Date(log.date), 'MMM d, yyyy') : 'N/A'}</p></div>
                             </div>
                             <div className="grid grid-cols-2 gap-2 mt-3">
                               {log.weight && (
@@ -827,51 +604,17 @@ export default function DietitianDashboard() {
                                   <p className="text-xs text-gray-600">Weight</p>
                                   <div className="flex items-center gap-1">
                                     <p className="text-lg font-bold text-blue-600">{log.weight} kg</p>
-                                    {weightChange && (
-                                      <span className={`text-xs flex items-center ${
-                                        parseFloat(weightChange) < 0 ? 'text-green-600' : 
-                                        parseFloat(weightChange) > 0 ? 'text-red-600' : 'text-gray-600'
-                                      }`}>
-                                        {parseFloat(weightChange) < 0 ? (
-                                          <TrendingDown className="w-3 h-3" />
-                                        ) : parseFloat(weightChange) > 0 ? (
-                                          <TrendingUp className="w-3 h-3" />
-                                        ) : (
-                                          <Minus className="w-3 h-3" />
-                                        )}
-                                        {Math.abs(parseFloat(weightChange))}
-                                      </span>
-                                    )}
+                                    {weightChange && (<span className={`text-xs flex items-center ${parseFloat(weightChange) < 0 ? 'text-green-600' : parseFloat(weightChange) > 0 ? 'text-red-600' : 'text-gray-600'}`}>{parseFloat(weightChange) < 0 ? <TrendingDown className="w-3 h-3" /> : parseFloat(weightChange) > 0 ? <TrendingUp className="w-3 h-3" /> : <Minus className="w-3 h-3" />}{Math.abs(parseFloat(weightChange))}</span>)}
                                   </div>
                                 </div>
                               )}
-                              {(log.measurements?.waist || log.measurements?.chest) && (
-                                <div className="p-2 bg-white rounded">
-                                  <p className="text-xs text-gray-600">Measurements</p>
-                                  <p className="text-xs text-gray-700">
-                                    {log.measurements?.waist && `W: ${log.measurements.waist}"`}
-                                    {log.measurements?.chest && ` C: ${log.measurements.chest}"`}
-                                  </p>
-                                </div>
-                              )}
+                              {(log.measurements?.waist || log.measurements?.chest) && (<div className="p-2 bg-white rounded"><p className="text-xs text-gray-600">Measurements</p><p className="text-xs text-gray-700">{log.measurements?.waist && `W: ${log.measurements.waist}"`}{log.measurements?.chest && ` C: ${log.measurements.chest}"`}</p></div>)}
                             </div>
-                            {log.notes && (
-                              <p className="text-xs text-gray-600 mt-2 italic">"{log.notes}"</p>
-                            )}
+                            {log.notes && <p className="text-xs text-gray-600 mt-2 italic">"{log.notes}"</p>}
                           </div>
                           <div className="text-right ml-2">
-                            {log.energy_level && (
-                              <div className="mb-1">
-                                <p className="text-xs text-gray-500">Energy</p>
-                                <p className="text-sm font-bold text-green-600">{log.energy_level}/5</p>
-                              </div>
-                            )}
-                            {log.meal_adherence !== undefined && (
-                              <div>
-                                <p className="text-xs text-gray-500">Adherence</p>
-                                <p className="text-sm font-bold text-purple-600">{log.meal_adherence}%</p>
-                              </div>
-                            )}
+                            {log.energy_level && (<div className="mb-1"><p className="text-xs text-gray-500">Energy</p><p className="text-sm font-bold text-green-600">{log.energy_level}/5</p></div>)}
+                            {log.meal_adherence !== undefined && (<div><p className="text-xs text-gray-500">Adherence</p><p className="text-sm font-bold text-purple-600">{log.meal_adherence}%</p></div>)}
                           </div>
                         </div>
                       </div>
@@ -882,178 +625,83 @@ export default function DietitianDashboard() {
             </CardContent>
           </Card>
 
-          {/* MPESS Client Activity */}
           <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-pink-500" />
-                  Recent MPESS Wellness Activity
-                </CardTitle>
-                <Badge className="bg-pink-100 text-pink-700">
-                  {mpessClients.length} Active Clients
-                </Badge>
+                <CardTitle className="flex items-center gap-2"><Heart className="w-5 h-5 text-pink-500" />Recent MPESS Wellness Activity</CardTitle>
+                <Badge className="bg-pink-100 text-pink-700">{mpessClients.length} Active Clients</Badge>
               </div>
               <CardDescription>Client wellness tracking updates</CardDescription>
             </CardHeader>
-          <CardContent>
-            {mpessTracking.length === 0 ? (
-              <div className="text-center py-8">
-                <Heart className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                <p className="text-gray-600 mb-2">No MPESS tracking yet</p>
-                <p className="text-sm text-gray-500">Clients haven't started wellness tracking</p>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {mpessTracking.slice(0, 10).map((tracking) => {
-                  const client = clients.find(c => c.email === tracking.created_by);
-                  return (
-                    <div key={tracking.id} className="p-4 bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg border border-pink-100">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center">
-                              <span className="text-white text-xs font-bold">
-                                {client?.full_name?.charAt(0) || 'C'}
-                              </span>
+            <CardContent>
+              {mpessTracking.length === 0 ? (
+                <div className="text-center py-8"><Heart className="w-12 h-12 mx-auto text-gray-300 mb-3" /><p className="text-gray-600 mb-2">No MPESS tracking yet</p><p className="text-sm text-gray-500">Clients haven't started wellness tracking</p></div>
+              ) : (
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {mpessTracking.slice(0, 10).map((tracking) => {
+                    const client = clients.find(c => c.email === tracking.created_by);
+                    return (
+                      <div key={tracking.id} className="p-4 bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg border border-pink-100">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-8 h-8 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center"><span className="text-white text-xs font-bold">{client?.full_name?.charAt(0) || 'C'}</span></div>
+                              <div><p className="font-semibold text-gray-900">{client?.full_name || 'Client'}</p><p className="text-xs text-gray-500">{tracking.submission_date || tracking.created_date ? format(new Date(tracking.submission_date || tracking.created_date), 'MMM d, yyyy') : 'N/A'}</p></div>
                             </div>
-                            <div>
-                              <p className="font-semibold text-gray-900">{client?.full_name || 'Client'}</p>
-                              <p className="text-xs text-gray-500">
-                                {tracking.submission_date || tracking.created_date ? format(new Date(tracking.submission_date || tracking.created_date), 'MMM d, yyyy') : 'N/A'}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-5 gap-2 mt-3">
-                            <div className="text-center">
-                              <div className={`w-8 h-8 rounded-full mx-auto flex items-center justify-center ${
-                                tracking.mind_practices?.affirmations_completed || tracking.mind_practices?.stress_relief_done 
-                                  ? 'bg-blue-500' : 'bg-gray-200'
-                              }`}>
-                                <span className="text-xs text-white">🧠</span>
-                              </div>
-                              <p className="text-xs text-gray-600 mt-1">Mind</p>
-                            </div>
-                            <div className="text-center">
-                              <div className={`w-8 h-8 rounded-full mx-auto flex items-center justify-center ${
-                                tracking.physical_practices?.movement_done || tracking.physical_practices?.hydration_met
-                                  ? 'bg-green-500' : 'bg-gray-200'
-                              }`}>
-                                <span className="text-xs text-white">💪</span>
-                              </div>
-                              <p className="text-xs text-gray-600 mt-1">Physical</p>
-                            </div>
-                            <div className="text-center">
-                              <div className={`w-8 h-8 rounded-full mx-auto flex items-center justify-center ${
-                                tracking.emotional_practices?.journaling_done || tracking.emotional_practices?.breathwork_done
-                                  ? 'bg-yellow-500' : 'bg-gray-200'
-                              }`}>
-                                <span className="text-xs text-white">❤️</span>
-                              </div>
-                              <p className="text-xs text-gray-600 mt-1">Emotional</p>
-                            </div>
-                            <div className="text-center">
-                              <div className={`w-8 h-8 rounded-full mx-auto flex items-center justify-center ${
-                                tracking.social_practices?.bonding_activity_done || tracking.social_practices?.connection_made
-                                  ? 'bg-purple-500' : 'bg-gray-200'
-                              }`}>
-                                <span className="text-xs text-white">👥</span>
-                              </div>
-                              <p className="text-xs text-gray-600 mt-1">Social</p>
-                            </div>
-                            <div className="text-center">
-                              <div className={`w-8 h-8 rounded-full mx-auto flex items-center justify-center ${
-                                tracking.spiritual_practices?.meditation_done || tracking.spiritual_practices?.gratitude_journaling_done
-                                  ? 'bg-indigo-500' : 'bg-gray-200'
-                              }`}>
-                                <span className="text-xs text-white">✨</span>
-                              </div>
-                              <p className="text-xs text-gray-600 mt-1">Spiritual</p>
+                            <div className="grid grid-cols-5 gap-2 mt-3">
+                              {[
+                                { emoji: '🧠', label: 'Mind', active: tracking.mind_practices?.affirmations_completed || tracking.mind_practices?.stress_relief_done, color: 'bg-blue-500' },
+                                { emoji: '💪', label: 'Physical', active: tracking.physical_practices?.movement_done || tracking.physical_practices?.hydration_met, color: 'bg-green-500' },
+                                { emoji: '❤️', label: 'Emotional', active: tracking.emotional_practices?.journaling_done || tracking.emotional_practices?.breathwork_done, color: 'bg-yellow-500' },
+                                { emoji: '👥', label: 'Social', active: tracking.social_practices?.bonding_activity_done || tracking.social_practices?.connection_made, color: 'bg-purple-500' },
+                                { emoji: '✨', label: 'Spiritual', active: tracking.spiritual_practices?.meditation_done || tracking.spiritual_practices?.gratitude_journaling_done, color: 'bg-indigo-500' },
+                              ].map(({ emoji, label, active, color }) => (
+                                <div key={label} className="text-center">
+                                  <div className={`w-8 h-8 rounded-full mx-auto flex items-center justify-center ${active ? color : 'bg-gray-200'}`}><span className="text-xs text-white">{emoji}</span></div>
+                                  <p className="text-xs text-gray-600 mt-1">{label}</p>
+                                </div>
+                              ))}
                             </div>
                           </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="inline-flex items-center gap-1 px-3 py-1 bg-white rounded-full border-2 border-pink-500">
-                            <span className="text-2xl font-bold text-pink-600">{tracking.overall_rating || 0}</span>
-                            <span className="text-xs text-gray-500">/5</span>
+                          <div className="text-right">
+                            <div className="inline-flex items-center gap-1 px-3 py-1 bg-white rounded-full border-2 border-pink-500"><span className="text-2xl font-bold text-pink-600">{tracking.overall_rating || 0}</span><span className="text-xs text-gray-500">/5</span></div>
+                            <p className="text-xs text-gray-500 mt-1">Overall</p>
                           </div>
-                          <p className="text-xs text-gray-500 mt-1">Overall</p>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Share My App to Client - Prominent Banner */}
         <Card className="border-2 border-orange-400 shadow-lg bg-gradient-to-r from-orange-500 to-red-500 text-white">
           <CardContent className="p-5">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                  <Share2 className="w-6 h-6 text-white" />
-                </div>
+                <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0"><Share2 className="w-6 h-6 text-white" /></div>
                 <div>
                   <h3 className="text-lg font-bold text-white">📲 Share My App to Client</h3>
                   <p className="text-orange-100 text-sm">Send your unique referral link so clients can join your coaching platform instantly</p>
                 </div>
               </div>
               <Link to={createPageUrl("CoachReferralLink")} className="shrink-0">
-                <Button className="bg-white text-orange-600 hover:bg-orange-50 font-bold px-6 py-2 rounded-xl shadow-md">
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Get My Link & QR Code
-                </Button>
+                <Button className="bg-white text-orange-600 hover:bg-orange-50 font-bold px-6 py-2 rounded-xl shadow-md"><Share2 className="w-4 h-4 mr-2" />Get My Link & QR Code</Button>
               </Link>
             </div>
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
         <Card className="border-none shadow-lg bg-gradient-to-br from-orange-50 to-red-50" id="quick-actions">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-orange-500" />
-              Quick Actions
-            </CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-2"><Sparkles className="w-5 h-5 text-orange-500" />Quick Actions</CardTitle></CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Link to={createPageUrl("ClientManagement")} className="block">
-                <Button className="w-full h-20 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600">
-                  <div className="text-center">
-                    <UserPlus className="w-6 h-6 mx-auto mb-1" />
-                    <span className="text-sm">Add Client</span>
-                  </div>
-                </Button>
-              </Link>
-              <Link to={createPageUrl("MealPlanner")} className="block">
-                <Button className="w-full h-20 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">
-                  <div className="text-center">
-                    <ChefHat className="w-6 h-6 mx-auto mb-1" />
-                    <span className="text-sm">Create Meal Plan</span>
-                  </div>
-                </Button>
-              </Link>
-              <Link to={createPageUrl("Appointments")} className="block">
-                <Button className="w-full h-20 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
-                  <div className="text-center">
-                    <Calendar className="w-6 h-6 mx-auto mb-1" />
-                    <span className="text-sm">Schedule Appointment</span>
-                  </div>
-                </Button>
-              </Link>
-              <Link to={createPageUrl("Communication")} className="block">
-                <Button className="w-full h-20 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
-                  <div className="text-center">
-                    <MessageSquare className="w-6 h-6 mx-auto mb-1" />
-                    <span className="text-sm">Message Client</span>
-                  </div>
-                </Button>
-              </Link>
+              <Link to={createPageUrl("ClientManagement")} className="block"><Button className="w-full h-20 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"><div className="text-center"><UserPlus className="w-6 h-6 mx-auto mb-1" /><span className="text-sm">Add Client</span></div></Button></Link>
+              <Link to={createPageUrl("MealPlanner")} className="block"><Button className="w-full h-20 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"><div className="text-center"><ChefHat className="w-6 h-6 mx-auto mb-1" /><span className="text-sm">Create Meal Plan</span></div></Button></Link>
+              <Link to={createPageUrl("Appointments")} className="block"><Button className="w-full h-20 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"><div className="text-center"><Calendar className="w-6 h-6 mx-auto mb-1" /><span className="text-sm">Schedule Appointment</span></div></Button></Link>
+              <Link to={createPageUrl("Communication")} className="block"><Button className="w-full h-20 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"><div className="text-center"><MessageSquare className="w-6 h-6 mx-auto mb-1" /><span className="text-sm">Message Client</span></div></Button></Link>
             </div>
           </CardContent>
         </Card>
