@@ -797,7 +797,18 @@ export default function ClientHub() {
           </DialogHeader>
           <InlineClinicalIntakeForm
             clientId={clientId}
-            prefillData={clinicalIntakes?.[0] || null}
+            prefillData={clinicalIntakes?.[0] || {
+              basic_info: {
+                age: client?.age || '',
+                gender: client?.gender || '',
+                height: client?.height || '',
+                weight: client?.weight || '',
+                activity_level: client?.activity_level || '',
+              },
+              diet_type: { veg: 'Veg', non_veg: 'Non-Veg', vegan: 'Vegan', jain: 'Jain', eggetarian: 'Eggetarian' }[client?.food_preference] || '',
+              goal: client?.goal ? [client.goal] : [],
+              health_conditions: client?.health_conditions || [],
+            }}
             isViewOnly={false}
             onSuccess={() => {
               setShowNewIntakeForm(false);
