@@ -26,6 +26,8 @@ export default function ClientAppointments() {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: coaches } = useQuery({
@@ -35,6 +37,8 @@ export default function ClientAppointments() {
       return allUsers.filter(u => ['super_admin', 'team_member', 'student_coach', 'student_team_member'].includes(u.user_type));
     },
     initialData: [],
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 
   const { data: clientProfile } = useQuery({
@@ -47,6 +51,8 @@ export default function ClientAppointments() {
       return allClients.find(c => c.email?.toLowerCase() === user.email?.toLowerCase()) || null;
     },
     enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: appointments } = useQuery({
@@ -57,6 +63,8 @@ export default function ClientAppointments() {
     },
     enabled: !!clientProfile,
     initialData: [],
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const clientId = clientProfile?.id;

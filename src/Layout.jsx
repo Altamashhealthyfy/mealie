@@ -526,6 +526,8 @@ export default function Layout({ children, currentPageName }) {
       return profiles[0] || null;
     },
     enabled: !!clientProfile?.assigned_coach && user?.user_type === 'client',
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 
   const { data: securitySettings } = useQuery({
@@ -535,6 +537,8 @@ export default function Layout({ children, currentPageName }) {
       return settings[0] || null;
     },
     enabled: !!user,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 
   const { data: clientSubscription } = useQuery({
@@ -547,6 +551,8 @@ export default function Layout({ children, currentPageName }) {
       return subs[0] || null;
     },
     enabled: !!clientProfile?.id,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: clientAccessControl } = useQuery({
@@ -558,6 +564,8 @@ export default function Layout({ children, currentPageName }) {
       return controls[0] || null;
     },
     enabled: !!clientProfile?.id && user?.user_type === 'client',
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 
   const { data: unreadCount } = useQuery({
@@ -624,6 +632,8 @@ export default function Layout({ children, currentPageName }) {
       return subs[0] || null;
     },
     enabled: !!user && userType === 'student_coach',
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: coachPlan } = useQuery({
@@ -634,6 +644,8 @@ export default function Layout({ children, currentPageName }) {
       return plans[0] || null;
     },
     enabled: !!coachSubscription?.plan_id,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   // Filter business navigation based on user role AND coach plan permissions

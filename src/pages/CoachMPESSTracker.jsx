@@ -25,6 +25,8 @@ export default function CoachMPESSTracker() {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: assessments, isLoading } = useQuery({
@@ -71,6 +73,8 @@ export default function CoachMPESSTracker() {
       }).sort((a, b) => new Date(b.submission_date) - new Date(a.submission_date));
     },
     enabled: !!user?.email,
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: clients } = useQuery({
@@ -82,6 +86,8 @@ export default function CoachMPESSTracker() {
       );
     },
     enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const reviewMutation = useMutation({

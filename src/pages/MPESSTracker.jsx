@@ -31,6 +31,8 @@ export default function MPESSTracker() {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: todayTracking } = useQuery({
@@ -43,6 +45,8 @@ export default function MPESSTracker() {
       return records[0] || null;
     },
     enabled: !!user,
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: recentTracking } = useQuery({
@@ -50,6 +54,8 @@ export default function MPESSTracker() {
     queryFn: () => base44.entities.MPESSTracker.list('-created_date', 30),
     enabled: !!user,
     initialData: [],
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const saveMutation = useMutation({

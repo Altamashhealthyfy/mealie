@@ -104,6 +104,8 @@ export default function MyAssignedMealPlan() {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: clientProfile } = useQuery({
@@ -127,6 +129,8 @@ export default function MyAssignedMealPlan() {
       return matchingClient || null;
     },
     enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: assignedPlan } = useQuery({
@@ -140,9 +144,9 @@ export default function MyAssignedMealPlan() {
       return plans[0] || null;
     },
     enabled: !!clientProfile,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
-
-
 
   const { data: allMealPlans } = useQuery({
     queryKey: ['allClientMealPlans', clientProfile?.id],
@@ -154,6 +158,8 @@ export default function MyAssignedMealPlan() {
       return plans.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
     },
     enabled: !!clientProfile,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   // Filter plans by date if date filter is set

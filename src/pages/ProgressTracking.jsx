@@ -44,6 +44,8 @@ export default function ProgressTracking() {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: securitySettings } = useQuery({
@@ -53,6 +55,8 @@ export default function ProgressTracking() {
       return settings[0] || null;
     },
     enabled: !!user,
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 
   const { data: clientProfile } = useQuery({
@@ -65,6 +69,8 @@ export default function ProgressTracking() {
       return allClients.find(c => c.email?.toLowerCase() === user.email?.toLowerCase()) || null;
     },
     enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: progressLogs } = useQuery({
@@ -75,6 +81,8 @@ export default function ProgressTracking() {
     },
     enabled: !!clientProfile,
     initialData: [],
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: goals } = useQuery({
@@ -85,6 +93,8 @@ export default function ProgressTracking() {
     },
     enabled: !!clientProfile,
     initialData: [],
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: foodLogs } = useQuery({
@@ -95,6 +105,8 @@ export default function ProgressTracking() {
     },
     enabled: !!clientProfile,
     initialData: [],
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: mpessLogs } = useQuery({
@@ -105,6 +117,8 @@ export default function ProgressTracking() {
     },
     enabled: !!user,
     initialData: [],
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const saveMutation = useMutation({
@@ -264,6 +278,8 @@ export default function ProgressTracking() {
       return plans[0] || null;
     },
     enabled: !!clientProfile?.id,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const activeGoals = goals.filter(g => g.status === 'active');
