@@ -20,82 +20,84 @@ export default function MyAssignedMealPlan() {
   const [selectedPlanId, setSelectedPlanId] = useState(null);
   const [dateFilter, setDateFilter] = useState(null);
 
-  const handleDownload = () => {
-    const plan = displayedPlan;
-    const doc = new jsPDF();
-    const margin = 15;
-    let y = 20;
+  const handleDownload = async () => {
+    try {
+      const { jsPDF } = await import('jspdf');
+      const plan = displayedPlan;
+      const doc = new jsPDF();
+      const margin = 15;
+      let y = 20;
 
-    doc.setFontSize(16);
-    doc.setTextColor(108, 95, 199);
-    doc.text(plan?.name || 'My Meal Plan', margin, y); y += 8;
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`${plan?.duration} Days | ${plan?.food_preference} | ${plan?.target_calories} kcal/day`, margin, y); y += 10;
-
-    const slotOrder = ['early_morning','breakfast','mid_morning','lunch','evening_snack','dinner'];
-    const slotLabels = {
-      early_morning: 'Early Morning', breakfast: 'Breakfast', mid_morning: 'Mid Morning',
-      lunch: 'Lunch', evening_snack: 'Evening Snack', dinner: 'Dinner'
-    };
-
-    const mealsByDay = {};
-    (plan?.meals || []).forEach(m => {
-      if (!mealsByDay[m.day]) mealsByDay[m.day] = [];
-      mealsByDay[m.day].push(m);
-    });
-
-    Object.keys(mealsByDay).sort((a,b) => a-b).forEach(day => {
-      if (y > 270) { doc.addPage(); y = 20; }
-      doc.setFontSize(12);
+      doc.setFontSize(16);
       doc.setTextColor(108, 95, 199);
-      doc.text(`Day ${day}`, margin, y); y += 7;
+      doc.text(plan?.name || 'My Meal Plan', margin, y); y += 8;
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`${plan?.duration} Days | ${plan?.food_preference} | ${plan?.target_calories} kcal/day`, margin, y); y += 10;
 
-      const sorted = mealsByDay[day].sort((a,b) =>
-        slotOrder.indexOf(a.meal_type) - slotOrder.indexOf(b.meal_type)
-      );
+      const slotOrder = ['early_morning','breakfast','mid_morning','lunch','evening_snack','dinner'];
+      const slotLabels = {
+        early_morning: 'Early Morning', breakfast: 'Breakfast', mid_morning: 'Mid Morning',
+        lunch: 'Lunch', evening_snack: 'Evening Snack', dinner: 'Dinner'
+      };
 
-      sorted.forEach(meal => {
+      const mealsByDay = {};
+      (plan?.meals || []).forEach(m => {
+        if (!mealsByDay[m.day]) mealsByDay[m.day] = [];
+        mealsByDay[m.day].push(m);
+      });
+
+      Object.keys(mealsByDay).sort((a,b) => a-b).forEach(day => {
         if (y > 270) { doc.addPage(); y = 20; }
+        doc.setFontSize(12);
+        doc.setTextColor(108, 95, 199);
+        doc.text(`Day ${day}`, margin, y); y += 7;
+
+        const sorted = mealsByDay[day].sort((a,b) =>
+          slotOrder.indexOf(a.meal_type) - slotOrder.indexOf(b.meal_type)
+        );
+
+        sorted.forEach(meal => {
+          if (y > 270) { doc.addPage(); y = 20; }
+          doc.setFontSize(9);
+          doc.setTextColor(0, 0, 0);
+          doc.setFont(undefined, 'bold');
+          doc.text(`${slotLabels[meal.meal_type] || meal.meal_type}: `, margin + 4, y);
+          doc.setFont(undefined, 'normal');
+          const nameLines = doc.splitTextToSize(`${meal.meal_name} — ${meal.calories} kcal`, 160);
+          doc.text(nameLines, margin + 4, y);
+          y += nameLines.length * 5 + 3;
+        });
+        y += 5;
+      });
+
+      // MPESS section from plan data
+      const mpess = plan?.mpess;
+      if (mpess && mpess.length > 0) {
+        if (y > 250) { doc.addPage(); y = 20; }
+        doc.setFontSize(12);
+        doc.setTextColor(108, 95, 199);
+        doc.text('Wellness Guidance (MPESS)', margin, y); y += 7;
         doc.setFontSize(9);
         doc.setTextColor(0, 0, 0);
-        doc.setFont(undefined, 'bold');
-        doc.text(`${slotLabels[meal.meal_type] || meal.meal_type}: `, margin + 4, y);
-        doc.setFont(undefined, 'normal');
-        const nameLines = doc.splitTextToSize(`${meal.meal_name} — ${meal.calories} kcal`, 160);
-        doc.text(nameLines, margin + 4, y);
-        y += nameLines.length * 5 + 3;
-      });
-      y += 5;
-    });
-
-    if (mpessLogs && mpessLogs.length > 0) {
-      if (y > 250) { doc.addPage(); y = 20; }
-      doc.setFontSize(12);
-      doc.setTextColor(108, 95, 199);
-      doc.text('🌿 Wellness Practices (MPESS)', margin, y); y += 7;
-      doc.setFontSize(9);
-      doc.setTextColor(0, 0, 0);
-      mpessLogs.forEach(log => {
-        const d = log.submission_data || {};
-        if (d.practice) {
+        const first = mpess[0];
+        [['Sleep', first.sleep], ['Stress', first.stress], ['Movement', first.movement], ['Mindfulness', first.mindfulness], ['Pranayam', first.pranayam]].forEach(([label, val]) => {
+          if (!val) return;
           if (y > 270) { doc.addPage(); y = 20; }
-          const label = `${(d.category || 'practice').toUpperCase()}: ${d.practice}${d.frequency ? ` (${d.frequency})` : ''}${d.duration ? ` — ${d.duration}` : ''}`;
-          const lines = doc.splitTextToSize(label, 165);
-          doc.text(lines, margin + 4, y);
-          y += lines.length * 5 + 2;
-          if (d.notes) {
-            const noteLines = doc.splitTextToSize(`Notes: ${d.notes}`, 155);
-            doc.setTextColor(100, 100, 100);
-            doc.text(noteLines, margin + 8, y);
-            doc.setTextColor(0, 0, 0);
-            y += noteLines.length * 4 + 2;
-          }
-        }
-      });
-    }
+          doc.setFont(undefined, 'bold');
+          doc.text(`${label}:`, margin + 4, y);
+          doc.setFont(undefined, 'normal');
+          const lines = doc.splitTextToSize(val, 155);
+          doc.text(lines, margin + 4, y + 4);
+          y += lines.length * 5 + 8;
+        });
+      }
 
-    doc.save(`${plan?.name || 'meal-plan'}.pdf`);
+      doc.save(`${plan?.name || 'meal-plan'}.pdf`);
+    } catch (err) {
+      console.error('PDF download error:', err);
+      alert('PDF download failed: ' + err.message);
+    }
   };
 
 
