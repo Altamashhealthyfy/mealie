@@ -108,10 +108,9 @@ export default function ClinicalIntake() {
     initialData: [],
   });
 
-  const { data: client } = useQuery({
+  const { data: client, isLoading: clientLoading } = useQuery({
     queryKey: ['client', formData.client_id],
     queryFn: async () => {
-      // Find from already-loaded clients list first, fallback to full list
       const allClients = await base44.entities.Client.list();
       return allClients.find(c => c.id === formData.client_id) || null;
     },
