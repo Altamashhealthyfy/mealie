@@ -73,6 +73,15 @@ export default function ClientDetailSidePanel({
     enabled: !!client?.id,
   });
 
+  const { data: uploadedReports } = useQuery({
+    queryKey: ['clientReports', client?.id],
+    queryFn: async () => {
+      if (!client?.id) return [];
+      return await base44.entities.ClientReport.filter({ client_id: client.id }, '-created_date');
+    },
+    enabled: !!client?.id,
+  });
+
   if (!client) return null;
 
   const activePlan = mealPlans?.find(p => p.active);
