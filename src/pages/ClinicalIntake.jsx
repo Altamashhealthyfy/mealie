@@ -110,7 +110,10 @@ export default function ClinicalIntake() {
 
   const { data: client } = useQuery({
     queryKey: ['client', formData.client_id],
-    queryFn: () => base44.entities.Client.filter({ id: formData.client_id }).then(res => res[0]),
+    queryFn: async () => {
+      const all = await base44.entities.Client.list();
+      return all.find(c => c.id === formData.client_id) || null;
+    },
     enabled: !!formData.client_id,
   });
 
@@ -124,9 +127,13 @@ export default function ClinicalIntake() {
     enabled: !!formData.client_id,
   });
 
-  // Load existing intake data if available
+  // Load existing intake OR pre-fill from basic profile
+  // Wait until both queries resolve (intakeLoading === false) before deciding
   useEffect(() => {
-    if (existingIntake && formData.client_id) {
+    if (!formData.client_id || intakeLoading) return;
+
+    if (existingIntake) {
+      // Load existing intake data
       const loadedGoal = existingIntake.goal;
       setFormData({
         ...existingIntake,
@@ -140,13 +147,9 @@ export default function ClinicalIntake() {
           bmi: existingIntake.basic_info?.bmi ?? '',
         }
       });
-      
-      // Load medications
       if (existingIntake.current_medications?.length > 0) {
         setMedications(existingIntake.current_medications);
       }
-      
-      // Load text fields
       if (existingIntake.symptom_goals?.length > 0) {
         setSymptomGoalsText(existingIntake.symptom_goals.join('\n'));
       }
@@ -156,10 +159,11 @@ export default function ClinicalIntake() {
         setAllergiesText(existingIntake.likes_dislikes_allergies.allergies?.join(', ') || '');
         setNoGoText(existingIntake.likes_dislikes_allergies.no_go_foods?.join(', ') || '');
       }
-      // Auto-open diet section so new fields are visible
       setIsDietPreferencesOpen(true);
-    } else if (client && formData.client_id && !existingIntake) {
-      // Pre-fill from client data only if no existing intake
+    } else if (client) {
+      // No existing intake — pre-fill from basic client profile
+      const fp = client.food_preference || '';
+      const dietMap = { veg: 'Veg', non_veg: 'Non-Veg', vegan: 'Vegan', jain: 'Jain', eggetarian: 'Eggetarian', mixed: 'Non-Veg' };
       setFormData(prev => ({
         ...prev,
         basic_info: {
@@ -167,19 +171,17 @@ export default function ClinicalIntake() {
           gender: client.gender || '',
           height: client.height || '',
           weight: client.weight || '',
-          bmi: client.height && client.weight ? parseFloat((client.weight / ((client.height / 100) ** 2)).toFixed(1)) : '',
+          bmi: client.height && client.weight
+            ? parseFloat((client.weight / ((client.height / 100) ** 2)).toFixed(1))
+            : '',
           activity_level: client.activity_level || ''
         },
         health_conditions: client.health_conditions || [],
-        diet_type: (() => {
-          const fp = client.food_preference || '';
-          const map = { veg: 'Veg', non_veg: 'Non-Veg', vegan: 'Vegan', jain: 'Jain', eggetarian: 'Eggetarian', mixed: 'Non-Veg' };
-          return map[fp] || fp;
-        })(),
+        diet_type: dietMap[fp] || fp,
         goal: client.goal ? [client.goal] : []
       }));
     }
-  }, [client, formData.client_id, existingIntake]);
+  }, [formData.client_id, existingIntake, intakeLoading, client]);
 
   // Auto-calculate BMI
   useEffect(() => {
