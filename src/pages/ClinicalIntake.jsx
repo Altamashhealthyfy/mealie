@@ -96,13 +96,13 @@ export default function ClinicalIntake() {
       if (user?.user_type === 'super_admin') {
         return allClients;
       }
-      if (user?.user_type === 'student_coach') {
-        return allClients.filter(client => 
-          client.created_by === user?.email || 
-          client.assigned_coach === user?.email
-        );
-      }
-      return allClients.filter(client => client.created_by === user?.email);
+      // assigned_coach is an array — use .includes() not ===
+      return allClients.filter(client =>
+        client.created_by === user?.email ||
+        (Array.isArray(client.assigned_coach)
+          ? client.assigned_coach.includes(user?.email)
+          : client.assigned_coach === user?.email)
+      );
     },
     enabled: !!user,
     initialData: [],
@@ -111,8 +111,9 @@ export default function ClinicalIntake() {
   const { data: client } = useQuery({
     queryKey: ['client', formData.client_id],
     queryFn: async () => {
-      const all = await base44.entities.Client.list();
-      return all.find(c => c.id === formData.client_id) || null;
+      // Find from already-loaded clients list first, fallback to full list
+      const allClients = await base44.entities.Client.list();
+      return allClients.find(c => c.id === formData.client_id) || null;
     },
     enabled: !!formData.client_id,
   });
