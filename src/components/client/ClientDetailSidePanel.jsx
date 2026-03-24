@@ -213,6 +213,36 @@ export default function ClientDetailSidePanel({
                 </Card>
               )}
 
+              {uploadedReports?.length > 0 && (
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-blue-500" /> 📎 Uploaded Reports ({uploadedReports.length})
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {uploadedReports.map(report => (
+                      <div key={report.id} className="flex items-center justify-between gap-2 p-2 bg-gray-50 rounded-lg">
+                        <div className="min-w-0">
+                          <p className="text-xs font-medium truncate">{report.report_title || report.file_name || 'Report'}</p>
+                          <p className="text-xs text-gray-500">
+                            {report.report_type?.replace('_', ' ')} • {new Date(report.created_date).toLocaleDateString('en-IN')}
+                          </p>
+                        </div>
+                        <a
+                          href={report.report_file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-blue-600 hover:underline font-medium flex-shrink-0"
+                        >
+                          View
+                        </a>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+
               <Button size="sm" variant="outline" onClick={() => navigate(`${createPageUrl("ClientHub")}?clientId=${client.id}`)} className="w-full text-xs text-purple-600 hover:bg-purple-50 border-purple-200">
                 <FileText className="w-3 h-3 mr-1" /> View Clinical History & Reports on Client Page
               </Button>
