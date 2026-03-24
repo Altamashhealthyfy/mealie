@@ -17,7 +17,6 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import IntakeTemplateDownload from "@/components/client/IntakeTemplateDownload";
 
 /**
  * InlineClinicalIntakeForm
