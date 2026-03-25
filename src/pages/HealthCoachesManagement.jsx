@@ -680,7 +680,7 @@ export default function HealthCoachesManagement() {
   // Pending coaches = in history as account_created but NOT yet in allUsers (deduplicated by email)
   const pendingCoaches = Object.values(
     (coachHistory || [])
-      .filter(h => !allUsers?.some(u => u.email?.toLowerCase() === h.coach_email?.toLowerCase()))
+      .filter(h => h.coach_email && h.coach_email.includes('@') && !allUsers?.some(u => u.email?.toLowerCase() === h.coach_email?.toLowerCase()))
       .reduce((acc, h) => {
         const key = h.coach_email?.toLowerCase();
         if (key && !acc[key]) acc[key] = h;
