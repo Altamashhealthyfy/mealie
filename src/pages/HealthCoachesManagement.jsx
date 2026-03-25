@@ -677,9 +677,15 @@ export default function HealthCoachesManagement() {
     return diffDays;
   };
 
-  // Pending coaches = in history as account_created but NOT yet in allUsers
-  const pendingCoaches = (coachHistory || []).filter(
-    h => !allUsers?.some(u => u.email?.toLowerCase() === h.coach_email?.toLowerCase())
+  // Pending coaches = in history as account_created but NOT yet in allUsers (deduplicated by email)
+  const pendingCoaches = Object.values(
+    (coachHistory || [])
+      .filter(h => !allUsers?.some(u => u.email?.toLowerCase() === h.coach_email?.toLowerCase()))
+      .reduce((acc, h) => {
+        const key = h.coach_email?.toLowerCase();
+        if (key && !acc[key]) acc[key] = h;
+        return acc;
+      }, {})
   );
 
   // Coaches with wrong role (in allUsers via data.user_type but top-level role is still 'user')
