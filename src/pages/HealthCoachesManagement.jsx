@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,6 +73,8 @@ export default function HealthCoachesManagement() {
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [changePasswordDialog, setChangePasswordDialog] = useState(false);
   const [selectedCoach, setSelectedCoach] = useState(null);
+  const [fixRolesRunning, setFixRolesRunning] = useState(false);
+  const [fixRolesResult, setFixRolesResult] = useState(null);
 
   // Form states
   const [newCoach, setNewCoach] = useState({
@@ -760,29 +762,30 @@ export default function HealthCoachesManagement() {
             <Button
               variant="outline"
               className="h-10 px-4 text-sm border-amber-400 text-amber-700 hover:bg-amber-50"
+              disabled={fixRolesRunning}
               onClick={async () => {
-                const allU = await base44.entities.User.list();
-                const coachHistoryEmails = (coachHistory || []).map(h => h.coach_email?.toLowerCase());
-                const stuckCoaches = allU.filter(u => {
-                  const email = u.email?.toLowerCase();
-                  const dataType = u.data?.user_type;
-                  const topType = u.user_type;
-                  return coachHistoryEmails.includes(email) && dataType === 'student_coach' && topType !== 'student_coach';
-                });
-                if (stuckCoaches.length === 0) {
-                  toast.success('All coaches have correct roles!');
-                  return;
+                setFixRolesRunning(true);
+                setFixRolesResult(null);
+                try {
+                  toast.info('Scanning all coaches and fixing roles...');
+                  const response = await base44.functions.invoke('fixAllCoachRoles', {});
+                  const result = response.data;
+                  setFixRolesResult(result);
+                  queryClient.invalidateQueries(['allHealthCoaches']);
+                  if (result.fixed > 0) {
+                    toast.success(`✅ Fixed ${result.fixed} coach role(s)! ${result.skipped} already correct.`);
+                  } else {
+                    toast.success(`✅ All coaches already have correct roles! (${result.skipped} checked)`);
+                  }
+                } catch (error) {
+                  toast.error('Failed to fix roles: ' + (error.message || 'Unknown error'));
+                } finally {
+                  setFixRolesRunning(false);
                 }
-                toast.info(`Fixing roles for ${stuckCoaches.length} coach(es)...`);
-                for (const c of stuckCoaches) {
-                  await base44.functions.invoke('createUserWithPassword', { email: c.email, user_type: 'student_coach' });
-                }
-                queryClient.invalidateQueries(['allHealthCoaches']);
-                toast.success(`Fixed ${stuckCoaches.length} coach role(s)!`);
               }}
             >
               <Shield className="w-4 h-4 mr-2" />
-              Bulk Fix Roles
+              {fixRolesRunning ? 'Fixing...' : 'Fix All Coach Roles'}
             </Button>
             <Dialog open={addCoachDialog} onOpenChange={setAddCoachDialog}>
             <DialogTrigger asChild>
@@ -931,6 +934,40 @@ export default function HealthCoachesManagement() {
           </Dialog>
           </div>
         </div>
+
+        {/* Fix Roles Result Banner */}
+        {fixRolesResult && (
+          <Card className={`border-2 ${fixRolesResult.fixed > 0 ? 'border-green-400 bg-green-50' : 'border-blue-300 bg-blue-50'}`}>
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1">
+                  <p className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    <CheckCircle2 className={`w-5 h-5 ${fixRolesResult.fixed > 0 ? 'text-green-600' : 'text-blue-600'}`} />
+                    Role Fix Complete
+                  </p>
+                  <div className="flex flex-wrap gap-3 text-sm">
+                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded font-semibold">✅ Fixed: {fixRolesResult.fixed}</span>
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded font-semibold">✓ Already correct: {fixRolesResult.skipped}</span>
+                    <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded font-semibold">⏳ Not yet registered: {fixRolesResult.notFound}</span>
+                  </div>
+                  {fixRolesResult.fixedList?.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs font-semibold text-gray-600 mb-1">Fixed coaches:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {fixRolesResult.fixedList.map((c, i) => (
+                          <span key={i} className="text-xs bg-white border border-green-300 text-green-800 px-2 py-0.5 rounded">
+                            {c.name || c.email} <span className="text-gray-400">({c.was} → student_coach)</span>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <button onClick={() => setFixRolesResult(null)} className="text-gray-400 hover:text-gray-600 text-lg leading-none">×</button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
