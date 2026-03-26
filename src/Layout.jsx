@@ -186,6 +186,12 @@ const accountNav = [
     roles: ['student_coach'],
   },
   {
+    title: "🧾 Billing Portal",
+    url: createPageUrl("BillingPortal"),
+    icon: CreditCard,
+    roles: ['student_coach'],
+  },
+  {
     title: "✨ Buy AI Credits",
     url: createPageUrl("PurchaseAICredits"),
     icon: Sparkles,
@@ -806,6 +812,12 @@ export default function Layout({ children, currentPageName }) {
         url: createPageUrl("ClientPlans"),
         icon: CreditCard,
         show: (coachAccess.show_my_plans ?? true) && (permissions?.show_my_plans ?? false),
+      },
+      {
+        title: "🧾 Billing Portal",
+        url: createPageUrl("BillingPortal"),
+        icon: CreditCard,
+        show: true,
       },
       {
         title: "My Meal Plan",
