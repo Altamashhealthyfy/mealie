@@ -48,9 +48,12 @@ Deno.serve(async (req) => {
     ])];
     const medications = intake?.current_medications || [];
     const labValues = intake?.lab_values || {};
-    const likes = intake?.likes_dislikes_allergies?.likes || '';
-    const dislikes = intake?.likes_dislikes_allergies?.dislikes || '';
-    const allergies = (intake?.likes_dislikes_allergies?.allergies || []).join(', ');
+    const likesRaw = intake?.likes_dislikes_allergies?.likes || '';
+    const dislikesRaw = intake?.likes_dislikes_allergies?.dislikes || '';
+    const allergiesRaw = intake?.likes_dislikes_allergies?.allergies || [];
+    const likes = Array.isArray(likesRaw) ? likesRaw.join(', ') : String(likesRaw || '');
+    const dislikes = Array.isArray(dislikesRaw) ? dislikesRaw.join(', ') : String(dislikesRaw || '');
+    const allergies = Array.isArray(allergiesRaw) ? allergiesRaw.join(', ') : String(allergiesRaw || '');
     const coachRules = modificationInstructions || intake?.additional_rules || intake?.dietitian_remarks || '';
     const goal = overrideGoal || intake?.goal?.[0] || client.goal || 'general_health';
 
