@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,9 +18,34 @@ import MealPlanningWorkflow from "@/components/mealplanner/MealPlanningWorkflow"
 import MealPlanTemplateSelector from "@/components/mealplanner/MealPlanTemplateSelector";
 import SaveAsTemplateDialog from "@/components/mealplanner/SaveAsTemplateDialog";
 
-export default function MealPlansTab({ client, clinicalIntakes, mealPlans, hasProAccess }) {
+export default function MealPlansTab({ client, clinicalIntakes, mealPlans }) {
   const queryClient = useQueryClient();
   const clientId = client?.id;
+
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: subscription } = useQuery({
+    queryKey: ['coachSubscription', currentUser?.email],
+    queryFn: () => base44.entities.HealthCoachSubscription.filter({
+      coach_email: currentUser?.email,
+      status: 'active'
+    }).then(r => r[0] || null),
+    enabled: !!currentUser?.email,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  // Super admins always have pro access; coaches need an active Pro plan
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.user_type === 'super_admin';
+  const hasProAccess = isAdmin || (
+    subscription?.status === 'active' &&
+    subscription?.plan_name?.toLowerCase().includes('pro')
+  );
 
   const [activeSubTab, setActiveSubTab] = useState("pro");
   const [viewingPlan, setViewingPlan] = useState(null);
@@ -148,33 +173,33 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, hasPr
 
         {/* ── PRO PLANS ── */}
         <TabsContent value="pro" className="space-y-3 mt-3">
+          {!hasProAccess ? (
+            <Card className="border-purple-200 bg-purple-50">
+              <CardContent className="p-10 text-center space-y-3">
+                <div className="text-5xl">🔒</div>
+                <h3 className="text-lg font-bold text-purple-700">Clinical Plans — Pro Feature</h3>
+                <p className="text-sm text-gray-600">Clinical meal plans with HMRE disease rules are available on the Pro Plan only.</p>
+                <p className="text-sm text-gray-600">Contact Sanjeev Sir to upgrade your plan.</p>
+                <p className="font-bold text-purple-700">WhatsApp: +91 99115 10377</p>
+              </CardContent>
+            </Card>
+          ) : (
+          <>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="font-semibold text-gray-800">Pro Clinical Plans</h3>
             <div className="flex gap-2">
-              {hasProAccess && (
-                <>
-                  <Button size="sm" variant="outline" className="text-xs border-purple-300 text-purple-700"
-                    onClick={() => setShowTemplateSelector("pro")}>
-                    <BookOpen className="w-3 h-3 mr-1" /> From Template
-                  </Button>
-                  <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-xs"
-                    onClick={() => setShowWorkflow(true)}>
-                    <Sparkles className="w-3 h-3 mr-1" /> Clinical Workflow
-                  </Button>
-                </>
-              )}
+              <Button size="sm" variant="outline" className="text-xs border-purple-300 text-purple-700"
+                onClick={() => setShowTemplateSelector("pro")}>
+                <BookOpen className="w-3 h-3 mr-1" /> From Template
+              </Button>
+              <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-xs"
+                onClick={() => setShowWorkflow(true)}>
+                <Sparkles className="w-3 h-3 mr-1" /> Clinical Workflow
+              </Button>
             </div>
           </div>
 
-          {!hasProAccess ? (
-            <Card className="border-purple-200 bg-purple-50">
-              <CardContent className="p-8 text-center">
-                <Crown className="w-10 h-10 mx-auto text-purple-300 mb-3" />
-                <p className="text-sm font-semibold text-purple-700 mb-1">Pro Plan Access Required</p>
-                <p className="text-xs text-purple-500">Upgrade your subscription to access clinical meal planning with diagnostic integration</p>
-              </CardContent>
-            </Card>
-          ) : proPlans.length === 0 ? (
+          {proPlans.length === 0 ? (
             <Card className="border-dashed border-2 border-purple-200">
               <CardContent className="p-8 text-center">
                 <Crown className="w-10 h-10 mx-auto text-purple-300 mb-3" />
@@ -205,6 +230,8 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, hasPr
                 </CardContent>
               </Card>
             </div>
+          )}
+          </>
           )}
         </TabsContent>
 
