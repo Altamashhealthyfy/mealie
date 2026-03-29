@@ -1,11 +1,10 @@
 import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar, ChefHat, Utensils, Lightbulb, CheckCircle2, History, CalendarDays } from "lucide-react";
 
 import { format } from "date-fns";
@@ -15,7 +14,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 
 export default function MyAssignedMealPlan() {
-  const [completedMeals, setCompletedMeals] = useState({});
+  const queryClient = useQueryClient();
   const [viewMode, setViewMode] = useState("current"); // "current" or "history"
   const [selectedPlanId, setSelectedPlanId] = useState(null);
   const [dateFilter, setDateFilter] = useState(null);
@@ -177,6 +176,56 @@ export default function MyAssignedMealPlan() {
   const displayedPlan = viewMode === "current" 
     ? assignedPlan 
     : (selectedPlanId ? allMealPlans?.find(p => p.id === selectedPlanId) : filteredPlans?.[0]);
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const { data: todayLogs } = useQuery({
+    queryKey: ['foodLogs', clientProfile?.id, today],
+    queryFn: () => base44.entities.FoodLog.filter({ client_id: clientProfile?.id, date: today }),
+    enabled: !!clientProfile?.id,
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
+  });
+
+  const isMealTicked = (meal) => {
+    return todayLogs?.some(log =>
+      log.meal_type === meal.meal_type &&
+      log.meal_plan_id === assignedPlan?.id &&
+      log.date === today
+    );
+  };
+
+  const handleMealTick = async (meal) => {
+    const existing = todayLogs?.filter(log =>
+      log.meal_type === meal.meal_type &&
+      log.meal_plan_id === assignedPlan?.id &&
+      log.date === today
+    );
+
+    if (existing?.length > 0) {
+      await base44.entities.FoodLog.delete(existing[0].id);
+    } else {
+      await base44.entities.FoodLog.create({
+        client_id: clientProfile?.id,
+        date: today,
+        meal_type: meal.meal_type,
+        food_items: meal.meal_name,
+        calories: meal.calories || 0,
+        protein: meal.protein || 0,
+        carbs: meal.carbs || 0,
+        fats: meal.fats || 0,
+        notes: meal.nutritional_tip || '',
+        source: 'meal_plan',
+        plan_adherent: true,
+        meal_plan_id: assignedPlan?.id,
+        meal_name: meal.meal_name,
+        items: meal.items || [],
+        portion_sizes: meal.portion_sizes || [],
+      });
+    }
+    queryClient.invalidateQueries(['foodLogs', clientProfile?.id, today]);
+    queryClient.invalidateQueries(['todayFoodLogs']);
+  };
 
   const groupedMeals = useMemo(() => {
     const ORDER = {"early_morning":0,"early morning":0,"breakfast":1,"mid_morning":2,"mid morning":2,"lunch":3,"evening_snack":4,"evening snack":4,"snack":4,"dinner":5,"post_dinner":6,"post dinner":6};
@@ -469,37 +518,40 @@ export default function MyAssignedMealPlan() {
           {Object.keys(groupedMeals).sort((a, b) => a - b).map(day => (
             <TabsContent key={day} value={`day-${day}`} className="space-y-4">
               {groupedMeals[day].map((meal, idx) => {
-                  const mealKey = `${day}-${meal.meal_type}`;
-                  const isCompleted = completedMeals[mealKey];
+                  const isCurrentDay = viewMode === "current";
+                  const ticked = isCurrentDay && isMealTicked(meal);
 
                   return (
                     <Card 
                       key={idx} 
                       className={`border-none shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all ${
-                        isCompleted ? 'opacity-60' : ''
+                        ticked ? 'opacity-70' : ''
                       }`}
                     >
                       <CardHeader>
                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-4 flex-1">
-                            <Checkbox
-                              checked={isCompleted}
-                              onCheckedChange={() => toggleMealComplete(day, meal)}
-                              className="mt-1"
-                            />
+                            {isCurrentDay && (
+                              <input
+                                type="checkbox"
+                                checked={ticked}
+                                onChange={() => handleMealTick(meal)}
+                                style={{ width: '22px', height: '22px', cursor: 'pointer', accentColor: '#6C5FC7', marginTop: '4px', flexShrink: 0 }}
+                              />
+                            )}
                             <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <Badge variant="outline" className="text-orange-600 border-orange-300">
-                                  {meal.meal_type}
+                              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                <Badge variant="outline" className="text-orange-600 border-orange-300 capitalize">
+                                  {meal.meal_type.replace('_', ' ')}
                                 </Badge>
-                                {isCompleted && (
+                                {ticked && (
                                   <Badge className="bg-green-500 text-white">
                                     <CheckCircle2 className="w-3 h-3 mr-1" />
-                                    Completed
+                                    ✅ Logged Today
                                   </Badge>
                                 )}
                               </div>
-                              <CardTitle className={`text-2xl ${isCompleted ? 'line-through text-gray-500' : ''}`}>
+                              <CardTitle className={`text-xl md:text-2xl ${ticked ? 'line-through text-gray-500' : ''}`}>
                                 {meal.meal_name}
                               </CardTitle>
                             </div>

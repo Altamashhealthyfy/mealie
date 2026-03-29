@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import TourButton from "@/components/common/TourButton";
@@ -11,8 +11,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Utensils, Camera, Trash2, Edit } from "lucide-react";
-import { format } from "date-fns";
+import { Plus, Utensils, Camera, Trash2, Edit, CheckCircle2, AlertTriangle } from "lucide-react";
+import { format, isToday } from "date-fns";
+
+const MEAL_SLOTS = [
+  { key: 'early_morning', label: '🌅 Early Morning' },
+  { key: 'breakfast', label: '🍳 Breakfast' },
+  { key: 'mid_morning', label: '🍎 Mid Morning' },
+  { key: 'lunch', label: '🍱 Lunch' },
+  { key: 'evening_snack', label: '🌰 Evening Snack' },
+  { key: 'dinner', label: '🌙 Dinner' },
+];
 
 export default function FoodLog() {
   const queryClient = useQueryClient();
@@ -73,6 +82,54 @@ export default function FoodLog() {
     staleTime: 30000,
     refetchOnWindowFocus: false,
   });
+
+  const { data: activeMealPlan } = useQuery({
+    queryKey: ['activeMealPlan', clientProfile?.id],
+    queryFn: () => base44.entities.MealPlan.filter({ client_id: clientProfile?.id, active: true }).then(r => r[0] || null),
+    enabled: !!clientProfile?.id,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  // Deviation inline forms state: { [meal_type]: { open, foodItems, calories, notes } }
+  const [deviationForms, setDeviationForms] = useState({});
+
+  const openDeviationForm = (slotKey) => {
+    setDeviationForms(prev => ({ ...prev, [slotKey]: { open: true, foodItems: '', calories: '', notes: '' } }));
+  };
+
+  const closeDeviationForm = (slotKey) => {
+    setDeviationForms(prev => ({ ...prev, [slotKey]: { open: false } }));
+  };
+
+  const saveDeviation = async (slotKey) => {
+    const form = deviationForms[slotKey];
+    await base44.entities.FoodLog.create({
+      client_id: clientProfile?.id,
+      date: format(selectedDate, 'yyyy-MM-dd'),
+      meal_type: slotKey,
+      food_items: form.foodItems,
+      meal_name: form.foodItems,
+      calories: parseFloat(form.calories) || 0,
+      notes: form.notes,
+      source: 'manual',
+      plan_adherent: false,
+      meal_plan_id: activeMealPlan?.id,
+    });
+    queryClient.invalidateQueries(['todayFoodLogs']);
+    queryClient.invalidateQueries(['foodLogs']);
+    closeDeviationForm(slotKey);
+  };
+
+  // Get today's plan meals for the active day (day 1 for simplicity, can be improved)
+  const todayPlanMeals = useMemo(() => {
+    if (!activeMealPlan?.meals) return {};
+    const bySlot = {};
+    (activeMealPlan.meals || []).forEach(m => {
+      if (m.day === 1) bySlot[m.meal_type] = m; // default to day 1; can be rotated
+    });
+    return bySlot;
+  }, [activeMealPlan]);
 
   const saveMutation = useMutation({
     mutationFn: (data) => {
@@ -433,6 +490,109 @@ export default function FoodLog() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Meal Plan Slots — only show for today */}
+            {activeMealPlan && isToday(selectedDate) && (
+              <Card className="border-none shadow-lg bg-white/80 backdrop-blur">
+                <CardHeader className="p-4 md:p-6 pb-2">
+                  <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                    📋 Today's Meal Plan Tracker
+                    <Badge className="bg-purple-600 text-white text-xs">{activeMealPlan.name}</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 md:p-6 space-y-3">
+                  {MEAL_SLOTS.map(slot => {
+                    const planMeal = todayPlanMeals[slot.key];
+                    const logForSlot = todayLogs.find(l => l.meal_type === slot.key);
+                    const isFromPlan = logForSlot?.source === 'meal_plan' && logForSlot?.plan_adherent;
+                    const isDeviation = logForSlot && !logForSlot.plan_adherent;
+                    const notLogged = !logForSlot;
+                    const devForm = deviationForms[slot.key] || {};
+
+                    return (
+                      <div key={slot.key} style={{ borderRadius: '10px', border: '1px solid #e5e7eb', padding: '12px', background: isFromPlan ? '#f0fdf4' : isDeviation ? '#fffbeb' : '#fafafa' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontWeight: '600', fontSize: '14px' }}>{slot.label}</span>
+                            {isFromPlan && <span style={{ color: '#16a34a', fontSize: '12px', fontWeight: '600' }}>✅ Logged from plan</span>}
+                            {isDeviation && <span style={{ color: '#d97706', fontSize: '12px', fontWeight: '600' }}>⚠️ Deviation</span>}
+                            {notLogged && planMeal && <span style={{ color: '#9ca3af', fontSize: '12px' }}>⬜ Not logged yet</span>}
+                            {notLogged && !planMeal && <span style={{ color: '#d1d5db', fontSize: '12px' }}>— No plan for this slot</span>}
+                          </div>
+                          {!devForm.open && (
+                            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                              {notLogged && planMeal && (
+                                <button onClick={() => openDeviationForm(slot.key)} style={{ background: '#6C5FC7', color: 'white', padding: '5px 10px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '12px' }}>
+                                  Log what I ate
+                                </button>
+                              )}
+                              {isFromPlan && (
+                                <button onClick={() => openDeviationForm(slot.key)} style={{ background: '#E67E22', color: 'white', padding: '5px 10px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '12px' }}>
+                                  I ate something different
+                                </button>
+                              )}
+                              {isDeviation && (
+                                <button onClick={() => openDeviationForm(slot.key)} style={{ background: '#6b7280', color: 'white', padding: '5px 10px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '12px' }}>
+                                  Edit deviation
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Logged food details */}
+                        {logForSlot && (
+                          <div style={{ marginTop: '8px', fontSize: '13px', color: '#374151' }}>
+                            <span style={{ fontWeight: '500' }}>{logForSlot.food_items || logForSlot.meal_name}</span>
+                            {logForSlot.calories > 0 && <span style={{ color: '#f97316', marginLeft: '8px' }}>{logForSlot.calories} kcal</span>}
+                          </div>
+                        )}
+
+                        {/* Plan meal if not logged */}
+                        {notLogged && planMeal && (
+                          <div style={{ marginTop: '6px', fontSize: '12px', color: '#9ca3af' }}>
+                            Plan: {planMeal.meal_name} — {planMeal.calories} kcal
+                          </div>
+                        )}
+
+                        {/* Deviation inline form */}
+                        {devForm.open && (
+                          <div style={{ marginTop: '10px', padding: '12px', background: '#fff9e6', borderRadius: '8px', border: '1px solid #fde68a' }}>
+                            <input
+                              placeholder="What did you eat?"
+                              value={devForm.foodItems || ''}
+                              onChange={(e) => setDeviationForms(prev => ({ ...prev, [slot.key]: { ...prev[slot.key], foodItems: e.target.value } }))}
+                              style={{ width: '100%', padding: '8px', marginBottom: '8px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '13px', boxSizing: 'border-box' }}
+                            />
+                            <input
+                              type="number"
+                              placeholder="Approx calories"
+                              value={devForm.calories || ''}
+                              onChange={(e) => setDeviationForms(prev => ({ ...prev, [slot.key]: { ...prev[slot.key], calories: e.target.value } }))}
+                              style={{ width: '100%', padding: '8px', marginBottom: '8px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '13px', boxSizing: 'border-box' }}
+                            />
+                            <input
+                              placeholder="Notes (optional)"
+                              value={devForm.notes || ''}
+                              onChange={(e) => setDeviationForms(prev => ({ ...prev, [slot.key]: { ...prev[slot.key], notes: e.target.value } }))}
+                              style={{ width: '100%', padding: '8px', marginBottom: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '13px', boxSizing: 'border-box' }}
+                            />
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button onClick={() => saveDeviation(slot.key)} style={{ background: '#E67E22', color: 'white', padding: '8px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+                                Save
+                              </button>
+                              <button onClick={() => closeDeviationForm(slot.key)} style={{ background: '#e5e7eb', color: '#374151', padding: '8px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '13px' }}>
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Food Logs List */}
             {todayLogs.length === 0 ? (
