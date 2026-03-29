@@ -703,6 +703,45 @@ export default function ClientDashboard() {
           <TourButton pageName="ClientDashboard" />
         </div>
 
+        {/* Welcome Banner for new clients without a meal plan */}
+        {!mealPlan && clientProfile?.join_date && (() => {
+          const daysSinceJoin = Math.floor((Date.now() - new Date(clientProfile.join_date).getTime()) / (1000 * 60 * 60 * 24));
+          return daysSinceJoin <= 7;
+        })() && (
+          <div style={{
+            background: 'linear-gradient(135deg, #6C5FC7, #8B7ED8)',
+            borderRadius: '16px',
+            padding: '2rem',
+            color: 'white',
+            textAlign: 'center',
+            marginBottom: '1.5rem'
+          }}>
+            <div style={{fontSize: '3rem'}}>🎉</div>
+            <h2 style={{margin: '0.5rem 0', fontSize: '1.5rem', fontWeight: 'bold'}}>Welcome to Mealie Pro!</h2>
+            <p style={{opacity: 0.9, margin: '0.5rem 0'}}>
+              Your health coach is setting up your personalized meal plan. You will receive it within 24 hours.
+            </p>
+            <p style={{opacity: 0.8, fontSize: '14px'}}>
+              Meanwhile, complete your profile so your coach can create the perfect plan for you.
+            </p>
+            <button
+              onClick={() => navigate('/ClientSelfEditProfile')}
+              style={{
+                background: 'white',
+                color: '#6C5FC7',
+                border: 'none',
+                padding: '10px 24px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                marginTop: '1rem',
+                fontSize: '15px'
+              }}>
+              Complete My Profile →
+            </button>
+          </div>
+        )}
+
         {/* Onboarding Progress Tracker */}
         {!clientProfile?.tutorial_completed && (
           <div className="mb-6">

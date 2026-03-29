@@ -260,9 +260,22 @@ Provide a warm, personalized tip that's relevant to their situation.`,
 
       return await base44.entities.Client.create(clientData);
     },
-    onSuccess: (client) => {
+    onSuccess: async (client) => {
       setCreatedClient(client);
       clearSavedProgress();
+      // Notify coach if client registered via referral link
+      if (coachRefEmail) {
+        try {
+          await base44.entities.Notification.create({
+            user_email: coachRefEmail,
+            title: 'New Client Registered',
+            message: `${client.full_name} has registered via your referral link. Please set up their profile and meal plan.`,
+            type: 'new_client',
+            read: false,
+            client_id: client.id,
+          });
+        } catch {}
+      }
       setPhase("schedule");
       toast.success("Profile Created! 🎉 Let's schedule your first coaching session.");
     },

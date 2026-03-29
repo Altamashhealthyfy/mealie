@@ -587,6 +587,16 @@ export default function Layout({ children, currentPageName }) {
     refetchOnWindowFocus: false,
   });
 
+  // Redirect clients to their dashboard on login
+  React.useEffect(() => {
+    if (!user) return;
+    const isClientUser = user?.user_type === 'client';
+    const onHomePage = window.location.pathname === '/' || window.location.pathname === '';
+    if (isClientUser && onHomePage) {
+      window.location.replace(createPageUrl('ClientDashboard'));
+    }
+  }, [user]);
+
   // Listen for view mode changes from DietitianDashboard
   React.useEffect(() => {
     // Load initial view mode from localStorage

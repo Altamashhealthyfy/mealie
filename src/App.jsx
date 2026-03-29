@@ -1,6 +1,7 @@
 import './App.css'
 import AIAuditLog from './pages/AIAuditLog';
 import BillingPortal from './pages/BillingPortal';
+import ClientSelfEditProfile from './pages/ClientSelfEditProfile';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -56,6 +57,7 @@ const AuthenticatedApp = () => {
         ))}
         <Route path="/AIAuditLog" element={<LayoutWrapper currentPageName="AIAuditLog"><AIAuditLog /></LayoutWrapper>} />
         <Route path="/BillingPortal" element={<LayoutWrapper currentPageName="BillingPortal"><BillingPortal /></LayoutWrapper>} />
+        <Route path="/ClientSelfEditProfile" element={<LayoutWrapper currentPageName="ClientSelfEditProfile"><ClientSelfEditProfile /></LayoutWrapper>} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </LayoutWrapper>
