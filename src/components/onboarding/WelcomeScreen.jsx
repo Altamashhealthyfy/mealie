@@ -2,8 +2,22 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Heart, Target, MessageCircle, TrendingUp, ChefHat, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 
-export default function WelcomeScreen({ user, onStart }) {
+export default function WelcomeScreen({ user, onStart, coachRefEmail }) {
+  const { data: coachProfile } = useQuery({
+    queryKey: ['referralCoachProfile', coachRefEmail],
+    queryFn: async () => {
+      const profiles = await base44.entities.CoachProfile.filter({ created_by: coachRefEmail });
+      return profiles[0] || null;
+    },
+    enabled: !!coachRefEmail,
+    staleTime: Infinity,
+  });
+
+  const coachName = coachProfile?.custom_branding_name || coachProfile?.business_name || null;
+  const coachLogo = coachProfile?.logo_url || null;
   const highlights = [
     { icon: ChefHat, label: "Personalized Meal Plans", color: "bg-orange-100 text-orange-600" },
     { icon: TrendingUp, label: "Progress Tracking", color: "bg-blue-100 text-blue-600" },
@@ -22,14 +36,33 @@ export default function WelcomeScreen({ user, onStart }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
-            <ChefHat className="w-10 h-10 text-white" />
-          </div>
+          {/* Coach branding */}
+          {coachName ? (
+            <div className="flex flex-col items-center mb-6">
+              {coachLogo ? (
+                <img src={coachLogo} alt={coachName} className="w-20 h-20 rounded-3xl object-cover shadow-xl mb-3" />
+              ) : (
+                <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-red-500 rounded-3xl flex items-center justify-center shadow-xl mb-3">
+                  <span className="text-3xl font-bold text-white">{coachName.charAt(0).toUpperCase()}</span>
+                </div>
+              )}
+              <div className="bg-white/90 backdrop-blur rounded-2xl px-5 py-2 shadow-sm border border-orange-100">
+                <p className="text-sm text-gray-500 font-medium">You're joining</p>
+                <p className="text-xl font-bold text-gray-900">{coachName}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+              <ChefHat className="w-10 h-10 text-white" />
+            </div>
+          )}
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
             Welcome{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}! 🎉
           </h1>
           <p className="text-xl text-gray-600 max-w-lg mx-auto leading-relaxed">
-            You're about to start a personalized health journey guided by your very own coach. Let's set things up!
+            {coachName
+              ? `You're about to start a personalized health journey with ${coachName}. Let's set things up!`
+              : "You're about to start a personalized health journey guided by your very own coach. Let's set things up!"}
           </p>
         </motion.div>
 

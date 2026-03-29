@@ -436,7 +436,7 @@ Provide a warm, personalized tip that's relevant to their situation.`,
             </div>
           </div>
         )}
-        <WelcomeScreen user={user} onStart={() => setPhase("form")} />
+        <WelcomeScreen user={user} onStart={() => setPhase("form")} coachRefEmail={coachRefEmail} />
       </div>
     );
   }
