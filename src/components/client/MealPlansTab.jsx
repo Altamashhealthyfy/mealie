@@ -22,7 +22,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, hasPr
   const queryClient = useQueryClient();
   const clientId = client?.id;
 
-  const [activeSubTab, setActiveSubTab] = useState("basic");
+  const [activeSubTab, setActiveSubTab] = useState("pro");
   const [viewingPlan, setViewingPlan] = useState(null);
   const [showBasicForm, setShowBasicForm] = useState(false);
   const [showTemplateSelector, setShowTemplateSelector] = useState(null); // "basic" | "pro" | null
@@ -95,13 +95,13 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, hasPr
     <div className="space-y-4">
       <Tabs value={activeSubTab} onValueChange={setActiveSubTab}>
         <TabsList className="bg-white/90 border border-gray-200 rounded-xl p-1 w-full flex gap-1">
-          <TabsTrigger value="basic" className="flex-1 text-xs sm:text-sm rounded-lg data-[state=active]:bg-green-500 data-[state=active]:text-white">
-            <ChefHat className="w-3.5 h-3.5 mr-1" /> Basic Plans
-            {basicPlans.length > 0 && <Badge className="ml-1 bg-green-100 text-green-700 text-xs">{basicPlans.length}</Badge>}
-          </TabsTrigger>
           <TabsTrigger value="pro" className="flex-1 text-xs sm:text-sm rounded-lg data-[state=active]:bg-purple-600 data-[state=active]:text-white">
             <Crown className="w-3.5 h-3.5 mr-1" /> Clinical Plans
             {proPlans.length > 0 && <Badge className="ml-1 bg-purple-100 text-purple-700 text-xs">{proPlans.length}</Badge>}
+          </TabsTrigger>
+          <TabsTrigger value="basic" className="flex-1 text-xs sm:text-sm rounded-lg data-[state=active]:bg-green-500 data-[state=active]:text-white">
+            <ChefHat className="w-3.5 h-3.5 mr-1" /> Basic Plans
+            {basicPlans.length > 0 && <Badge className="ml-1 bg-green-100 text-green-700 text-xs">{basicPlans.length}</Badge>}
           </TabsTrigger>
           <TabsTrigger value="templates" className="flex-1 text-xs sm:text-sm rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white">
             <BookOpen className="w-3.5 h-3.5 mr-1" /> Templates
@@ -240,8 +240,8 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, hasPr
             client={client}
             clinicalIntakes={clinicalIntakes}
             mealPlans={mealPlans}
-            onPlanSaved={(saved) => { invalidatePlans(); setShowWorkflow(false); setActiveSubTab("pro"); }}
-            onPlanAssigned={(saved) => { invalidatePlans(); setShowWorkflow(false); setActiveSubTab("pro"); }}
+            onPlanSaved={(saved) => { invalidatePlans(); setShowWorkflow(false); setActiveSubTab("pro"); if (saved) setViewingPlan(saved); }}
+            onPlanAssigned={(saved) => { invalidatePlans(); setShowWorkflow(false); setActiveSubTab("pro"); if (saved) setViewingPlan(saved); }}
           />
         </DialogContent>
       </Dialog>

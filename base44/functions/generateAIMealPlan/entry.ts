@@ -361,10 +361,18 @@ Generate 5 templates and MPESS for ${conditions.join('+')||'general health'} cli
 
     // ─── STEP 13: Build plan name with IST ───
     const now = new Date();
-    const istTime = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
-    const dateLabel = istTime.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' });
-    const timeLabel = istTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' });
-    const planName = `${client.full_name || client.name} — ${conditions.join('+')||'General'} Plan (${days} Days) | ${dateLabel} ${timeLabel} IST`;
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const istTime = new Date(now.getTime() + istOffset);
+    const istDay = String(istTime.getUTCDate()).padStart(2, '0');
+    const istMonths = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const istMonth = istMonths[istTime.getUTCMonth()];
+    const istYear = istTime.getUTCFullYear();
+    let istHours = istTime.getUTCHours();
+    const istMinutes = String(istTime.getUTCMinutes()).padStart(2, '0');
+    const istAmPm = istHours >= 12 ? 'PM' : 'AM';
+    istHours = istHours % 12 || 12;
+    const timeStr = `${String(istHours).padStart(2,'0')}:${istMinutes} ${istAmPm}`;
+    const planName = `${client.full_name || client.name} — ${conditions.join('+')||'General'} Plan (${days} Days) | ${istDay} ${istMonth} ${istYear} ${timeStr} IST`;
 
     // ─── STEP 14: Save plan ───
     const mealPlan = await base44.asServiceRole.entities.MealPlan.create({

@@ -241,8 +241,10 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       await queryClient.invalidateQueries(['clientMealPlans', client.id]);
       await queryClient.refetchQueries(['clientMealPlans', client.id]);
       window.dispatchEvent(new CustomEvent('mealPlanSaved', { detail: { clientId: client.id } }));
-      if (onPlanSaved) onPlanSaved(saved);
-      if (assign && onPlanAssigned) onPlanAssigned(saved);
+      // Pass the full plan (with meals) back for auto-navigation to viewer
+      const fullSaved = { ...generatedPlan, ...saved, id: saved.id };
+      if (onPlanSaved) onPlanSaved(fullSaved);
+      if (assign && onPlanAssigned) onPlanAssigned(fullSaved);
     } catch (err) {
       toast.error('Save failed: ' + (err.message || 'Unknown error'));
     }
