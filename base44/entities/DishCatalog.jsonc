@@ -1,0 +1,89 @@
+{
+  "name": "DishCatalog",
+  "type": "object",
+  "properties": {
+    "dish_id": {
+      "type": "number",
+      "description": "Unique dish identifier"
+    },
+    "name": {
+      "type": "string",
+      "description": "Dish name"
+    },
+    "slot": {
+      "type": "string",
+      "enum": [
+        "early_morning",
+        "breakfast",
+        "mid_morning",
+        "lunch_grain",
+        "lunch_dal",
+        "lunch_sabzi",
+        "snack",
+        "dinner_grain",
+        "dinner_prot"
+      ],
+      "description": "Meal slot this dish belongs to"
+    },
+    "diet_type": {
+      "type": "string",
+      "description": "Dietary classification (e.g. veg, non_veg, eggetarian)"
+    },
+    "calories": {
+      "type": "number",
+      "description": "Calories per standard serving"
+    },
+    "protein": {
+      "type": "number",
+      "description": "Protein in grams per standard serving"
+    },
+    "carbs": {
+      "type": "number",
+      "description": "Carbohydrates in grams per standard serving"
+    },
+    "fats": {
+      "type": "number",
+      "description": "Fats in grams per standard serving"
+    },
+    "small_label": {
+      "type": "string",
+      "description": "Label for small portion (e.g. '1 small bowl')"
+    },
+    "small_kcal": {
+      "type": "number",
+      "description": "Calories for small portion"
+    },
+    "medium_label": {
+      "type": "string",
+      "description": "Label for medium portion (e.g. '1 medium bowl')"
+    },
+    "medium_kcal": {
+      "type": "number",
+      "description": "Calories for medium portion"
+    },
+    "large_label": {
+      "type": "string",
+      "description": "Label for large portion (e.g. '1 large bowl')"
+    },
+    "large_kcal": {
+      "type": "number",
+      "description": "Calories for large portion"
+    },
+    "status": {
+      "type": "string",
+      "description": "Active status of the dish (e.g. active, inactive)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Any special notes about the dish"
+    },
+    "diabetes_ok": {
+      "type": "string",
+      "description": "Whether the dish is suitable for diabetics (yes/no/conditional)"
+    }
+  },
+  "required": [
+    "name",
+    "slot"
+  ]
+}
