@@ -50,8 +50,9 @@ export default function CoachReferralLink() {
     initialData: [],
   });
 
-  // Generate referral link
-  const referralLink = `https://app.mealiepro.com/ClientOnboarding?ref=${encodeURIComponent(user?.email || '')}`;
+  // Generate referral link — uses the current app's actual domain so QR/link always work
+  const appBaseUrl = `${window.location.protocol}//${window.location.host}`;
+  const referralLink = `${appBaseUrl}/ClientOnboarding?ref=${encodeURIComponent(user?.email || '')}`;
   
   // Generate QR code URL
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(referralLink)}`;
@@ -176,13 +177,23 @@ export default function CoachReferralLink() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Unique coach identifier highlight */}
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-xl p-4 text-white flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest opacity-80 mb-1">🔑 Your Unique Coach ID</p>
+                <p className="text-lg font-bold font-mono">{user?.email}</p>
+                <p className="text-xs opacity-80 mt-1">This ID is embedded in your link — clients are tied directly to you</p>
+              </div>
+              <Badge className="bg-white text-orange-600 font-bold text-sm px-3 py-1">Unique to You</Badge>
+            </div>
+
             <div className="flex gap-2">
               <Input
                 value={referralLink}
                 readOnly
                 className="font-mono text-sm bg-gray-50"
               />
-              <Button onClick={handleCopyLink} className="shrink-0">
+              <Button onClick={handleCopyLink} className="shrink-0 bg-orange-500 hover:bg-orange-600">
                 {copied ? (
                   <>
                     <CheckCircle2 className="w-4 h-4 mr-2" />
@@ -201,10 +212,10 @@ export default function CoachReferralLink() {
               </Button>
             </div>
 
-            <Alert>
-              <Info className="w-4 h-4" />
-              <AlertDescription>
-                When someone signs up using this link, they will automatically be assigned to you as their health coach.
+            <Alert className="bg-green-50 border-green-300">
+              <Info className="w-4 h-4 text-green-600" />
+              <AlertDescription className="text-green-800">
+                ✅ When a client scans your QR code or opens this link, they land <strong>directly on your registration page</strong> and are automatically assigned to you.
               </AlertDescription>
             </Alert>
           </CardContent>
