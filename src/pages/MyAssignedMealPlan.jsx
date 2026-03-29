@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -162,7 +162,7 @@ export default function MyAssignedMealPlan() {
   });
 
   // Filter plans by date if date filter is set
-  const filteredPlans = React.useMemo(() => {
+  const filteredPlans = useMemo(() => {
     if (!allMealPlans) return [];
     if (!dateFilter) return allMealPlans;
     
@@ -178,49 +178,49 @@ export default function MyAssignedMealPlan() {
     : (selectedPlanId ? allMealPlans?.find(p => p.id === selectedPlanId) : filteredPlans?.[0]);
 
   const today = new Date().toISOString().split('T')[0];
-  const [localTicks, setLocalTicks] = useState({});
+
+  // tickedMeals: { [meal_type]: logId | true } — source of truth for UI
+  const [tickedMeals, setTickedMeals] = useState({});
+  const [tickedInitialized, setTickedInitialized] = useState(false);
 
   const { data: todayLogs } = useQuery({
     queryKey: ['foodLogs', clientProfile?.id, today],
     queryFn: () => base44.entities.FoodLog.filter({ client_id: clientProfile?.id, date: today }),
     enabled: !!clientProfile?.id,
-    staleTime: 30000,
-    refetchOnWindowFocus: false,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 
-  const isMealTicked = (meal) => {
-    const tickKey = `${meal.meal_type}_${meal.day}`;
-    if (localTicks[tickKey] !== undefined) return localTicks[tickKey];
-    // Match by meal_type + date (don't require meal_plan_id to handle legacy logs)
-    return todayLogs?.some(log =>
-      log.meal_type === meal.meal_type &&
-      log.date === today &&
-      (log.source === 'meal_plan' || log.plan_adherent === true)
-    ) ?? false;
-  };
+  // Seed tickedMeals from server data once loaded
+  useEffect(() => {
+    if (!todayLogs) return;
+    const seeded = {};
+    todayLogs.forEach(log => {
+      if (log.source === 'meal_plan' || log.plan_adherent === true) {
+        seeded[log.meal_type] = log.id;
+      }
+    });
+    setTickedMeals(seeded);
+    setTickedInitialized(true);
+  }, [todayLogs]);
+
+  const isMealTicked = (meal) => !!tickedMeals[meal.meal_type];
 
   const handleMealTick = async (meal) => {
-    const tickKey = `${meal.meal_type}_${meal.day}`;
-    const currentlyTicked = isMealTicked(meal);
+    const existingLogId = tickedMeals[meal.meal_type];
 
-    // Optimistic update — show tick immediately
-    setLocalTicks(prev => ({ ...prev, [tickKey]: !currentlyTicked }));
-
-    const existing = await base44.entities.FoodLog.filter({
-      client_id: clientProfile?.id,
-      date: today,
-      meal_type: meal.meal_type,
-      meal_plan_id: assignedPlan?.id,
-    });
-
-    if (existing?.length > 0) {
-      // Delete all (handles duplicates too)
-      for (const log of existing) {
+    if (existingLogId) {
+      // Optimistic untick
+      setTickedMeals(prev => { const n = {...prev}; delete n[meal.meal_type]; return n; });
+      // Delete all logs for this meal_type today (clean up any duplicates too)
+      const allForSlot = todayLogs?.filter(l => l.meal_type === meal.meal_type && (l.source === 'meal_plan' || l.plan_adherent));
+      for (const log of (allForSlot || [])) {
         await base44.entities.FoodLog.delete(log.id);
       }
-      setLocalTicks(prev => ({ ...prev, [tickKey]: false }));
     } else {
-      await base44.entities.FoodLog.create({
+      // Optimistic tick
+      setTickedMeals(prev => ({ ...prev, [meal.meal_type]: 'pending' }));
+      const created = await base44.entities.FoodLog.create({
         client_id: clientProfile?.id,
         date: today,
         meal_type: meal.meal_type,
@@ -237,7 +237,7 @@ export default function MyAssignedMealPlan() {
         items: meal.items || [],
         portion_sizes: meal.portion_sizes || [],
       });
-      setLocalTicks(prev => ({ ...prev, [tickKey]: true }));
+      setTickedMeals(prev => ({ ...prev, [meal.meal_type]: created?.id || 'done' }));
     }
     queryClient.invalidateQueries(['foodLogs', clientProfile?.id, today]);
     queryClient.invalidateQueries(['todayFoodLogs']);
