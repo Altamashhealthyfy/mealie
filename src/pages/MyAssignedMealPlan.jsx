@@ -178,6 +178,7 @@ export default function MyAssignedMealPlan() {
     : (selectedPlanId ? allMealPlans?.find(p => p.id === selectedPlanId) : filteredPlans?.[0]);
 
   const today = new Date().toISOString().split('T')[0];
+  const [localTicks, setLocalTicks] = useState({});
 
   const { data: todayLogs } = useQuery({
     queryKey: ['foodLogs', clientProfile?.id, today],
@@ -188,28 +189,42 @@ export default function MyAssignedMealPlan() {
   });
 
   const isMealTicked = (meal) => {
+    const tickKey = `${meal.meal_type}_${meal.day}`;
+    if (localTicks[tickKey] !== undefined) return localTicks[tickKey];
     return todayLogs?.some(log =>
       log.meal_type === meal.meal_type &&
       log.meal_plan_id === assignedPlan?.id &&
       log.date === today
-    );
+    ) ?? false;
   };
 
   const handleMealTick = async (meal) => {
-    const existing = todayLogs?.filter(log =>
-      log.meal_type === meal.meal_type &&
-      log.meal_plan_id === assignedPlan?.id &&
-      log.date === today
-    );
+    const tickKey = `${meal.meal_type}_${meal.day}`;
+    const currentlyTicked = isMealTicked(meal);
+
+    // Optimistic update — show tick immediately
+    setLocalTicks(prev => ({ ...prev, [tickKey]: !currentlyTicked }));
+
+    const existing = await base44.entities.FoodLog.filter({
+      client_id: clientProfile?.id,
+      date: today,
+      meal_type: meal.meal_type,
+      meal_plan_id: assignedPlan?.id,
+    });
 
     if (existing?.length > 0) {
-      await base44.entities.FoodLog.delete(existing[0].id);
+      // Delete all (handles duplicates too)
+      for (const log of existing) {
+        await base44.entities.FoodLog.delete(log.id);
+      }
+      setLocalTicks(prev => ({ ...prev, [tickKey]: false }));
     } else {
       await base44.entities.FoodLog.create({
         client_id: clientProfile?.id,
         date: today,
         meal_type: meal.meal_type,
         food_items: meal.meal_name,
+        meal_name: meal.meal_name,
         calories: meal.calories || 0,
         protein: meal.protein || 0,
         carbs: meal.carbs || 0,
@@ -218,10 +233,10 @@ export default function MyAssignedMealPlan() {
         source: 'meal_plan',
         plan_adherent: true,
         meal_plan_id: assignedPlan?.id,
-        meal_name: meal.meal_name,
         items: meal.items || [],
         portion_sizes: meal.portion_sizes || [],
       });
+      setLocalTicks(prev => ({ ...prev, [tickKey]: true }));
     }
     queryClient.invalidateQueries(['foodLogs', clientProfile?.id, today]);
     queryClient.invalidateQueries(['todayFoodLogs']);
