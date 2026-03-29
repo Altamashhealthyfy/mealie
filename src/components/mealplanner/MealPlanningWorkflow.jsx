@@ -432,12 +432,10 @@ function SectionShell({ sectionKey, icon, title, subtitle, color, badge, childre
         </div>
         {isOpen ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
       </button>
-      {isOpen && (
-        <div className="px-4 pb-4 bg-white border-t border-gray-100 space-y-3 pt-3">
-          {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
-          {children}
-        </div>
-      )}
+      <div className="px-4 pb-4 bg-white border-t border-gray-100 space-y-3 pt-3" style={{ display: isOpen ? 'block' : 'none' }}>
+        {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+        {children}
+      </div>
     </div>
   );
 }
