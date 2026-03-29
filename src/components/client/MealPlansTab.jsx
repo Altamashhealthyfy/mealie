@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,17 +53,17 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans }) {
   const [showTemplateSelector, setShowTemplateSelector] = useState(null); // "basic" | "pro" | null
   const [savingTemplate, setSavingTemplate] = useState(null); // plan object
   const [showWorkflow, setShowWorkflow] = useState(false);
-  const [pendingViewPlan, setPendingViewPlan] = useState(null);
 
   const invalidatePlans = () => queryClient.invalidateQueries(["clientMealPlans", clientId]);
 
-  // Open viewer after workflow modal fully closes
-  React.useEffect(() => {
-    if (!showWorkflow && pendingViewPlan) {
-      setViewingPlan(pendingViewPlan);
-      setPendingViewPlan(null);
+  const handlePlanSaved = (savedPlan) => {
+    setShowWorkflow(false);
+    setShowBasicForm(false);
+    invalidatePlans();
+    if (savedPlan) {
+      setTimeout(() => setViewingPlan(savedPlan), 500);
     }
-  }, [showWorkflow, pendingViewPlan]);
+  };
 
   const deletePlanMutation = useMutation({
     mutationFn: (id) => base44.entities.MealPlan.delete(id),
@@ -276,8 +276,8 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans }) {
             client={client}
             clinicalIntakes={clinicalIntakes}
             mealPlans={mealPlans}
-            onPlanSaved={(saved) => { invalidatePlans(); setActiveSubTab("pro"); if (saved) setPendingViewPlan(saved); setShowWorkflow(false); }}
-            onPlanAssigned={(saved) => { invalidatePlans(); setActiveSubTab("pro"); if (saved) setPendingViewPlan(saved); setShowWorkflow(false); }}
+            onPlanSaved={(saved) => { setActiveSubTab("pro"); handlePlanSaved(saved); }}
+            onPlanAssigned={(saved) => { setActiveSubTab("pro"); handlePlanSaved(saved); }}
           />
         </DialogContent>
       </Dialog>
