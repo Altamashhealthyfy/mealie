@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,7 +39,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
     latestIntake?.non_veg_meal_times?.length ? `Non-veg meal times: ${latestIntake.non_veg_meal_times.join(', ')}` : '',
     latestIntake?.egg_preferred_meals?.length ? `Egg meal times: ${latestIntake.egg_preferred_meals.join(', ')}` : '',
   ].filter(Boolean).join('\n');
-  const [overrideRulesText, setOverrideRulesText] = useState(defaultOverrideRules);
+  const overrideRulesRef = useRef(defaultOverrideRules);
 
   // Step 4: Generated plan
   const [generating, setGenerating] = useState(false);
@@ -91,7 +91,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
 
       // Resolve calorie target from override rules text or client profile
       const resolveCalories = () => {
-        const rulesText = overrideRulesText || selectedIntake?.additional_rules || selectedIntake?.dietitian_remarks || '';
+        const rulesText = overrideRulesRef.current || selectedIntake?.additional_rules || selectedIntake?.dietitian_remarks || '';
         const calMatch = rulesText.match(/target\s*(\d{3,4})\s*kcal/i) || rulesText.match(/(\d{3,4})\s*kcal/i);
         if (calMatch) return parseInt(calMatch[1]);
         return client.target_calories || 1800;
@@ -105,7 +105,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
         condition: primaryCondition,
         additionalConditions,
         overrideGoal: client.goal || 'weight loss',
-        modificationInstructions: overrideRulesText || selectedIntake?.additional_rules || '',
+        modificationInstructions: overrideRulesRef.current || selectedIntake?.additional_rules || '',
         planTier: 'advanced',
       });
 
@@ -252,38 +252,11 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
   // ── RENDER ──────────────────────────────────────────────────────────────────
   const toggle = (key) => setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
 
-  const SectionShell = ({ sectionKey, icon, title, subtitle, color, badge, children }) => {
-    const colorMap = { purple: 'border-purple-300 bg-purple-50', blue: 'border-blue-300 bg-blue-50', orange: 'border-orange-300 bg-orange-50', green: 'border-green-300 bg-green-50', pink: 'border-pink-300 bg-pink-50', emerald: 'border-emerald-300 bg-emerald-50' };
-    const textMap =  { purple: 'text-purple-700', blue: 'text-blue-700', orange: 'text-orange-700', green: 'text-green-700', pink: 'text-pink-700', emerald: 'text-emerald-700' };
-    const isOpen = openSections[sectionKey];
-    return (
-      <div className={`rounded-xl border-2 overflow-hidden ${colorMap[color]}`}>
-        <button
-          className="w-full flex items-center justify-between px-4 py-3 text-left"
-          onClick={() => toggle(sectionKey)}
-        >
-          <div className="flex items-center gap-2">
-            {React.cloneElement(icon, { className: `w-4 h-4 ${textMap[color]}` })}
-            <span className={`font-bold text-sm ${textMap[color]}`}>{title}</span>
-            {badge && <span className="ml-2">{badge}</span>}
-          </div>
-          {isOpen ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
-        </button>
-        {isOpen && (
-          <div className="px-4 pb-4 bg-white border-t border-gray-100 space-y-3 pt-3">
-            {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
-            {children}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   return (
     <div className="space-y-3">
 
       {/* ─ STEP 1: Review Diagnostic ─ */}
-      <SectionShell sectionKey="s1" icon={<Stethoscope />} title="Step 1 — Review Diagnostic" subtitle="Select the intake and review the clinical diagnostic before starting meal planning." color="purple"
+      <SectionShell sectionKey="s1" icon={<Stethoscope />} title="Step 1 — Review Diagnostic" subtitle="Select the intake and review the clinical diagnostic before starting meal planning." color="purple" openSections={openSections} onToggle={toggle}
         badge={diagnostic ? <Badge className="bg-green-100 text-green-700 text-xs"><CheckCircle className="w-3 h-3 mr-1 inline" />Ready</Badge> : <Badge className="bg-amber-100 text-amber-700 text-xs">Pending</Badge>}
       >
         {sortedIntakes.length > 1 && (
@@ -325,8 +298,15 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       </SectionShell>
 
       {/* ─ STEP 2: Coach Override Rules ─ */}
-      <SectionShell sectionKey="s2" icon={<Stethoscope />} title="Step 2 — Coach Override Rules" subtitle="Auto-populated from clinical intake. Edit or add any custom rules before generating." color="orange">
-        <OverrideRulesInput defaultValue={defaultOverrideRules} onChange={setOverrideRulesText} />
+      <SectionShell sectionKey="s2" icon={<Stethoscope />} title="Step 2 — Coach Override Rules" subtitle="Auto-populated from clinical intake. Edit or add any custom rules before generating." color="orange" openSections={openSections} onToggle={toggle}>
+        <textarea
+          key="override-rules-stable"
+          defaultValue={defaultOverrideRules}
+          onBlur={(e) => { overrideRulesRef.current = e.target.value; }}
+          placeholder="e.g. Target 1511 kcal. No millets. Include karela daily. Increase protein at breakfast."
+          rows={5}
+          style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e0d9ff', fontSize: '14px', resize: 'vertical', fontFamily: 'inherit', lineHeight: '1.6' }}
+        />
         <p className="text-xs text-gray-400">These rules are passed directly to the AI and override all other instructions.</p>
         <Button onClick={() => setOpenSections(prev => ({ ...prev, s2: false, s3: true }))} className="w-full bg-orange-500 hover:bg-orange-600">
           <ArrowRight className="w-4 h-4 mr-2" /> Proceed to Generate
@@ -334,7 +314,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       </SectionShell>
 
       {/* ─ STEP 3: Generate Plan ─ */}
-      <SectionShell sectionKey="s3" icon={<Sparkles />} title="Step 3 — Generate Meal Plan" subtitle="Generate the plan using clinical data, calorie targets, macro ratios, and all override rules." color="green">
+      <SectionShell sectionKey="s3" icon={<Sparkles />} title="Step 3 — Generate Meal Plan" subtitle="Generate the plan using clinical data, calorie targets, macro ratios, and all override rules." color="green" openSections={openSections} onToggle={toggle}>
         {!selectedIntake ? (
           <Alert className="bg-amber-50 border-amber-300"><AlertTriangle className="w-4 h-4 text-amber-600" /><AlertDescription className="text-sm"><strong>Step 1 not completed.</strong> Select a clinical intake first.</AlertDescription></Alert>
         ) : (
@@ -345,7 +325,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
               <p>🥗 Diet: <strong>{selectedIntake?.diet_type || client.food_preference || 'veg'}</strong></p>
               <p>🎯 Condition: <strong>{diagnostic?.primary_conditions?.[0] || selectedIntake?.health_conditions?.[0] || 'none'}</strong></p>
               <p>🔥 Calories: <strong>{client.target_calories || 1800} kcal (override from rules if specified)</strong></p>
-              {overrideRulesText && <p className="text-orange-700 mt-1">⚙️ Override rules: {overrideRulesText.slice(0, 100)}{overrideRulesText.length > 100 ? '...' : ''}</p>}
+              {overrideRulesRef.current && <p className="text-orange-700 mt-1">⚙️ Override rules: {overrideRulesRef.current.slice(0, 100)}{overrideRulesRef.current.length > 100 ? '...' : ''}</p>}
             </CardContent>
           </Card>
         )}
@@ -364,7 +344,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       {generatedPlan && (
         <>
           {/* ─ STEP 5: Advise & Modify ─ */}
-          <SectionShell sectionKey="s5" icon={<MessageSquare />} title="Step 5 — Review, Advise & Modify" subtitle="Review the generated plan. Request changes. AI will try database first, LLM only if needed." color="pink">
+          <SectionShell sectionKey="s5" icon={<MessageSquare />} title="Step 5 — Review, Advise & Modify" subtitle="Review the generated plan. Request changes. AI will try database first, LLM only if needed." color="pink" openSections={openSections} onToggle={toggle}>
             {generatedPlan?.meals && (
               <AuditCard
                 meals={generatedPlan.meals}
@@ -404,7 +384,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
           </SectionShell>
 
           {/* ─ STEP 6: Save & Assign ─ */}
-          <SectionShell sectionKey="s6" icon={<Save />} title="Step 6 — Save & Assign" subtitle="Save the plan to the client's records or assign it as the active plan." color="emerald">
+          <SectionShell sectionKey="s6" icon={<Save />} title="Step 6 — Save & Assign" subtitle="Save the plan to the client's records or assign it as the active plan." color="emerald" openSections={openSections} onToggle={toggle}>
             <Card className="border-none shadow-sm bg-emerald-50">
               <CardContent className="p-4 text-sm space-y-2">
                 <p className="font-semibold text-emerald-800">{generatedPlan.name}</p>
@@ -437,25 +417,30 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
-// Memoized uncontrolled textarea — prevents focus loss on parent re-renders
-const OverrideRulesInput = React.memo(({ defaultValue, onChange }) => (
-  <textarea
-    defaultValue={defaultValue}
-    onChange={(e) => onChange(e.target.value)}
-    placeholder="e.g. Target 1511 kcal. No millets. Include karela daily. Increase protein at breakfast."
-    style={{
-      width: '100%',
-      minHeight: '120px',
-      padding: '12px',
-      borderRadius: '8px',
-      border: '1px solid #e0d9ff',
-      fontSize: '14px',
-      lineHeight: '1.5',
-      resize: 'vertical',
-      fontFamily: 'inherit',
-    }}
-  />
-));
+// Defined OUTSIDE the main component so React never remounts it on parent re-renders
+function SectionShell({ sectionKey, icon, title, subtitle, color, badge, children, openSections, onToggle }) {
+  const colorMap = { purple: 'border-purple-300 bg-purple-50', blue: 'border-blue-300 bg-blue-50', orange: 'border-orange-300 bg-orange-50', green: 'border-green-300 bg-green-50', pink: 'border-pink-300 bg-pink-50', emerald: 'border-emerald-300 bg-emerald-50' };
+  const textMap  = { purple: 'text-purple-700', blue: 'text-blue-700', orange: 'text-orange-700', green: 'text-green-700', pink: 'text-pink-700', emerald: 'text-emerald-700' };
+  const isOpen = openSections[sectionKey];
+  return (
+    <div className={`rounded-xl border-2 overflow-hidden ${colorMap[color]}`}>
+      <button className="w-full flex items-center justify-between px-4 py-3 text-left" onClick={() => onToggle(sectionKey)}>
+        <div className="flex items-center gap-2">
+          {React.cloneElement(icon, { className: `w-4 h-4 ${textMap[color]}` })}
+          <span className={`font-bold text-sm ${textMap[color]}`}>{title}</span>
+          {badge && <span className="ml-2">{badge}</span>}
+        </div>
+        {isOpen ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+      </button>
+      {isOpen && (
+        <div className="px-4 pb-4 bg-white border-t border-gray-100 space-y-3 pt-3">
+          {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
 
 
 
