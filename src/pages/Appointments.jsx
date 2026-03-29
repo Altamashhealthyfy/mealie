@@ -42,11 +42,10 @@ export default function Appointments() {
   const [dateTo, setDateTo] = useState("");
   const [formData, setFormData] = useState({
     status: 'scheduled',
-    duration: 60,
-    type: 'initial_consultation',
-    date: format(new Date(), 'yyyy-MM-dd'),
-    time: '10:00',
-    appointment_mode: 'online',
+    duration_minutes: 60,
+    appointment_type: 'consultation',
+    appointment_date: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+    is_virtual: true,
   });
 
   const { data: user } = useQuery({
@@ -96,9 +95,12 @@ export default function Appointments() {
   });
 
   const { data: appointments } = useQuery({
-    queryKey: ['appointments'],
-    queryFn: () => base44.entities.Appointment.list('-appointment_date'),
+    queryKey: ['allAppointments', user?.email],
+    queryFn: () => base44.entities.Appointment.filter({ coach_email: user?.email }, 'appointment_date'),
+    enabled: !!user?.email,
     initialData: [],
+    staleTime: 30000,
+    refetchOnWindowFocus: false,
   });
 
   const saveMutation = useMutation({
@@ -106,19 +108,24 @@ export default function Appointments() {
       if (selectedAppointment) {
         return base44.entities.Appointment.update(selectedAppointment.id, data);
       }
-      return base44.entities.Appointment.create(data);
+      const client = clients.find(c => c.id === data.client_id);
+      return base44.entities.Appointment.create({
+        ...data,
+        coach_email: user?.email,
+        client_name: client?.full_name,
+        client_email: client?.email,
+      });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['appointments']);
+      queryClient.invalidateQueries(['allAppointments']);
       setShowAddDialog(false);
       setSelectedAppointment(null);
       setFormData({
         status: 'scheduled',
-        duration: 60,
-        type: 'initial_consultation',
-        date: format(new Date(), 'yyyy-MM-dd'),
-        time: '10:00',
-        appointment_mode: 'online',
+        duration_minutes: 60,
+        appointment_type: 'consultation',
+        appointment_date: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+        is_virtual: true,
       });
       alert('Appointment saved successfully!');
     },
@@ -127,7 +134,7 @@ export default function Appointments() {
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Appointment.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries(['appointments']);
+      queryClient.invalidateQueries(['allAppointments']);
       alert('Appointment deleted successfully!');
     },
   });
@@ -271,14 +278,14 @@ export default function Appointments() {
 
           <div className="flex items-center gap-1 md:gap-2 mb-3 flex-wrap">
             <Badge variant="outline" className="capitalize text-xs">
-              {appointment.type?.replace('_', ' ')}
+              {appointment.appointment_type?.replace('_', ' ')}
             </Badge>
             <Badge className={`${getStatusColor(appointment.status)} text-xs`}>
               {getStatusIcon(appointment.status)}
               <span className="ml-1">{appointment.status}</span>
             </Badge>
-            <Badge className={appointment.appointment_mode === 'online' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}>
-              {appointment.appointment_mode === 'online' ? '💻 Online' : '🏢 Offline'}
+            <Badge className={appointment.is_virtual ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}>
+              {appointment.is_virtual ? '💻 Online' : '🏢 Offline'}
             </Badge>
           </div>
 
@@ -294,7 +301,7 @@ export default function Appointments() {
           </div>
 
           <div className="flex gap-2 mt-3">
-            {appointment.appointment_mode === 'online' && appointment.status !== 'cancelled' && (
+            {appointment.is_virtual && appointment.status !== 'cancelled' && (
               <Button
                 size="sm"
                 className="flex-1 bg-green-500 hover:bg-green-600 text-white"
@@ -304,12 +311,12 @@ export default function Appointments() {
                 Start Video Call
               </Button>
             )}
-            {appointment.meeting_link && (
+            {appointment.location && appointment.is_virtual && (
               <Button
                 variant="outline"
                 size="sm"
-                className={appointment.appointment_mode === 'online' ? 'flex-1' : 'w-full'}
-                onClick={() => window.open(appointment.meeting_link, '_blank')}
+                className="flex-1"
+                onClick={() => window.open(appointment.location, '_blank')}
               >
                 Join External
               </Button>
@@ -353,12 +360,11 @@ export default function Appointments() {
                   setSelectedAppointment(null);
                   setFormData({
                     status: 'scheduled',
-                    duration: 60,
-                    type: 'initial_consultation',
-                    date: format(new Date(), 'yyyy-MM-dd'),
-                    time: '10:00',
-                    appointment_mode: 'online',
-                    assigned_to: user?.email || '',
+                    duration_minutes: 60,
+                    appointment_type: 'consultation',
+                    appointment_date: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+                    is_virtual: true,
+                    coach_email: user?.email || '',
                   });
                 }}
               >
@@ -404,57 +410,47 @@ export default function Appointments() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Date *</Label>
+                    <Label>Date & Time *</Label>
                     <Input
-                      type="date"
-                      value={formData.date}
-                      onChange={(e) => setFormData({...formData, date: e.target.value})}
+                      type="datetime-local"
+                      value={formData.appointment_date || ''}
+                      onChange={(e) => setFormData({...formData, appointment_date: e.target.value})}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Time *</Label>
+                    <Label>Duration (minutes)</Label>
                     <Input
-                      type="time"
-                      value={formData.time}
-                      onChange={(e) => setFormData({...formData, time: e.target.value})}
+                      type="number"
+                      value={formData.duration_minutes || 30}
+                      onChange={(e) => setFormData({...formData, duration_minutes: parseInt(e.target.value)})}
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Duration (minutes)</Label>
-                    <Input
-                      type="number"
-                      value={formData.duration}
-                      onChange={(e) => setFormData({...formData, duration: parseInt(e.target.value)})}
-                    />
-                  </div>
-                  <div className="space-y-2">
                     <Label>Type</Label>
                     <Select
-                      value={formData.type}
-                      onValueChange={(value) => setFormData({...formData, type: value})}
+                      value={formData.appointment_type || 'consultation'}
+                      onValueChange={(value) => setFormData({...formData, appointment_type: value})}
                     >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="initial_consultation">Initial Consultation</SelectItem>
+                        <SelectItem value="consultation">Consultation</SelectItem>
                         <SelectItem value="follow_up">Follow-up</SelectItem>
+                        <SelectItem value="session">Session</SelectItem>
+                        <SelectItem value="assessment">Assessment</SelectItem>
                         <SelectItem value="review">Review</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Appointment Mode *</Label>
+                    <Label>Mode</Label>
                     <Select
-                      value={formData.appointment_mode || 'online'}
-                      onValueChange={(value) => setFormData({...formData, appointment_mode: value})}
+                      value={formData.is_virtual ? 'online' : 'offline'}
+                      onValueChange={(value) => setFormData({...formData, is_virtual: value === 'online'})}
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -465,32 +461,13 @@ export default function Appointments() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Assigned Coach</Label>
-                    <Select
-                      value={formData.assigned_to || ''}
-                      onValueChange={(value) => setFormData({...formData, assigned_to: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select coach" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={null}>No assignment</SelectItem>
-                        {coaches.map((coach) => (
-                          <SelectItem key={coach.email} value={coach.email}>
-                            {coach.full_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Meeting Link (Optional)</Label>
+                  <Label>Meeting Link / Location (Optional)</Label>
                   <Input
-                    value={formData.meeting_link || ''}
-                    onChange={(e) => setFormData({...formData, meeting_link: e.target.value})}
+                    value={formData.location || ''}
+                    onChange={(e) => setFormData({...formData, location: e.target.value})}
                     placeholder="https://meet.google.com/..."
                   />
                 </div>

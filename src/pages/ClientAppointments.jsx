@@ -1,9 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Calendar as CalendarIcon,
@@ -12,14 +17,20 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
+  Edit,
+  Trash2,
 } from "lucide-react";
 import { format, isSameDay } from "date-fns";
 import VideoCallRoom from "@/components/communication/VideoCallRoom";
 import { createSignalingChannel } from "@/components/communication/VideoCallSignaling";
 
 export default function ClientAppointments() {
+  const queryClient = useQueryClient();
   const [activeVideoCall, setActiveVideoCall] = useState(null);
   const [incomingCall, setIncomingCall] = useState(null);
+  const [editingAppointment, setEditingAppointment] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [saving, setSaving] = useState(false);
   const signalingRef = useRef(null);
   const incomingChannelRef = useRef(null);
 
@@ -150,6 +161,21 @@ export default function ClientAppointments() {
     }
   };
 
+  const handleEditSave = async () => {
+    setSaving(true);
+    await base44.entities.Appointment.update(editingAppointment.id, editForm);
+    queryClient.invalidateQueries(['myAppointments']);
+    setEditingAppointment(null);
+    setSaving(false);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Delete this appointment?')) {
+      await base44.entities.Appointment.delete(id);
+      queryClient.invalidateQueries(['myAppointments']);
+    }
+  };
+
   const AppointmentCard = ({ appointment }) => {
     const assignedCoach = coaches.find(c => c.email === appointment.coach_email);
     
@@ -212,6 +238,19 @@ export default function ClientAppointments() {
                 <p className="text-xs text-gray-600">{appointment.description}</p>
               </div>
             )}
+
+            <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+              <button
+                onClick={() => { setEditingAppointment(appointment); setEditForm({ ...appointment }); }}
+                style={{background:'#6C5FC7', color:'white', padding:'6px 12px', borderRadius:'6px', border:'none', cursor:'pointer', fontSize:'13px'}}>
+                ✏️ Edit
+              </button>
+              <button
+                onClick={() => handleDelete(appointment.id)}
+                style={{background:'#E74C3C', color:'white', padding:'6px 12px', borderRadius:'6px', border:'none', cursor:'pointer', fontSize:'13px', marginLeft:'8px'}}>
+                🗑️ Delete
+              </button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -231,6 +270,48 @@ export default function ClientAppointments() {
 
   return (
     <div className="min-h-screen p-4 md:p-8">
+      {/* Edit Appointment Dialog */}
+      <Dialog open={!!editingAppointment} onOpenChange={(open) => { if (!open) setEditingAppointment(null); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Appointment</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div className="space-y-1">
+              <Label>Title</Label>
+              <Input value={editForm.title || ''} onChange={(e) => setEditForm({...editForm, title: e.target.value})} />
+            </div>
+            <div className="space-y-1">
+              <Label>Date & Time</Label>
+              <Input type="datetime-local" value={editForm.appointment_date || ''} onChange={(e) => setEditForm({...editForm, appointment_date: e.target.value})} />
+            </div>
+            <div className="space-y-1">
+              <Label>Type</Label>
+              <Select value={editForm.appointment_type || 'consultation'} onValueChange={(v) => setEditForm({...editForm, appointment_type: v})}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="consultation">Consultation</SelectItem>
+                  <SelectItem value="follow_up">Follow-up</SelectItem>
+                  <SelectItem value="session">Session</SelectItem>
+                  <SelectItem value="assessment">Assessment</SelectItem>
+                  <SelectItem value="review">Review</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label>Notes</Label>
+              <Textarea rows={3} value={editForm.description || ''} onChange={(e) => setEditForm({...editForm, description: e.target.value})} placeholder="Any notes..." />
+            </div>
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1" onClick={() => setEditingAppointment(null)}>Cancel</Button>
+              <Button className="flex-1 bg-purple-600 hover:bg-purple-700" onClick={handleEditSave} disabled={saving}>
+                {saving ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {activeVideoCall && (
         <VideoCallRoom
           roomId={activeVideoCall.clientId}
