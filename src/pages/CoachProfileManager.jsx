@@ -125,7 +125,9 @@ export default function CoachProfileManager() {
   const handleAccountSave = async () => {
     setAccountSaving(true);
     try {
-      await base44.auth.updateMe({ full_name: accountData.full_name, phone: accountData.phone });
+      // Use dedicated function to update full_name (updateMe doesn't persist full_name)
+      await base44.functions.invoke('updateUserFullName', { full_name: accountData.full_name });
+      await base44.auth.updateMe({ phone: accountData.phone });
       if (accountData.email !== user?.email) {
         const res = await base44.functions.invoke('updateUserEmail', { email: accountData.email });
         if (res.data?.error) throw new Error(res.data.error);
