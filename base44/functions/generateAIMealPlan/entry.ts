@@ -404,6 +404,18 @@ Start with { and end with }`;
 
     const prompt = userPrompt;
 
+    console.log('📋 DATA SENT TO CLAUDE:', JSON.stringify({
+      conditions: allConditions,
+      labValues: clinicalIntake?.lab_values,
+      medications: clinicalIntake?.current_medications,
+      additionalRules: modificationInstructions || clinicalIntake?.additional_rules,
+      dietType: resolvedDietType,
+      calories: targetCal,
+      foodLikes: clinicalIntake?.likes_dislikes_allergies?.likes,
+      foodDislikes: clinicalIntake?.likes_dislikes_allergies?.dislikes,
+      allergies: allAllergies
+    }));
+
     console.log("📤 PROMPT SENT TO LLM:\n" + prompt);
 
     // ─── 4-TEMPLATE ROTATION GENERATION (single API call, no timeout) ───
