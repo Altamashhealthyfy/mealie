@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -326,13 +326,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
 
       {/* ─ STEP 2: Coach Override Rules ─ */}
       <SectionShell sectionKey="s2" icon={<Stethoscope />} title="Step 2 — Coach Override Rules" subtitle="Auto-populated from clinical intake. Edit or add any custom rules before generating." color="orange">
-        <Textarea
-          value={overrideRulesText}
-          onChange={e => setOverrideRulesText(e.target.value)}
-          placeholder="e.g. Target 1511 kcal. No millets. Include karela daily. Increase protein at breakfast."
-          rows={5}
-          className="text-sm w-full"
-        />
+        <OverrideRulesInput defaultValue={defaultOverrideRules} onChange={setOverrideRulesText} />
         <p className="text-xs text-gray-400">These rules are passed directly to the AI and override all other instructions.</p>
         <Button onClick={() => setOpenSections(prev => ({ ...prev, s2: false, s3: true }))} className="w-full bg-orange-500 hover:bg-orange-600">
           <ArrowRight className="w-4 h-4 mr-2" /> Proceed to Generate
@@ -442,6 +436,26 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
 }
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
+
+// Memoized uncontrolled textarea — prevents focus loss on parent re-renders
+const OverrideRulesInput = React.memo(({ defaultValue, onChange }) => (
+  <textarea
+    defaultValue={defaultValue}
+    onChange={(e) => onChange(e.target.value)}
+    placeholder="e.g. Target 1511 kcal. No millets. Include karela daily. Increase protein at breakfast."
+    style={{
+      width: '100%',
+      minHeight: '120px',
+      padding: '12px',
+      borderRadius: '8px',
+      border: '1px solid #e0d9ff',
+      fontSize: '14px',
+      lineHeight: '1.5',
+      resize: 'vertical',
+      fontFamily: 'inherit',
+    }}
+  />
+));
 
 
 
