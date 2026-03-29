@@ -125,15 +125,17 @@ export default function CoachProfileManager() {
   const handleAccountSave = async () => {
     setAccountSaving(true);
     try {
-      // Use dedicated function to update full_name (updateMe doesn't persist full_name)
-      await base44.functions.invoke('updateUserFullName', { full_name: accountData.full_name });
+      const res1 = await base44.functions.invoke('updateUserFullName', { full_name: accountData.full_name });
+      if (res1.data?.error) throw new Error(res1.data.error);
       await base44.auth.updateMe({ phone: accountData.phone });
       if (accountData.email !== user?.email) {
-        const res = await base44.functions.invoke('updateUserEmail', { email: accountData.email });
-        if (res.data?.error) throw new Error(res.data.error);
+        const res2 = await base44.functions.invoke('updateUserEmail', { email: accountData.email });
+        if (res2.data?.error) throw new Error(res2.data.error);
       }
-      // Don't invalidate — it would trigger useEffect and reset the form
-      toast.success("Account details saved! Changes will reflect on next login.");
+      // Keep the saved values in state so they don't get overwritten by re-fetch
+      // Reset the ref so if user data reloads with new name, it won't overwrite either
+      accountDataInitialized.current = false;
+      toast.success("Name saved successfully! ✅");
     } catch (err) {
       toast.error(err.message || "Failed to update account details.");
     }
