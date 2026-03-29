@@ -97,7 +97,7 @@ export default function Appointments() {
 
   const { data: appointments } = useQuery({
     queryKey: ['appointments'],
-    queryFn: () => base44.entities.Appointment.list('-date'),
+    queryFn: () => base44.entities.Appointment.list('-appointment_date'),
     initialData: [],
   });
 
@@ -166,26 +166,27 @@ export default function Appointments() {
 
   const filteredAppointments = appointments.filter(apt => {
     if (statusFilter !== "all" && apt.status !== statusFilter) return false;
-    if (modeFilter !== "all" && apt.appointment_mode !== modeFilter) return false;
-    if (coachFilter !== "all" && apt.assigned_to !== coachFilter) return false;
-    if (dateFrom && apt.date < dateFrom) return false;
-    if (dateTo && apt.date > dateTo) return false;
+    if (modeFilter !== "all" && apt.is_virtual !== (modeFilter === 'online')) return false;
+    if (coachFilter !== "all" && apt.coach_email !== coachFilter) return false;
+    const aptDateStr = apt.appointment_date?.slice(0, 10);
+    if (dateFrom && aptDateStr < dateFrom) return false;
+    if (dateTo && aptDateStr > dateTo) return false;
     return true;
   });
 
   const todayAppointments = filteredAppointments.filter(apt => 
-    isSameDay(new Date(apt.date), new Date())
+    isSameDay(new Date(apt.appointment_date), new Date())
   );
 
   const upcomingAppointments = filteredAppointments.filter(apt => {
-    const aptDate = new Date(apt.date);
+    const aptDate = new Date(apt.appointment_date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return aptDate > today;
   });
 
   const pastAppointments = filteredAppointments.filter(apt => {
-    const aptDate = new Date(apt.date);
+    const aptDate = new Date(apt.appointment_date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return aptDate < today;
@@ -284,11 +285,11 @@ export default function Appointments() {
           <div className="grid grid-cols-2 gap-2 md:gap-3 text-xs md:text-sm">
             <div className="flex items-center gap-2">
               <CalendarIcon className="w-4 h-4 text-gray-400" />
-              <span>{format(new Date(appointment.date), 'MMM d, yyyy')}</span>
+              <span>{format(new Date(appointment.appointment_date), 'MMM d, yyyy')}</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-gray-400" />
-              <span>{appointment.time} ({appointment.duration} min)</span>
+              <span>{format(new Date(appointment.appointment_date), 'h:mm a')} ({appointment.duration_minutes} min)</span>
             </div>
           </div>
 

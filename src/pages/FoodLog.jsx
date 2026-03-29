@@ -32,7 +32,7 @@ export default function FoodLog() {
     refetchOnWindowFocus: false,
   });
 
-  const { data: clientProfile } = useQuery({
+  const { data: clientProfile, isLoading: profileLoading } = useQuery({
     queryKey: ['myClientProfile', user?.email],
     queryFn: async () => {
       if (!user?.email) return null;
@@ -159,6 +159,17 @@ export default function FoodLog() {
 
   const targetCalories = clientProfile?.target_calories || 2000;
   const calorieProgress = (totalCalories / targetCalories) * 100;
+
+  if (!user || profileLoading) {
+    return (
+      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto mb-3"></div>
+          <p className="text-gray-500 text-sm">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!clientProfile) {
     return (
