@@ -191,10 +191,11 @@ export default function MyAssignedMealPlan() {
   const isMealTicked = (meal) => {
     const tickKey = `${meal.meal_type}_${meal.day}`;
     if (localTicks[tickKey] !== undefined) return localTicks[tickKey];
+    // Match by meal_type + date (don't require meal_plan_id to handle legacy logs)
     return todayLogs?.some(log =>
       log.meal_type === meal.meal_type &&
-      log.meal_plan_id === assignedPlan?.id &&
-      log.date === today
+      log.date === today &&
+      (log.source === 'meal_plan' || log.plan_adherent === true)
     ) ?? false;
   };
 
@@ -547,12 +548,22 @@ export default function MyAssignedMealPlan() {
                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-4 flex-1">
                             {isCurrentDay && (
-                              <input
-                                type="checkbox"
-                                checked={ticked}
-                                onChange={() => handleMealTick(meal)}
-                                style={{ width: '22px', height: '22px', cursor: 'pointer', accentColor: '#6C5FC7', marginTop: '4px', flexShrink: 0 }}
-                              />
+                              <button
+                                onClick={() => handleMealTick(meal)}
+                                style={{
+                                  width: '26px', height: '26px', borderRadius: '6px', flexShrink: 0, marginTop: '2px',
+                                  border: ticked ? '2px solid #16a34a' : '2px solid #d1d5db',
+                                  background: ticked ? '#16a34a' : '#fff',
+                                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  transition: 'all 0.15s ease'
+                                }}
+                              >
+                                {ticked && (
+                                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                    <path d="M2 7L5.5 10.5L12 3.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                                  </svg>
+                                )}
+                              </button>
                             )}
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2 flex-wrap">
