@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Download, Send, CheckCircle, ChefHat, Loader2, LayoutList, Table2 } from "lucide-react";
+import { Download, Send, CheckCircle, ChefHat, Loader2, LayoutList, Table2, Pencil } from "lucide-react";
+import MealPlanEditor from "@/components/client/MealPlanEditor";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
@@ -278,25 +279,36 @@ function DetailView({ mealsByDay, days, mpess }) {
 }
 
 // ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
-export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, onDeleted, hideActions }) {
+export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, onDeleted, hideActions, isCoach }) {
   const [assigning, setAssigning] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [viewMode, setViewMode] = useState("detail"); // "detail" | "table"
+  const [editMode, setEditMode] = useState(false);
+  const [localPlan, setLocalPlan] = useState(plan);
 
-  const mealsByDay = groupByDay(plan?.meals);
+  // Keep localPlan in sync if parent `plan` prop changes
+  useEffect(() => { setLocalPlan(plan); }, [plan]);
+
+  const activePlan = localPlan;
+  const mealsByDay = groupByDay(activePlan?.meals);
   const days = Object.keys(mealsByDay).sort((a, b) => Number(a) - Number(b));
 
   const MEAL_TYPES_USED = MEAL_ORDER.filter(type =>
     days.some(d => (mealsByDay[d] || []).some(m => m.meal_type === type))
   );
 
+  const handleSaved = (updatedMeals) => {
+    setLocalPlan(prev => ({ ...prev, meals: updatedMeals }));
+    setEditMode(false);
+  };
+
   const handleAssign = async () => {
     setAssigning(true);
     try {
-      await Promise.all((allPlanIds || []).filter(id => id !== plan.id).map(id =>
+      await Promise.all((allPlanIds || []).filter(id => id !== activePlan.id).map(id =>
         base44.entities.MealPlan.update(id, { active: false })
       ));
-      await base44.entities.MealPlan.update(plan.id, { active: true });
+      await base44.entities.MealPlan.update(activePlan.id, { active: true });
       toast.success("Plan assigned as active!");
       onAssigned?.();
     } catch (e) {
@@ -624,67 +636,90 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
       <div className="flex flex-wrap items-start justify-between gap-3 pb-3 border-b">
         <div>
           <div className="flex flex-wrap gap-2 mb-1">
-            <Badge variant="outline">{plan.duration} Days</Badge>
-            {plan.food_preference && <Badge variant="outline" className="capitalize">{plan.food_preference}</Badge>}
-            {plan.target_calories && <Badge variant="outline">{plan.target_calories} kcal/day</Badge>}
-            {plan.meal_pattern && <Badge variant="outline">{plan.meal_pattern}</Badge>}
-            {plan.plan_tier === "advanced" && <Badge className="bg-purple-600 text-white text-xs">💎 Pro</Badge>}
-            {plan.active && <Badge className="bg-green-500 text-white text-xs"><CheckCircle className="w-3 h-3 mr-1" />Active</Badge>}
+            <Badge variant="outline">{activePlan.duration} Days</Badge>
+            {activePlan.food_preference && <Badge variant="outline" className="capitalize">{activePlan.food_preference}</Badge>}
+            {activePlan.target_calories && <Badge variant="outline">{activePlan.target_calories} kcal/day</Badge>}
+            {activePlan.meal_pattern && <Badge variant="outline">{activePlan.meal_pattern}</Badge>}
+            {activePlan.plan_tier === "advanced" && <Badge className="bg-purple-600 text-white text-xs">💎 Pro</Badge>}
+            {activePlan.active && <Badge className="bg-green-500 text-white text-xs"><CheckCircle className="w-3 h-3 mr-1" />Active</Badge>}
           </div>
-          <p className="text-xs text-gray-400">Created: {plan.created_date ? format(new Date(plan.created_date), "MMM d, yyyy") : "—"}</p>
+          <p className="text-xs text-gray-400">Created: {activePlan.created_date ? format(new Date(activePlan.created_date), "MMM d, yyyy") : "—"}</p>
         </div>
 
         {!hideActions && (
           <div className="flex gap-2 flex-wrap">
-            {/* View Toggle */}
-            <div className="flex rounded-lg border border-gray-200 overflow-hidden">
-              <button
-                onClick={() => setViewMode("detail")}
-                className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium transition-all ${
-                  viewMode === "detail" ? "bg-orange-500 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
-                }`}
-                title="Detail View"
+            {/* Edit Plan — coaches only, not in edit mode */}
+            {isCoach && !editMode && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setEditMode(true)}
+                className="border-amber-400 text-amber-700 hover:bg-amber-50"
               >
-                <LayoutList className="w-3 h-3" /> Detail
-              </button>
-              <button
-                onClick={() => setViewMode("table")}
-                className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium transition-all border-l border-gray-200 ${
-                  viewMode === "table" ? "bg-orange-500 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
-                }`}
-                title="Table View"
-              >
-                <Table2 className="w-3 h-3" /> Table
-              </button>
-            </div>
-
-            {/* Download PDF — matches current view */}
-            <Button size="sm" variant="outline" onClick={handleDownloadPDF} disabled={downloading}>
-              {downloading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3 mr-1" />}
-              Download PDF
-            </Button>
-
-            {/* Assign */}
-            {!plan.active ? (
-              <Button size="sm" onClick={handleAssign} disabled={assigning} className="bg-green-500 hover:bg-green-600">
-                {assigning ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Send className="w-3 h-3 mr-1" />}
-                Assign to Client
+                <Pencil className="w-3 h-3 mr-1" /> Edit Plan
               </Button>
-            ) : (
-              <Badge className="bg-green-100 text-green-700 border border-green-300 px-3 py-1">
-                <CheckCircle className="w-3 h-3 mr-1" /> Assigned & Active
-              </Badge>
+            )}
+
+            {/* Only show view/download/assign when NOT in edit mode */}
+            {!editMode && (
+              <>
+                {/* View Toggle */}
+                <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+                  <button
+                    onClick={() => setViewMode("detail")}
+                    className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium transition-all ${
+                      viewMode === "detail" ? "bg-orange-500 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
+                    }`}
+                    title="Detail View"
+                  >
+                    <LayoutList className="w-3 h-3" /> Detail
+                  </button>
+                  <button
+                    onClick={() => setViewMode("table")}
+                    className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium transition-all border-l border-gray-200 ${
+                      viewMode === "table" ? "bg-orange-500 text-white" : "bg-white text-gray-600 hover:bg-gray-50"
+                    }`}
+                    title="Table View"
+                  >
+                    <Table2 className="w-3 h-3" /> Table
+                  </button>
+                </div>
+
+                {/* Download PDF */}
+                <Button size="sm" variant="outline" onClick={handleDownloadPDF} disabled={downloading}>
+                  {downloading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3 mr-1" />}
+                  Download PDF
+                </Button>
+
+                {/* Assign */}
+                {!activePlan.active ? (
+                  <Button size="sm" onClick={handleAssign} disabled={assigning} className="bg-green-500 hover:bg-green-600">
+                    {assigning ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Send className="w-3 h-3 mr-1" />}
+                    Assign to Client
+                  </Button>
+                ) : (
+                  <Badge className="bg-green-100 text-green-700 border border-green-300 px-3 py-1">
+                    <CheckCircle className="w-3 h-3 mr-1" /> Assigned & Active
+                  </Badge>
+                )}
+              </>
             )}
           </div>
         )}
       </div>
 
-      {/* Content */}
-      {days.length > 0 ? (
+      {/* Content — Edit Mode or View Mode */}
+      {editMode ? (
+        <MealPlanEditor
+          plan={activePlan}
+          onSaved={handleSaved}
+          onCancel={() => setEditMode(false)}
+        />
+      ) : days.length > 0 ? (
         viewMode === "table" ? (
-          <TableView mealsByDay={mealsByDay} days={days} mpess={plan?.mpess} />
+          <TableView mealsByDay={mealsByDay} days={days} mpess={activePlan?.mpess} />
         ) : (
-          <DetailView mealsByDay={mealsByDay} days={days} mpess={plan?.mpess} />
+          <DetailView mealsByDay={mealsByDay} days={days} mpess={activePlan?.mpess} />
         )
       ) : (
         <div className="text-center py-8">

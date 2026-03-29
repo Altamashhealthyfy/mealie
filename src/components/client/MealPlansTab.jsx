@@ -309,6 +309,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, hasPr
               allPlanIds={allPlanIds}
               onAssigned={() => { invalidatePlans(); setViewingPlan(null); }}
               onClose={() => setViewingPlan(null)}
+              isCoach={true}
             />
           )}
         </DialogContent>
