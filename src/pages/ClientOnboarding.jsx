@@ -172,6 +172,28 @@ Provide a warm, personalized tip that's relevant to their situation.`,
   });
 
   const [createdClient, setCreatedClient] = useState(null);
+  const [checkingDuplicate, setCheckingDuplicate] = useState(false);
+
+  const checkDuplicates = async () => {
+    setCheckingDuplicate(true);
+    const newErrors = {};
+    try {
+      if (formData.email) {
+        const emailMatches = await base44.entities.Client.filter({ email: formData.email });
+        if (emailMatches.length > 0) {
+          newErrors.email = "An account with this email already exists. Please log in instead.";
+        }
+      }
+      if (formData.phone) {
+        const phoneMatches = await base44.entities.Client.filter({ phone: formData.phone });
+        if (phoneMatches.length > 0) {
+          newErrors.phone = "An account with this phone number already exists.";
+        }
+      }
+    } catch {}
+    setCheckingDuplicate(false);
+    return newErrors;
+  };
 
   const scheduleSessionMutation = useMutation({
     mutationFn: async ({ slot, note }) => {
@@ -289,7 +311,7 @@ Provide a warm, personalized tip that's relevant to their situation.`,
     getAiTipMutation.mutate(context);
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const newErrors = {};
 
     if (currentStep === 1) {
@@ -302,6 +324,14 @@ Provide a warm, personalized tip that's relevant to their situation.`,
         setErrors(newErrors);
         return;
       }
+
+      // Check for duplicate email/phone before proceeding
+      const dupErrors = await checkDuplicates();
+      if (Object.keys(dupErrors).length > 0) {
+        setErrors(dupErrors);
+        return;
+      }
+
       setErrors({});
       loadAiTip(`Client just provided basic info: ${formData.full_name}, age ${formData.age}, ${formData.gender}. Give them encouragement about starting their health journey.`);
     } else if (currentStep === 2) {
@@ -629,8 +659,10 @@ Provide a warm, personalized tip that's relevant to their situation.`,
                     <Input
                       placeholder="+91 XXXXX XXXXX"
                       value={formData.phone}
-                      onChange={(e) => updateFormData('phone', e.target.value)}
+                      onChange={(e) => { updateFormData('phone', e.target.value); setErrors(p => ({...p, phone: ''})); }}
+                      className={errors.phone ? 'border-red-500' : ''}
                     />
+                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                   </div>
                 </div>
 
@@ -1005,12 +1037,12 @@ Provide a warm, personalized tip that's relevant to their situation.`,
                 <Button
                   onClick={handleNext}
                   className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 flex items-center gap-2"
-                  disabled={loadingTip}
+                  disabled={loadingTip || checkingDuplicate}
                 >
-                  {loadingTip ? (
+                  {(loadingTip || checkingDuplicate) ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
-                      Loading...
+                      {checkingDuplicate ? 'Checking...' : 'Loading...'}
                     </>
                   ) : (
                     <>
