@@ -151,7 +151,7 @@ export default function ClientAppointments() {
   };
 
   const AppointmentCard = ({ appointment }) => {
-    const assignedCoach = coaches.find(c => c.email === appointment.assigned_to);
+    const assignedCoach = coaches.find(c => c.email === appointment.coach_email);
     
     return (
       <Card className="border-none shadow-lg hover:shadow-xl transition-all bg-white/80 backdrop-blur">
@@ -159,15 +159,15 @@ export default function ClientAppointments() {
           <div className="space-y-3">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <p className="text-xs text-gray-500 mb-1">Appointment with</p>
-                <h3 className="font-bold text-gray-900 text-lg">{appointment.title}</h3>
+                <p className="text-xs text-gray-500 mb-1">Appointment</p>
+                <h3 className="font-bold text-gray-900 text-lg">{appointment.title || 'Consultation'}</h3>
                 <p className="text-sm text-gray-600 capitalize mt-1">
-                  {appointment.type?.replace('_', ' ')}
+                  {appointment.appointment_type?.replace('_', ' ')}
                 </p>
                 {assignedCoach && (
                   <div className="mt-3 p-2 bg-blue-50 rounded-md border border-blue-200">
                     <p className="text-xs text-blue-900">
-                      <span className="font-semibold">Dietician:</span> {assignedCoach.full_name}
+                      <span className="font-semibold">Coach:</span> {assignedCoach.full_name}
                     </p>
                   </div>
                 )}
@@ -179,8 +179,8 @@ export default function ClientAppointments() {
                 {getStatusIcon(appointment.status)}
                 <span className="ml-1">{appointment.status}</span>
               </Badge>
-              <Badge className={appointment.appointment_mode === 'online' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}>
-                {appointment.appointment_mode === 'online' ? '💻 Online' : '🏢 Offline'}
+              <Badge className={appointment.is_virtual ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}>
+                {appointment.is_virtual ? '💻 Online' : '🏢 Offline'}
               </Badge>
             </div>
 
@@ -191,25 +191,25 @@ export default function ClientAppointments() {
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-gray-400" />
-                <span>{appointment.time} ({appointment.duration} min)</span>
+                <span>{format(new Date(appointment.appointment_date), 'h:mm a')} ({appointment.duration_minutes} min)</span>
               </div>
             </div>
 
-            {appointment.meeting_link && (
+            {appointment.location && appointment.is_virtual && (
               <Button
                 variant="outline"
                 size="sm"
                 className="w-full mt-3"
-                onClick={() => window.open(appointment.meeting_link, '_blank')}
+                onClick={() => window.open(appointment.location, '_blank')}
               >
                 <Video className="w-4 h-4 mr-2" />
                 Join Meeting
               </Button>
             )}
 
-            {appointment.notes && (
+            {appointment.description && (
               <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                <p className="text-xs text-gray-600">{appointment.notes}</p>
+                <p className="text-xs text-gray-600">{appointment.description}</p>
               </div>
             )}
           </div>
