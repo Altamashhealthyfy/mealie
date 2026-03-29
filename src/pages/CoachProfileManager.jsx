@@ -85,13 +85,15 @@ export default function CoachProfileManager() {
 
   const [formData, setFormData] = useState({});
 
+  const accountDataInitialized = React.useRef(false);
   React.useEffect(() => {
-    if (user) {
+    if (user && !accountDataInitialized.current) {
       setAccountData({
         full_name: user.full_name || '',
         email: user.email || '',
         phone: user.phone || '',
       });
+      accountDataInitialized.current = true;
     }
   }, [user]);
 
@@ -128,8 +130,8 @@ export default function CoachProfileManager() {
         const res = await base44.functions.invoke('updateUserEmail', { email: accountData.email });
         if (res.data?.error) throw new Error(res.data.error);
       }
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
-      toast.success("Account details updated!");
+      // Don't invalidate — it would trigger useEffect and reset the form
+      toast.success("Account details saved! Changes will reflect on next login.");
     } catch (err) {
       toast.error(err.message || "Failed to update account details.");
     }
