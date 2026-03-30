@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import {
-  Search, Home, MessageSquare, Calendar, ChefHat,
-  FileText, BarChart3, Heart, TrendingUp, BookOpen, Award,
-  Zap, X, ChevronRight, Star, Lightbulb,
-  PlayCircle, Target, Utensils, Scale, ClipboardList,
-  Users, DollarSign, Settings, Upload, Sparkles, LayoutDashboard,
-  UserPlus, Bell, BarChart2, Stethoscope, Mail, BarChart2 as BarChart2Icon
+  Search, MessageSquare, Calendar, ChefHat,
+  FileText, BarChart3, TrendingUp, BookOpen, Award,
+  Zap, X, ChevronRight, Lightbulb,
+  PlayCircle, Target, Upload, Sparkles,
+  Users, DollarSign, Settings, UserPlus, Bell, BarChart2,
+  Mail, LayoutDashboard
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -31,7 +31,7 @@ const STEPS_GUIDE = [
           'Add your full name, designation, and professional bio',
           'Upload your profile photo and business logo',
           'Set your custom branding name and tagline',
-          'Configure your platform colors under Color Customization',
+          'Configure your platform colors under Color Customization (Business Tools)',
           'Add your business name, website, and social links'
         ]
       },
@@ -41,7 +41,7 @@ const STEPS_GUIDE = [
         icon: DollarSign,
         desc: 'Set up Razorpay to accept payments from clients directly through the platform.',
         details: [
-          'Go to Payment Gateway under Payment & Plans in the sidebar',
+          'Go to Payment Gateway under the Payment & Plans section in the sidebar',
           'Enter your Razorpay Key ID and Key Secret',
           'Test the payment gateway with a dummy transaction',
           'Configure your billing currency and default plan prices',
@@ -54,7 +54,7 @@ const STEPS_GUIDE = [
         icon: Users,
         desc: 'Define subscription plans and packages to offer your clients.',
         details: [
-          'Navigate to Clients Packages under Payment & Plans in the sidebar',
+          'Navigate to Clients Packages under the Payment & Plans section in the sidebar',
           'Click "Create New Plan" and enter plan name, duration, and price',
           'Define which features are included in each plan',
           'Set meal plan tier (Basic or Advanced) for each package',
@@ -68,7 +68,7 @@ const STEPS_GUIDE = [
         icon: UserPlus,
         desc: 'Add clients and give them login access — two steps required.',
         details: [
-          'Step 1: Go to Clients in the sidebar under Client Management and click "Add New Client"',
+          'Step 1: Go to 👥 Clients Hub in the sidebar under 👤 Client Management and click "Add New Client"',
           'Fill in their name, email, health details, goal, and dietary preferences',
           'Step 2 (Important!): Go to Dashboard → Data → User and click "Invite User"',
           'Enter the SAME email used in the client profile and set user_type = "client"',
@@ -94,20 +94,20 @@ const STEPS_GUIDE = [
         icon: LayoutDashboard,
         desc: 'Start your day by checking client alerts, pending tasks, and key metrics.',
         details: [
-          'Open the Dashboard from the sidebar under Client Management',
+          'Open 🏠 Dashboard from the top of the 👤 Client Management section in the sidebar',
           'Review new client progress logs submitted overnight',
           'Check unread messages from clients requiring response',
           'See upcoming appointments for the day',
-          'Review clients who haven\'t logged progress in 3+ days'
+          "Review clients who haven't logged progress in 3+ days"
         ]
       },
       {
         step: 2,
         title: 'Use the Client Hub',
         icon: Zap,
-        desc: 'Open a client\'s full profile to manage everything about them in one place.',
+        desc: "Open a client's full profile to manage everything about them in one place.",
         details: [
-          'Go to Clients under Client Management in the sidebar',
+          'Go to 👥 Clients Hub under 👤 Client Management in the sidebar',
           'Click the "Client Hub" button on any client card to open their full hub',
           'Overview tab: see their profile, clinical summary, active plan, and recent progress',
           'Clinical Intake tab: fill or update the client\'s health intake form',
@@ -123,9 +123,9 @@ const STEPS_GUIDE = [
         step: 3,
         title: 'Review Client Feedback',
         icon: TrendingUp,
-        desc: 'Monitor each client\'s submitted progress and provide coach feedback.',
+        desc: "Monitor each client's submitted progress and provide coach feedback.",
         details: [
-          'Go to Clients Feedback in the sidebar under Client Management',
+          'Go to 💬 Clients Feedback under 👤 Client Management in the sidebar',
           'Click on a client to open their progress dashboard',
           'Review their weight trend chart and recent logs',
           'Check meal adherence percentage for the past week',
@@ -139,7 +139,7 @@ const STEPS_GUIDE = [
         icon: MessageSquare,
         desc: 'Stay connected with clients through regular communication.',
         details: [
-          'Open Messages from the sidebar under Client Management',
+          'Open 💬 Messages under 👤 Client Management in the sidebar',
           'Select a client to open their chat window',
           'Use Message Templates for quick motivational messages',
           'Send meal plan updates, encouragement, or feedback',
@@ -163,9 +163,9 @@ const STEPS_GUIDE = [
         step: 1,
         title: 'Generate AI Meal Plan from Client Hub',
         icon: Sparkles,
-        desc: 'Create a personalized meal plan directly from the client\'s hub.',
+        desc: "Create a personalized meal plan directly from the client's hub.",
         details: [
-          'Open a client\'s Client Hub from the Clients page',
+          "Open a client's Client Hub from the 👥 Clients Hub page",
           'Go to the Meal Plans tab and click "Basic Plan" or "Pro Clinical Plan"',
           'Choose plan tier: Basic (calorie-based) or Advanced (disease reversal)',
           'Enter duration (days), target calories, and food preference',
@@ -179,9 +179,9 @@ const STEPS_GUIDE = [
         icon: ChefHat,
         desc: 'Build your recipe bank and look up nutritional data for any food.',
         details: [
-          'Go to Recipes under Ready Mades in the sidebar',
+          'Go to 🥗 Recipes under 📋 Ready Mades in the sidebar',
           'Add custom recipes with ingredients, macros, and tags',
-          'Use Food Lookup under Ready Mades to search USDA nutritional data',
+          'Use 🔍 Food Lookup under 📋 Ready Mades to search USDA nutritional data',
           'Look up calorie and macro values for any ingredient',
           'Use nutritional data to accurately build meal plans'
         ]
@@ -192,12 +192,12 @@ const STEPS_GUIDE = [
         icon: FileText,
         desc: 'Save time by using pre-built templates for common client goals.',
         details: [
-          'Go to Template Library under Ready Mades in the sidebar',
+          'Go to 📁 Template Library under 📋 Ready Mades in the sidebar',
           'Browse templates by category (Weight Loss, Diabetes, PCOS, etc.)',
           'Filter by food preference and regional cuisine',
           'Click "Use Template" and select the target client',
           'Customize the template before assigning',
-          'Save your own frequently-used plans as new templates via Template Manager'
+          'Save your own frequently-used plans as new templates via Template Manager (Business Tools)'
         ]
       },
       {
@@ -206,7 +206,7 @@ const STEPS_GUIDE = [
         icon: Upload,
         desc: 'Activate and send the finalized meal plan to the client.',
         details: [
-          'In the client\'s Meal Plans tab, set a plan as Active',
+          "In the client's Meal Plans tab, set a plan as Active",
           'The client immediately sees the plan in their "My Meal Plan" section',
           'Client gets a push notification about the new plan',
           'You can send a follow-up message from the Messages tab',
@@ -229,10 +229,10 @@ const STEPS_GUIDE = [
         step: 1,
         title: 'View Business Analytics',
         icon: BarChart3,
-        desc: 'Analyze all your clients\' overall progress trends from a single dashboard.',
+        desc: "Analyze all your clients' overall progress trends from a single dashboard.",
         details: [
-          'Go to Business Analytics under Analytics in the sidebar',
-          'See aggregate weight loss, adherence, and engagement metrics',
+          'Go to 📊 Business Analytics under 📊 Analytics in the sidebar',
+          "See aggregate weight loss, adherence, and engagement metrics",
           'Filter by client group, goal type, or date range',
           'Spot clients with declining progress for early intervention',
           'Export reports as PDF or Excel for sharing'
@@ -244,7 +244,7 @@ const STEPS_GUIDE = [
         icon: Sparkles,
         desc: 'Access per-client analytics and AI insights directly from the Client Hub.',
         details: [
-          'Open any client\'s Client Hub from the Clients page',
+          "Open any client's Client Hub from the 👥 Clients Hub page",
           'Go to the Analytics tab to see weight trends and wellness charts',
           'Go to the AI Insights tab to generate an AI analysis for that client',
           'AI reviews weight trend, food logs, MPESS, and adherence',
@@ -258,7 +258,7 @@ const STEPS_GUIDE = [
         icon: Target,
         desc: 'Group and filter clients by goal, health condition, or engagement level.',
         details: [
-          'Go to Segmentation under Analytics in the sidebar',
+          'Go to 🔎 Segmentation under 📊 Analytics in the sidebar',
           'Create segments based on goal type, status, or activity level',
           'View segment-specific stats and trends',
           'Use segments to send targeted broadcasts or assign resources'
@@ -321,7 +321,7 @@ const STEPS_GUIDE = [
         icon: Bell,
         desc: 'Send a single message to all clients or a specific group at once.',
         details: [
-          'Go to Broadcast Notification in the Business Tools section',
+          'Go to Broadcast Notification under Business Tools',
           'Type your message or choose a template',
           'Select target: all clients, a specific group, or individual clients',
           'Send immediately or schedule for a specific time',
@@ -385,10 +385,10 @@ const STEPS_GUIDE = [
         icon: Bell,
         desc: 'Promote your services and attract new clients through built-in tools.',
         details: [
-          'Open Marketing Hub from the Business Tools section in the sidebar',
+          'Open Marketing Hub from Business Tools in the sidebar',
           'Generate AI-powered social media posts, email campaigns, and scripts',
           'Use Business GPTs for creating marketing content instantly',
-          'Share your referral link via "Share My Link" to get new clients',
+          'Share your referral link via 📲 Share My App to Client under 👤 Client Management',
           'Use Broadcast Notification to send bulk updates to all clients'
         ]
       },
@@ -398,12 +398,12 @@ const STEPS_GUIDE = [
         icon: BookOpen,
         desc: 'Create and assign educational resources to enhance client education.',
         details: [
-          'Go to Resource Library in the sidebar under Dietitian Tools',
+          'Go to 📚 Resource Library under 📋 Ready Mades in the sidebar',
           'Upload articles, videos, PDFs, or guides for clients',
           'Use AI to generate personalized resources for specific clients',
           'Assign resources to individual clients or client groups',
           'Track which resources clients have viewed and rated',
-          'Use Template Library for ready-made meal plan and recipe templates'
+          'Use Template Library (📋 Ready Mades) for ready-made meal plan and recipe templates'
         ]
       }
     ]
@@ -411,38 +411,38 @@ const STEPS_GUIDE = [
 ];
 
 const QUICK_TIPS = [
-  { icon: '🔑', tip: 'Clients need TWO steps to log in: (1) Create their Client Profile via Clients page, then (2) Invite them as a User from Dashboard → Data → User. The email must match exactly!' },
+  { icon: '🔑', tip: 'Clients need TWO steps to log in: (1) Create their Client Profile via 👥 Clients Hub, then (2) Invite them as a User from Dashboard → Data → User. The email must match exactly!' },
   { icon: '🏠', tip: 'Use the Client Hub button on each client card to access their full profile, meal plans, progress, analytics, AI insights, and appointments — all in one place.' },
-  { icon: '📋', tip: 'Always fill out a client\'s full profile before generating a meal plan — AI uses their health data to personalize the plan.' },
-  { icon: '🤖', tip: 'Use AI Insights inside each client\'s Client Hub for individual analysis, or go to Business Analytics in the sidebar for an overview of all clients.' },
+  { icon: '📋', tip: "Always fill out a client's full profile before generating a meal plan — AI uses their health data to personalize the plan." },
+  { icon: '🤖', tip: "Use AI Insights inside each client's Client Hub for individual analysis, or go to 📊 Business Analytics for an overview of all clients." },
   { icon: '📅', tip: 'Schedule appointments at least 48 hours in advance so clients receive reminders and can prepare.' },
   { icon: '💬', tip: 'Use Message Templates for recurring messages like weekly motivational notes — saves time and keeps you consistent.' },
   { icon: '🏷️', tip: 'Tag clients with goals (Diabetes, PCOS, Weight Loss) to quickly filter and manage them in analytics.' },
   { icon: '🍱', tip: 'Use Meal Plan Constraints to set global dietary rules per client — the AI will respect them when generating plans.' },
-  { icon: '📊', tip: 'Review Business Analytics every Friday to catch clients with declining adherence before they drop off. For individual client analytics, open their Client Hub → Analytics tab.' },
+  { icon: '📊', tip: 'Review 📊 Business Analytics every Friday to catch clients with declining adherence before they drop off. For individual client analytics, open their Client Hub → Analytics tab.' },
   { icon: '🏆', tip: 'Launch a new 7-day challenge each month to boost client engagement and platform activity.' },
   { icon: '📧', tip: 'Set up an Email Sequence for new clients so they automatically receive onboarding tips on Day 1, Day 3, and Day 7 without manual effort.' },
   { icon: '👥', tip: 'Assign team members to handle client messages so you can focus on high-value tasks like meal planning and calls.' },
   { icon: '📢', tip: 'Use Broadcast Notification to send motivational messages to all clients at once — great for Monday mornings.' },
   { icon: '💎', tip: 'Upsell clients from Basic to Advanced plans by showing them disease-specific meal plans in the Pro Plans section.' },
-  { icon: '🔗', tip: 'Share your referral link via WhatsApp groups to attract new clients from your existing network.' },
+  { icon: '🔗', tip: 'Share your referral link via 📲 Share My App to Client (👤 Client Management section) to attract new clients from your existing network.' },
 ];
 
 const FAQS = [
-  { q: 'How do I add a new client and give them login access?', a: 'Two steps are required. Step 1: Go to Clients → Add New Client, fill in their details. Step 2: Go to Dashboard → Data → User → Invite User. Enter the SAME email you used in the client profile and set user_type = "client". The client will receive an email invitation to set their password.' },
-  { q: 'Why can\'t my client log in even though I added them?', a: 'Creating a Client Profile is NOT the same as giving login access. You must separately invite them as a user from Dashboard → Data → User with role "client". Make sure the email matches exactly (same spelling, no extra spaces).' },
-  { q: 'How does AI meal plan generation work?', a: 'Open the client\'s Client Hub → Meal Plans tab, then click "Basic Plan" or "Pro Clinical Plan". The AI uses the client\'s health profile, goal, food preferences, and any constraints you\'ve set to build a full day-wise meal plan instantly.' },
-  { q: 'What is the Client Hub?', a: 'The Client Hub is a dedicated page for each client accessible from their card in the Clients page. It has tabs for Overview, Clinical Intake, Meal Plans, Progress, Analytics, AI Insights, Assessments, and Appointments — everything about a client in one place. Each client card also has an ⚡ Act button for Quick Actions (assign plans, schedule calls, send notifications).' },
+  { q: 'How do I add a new client and give them login access?', a: 'Two steps are required. Step 1: Go to 👥 Clients Hub (under 👤 Client Management in the sidebar) → Add New Client, fill in their details. Step 2: Go to Dashboard → Data → User → Invite User. Enter the SAME email you used in the client profile and set user_type = "client". The client will receive an email invitation to set their password.' },
+  { q: "Why can't my client log in even though I added them?", a: 'Creating a Client Profile is NOT the same as giving login access. You must separately invite them as a user from Dashboard → Data → User with role "client". Make sure the email matches exactly (same spelling, no extra spaces).' },
+  { q: 'How does AI meal plan generation work?', a: "Open the client's Client Hub → Meal Plans tab, then click 'Basic Plan' or 'Pro Clinical Plan'. The AI uses the client's health profile, goal, food preferences, and any constraints you've set to build a full day-wise meal plan instantly." },
+  { q: 'What is the Client Hub?', a: 'The Client Hub is a dedicated page for each client accessible from their card in the 👥 Clients Hub page. It has tabs for Overview, Clinical Intake, Meal Plans, Progress, Analytics, AI Insights, Assessments, and Appointments — everything about a client in one place. Each client card also has an ⚡ Act button for Quick Actions (assign plans, schedule calls, send notifications).' },
   { q: 'How do Email Sequences work?', a: 'Go to Email Sequences under Business Tools. Create a sequence with multiple emails, each with a specific delay (e.g., Day 1, Day 3, Day 7). When a new client is added or you trigger the sequence manually, emails are sent automatically on the configured schedule. Requires Gmail connector to be authorized.' },
   { q: 'Can I set dietary restrictions for AI-generated plans?', a: 'Yes. Go to Meal Plan Constraints under Business Tools and define excluded meals, ingredients, or special rules for each client. The AI will follow these rules when generating plans.' },
   { q: 'What is the difference between Basic and Advanced meal plan tiers?', a: 'Basic plans are calorie and RDA-based for general health goals. Advanced plans are designed for disease reversal (Diabetes, PCOS, Thyroid, etc.) with specific nutrient targets and disease rationale for each meal.' },
-  { q: 'How do I review a client\'s progress?', a: 'Open the client\'s Client Hub (from Clients page → Client Hub button). Go to the Analytics tab for weight/wellness trends, or the Progress tab for individual log entries. You can also go to Clients Feedback in the sidebar to add coach feedback and ratings.' },
-  { q: 'How do I schedule a video call with a client?', a: 'You can do it from two places: (1) Appointments in the sidebar → New Appointment, or (2) Use the ⚡ Quick Actions on any client card → Call tab, which lets you schedule a check-in instantly.' },
+  { q: "How do I review a client's progress?", a: "Open the client's Client Hub (from 👥 Clients Hub → Client Hub button). Go to the Analytics tab for weight/wellness trends, or the Progress tab for individual log entries. You can also go to 💬 Clients Feedback in the 👤 Client Management section to add coach feedback and ratings." },
+  { q: 'How do I schedule a video call with a client?', a: 'You can do it from two places: (1) 📅 Appointments in the sidebar under 👤 Client Management → New Appointment, or (2) Use the ⚡ Quick Actions on any client card → Call tab, which lets you schedule a check-in instantly.' },
   { q: 'How do I send a notification to all my clients at once?', a: 'Go to Broadcast Notification under Business Tools. Type your message, select your target (all clients or a specific group), and click Send. You can also schedule it for a later time.' },
   { q: 'How do I add team members?', a: 'Go to Team Management under Business Tools. Invite team members by email and assign them a role (Team Member, Student Coach, etc.). Use User Permissions to control what each role can access.' },
   { q: 'Where can I see my revenue and payments?', a: 'Go to Finance Manager under Business Tools to track all client payments, outstanding dues, and revenue summaries. Payment Gateway Settings (under Payment & Plans) lets you configure Razorpay for accepting online payments.' },
-  { q: 'How does the gamification system work?', a: 'Enable gamification in Gamification Settings. Clients earn points for daily actions (logging meals, weight, MPESS). Badges are awarded at milestones. You can run group challenges via Challenge Manager.' },
-  { q: 'What automated reminders are available?', a: 'You can set automated check-in reminders per client from the Communication page (Automated Check-in Scheduler). These can be for meal logging, water intake, workout, wellbeing, or custom messages. Additionally, Email Sequences send drip emails automatically when new clients join.' },
+  { q: 'How does the gamification system work?', a: 'Enable gamification in Gamification Settings (Business Tools). Clients earn points for daily actions (logging meals, weight, MPESS). Badges are awarded at milestones. You can run group challenges via Challenge Manager.' },
+  { q: 'What automated reminders are available?', a: 'You can set automated check-in reminders per client from the 💬 Messages page (Automated Check-in Scheduler). These can be for meal logging, water intake, workout, wellbeing, or custom messages. Additionally, Email Sequences send drip emails automatically when new clients join.' },
 ];
 
 export default function HelpCenter() {
@@ -478,9 +478,7 @@ export default function HelpCenter() {
           <p className="text-white/90 text-sm md:text-lg max-w-2xl mx-auto mb-6 md:mb-8">
             Step-by-step guides, tips, and answers to help you get the most out of Mealie Pro
           </p>
-
-          {/* Search */}
-           <div className="max-w-xl mx-auto relative">
+          <div className="max-w-xl mx-auto relative">
             <Search className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 md:w-5 h-4 md:h-5 text-gray-400" />
             <Input
               value={searchTerm}
@@ -497,43 +495,51 @@ export default function HelpCenter() {
         </div>
       </div>
 
+      {/* Sidebar Layout Legend */}
+      <div className="bg-white border-b border-gray-100 shadow-sm">
+        <div className="max-w-5xl mx-auto px-4 py-3">
+          <p className="text-xs text-gray-500 text-center font-medium">
+            📌 Sidebar sections: <span className="text-orange-600 font-bold">👤 Client Management</span> · <span className="text-green-600 font-bold">📋 Ready Mades</span> · <span className="text-blue-600 font-bold">📊 Analytics</span> · <span className="text-purple-600 font-bold">⚙️ Account & Help</span> · <span className="text-gray-600 font-bold">Payment & Plans</span> · <span className="text-gray-600 font-bold">Business Tools</span>
+          </p>
+        </div>
+      </div>
+
       {/* Nav Tabs */}
       <div className="sticky top-0 z-20 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-5xl mx-auto px-2 md:px-4 flex gap-1 overflow-x-auto py-1.5 md:py-2" style={{ scrollbarWidth: 'none' }}>
-           {[
-             { id: 'steps', label: 'Step-by-Step Guide', icon: PlayCircle },
-             { id: 'tips', label: 'Quick Tips', icon: Lightbulb },
-             { id: 'faq', label: 'FAQs', icon: MessageSquare },
-           ].map(tab => (
-             <button
-               key={tab.id}
-               onClick={() => setActiveSection(tab.id)}
-               className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-4 py-1.5 md:py-2.5 rounded-lg text-xs md:text-sm font-semibold whitespace-nowrap transition-all ${
-                 activeSection === tab.id
-                   ? 'bg-orange-500 text-white shadow-md'
-                   : 'text-gray-600 hover:bg-gray-100'
-               }`}
-             >
-               <tab.icon className="w-3.5 md:w-4 h-3.5 md:h-4" />
-               {tab.label}
-             </button>
-           ))}
+          {[
+            { id: 'steps', label: 'Step-by-Step Guide', icon: PlayCircle },
+            { id: 'tips', label: 'Quick Tips', icon: Lightbulb },
+            { id: 'faq', label: 'FAQs', icon: MessageSquare },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveSection(tab.id)}
+              className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-4 py-1.5 md:py-2.5 rounded-lg text-xs md:text-sm font-semibold whitespace-nowrap transition-all ${
+                activeSection === tab.id
+                  ? 'bg-orange-500 text-white shadow-md'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              <tab.icon className="w-3.5 md:w-4 h-3.5 md:h-4" />
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
       <div className="max-w-5xl mx-auto px-3 md:px-4 py-6 md:py-8 space-y-6 md:space-y-8">
 
-         {/* Step-by-Step Guide */}
-         {activeSection === 'steps' && (
-           <div className="space-y-4 md:space-y-6">
-             <div className="text-center">
-               <h2 className="text-xl md:text-2xl font-black text-gray-900 mb-1 md:mb-2">Step-by-Step Guide</h2>
-               <p className="text-xs md:text-sm text-gray-500">Follow these detailed steps to make the most of every feature</p>
-             </div>
+        {/* Step-by-Step Guide */}
+        {activeSection === 'steps' && (
+          <div className="space-y-4 md:space-y-6">
+            <div className="text-center">
+              <h2 className="text-xl md:text-2xl font-black text-gray-900 mb-1 md:mb-2">Step-by-Step Guide</h2>
+              <p className="text-xs md:text-sm text-gray-500">Follow these detailed steps to make the most of every feature</p>
+            </div>
 
             {filteredSteps.map((section, sIdx) => (
               <div key={sIdx} className={`rounded-xl md:rounded-2xl border-2 ${section.borderColor} overflow-hidden shadow-md`}>
-                {/* Section Header */}
                 <div className={`bg-gradient-to-r ${section.color} text-white p-3 md:p-5`}>
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 md:gap-3 min-w-0">
@@ -549,7 +555,6 @@ export default function HelpCenter() {
                   </div>
                 </div>
 
-                {/* Steps */}
                 <div className={`${section.bgLight} divide-y divide-gray-100`}>
                   {section.steps.map((step, stIdx) => {
                     const key = `${sIdx}-${stIdx}`;
@@ -674,7 +679,7 @@ export default function HelpCenter() {
           <h3 className="text-lg md:text-xl font-black mb-1 md:mb-2">Need more support?</h3>
           <p className="text-white/90 text-xs md:text-sm mb-3 md:mb-4">Use the AI Coach Insights feature for smart client analysis, or reach out to your platform admin for technical help.</p>
           <a
-            href="/aicoachinsights"
+            href="/AICoachInsights"
             className="inline-flex items-center gap-1.5 md:gap-2 bg-white text-orange-600 font-bold px-4 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl hover:bg-orange-50 transition-colors text-xs md:text-sm"
           >
             <Sparkles className="w-3.5 md:w-4 h-3.5 md:h-4" />
