@@ -300,6 +300,31 @@ function ClientManagementInner() {
 
   const handleSaveClient = () => {
     if (!formData.full_name || !formData.email) { alert("Please enter client name and email"); return; }
+
+    // Duplicate check (skip when editing the same client)
+    const normalizedEmail = formData.email.trim().toLowerCase();
+    const normalizedPhone = formData.phone?.trim();
+
+    const emailExists = clients.some(c =>
+      c.email?.trim().toLowerCase() === normalizedEmail &&
+      (!editingClient || c.id !== editingClient.id)
+    );
+    if (emailExists) {
+      alert(`❌ A client with the email "${formData.email.trim()}" already exists. Each client must have a unique email address.`);
+      return;
+    }
+
+    if (normalizedPhone) {
+      const phoneExists = clients.some(c =>
+        c.phone?.trim() === normalizedPhone &&
+        (!editingClient || c.id !== editingClient.id)
+      );
+      if (phoneExists) {
+        alert(`❌ A client with the phone number "${normalizedPhone}" already exists. Each client must have a unique phone number.`);
+        return;
+      }
+    }
+
     saveClientMutation.mutate(formData);
   };
 
