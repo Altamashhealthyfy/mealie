@@ -9,6 +9,9 @@ export function createSignalingChannel({ clientId, senderType, senderEmail, room
   let stopped = false;
   let processedIds = new Set();
   let intervalId = null;
+  let backoffDelay = 3000;
+  const BASE_INTERVAL = 3000;
+  const MAX_BACKOFF = 30000;
   const handlers = [];
 
   const send = async (data) => {
@@ -66,19 +69,30 @@ export function createSignalingChannel({ clientId, senderType, senderEmail, room
         }
       }
     } catch (e) {
-      console.error('Signaling poll error:', e);
+      if (e?.status === 429 || e?.message?.includes('Rate limit')) {
+        backoffDelay = Math.min(backoffDelay * 2, MAX_BACKOFF);
+        console.warn(`Signaling rate limited — backing off to ${backoffDelay}ms`);
+      } else {
+        console.error('Signaling poll error:', e);
+      }
     }
   };
 
   const start = () => {
     if (intervalId) return;
-    poll();
-    intervalId = setInterval(poll, 50);
+    backoffDelay = BASE_INTERVAL;
+    const schedulePoll = () => {
+      if (stopped) return;
+      poll().finally(() => {
+        if (!stopped) intervalId = setTimeout(schedulePoll, backoffDelay);
+      });
+    };
+    schedulePoll();
   };
 
   const stop = () => {
     stopped = true;
-    clearInterval(intervalId);
+    clearTimeout(intervalId);
   };
 
   return { send, onMessage, start, stop };
