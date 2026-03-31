@@ -1,0 +1,141 @@
+{
+  "name": "MealOptionsCard",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "Client ID"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Client full name"
+    },
+    "coach_id": {
+      "type": "string",
+      "description": "Coach email"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "IST creation timestamp"
+    },
+    "valid_from": {
+      "type": "string",
+      "format": "date"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date"
+    },
+    "plan_duration": {
+      "type": "number"
+    },
+    "creation_mode": {
+      "type": "string",
+      "enum": [
+        "B"
+      ],
+      "description": "Mode B = Choose & Schedule"
+    },
+    "validation_passed": {
+      "type": "boolean",
+      "default": false
+    },
+    "validation_warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "is_sent_to_client": {
+      "type": "boolean",
+      "default": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "archived"
+      ],
+      "default": "draft"
+    },
+    "send_mode": {
+      "type": "string",
+      "enum": [
+        "options_card",
+        "day_by_day",
+        "both"
+      ]
+    },
+    "coach_note": {
+      "type": "string"
+    },
+    "slots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "slot_name": {
+            "type": "string"
+          },
+          "slot_order": {
+            "type": "number"
+          },
+          "calorie_target": {
+            "type": "number"
+          },
+          "days_required": {
+            "type": "number"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "option_label": {
+                  "type": "string"
+                },
+                "dish_name": {
+                  "type": "string"
+                },
+                "dish_id": {
+                  "type": "string"
+                },
+                "portion_size": {
+                  "type": "string"
+                },
+                "calories": {
+                  "type": "number"
+                },
+                "protein": {
+                  "type": "number"
+                },
+                "carbs": {
+                  "type": "number"
+                },
+                "fat": {
+                  "type": "number"
+                },
+                "recommended_days": {
+                  "type": "number"
+                },
+                "diet_type": {
+                  "type": "string"
+                },
+                "catalog_verified": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "client_id",
+    "plan_duration",
+    "slots"
+  ]
+}

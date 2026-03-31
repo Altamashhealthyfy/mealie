@@ -17,6 +17,8 @@ import AIMealPlanGenerator from "@/components/mealplanner/AIMealPlanGenerator";
 import MealPlanningWorkflow from "@/components/mealplanner/MealPlanningWorkflow";
 import MealPlanTemplateSelector from "@/components/mealplanner/MealPlanTemplateSelector";
 import SaveAsTemplateDialog from "@/components/mealplanner/SaveAsTemplateDialog";
+import ModeB_ChooseSchedule from "@/components/mealplanner/ModeB_ChooseSchedule";
+import ModeC_BuildFromScratch from "@/components/mealplanner/ModeC_BuildFromScratch";
 
 export default function MealPlansTab({ client, clinicalIntakes, mealPlans }) {
   const queryClient = useQueryClient();
@@ -47,7 +49,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans }) {
     subscription?.plan_name?.toLowerCase().includes('pro')
   );
 
-  const [activeSubTab, setActiveSubTab] = useState("pro");
+  const [activeSubTab, setActiveSubTab] = useState("ai_options");
   const [viewingPlan, setViewingPlan] = useState(null);
   const [showBasicForm, setShowBasicForm] = useState(false);
   const [showTemplateSelector, setShowTemplateSelector] = useState(null); // "basic" | "pro" | null
@@ -128,19 +130,50 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans }) {
   return (
     <div className="space-y-4">
       <Tabs value={activeSubTab} onValueChange={setActiveSubTab}>
-        <TabsList className="bg-white/90 border border-gray-200 rounded-xl p-1 w-full flex gap-1">
-          <TabsTrigger value="pro" className="flex-1 text-xs sm:text-sm rounded-lg data-[state=active]:bg-purple-600 data-[state=active]:text-white">
-            <Crown className="w-3.5 h-3.5 mr-1" /> Clinical Plans
-            {proPlans.length > 0 && <Badge className="ml-1 bg-purple-100 text-purple-700 text-xs">{proPlans.length}</Badge>}
+        <TabsList className="bg-white/90 border border-gray-200 rounded-xl p-1 w-full flex gap-1 flex-wrap h-auto">
+          <TabsTrigger value="ai_options" className="flex-1 min-w-[80px] text-xs rounded-lg data-[state=active]:bg-green-500 data-[state=active]:text-white py-1.5">
+            <ChefHat className="w-3.5 h-3.5 mr-1" />
+            <span className="hidden sm:inline">AI Options Card</span>
+            <span className="sm:hidden">AI</span>
           </TabsTrigger>
-          <TabsTrigger value="basic" className="flex-1 text-xs sm:text-sm rounded-lg data-[state=active]:bg-green-500 data-[state=active]:text-white">
-            <ChefHat className="w-3.5 h-3.5 mr-1" /> Basic Plans
-            {basicPlans.length > 0 && <Badge className="ml-1 bg-green-100 text-green-700 text-xs">{basicPlans.length}</Badge>}
+          <TabsTrigger value="mode_b" className="flex-1 min-w-[80px] text-xs rounded-lg data-[state=active]:bg-blue-600 data-[state=active]:text-white py-1.5">
+            <Sparkles className="w-3.5 h-3.5 mr-1" />
+            <span className="hidden sm:inline">Choose &amp; Schedule</span>
+            <span className="sm:hidden">Schedule</span>
           </TabsTrigger>
-          <TabsTrigger value="templates" className="flex-1 text-xs sm:text-sm rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white">
-            <BookOpen className="w-3.5 h-3.5 mr-1" /> Templates
+          <TabsTrigger value="mode_c" className="flex-1 min-w-[80px] text-xs rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white py-1.5">
+            <Save className="w-3.5 h-3.5 mr-1" />
+            <span className="hidden sm:inline">Build From Scratch</span>
+            <span className="sm:hidden">Build</span>
+          </TabsTrigger>
+          <TabsTrigger value="mode_d" disabled className="flex-1 min-w-[80px] text-xs rounded-lg opacity-50 py-1.5">
+            <BookOpen className="w-3.5 h-3.5 mr-1" />
+            <span className="hidden sm:inline">Saved Templates</span>
+            <span className="sm:hidden">Templates</span>
+          </TabsTrigger>
+          <TabsTrigger value="mode_e" disabled className="flex-1 min-w-[80px] text-xs rounded-lg opacity-50 py-1.5">
+            <Loader2 className="w-3.5 h-3.5 mr-1" />
+            <span className="hidden sm:inline">Upload Template</span>
+            <span className="sm:hidden">Upload</span>
           </TabsTrigger>
         </TabsList>
+
+        {/* ── AI OPTIONS CARD (existing Basic + Pro + Templates merged) ── */}
+        <TabsContent value="ai_options" className="space-y-3 mt-3">
+          <Tabs defaultValue="basic">
+            <TabsList className="bg-white/80 border border-gray-200 rounded-xl p-1 w-full flex gap-1">
+              <TabsTrigger value="pro" className="flex-1 text-xs rounded-lg data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+                <Crown className="w-3.5 h-3.5 mr-1" /> Clinical Plans
+                {proPlans.length > 0 && <Badge className="ml-1 bg-purple-100 text-purple-700 text-xs">{proPlans.length}</Badge>}
+              </TabsTrigger>
+              <TabsTrigger value="basic" className="flex-1 text-xs rounded-lg data-[state=active]:bg-green-500 data-[state=active]:text-white">
+                <ChefHat className="w-3.5 h-3.5 mr-1" /> Basic Plans
+                {basicPlans.length > 0 && <Badge className="ml-1 bg-green-100 text-green-700 text-xs">{basicPlans.length}</Badge>}
+              </TabsTrigger>
+              <TabsTrigger value="templates" className="flex-1 text-xs rounded-lg data-[state=active]:bg-orange-500 data-[state=active]:text-white">
+                <BookOpen className="w-3.5 h-3.5 mr-1" /> Templates
+              </TabsTrigger>
+            </TabsList>
 
         {/* ── BASIC PLANS ── */}
         <TabsContent value="basic" className="space-y-3 mt-3">
@@ -256,9 +289,54 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans }) {
                 onAssigned={() => {
                   invalidatePlans();
                   toast.success("Template assigned! Go to Basic Plans to view it.");
-                  setActiveSubTab("basic");
                 }}
               />
+            </CardContent>
+          </Card>
+        </TabsContent>
+          </Tabs>
+        </TabsContent>
+
+        {/* ── MODE B: CHOOSE & SCHEDULE ── */}
+        <TabsContent value="mode_b" className="mt-3">
+          <ModeB_ChooseSchedule
+            client={client}
+            onSaved={() => {
+              invalidatePlans();
+              toast.success("Options card sent to client!");
+            }}
+          />
+        </TabsContent>
+
+        {/* ── MODE C: BUILD FROM SCRATCH ── */}
+        <TabsContent value="mode_c" className="mt-3">
+          <ModeC_BuildFromScratch
+            client={client}
+            onSaved={() => {
+              invalidatePlans();
+              setActiveSubTab("ai_options");
+            }}
+          />
+        </TabsContent>
+
+        {/* ── MODE D: Saved Templates placeholder ── */}
+        <TabsContent value="mode_d" className="mt-3">
+          <Card className="border-dashed border-2 border-gray-200 bg-gray-50">
+            <CardContent className="p-10 text-center space-y-2">
+              <BookOpen className="w-12 h-12 mx-auto text-gray-300" />
+              <h3 className="text-lg font-semibold text-gray-500">Saved Templates — Coming Soon</h3>
+              <p className="text-sm text-gray-400">Pick from Dr. Sheenu's library or your own saved plans.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── MODE E: Upload Template placeholder ── */}
+        <TabsContent value="mode_e" className="mt-3">
+          <Card className="border-dashed border-2 border-gray-200 bg-gray-50">
+            <CardContent className="p-10 text-center space-y-2">
+              <Loader2 className="w-12 h-12 mx-auto text-gray-300" />
+              <h3 className="text-lg font-semibold text-gray-500">Upload Template — Coming Soon</h3>
+              <p className="text-sm text-gray-400">Upload your Excel or PDF meal plan.</p>
             </CardContent>
           </Card>
         </TabsContent>
