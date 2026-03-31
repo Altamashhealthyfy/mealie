@@ -127,8 +127,8 @@ Generate 5 varied templates with MPESS for general health.`;
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2000,
+      model: 'claude-sonnet-4-5',
+      max_tokens: 4096,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }]
       })
@@ -242,7 +242,7 @@ Generate 5 varied templates with MPESS for general health.`;
           day: m.day,
           meal_type: m.meal_type,
           meal_name: m.names.join(' + '),
-          portion_sizes: m.portions.join(' | '),
+          portion_sizes: m.portions,
           calories: Math.round(m.calories),
           protein: Math.round(m.protein * 10) / 10,
           carbs:   Math.round(m.carbs   * 10) / 10,
