@@ -17,88 +17,130 @@ import { format, addDays } from "date-fns";
 import { toast } from "sonner";
 
 const SLOT_DEFS = [
-  { key: "early_morning",   label: "Early Morning",          order: 1, pct: 0.04 },
-  { key: "breakfast",       label: "Breakfast",              order: 2, pct: 0.22 },
-  { key: "mid_morning",     label: "Mid Morning",            order: 3, pct: 0.09 },
-  { key: "lunch_grain",     label: "Lunch — Grain",          order: 4, pct: 0.14 },
-  { key: "lunch_dal",       label: "Lunch — Dal",            order: 5, pct: 0.10 },
-  { key: "lunch_sabzi",     label: "Lunch — Sabzi",          order: 6, pct: 0.08 },
-  { key: "evening_snack",   label: "Evening Snack",          order: 7, pct: 0.09 },
-  { key: "dinner_grain",    label: "Dinner — Grain",         order: 8, pct: 0.13 },
-  { key: "dinner_protein",  label: "Dinner — Protein/Sabzi", order: 9, pct: 0.11 },
+  { key: "early_morning",  label: "Early Morning", order: 1, pct: 0.04 },
+  { key: "breakfast",      label: "Breakfast",     order: 2, pct: 0.22 },
+  { key: "mid_morning",    label: "Mid Morning",   order: 3, pct: 0.09 },
+  { key: "lunch",          label: "Lunch",         order: 4, pct: 0.32 },
+  { key: "evening_snack",  label: "Evening Snack", order: 5, pct: 0.09 },
+  { key: "dinner",         label: "Dinner",        order: 6, pct: 0.24 },
 ];
 
 const OPTION_LABELS = ["A", "B", "C", "D", "E", "F"];
 
 // ── OUTSIDE main component — prevents focus loss ──
+// ── ComboOptionRow — expandable combo with component breakdown ──
+const ComboOptionRow = React.memo(function ComboOptionRow({ opt, idx, planDuration, canRemove, onRemove, onUpdateDays }) {
+  const [expanded, setExpanded] = useState(false);
+  const label = opt.option_label || OPTION_LABELS[idx] || String(idx + 1);
+  const name = opt.meal_name || opt.dish_name || "—";
+
+  return (
+    <div className={`rounded-lg border ${opt.catalog_verified ? "bg-gray-50 border-gray-200" : "bg-orange-50 border-orange-200"}`}>
+      <div className="flex items-center gap-2 p-2">
+        <Badge className={`text-xs font-bold w-6 h-6 flex items-center justify-center p-0 rounded-full shrink-0 ${opt.catalog_verified ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"}`}>
+          {label}
+        </Badge>
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-gray-800 text-sm">{name}</p>
+          <p className="text-xs text-gray-500">
+            {opt.calories > 0 ? `${opt.calories} kcal · P${opt.protein}g · C${opt.carbs}g · F${opt.fat}g` : "macros not found"}
+            {!opt.catalog_verified && <span className="ml-1 text-orange-500">· partial catalog match</span>}
+          </p>
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <input type="number" min="0" max={planDuration}
+            defaultValue={opt.recommended_days || 0}
+            onBlur={(e) => onUpdateDays(parseInt(e.target.value) || 0)}
+            className="w-12 text-center border rounded p-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-300" />
+          <span className="text-xs text-gray-400">d</span>
+          {canRemove && (
+            <button type="button" onClick={onRemove} className="ml-1 text-red-400 hover:text-red-600">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+          {opt.components?.length > 0 && (
+            <button type="button" onClick={() => setExpanded(e => !e)} className="ml-1 text-gray-400 hover:text-gray-600">
+              {expanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+            </button>
+          )}
+        </div>
+      </div>
+      {expanded && opt.components?.length > 0 && (
+        <div className="px-4 pb-2 border-t border-gray-200 pt-2 space-y-0.5">
+          {opt.components.map((c, ci) => (
+            <div key={ci} className="flex justify-between text-xs text-gray-600">
+              <span>• {c.dish_name}{!c.catalog_verified && <span className="text-orange-400 ml-1">(not in catalog)</span>}</span>
+              <span className="text-gray-400">{c.calories > 0 ? `${c.calories} kcal` : "—"}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+});
+
+// ── SlotSection — defined OUTSIDE main component to prevent focus loss ──
 const SlotSection = React.memo(function SlotSection({
   slotDef, targetCal, planDuration, options, expanded,
   onToggle, onRemoveOption, onUpdateDays,
 }) {
   const totalDays = options.reduce((s, o) => s + (o.recommended_days || 0), 0);
   const dayStatus = totalDays < planDuration ? "under" : totalDays === planDuration ? "exact" : "over";
-  const dayColor  = dayStatus === "exact"  ? "text-green-600"
-                  : dayStatus === "over"   ? "text-red-600"
-                  : "text-orange-500";
-
+  const dayColor  = dayStatus === "exact" ? "text-green-600" : dayStatus === "over" ? "text-red-600" : "text-orange-500";
   const slotTarget = Math.round((targetCal || 1400) * slotDef.pct);
+  const isCombo = slotDef.key === "lunch" || slotDef.key === "dinner";
 
   return (
     <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors"
-      >
+      <button type="button" onClick={onToggle}
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors">
         <div className="flex items-center gap-3">
           {expanded ? <ChevronDown className="w-4 h-4 text-gray-500" /> : <ChevronRight className="w-4 h-4 text-gray-500" />}
           <span className="font-semibold text-gray-800 text-sm">{slotDef.label}</span>
           <span className="text-xs text-gray-400">~{slotTarget} kcal</span>
+          {isCombo && <span className="text-xs bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-medium">complete meals</span>}
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="text-xs">{options.length} options</Badge>
-          {totalDays > 0 && (
-            <span className={`text-xs font-semibold ${dayColor}`}>{totalDays}/{planDuration}d</span>
-          )}
+          {totalDays > 0 && <span className={`text-xs font-semibold ${dayColor}`}>{totalDays}/{planDuration}d</span>}
         </div>
       </button>
 
       {expanded && (
         <div className="px-4 pb-4 border-t border-gray-100 space-y-2 pt-3">
-          {options.map((opt, idx) => (
-            <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
-              <Badge className={`text-xs font-bold w-6 h-6 flex items-center justify-center p-0 rounded-full shrink-0 ${opt.catalog_verified ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"}`}>
-                {OPTION_LABELS[idx] || idx + 1}
-              </Badge>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-gray-800 text-sm truncate">{opt.dish_name}</p>
-                <p className="text-xs text-gray-500">
-                  {opt.calories > 0 ? `${opt.calories} kcal · P${opt.protein}g · C${opt.carbs}g · F${opt.fat}g` : "macros not found"}
-                  {opt.portion_label && <span className="ml-1 text-gray-400">· {opt.portion_label}</span>}
-                  {!opt.catalog_verified && <span className="ml-1 text-orange-500">· not in catalog</span>}
-                </p>
+          {options.map((opt, idx) =>
+            isCombo ? (
+              <ComboOptionRow key={idx} opt={opt} idx={idx} planDuration={planDuration}
+                canRemove={options.length > 2}
+                onRemove={() => onRemoveOption(slotDef.key, idx)}
+                onUpdateDays={(days) => onUpdateDays(slotDef.key, idx, days)} />
+            ) : (
+              <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                <Badge className={`text-xs font-bold w-6 h-6 flex items-center justify-center p-0 rounded-full shrink-0 ${opt.catalog_verified ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"}`}>
+                  {OPTION_LABELS[idx] || idx + 1}
+                </Badge>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-800 text-sm truncate">{opt.dish_name}</p>
+                  <p className="text-xs text-gray-500">
+                    {opt.calories > 0 ? `${opt.calories} kcal · P${opt.protein}g · C${opt.carbs}g · F${opt.fat}g` : "macros not found"}
+                    {opt.portion_label && <span className="ml-1 text-gray-400">· {opt.portion_label}</span>}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  <input type="number" min="0" max={planDuration}
+                    defaultValue={opt.recommended_days || 0}
+                    onBlur={(e) => onUpdateDays(slotDef.key, idx, parseInt(e.target.value) || 0)}
+                    className="w-12 text-center border rounded p-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-300" />
+                  <span className="text-xs text-gray-400">d</span>
+                  {options.length > 2 && (
+                    <button type="button" onClick={() => onRemoveOption(slotDef.key, idx)}
+                      className="ml-1 text-red-400 hover:text-red-600"><X className="w-3.5 h-3.5" /></button>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center gap-1 shrink-0">
-                <input
-                  type="number"
-                  min="0"
-                  max={planDuration}
-                  defaultValue={opt.recommended_days || 0}
-                  onBlur={(e) => onUpdateDays(slotDef.key, idx, parseInt(e.target.value) || 0)}
-                  className="w-12 text-center border rounded p-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-300"
-                />
-                <span className="text-xs text-gray-400">d</span>
-                {options.length > 2 && (
-                  <button type="button" onClick={() => onRemoveOption(slotDef.key, idx)}
-                    className="ml-1 text-red-400 hover:text-red-600">
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
+            )
+          )}
 
-          {/* Day counter bar */}
           <div className={`text-xs font-medium px-2 py-1.5 rounded-lg ${
             dayStatus === "exact" ? "bg-green-50 text-green-700 border border-green-200" :
             dayStatus === "over"  ? "bg-red-50 text-red-700 border border-red-200" :
@@ -109,10 +151,7 @@ const SlotSection = React.memo(function SlotSection({
             {dayStatus === "under" && ` — ${planDuration - totalDays} more needed`}
             {dayStatus === "over"  && ` — ${totalDays - planDuration} day(s) over`}
           </div>
-
-          {options.length < 2 && (
-            <p className="text-xs text-orange-500 px-1">⚠ Minimum 2 options required</p>
-          )}
+          {options.length < 2 && <p className="text-xs text-orange-500 px-1">⚠ Minimum 2 options required</p>}
         </div>
       )}
     </div>
