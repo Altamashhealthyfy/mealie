@@ -19,83 +19,239 @@ export default function MyAssignedMealPlan() {
   const [selectedPlanId, setSelectedPlanId] = useState(null);
   const [dateFilter, setDateFilter] = useState(null);
 
+  const [downloading, setDownloading] = useState(false);
+
   const handleDownload = async () => {
+    setDownloading(true);
     try {
       const { jsPDF } = await import('jspdf');
-      const plan = displayedPlan;
       const doc = new jsPDF();
-      const margin = 15;
-      let y = 20;
+      const margin = 14;
+      const pageW = doc.internal.pageSize.getWidth();
+      let y = 0;
 
-      doc.setFontSize(16);
-      doc.setTextColor(108, 95, 199);
-      doc.text(plan?.name || 'My Meal Plan', margin, y); y += 8;
+      const PURPLE = [108, 95, 199];
+      const DARK = [30, 30, 30];
+      const GRAY = [100, 100, 100];
+      const LIGHT = [240, 238, 255];
+      const WHITE = [255, 255, 255];
+
+      const addPage = () => { doc.addPage(); y = 20; };
+      const checkPage = (needed = 20) => { if (y + needed > 275) addPage(); };
+
+      // ── COVER HEADER ──
+      doc.setFillColor(...PURPLE);
+      doc.rect(0, 0, pageW, 42, 'F');
+
+      doc.setFontSize(20);
+      doc.setTextColor(...WHITE);
+      doc.setFont('helvetica', 'bold');
+      doc.text('MEALIE PRO', margin, 16);
+
       doc.setFontSize(10);
-      doc.setTextColor(100, 100, 100);
-      doc.text(`${plan?.duration} Days | ${plan?.food_preference} | ${plan?.target_calories} kcal/day`, margin, y); y += 10;
+      doc.setFont('helvetica', 'normal');
+      doc.text('Powered by Healthyfy Institute', margin, 24);
 
+      doc.setFontSize(9);
+      doc.text('app.mealiepro.com', pageW - margin, 24, { align: 'right' });
+
+      y = 52;
+
+      // ── PLAN TITLE ──
+      doc.setFontSize(16);
+      doc.setTextColor(...DARK);
+      doc.setFont('helvetica', 'bold');
+      const planTitle = assignedPlan?.name || displayedPlan?.name || 'My Meal Plan';
+      const titleLines = doc.splitTextToSize(planTitle, pageW - margin * 2);
+      doc.text(titleLines, margin, y);
+      y += titleLines.length * 7 + 4;
+
+      // ── PLAN META ──
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(...GRAY);
+      const meta = [
+        displayedPlan?.duration ? `Duration: ${displayedPlan.duration} Days` : '',
+        displayedPlan?.food_preference ? `Diet: ${displayedPlan.food_preference}` : '',
+        displayedPlan?.target_calories ? `Target: ${displayedPlan.target_calories} kcal/day` : '',
+      ].filter(Boolean).join('  |  ');
+      doc.text(meta, margin, y); y += 6;
+
+      // Divider line
+      doc.setDrawColor(...PURPLE);
+      doc.setLineWidth(0.5);
+      doc.line(margin, y, pageW - margin, y); y += 8;
+
+      // ── SLOT ORDER AND LABELS ──
       const slotOrder = ['early_morning','breakfast','mid_morning','lunch','evening_snack','dinner'];
       const slotLabels = {
-        early_morning: 'Early Morning', breakfast: 'Breakfast', mid_morning: 'Mid Morning',
-        lunch: 'Lunch', evening_snack: 'Evening Snack', dinner: 'Dinner'
+        early_morning: 'Early Morning',
+        breakfast: 'Breakfast',
+        mid_morning: 'Mid Morning',
+        lunch: 'Lunch',
+        evening_snack: 'Evening Snack',
+        dinner: 'Dinner'
       };
 
+      // ── GROUP MEALS BY DAY ──
       const mealsByDay = {};
-      (plan?.meals || []).forEach(m => {
+      (displayedPlan?.meals || []).forEach(m => {
         if (!mealsByDay[m.day]) mealsByDay[m.day] = [];
         mealsByDay[m.day].push(m);
       });
 
-      Object.keys(mealsByDay).sort((a,b) => a-b).forEach(day => {
-        if (y > 270) { doc.addPage(); y = 20; }
-        doc.setFontSize(12);
-        doc.setTextColor(108, 95, 199);
-        doc.text(`Day ${day}`, margin, y); y += 7;
+      // ── RENDER EACH DAY ──
+      const sortedDays = Object.keys(mealsByDay).sort((a, b) => Number(a) - Number(b));
 
-        const sorted = mealsByDay[day].sort((a,b) =>
+      for (const day of sortedDays) {
+        checkPage(40);
+
+        // Day header bar
+        doc.setFillColor(...PURPLE);
+        doc.roundedRect(margin, y, pageW - margin * 2, 10, 2, 2, 'F');
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...WHITE);
+        doc.text(`DAY ${day}`, margin + 4, y + 7);
+
+        // Daily calorie total
+        const dayTotal = mealsByDay[day].reduce((sum, m) => sum + (m.calories || 0), 0);
+        doc.setFontSize(9);
+        doc.text(`Total: ${dayTotal} kcal`, pageW - margin - 4, y + 7, { align: 'right' });
+        y += 14;
+
+        // Sort meals by slot order
+        const sorted = mealsByDay[day].sort((a, b) =>
           slotOrder.indexOf(a.meal_type) - slotOrder.indexOf(b.meal_type)
         );
 
-        sorted.forEach(meal => {
-          if (y > 270) { doc.addPage(); y = 20; }
-          doc.setFontSize(9);
-          doc.setTextColor(0, 0, 0);
-          doc.setFont(undefined, 'bold');
-          doc.text(`${slotLabels[meal.meal_type] || meal.meal_type}: `, margin + 4, y);
-          doc.setFont(undefined, 'normal');
-          const nameLines = doc.splitTextToSize(`${meal.meal_name} — ${meal.calories} kcal`, 160);
-          doc.text(nameLines, margin + 4, y);
-          y += nameLines.length * 5 + 3;
-        });
-        y += 5;
-      });
+        for (const meal of sorted) {
+          checkPage(28);
 
-      // MPESS section from plan data
-      const mpess = plan?.mpess;
-      if (mpess && mpess.length > 0) {
-        if (y > 250) { doc.addPage(); y = 20; }
-        doc.setFontSize(12);
-        doc.setTextColor(108, 95, 199);
-        doc.text('Wellness Guidance (MPESS)', margin, y); y += 7;
-        doc.setFontSize(9);
-        doc.setTextColor(0, 0, 0);
-        const first = mpess[0];
-        [['Sleep', first.sleep], ['Stress', first.stress], ['Movement', first.movement], ['Mindfulness', first.mindfulness], ['Pranayam', first.pranayam]].forEach(([label, val]) => {
-          if (!val) return;
-          if (y > 270) { doc.addPage(); y = 20; }
-          doc.setFont(undefined, 'bold');
-          doc.text(`${label}:`, margin + 4, y);
-          doc.setFont(undefined, 'normal');
-          const lines = doc.splitTextToSize(val, 155);
-          doc.text(lines, margin + 4, y + 4);
-          y += lines.length * 5 + 8;
-        });
+          // Meal slot background
+          doc.setFillColor(...LIGHT);
+          doc.roundedRect(margin, y, pageW - margin * 2, 24, 1.5, 1.5, 'F');
+
+          // Slot label
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(...PURPLE);
+          doc.text(slotLabels[meal.meal_type] || meal.meal_type, margin + 3, y + 7);
+
+          // Calories badge
+          doc.setFillColor(...PURPLE);
+          doc.roundedRect(pageW - margin - 28, y + 2, 26, 8, 2, 2, 'F');
+          doc.setFontSize(8);
+          doc.setTextColor(...WHITE);
+          doc.text(`${meal.calories || 0} kcal`, pageW - margin - 15, y + 7.5, { align: 'center' });
+
+          // Meal name
+          doc.setFontSize(9);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(...DARK);
+          const nameLines = doc.splitTextToSize(meal.meal_name || '', pageW - margin * 2 - 35);
+          doc.text(nameLines, margin + 3, y + 14);
+
+          // Portion
+          const portionText = Array.isArray(meal.portion_sizes) ? meal.portion_sizes.join(', ') : meal.portion_sizes;
+          if (portionText) {
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(...GRAY);
+            const portionLines = doc.splitTextToSize(`Portion: ${portionText}`, pageW - margin * 2 - 10);
+            doc.text(portionLines, margin + 3, y + 20);
+          }
+
+          // Macros row
+          const macroY = y + (portionText ? 26 : 22);
+          checkPage(10);
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(...GRAY);
+          const macroText = `P: ${meal.protein || 0}g  |  C: ${meal.carbs || 0}g  |  F: ${meal.fats || 0}g`;
+          doc.text(macroText, margin + 3, macroY);
+
+          // Notes / nutritional tip
+          const noteVal = meal.nutritional_tip || meal.notes;
+          if (noteVal) {
+            checkPage(8);
+            doc.setFontSize(7.5);
+            doc.setTextColor(100, 120, 0);
+            const noteLines = doc.splitTextToSize(`* ${noteVal}`, pageW - margin * 2 - 6);
+            doc.text(noteLines, margin + 3, macroY + 5);
+            y += noteLines.length * 4;
+          }
+
+          y += portionText ? 32 : 28;
+        }
+
+        y += 6;
       }
 
-      doc.save(`${plan?.name || 'meal-plan'}.pdf`);
-    } catch (err) {
-      console.error('PDF download error:', err);
-      alert('PDF download failed: ' + err.message);
+      // ── MPESS SECTION ──
+      const mpess = displayedPlan?.mpess?.[0];
+      if (mpess && (mpess.sleep || mpess.movement || mpess.stress)) {
+        checkPage(60);
+
+        doc.setFillColor(...PURPLE);
+        doc.rect(0, y, pageW, 12, 'F');
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...WHITE);
+        doc.text('MPESS — YOUR WELLNESS GUIDANCE', margin, y + 8);
+        y += 18;
+
+        const mpessItems = [
+          { label: 'Sleep', value: mpess.sleep },
+          { label: 'Stress Management', value: mpess.stress },
+          { label: 'Movement', value: mpess.movement },
+          { label: 'Mindfulness', value: mpess.mindfulness },
+          { label: 'Pranayam', value: mpess.pranayam }
+        ];
+
+        for (const item of mpessItems) {
+          if (!item.value) continue;
+          checkPage(20);
+
+          doc.setFontSize(9);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(...PURPLE);
+          doc.text(item.label, margin, y); y += 5;
+
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(...DARK);
+          const lines = doc.splitTextToSize(item.value, pageW - margin * 2);
+          doc.text(lines, margin, y);
+          y += lines.length * 5 + 6;
+        }
+      }
+
+      // ── FOOTER ON EVERY PAGE ──
+      const totalPages = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        const footY = doc.internal.pageSize.getHeight() - 10;
+        doc.setFillColor(...PURPLE);
+        doc.rect(0, footY - 4, pageW, 14, 'F');
+        doc.setFontSize(8);
+        doc.setTextColor(...WHITE);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Mealie Pro — Powered by Healthyfy Institute', margin, footY + 4);
+        doc.text(`Page ${i} of ${totalPages}`, pageW - margin, footY + 4, { align: 'right' });
+      }
+
+      // ── SAVE ──
+      const safeName = (displayedPlan?.name || 'meal-plan')
+        .replace(/[^a-zA-Z0-9\s]/g, '')
+        .replace(/\s+/g, '_')
+        .slice(0, 50);
+      doc.save(`${safeName}.pdf`);
+
+    } catch(err) {
+      console.error('PDF error:', err);
+      alert('Could not generate PDF: ' + err.message);
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -374,12 +530,18 @@ export default function MyAssignedMealPlan() {
               Previous Plans
             </Button>
             {displayedPlan && (
-              <Button
+              <button
                 onClick={handleDownload}
-                className="bg-purple-600 hover:bg-purple-700 text-white"
-              >
-                📄 Download PDF
-              </Button>
+                disabled={downloading}
+                style={{
+                  display:'flex', alignItems:'center', gap:'8px',
+                  background: downloading ? '#9B8FD8' : '#6C5FC7',
+                  color:'white', padding:'10px 20px', borderRadius:'8px',
+                  border:'none', cursor: downloading ? 'not-allowed' : 'pointer',
+                  fontWeight:'bold', fontSize:'14px'
+                }}>
+                {downloading ? '⏳ Generating PDF...' : '📄 Download My Plan'}
+              </button>
             )}
           </div>
         </div>
