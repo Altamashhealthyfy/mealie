@@ -71,10 +71,8 @@ export function createSignalingChannel({ clientId, senderType, senderEmail, room
     } catch (e) {
       if (e?.status === 429 || e?.message?.includes('Rate limit')) {
         backoffDelay = Math.min(backoffDelay * 2, MAX_BACKOFF);
-        console.warn(`Signaling rate limited — backing off to ${backoffDelay}ms`);
-      } else {
-        console.error('Signaling poll error:', e);
       }
+      // Silently swallow all signaling errors to avoid console flood
     }
   };
 
