@@ -216,6 +216,7 @@ export default function ClinicalIntake() {
     },
     onSuccess: async (savedRecord) => {
       queryClient.invalidateQueries(['clinicalIntake']);
+      queryClient.invalidateQueries(['clientClinicalIntakes']);
       toast.success('✅ Clinical intake saved! Generating diagnostic...');
       // Auto-generate diagnostic in background
       const intakeId = savedRecord?.id || existingIntake?.id;
@@ -1420,6 +1421,7 @@ Return ONLY valid JSON, no explanation.`;
                   };
                   base44.entities.ClinicalIntake.update(existingIntake.id, finalData).then(() => {
                     queryClient.invalidateQueries(['clinicalIntake']);
+                    queryClient.invalidateQueries(['clientClinicalIntakes']);
                     toast.success('✅ Clinical intake updated! You can now generate the plan.');
                   }).catch(err => toast.error(err.message || 'Update failed'));
                 }}
