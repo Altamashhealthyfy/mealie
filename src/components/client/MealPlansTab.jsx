@@ -1,15 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   ChefHat, Crown, Plus, Eye, Trash2, CheckCircle, Sparkles,
   BookOpen, Save, Loader2, ChevronDown, HelpCircle, Bot,
-  Calendar, PenLine, Upload, X, ArrowLeft
+  Calendar, PenLine, Upload, ArrowLeft, Lock, Zap, AlertTriangle
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -21,8 +20,25 @@ import SaveAsTemplateDialog from "@/components/mealplanner/SaveAsTemplateDialog"
 import ModeB_ChooseSchedule from "@/components/mealplanner/ModeB_ChooseSchedule";
 import ModeC_BuildFromScratch from "@/components/mealplanner/ModeC_BuildFromScratch";
 
+// ── Config ─────────────────────────────────────────────────────────────────────
+const UPGRADE_WHATSAPP_NUMBER = "919911510377"; // easy to change
+const UPGRADE_URL = `https://wa.me/${UPGRADE_WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi, I want to upgrade my Mealie subscription to Mealie Pro")}`;
+
 // ── Tooltip content per mode ──────────────────────────────────────────────────
 const TOOLTIP_CONTENT = {
+  basic_plan: {
+    icon: "⚡",
+    title: "How Basic Plan works",
+    steps: [
+      "Reads client profile — age, weight, diet type, goal",
+      "Generates a simple healthy meal plan (no disease rules)",
+      "⚠️ Not designed for medical conditions or clinical use",
+      "For disease management use AI Generated Plan instead",
+    ],
+    time: "10 seconds",
+    effort: "Just click generate",
+    bestFor: "General healthy eating",
+  },
   ai_options: {
     icon: "🤖",
     title: "How AI Generated Plan works",
@@ -66,74 +82,22 @@ const TOOLTIP_CONTENT = {
   },
 };
 
-// ── Dropdown menu modes config ─────────────────────────────────────────────────
-const MODES = [
-  {
-    key: "ai_options",
-    icon: <Bot className="w-5 h-5 text-green-600" />,
-    label: "AI Generated Plan",
-    description: "AI creates complete meal options. You review and send.",
-    bestFor: "quick clinical plans",
-    popular: true,
-    disabled: false,
-  },
-  {
-    key: "mode_b",
-    icon: <Calendar className="w-5 h-5 text-blue-600" />,
-    label: "AI Plan + My Schedule",
-    description: "AI creates options. You decide how many days each meal repeats.",
-    bestFor: "structured 10-day cycles",
-    popular: false,
-    disabled: false,
-  },
-  {
-    key: "mode_c",
-    icon: <PenLine className="w-5 h-5 text-indigo-600" />,
-    label: "My Own Plan",
-    description: "You build every meal yourself. System calculates kcal + macros.",
-    bestFor: "specific client needs",
-    popular: false,
-    disabled: false,
-  },
-  {
-    key: "mode_d",
-    icon: <BookOpen className="w-5 h-5 text-gray-400" />,
-    label: "Use a Template",
-    description: "Pick from Dr. Sheenu's library or your saved plans.",
-    bestFor: null,
-    popular: false,
-    disabled: true,
-    comingSoon: true,
-  },
-  {
-    key: "mode_e",
-    icon: <Upload className="w-5 h-5 text-gray-400" />,
-    label: "Upload My Plan",
-    description: "Upload Excel or PDF meal plan.",
-    bestFor: null,
-    popular: false,
-    disabled: true,
-    comingSoon: true,
-  },
-];
-
-// ── Plan type display labels ───────────────────────────────────────────────────
+// ── Plan type display labels (with emoji) ──────────────────────────────────────
 function getPlanTypeLabel(plan) {
   if (plan.plan_tier === "advanced") {
-    // Try to detect sub-type from name or generation_parameters
     const mode = plan.generation_parameters?.mode || "";
-    if (mode === "B" || plan.name?.toLowerCase().includes("schedule")) return "AI + Schedule";
-    return "Clinical Plan";
+    if (mode === "B" || plan.name?.toLowerCase().includes("schedule")) return "📅 AI Schedule";
+    return "🏥 Clinical";
   }
   const mode = plan.generation_parameters?.mode || "";
-  if (mode === "C" || plan.name?.toLowerCase().includes("scratch")) return "My Own Plan";
-  if (mode === "B") return "AI + Schedule";
-  if (mode === "A" || plan.meals?.length > 0) return "AI Generated";
-  return "Basic Plan";
+  if (mode === "C" || plan.name?.toLowerCase().includes("scratch")) return "✏️ My Own";
+  if (mode === "B") return "📅 AI Schedule";
+  if (mode === "A" || plan.meals?.length > 0) return "🤖 AI Generated";
+  return "⚡ Basic";
 }
 
 // ── ModeDropdown component ─────────────────────────────────────────────────────
-function ModeDropdown({ onSelect }) {
+function ModeDropdown({ onSelect, isBasicUser }) {
   const [open, setOpen] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState(null);
   const dropdownRef = useRef(null);
@@ -149,17 +113,88 @@ function ModeDropdown({ onSelect }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open]);
 
-  const handleModeClick = (mode) => {
-    if (mode.disabled) return;
+  const handleModeClick = (modeKey, isComingSoon, isProLocked) => {
+    if (isComingSoon) return;
+    if (isProLocked) {
+      toast.error("This feature requires Mealie Pro. Contact Healthyfy to upgrade.", { duration: 4000 });
+      return;
+    }
     setOpen(false);
     setActiveTooltip(null);
-    onSelect(mode.key);
+    onSelect(modeKey);
   };
 
   const toggleTooltip = (e, key) => {
     e.stopPropagation();
     setActiveTooltip(prev => prev === key ? null : key);
   };
+
+  // Mode definitions — Basic Plan always first
+  const modes = [
+    {
+      key: "basic_plan",
+      icon: <Zap className="w-5 h-5 text-yellow-500" />,
+      label: "Basic Plan",
+      description: "Simple healthy meal plan from client profile. No disease rules.",
+      bestFor: "general healthy eating",
+      popular: false,
+      comingSoon: false,
+      proOnly: false,
+    },
+    // divider after basic_plan (handled below)
+    {
+      key: "ai_options",
+      icon: <Bot className="w-5 h-5 text-green-600" />,
+      label: "AI Generated Plan",
+      description: "AI creates complete meal options. You review and send.",
+      bestFor: "quick clinical plans",
+      popular: true,
+      comingSoon: false,
+      proOnly: true,
+    },
+    {
+      key: "mode_b",
+      icon: <Calendar className="w-5 h-5 text-blue-600" />,
+      label: "AI Plan + My Schedule",
+      description: "AI creates options. You decide how many days each meal repeats.",
+      bestFor: "structured 10-day cycles",
+      popular: false,
+      comingSoon: false,
+      proOnly: true,
+    },
+    {
+      key: "mode_c",
+      icon: <PenLine className="w-5 h-5 text-indigo-600" />,
+      label: "My Own Plan",
+      description: "You build every meal yourself. System calculates kcal + macros.",
+      bestFor: "specific client needs",
+      popular: false,
+      comingSoon: false,
+      proOnly: true,
+    },
+    {
+      key: "mode_d",
+      icon: <BookOpen className="w-5 h-5 text-gray-400" />,
+      label: "Use a Template",
+      description: "Pick from Dr. Sheenu's library or your saved plans.",
+      bestFor: null,
+      popular: false,
+      comingSoon: false,
+      proOnly: true,
+      comingSoonLabel: true,
+    },
+    {
+      key: "mode_e",
+      icon: <Upload className="w-5 h-5 text-gray-400" />,
+      label: "Upload My Plan",
+      description: "Upload Excel or PDF meal plan.",
+      bestFor: null,
+      popular: false,
+      comingSoon: false,
+      proOnly: true,
+      comingSoonLabel: true,
+    },
+  ];
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -175,59 +210,75 @@ function ModeDropdown({ onSelect }) {
 
       {open && (
         <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
-          {/* Header */}
           <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
               How do you want to create this plan?
             </p>
           </div>
 
-          <div className="py-1">
-            {MODES.map((mode) => {
+          <div className="py-1 max-h-[70vh] overflow-y-auto">
+            {modes.map((mode, idx) => {
+              const isProLocked = isBasicUser && mode.proOnly;
+              const isDisabled = mode.comingSoonLabel;
               const tooltipData = TOOLTIP_CONTENT[mode.key];
               const isTooltipOpen = activeTooltip === mode.key;
 
+              // Divider after basic_plan
+              const showDivider = mode.key === "ai_options";
+
               return (
                 <div key={mode.key}>
+                  {showDivider && <div className="border-t border-gray-100 my-1" />}
+
                   {/* Mode row */}
                   <div
                     className={`flex items-start gap-3 px-4 py-3 transition-colors ${
-                      mode.disabled
+                      isDisabled
                         ? "cursor-not-allowed opacity-50"
+                        : isProLocked
+                        ? "cursor-not-allowed opacity-60"
                         : "cursor-pointer hover:bg-gray-50"
                     }`}
-                    onClick={() => handleModeClick(mode)}
+                    onClick={() => handleModeClick(mode.key, isDisabled, isProLocked)}
                   >
-                    {/* Icon */}
-                    <div className="mt-0.5 shrink-0">{mode.icon}</div>
+                    {/* Icon — show lock for pro-locked basic users */}
+                    <div className="mt-0.5 shrink-0">
+                      {isProLocked ? <Lock className="w-5 h-5 text-gray-400" /> : mode.icon}
+                    </div>
 
                     {/* Text */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`text-sm font-semibold ${mode.disabled ? "text-gray-400" : "text-gray-800"}`}>
+                        <span className={`text-sm font-semibold ${isProLocked || isDisabled ? "text-gray-400" : "text-gray-800"}`}>
                           {mode.label}
                         </span>
-                        {mode.popular && (
+                        {mode.popular && !isProLocked && (
                           <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full leading-none">
                             POPULAR
                           </span>
                         )}
-                        {mode.comingSoon && (
+                        {mode.comingSoonLabel && (
                           <span className="bg-gray-200 text-gray-500 text-[10px] font-semibold px-2 py-0.5 rounded-full leading-none">
                             Coming Soon
                           </span>
                         )}
                       </div>
-                      <p className={`text-xs mt-0.5 ${mode.disabled ? "text-gray-400" : "text-gray-500"}`}>
-                        {mode.description}
-                      </p>
-                      {mode.bestFor && !mode.disabled && (
-                        <p className="text-[10px] text-gray-400 mt-0.5">Best for: {mode.bestFor}</p>
+                      {isProLocked ? (
+                        <p className="text-xs mt-0.5 text-orange-500 font-medium">Upgrade to Mealie Pro to unlock</p>
+                      ) : (
+                        <>
+                          <p className={`text-xs mt-0.5 ${isDisabled ? "text-gray-400" : "text-gray-500"}`}>
+                            {mode.description}
+                          </p>
+                          {mode.bestFor && !isDisabled && (
+                            <p className="text-[10px] text-gray-400 mt-0.5">Best for: {mode.bestFor}</p>
+                          )}
+                        </>
                       )}
                     </div>
 
-                    {/* Help button — active modes only */}
-                    {tooltipData && !mode.disabled && (
+                    {/* Help button — only for non-locked, non-coming-soon modes */}
+                    {tooltipData && !isProLocked && !isDisabled && (
                       <button
                         onClick={(e) => toggleTooltip(e, mode.key)}
                         className={`shrink-0 mt-0.5 p-1 rounded-full transition-colors ${
@@ -242,8 +293,8 @@ function ModeDropdown({ onSelect }) {
                     )}
                   </div>
 
-                  {/* Tooltip card — expands inline below the row */}
-                  {isTooltipOpen && tooltipData && (
+                  {/* Inline tooltip card */}
+                  {isTooltipOpen && tooltipData && !isProLocked && (
                     <div
                       className="mx-3 mb-2 rounded-lg border border-blue-100 bg-blue-50 p-3 text-xs animate-in fade-in duration-150"
                       onClick={(e) => e.stopPropagation()}
@@ -273,13 +324,26 @@ function ModeDropdown({ onSelect }) {
                     </div>
                   )}
 
-                  {/* Divider before Coming Soon section */}
+                  {/* Divider before coming-soon section */}
                   {mode.key === "mode_c" && (
                     <div className="border-t border-gray-100 my-1" />
                   )}
                 </div>
               );
             })}
+
+            {/* Upgrade CTA for basic users */}
+            {isBasicUser && (
+              <div className="m-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <p className="text-xs font-semibold text-orange-700 mb-1">🔒 Pro features locked</p>
+                <p className="text-xs text-orange-600 mb-2">Upgrade to Mealie Pro to unlock AI plans, clinical workflows and more.</p>
+                <a href={UPGRADE_URL} target="_blank" rel="noopener noreferrer">
+                  <Button size="sm" className="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs h-7">
+                    Upgrade to Mealie Pro
+                  </Button>
+                </a>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -288,11 +352,19 @@ function ModeDropdown({ onSelect }) {
 }
 
 // ── PlanCard ───────────────────────────────────────────────────────────────────
-function PlanCard({ plan, onView, onSetActive, onSaveTemplate, onDelete, allPlanIds, isPending }) {
+function PlanCard({ plan, onView, onSetActive, onSaveTemplate, onDelete, allPlanIds, isPending, isBasicUser }) {
   const typeLabel = getPlanTypeLabel(plan);
+  const isBasicPlan = typeLabel === "⚡ Basic";
   return (
     <Card className={`border shadow-sm bg-white hover:shadow-md transition-all ${plan.active ? "border-l-4 border-l-green-500" : "border-gray-200"}`}>
       <CardContent className="p-4">
+        {/* Basic plan disclaimer badge */}
+        {isBasicPlan && isBasicUser && (
+          <div className="flex items-center gap-1.5 mb-2 px-2 py-1 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <AlertTriangle className="w-3 h-3 text-yellow-600 shrink-0" />
+            <p className="text-xs text-yellow-700">⚠️ General plan — not for conditions</p>
+          </div>
+        )}
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -334,8 +406,26 @@ function PlanCard({ plan, onView, onSetActive, onSaveTemplate, onDelete, allPlan
   );
 }
 
+// ── Basic user locked overlay ──────────────────────────────────────────────────
+function BasicUserLockedOverlay() {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center px-6">
+      <div className="text-4xl mb-4">🔒</div>
+      <h3 className="text-lg font-bold text-gray-800 mb-2">Available in Mealie Pro</h3>
+      <p className="text-gray-500 text-sm max-w-sm mb-4">
+        Upgrade to Mealie Pro to access this feature.
+      </p>
+      <a href={UPGRADE_URL} target="_blank" rel="noopener noreferrer">
+        <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+          Upgrade to Mealie Pro
+        </Button>
+      </a>
+    </div>
+  );
+}
+
 // ── Main component ─────────────────────────────────────────────────────────────
-export default function MealPlansTab({ client, clinicalIntakes, mealPlans }) {
+export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBasicUser = false }) {
   const queryClient = useQueryClient();
   const clientId = client?.id;
 
@@ -363,22 +453,21 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans }) {
     subscription?.plan_name?.toLowerCase().includes('pro')
   );
 
-  // activeMode: null = list view, otherwise one of the mode keys
   const [activeMode, setActiveMode] = useState(null);
   const [viewingPlan, setViewingPlan] = useState(null);
-  const [showBasicForm, setShowBasicForm] = useState(false);
+  const [showBasicPlanForm, setShowBasicPlanForm] = useState(false);
+  const [showAIForm, setShowAIForm] = useState(false);
   const [showTemplateSelector, setShowTemplateSelector] = useState(null);
   const [savingTemplate, setSavingTemplate] = useState(null);
   const [showWorkflow, setShowWorkflow] = useState(false);
-
-  // Filter state for plan list
   const [filterType, setFilterType] = useState("all");
 
   const invalidatePlans = () => queryClient.invalidateQueries(["clientMealPlans", clientId]);
 
   const handlePlanSaved = (savedPlan) => {
     setShowWorkflow(false);
-    setShowBasicForm(false);
+    setShowBasicPlanForm(false);
+    setShowAIForm(false);
     setActiveMode(null);
     invalidatePlans();
     if (savedPlan) setTimeout(() => setViewingPlan(savedPlan), 500);
@@ -400,35 +489,43 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans }) {
   const allPlanIds = mealPlans.map(p => p.id);
 
   // ── Filter plans ──────────────────────────────────────────────────────────
-  const filteredPlans = mealPlans.filter(plan => {
+  // Basic users only see basic plans
+  const visiblePlans = isBasicUser
+    ? mealPlans.filter(p => getPlanTypeLabel(p) === "⚡ Basic")
+    : mealPlans;
+
+  const filteredPlans = visiblePlans.filter(plan => {
     if (filterType === "all") return true;
-    const label = getPlanTypeLabel(plan).toLowerCase();
-    if (filterType === "ai_generated") return label === "ai generated";
-    if (filterType === "ai_schedule") return label === "ai + schedule";
-    if (filterType === "my_own") return label === "my own plan";
-    if (filterType === "clinical") return label === "clinical plan";
-    if (filterType === "basic") return label === "basic plan";
+    const label = getPlanTypeLabel(plan);
+    if (filterType === "ai_generated") return label === "🤖 AI Generated";
+    if (filterType === "ai_schedule") return label === "📅 AI Schedule";
+    if (filterType === "my_own") return label === "✏️ My Own";
+    if (filterType === "clinical") return label === "🏥 Clinical";
+    if (filterType === "basic") return label === "⚡ Basic";
     return true;
   });
 
-  const FILTER_PILLS = [
-    { key: "all", label: "All" },
-    { key: "ai_generated", label: "AI Generated" },
-    { key: "ai_schedule", label: "AI + Schedule" },
-    { key: "my_own", label: "My Own" },
-    { key: "clinical", label: "Clinical" },
-    { key: "basic", label: "Basic" },
-  ];
+  // Basic users get simplified filter pills
+  const FILTER_PILLS = isBasicUser
+    ? [
+        { key: "all", label: "All" },
+        { key: "basic", label: "Basic Plans" },
+      ]
+    : [
+        { key: "all", label: "All" },
+        { key: "ai_generated", label: "AI Generated" },
+        { key: "ai_schedule", label: "AI + Schedule" },
+        { key: "my_own", label: "My Own" },
+        { key: "clinical", label: "Clinical" },
+        { key: "basic", label: "Basic" },
+      ];
 
   // ── Handle mode selection from dropdown ───────────────────────────────────
   const handleModeSelect = (modeKey) => {
-    if (modeKey === "ai_options") {
-      setShowBasicForm(true);
-    } else if (modeKey === "mode_b") {
-      setActiveMode("mode_b");
-    } else if (modeKey === "mode_c") {
-      setActiveMode("mode_c");
-    }
+    if (modeKey === "basic_plan") setShowBasicPlanForm(true);
+    else if (modeKey === "ai_options") setShowAIForm(true);
+    else if (modeKey === "mode_b") setActiveMode("mode_b");
+    else if (modeKey === "mode_c") setActiveMode("mode_c");
   };
 
   // ── Fullscreen mode views ─────────────────────────────────────────────────
@@ -443,11 +540,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans }) {
         </button>
         <ModeB_ChooseSchedule
           client={client}
-          onSaved={() => {
-            invalidatePlans();
-            setActiveMode(null);
-            toast.success("Options card sent to client!");
-          }}
+          onSaved={() => { invalidatePlans(); setActiveMode(null); toast.success("Options card sent to client!"); }}
         />
       </div>
     );
@@ -464,10 +557,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans }) {
         </button>
         <ModeC_BuildFromScratch
           client={client}
-          onSaved={() => {
-            invalidatePlans();
-            setActiveMode(null);
-          }}
+          onSaved={() => { invalidatePlans(); setActiveMode(null); }}
         />
       </div>
     );
@@ -481,14 +571,14 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans }) {
         <h3 className="font-semibold text-gray-800">
           Meal Plans
           {mealPlans.length > 0 && (
-            <span className="ml-2 text-xs text-gray-400 font-normal">({mealPlans.length})</span>
+            <span className="ml-2 text-xs text-gray-400 font-normal">({visiblePlans.length})</span>
           )}
         </h3>
-        <ModeDropdown onSelect={handleModeSelect} />
+        <ModeDropdown onSelect={handleModeSelect} isBasicUser={isBasicUser} />
       </div>
 
       {/* Filter pills */}
-      {mealPlans.length > 0 && (
+      {visiblePlans.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {FILTER_PILLS.map(pill => (
             <button
@@ -507,20 +597,16 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans }) {
       )}
 
       {/* Plan list */}
-      {mealPlans.length === 0 ? (
-        <Card className="border-dashed border-2 border-gray-200">
-          <CardContent className="p-10 text-center">
-            <ChefHat className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-            <p className="text-sm text-gray-500 mb-4">No meal plans yet.</p>
-            <ModeDropdown onSelect={handleModeSelect} />
-          </CardContent>
-        </Card>
+      {visiblePlans.length === 0 ? (
+        <div className="border-dashed border-2 border-gray-200 rounded-xl p-10 text-center">
+          <ChefHat className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+          <p className="text-sm text-gray-500 mb-4">No meal plans yet.</p>
+          <ModeDropdown onSelect={handleModeSelect} isBasicUser={isBasicUser} />
+        </div>
       ) : filteredPlans.length === 0 ? (
-        <Card className="border-dashed border-2 border-gray-100">
-          <CardContent className="p-8 text-center">
-            <p className="text-sm text-gray-400">No plans match this filter.</p>
-          </CardContent>
-        </Card>
+        <div className="border-dashed border-2 border-gray-100 rounded-xl p-8 text-center">
+          <p className="text-sm text-gray-400">No plans match this filter.</p>
+        </div>
       ) : (
         <div className="space-y-3">
           {filteredPlans.map(plan => (
@@ -533,27 +619,26 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans }) {
               onSaveTemplate={setSavingTemplate}
               onDelete={(id) => deletePlanMutation.mutate(id)}
               isPending={deletePlanMutation.isPending || setActivePlanMutation.isPending}
+              isBasicUser={isBasicUser}
             />
           ))}
 
-          {/* Pro Clinical Workflow CTA (if has pro access) */}
+          {/* Pro Clinical Workflow CTA (only for pro users) */}
           {hasProAccess && (
-            <Card className="border border-purple-200 shadow-sm bg-gradient-to-r from-purple-50 to-indigo-50">
-              <CardContent className="p-4 flex items-center justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-purple-800 text-sm">Generate a Clinical Pro Plan</p>
-                  <p className="text-xs text-purple-600">6-step workflow: Diagnostic → Filter → Review → Generate → Modify → Save</p>
-                </div>
-                <Button size="sm" className="bg-purple-600 hover:bg-purple-700 shrink-0" onClick={() => setShowWorkflow(true)}>
-                  <Sparkles className="w-3 h-3 mr-1" /> Clinical Workflow
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="border border-purple-200 rounded-xl bg-gradient-to-r from-purple-50 to-indigo-50 p-4 flex items-center justify-between gap-3">
+              <div>
+                <p className="font-semibold text-purple-800 text-sm">Generate a Clinical Pro Plan</p>
+                <p className="text-xs text-purple-600">6-step workflow: Diagnostic → Filter → Review → Generate → Modify → Save</p>
+              </div>
+              <Button size="sm" className="bg-purple-600 hover:bg-purple-700 shrink-0" onClick={() => setShowWorkflow(true)}>
+                <Sparkles className="w-3 h-3 mr-1" /> Clinical Workflow
+              </Button>
+            </div>
           )}
         </div>
       )}
 
-      {/* ── Clinical Workflow (fullscreen modal) ── */}
+      {/* ── Clinical Workflow ── */}
       <Dialog open={showWorkflow} onOpenChange={setShowWorkflow}>
         <DialogContent className="max-w-[98vw] w-full max-h-[96vh] overflow-y-auto">
           <DialogHeader>
@@ -571,15 +656,28 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans }) {
         </DialogContent>
       </Dialog>
 
-      {/* ── AI Generated Plan Dialog (Basic) ── */}
-      <Dialog open={showBasicForm} onOpenChange={setShowBasicForm}>
+      {/* ── Basic Plan Dialog ── */}
+      <Dialog open={showBasicPlanForm} onOpenChange={setShowBasicPlanForm}>
+        <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto p-0">
+          <AIMealPlanGenerator
+            client={client}
+            clinicalIntakes={[]}
+            inlineMode={true}
+            onClose={() => setShowBasicPlanForm(false)}
+            onPlanGenerated={() => { invalidatePlans(); setShowBasicPlanForm(false); }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* ── AI Generated Plan Dialog ── */}
+      <Dialog open={showAIForm} onOpenChange={setShowAIForm}>
         <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto p-0">
           <AIMealPlanGenerator
             client={client}
             clinicalIntakes={clinicalIntakes || []}
             inlineMode={true}
-            onClose={() => setShowBasicForm(false)}
-            onPlanGenerated={() => { invalidatePlans(); setShowBasicForm(false); }}
+            onClose={() => setShowAIForm(false)}
+            onPlanGenerated={() => { invalidatePlans(); setShowAIForm(false); }}
           />
         </DialogContent>
       </Dialog>

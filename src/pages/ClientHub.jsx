@@ -29,6 +29,9 @@ import AppointmentsTab from "@/components/clienthub/AppointmentsTab";
 import AnalyticsTab from "@/components/clienthub/AnalyticsTab";
 import AIInsightsTab from "@/components/clienthub/AIInsightsTab";
 
+const UPGRADE_WHATSAPP_NUMBER = "919911510377";
+const UPGRADE_URL = `https://wa.me/${UPGRADE_WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi, I want to upgrade my Mealie subscription to Mealie Pro")}`;
+
 function ProLockedTab() {
   const navigate = useNavigate();
   return (
@@ -41,6 +44,25 @@ function ProLockedTab() {
       <Button onClick={() => navigate(createPageUrl("CoachSubscriptions"))} className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
         <Crown className="w-4 h-4 mr-2" /> Upgrade to Pro
       </Button>
+    </div>
+  );
+}
+
+function BasicLockedTab({ featureName = "This feature" }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center px-6">
+      <div className="text-4xl mb-4">🔒</div>
+      <h3 className="text-lg font-bold text-gray-800 mb-2">{featureName}</h3>
+      <p className="text-gray-500 text-sm mb-1">Available in Mealie Pro</p>
+      <p className="text-gray-400 text-xs max-w-xs mb-2">
+        Clinical intake captures detailed medical history, lab values and disease-specific parameters for personalised clinical meal plans.
+      </p>
+      <p className="text-gray-400 text-xs max-w-xs mb-6">Basic Plan uses profile data only.</p>
+      <a href={UPGRADE_URL} target="_blank" rel="noopener noreferrer">
+        <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+          Upgrade to Mealie Pro
+        </Button>
+      </a>
     </div>
   );
 }
@@ -134,6 +156,9 @@ export default function ClientHub() {
     initialData: [],
   });
 
+  const UPGRADE_WHATSAPP_NUMBER = "919911510377";
+  const UPGRADE_URL = `https://wa.me/${UPGRADE_WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi, I want to upgrade my Mealie subscription to Mealie Pro")}`;
+
   const { data: coachSubscription } = useQuery({
     queryKey: ["coachSubscription", user?.email],
     queryFn: async () => {
@@ -144,6 +169,8 @@ export default function ClientHub() {
       return subs[0] || null;
     },
     enabled: !!user && user?.user_type === "student_coach",
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: coachPlan } = useQuery({
@@ -180,6 +207,12 @@ export default function ClientHub() {
   const hasProAccess =
     user?.user_type === "super_admin" ||
     (user?.user_type === "student_coach" && coachSubscription && coachPlan?.can_access_pro_plans);
+
+  // Mealie Basic users: active subscription with plan_name containing "basic"
+  const isBasicUser = !hasProAccess && !!(
+    coachSubscription?.status === "active" &&
+    coachSubscription?.plan_name?.toLowerCase().includes("basic")
+  );
 
   // Sort by created_date descending, prefer is_latest:true
   const sortedIntakes = [...(clinicalIntakes || [])].sort(
@@ -360,11 +393,11 @@ export default function ClientHub() {
             </TabsTrigger>
             <TabsTrigger value="intake" className="flex items-center gap-1 text-xs sm:text-sm">
               <Stethoscope className="w-3 h-3 sm:w-4 sm:h-4" /> Clinical Intake
-              {!hasProAccess && <Lock className="w-3 h-3 ml-1 text-gray-400" />}
+              {(!hasProAccess || isBasicUser) && <Lock className="w-3 h-3 ml-1 text-gray-400" />}
             </TabsTrigger>
             <TabsTrigger value="diagnostic" className="flex items-center gap-1 text-xs sm:text-sm">
               <Stethoscope className="w-3 h-3 sm:w-4 sm:h-4" /> 🔬 Diagnostic
-              {!hasProAccess ? <Lock className="w-3 h-3 ml-1 text-gray-400" /> : latestIntake?.diagnostic_notes && <Badge className="ml-1 bg-green-500 text-white text-xs px-1">✓</Badge>}
+              {(!hasProAccess || isBasicUser) ? <Lock className="w-3 h-3 ml-1 text-gray-400" /> : latestIntake?.diagnostic_notes && <Badge className="ml-1 bg-green-500 text-white text-xs px-1">✓</Badge>}
             </TabsTrigger>
             <TabsTrigger value="plans" className="flex items-center gap-1 text-xs sm:text-sm">
               <ChefHat className="w-3 h-3 sm:w-4 sm:h-4" /> Meal Plans
@@ -380,21 +413,21 @@ export default function ClientHub() {
             </TabsTrigger>
             <TabsTrigger value="mpess" className="flex items-center gap-1 text-xs sm:text-sm">
               <Heart className="w-3 h-3 sm:w-4 sm:h-4" /> MPESS
-              {!hasProAccess ? <Lock className="w-3 h-3 ml-1 text-gray-400" /> : mpessLogs.length > 0 && <Badge className="ml-1 bg-pink-500 text-white text-xs px-1">{mpessLogs.length}</Badge>}
+              {(!hasProAccess || isBasicUser) ? <Lock className="w-3 h-3 ml-1 text-gray-400" /> : mpessLogs.length > 0 && <Badge className="ml-1 bg-pink-500 text-white text-xs px-1">{mpessLogs.length}</Badge>}
             </TabsTrigger>
             <TabsTrigger value="assessments" className="flex items-center gap-1 text-xs sm:text-sm">
               <ClipboardList className="w-3 h-3 sm:w-4 sm:h-4" /> Assessments
-              {!hasProAccess && <Lock className="w-3 h-3 ml-1 text-gray-400" />}
             </TabsTrigger>
             <TabsTrigger value="appointments" className="flex items-center gap-1 text-xs sm:text-sm">
               <Calendar className="w-3 h-3 sm:w-4 sm:h-4" /> Appointments
             </TabsTrigger>
             <TabsTrigger value="analytics" className="flex items-center gap-1 text-xs sm:text-sm">
               <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" /> Analytics
+              {isBasicUser && <Lock className="w-3 h-3 ml-1 text-gray-400" />}
             </TabsTrigger>
             <TabsTrigger value="ai_insights" className="flex items-center gap-1 text-xs sm:text-sm">
               <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" /> AI Insights
-              {!hasProAccess && <Lock className="w-3 h-3 ml-1 text-gray-400" />}
+              {(!hasProAccess || isBasicUser) && <Lock className="w-3 h-3 ml-1 text-gray-400" />}
             </TabsTrigger>
           </TabsList>
 
@@ -603,7 +636,7 @@ export default function ClientHub() {
 
           {/* CLINICAL INTAKE TAB */}
           <TabsContent value="intake" className="space-y-4">
-            {!hasProAccess ? <ProLockedTab /> : <div className="space-y-4">
+            {isBasicUser ? <BasicLockedTab featureName="Clinical Intake" /> : !hasProAccess ? <ProLockedTab /> : <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-900">Clinical Intake History</h2>
               <Button onClick={() => setShowNewIntakeForm(true)} className="bg-purple-500 hover:bg-purple-600">
@@ -704,7 +737,7 @@ export default function ClientHub() {
 
           {/* DIAGNOSTIC TAB */}
           <TabsContent value="diagnostic" className="space-y-4">
-            {!hasProAccess ? <ProLockedTab /> : <DiagnosticTab
+            {isBasicUser ? <BasicLockedTab featureName="Diagnostic" /> : !hasProAccess ? <ProLockedTab /> : <DiagnosticTab
               clientId={clientId}
               clinicalIntakes={clinicalIntakes}
               intakeCompleted={!!latestIntake?.completed}
@@ -718,6 +751,7 @@ export default function ClientHub() {
               clinicalIntakes={clinicalIntakes}
               mealPlans={mealPlans}
               hasProAccess={hasProAccess}
+              isBasicUser={isBasicUser}
             />
           </TabsContent>
 
@@ -728,12 +762,12 @@ export default function ClientHub() {
 
           {/* MPESS TRACKER TAB */}
           <TabsContent value="mpess">
-            {!hasProAccess ? <ProLockedTab /> : <MPESSTab clientId={clientId} />}
+            {isBasicUser ? <BasicLockedTab featureName="MPESS Wellness Tracking" /> : !hasProAccess ? <ProLockedTab /> : <MPESSTab clientId={clientId} />}
           </TabsContent>
 
           {/* ASSESSMENTS TAB */}
           <TabsContent value="assessments">
-            {!hasProAccess ? <ProLockedTab /> : <AssessmentsTab clientId={clientId} client={client} />}
+            <AssessmentsTab clientId={clientId} client={client} />
           </TabsContent>
 
           {/* APPOINTMENTS TAB */}
@@ -743,12 +777,12 @@ export default function ClientHub() {
 
           {/* ANALYTICS TAB */}
           <TabsContent value="analytics">
-            <AnalyticsTab clientId={clientId} client={client} />
+            {isBasicUser ? <BasicLockedTab featureName="Analytics" /> : <AnalyticsTab clientId={clientId} client={client} />}
           </TabsContent>
 
           {/* AI INSIGHTS TAB */}
           <TabsContent value="ai_insights">
-            {!hasProAccess ? <ProLockedTab /> : <AIInsightsTab clientId={clientId} client={client} />}
+            {isBasicUser ? <BasicLockedTab featureName="AI Insights" /> : !hasProAccess ? <ProLockedTab /> : <AIInsightsTab clientId={clientId} client={client} />}
           </TabsContent>
         </Tabs>
       </div>
