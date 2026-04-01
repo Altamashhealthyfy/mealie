@@ -1,0 +1,268 @@
+{
+  "name": "ClinicalIntake",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "Reference to Client entity"
+    },
+    "intake_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "is_latest": {
+      "type": "boolean",
+      "default": false,
+      "description": "True for the most recent intake record for this client \u2014 only ONE per client should be true"
+    },
+    "coach_id": {
+      "type": "string",
+      "description": "Email of the coach who recorded this intake"
+    },
+    "created_at_ist": {
+      "type": "string",
+      "description": "IST timestamp when this intake was created (Asia/Kolkata)"
+    },
+    "basic_info": {
+      "type": "object",
+      "properties": {
+        "age": {
+          "type": "number"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "height": {
+          "type": "number"
+        },
+        "weight": {
+          "type": "number"
+        },
+        "bmi": {
+          "type": "number"
+        },
+        "activity_level": {
+          "type": "string"
+        }
+      }
+    },
+    "health_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Diabetes, Thyroid, Liver, Kidney, Heart, Hormonal, Hypertension, Others"
+    },
+    "stage_severity": {
+      "type": "string"
+    },
+    "current_medications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "dosage": {
+            "type": "string"
+          },
+          "frequency": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "lab_values": {
+      "type": "object",
+      "properties": {
+        "tsh": {
+          "type": "number"
+        },
+        "hba1c": {
+          "type": "number"
+        },
+        "total_cholesterol": {
+          "type": "number"
+        },
+        "ldl": {
+          "type": "number"
+        },
+        "hdl": {
+          "type": "number"
+        },
+        "triglycerides": {
+          "type": "number"
+        },
+        "sgot": {
+          "type": "number"
+        },
+        "sgpt": {
+          "type": "number"
+        },
+        "creatinine": {
+          "type": "number"
+        },
+        "vitamin_d": {
+          "type": "number"
+        },
+        "vitamin_b12": {
+          "type": "number"
+        }
+      }
+    },
+    "diet_type": {
+      "type": "string",
+      "enum": [
+        "Veg",
+        "Non-Veg",
+        "Vegan",
+        "Jain",
+        "Eggetarian"
+      ]
+    },
+    "non_veg_frequency_per_10_days": {
+      "type": "number",
+      "description": "How many times in 10 days client wants non-veg meals (0-10)"
+    },
+    "non_veg_preferred_meals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Preferred meal times for non-veg: breakfast, lunch, dinner, evening_snack"
+    },
+    "egg_frequency_per_10_days": {
+      "type": "number",
+      "description": "How many times in 10 days client wants egg-based meals (0-10)"
+    },
+    "egg_preferred_meals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Preferred meal times for eggs: breakfast, lunch, dinner, evening_snack"
+    },
+    "likes_dislikes_allergies": {
+      "type": "object",
+      "properties": {
+        "likes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dislikes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allergies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "no_go_foods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "daily_routine": {
+      "type": "object",
+      "properties": {
+        "wake_up": {
+          "type": "string"
+        },
+        "breakfast_time": {
+          "type": "string"
+        },
+        "lunch_time": {
+          "type": "string"
+        },
+        "dinner_time": {
+          "type": "string"
+        },
+        "sleep_time": {
+          "type": "string"
+        }
+      }
+    },
+    "cooking_style": {
+      "type": "object",
+      "properties": {
+        "oil_used": {
+          "type": "string"
+        },
+        "millet_availability": {
+          "type": "boolean"
+        }
+      }
+    },
+    "goal": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "weight_loss",
+          "maintenance",
+          "energy",
+          "symptom_relief",
+          "disease_reversal",
+          "muscle_gain",
+          "health_improvement"
+        ]
+      },
+      "description": "Primary health goals"
+    },
+    "symptom_goals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mpess_preferences": {
+      "type": "object",
+      "properties": {
+        "mind": {
+          "type": "boolean"
+        },
+        "physical": {
+          "type": "boolean"
+        },
+        "emotional": {
+          "type": "boolean"
+        },
+        "social": {
+          "type": "boolean"
+        },
+        "spiritual": {
+          "type": "boolean"
+        }
+      }
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false
+    },
+    "diagnostic_notes": {
+      "type": "string",
+      "description": "Auto-generated diagnostic summary used for meal plan generation"
+    },
+    "dietitian_remarks": {
+      "type": "string",
+      "description": "Dietitian's custom remarks and rules added during diagnostic review"
+    }
+  },
+  "required": [
+    "client_id",
+    "intake_date",
+    "health_conditions",
+    "diet_type",
+    "goal"
+  ]
+}

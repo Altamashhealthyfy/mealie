@@ -31,10 +31,11 @@ Deno.serve(async (req) => {
       base44.asServiceRole.entities.Client.filter({ id: clientId }),
       clinicalIntakeId
         ? base44.asServiceRole.entities.ClinicalIntake.filter({ id: clinicalIntakeId })
-        : base44.asServiceRole.entities.ClinicalIntake.filter({ client_id: clientId }),
+        : base44.asServiceRole.entities.ClinicalIntake.filter({ client_id: clientId, is_latest: true }),
     ]);
     const client = clientArr[0];
     if (!client) return Response.json({ error: 'Client not found' }, { status: 404 });
+    // Use is_latest record; fall back to most recent by date if none flagged
     const intake = intakeArr?.sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0] || null;
 
     // ─── STEP 2: Resolve plan parameters ───

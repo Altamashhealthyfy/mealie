@@ -22,9 +22,11 @@ Deno.serve(async (req) => {
     const resolvedDiet = (client.food_preference || 'veg').toLowerCase().replace(/[\s-]/g, '_');
     const targetCal = parseInt(client.target_calories || 1500);
 
-    // ── Read clinical intake for conditions/allergies ──
-    const intakes = await ClinicalIntake.filter({ client_id: clientId });
-    const intake = intakes[0] || null;
+    // ── Read clinical intake for conditions/allergies — use is_latest:true ──
+    const intakes = await ClinicalIntake.filter({ client_id: clientId, is_latest: true });
+    // Fallback: if no is_latest record, get most recent
+    const intake = intakes[0] || (await ClinicalIntake.filter({ client_id: clientId })
+      .then(all => all.sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0])) || null;
     const conditions = intake?.health_conditions || [];
     const allergies  = intake?.likes_dislikes_allergies?.allergies || [];
     const dislikes   = intake?.likes_dislikes_allergies?.dislikes  || [];

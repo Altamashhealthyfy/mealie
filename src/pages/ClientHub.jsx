@@ -85,9 +85,11 @@ export default function ClientHub() {
 
   const { data: clinicalIntakes } = useQuery({
     queryKey: ["clientClinicalIntakes", clientId],
-    queryFn: () => base44.entities.ClinicalIntake.filter({ client_id: clientId }),
+    queryFn: () => base44.entities.ClinicalIntake.filter({ client_id: clientId }, "-created_date", 50),
     enabled: !!clientId,
     initialData: [],
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 
   const { data: progressLogs } = useQuery({
@@ -179,7 +181,11 @@ export default function ClientHub() {
     user?.user_type === "super_admin" ||
     (user?.user_type === "student_coach" && coachSubscription && coachPlan?.can_access_pro_plans);
 
-  const latestIntake = clinicalIntakes?.[0];
+  // Sort by created_date descending, prefer is_latest:true
+  const sortedIntakes = [...(clinicalIntakes || [])].sort(
+    (a, b) => new Date(b.created_date || b.intake_date) - new Date(a.created_date || a.intake_date)
+  );
+  const latestIntake = sortedIntakes.find(i => i.is_latest) || sortedIntakes[0];
   const hasCompletedIntake = latestIntake?.completed;
   const activePlan = mealPlans.find((p) => p.active);
   const latestProgress = progressLogs[0];
@@ -600,16 +606,12 @@ export default function ClientHub() {
             {!hasProAccess ? <ProLockedTab /> : <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-900">Clinical Intake History</h2>
-              <Button
-                onClick={() => setShowNewIntakeForm(true)}
-                className="bg-purple-500 hover:bg-purple-600"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                {hasCompletedIntake ? "Update New Intake" : "Fill Intake Form"}
+              <Button onClick={() => setShowNewIntakeForm(true)} className="bg-purple-500 hover:bg-purple-600">
+                <Plus className="w-4 h-4 mr-2" /> + New Intake
               </Button>
             </div>
 
-            {clinicalIntakes.length === 0 ? (
+            {sortedIntakes.length === 0 ? (
               <Card className="border-none shadow-lg">
                 <CardContent className="p-12 text-center">
                   <Stethoscope className="w-16 h-16 mx-auto text-gray-300 mb-4" />
@@ -621,87 +623,80 @@ export default function ClientHub() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="space-y-4">
-                {/* Sort descending by intake_date */}
-                {[...clinicalIntakes]
-                  .sort((a, b) => new Date(b.intake_date || b.created_date) - new Date(a.intake_date || a.created_date))
-                  .map((intake, index) => (
-                  <Card key={intake.id} className={`border-none shadow-lg ${index === 0 ? "border-l-4 border-l-purple-500" : ""}`}>
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <CardTitle className="text-base">
-                            {`Client Intake ${[...clinicalIntakes].sort((a, b) => new Date(b.intake_date || b.created_date) - new Date(a.intake_date || a.created_date)).length - index}`}
-                          </CardTitle>
-                          {intake.completed && (
-                            <Badge className="bg-green-100 text-green-700 text-xs">
-                              <CheckCircle className="w-3 h-3 mr-1" /> Completed
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-400">
-                            {intake.intake_date ? format(new Date(intake.intake_date), "MMM d, yyyy") : "—"}
-                          </span>
-                          <Button size="sm" variant="outline" onClick={() => setViewingIntake(intake)}>
-                            <Eye className="w-3 h-3 mr-1" /> View
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => setEditingIntake(intake)}>
-                            <Edit className="w-3 h-3 mr-1" /> Edit
-                          </Button>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <p className="font-medium text-gray-700 mb-1">Health Conditions</p>
-                          <div className="flex flex-wrap gap-1">
-                            {intake.health_conditions?.length > 0
-                              ? intake.health_conditions.map((c) => (
-                                  <Badge key={c} className="bg-red-100 text-red-700 text-xs">{c}</Badge>
-                                ))
-                              : <span className="text-gray-400">None specified</span>}
+              <div className="space-y-3">
+                {sortedIntakes.map((intake) => {
+                  const isLatest = intake.is_latest || intake.id === latestIntake?.id;
+                  return (
+                    <Card
+                      key={intake.id}
+                      className={`shadow-lg border-none ${isLatest ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-gray-200'}`}
+                    >
+                      <CardHeader className="pb-2 pt-3 px-4">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-semibold text-gray-800">
+                              📋 Intake — {intake.created_at_ist || (intake.intake_date ? format(new Date(intake.intake_date), "dd MMM yyyy") : "—")}
+                            </span>
+                            {isLatest ? (
+                              <Badge className="bg-green-500 text-white text-xs">
+                                <CheckCircle className="w-3 h-3 mr-1" /> LATEST — Used for plan generation ✓
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-gray-500 text-xs">Previous</Badge>
+                            )}
                           </div>
+                          <Button size="sm" variant="outline" onClick={() => setViewingIntake(intake)}>
+                            <Eye className="w-3 h-3 mr-1" /> View Full
+                          </Button>
                         </div>
-                        <div>
-                          <p className="font-medium text-gray-700 mb-1">Medications</p>
-                          {intake.current_medications?.length > 0 ? (
-                            <ul className="space-y-1">
-                              {intake.current_medications.slice(0, 3).map((med, i) => (
-                                <li key={i} className="text-xs text-gray-600">
-                                  {med.name} {med.dosage && `(${med.dosage})`}
-                                </li>
-                              ))}
-                              {intake.current_medications.length > 3 && (
-                                <li className="text-xs text-gray-400">+{intake.current_medications.length - 3} more</li>
-                              )}
-                            </ul>
-                          ) : (
-                            <span className="text-gray-400 text-xs">None listed</span>
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-700 mb-1">Key Lab Values</p>
-                          {intake.lab_values && Object.keys(intake.lab_values).length > 0 ? (
-                            <div className="space-y-0.5">
-                              {Object.entries(intake.lab_values)
-                                .filter(([, v]) => v !== "" && v !== null && v !== undefined)
-                                .slice(0, 5)
-                                .map(([key, val]) => (
-                                  <p key={key} className="text-xs text-gray-600">
-                                    <span className="font-medium uppercase">{key}:</span> {val}
-                                  </p>
-                                ))}
+                      </CardHeader>
+                      {isLatest && (
+                        <CardContent className="px-4 pb-3 pt-0">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                            <div>
+                              <p className="font-medium text-gray-600 text-xs mb-1">Conditions</p>
+                              <div className="flex flex-wrap gap-1">
+                                {intake.health_conditions?.length > 0
+                                  ? intake.health_conditions.map((c) => (
+                                      <Badge key={c} className="bg-red-100 text-red-700 text-xs">{c}</Badge>
+                                    ))
+                                  : <span className="text-gray-400 text-xs">None</span>}
+                              </div>
                             </div>
-                          ) : (
-                            <span className="text-gray-400 text-xs">None entered</span>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                            <div>
+                              <p className="font-medium text-gray-600 text-xs mb-1">Medications</p>
+                              {intake.current_medications?.length > 0 ? (
+                                <div className="space-y-0.5">
+                                  {intake.current_medications.slice(0, 2).map((med, i) => (
+                                    <p key={i} className="text-xs text-gray-600">{med.name} {med.dosage && `(${med.dosage})`}</p>
+                                  ))}
+                                  {intake.current_medications.length > 2 && (
+                                    <p className="text-xs text-gray-400">+{intake.current_medications.length - 2} more</p>
+                                  )}
+                                </div>
+                              ) : <span className="text-gray-400 text-xs">None</span>}
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-600 text-xs mb-1">Key Labs</p>
+                              {intake.lab_values && Object.entries(intake.lab_values).filter(([, v]) => v !== "" && v !== null && v !== undefined).length > 0 ? (
+                                <div className="space-y-0.5">
+                                  {Object.entries(intake.lab_values)
+                                    .filter(([, v]) => v !== "" && v !== null && v !== undefined)
+                                    .slice(0, 4)
+                                    .map(([key, val]) => (
+                                      <p key={key} className="text-xs text-gray-600">
+                                        <span className="font-medium uppercase">{key}:</span> {val}
+                                      </p>
+                                    ))}
+                                </div>
+                              ) : <span className="text-gray-400 text-xs">None entered</span>}
+                            </div>
+                          </div>
+                        </CardContent>
+                      )}
+                    </Card>
+                  );
+                })}
               </div>
             )}
             </div>}
@@ -797,9 +792,9 @@ export default function ClientHub() {
           </DialogHeader>
           <InlineClinicalIntakeForm
             clientId={clientId}
-            prefillData={clinicalIntakes?.[0] ? (() => {
-              // Strip id/created_date/updated_date so this ALWAYS creates a new record
-              const { id, created_date, updated_date, ...rest } = clinicalIntakes[0];
+            prefillData={latestIntake ? (() => {
+              // Prefill from latest — strip DB-specific fields so a new record is always created
+              const { id, created_date, updated_date, is_latest, created_at_ist, coach_id, diagnostic_notes, dietitian_remarks, ...rest } = latestIntake;
               return { ...rest, intake_date: new Date().toISOString().split('T')[0] };
             })() : {
               basic_info: {
@@ -816,7 +811,7 @@ export default function ClientHub() {
             isViewOnly={false}
             onSuccess={() => {
               setShowNewIntakeForm(false);
-              queryClient.invalidateQueries(["clientClinicalIntakes", clientId]);
+              queryClient.invalidateQueries({ queryKey: ["clientClinicalIntakes", clientId] });
             }}
             onCancel={() => setShowNewIntakeForm(false)}
           />

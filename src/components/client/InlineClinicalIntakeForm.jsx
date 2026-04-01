@@ -137,10 +137,25 @@ export default function InlineClinicalIntakeForm({ clientId, prefillData, isView
 
 
 
+  // IST timestamp helper
+  const getISTTimestamp = () => {
+    const now = new Date();
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const ist = new Date(now.getTime() + istOffset);
+    const pad = (n) => String(n).padStart(2, '0');
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    let h = ist.getUTCHours();
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return `${pad(ist.getUTCDate())} ${months[ist.getUTCMonth()]} ${ist.getUTCFullYear()}, ${pad(h)}:${pad(ist.getUTCMinutes())} ${ampm} IST`;
+  };
+
   const buildFinalData = () => ({
     ...formData,
     client_id: clientId,
-    intake_date: prefillData?.id ? (formData.intake_date || format(new Date(), 'yyyy-MM-dd')) : format(new Date(), 'yyyy-MM-dd'),
+    intake_date: format(new Date(), 'yyyy-MM-dd'),
+    is_latest: true,
+    created_at_ist: getISTTimestamp(),
     basic_info: {
       ...formData.basic_info,
       age: parseFloat(formData.basic_info.age) || 0,
@@ -173,25 +188,35 @@ export default function InlineClinicalIntakeForm({ clientId, prefillData, isView
 
     setSaving(true);
     try {
-      let saved;
-      if (prefillData?.id) {
-        saved = await base44.entities.ClinicalIntake.update(prefillData.id, buildFinalData());
-        queryClient.invalidateQueries(['clientClinicalIntakes', clientId]);
-        toast.success('✅ Clinical intake updated! Re-generating diagnostic...');
-      } else {
-        saved = await base44.entities.ClinicalIntake.create(buildFinalData());
-        queryClient.invalidateQueries(['clientClinicalIntakes', clientId]);
-        toast.success('✅ Clinical intake saved! Generating diagnostic...');
-      }
+      // Step 1: Mark ALL existing intakes for this client as is_latest: false
+      const existingIntakes = await base44.entities.ClinicalIntake.filter({ client_id: clientId });
+      await Promise.all(
+        existingIntakes
+          .filter(i => i.is_latest)
+          .map(i => base44.entities.ClinicalIntake.update(i.id, { is_latest: false }))
+      );
+
+      // Step 2: Always CREATE a new record
+      const saved = await base44.entities.ClinicalIntake.create(buildFinalData());
+
+      // Step 3: Invalidate both query keys
+      queryClient.invalidateQueries({ queryKey: ['clientClinicalIntakes', clientId] });
+      queryClient.invalidateQueries({ queryKey: ['clinicalIntake'] });
+
+      const istStr = getISTTimestamp();
+      toast.success(`✅ Intake saved — ${istStr}`);
+
+      // Step 4: Generate diagnostic
       if (saved?.id) {
         try {
           await base44.functions.invoke('generateDiagnostic', { clinicalIntakeId: saved.id });
-          queryClient.invalidateQueries(['diagnostic', clientId, saved.id]);
+          queryClient.invalidateQueries({ queryKey: ['diagnostic', clientId, saved.id] });
           toast.success('✅ Diagnostic generated from Knowledge Base!');
         } catch {
           toast.error('Intake saved but diagnostic generation failed. Retry from the Diagnostic tab.');
         }
       }
+
       onSuccess?.();
     } catch (err) {
       toast.error('Failed to save. Please try again.');
@@ -624,7 +649,7 @@ export default function InlineClinicalIntakeForm({ clientId, prefillData, isView
           </Button>
           <Button type="submit" disabled={saving}
             className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
-            {saving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</> : <><CheckCircle className="w-4 h-4 mr-2" /> {prefillData?.id ? 'Update Intake' : 'Save New Intake'}</>}
+            {saving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</> : <><CheckCircle className="w-4 h-4 mr-2" /> Save New Intake</>}
           </Button>
         </div>
       )}
