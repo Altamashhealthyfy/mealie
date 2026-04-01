@@ -797,12 +797,11 @@ export default function ClientHub() {
           </DialogHeader>
           <InlineClinicalIntakeForm
             clientId={clientId}
-            prefillData={clinicalIntakes?.[0] ? {
-              // Strip the id so this ALWAYS creates a new record (prefill data only, not update)
-              ...clinicalIntakes[0],
-              id: undefined,
-              intake_date: new Date().toISOString().split('T')[0],
-            } : {
+            prefillData={clinicalIntakes?.[0] ? (() => {
+              // Strip id/created_date/updated_date so this ALWAYS creates a new record
+              const { id, created_date, updated_date, ...rest } = clinicalIntakes[0];
+              return { ...rest, intake_date: new Date().toISOString().split('T')[0] };
+            })() : {
               basic_info: {
                 age: client?.age || '',
                 gender: client?.gender || '',
