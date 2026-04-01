@@ -516,46 +516,52 @@ function ClientManagementInner() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
-          {filteredAndSortedClients.map((client) => {
+        <div className="bg-white rounded-xl shadow overflow-hidden">
+          {filteredAndSortedClients.map((client, index) => {
             const isSelected = selectedClients.includes(client.id);
             const clientPlans = mealPlans.filter(p => p.client_id === client.id);
             const activePlan = clientPlans.find(p => p.active);
             return (
-              <Card key={client.id} className={`border-2 shadow-lg bg-white/80 backdrop-blur hover:shadow-xl transition-all ${isSelected ? 'border-orange-500 bg-orange-50/50' : 'border-transparent'}`}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2 md:gap-3 min-w-0">
-                      <Button variant="ghost" size="sm" onClick={() => toggleClientSelection(client.id)} className="p-1 h-auto">
-                        {isSelected ? <CheckSquare className="w-5 h-5 text-orange-600" /> : <Square className="w-5 h-5 text-gray-400" />}
-                      </Button>
-                      {client.profile_photo_url ? (
-                        <img src={client.profile_photo_url} alt={client.full_name} className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover border-2 border-orange-500" />
-                      ) : (
-                        <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center shrink-0">
-                          <span className="text-white font-medium text-base md:text-lg">{(client.full_name || 'C').charAt(0).toUpperCase()}</span>
-                        </div>
-                      )}
-                      <div className="min-w-0">
-                        <CardTitle className="text-base md:text-lg truncate">{client.full_name || 'No Name'}</CardTitle>
-                        <p className="text-xs md:text-sm text-gray-600 truncate">{client.email}</p>
-                      </div>
-                    </div>
+              <div key={client.id} className={`flex items-center gap-3 px-4 py-3 border-b last:border-b-0 hover:bg-gray-50 transition-colors ${isSelected ? 'bg-orange-50 border-l-4 border-l-orange-500' : 'border-l-4 border-l-transparent'}`}>
+                {/* Checkbox */}
+                <Button variant="ghost" size="sm" onClick={() => toggleClientSelection(client.id)} className="p-1 h-auto shrink-0">
+                  {isSelected ? <CheckSquare className="w-4 h-4 text-orange-600" /> : <Square className="w-4 h-4 text-gray-400" />}
+                </Button>
+
+                {/* Avatar */}
+                {client.profile_photo_url ? (
+                  <img src={client.profile_photo_url} alt={client.full_name} className="w-10 h-10 rounded-full object-cover border-2 border-orange-400 shrink-0" />
+                ) : (
+                  <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center shrink-0">
+                    <span className="text-white font-bold text-sm">{(client.full_name || 'C').charAt(0).toUpperCase()}</span>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-3 md:space-y-4">
-                  <div className="flex flex-wrap gap-1 md:gap-2">
-                    <Badge className={`text-xs ${client.status === 'active' ? 'bg-green-100 text-green-700' : client.status === 'inactive' ? 'bg-gray-100 text-gray-700' : 'bg-blue-100 text-blue-700'}`}>{client.status}</Badge>
-                    {client.food_preference && <Badge className="bg-blue-100 text-blue-700 capitalize text-xs">{client.food_preference?.replace('_', ' ')}</Badge>}
-                    {activePlan && <Badge className="bg-purple-100 text-purple-700 text-xs"><CheckCircle2 className="w-3 h-3 mr-1" />Has Active Plan</Badge>}
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 md:gap-4 text-xs md:text-sm">
-                    {client.goal && <div><p className="text-gray-600">Goal</p><p className="font-semibold capitalize truncate">{client.goal?.replace('_', ' ')}</p></div>}
-                    {client.target_calories && <div><p className="text-gray-600">Calories</p><p className="font-semibold">{client.target_calories} kcal</p></div>}
-                  </div>
-                  <ClientHubButton clientId={client.id} className="w-full mb-2" />
-                </CardContent>
-              </Card>
+                )}
+
+                {/* Name + Email */}
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-900 truncate text-sm">{client.full_name || 'No Name'}</p>
+                  <p className="text-xs text-gray-500 truncate">{client.email}</p>
+                  {client.phone && <p className="text-xs text-gray-400 truncate">{client.phone}</p>}
+                </div>
+
+                {/* Badges */}
+                <div className="hidden sm:flex flex-wrap gap-1 shrink-0">
+                  <Badge className={`text-xs ${client.status === 'active' ? 'bg-green-100 text-green-700' : client.status === 'inactive' ? 'bg-gray-100 text-gray-700' : 'bg-blue-100 text-blue-700'}`}>{client.status}</Badge>
+                  {client.food_preference && <Badge className="bg-blue-100 text-blue-700 capitalize text-xs hidden md:inline-flex">{client.food_preference?.replace('_', ' ')}</Badge>}
+                  {activePlan && <Badge className="bg-purple-100 text-purple-700 text-xs hidden lg:inline-flex"><CheckCircle2 className="w-3 h-3 mr-1" />Active Plan</Badge>}
+                </div>
+
+                {/* Goal + Calories */}
+                <div className="hidden lg:flex flex-col items-end text-xs text-gray-500 shrink-0 w-28">
+                  {client.goal && <span className="capitalize truncate">{client.goal?.replace(/_/g, ' ')}</span>}
+                  {client.target_calories && <span className="font-semibold text-gray-700">{client.target_calories} kcal</span>}
+                </div>
+
+                {/* Action */}
+                <div className="shrink-0">
+                  <ClientHubButton clientId={client.id} />
+                </div>
+              </div>
             );
           })}
         </div>
