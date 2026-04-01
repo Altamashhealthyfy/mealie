@@ -554,29 +554,6 @@ function ClientManagementInner() {
                     {client.target_calories && <div><p className="text-gray-600">Calories</p><p className="font-semibold">{client.target_calories} kcal</p></div>}
                   </div>
                   <ClientHubButton clientId={client.id} className="w-full mb-2" />
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button variant="outline" size="sm" onClick={() => { setSelectedClientForProgress(client); setShowProgressDashboard(true); }} className="col-span-2 text-purple-600 hover:bg-purple-50 h-9 md:h-auto text-xs md:text-sm font-semibold" title="View Progress Dashboard"><TrendingUp className="w-3 h-3 md:w-4 md:h-4 mr-1" />Progress Dashboard</Button>
-                    <Button variant="outline" size="sm" onClick={() => navigate(`${createPageUrl("Communication")}?client=${client.id}`)} className="text-orange-600 hover:bg-orange-50 h-9 md:h-auto text-xs md:text-sm font-semibold" title="Open Messages"><MessageSquare className="w-3 h-3 md:w-4 md:h-4 mr-1" />Message</Button>
-                    <Button variant="outline" size="sm" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setClientForVideoCall(client); setShowVideoScheduler(true); }} className="text-green-600 hover:bg-green-50 border-green-200 h-9 md:h-auto text-xs md:text-sm" title="Schedule Video Call"><CalendarClock className="w-3 h-3 md:w-4 md:h-4" /></Button>
-                    <Button variant="outline" size="sm" onClick={() => handleOpenEmail(client)} className="text-blue-600 hover:bg-blue-50 h-9 md:h-auto text-xs md:text-sm" title="Send Email"><Mail className="w-3 h-3 md:w-4 md:h-4" /></Button>
-                  </div>
-                  <div className="grid grid-cols-3 gap-1">
-                    <Button variant="outline" size="sm" onClick={() => setViewingClient(client)} className="text-gray-600 hover:bg-gray-50 text-xs" title="View Details"><Eye className="w-3 h-3 mr-1" />View</Button>
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(client)} className="text-orange-600 hover:bg-orange-50 text-xs" title="Edit"><Edit className="w-3 h-3 mr-1" />Edit</Button>
-                    <Button variant="outline" size="sm" onClick={() => { setClientForQuickActions(client); setShowQuickActions(true); }} className="text-teal-600 hover:bg-teal-50 border-teal-200 text-xs font-semibold" title="Quick Actions">⚡ Act</Button>
-                  </div>
-                  {user?.user_type === 'super_admin' && healthCoaches.length > 0 && (
-                    <Button variant="outline" size="sm" onClick={() => handleAssignCoach(client)} className="w-full text-green-600 hover:bg-green-50 h-9 md:h-auto text-xs md:text-sm font-semibold" title="Assign to Health Coach"><UserPlus className="w-3 h-3 md:w-4 md:h-4 mr-1" />Assign to Coach</Button>
-                  )}
-                  {(user?.user_type === 'super_admin' || user?.user_type === 'student_coach') && teamMembers && teamMembers.length > 0 && (
-                    <Button variant="outline" size="sm" onClick={() => handleAssignClient(client)} className="w-full text-purple-600 hover:bg-purple-50 h-9 md:h-auto text-xs md:text-sm font-semibold" title="Assign to Team Member"><UserPlus className="w-3 h-3 md:w-4 md:h-4 mr-1" />{client.assigned_to ? 'Reassign' : 'Assign to Team'}</Button>
-                  )}
-                  {client.assigned_coach && (Array.isArray(client.assigned_coach) ? client.assigned_coach.length > 0 : true) && (
-                    <div className="text-xs text-center text-green-600 bg-green-50 p-2 rounded">🎓 Coaches: {Array.isArray(client.assigned_coach) ? client.assigned_coach.map(email => healthCoaches.find(c => c.email === email)?.full_name || email).join(', ') : (healthCoaches.find(c => c.email === client.assigned_coach)?.full_name || client.assigned_coach)}</div>
-                  )}
-                  {client.assigned_to && (
-                    <div className="text-xs text-center text-purple-600 bg-purple-50 p-2 rounded">👤 Team: {teamMembers.find(m => m.email === client.assigned_to)?.full_name || client.assigned_to}</div>
-                  )}
                 </CardContent>
               </Card>
             );
