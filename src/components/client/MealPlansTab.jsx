@@ -649,18 +649,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
             />
           ))}
 
-          {/* Pro Clinical Workflow CTA (only for pro users) */}
-          {hasProAccess && (
-            <div className="border border-purple-200 rounded-xl bg-gradient-to-r from-purple-50 to-indigo-50 p-4 flex items-center justify-between gap-3">
-              <div>
-                <p className="font-semibold text-purple-800 text-sm">Generate a Clinical Pro Plan</p>
-                <p className="text-xs text-purple-600">6-step workflow: Diagnostic → Filter → Review → Generate → Modify → Save</p>
-              </div>
-              <Button size="sm" className="bg-purple-600 hover:bg-purple-700 shrink-0" onClick={() => setShowWorkflow(true)}>
-                <Sparkles className="w-3 h-3 mr-1" /> Clinical Workflow
-              </Button>
-            </div>
-          )}
+
         </div>
       )}
 
