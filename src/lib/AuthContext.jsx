@@ -95,6 +95,19 @@ export const AuthProvider = ({ children }) => {
       setUser(currentUser);
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
+
+      // Post-login redirect based on user_type
+      const isOnRootOrHome = ['/', '/Home'].includes(window.location.pathname);
+      if (isOnRootOrHome) {
+        const userType = currentUser?.user_type;
+        if (userType === 'client') {
+          window.location.replace('/ClientDashboard');
+        } else if (userType === 'student_coach' || userType === 'team_member' || userType === 'student_team_member') {
+          window.location.replace('/DietitianDashboard');
+        } else if (userType === 'super_admin') {
+          window.location.replace('/DietitianDashboard');
+        }
+      }
     } catch (error) {
       console.error('User auth check failed:', error);
       setIsLoadingAuth(false);
