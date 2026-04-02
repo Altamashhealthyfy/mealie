@@ -154,6 +154,16 @@ function ModeDropdown({ onSelect, isBasicUser }) {
       proOnly: true,
     },
     {
+      key: "clinical_diet",
+      icon: <Sparkles className="w-5 h-5 text-purple-600" />,
+      label: "Clinical Diet Plan",
+      description: "6-step clinical workflow: Diagnostic → Filter → Generate → Modify → Save.",
+      bestFor: "disease management",
+      popular: false,
+      comingSoon: false,
+      proOnly: true,
+    },
+    {
       key: "mode_b",
       icon: <Calendar className="w-5 h-5 text-blue-600" />,
       label: "AI Plan + My Schedule",
@@ -226,6 +236,7 @@ function ModeDropdown({ onSelect, isBasicUser }) {
 
               // Divider after basic_plan
               const showDivider = mode.key === "ai_options";
+              // Divider before coming-soon section handled below
 
               return (
                 <div key={mode.key}>
@@ -520,10 +531,11 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
 
   // ── Handle mode selection from dropdown ───────────────────────────────────
   const handleModeSelect = (modeKey) => {
-    if (modeKey === "basic_plan")   setActiveMode("basic");
-    else if (modeKey === "ai_options") setActiveMode("ai_generated");
-    else if (modeKey === "mode_b")  setActiveMode("ai_schedule");
-    else if (modeKey === "mode_c")  setActiveMode("my_own");
+    if (modeKey === "basic_plan")        setActiveMode("basic");
+    else if (modeKey === "ai_options")   setActiveMode("ai_generated");
+    else if (modeKey === "clinical_diet") setShowWorkflow(true);
+    else if (modeKey === "mode_b")       setActiveMode("ai_schedule");
+    else if (modeKey === "mode_c")       setActiveMode("my_own");
     else if (modeKey === "mode_d" || modeKey === "mode_e") {
       toast.info("Coming Soon");
     }
