@@ -454,18 +454,16 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
     subscription?.plan_name?.toLowerCase().includes('pro')
   );
 
-  // activeMode: null | 'basic' | 'ai_generated' | 'ai_schedule' | 'my_own'
+  // activeMode: null | 'basic' | 'ai_generated' | 'ai_schedule' | 'my_own' | 'clinical'
   const [activeMode, setActiveMode] = useState(null);
   const [viewingPlan, setViewingPlan] = useState(null);
   const [showTemplateSelector, setShowTemplateSelector] = useState(null);
   const [savingTemplate, setSavingTemplate] = useState(null);
-  const [showWorkflow, setShowWorkflow] = useState(false);
   const [filterType, setFilterType] = useState("all");
 
   const invalidatePlans = () => queryClient.invalidateQueries(["clientMealPlans", clientId]);
 
   const handlePlanSaved = (savedPlan) => {
-    setShowWorkflow(false);
     setActiveMode(null);
     invalidatePlans();
     if (savedPlan) setTimeout(() => setViewingPlan(savedPlan), 500);
@@ -522,7 +520,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
   const handleModeSelect = (modeKey) => {
     if (modeKey === "basic_plan")        setActiveMode("basic");
     else if (modeKey === "ai_options")   setActiveMode("ai_generated");
-    else if (modeKey === "clinical_diet") setShowWorkflow(true);
+    else if (modeKey === "clinical_diet") setActiveMode("clinical");
     else if (modeKey === "mode_b")       setActiveMode("ai_schedule");
     else if (modeKey === "mode_c")       setActiveMode("my_own");
     else if (modeKey === "mode_d" || modeKey === "mode_e") {
@@ -573,6 +571,30 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
         <ModeB_ChooseSchedule
           client={client}
           onSaved={() => { invalidatePlans(); setActiveMode(null); toast.success("Options card sent to client!"); }}
+        />
+      </div>
+    );
+  }
+
+  if (activeMode === "clinical") {
+    return (
+      <div className="space-y-3">
+        <button
+          onClick={() => setActiveMode(null)}
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to Meal Plans
+        </button>
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="w-5 h-5 text-purple-600" />
+          <h3 className="font-bold text-gray-900 text-lg">Clinical Meal Planning Workflow — {client.full_name}</h3>
+        </div>
+        <MealPlanningWorkflow
+          client={client}
+          clinicalIntakes={clinicalIntakes}
+          mealPlans={mealPlans}
+          onPlanSaved={handlePlanSaved}
+          onPlanAssigned={handlePlanSaved}
         />
       </div>
     );
@@ -641,24 +663,6 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
 
         </div>
       )}
-
-      {/* ── Clinical Workflow ── */}
-      <Dialog open={showWorkflow} onOpenChange={setShowWorkflow}>
-        <DialogContent className="max-w-[98vw] w-full max-h-[96vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-purple-700">
-              <Sparkles className="w-5 h-5" /> Clinical Meal Planning Workflow — {client.full_name}
-            </DialogTitle>
-          </DialogHeader>
-          <MealPlanningWorkflow
-            client={client}
-            clinicalIntakes={clinicalIntakes}
-            mealPlans={mealPlans}
-            onPlanSaved={handlePlanSaved}
-            onPlanAssigned={handlePlanSaved}
-          />
-        </DialogContent>
-      </Dialog>
 
       {/* ── Template Selector Dialog ── */}
       <Dialog open={!!showTemplateSelector} onOpenChange={() => setShowTemplateSelector(null)}>
