@@ -1,0 +1,52 @@
+{
+  "name": "ActivityLog",
+  "type": "object",
+  "properties": {
+    "created_at": {
+      "type": "string"
+    },
+    "log_type": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "duration_ms": {
+      "type": "number"
+    },
+    "tokens_in": {
+      "type": "number"
+    },
+    "tokens_out": {
+      "type": "number"
+    },
+    "tokens_total": {
+      "type": "number"
+    },
+    "cost_inr": {
+      "type": "number"
+    },
+    "error_msg": {
+      "type": "string"
+    },
+    "extra": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "log_type",
+    "user_email"
+  ]
+}
