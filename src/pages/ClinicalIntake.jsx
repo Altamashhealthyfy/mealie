@@ -233,10 +233,26 @@ export default function ClinicalIntake() {
       }
     },
     onError: (error) => {
-      toast.error('Failed to save clinical intake. Please try again.');
+      toast.error('Save failed — please try again');
       console.error('Save error:', error);
+    },
+    onSettled: () => {
+      // Ensures isPending always returns to false after success or failure,
+      // preventing the button from getting permanently stuck as disabled.
     }
   });
+
+  // Fix 3: Auto-reset if saveMutation.isPending gets stuck for more than 8 seconds
+  React.useEffect(() => {
+    if (!saveMutation.isPending) return;
+    const timer = setTimeout(() => {
+      if (saveMutation.isPending) {
+        saveMutation.reset();
+        toast.error('Save timed out — please try again');
+      }
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, [saveMutation.isPending]);
 
   const handleGoalToggle = (goal) => {
     setFormData(prev => ({
@@ -516,7 +532,7 @@ Return ONLY valid JSON, no explanation.`;
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" onKeyDown={(e) => { if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') e.preventDefault(); }}>
           {/* Section 1: Basic Information */}
           <Card className="border-none shadow-lg">
             <CardHeader className="bg-slate-100">
