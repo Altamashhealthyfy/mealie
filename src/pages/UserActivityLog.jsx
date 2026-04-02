@@ -39,11 +39,11 @@ export default function UserActivityLog() {
   const { data: logs = [], isLoading, refetch } = useQuery({
     queryKey: ["loginActivity"],
     queryFn: () => base44.entities.LoginActivity.list("-login_at", 500),
-    enabled: currentUser?.user_type === "super_admin" || currentUser?.role === "admin",
+    enabled: currentUser?.user_type === "super_admin",
     staleTime: 60 * 1000,
   });
 
-  if (currentUser && currentUser.user_type !== "super_admin" && currentUser.role !== "admin") {
+  if (currentUser && currentUser.user_type !== "super_admin") {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

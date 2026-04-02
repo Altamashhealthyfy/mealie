@@ -24,11 +24,11 @@ export default function AIAuditLog() {
   const { data: logs = [], isLoading } = useQuery({
     queryKey: ["aiCallLogs"],
     queryFn: () => base44.entities.AICallLog.list("-created_date", 200),
-    enabled: user?.role === "admin",
+    enabled: user?.user_type === "super_admin",
     refetchInterval: 30000,
   });
 
-  if (user && user.role !== "admin") {
+  if (user && user.user_type !== "super_admin") {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-gray-500">Access denied. Admins only.</p>

@@ -70,7 +70,7 @@ export default function UserPermissionManagement() {
         .map(u => {
           const userEmail = u.email?.toLowerCase().trim();
           // If user has active coach subscription, treat as student_coach
-          if (activeCoachEmails.has(userEmail) && u.role === 'user') {
+          if (activeCoachEmails.has(userEmail) && !u.user_type) {
             return {
               ...u,
               user_type: 'student_coach',

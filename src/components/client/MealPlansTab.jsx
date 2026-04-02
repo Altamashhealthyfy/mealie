@@ -448,7 +448,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
     refetchOnWindowFocus: false,
   });
 
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.user_type === 'super_admin';
+  const isAdmin = currentUser?.user_type === 'super_admin';
   const hasProAccess = isAdmin || (
     subscription?.status === 'active' &&
     subscription?.plan_name?.toLowerCase().includes('pro')

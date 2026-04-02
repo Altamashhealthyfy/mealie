@@ -63,7 +63,7 @@ export default function DietitianDashboard() {
     queryKey: ['dashboardClients', user?.email, user?.user_type, viewMode],
     queryFn: async () => {
       if (!user?.email) return [];
-      if (user?.user_type === 'super_admin' || user?.role === 'super_admin') {
+      if (user?.user_type === 'super_admin') {
         return await base44.entities.Client.list();
       }
       const byCreated = await base44.entities.Client.filter({ created_by: user.email });
