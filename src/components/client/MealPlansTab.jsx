@@ -155,7 +155,7 @@ function ModeDropdown({ onSelect, isBasicUser }) {
     {
       key: "mode_b",
       icon: <Calendar className="w-5 h-5 text-blue-600" />,
-      label: "AI Plan + My Schedule",
+      label: "Clinical Plan + My Schedule",
       description: "AI creates options. You decide how many days each meal repeats.",
       bestFor: "structured 10-day cycles",
       popular: false,
