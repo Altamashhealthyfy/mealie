@@ -431,6 +431,12 @@ const businessNavigation = [
     roles: ['super_admin'],
   },
   {
+    title: "🔍 User Activity Log",
+    url: createPageUrl("UserActivityLog"),
+    icon: BarChart3,
+    roles: ['super_admin'],
+  },
+  {
     title: "Platform Analytics",
     url: createPageUrl("AdminPlatformAnalytics"),
     icon: BarChart3,
@@ -586,6 +592,20 @@ export default function Layout({ children, currentPageName }) {
     refetchInterval: 60000,
     refetchOnWindowFocus: false,
   });
+
+  // Track session activity silently
+  React.useEffect(() => {
+    if (!user) return;
+    base44.functions.invoke('trackLogin', {
+      device_info: navigator.userAgent,
+      page_url: window.location.pathname,
+      session_id: sessionStorage.getItem('_sid') || (() => {
+        const id = Math.random().toString(36).slice(2);
+        sessionStorage.setItem('_sid', id);
+        return id;
+      })(),
+    }).catch(() => {});
+  }, [user?.email]);
 
   // Redirect clients to their dashboard on login
   React.useEffect(() => {

@@ -1,5 +1,6 @@
 import './App.css'
 import AIAuditLog from './pages/AIAuditLog';
+import UserActivityLog from './pages/UserActivityLog';
 import BillingPortal from './pages/BillingPortal';
 import ClientSelfEditProfile from './pages/ClientSelfEditProfile';
 import { Toaster } from "@/components/ui/toaster"
@@ -56,6 +57,7 @@ const AuthenticatedApp = () => {
           <Route key={path} path={`/${path}`} element={<Page />} />
         ))}
         <Route path="/AIAuditLog" element={<LayoutWrapper currentPageName="AIAuditLog"><AIAuditLog /></LayoutWrapper>} />
+        <Route path="/UserActivityLog" element={<LayoutWrapper currentPageName="UserActivityLog"><UserActivityLog /></LayoutWrapper>} />
         <Route path="/BillingPortal" element={<LayoutWrapper currentPageName="BillingPortal"><BillingPortal /></LayoutWrapper>} />
         <Route path="/ClientSelfEditProfile" element={<LayoutWrapper currentPageName="ClientSelfEditProfile"><ClientSelfEditProfile /></LayoutWrapper>} />
         <Route path="*" element={<PageNotFound />} />

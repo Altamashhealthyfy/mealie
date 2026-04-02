@@ -1,0 +1,52 @@
+{
+  "name": "LoginActivity",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user who logged in"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Full name of the user"
+    },
+    "user_type": {
+      "type": "string",
+      "enum": [
+        "client",
+        "student_coach",
+        "team_member",
+        "super_admin",
+        "student_team_member"
+      ],
+      "description": "Role of the user"
+    },
+    "login_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "IST timestamp of login"
+    },
+    "login_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of login (for easy filtering)"
+    },
+    "device_info": {
+      "type": "string",
+      "description": "User agent / device info"
+    },
+    "page_url": {
+      "type": "string",
+      "description": "Page URL at time of login"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Browser session identifier"
+    }
+  },
+  "required": [
+    "user_email",
+    "user_type",
+    "login_at"
+  ]
+}
