@@ -96,17 +96,16 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
 
-      // Post-login redirect based on user_type
-      const isOnRootOrHome = ['/', '/Home'].includes(window.location.pathname);
-      if (isOnRootOrHome) {
-        const userType = currentUser?.user_type;
-        if (userType === 'client') {
-          window.location.replace('/ClientDashboard');
-        } else if (userType === 'student_coach' || userType === 'team_member' || userType === 'student_team_member') {
-          window.location.replace('/DietitianDashboard');
-        } else if (userType === 'super_admin') {
-          window.location.replace('/DietitianDashboard');
-        }
+      // Post-login redirect based on user_type — runs every login, no caching
+      const userType = currentUser?.user_type;
+      if (userType === 'client') {
+        window.location.replace('/ClientDashboard');
+      } else if (userType === 'super_admin') {
+        window.location.replace('/DietitianDashboard');
+      } else if (userType === 'student_coach' || userType === 'team_member' || userType === 'student_team_member') {
+        window.location.replace('/DietitianDashboard');
+      } else {
+        window.location.replace('/Home');
       }
     } catch (error) {
       console.error('User auth check failed:', error);
