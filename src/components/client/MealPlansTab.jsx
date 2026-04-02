@@ -130,26 +130,15 @@ function ModeDropdown({ onSelect, isBasicUser }) {
     setActiveTooltip(prev => prev === key ? null : key);
   };
 
-  // Mode definitions — Basic Plan always first
+  // Mode definitions
   const modes = [
-    {
-      key: "basic_plan",
-      icon: <Zap className="w-5 h-5 text-yellow-500" />,
-      label: "Basic Plan",
-      description: "Simple healthy meal plan from client profile. No disease rules.",
-      bestFor: "general healthy eating",
-      popular: false,
-      comingSoon: false,
-      proOnly: false,
-    },
-    // divider after basic_plan (handled below)
     {
       key: "ai_options",
       icon: <Bot className="w-5 h-5 text-green-600" />,
-      label: "AI Generated Plan",
+      label: "Basic Plan",
       description: "AI creates complete meal options. You review and send.",
       bestFor: "quick clinical plans",
-      popular: true,
+      popular: false,
       comingSoon: false,
       proOnly: true,
     },
@@ -159,7 +148,7 @@ function ModeDropdown({ onSelect, isBasicUser }) {
       label: "Clinical Diet Plan",
       description: "6-step clinical workflow: Diagnostic → Filter → Generate → Modify → Save.",
       bestFor: "disease management",
-      popular: false,
+      popular: true,
       comingSoon: false,
       proOnly: true,
     },
@@ -234,8 +223,8 @@ function ModeDropdown({ onSelect, isBasicUser }) {
               const tooltipData = TOOLTIP_CONTENT[mode.key];
               const isTooltipOpen = activeTooltip === mode.key;
 
-              // Divider after basic_plan
-              const showDivider = mode.key === "ai_options";
+              // Divider after first item (ai_options/Basic Plan)
+              const showDivider = mode.key === "clinical_diet";
               // Divider before coming-soon section handled below
 
               return (
