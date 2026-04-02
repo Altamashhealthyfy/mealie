@@ -183,8 +183,16 @@ export default function InlineClinicalIntakeForm({ clientId, prefillData, isView
     if (!formData.basic_info.weight) return toast.error('Please enter weight');
     if (!formData.basic_info.activity_level) return toast.error('Please select activity level');
     if (!formData.health_conditions.length) return toast.error('Please select at least one health condition');
-    if (!formData.diet_type) return toast.error('Please select diet type');
-    if (!formData.goal?.length) return toast.error('Please select at least one goal');
+    if (!formData.diet_type) {
+      setIsDietPreferencesOpen(true);
+      toast.error('Please select diet type — expand section 5 Diet Preferences');
+      return;
+    }
+    if (!formData.goal?.length) {
+      setIsGoalsOpen(true);
+      toast.error('Please select at least one goal — expand section 7 Your Goals');
+      return;
+    }
 
     setSaving(true);
     try {
