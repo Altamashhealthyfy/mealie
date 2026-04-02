@@ -153,14 +153,14 @@ Deno.serve(async (req) => {
     const allDishes = await DishCatalog.list();
     console.log(`DishCatalog: ${allDishes.length} active dishes loaded`);
 
-    // Diet filter mapping per spec
+    // Diet filter mapping per spec — 'all' diet_type means suitable for everyone
     const dietFilter = {
-      jain:     (d) => d.diet_type === 'jain',
-      veg:      (d) => ['veg','jain'].includes(d.diet_type),
-      eggetarian:(d)=> ['veg','jain','egg','eggetarian'].includes(d.diet_type),
-      egg:      (d) => ['veg','jain','egg','eggetarian'].includes(d.diet_type),
-      non_veg:  (d) => true, // all dishes eligible
-      mixed:    (d) => true,
+      jain:      (d) => ['jain','all'].includes(d.diet_type),
+      veg:       (d) => ['veg','jain','all'].includes(d.diet_type),
+      eggetarian:(d) => ['veg','jain','egg','eggetarian','all'].includes(d.diet_type),
+      egg:       (d) => ['veg','jain','egg','eggetarian','all'].includes(d.diet_type),
+      non_veg:   (d) => true, // all dishes eligible
+      mixed:     (d) => true,
     };
     const filterFn   = dietFilter[resolvedDiet] || dietFilter['veg'];
     const filtered   = allDishes.filter(filterFn);
