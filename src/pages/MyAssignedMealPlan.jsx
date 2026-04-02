@@ -288,7 +288,7 @@ export default function MyAssignedMealPlan() {
     refetchOnWindowFocus: false,
   });
 
-  const { data: assignedPlan } = useQuery({
+  const { data: assignedPlan, refetch: refetchAssignedPlan } = useQuery({
     queryKey: ['myAssignedMealPlan', clientProfile?.id],
     queryFn: async () => {
       // Get meal plans assigned to this client
@@ -299,11 +299,12 @@ export default function MyAssignedMealPlan() {
       return plans[0] || null;
     },
     enabled: !!clientProfile,
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
   });
 
-  const { data: allMealPlans } = useQuery({
+  const { data: allMealPlans, refetch: refetchAllPlans } = useQuery({
     queryKey: ['allClientMealPlans', clientProfile?.id],
     queryFn: async () => {
       // Get all meal plans for this client (active and inactive)
@@ -313,9 +314,22 @@ export default function MyAssignedMealPlan() {
       return plans.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
     },
     enabled: !!clientProfile,
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
   });
+
+  // Real-time subscription: auto-refetch when coach saves a new plan for this client
+  useEffect(() => {
+    if (!clientProfile?.id) return;
+    const unsubscribe = base44.entities.MealPlan.subscribe((event) => {
+      if (event.data?.client_id === clientProfile.id) {
+        refetchAssignedPlan();
+        refetchAllPlans();
+      }
+    });
+    return () => unsubscribe();
+  }, [clientProfile?.id]);
 
   // Filter plans by date if date filter is set
   const filteredPlans = useMemo(() => {
