@@ -30,6 +30,9 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
   const [openSections, setOpenSections] = useState({ s1: true, s2: true, s3: false, s5: true, s6: true });
   const [selectedIntakeId, setSelectedIntakeId] = useState(latestIntake?.id || null);
   const [duration, setDuration] = useState(10);
+  const [customDuration, setCustomDuration] = useState("");
+  const [useCustomDuration, setUseCustomDuration] = useState(false);
+  const effectiveDuration = useCustomDuration ? (parseInt(customDuration) || 10) : duration;
 
   // Step 2: Coach override rules — pre-populate with clinical notes + non-veg/egg frequency
   const defaultOverrideRules = [
@@ -99,7 +102,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
 
       const res = await base44.functions.invoke('generateAIMealPlan', {
         clientId: client.id,
-        numDays: duration,
+        numDays: effectiveDuration,
         calorieTarget: resolveCalories(),
         dietType: selectedIntake?.diet_type || client.food_preference,
         condition: primaryCondition,
@@ -120,8 +123,8 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       }
       const selectedIntakeForPlan = sortedIntakes.find(i => i.id === selectedIntakeId) || latestIntake;
       setGeneratedPlan({
-        name: d.mealPlan?.name || `AI Meal Plan – ${duration} Days`,
-        duration: d.mealPlan?.duration || duration,
+        name: d.mealPlan?.name || `AI Meal Plan – ${effectiveDuration} Days`,
+        duration: d.mealPlan?.duration || effectiveDuration,
         target_calories: d.calorie_compliance_audit?.target_calories || client.target_calories,
         food_preference: selectedIntakeForPlan?.diet_type || client.food_preference,
         meals: d.meals,
@@ -229,7 +232,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
         active: assign,
         conflict_resolution: modificationHistory.map(h => h.explanation).join(' | ') || '',
         generation_parameters: {
-          duration,
+          duration: effectiveDuration,
           target_calories: generatedPlan.target_calories,
           modification_instructions: modificationHistory.map(h => h.request).join(' | '),
           generation_count: 1,
@@ -282,12 +285,28 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
                 <p className="text-sm font-semibold text-gray-700 mb-2">Plan Duration</p>
                 <div className="flex gap-2 flex-wrap">
                   {[3, 7, 10, 15, 21, 30].map(d => (
-                    <button key={d} onClick={() => setDuration(d)}
-                      className={`px-3 py-1.5 rounded-full text-xs border font-medium transition-all ${duration === d ? 'bg-green-600 text-white border-green-600' : 'border-gray-300 text-gray-600 hover:border-green-400'}`}>
+                    <button key={d} onClick={() => { setDuration(d); setUseCustomDuration(false); }}
+                      className={`px-3 py-1.5 rounded-full text-xs border font-medium transition-all ${!useCustomDuration && duration === d ? 'bg-green-600 text-white border-green-600' : 'border-gray-300 text-gray-600 hover:border-green-400'}`}>
                       {d} Days
                     </button>
                   ))}
+                  <button onClick={() => setUseCustomDuration(true)}
+                    className={`px-3 py-1.5 rounded-full text-xs border font-medium transition-all ${useCustomDuration ? 'bg-green-600 text-white border-green-600' : 'border-gray-300 text-gray-600 hover:border-green-400'}`}>
+                    Custom
+                  </button>
                 </div>
+                {useCustomDuration && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <input
+                      type="number" min={1} max={90}
+                      placeholder="e.g. 14"
+                      value={customDuration}
+                      onChange={e => setCustomDuration(e.target.value)}
+                      className="w-24 h-8 border rounded-lg px-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                    />
+                    <span className="text-xs text-gray-500">days (1–90)</span>
+                  </div>
+                )}
               </CardContent>
             </Card>
             <Button onClick={() => setOpenSections(prev => ({ ...prev, s1: false, s2: true }))} className="w-full bg-purple-600 hover:bg-purple-700">
@@ -321,7 +340,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
           <Card className="border-none shadow-sm bg-green-50">
             <CardContent className="p-4 space-y-1 text-xs text-gray-700">
               <p className="font-semibold text-green-800 text-sm mb-2">Generation Parameters:</p>
-              <p>📅 Duration: <strong>{duration} days</strong></p>
+              <p>📅 Duration: <strong>{effectiveDuration} days</strong></p>
               <p>🥗 Diet: <strong>{selectedIntake?.diet_type || client.food_preference || 'veg'}</strong></p>
               <p>🎯 Condition: <strong>{diagnostic?.primary_conditions?.[0] || selectedIntake?.health_conditions?.[0] || 'none'}</strong></p>
               <p>🔥 Calories: <strong>{client.target_calories || 1800} kcal (override from rules if specified)</strong></p>
@@ -336,7 +355,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
         >
           {generating
             ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating AI meal plan...</>
-            : <><Sparkles className="w-4 h-4 mr-2" /> Generate {duration}-Day Meal Plan</>}
+            : <><Sparkles className="w-4 h-4 mr-2" /> Generate {effectiveDuration}-Day Meal Plan</>}
         </Button>
       </SectionShell>
 
