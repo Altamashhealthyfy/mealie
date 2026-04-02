@@ -608,24 +608,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
         <ModeDropdown onSelect={handleModeSelect} isBasicUser={isBasicUser} />
       </div>
 
-      {/* Filter pills */}
-      {visiblePlans.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {FILTER_PILLS.map(pill => (
-            <button
-              key={pill.key}
-              onClick={() => setFilterType(pill.key)}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors border ${
-                filterType === pill.key
-                  ? "bg-green-600 text-white border-green-600"
-                  : "bg-white text-gray-600 border-gray-200 hover:border-green-400"
-              }`}
-            >
-              {pill.label}
-            </button>
-          ))}
-        </div>
-      )}
+
 
       {/* Plan list */}
       {visiblePlans.length === 0 ? (

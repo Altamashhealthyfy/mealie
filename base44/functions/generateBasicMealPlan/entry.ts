@@ -150,7 +150,7 @@ Deno.serve(async (req) => {
     }
 
     // ─── STEP 4: Load and filter DishCatalog ───
-    const allDishes = await DishCatalog.filter({ status: 'active' });
+    const allDishes = await DishCatalog.list();
     console.log(`DishCatalog: ${allDishes.length} active dishes loaded`);
 
     // Diet filter mapping per spec
