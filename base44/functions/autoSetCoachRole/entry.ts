@@ -32,15 +32,27 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, skipped: 'not a pending coach' });
     }
 
+    // Guard: do not overwrite users who already have a non-client role
+    const currentUser = await base44.asServiceRole.entities.User.filter({ id: data.id });
+    const currentType = currentUser[0]?.user_type;
+    const protectedRoles = ['health_coach', 'student_coach', 'super_admin', 'team_member', 'student_team_member'];
+    if (protectedRoles.includes(currentType)) {
+      console.log(`autoSetCoachRole skipped: ${userEmail} already has role ${currentType}`);
+      return Response.json({ success: true, skipped: `already has role ${currentType}` });
+    }
+
     // Promote the user to student_coach
     await base44.asServiceRole.entities.User.update(data.id, {
       user_type: 'student_coach',
       full_name: data.full_name || pendingRecord.coach_name || userEmail,
     });
 
-    console.log(`Auto-promoted ${userEmail} to student_coach`);
+    // Verify the write actually persisted
+    const verifiedUsers = await base44.asServiceRole.entities.User.filter({ id: data.id });
+    const verifiedType = verifiedUsers[0]?.user_type;
+    console.log('autoSetCoachRole result:', data.id, 'student_coach', verifiedType);
 
-    return Response.json({ success: true, message: `${userEmail} promoted to student_coach` });
+    return Response.json({ success: true, message: `${userEmail} promoted to student_coach`, verified_type: verifiedType });
 
   } catch (error) {
     console.error('autoSetCoachRole error:', error);

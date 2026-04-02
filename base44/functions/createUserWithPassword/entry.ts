@@ -46,6 +46,7 @@ Deno.serve(async (req) => {
       if (!inviteError.message?.includes('already exists')) throw inviteError;
     }
 
+    // Re-apply correct user_type immediately after invite, in case invite resets it
     // Try to find the user after invite with retries (up to ~12 seconds)
     let foundUser = null;
     for (let i = 0; i < 6; i++) {
@@ -56,16 +57,24 @@ Deno.serve(async (req) => {
     }
 
     if (foundUser) {
+      // Always re-set user_type AFTER invite to prevent invite system from overwriting it
       await base44.asServiceRole.entities.User.update(foundUser.id, {
         full_name: finalFullName,
         user_type: finalUserType,
       });
+
+      // Verify the write persisted
+      const verifiedUsers = await base44.asServiceRole.entities.User.list();
+      const verifiedUser = verifiedUsers.find(u => u.email?.toLowerCase() === finalEmail);
+      console.log('createUserWithPassword result:', finalEmail, finalUserType, verifiedUser?.user_type);
+
       return Response.json({
         success: true,
         message: 'Health coach created and activated successfully',
         email: finalEmail,
         user_id: foundUser.id,
         activated: true,
+        verified_type: verifiedUser?.user_type,
       });
     }
 
