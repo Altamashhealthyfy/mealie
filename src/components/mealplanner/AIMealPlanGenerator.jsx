@@ -43,25 +43,25 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated, inlineMod
   const content = (
     <div className="p-5 space-y-5">
       <h2 className="flex items-center gap-2 text-xl font-semibold">
-        <Brain className="w-6 h-6 text-purple-500" />
+        <Brain className="w-6 h-6 text-green-600" />
         Generate Basic Meal Plan
-        <Badge className="bg-purple-100 text-purple-700 border-0 ml-1">{client.full_name}</Badge>
+        <Badge className="bg-green-100 text-green-700 border-0 ml-1">{client.full_name}</Badge>
       </h2>
 
       {!result ? (
         <>
           {/* 1. Client Summary */}
-          <div className="grid grid-cols-3 gap-3 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-100">
+          <div className="grid grid-cols-3 gap-3 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-100">
             <div className="text-center">
-              <p className="text-xs text-purple-600 font-medium">Diet Type</p>
+              <p className="text-xs text-green-600 font-medium">Diet Type</p>
               <p className="text-sm font-semibold text-gray-800 capitalize">{client.food_preference?.replace(/_/g, ' ') || 'Mixed'}</p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-purple-600 font-medium">Calorie Target</p>
+              <p className="text-xs text-green-600 font-medium">Calorie Target</p>
               <p className="text-sm font-semibold text-gray-800">{client.target_calories || client.tdee || 'Auto'} kcal</p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-purple-600 font-medium">Goal</p>
+              <p className="text-xs text-green-600 font-medium">Goal</p>
               <p className="text-sm font-semibold text-gray-800 capitalize">{(client.goal || 'health_improvement').replace(/_/g, ' ')}</p>
             </div>
           </div>
@@ -97,7 +97,7 @@ export default function AIMealPlanGenerator({ client, onPlanGenerated, inlineMod
             <Button
               onClick={() => generateMutation.mutate()}
               disabled={generateMutation.isPending}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 px-6"
+              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 px-6"
             >
               {generateMutation.isPending
                 ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating {duration}-day plan...</>
