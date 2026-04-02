@@ -1,0 +1,70 @@
+{
+  "name": "TokenUsageLog",
+  "type": "object",
+  "properties": {
+    "created_at": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string"
+    },
+    "month_year": {
+      "type": "string"
+    },
+    "triggered_by": {
+      "type": "string"
+    },
+    "coach_name": {
+      "type": "string"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "function_name": {
+      "type": "string"
+    },
+    "model_used": {
+      "type": "string"
+    },
+    "plan_type": {
+      "type": "string"
+    },
+    "input_tokens": {
+      "type": "number"
+    },
+    "output_tokens": {
+      "type": "number"
+    },
+    "total_tokens": {
+      "type": "number"
+    },
+    "input_cost_usd": {
+      "type": "number"
+    },
+    "output_cost_usd": {
+      "type": "number"
+    },
+    "total_cost_usd": {
+      "type": "number"
+    },
+    "total_cost_inr": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string"
+    },
+    "error_message": {
+      "type": "string"
+    },
+    "duration_ms": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "triggered_by",
+    "function_name"
+  ]
+}
