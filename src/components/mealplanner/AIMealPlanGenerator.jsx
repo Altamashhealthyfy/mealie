@@ -83,12 +83,13 @@ function Generator({ client, onClose, onPlanGenerated }) {
         }
         await base44.entities.MealPlan.update(generatedPlan.id, { active: true });
         toast.success("Plan saved and assigned to client!");
+        queryClient.invalidateQueries({ queryKey: ["clientMealPlans", client.id] });
+        queryClient.refetchQueries({ queryKey: ["clientMealPlans", client.id] });
+        onPlanGenerated?.();
       } else {
         toast.success("Plan saved!");
+        queryClient.invalidateQueries({ queryKey: ["clientMealPlans", client.id] });
       }
-      queryClient.invalidateQueries({ queryKey: ["clientMealPlans", client.id] });
-      queryClient.refetchQueries({ queryKey: ["clientMealPlans", client.id] });
-      onPlanGenerated?.();
     } catch (err) {
       toast.error("Save failed: " + err.message);
     } finally {
