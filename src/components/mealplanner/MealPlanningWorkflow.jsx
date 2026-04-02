@@ -237,14 +237,17 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
         },
       });
 
-      toast.success(assign ? '✅ Plan saved and assigned to client successfully!' : '✅ Plan saved!');
+      toast.success(assign ? '✅ Plan saved and assigned to client!' : '✅ Plan saved!');
       await queryClient.invalidateQueries(['clientMealPlans', client.id]);
       await queryClient.refetchQueries(['clientMealPlans', client.id]);
-      window.dispatchEvent(new CustomEvent('mealPlanSaved', { detail: { clientId: client.id } }));
-      // Pass the full plan (with meals) back for auto-navigation to viewer
       const fullSaved = { ...generatedPlan, ...saved, id: saved.id };
-      if (onPlanSaved) onPlanSaved(fullSaved);
-      if (assign && onPlanAssigned) onPlanAssigned(fullSaved);
+      // Both save and save+assign navigate back to meal plans list
+      if (assign) {
+        if (onPlanAssigned) onPlanAssigned(fullSaved);
+        else if (onPlanSaved) onPlanSaved(fullSaved);
+      } else {
+        if (onPlanSaved) onPlanSaved(fullSaved);
+      }
     } catch (err) {
       toast.error('Save failed: ' + (err.message || 'Unknown error'));
     }

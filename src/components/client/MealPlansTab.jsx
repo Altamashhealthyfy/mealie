@@ -463,10 +463,9 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
 
   const invalidatePlans = () => queryClient.invalidateQueries(["clientMealPlans", clientId]);
 
-  const handlePlanSaved = (savedPlan) => {
+  const handlePlanSaved = () => {
     setActiveMode(null);
     invalidatePlans();
-    if (savedPlan) setTimeout(() => setViewingPlan(savedPlan), 500);
   };
 
   const deletePlanMutation = useMutation({
