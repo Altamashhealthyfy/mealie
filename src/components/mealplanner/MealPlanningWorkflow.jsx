@@ -227,7 +227,6 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
         plan_tier: 'advanced',
         disease_focus: generatedPlan.disease_focus || [],
         active: assign,
-        decision_rules_applied: generatedPlan.decision_rules_applied || [],
         conflict_resolution: modificationHistory.map(h => h.explanation).join(' | ') || '',
         generation_parameters: {
           duration,
