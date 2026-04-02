@@ -238,20 +238,16 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       });
 
       toast.success(assign ? '✅ Plan saved and assigned to client!' : '✅ Plan saved!');
-      await queryClient.invalidateQueries(['clientMealPlans', client.id]);
-      await queryClient.refetchQueries(['clientMealPlans', client.id]);
-      const fullSaved = { ...generatedPlan, ...saved, id: saved.id };
-      // Both save and save+assign navigate back to meal plans list
-      if (assign) {
-        if (onPlanAssigned) onPlanAssigned(fullSaved);
-        else if (onPlanSaved) onPlanSaved(fullSaved);
-      } else {
-        if (onPlanSaved) onPlanSaved(fullSaved);
-      }
+      queryClient.invalidateQueries(['clientMealPlans', client.id]);
+      queryClient.refetchQueries(['clientMealPlans', client.id]);
+      setSaving(false);
+      // Navigate back immediately after save
+      if (assign && onPlanAssigned) onPlanAssigned();
+      else if (onPlanSaved) onPlanSaved();
     } catch (err) {
       toast.error('Save failed: ' + (err.message || 'Unknown error'));
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   // ── RENDER ──────────────────────────────────────────────────────────────────
