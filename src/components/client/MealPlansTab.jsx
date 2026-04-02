@@ -19,6 +19,7 @@ import MealPlanTemplateSelector from "@/components/mealplanner/MealPlanTemplateS
 import SaveAsTemplateDialog from "@/components/mealplanner/SaveAsTemplateDialog";
 import ModeB_ChooseSchedule from "@/components/mealplanner/ModeB_ChooseSchedule";
 import ModeC_BuildFromScratch from "@/components/mealplanner/ModeC_BuildFromScratch";
+import BasicPlanCreator from "@/components/mealplanner/BasicPlanCreator";
 
 // ── Config ─────────────────────────────────────────────────────────────────────
 const UPGRADE_WHATSAPP_NUMBER = "919911510377"; // easy to change
@@ -453,10 +454,9 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
     subscription?.plan_name?.toLowerCase().includes('pro')
   );
 
+  // activeMode: null | 'basic' | 'ai_generated' | 'ai_schedule' | 'my_own'
   const [activeMode, setActiveMode] = useState(null);
   const [viewingPlan, setViewingPlan] = useState(null);
-  const [showBasicPlanForm, setShowBasicPlanForm] = useState(false);
-  const [showAIForm, setShowAIForm] = useState(false);
   const [showTemplateSelector, setShowTemplateSelector] = useState(null);
   const [savingTemplate, setSavingTemplate] = useState(null);
   const [showWorkflow, setShowWorkflow] = useState(false);
@@ -466,8 +466,6 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
 
   const handlePlanSaved = (savedPlan) => {
     setShowWorkflow(false);
-    setShowBasicPlanForm(false);
-    setShowAIForm(false);
     setActiveMode(null);
     invalidatePlans();
     if (savedPlan) setTimeout(() => setViewingPlan(savedPlan), 500);
@@ -522,14 +520,47 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
 
   // ── Handle mode selection from dropdown ───────────────────────────────────
   const handleModeSelect = (modeKey) => {
-    if (modeKey === "basic_plan") setShowBasicPlanForm(true);
-    else if (modeKey === "ai_options") setShowAIForm(true);
-    else if (modeKey === "mode_b") setActiveMode("mode_b");
-    else if (modeKey === "mode_c") setActiveMode("mode_c");
+    if (modeKey === "basic_plan")   setActiveMode("basic");
+    else if (modeKey === "ai_options") setActiveMode("ai_generated");
+    else if (modeKey === "mode_b")  setActiveMode("ai_schedule");
+    else if (modeKey === "mode_c")  setActiveMode("my_own");
+    else if (modeKey === "mode_d" || modeKey === "mode_e") {
+      toast.info("Coming Soon");
+    }
   };
 
   // ── Fullscreen mode views ─────────────────────────────────────────────────
-  if (activeMode === "mode_b") {
+  if (activeMode === "basic") {
+    return (
+      <BasicPlanCreator
+        client={client}
+        onBack={() => setActiveMode(null)}
+        onPlanSaved={handlePlanSaved}
+      />
+    );
+  }
+
+  if (activeMode === "ai_generated") {
+    return (
+      <div className="space-y-3">
+        <button
+          onClick={() => setActiveMode(null)}
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to Meal Plans
+        </button>
+        <AIMealPlanGenerator
+          client={client}
+          clinicalIntakes={clinicalIntakes || []}
+          inlineMode={true}
+          onClose={() => setActiveMode(null)}
+          onPlanGenerated={() => { invalidatePlans(); setActiveMode(null); }}
+        />
+      </div>
+    );
+  }
+
+  if (activeMode === "ai_schedule") {
     return (
       <div className="space-y-3">
         <button
@@ -546,7 +577,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
     );
   }
 
-  if (activeMode === "mode_c") {
+  if (activeMode === "my_own") {
     return (
       <div className="space-y-3">
         <button
@@ -652,32 +683,6 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
             mealPlans={mealPlans}
             onPlanSaved={handlePlanSaved}
             onPlanAssigned={handlePlanSaved}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* ── Basic Plan Dialog ── */}
-      <Dialog open={showBasicPlanForm} onOpenChange={setShowBasicPlanForm}>
-        <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto p-0">
-          <AIMealPlanGenerator
-            client={client}
-            clinicalIntakes={[]}
-            inlineMode={true}
-            onClose={() => setShowBasicPlanForm(false)}
-            onPlanGenerated={() => { invalidatePlans(); setShowBasicPlanForm(false); }}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* ── AI Generated Plan Dialog ── */}
-      <Dialog open={showAIForm} onOpenChange={setShowAIForm}>
-        <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto p-0">
-          <AIMealPlanGenerator
-            client={client}
-            clinicalIntakes={clinicalIntakes || []}
-            inlineMode={true}
-            onClose={() => setShowAIForm(false)}
-            onPlanGenerated={() => { invalidatePlans(); setShowAIForm(false); }}
           />
         </DialogContent>
       </Dialog>
