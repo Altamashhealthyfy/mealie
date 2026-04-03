@@ -521,13 +521,27 @@ export default function HealthCoachesManagement() {
 
   // Change password mutation
   const changePasswordMutation = useMutation({
-    mutationFn: async ({ coachEmail, password }) => {
+    mutationFn: async ({ coachEmail, coachName, password }) => {
+      // First try to change existing user's password
       const response = await base44.functions.invoke('changeUserPassword', {
         targetUserEmail: coachEmail,
         password: password,
       });
       
       if (response.data?.error) {
+        // If user not found, create the account with this password
+        if (response.data.error.includes('not found')) {
+          const createResponse = await base44.functions.invoke('createUserWithPassword', {
+            email: coachEmail,
+            full_name: coachName,
+            user_type: 'student_coach',
+            password: password,
+          });
+          if (createResponse.data?.error) {
+            throw new Error(createResponse.data.error);
+          }
+          return createResponse.data;
+        }
         throw new Error(response.data.error);
       }
       
@@ -535,6 +549,7 @@ export default function HealthCoachesManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['allHealthCoaches']);
+      queryClient.invalidateQueries(['coachHistory']);
       setChangePasswordDialog(false);
       setPasswordForm({ newPassword: '', confirmPassword: '' });
       setSelectedCoach(null);
@@ -1659,6 +1674,7 @@ export default function HealthCoachesManagement() {
                   }
                   changePasswordMutation.mutate({
                     coachEmail: selectedCoach.email,
+                    coachName: selectedCoach.full_name,
                     password: passwordForm.newPassword,
                   });
                 }}
