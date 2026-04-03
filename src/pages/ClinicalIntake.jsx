@@ -114,8 +114,8 @@ export default function ClinicalIntake() {
   const { data: client, isLoading: clientLoading } = useQuery({
     queryKey: ['client', formData.client_id],
     queryFn: async () => {
-      const allClients = await base44.entities.Client.list();
-      return allClients.find(c => c.id === formData.client_id) || null;
+      const results = await base44.entities.Client.filter({ id: formData.client_id });
+      return results[0] || null;
     },
     enabled: !!formData.client_id,
   });
@@ -124,10 +124,11 @@ export default function ClinicalIntake() {
   const { data: existingIntake, isLoading: intakeLoading } = useQuery({
     queryKey: ['clinicalIntake', formData.client_id],
     queryFn: async () => {
-      const intakes = await base44.entities.ClinicalIntake.filter({ client_id: formData.client_id });
+      const intakes = await base44.entities.ClinicalIntake.filter({ client_id: formData.client_id }, '-updated_date', 1);
       return intakes.length > 0 ? intakes[0] : null;
     },
     enabled: !!formData.client_id,
+    staleTime: 0,
   });
 
   // Debug logging — remove after confirming pre-fill works
@@ -208,18 +209,18 @@ export default function ClinicalIntake() {
   }, [formData.basic_info.height, formData.basic_info.weight]);
 
   const saveMutation = useMutation({
-    mutationFn: (data) => {
-      if (existingIntake?.id) {
-        return base44.entities.ClinicalIntake.update(existingIntake.id, data);
+    mutationFn: ({ data, existingIntakeId }) => {
+      if (existingIntakeId) {
+        return base44.entities.ClinicalIntake.update(existingIntakeId, data);
       }
       return base44.entities.ClinicalIntake.create(data);
     },
-    onSuccess: async (savedRecord) => {
+    onSuccess: async (savedRecord, { existingIntakeId }) => {
       queryClient.invalidateQueries(['clinicalIntake']);
       queryClient.invalidateQueries(['clientClinicalIntakes']);
       toast.success('✅ Clinical intake saved! Generating diagnostic...');
       // Auto-generate diagnostic in background
-      const intakeId = savedRecord?.id || existingIntake?.id;
+      const intakeId = savedRecord?.id || existingIntakeId;
       if (intakeId) {
         try {
           await base44.functions.invoke('generateDiagnostic', { clinicalIntakeId: intakeId });
@@ -236,21 +237,19 @@ export default function ClinicalIntake() {
       toast.error('Save failed — please try again');
       console.error('Save error:', error);
     },
-    onSettled: () => {
-      // Ensures isPending always returns to false after success or failure,
-      // preventing the button from getting permanently stuck as disabled.
-    }
   });
 
-  // Fix 3: Auto-reset if saveMutation.isPending gets stuck for more than 8 seconds
+  // Auto-reset if saveMutation.isPending gets stuck for more than 15 seconds
+  const savePendingRef = React.useRef(false);
   React.useEffect(() => {
+    savePendingRef.current = saveMutation.isPending;
     if (!saveMutation.isPending) return;
     const timer = setTimeout(() => {
-      if (saveMutation.isPending) {
+      if (savePendingRef.current) {
         saveMutation.reset();
         toast.error('Save timed out — please try again');
       }
-    }, 8000);
+    }, 15000);
     return () => clearTimeout(timer);
   }, [saveMutation.isPending]);
 
@@ -400,6 +399,7 @@ Return ONLY valid JSON, no explanation.`;
 
     const finalData = {
       ...formData,
+      coach_id: user?.email || formData.coach_id,
       basic_info: {
         ...formData.basic_info,
         age: parseFloat(formData.basic_info.age) || 0,
@@ -419,7 +419,7 @@ Return ONLY valid JSON, no explanation.`;
       completed: true
     };
 
-    saveMutation.mutate(finalData);
+    saveMutation.mutate({ data: finalData, existingIntakeId: existingIntake?.id || null });
   };
 
   return (
@@ -1435,11 +1435,9 @@ Return ONLY valid JSON, no explanation.`;
                     },
                     completed: true
                   };
-                  base44.entities.ClinicalIntake.update(existingIntake.id, finalData).then(() => {
-                    queryClient.invalidateQueries(['clinicalIntake']);
-                    queryClient.invalidateQueries(['clientClinicalIntakes']);
-                    toast.success('✅ Clinical intake updated! You can now generate the plan.');
-                  }).catch(err => toast.error(err.message || 'Update failed'));
+                  saveMutation.mutate({ data: finalData, existingIntakeId: existingIntake?.id });
+                  queryClient.invalidateQueries(['clinicalIntake']);
+                  queryClient.invalidateQueries(['clientClinicalIntakes']);
                 }}
               >
                 {saveMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
