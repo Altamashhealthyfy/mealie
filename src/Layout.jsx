@@ -464,27 +464,24 @@ export default function Layout({ children, currentPageName }) {
     },
     retry: false,
     staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
-  // Detect custom domain and fetch branding
+  // Detect custom domain and fetch branding — run ONCE only
+  const domainCheckDone = React.useRef(false);
   React.useEffect(() => {
-    const detectCustomDomain = async () => {
-      const hostname = window.location.hostname;
-      const isCustomDomain = !hostname.includes('base44.app') && !hostname.includes('localhost');
-      
-      if (isCustomDomain) {
-        try {
-          const response = await base44.functions.invoke('getCoachByDomain', { domain: hostname });
-          if (response.data?.branding) {
-            setCustomBranding(response.data.branding);
-          }
-        } catch (error) {
-          console.error('Failed to fetch custom branding:', error);
-        }
-      }
-    };
-    
-    detectCustomDomain();
+    if (domainCheckDone.current) return;
+    domainCheckDone.current = true;
+
+    const hostname = window.location.hostname;
+    const isCustomDomain = !hostname.includes('base44.app') && !hostname.includes('localhost');
+    if (!isCustomDomain) return;
+
+    base44.functions.invoke('getCoachByDomain', { domain: hostname })
+      .then(response => {
+        if (response.data?.branding) setCustomBranding(response.data.branding);
+      })
+      .catch(() => {});
   }, []);
 
   // Fetch coach profile for branding (for coaches on regular domain)
