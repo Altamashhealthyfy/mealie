@@ -143,7 +143,7 @@ export default function AdvancedFilters({
           </div>
 
           {/* Handled By Coach Filter (assigned_coach) */}
-          {showCoachFilter && (
+          {(healthCoaches?.length > 0) && (
             <div>
               <Label className="text-xs mb-1 block">Handled By Coach</Label>
               <Select value={coachFilter} onValueChange={setCoachFilter}>

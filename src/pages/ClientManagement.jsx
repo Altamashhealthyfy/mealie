@@ -153,7 +153,12 @@ function ClientManagementInner() {
     queryKey: ['healthCoaches'],
     queryFn: async () => {
       const allUsers = await base44.entities.User.list();
-      return allUsers.filter(u => u.user_type === 'student_coach');
+      const coaches = allUsers.filter(u => u.user_type === 'student_coach');
+      // Ensure current user is included if they're a coach
+      if (user?.user_type === 'student_coach' && !coaches.find(c => c.email === user.email)) {
+        coaches.push({ email: user.email, full_name: user.full_name, id: user.id });
+      }
+      return coaches;
     },
     enabled: !!user,
     initialData: [],
