@@ -59,6 +59,7 @@ import {
   KeyRound
 } from 'lucide-react';
 import { toast } from 'sonner';
+import ChangePasswordDialog from '@/components/coaches/ChangePasswordDialog';
 
 export default function HealthCoachesManagement() {
   const queryClient = useQueryClient();
@@ -109,15 +110,7 @@ export default function HealthCoachesManagement() {
     phone: '',
   });
 
-  const [passwordForm, setPasswordForm] = useState({
-    newPassword: '',
-    confirmPassword: '',
-  });
 
-  const [showPassword, setShowPassword] = useState({
-    new: false,
-    confirm: false,
-  });
 
   // Fetch current user
   const { data: user } = useQuery({
@@ -519,32 +512,7 @@ export default function HealthCoachesManagement() {
     },
   });
 
-  // Change password mutation
-  const changePasswordMutation = useMutation({
-    mutationFn: async ({ coachEmail, coachName, password }) => {
-      const response = await base44.functions.invoke('changeUserPassword', {
-        targetUserEmail: coachEmail,
-        coachName: coachName,
-        password: password,
-      });
-      
-      if (response.data?.error) {
-        throw new Error(response.data.error);
-      }
-      
-      return response.data;
-    },
-    onSuccess: () => {
-      setChangePasswordDialog(false);
-      setPasswordForm({ newPassword: '', confirmPassword: '' });
-      setShowPassword({ new: false, confirm: false });
-      toast.success('✅ Password changed successfully!');
-    },
-    onError: (error) => {
-      console.error('Password change error:', error);
-      toast.error(error?.response?.data?.error || error.message || 'Failed to change password');
-    },
-  });
+
 
   // Toggle access mutation
   const toggleAccessMutation = useMutation({
@@ -1594,106 +1562,23 @@ export default function HealthCoachesManagement() {
         </Dialog>
 
         {/* Change Password Dialog */}
-        <Dialog open={changePasswordDialog} onOpenChange={(open) => {
-          if (!open && !changePasswordMutation.isPending) {
-            setChangePasswordDialog(false);
-            setPasswordForm({ newPassword: '', confirmPassword: '' });
-            setShowPassword({ new: false, confirm: false });
-          } else if (open) {
-            setChangePasswordDialog(true);
-          }
-        }}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <KeyRound className="w-5 h-5 text-indigo-600" />
-                Change Coach Password
-              </DialogTitle>
-              <DialogDescription>
-                Set a new password for {selectedCoach?.full_name}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                <p className="text-xs text-amber-900">
-                  <strong>Note:</strong> Password will be changed without requiring the old password. Make sure to inform the coach about the new password.
-                </p>
-              </div>
-              <div>
-                <Label>New Password *</Label>
-                <div className="relative">
-                  <Input
-                    type={showPassword.new ? "text" : "password"}
-                    value={passwordForm.newPassword}
-                    onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                    placeholder="Enter new password (min 6 characters)"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword({ ...showPassword, new: !showPassword.new })}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showPassword.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-              <div>
-                <Label>Confirm New Password *</Label>
-                <div className="relative">
-                  <Input
-                    type={showPassword.confirm ? "text" : "password"}
-                    value={passwordForm.confirmPassword}
-                    onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                    placeholder="Confirm new password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword({ ...showPassword, confirm: !showPassword.confirm })}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                  >
-                    {showPassword.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-              {passwordForm.newPassword && passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword && (
-                <p className="text-xs text-red-600 font-medium">❌ Passwords do not match</p>
-              )}
-              <Button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (passwordForm.newPassword.length < 6) {
-                    toast.error('Password must be at least 6 characters');
-                    return;
-                  }
-                  if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-                    toast.error('Passwords do not match');
-                    return;
-                  }
-                  if (!selectedCoach) {
-                    toast.error('No coach selected');
-                    return;
-                  }
-                  changePasswordMutation.mutate({
-                    coachEmail: selectedCoach.email,
-                    coachName: selectedCoach.full_name,
-                    password: passwordForm.newPassword,
-                  });
-                }}
-                disabled={
-                  !passwordForm.newPassword || 
-                  !passwordForm.confirmPassword || 
-                  passwordForm.newPassword !== passwordForm.confirmPassword ||
-                  changePasswordMutation.isPending
-                }
-                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600"
-              >
-                {changePasswordMutation.isPending ? 'Changing Password...' : 'Change Password'}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        {changePasswordDialog && selectedCoach && (
+          <ChangePasswordDialog
+            coach={selectedCoach}
+            onClose={() => {
+              setChangePasswordDialog(false);
+            }}
+            onSubmit={async (password) => {
+              const response = await base44.functions.invoke('changeUserPassword', {
+                targetUserEmail: selectedCoach.email,
+                coachName: selectedCoach.full_name,
+                password: password,
+              });
+              if (response.data?.error) throw new Error(response.data.error);
+              return response.data;
+            }}
+          />
+        )}
 
         {/* Delete Confirmation Dialog */}
         <AlertDialog open={deleteDialog} onOpenChange={setDeleteDialog}>
