@@ -301,6 +301,12 @@ function ClientManagementInner() {
   const handleSaveClient = () => {
     if (!formData.full_name || !formData.email) { alert("Please enter client name and email"); return; }
 
+    // Prevent coach from adding their own email as a client
+    if (formData.email.trim().toLowerCase() === user?.email?.trim().toLowerCase()) {
+      alert("❌ You cannot add your own email address as a client.");
+      return;
+    }
+
     // Duplicate check (skip when editing the same client)
     const normalizedEmail = formData.email.trim().toLowerCase();
     const normalizedPhone = formData.phone?.trim();
