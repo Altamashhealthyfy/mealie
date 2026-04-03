@@ -53,6 +53,7 @@ function ClientManagementInner() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [coachFilter, setCoachFilter] = useState("all");
+  const [addedByCoachFilter, setAddedByCoachFilter] = useState("all");
   const [goalFilter, setGoalFilter] = useState("all");
   const [sortBy, setSortBy] = useState("created_date");
   const [sortOrder, setSortOrder] = useState("desc");
@@ -360,6 +361,7 @@ function ClientManagementInner() {
       const matchesStatus = statusFilter === "all" || client.status === statusFilter;
       const assignedCoachList = Array.isArray(client.assigned_coach) ? client.assigned_coach : client.assigned_coach ? [client.assigned_coach] : [];
       const matchesCoach = coachFilter === "all" || (coachFilter === "unassigned" ? assignedCoachList.length === 0 : assignedCoachList.includes(coachFilter));
+      const matchesAddedBy = addedByCoachFilter === "all" || client.created_by === addedByCoachFilter;
       const matchesGoal = goalFilter === "all" || client.goal === goalFilter;
       const clientHasActivePlan = mealPlans.some(p => p.client_id === client.id && p.active);
       const matchesPlan = hasActivePlan === "all" || (hasActivePlan === "yes" ? clientHasActivePlan : !clientHasActivePlan);
@@ -373,7 +375,7 @@ function ClientManagementInner() {
           matchesActive = (lastActiveFilter === "today" && daysSince === 0) || (lastActiveFilter === "week" && daysSince <= 7) || (lastActiveFilter === "month" && daysSince <= 30) || (lastActiveFilter === "inactive" && daysSince > 30);
         } else { matchesActive = lastActiveFilter === "inactive"; }
       }
-      return matchesSearch && matchesStatus && matchesCoach && matchesGoal && matchesPlan && matchesActive;
+      return matchesSearch && matchesStatus && matchesCoach && matchesAddedBy && matchesGoal && matchesPlan && matchesActive;
     });
 
     filtered.sort((a, b) => {
@@ -409,10 +411,10 @@ function ClientManagementInner() {
     }
 
     return filtered;
-  }, [clients, searchQuery, statusFilter, coachFilter, goalFilter, sortBy, sortOrder,
+  }, [clients, searchQuery, statusFilter, coachFilter, addedByCoachFilter, goalFilter, sortBy, sortOrder,
       lastActiveFilter, hasActivePlan, mealPlans, progressLogs, foodLogs, user?.user_type]);
 
-  const activeFiltersCount = [searchQuery !== '', statusFilter !== 'all', coachFilter !== 'all', goalFilter !== 'all', lastActiveFilter !== 'all', hasActivePlan !== 'all'].filter(Boolean).length;
+  const activeFiltersCount = [searchQuery !== '', statusFilter !== 'all', coachFilter !== 'all', addedByCoachFilter !== 'all', goalFilter !== 'all', lastActiveFilter !== 'all', hasActivePlan !== 'all'].filter(Boolean).length;
 
   const toggleClientSelection = (clientId) => setSelectedClients(prev => prev.includes(clientId) ? prev.filter(id => id !== clientId) : [...prev, clientId]);
   const toggleSelectAll = () => selectedClients.length === filteredAndSortedClients.length ? setSelectedClients([]) : setSelectedClients(filteredAndSortedClients.map(c => c.id));
@@ -499,7 +501,7 @@ function ClientManagementInner() {
           </div>
         </div>
 
-        <AdvancedFilters searchQuery={searchQuery} setSearchQuery={setSearchQuery} statusFilter={statusFilter} setStatusFilter={setStatusFilter} coachFilter={coachFilter} setCoachFilter={setCoachFilter} goalFilter={goalFilter} setGoalFilter={setGoalFilter} sortBy={sortBy} setSortBy={setSortBy} sortOrder={sortOrder} setSortOrder={setSortOrder} lastActiveFilter={lastActiveFilter} setLastActiveFilter={setLastActiveFilter} hasActivePlan={hasActivePlan} setHasActivePlan={setHasActivePlan} healthCoaches={healthCoaches} showCoachFilter={user?.user_type === 'super_admin'} activeFiltersCount={activeFiltersCount} />
+        <AdvancedFilters searchQuery={searchQuery} setSearchQuery={setSearchQuery} statusFilter={statusFilter} setStatusFilter={setStatusFilter} coachFilter={coachFilter} setCoachFilter={setCoachFilter} addedByCoachFilter={addedByCoachFilter} setAddedByCoachFilter={setAddedByCoachFilter} goalFilter={goalFilter} setGoalFilter={setGoalFilter} sortBy={sortBy} setSortBy={setSortBy} sortOrder={sortOrder} setSortOrder={setSortOrder} lastActiveFilter={lastActiveFilter} setLastActiveFilter={setLastActiveFilter} hasActivePlan={hasActivePlan} setHasActivePlan={setHasActivePlan} healthCoaches={healthCoaches} showCoachFilter={user?.user_type === 'super_admin'} activeFiltersCount={activeFiltersCount} />
 
         {selectedClients.length > 0 && (
           <BulkActionsPanel selectedClients={filteredAndSortedClients.filter(c => selectedClients.includes(c.id))} onClose={() => setSelectedClients([])} onSuccess={() => { setSelectedClients([]); queryClient.invalidateQueries(); }} />

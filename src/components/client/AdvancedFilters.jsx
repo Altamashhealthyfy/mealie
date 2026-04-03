@@ -14,6 +14,8 @@ export default function AdvancedFilters({
   setStatusFilter,
   coachFilter,
   setCoachFilter,
+  addedByCoachFilter,
+  setAddedByCoachFilter,
   goalFilter,
   setGoalFilter,
   sortBy,
@@ -32,6 +34,7 @@ export default function AdvancedFilters({
     setSearchQuery('');
     setStatusFilter('all');
     setCoachFilter('all');
+    if (setAddedByCoachFilter) setAddedByCoachFilter('all');
     setGoalFilter('all');
     setSortBy('created_date');
     setSortOrder('desc');
@@ -139,10 +142,30 @@ export default function AdvancedFilters({
             </Select>
           </div>
 
-          {/* Coach Filter — always show when coaches exist */}
+          {/* Added By Coach Filter */}
+          {healthCoaches?.length > 0 && setAddedByCoachFilter && (
+            <div>
+              <Label className="text-xs mb-1 block">Added By Coach</Label>
+              <Select value={addedByCoachFilter || 'all'} onValueChange={setAddedByCoachFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Coaches" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Coaches</SelectItem>
+                  {healthCoaches.map(coach => (
+                    <SelectItem key={coach.email} value={coach.email}>
+                      {coach.full_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Handled By Coach Filter (assigned_coach) */}
           {healthCoaches?.length > 0 && (
             <div>
-              <Label className="text-xs mb-1 block">Coach</Label>
+              <Label className="text-xs mb-1 block">Handled By Coach</Label>
               <Select value={coachFilter} onValueChange={setCoachFilter}>
                 <SelectTrigger>
                   <SelectValue />
