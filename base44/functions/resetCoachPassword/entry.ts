@@ -15,25 +15,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'targetUserEmail is required' }, { status: 400 });
     }
 
-    // Generate a secure random password
-    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
-    let newPassword = '';
-    for (let i = 0; i < 10; i++) {
-      newPassword += chars[Math.floor(Math.random() * chars.length)];
-    }
+    // Send password reset email to the coach via the auth system
+    await base44.auth.resetPasswordRequest(targetUserEmail);
 
-    const allUsers = await base44.asServiceRole.entities.User.list();
-    const targetUser = allUsers.find(u => u.email?.toLowerCase() === targetUserEmail.toLowerCase());
+    console.log('Password reset email sent to:', targetUserEmail);
 
-    if (!targetUser) {
-      return Response.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    await base44.asServiceRole.entities.User.update(targetUser.id, { password: newPassword });
-
-    return Response.json({ success: true, newPassword });
+    return Response.json({ success: true, message: 'Password reset email sent successfully' });
   } catch (error) {
-    console.error('Error resetting password:', error);
-    return Response.json({ error: error.message || 'Failed to reset password' }, { status: 500 });
+    console.error('Error sending password reset:', error);
+    return Response.json({ error: error.message || 'Failed to send password reset email' }, { status: 500 });
   }
 });
