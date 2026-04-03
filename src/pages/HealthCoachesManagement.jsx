@@ -1264,7 +1264,6 @@ export default function HealthCoachesManagement() {
                               className="hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300 h-7 w-7 p-0"
                               onClick={() => {
                                 setSelectedCoach(coach);
-                                setPasswordForm({ newPassword: '', confirmPassword: '' });
                                 setChangePasswordDialog(true);
                               }}
                             >
