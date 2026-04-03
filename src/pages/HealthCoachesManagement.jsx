@@ -535,12 +535,10 @@ export default function HealthCoachesManagement() {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['allHealthCoaches']);
-      queryClient.invalidateQueries(['coachHistory']);
       setChangePasswordDialog(false);
       setPasswordForm({ newPassword: '', confirmPassword: '' });
-      setSelectedCoach(null);
-      toast.success('Password changed successfully!');
+      setShowPassword({ new: false, confirm: false });
+      toast.success('✅ Password changed successfully!');
     },
     onError: (error) => {
       console.error('Password change error:', error);
@@ -1596,7 +1594,15 @@ export default function HealthCoachesManagement() {
         </Dialog>
 
         {/* Change Password Dialog */}
-        <Dialog open={changePasswordDialog} onOpenChange={setChangePasswordDialog}>
+        <Dialog open={changePasswordDialog} onOpenChange={(open) => {
+          if (!open && !changePasswordMutation.isPending) {
+            setChangePasswordDialog(false);
+            setPasswordForm({ newPassword: '', confirmPassword: '' });
+            setShowPassword({ new: false, confirm: false });
+          } else if (open) {
+            setChangePasswordDialog(true);
+          }
+        }}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
@@ -1649,8 +1655,14 @@ export default function HealthCoachesManagement() {
                   </button>
                 </div>
               </div>
+              {passwordForm.newPassword && passwordForm.confirmPassword && passwordForm.newPassword !== passwordForm.confirmPassword && (
+                <p className="text-xs text-red-600 font-medium">❌ Passwords do not match</p>
+              )}
               <Button
-                onClick={() => {
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   if (passwordForm.newPassword.length < 6) {
                     toast.error('Password must be at least 6 characters');
                     return;
@@ -1659,13 +1671,22 @@ export default function HealthCoachesManagement() {
                     toast.error('Passwords do not match');
                     return;
                   }
+                  if (!selectedCoach) {
+                    toast.error('No coach selected');
+                    return;
+                  }
                   changePasswordMutation.mutate({
                     coachEmail: selectedCoach.email,
                     coachName: selectedCoach.full_name,
                     password: passwordForm.newPassword,
                   });
                 }}
-                disabled={!passwordForm.newPassword || !passwordForm.confirmPassword || changePasswordMutation.isPending}
+                disabled={
+                  !passwordForm.newPassword || 
+                  !passwordForm.confirmPassword || 
+                  passwordForm.newPassword !== passwordForm.confirmPassword ||
+                  changePasswordMutation.isPending
+                }
                 className="w-full bg-gradient-to-r from-indigo-600 to-purple-600"
               >
                 {changePasswordMutation.isPending ? 'Changing Password...' : 'Change Password'}
