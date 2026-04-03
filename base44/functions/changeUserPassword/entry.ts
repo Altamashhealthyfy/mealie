@@ -14,7 +14,11 @@ Deno.serve(async (req) => {
     const targetUserEmail = body.targetUserEmail;
     const coachName = body.coachName || '';
 
-    const isAdminChangingPassword = targetUserEmail && user.user_type === 'super_admin';
+    const isAdminChangingPassword = targetUserEmail && (
+      user.user_type === 'super_admin' || 
+      user.role === 'admin' ||
+      user.data?.user_type === 'super_admin'
+    );
     const isChangingSelf = !targetUserEmail;
 
     if (!isAdminChangingPassword && !isChangingSelf) {
