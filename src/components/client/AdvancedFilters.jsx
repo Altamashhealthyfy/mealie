@@ -142,26 +142,6 @@ export default function AdvancedFilters({
             </Select>
           </div>
 
-          {/* Added By Coach Filter */}
-          {showCoachFilter && setAddedByCoachFilter && (
-            <div>
-              <Label className="text-xs mb-1 block">Added By Coach</Label>
-              <Select value={addedByCoachFilter || 'all'} onValueChange={setAddedByCoachFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Coaches" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Coaches</SelectItem>
-                  {(healthCoaches || []).map(coach => (
-                    <SelectItem key={coach.email} value={coach.email}>
-                      {coach.full_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
           {/* Handled By Coach Filter (assigned_coach) */}
           {showCoachFilter && (
             <div>
