@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const password = body.password || body.new_password;
     const targetUserEmail = body.targetUserEmail;
-    const coachName = body.coachName || targetUserEmail;
+    const coachName = body.coachName || '';
 
     const isAdminChangingPassword = targetUserEmail && user.user_type === 'super_admin';
     const isChangingSelf = !targetUserEmail;
@@ -27,9 +27,21 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
     }
 
-    // Find the user by email using service role
+    // Find the user — search all users and try email match first, then name match
     const allUsers = await base44.asServiceRole.entities.User.list();
-    const targetUser = allUsers.find(u => u.email?.toLowerCase() === emailToUpdate.toLowerCase());
+    
+    let targetUser = allUsers.find(u => u.email?.toLowerCase() === emailToUpdate.toLowerCase());
+    
+    // If not found by email, try matching by full_name (handles cases where coach registered with different email)
+    if (!targetUser && coachName) {
+      targetUser = allUsers.find(u => 
+        u.full_name?.toLowerCase().trim() === coachName.toLowerCase().trim() &&
+        (u.user_type === 'student_coach' || u.data?.user_type === 'student_coach')
+      );
+      if (targetUser) {
+        console.log('Found user by name match:', targetUser.full_name, 'actual email:', targetUser.email);
+      }
+    }
     
     if (targetUser) {
       // User exists — update their password
@@ -39,10 +51,9 @@ Deno.serve(async (req) => {
       });
       return Response.json({ success: true, message: 'Password changed successfully' });
     } else {
-      // User doesn't exist yet — create them with the given password
+      // User doesn't exist yet — create them via invite
       console.log('User not found, creating new account for:', emailToUpdate);
       
-      // Invite user first to create the account
       try {
         await base44.users.inviteUser(emailToUpdate, 'user');
       } catch (inviteError) {
@@ -61,10 +72,9 @@ Deno.serve(async (req) => {
       }
 
       if (foundUser) {
-        // Set password and user_type
         await base44.asServiceRole.entities.User.update(foundUser.id, {
           password: password,
-          full_name: coachName,
+          full_name: coachName || emailToUpdate,
           user_type: 'student_coach',
         });
         return Response.json({ success: true, message: 'Account created and password set successfully' });
