@@ -35,7 +35,8 @@ export default function NotificationCenter({ user }) {
     },
     enabled: !!user?.email,
     initialData: [],
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 60000,
+    refetchOnWindowFocus: false,
   });
 
   const markAsReadMutation = useMutation({

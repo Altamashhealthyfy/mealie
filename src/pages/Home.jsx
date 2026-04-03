@@ -118,7 +118,8 @@ export default function Home() {
         navigate(createPageUrl('DietitianDashboard'), { replace: true });
       }
     }
-  }, [user, userLoading, navigate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.user_type, userLoading]);
 
   if (userLoading) {
     return (
