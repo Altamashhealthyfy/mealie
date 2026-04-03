@@ -175,8 +175,7 @@ export default function InlineClinicalIntakeForm({ clientId, prefillData, isView
     completed: true,
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!formData.basic_info.age) return toast.error('Please enter age');
     if (!formData.basic_info.gender) return toast.error('Please select gender');
     if (!formData.basic_info.height) return toast.error('Please enter height');
@@ -235,7 +234,7 @@ export default function InlineClinicalIntakeForm({ clientId, prefillData, isView
   const disabled = isViewOnly;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="space-y-4">
 
 
       {isViewOnly && (
@@ -655,7 +654,7 @@ export default function InlineClinicalIntakeForm({ clientId, prefillData, isView
           <Button type="button" variant="outline" className="flex-1" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit" disabled={saving}
+          <Button type="button" disabled={saving} onClick={handleSubmit}
             className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
             {saving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</> : <><CheckCircle className="w-4 h-4 mr-2" /> Save New Intake</>}
           </Button>
@@ -666,6 +665,6 @@ export default function InlineClinicalIntakeForm({ clientId, prefillData, isView
           <Button type="button" variant="outline" onClick={onCancel}>Close</Button>
         </div>
       )}
-    </form>
+    </div>
   );
 }
