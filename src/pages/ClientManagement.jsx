@@ -154,7 +154,7 @@ function ClientManagementInner() {
       const allUsers = await base44.entities.User.list();
       return allUsers.filter(u => u.user_type === 'student_coach');
     },
-    enabled: !!user && user?.user_type === 'super_admin',
+    enabled: !!user,
     initialData: [],
     retry: 0,
     staleTime: 5 * 60 * 1000,

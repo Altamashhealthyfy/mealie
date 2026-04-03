@@ -139,10 +139,10 @@ export default function AdvancedFilters({
             </Select>
           </div>
 
-          {/* Coach Filter */}
-          {showCoachFilter && healthCoaches?.length > 0 && (
+          {/* Coach Filter — always show when coaches exist */}
+          {healthCoaches?.length > 0 && (
             <div>
-              <Label className="text-xs mb-1 block">Assigned Coach</Label>
+              <Label className="text-xs mb-1 block">Coach</Label>
               <Select value={coachFilter} onValueChange={setCoachFilter}>
                 <SelectTrigger>
                   <SelectValue />
