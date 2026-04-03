@@ -1,5 +1,6 @@
 import './App.css'
 import AIAuditLog from './pages/AIAuditLog';
+import CoachActivityAuditLog from './pages/CoachActivityAuditLog';
 import UserActivityLog from './pages/UserActivityLog';
 import TokenUsageDashboard from './pages/TokenUsageDashboard';
 import BillingPortal from './pages/BillingPortal';
@@ -58,6 +59,7 @@ const AuthenticatedApp = () => {
           <Route key={path} path={`/${path}`} element={<Page />} />
         ))}
         <Route path="/AIAuditLog" element={<LayoutWrapper currentPageName="AIAuditLog"><AIAuditLog /></LayoutWrapper>} />
+        <Route path="/CoachActivityAuditLog" element={<LayoutWrapper currentPageName="CoachActivityAuditLog"><CoachActivityAuditLog /></LayoutWrapper>} />
         <Route path="/UserActivityLog" element={<LayoutWrapper currentPageName="UserActivityLog"><UserActivityLog /></LayoutWrapper>} />
         <Route path="/TokenUsageDashboard" element={<LayoutWrapper currentPageName="TokenUsageDashboard"><TokenUsageDashboard /></LayoutWrapper>} />
         <Route path="/BillingPortal" element={<LayoutWrapper currentPageName="BillingPortal"><BillingPortal /></LayoutWrapper>} />

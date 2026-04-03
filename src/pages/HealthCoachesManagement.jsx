@@ -1575,6 +1575,14 @@ export default function HealthCoachesManagement() {
                 password: password,
               });
               if (response.data?.error) throw new Error(response.data.error);
+              // Record in audit trail
+              await base44.entities.CoachSubscriptionHistory.create({
+                coach_email: selectedCoach.email,
+                coach_name: selectedCoach.full_name,
+                action_type: 'password_changed',
+                performed_by: user.email,
+                notes: 'Password reset by admin',
+              });
               return response.data;
             }}
           />

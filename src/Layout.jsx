@@ -438,6 +438,12 @@ const businessNavigation = [
     roles: ['super_admin'],
   },
   {
+    title: "Coach Audit Log",
+    url: createPageUrl("CoachActivityAuditLog"),
+    icon: Shield,
+    roles: ['super_admin'],
+  },
+  {
     title: "Client Feedback",
     url: createPageUrl("ClientFeedbackManagement"),
     icon: MessageSquare,
