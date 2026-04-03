@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,85 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Search, X, SlidersHorizontal } from "lucide-react";
+
+function CoachSearchSelect({ value, onChange, healthCoaches }) {
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handleClick = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const selected = value !== "all" ? (healthCoaches || []).find(c => c.email === value) : null;
+
+  const filtered = (healthCoaches || []).filter(c =>
+    c.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+    c.email?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="relative" ref={ref}>
+      <div
+        className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm cursor-pointer"
+        onClick={() => setOpen(o => !o)}
+      >
+        {selected ? (
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <span className="truncate font-medium">{selected.full_name}</span>
+            <span className="text-xs text-gray-400 truncate">{selected.email}</span>
+          </div>
+        ) : (
+          <span className="text-muted-foreground">All Coaches</span>
+        )}
+        {selected ? (
+          <X className="w-4 h-4 text-gray-400 hover:text-gray-600 ml-2 flex-shrink-0" onClick={(e) => { e.stopPropagation(); onChange("all"); setSearch(""); }} />
+        ) : (
+          <Search className="w-4 h-4 opacity-50 ml-2 flex-shrink-0" />
+        )}
+      </div>
+      {open && (
+        <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg">
+          <div className="p-2 border-b">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+              <input
+                autoFocus
+                className="w-full pl-7 pr-3 py-1.5 text-sm border border-gray-200 rounded outline-none focus:border-orange-400"
+                placeholder="Search by name or email..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="max-h-48 overflow-y-auto">
+            <div
+              className={`px-3 py-2 text-sm cursor-pointer hover:bg-orange-50 ${value === "all" ? "bg-orange-50 font-medium" : ""}`}
+              onClick={() => { onChange("all"); setSearch(""); setOpen(false); }}
+            >
+              All Coaches
+            </div>
+            {filtered.map(coach => (
+              <div
+                key={coach.email}
+                className={`px-3 py-2 cursor-pointer hover:bg-orange-50 ${value === coach.email ? "bg-orange-50" : ""}`}
+                onClick={() => { onChange(coach.email); setSearch(""); setOpen(false); }}
+              >
+                <p className="text-sm font-medium text-gray-900">{coach.full_name}</p>
+                <p className="text-xs text-gray-500">{coach.email}</p>
+              </div>
+            ))}
+            {filtered.length === 0 && (
+              <p className="px-3 py-3 text-sm text-gray-400 text-center">No coaches found</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AdvancedFilters({
   searchQuery,
@@ -146,20 +225,7 @@ export default function AdvancedFilters({
           {(healthCoaches?.length > 0) && (
             <div>
               <Label className="text-xs mb-1 block">Handled By Coach</Label>
-              <Select value={coachFilter} onValueChange={setCoachFilter}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Coaches</SelectItem>
-                  <SelectItem value="unassigned">Unassigned</SelectItem>
-                  {(healthCoaches || []).map(coach => (
-                    <SelectItem key={coach.email} value={coach.email}>
-                      {coach.full_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <CoachSearchSelect value={coachFilter} onChange={setCoachFilter} healthCoaches={healthCoaches} />
             </div>
           )}
 
