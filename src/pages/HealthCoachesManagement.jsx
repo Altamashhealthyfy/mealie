@@ -59,7 +59,7 @@ import {
   KeyRound
 } from 'lucide-react';
 import { toast } from 'sonner';
-import ChangePasswordDialog from '@/components/coaches/ChangePasswordDialog';
+import ResetPasswordDialog from '@/components/coaches/ResetPasswordDialog';
 
 export default function HealthCoachesManagement() {
   const queryClient = useQueryClient();
@@ -1560,29 +1560,14 @@ export default function HealthCoachesManagement() {
           </DialogContent>
         </Dialog>
 
-        {/* Change Password Dialog */}
-        {changePasswordDialog && selectedCoach && (
-          <ChangePasswordDialog
+        {/* Reset Password Dialog */}
+        {selectedCoach && (
+          <ResetPasswordDialog
             coach={selectedCoach}
+            open={changePasswordDialog}
             onClose={() => {
               setChangePasswordDialog(false);
-            }}
-            onSubmit={async (password) => {
-              const response = await base44.functions.invoke('changeUserPassword', {
-                targetUserEmail: selectedCoach.email,
-                coachName: selectedCoach.full_name,
-                password: password,
-              });
-              if (response.data?.error) throw new Error(response.data.error);
-              // Record in audit trail
-              await base44.entities.CoachSubscriptionHistory.create({
-                coach_email: selectedCoach.email,
-                coach_name: selectedCoach.full_name,
-                action_type: 'password_changed',
-                performed_by: user.email,
-                notes: 'Password reset by admin',
-              });
-              return response.data;
+              setSelectedCoach(null);
             }}
           />
         )}
