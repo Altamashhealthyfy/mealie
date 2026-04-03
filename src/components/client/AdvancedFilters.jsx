@@ -143,7 +143,7 @@ export default function AdvancedFilters({
           </div>
 
           {/* Added By Coach Filter */}
-          {healthCoaches?.length > 0 && setAddedByCoachFilter && (
+          {showCoachFilter && setAddedByCoachFilter && (
             <div>
               <Label className="text-xs mb-1 block">Added By Coach</Label>
               <Select value={addedByCoachFilter || 'all'} onValueChange={setAddedByCoachFilter}>
@@ -152,7 +152,7 @@ export default function AdvancedFilters({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Coaches</SelectItem>
-                  {healthCoaches.map(coach => (
+                  {(healthCoaches || []).map(coach => (
                     <SelectItem key={coach.email} value={coach.email}>
                       {coach.full_name}
                     </SelectItem>
@@ -163,7 +163,7 @@ export default function AdvancedFilters({
           )}
 
           {/* Handled By Coach Filter (assigned_coach) */}
-          {healthCoaches?.length > 0 && (
+          {showCoachFilter && (
             <div>
               <Label className="text-xs mb-1 block">Handled By Coach</Label>
               <Select value={coachFilter} onValueChange={setCoachFilter}>
@@ -173,7 +173,7 @@ export default function AdvancedFilters({
                 <SelectContent>
                   <SelectItem value="all">All Coaches</SelectItem>
                   <SelectItem value="unassigned">Unassigned</SelectItem>
-                  {healthCoaches.map(coach => (
+                  {(healthCoaches || []).map(coach => (
                     <SelectItem key={coach.email} value={coach.email}>
                       {coach.full_name}
                     </SelectItem>
