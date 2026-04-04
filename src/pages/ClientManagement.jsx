@@ -155,15 +155,16 @@ function ClientManagementInner() {
       const result = [];
       const seen = new Set();
 
-      // Try fetching all users (works for super_admin)
+      // Fetch all users — build a name lookup map and add coaches to result
+      let userNameMap = {};
       try {
         const allUsers = await base44.entities.User.list();
-        const coaches = allUsers.filter(u =>
-          u.user_type === 'student_coach' ||
-          u.role === 'student_coach' ||
-          u.user_type === 'super_admin' ||
-          u.role === 'admin'
-        );
+        // Build email→full_name map for all users
+        allUsers.forEach(u => { if (u.email) userNameMap[u.email] = u.full_name || u.email; });
+        const coaches = allUsers.filter(u => {
+          const utype = u.user_type || u.data?.user_type;
+          return utype === 'student_coach' || utype === 'super_admin' || utype === 'team_member';
+        });
         for (const c of coaches) {
           if (c.email && !seen.has(c.email)) {
             seen.add(c.email);
@@ -172,31 +173,26 @@ function ClientManagementInner() {
         }
       } catch (e) { /* non-admin, fallthrough */ }
 
-      // Always pull from CoachProfile to get business names / extra coaches
+      // Pull from CoachProfile — add any coach not already in the list
       try {
         const profiles = await base44.entities.CoachProfile.list();
         for (const p of profiles) {
           if (!p.created_by) continue;
-          const name = p.business_name || p.full_name || p.created_by;
           if (!seen.has(p.created_by)) {
             seen.add(p.created_by);
+            // Use full_name from User lookup, fallback to business_name, then email
+            const name = userNameMap[p.created_by] || p.business_name || p.created_by;
             result.push({ email: p.created_by, full_name: name, id: p.id });
-          } else {
-            // Update name with better display name if available
-            const existing = result.find(r => r.email === p.created_by);
-            if (existing && (p.business_name || p.full_name)) {
-              existing.full_name = p.business_name || p.full_name || existing.full_name;
-            }
           }
         }
       } catch (e) { /* ignore */ }
 
-      // Always include current user if they're a coach
+      // Always include current user
       if (user?.email && !seen.has(user.email)) {
         result.push({ email: user.email, full_name: user.full_name || user.email, id: user.id });
       }
 
-      return result;
+      return result.sort((a, b) => a.full_name.localeCompare(b.full_name));
     },
     enabled: !!user,
     initialData: [],
@@ -403,7 +399,14 @@ function ClientManagementInner() {
       const matchesSearch = client.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) || client.email?.toLowerCase().includes(searchQuery.toLowerCase()) || client.phone?.includes(searchQuery);
       const matchesStatus = statusFilter === "all" || client.status === statusFilter;
       const assignedCoachList = Array.isArray(client.assigned_coach) ? client.assigned_coach : client.assigned_coach ? [client.assigned_coach] : [];
-      const matchesCoach = coachFilter === "all" || (coachFilter === "unassigned" ? assignedCoachList.length === 0 : assignedCoachList.includes(coachFilter));
+      const selectedCoachEmails = Array.isArray(coachFilter) ? coachFilter : [];
+      const matchesCoach = coachFilter === "all"
+        ? true
+        : coachFilter === "unassigned"
+        ? assignedCoachList.length === 0
+        : selectedCoachEmails.length > 0
+        ? selectedCoachEmails.some(email => assignedCoachList.includes(email))
+        : true;
       const matchesAddedBy = addedByCoachFilter === "all" || client.created_by === addedByCoachFilter;
       const matchesGoal = goalFilter === "all" || client.goal === goalFilter;
       const clientHasActivePlan = mealPlans.some(p => p.client_id === client.id && p.active);
