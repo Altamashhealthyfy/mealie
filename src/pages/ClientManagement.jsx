@@ -158,7 +158,12 @@ function ClientManagementInner() {
       // Try fetching all users (works for super_admin)
       try {
         const allUsers = await base44.entities.User.list();
-        const coaches = allUsers.filter(u => u.user_type === 'student_coach');
+        const coaches = allUsers.filter(u =>
+          u.user_type === 'student_coach' ||
+          u.role === 'student_coach' ||
+          u.user_type === 'super_admin' ||
+          u.role === 'admin'
+        );
         for (const c of coaches) {
           if (c.email && !seen.has(c.email)) {
             seen.add(c.email);
@@ -167,7 +172,7 @@ function ClientManagementInner() {
         }
       } catch (e) { /* non-admin, fallthrough */ }
 
-      // Always also pull from CoachProfile to get business names
+      // Always pull from CoachProfile to get business names / extra coaches
       try {
         const profiles = await base44.entities.CoachProfile.list();
         for (const p of profiles) {
@@ -177,7 +182,7 @@ function ClientManagementInner() {
             seen.add(p.created_by);
             result.push({ email: p.created_by, full_name: name, id: p.id });
           } else {
-            // Update name if we already have the entry
+            // Update name with better display name if available
             const existing = result.find(r => r.email === p.created_by);
             if (existing && (p.business_name || p.full_name)) {
               existing.full_name = p.business_name || p.full_name || existing.full_name;
@@ -187,7 +192,7 @@ function ClientManagementInner() {
       } catch (e) { /* ignore */ }
 
       // Always include current user if they're a coach
-      if (user?.user_type === 'student_coach' && !seen.has(user.email)) {
+      if (user?.email && !seen.has(user.email)) {
         result.push({ email: user.email, full_name: user.full_name || user.email, id: user.id });
       }
 
@@ -195,8 +200,8 @@ function ClientManagementInner() {
     },
     enabled: !!user,
     initialData: [],
-    retry: 0,
-    staleTime: 5 * 60 * 1000,
+    retry: 1,
+    staleTime: 2 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
