@@ -57,7 +57,9 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
   const [modificationHistory, setModificationHistory] = useState([]);
 
   // Step 6: Saving
-  const [saving, setSaving] = useState(false);
+  const [savingOnly, setSavingOnly] = useState(false);
+  const [savingAssign, setSavingAssign] = useState(false);
+  const saving = savingOnly || savingAssign;
 
   const selectedIntake = sortedIntakes.find(i => i.id === selectedIntakeId) || latestIntake;
 
@@ -208,7 +210,8 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
   // ── STEP 6: Save ────────────────────────────────────────────────────────────
   const savePlan = async (assign = false) => {
     if (!generatedPlan) return;
-    setSaving(true);
+    if (assign) setSavingAssign(true);
+    else setSavingOnly(true);
     try {
       const allPlanIds = (mealPlans || []).map(p => p.id);
 
@@ -242,13 +245,15 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       toast.success(assign ? '✅ Plan saved and assigned to client!' : '✅ Plan saved!');
       queryClient.invalidateQueries(['clientMealPlans', client.id]);
       queryClient.refetchQueries(['clientMealPlans', client.id]);
-      setSaving(false);
+      if (assign) setSavingAssign(false);
+      else setSavingOnly(false);
       // Navigate back immediately after save
       if (assign && onPlanAssigned) onPlanAssigned();
       else if (onPlanSaved) onPlanSaved();
     } catch (err) {
       toast.error('Save failed: ' + (err.message || 'Unknown error'));
-      setSaving(false);
+      if (assign) setSavingAssign(false);
+      else setSavingOnly(false);
     }
   };
 
@@ -420,11 +425,22 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
               <Alert className="bg-amber-50 border-amber-300"><AlertTriangle className="w-4 h-4 text-amber-600" /><AlertDescription className="text-sm">There is already an active plan. Assigning this plan will deactivate it.</AlertDescription></Alert>
             )}
             <div className="grid grid-cols-2 gap-3">
-              <Button onClick={() => savePlan(false)} disabled={saving} variant="outline" className="border-emerald-400 text-emerald-700">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 mr-2" />} Save Only
+              <Button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); savePlan(false); }}
+                disabled={savingOnly || savingAssign}
+                variant="outline"
+                className="border-emerald-400 text-emerald-700"
+              >
+                {savingOnly ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />} Save Only
               </Button>
-              <Button onClick={() => savePlan(true)} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 mr-2" />} Save & Assign
+              <Button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); savePlan(true); }}
+                disabled={savingOnly || savingAssign}
+                className="bg-emerald-600 hover:bg-emerald-700"
+              >
+                {savingAssign ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Send className="w-4 h-4 mr-2" />} Save & Assign
               </Button>
             </div>
           </SectionShell>
