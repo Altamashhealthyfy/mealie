@@ -58,12 +58,12 @@ const AuthenticatedApp = () => {
         {Object.entries(Pages).map(([path, Page]) => (
           <Route key={path} path={`/${path}`} element={<Page />} />
         ))}
-        <Route path="/AIAuditLog" element={<LayoutWrapper currentPageName="AIAuditLog"><AIAuditLog /></LayoutWrapper>} />
-        <Route path="/CoachActivityAuditLog" element={<LayoutWrapper currentPageName="CoachActivityAuditLog"><CoachActivityAuditLog /></LayoutWrapper>} />
-        <Route path="/UserActivityLog" element={<LayoutWrapper currentPageName="UserActivityLog"><UserActivityLog /></LayoutWrapper>} />
-        <Route path="/TokenUsageDashboard" element={<LayoutWrapper currentPageName="TokenUsageDashboard"><TokenUsageDashboard /></LayoutWrapper>} />
-        <Route path="/BillingPortal" element={<LayoutWrapper currentPageName="BillingPortal"><BillingPortal /></LayoutWrapper>} />
-        <Route path="/ClientSelfEditProfile" element={<LayoutWrapper currentPageName="ClientSelfEditProfile"><ClientSelfEditProfile /></LayoutWrapper>} />
+        <Route path="/AIAuditLog" element={<AIAuditLog />} />
+        <Route path="/CoachActivityAuditLog" element={<CoachActivityAuditLog />} />
+        <Route path="/UserActivityLog" element={<UserActivityLog />} />
+        <Route path="/TokenUsageDashboard" element={<TokenUsageDashboard />} />
+        <Route path="/BillingPortal" element={<BillingPortal />} />
+        <Route path="/ClientSelfEditProfile" element={<ClientSelfEditProfile />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </LayoutWrapper>
