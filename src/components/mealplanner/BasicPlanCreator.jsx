@@ -125,18 +125,18 @@ export default function BasicPlanCreator({ client, onBack, onPlanSaved }) {
   };
 
   const savePlan = async (assign = false) => {
-    if (!generatedPlan?.id) return;
+    if (!generatedPlan?.id) { toast.error("No plan to save."); return; }
     setSaving(true);
     try {
       if (assign) {
-        // Deactivate all existing plans first
+        // Deactivate all existing plans first, then activate this one
         const existingPlans = await base44.entities.MealPlan.filter({ client_id: client.id });
-        if (existingPlans.length > 0) {
-          await Promise.all(existingPlans.map(p => base44.entities.MealPlan.update(p.id, { active: false })));
-        }
+        await Promise.all(existingPlans.filter(p => p.id !== generatedPlan.id).map(p => base44.entities.MealPlan.update(p.id, { active: false })));
         await base44.entities.MealPlan.update(generatedPlan.id, { active: true });
         toast.success("Plan saved and assigned to client!");
       } else {
+        // Plan already created in DB (inactive), just confirm save
+        await base44.entities.MealPlan.update(generatedPlan.id, { active: false });
         toast.success("Plan saved!");
       }
       await queryClient.invalidateQueries({ queryKey: ["clientMealPlans", client.id] });

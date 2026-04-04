@@ -393,11 +393,7 @@ Dinner Protein: ${slotList('dinner_prot')}`;
       }
     }
 
-    // ─── STEP 9: Deactivate existing active plans ───
-    const existingPlans = await MealPlan.filter({ client_id: clientId, active: true });
-    for (const p of existingPlans) {
-      try { await MealPlan.update(p.id, { active: false }); } catch (_) {}
-    }
+    // ─── STEP 9: (deactivation handled at save time, not here) ───
 
     // ─── STEP 10: Plan name with IST timestamp ───
     const istTs    = getISTTimestamp();
@@ -413,7 +409,7 @@ Dinner Protein: ${slotList('dinner_prot')}`;
       food_preference: resolvedDiet,
       target_calories: targetCal,
       meals:           allMeals,
-      active:          true,
+      active:          false,
       generation_parameters: {
         duration:          days,
         target_calories:   targetCal,
