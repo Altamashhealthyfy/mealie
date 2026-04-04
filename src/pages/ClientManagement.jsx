@@ -562,6 +562,12 @@ function ClientManagementInner() {
                   <Badge className={`text-xs ${client.status === 'active' ? 'bg-green-100 text-green-700' : client.status === 'inactive' ? 'bg-gray-100 text-gray-700' : 'bg-blue-100 text-blue-700'}`}>{client.status}</Badge>
                   {client.food_preference && <Badge className="bg-blue-100 text-blue-700 capitalize text-xs hidden md:inline-flex">{client.food_preference?.replace('_', ' ')}</Badge>}
                   {activePlan && <Badge className="bg-purple-100 text-purple-700 text-xs hidden lg:inline-flex"><CheckCircle2 className="w-3 h-3 mr-1" />Active Plan</Badge>}
+                  {(() => {
+                    const coaches = Array.isArray(client.assigned_coach) ? client.assigned_coach : client.assigned_coach ? [client.assigned_coach] : [];
+                    if (coaches.length === 0) return <Badge className="bg-amber-100 text-amber-700 text-xs hidden md:inline-flex">Unassigned</Badge>;
+                    const coachNames = coaches.map(email => healthCoaches?.find(c => c.email === email)?.full_name || email.split('@')[0]).slice(0, 2);
+                    return coachNames.map((name, i) => <Badge key={i} className="bg-teal-100 text-teal-700 text-xs hidden lg:inline-flex">👤 {name}</Badge>);
+                  })()}
                 </div>
 
                 {/* Goal + Calories */}

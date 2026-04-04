@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Search, X, SlidersHorizontal } from "lucide-react";
 
-function CoachSearchSelect({ value, onChange, healthCoaches }) {
+function CoachSearchSelect({ value, onChange, healthCoaches, showUnassigned }) {
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -18,7 +18,8 @@ function CoachSearchSelect({ value, onChange, healthCoaches }) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const selected = value !== "all" ? (healthCoaches || []).find(c => c.email === value) : null;
+  const selected = value !== "all" && value !== "unassigned" ? (healthCoaches || []).find(c => c.email === value) : null;
+  const isUnassigned = value === "unassigned";
 
   const filtered = (healthCoaches || []).filter(c =>
     c.full_name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -36,10 +37,12 @@ function CoachSearchSelect({ value, onChange, healthCoaches }) {
             <span className="truncate font-medium">{selected.full_name}</span>
             <span className="text-xs text-gray-400 truncate">{selected.email}</span>
           </div>
+        ) : isUnassigned ? (
+          <span className="font-medium text-amber-700">Unassigned</span>
         ) : (
           <span className="text-muted-foreground">All Coaches</span>
         )}
-        {selected ? (
+        {(selected || isUnassigned) ? (
           <X className="w-4 h-4 text-gray-400 hover:text-gray-600 ml-2 flex-shrink-0" onClick={(e) => { e.stopPropagation(); onChange("all"); setSearch(""); }} />
         ) : (
           <Search className="w-4 h-4 opacity-50 ml-2 flex-shrink-0" />
@@ -66,6 +69,14 @@ function CoachSearchSelect({ value, onChange, healthCoaches }) {
             >
               All Coaches
             </div>
+            {showUnassigned && (
+              <div
+                className={`px-3 py-2 text-sm cursor-pointer hover:bg-amber-50 border-b border-gray-100 ${value === "unassigned" ? "bg-amber-50 font-medium text-amber-700" : "text-amber-600"}`}
+                onClick={() => { onChange("unassigned"); setSearch(""); setOpen(false); }}
+              >
+                ⚠️ Unassigned Clients
+              </div>
+            )}
             {filtered.map(coach => (
               <div
                 key={coach.email}
@@ -224,8 +235,8 @@ export default function AdvancedFilters({
           {/* Handled By Coach Filter (assigned_coach) */}
           {(healthCoaches?.length > 0) && (
             <div>
-              <Label className="text-xs mb-1 block">Handled By Coach</Label>
-              <CoachSearchSelect value={coachFilter} onChange={setCoachFilter} healthCoaches={healthCoaches} />
+              <Label className="text-xs mb-1 block">Filter by Health Coach</Label>
+              <CoachSearchSelect value={coachFilter} onChange={setCoachFilter} healthCoaches={healthCoaches} showUnassigned />
             </div>
           )}
 
