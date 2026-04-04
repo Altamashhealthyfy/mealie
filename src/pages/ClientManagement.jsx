@@ -150,15 +150,39 @@ function ClientManagementInner() {
   });
 
   const { data: healthCoaches } = useQuery({
-    queryKey: ['healthCoaches'],
+    queryKey: ['healthCoaches', user?.email],
     queryFn: async () => {
-      const allUsers = await base44.entities.User.list();
-      const coaches = allUsers.filter(u => u.user_type === 'student_coach');
-      // Ensure current user is included if they're a coach
-      if (user?.user_type === 'student_coach' && !coaches.find(c => c.email === user.email)) {
-        coaches.push({ email: user.email, full_name: user.full_name, id: user.id });
+      try {
+        // Try fetching all users (works for super_admin)
+        const allUsers = await base44.entities.User.list();
+        const coaches = allUsers.filter(u => u.user_type === 'student_coach');
+        // Always include current user if they're a coach
+        if (user?.user_type === 'student_coach' && !coaches.find(c => c.email === user.email)) {
+          coaches.push({ email: user.email, full_name: user.full_name, id: user.id });
+        }
+        if (coaches.length > 0) return coaches;
+      } catch (e) { /* fallthrough */ }
+
+      // Fallback: fetch from CoachProfile entity (accessible to all roles)
+      try {
+        const profiles = await base44.entities.CoachProfile.list();
+        const coaches = profiles.map(p => ({
+          email: p.created_by,
+          full_name: p.business_name || p.created_by,
+          id: p.id,
+        })).filter(c => c.email);
+        // Always include current user
+        if (user?.user_type === 'student_coach' && !coaches.find(c => c.email === user.email)) {
+          coaches.push({ email: user.email, full_name: user.full_name, id: user.id });
+        }
+        return coaches;
+      } catch (e) {
+        // Last resort: just return current user if they're a coach
+        if (user?.user_type === 'student_coach') {
+          return [{ email: user.email, full_name: user.full_name, id: user.id }];
+        }
+        return [];
       }
-      return coaches;
     },
     enabled: !!user,
     initialData: [],
