@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -12,6 +12,8 @@ export default function InlineProPlanForm({ client, onSuccess, onCancel, prefill
   // step: "diagnostic" | "generating" | "preview" | "saved"
   const [step, setStep] = useState("diagnostic");
   const [saving, setSaving] = useState(false);
+  const saveInProgress = useRef(false);
+  const generateInProgress = useRef(false);
   const [generatedData, setGeneratedData] = useState(null);
   const [decisionRules, setDecisionRules] = useState([]);
   const [duration, setDuration] = useState(10);
@@ -42,6 +44,8 @@ export default function InlineProPlanForm({ client, onSuccess, onCancel, prefill
   };
 
   const generatePlan = async (rules) => {
+    if (generateInProgress.current) return; // prevent double-generation
+    generateInProgress.current = true;
     setStep("generating");
     try {
       const calories = client.target_calories || 1600;
@@ -114,10 +118,14 @@ Return a structured therapeutic meal plan with exact portions and macros.`;
       console.error("Generation error:", error);
       toast.error("Failed to generate pro plan. Please try again.");
       setStep("diagnostic");
+    } finally {
+      generateInProgress.current = false;
     }
   };
 
   const savePlan = async () => {
+    if (saveInProgress.current) return; // prevent double-submit
+    saveInProgress.current = true;
     setSaving(true);
     try {
       const plan = await base44.entities.MealPlan.create({
@@ -140,6 +148,7 @@ Return a structured therapeutic meal plan with exact portions and macros.`;
       toast.error("Failed to save plan. Please try again.");
     } finally {
       setSaving(false);
+      saveInProgress.current = false;
     }
   };
 
