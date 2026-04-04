@@ -66,10 +66,13 @@ export default function DietitianDashboard() {
       if (user?.user_type === 'super_admin') {
         return await base44.entities.Client.list();
       }
-      const byCreated = await base44.entities.Client.filter({ created_by: user.email });
-      const byAssigned = await base44.entities.Client.filter({ assigned_coach: user.email });
-      const combined = [...byCreated, ...byAssigned];
-      return combined.filter((c, i, self) => self.findIndex(x => x.id === c.id) === i);
+      // Fetch ALL clients and filter client-side to handle assigned_coach as array
+      const allClients = await base44.entities.Client.list('-created_date', 1000);
+      return allClients.filter(c => {
+        if (c.created_by === user.email) return true;
+        const coaches = Array.isArray(c.assigned_coach) ? c.assigned_coach : c.assigned_coach ? [c.assigned_coach] : [];
+        return coaches.includes(user.email);
+      });
     },
     enabled: !!user,
     staleTime: 5 * 60 * 1000,
@@ -163,9 +166,17 @@ export default function DietitianDashboard() {
       if (user?.user_type === 'super_admin') {
         return await base44.entities.MealPlan.list('-created_date', 200);
       }
+      const allClients = await base44.entities.Client.list('-created_date', 1000);
+      const myClientIds = new Set(
+        allClients
+          .filter(c => {
+            if (c.created_by === user?.email) return true;
+            const coaches = Array.isArray(c.assigned_coach) ? c.assigned_coach : c.assigned_coach ? [c.assigned_coach] : [];
+            return coaches.includes(user?.email);
+          })
+          .map(c => c.id)
+      );
       const allPlans = await base44.entities.MealPlan.list('-created_date', 200);
-      const myClients = await base44.entities.Client.filter({ created_by: user?.email }, '-created_date', 200);
-      const myClientIds = new Set(myClients.map(c => c.id));
       return allPlans.filter(p => myClientIds.has(p.client_id));
     },
     enabled: !!user,

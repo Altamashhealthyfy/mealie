@@ -375,43 +375,7 @@ Generate 5 templates and MPESS for ${conditions.join('+')||'general health'} cli
     const timeStr = `${String(istHours).padStart(2,'0')}:${istMinutes} ${istAmPm}`;
     const planName = `${client.full_name || client.name} — ${conditions.join('+')||'General'} Plan (${days} Days) | ${istDay} ${istMonth} ${istYear} ${timeStr} IST`;
 
-    // ─── STEP 14: Save plan ───
-    const mealPlan = await base44.asServiceRole.entities.MealPlan.create({
-      client_id: clientId,
-      name: planName,
-      duration: days,
-      food_preference: resolvedDiet,
-      target_calories: targetCal,
-      disease_focus: conditions,
-      meals: allMeals,
-      mpess: mpess,
-      active: false,
-      plan_tier: 'advanced',
-      generation_parameters: {
-        duration: days,
-        target_calories: targetCal,
-        goal,
-        food_preference: resolvedDiet,
-        modification_instructions: coachRules || null,
-        generation_count: 1,
-        macro_source: 'catalog',
-        rotation_used: rotation.join(','),
-        templates_used: templateKeys.join(','),
-      },
-    });
-
-    // Notify client
-    await base44.asServiceRole.entities.Notification.create({
-      user_email: client.email,
-      type: 'meal_plan',
-      title: '🎉 New AI Meal Plan Ready!',
-      message: `Your personalized ${days}-day meal plan has been created.`,
-      priority: 'high',
-      link: '/MyAssignedMealPlan',
-      read: false,
-    }).catch(() => {});
-
-    // Log AI call
+    // ─── STEP 14: Log AI call (plan is NOT saved here — frontend saves on user action) ───
     await base44.asServiceRole.entities.AICallLog.create({
       function_name: 'generateAIMealPlan',
       model: 'claude-haiku-4-5-20251001',
@@ -437,12 +401,11 @@ Generate 5 templates and MPESS for ${conditions.join('+')||'general health'} cli
       },
     }).catch(e => console.warn('AICallLog write failed:', e.message));
 
-    console.log('✅ Plan saved:', { name: planName, days, meals: allMeals.length, non_veg: nonVegCount, eggs: eggCount, rotation: rotation.join(',') });
+    console.log('✅ Plan generated:', { name: planName, days, meals: allMeals.length, non_veg: nonVegCount, eggs: eggCount, rotation: rotation.join(',') });
 
     return Response.json({
       success: true,
-      mealPlan: { id: mealPlan.id, name: planName },
-      plan_id: mealPlan.id,
+      mealPlan: { name: planName },
       plan_name: planName,
       total_meals: allMeals.length,
       non_veg_count: nonVegCount,
