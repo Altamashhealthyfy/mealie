@@ -152,37 +152,46 @@ function ClientManagementInner() {
   const { data: healthCoaches } = useQuery({
     queryKey: ['healthCoaches', user?.email],
     queryFn: async () => {
+      const result = [];
+      const seen = new Set();
+
+      // Try fetching all users (works for super_admin)
       try {
-        // Try fetching all users (works for super_admin)
         const allUsers = await base44.entities.User.list();
         const coaches = allUsers.filter(u => u.user_type === 'student_coach');
-        // Always include current user if they're a coach
-        if (user?.user_type === 'student_coach' && !coaches.find(c => c.email === user.email)) {
-          coaches.push({ email: user.email, full_name: user.full_name, id: user.id });
+        for (const c of coaches) {
+          if (c.email && !seen.has(c.email)) {
+            seen.add(c.email);
+            result.push({ email: c.email, full_name: c.full_name || c.email, id: c.id });
+          }
         }
-        if (coaches.length > 0) return coaches;
-      } catch (e) { /* fallthrough */ }
+      } catch (e) { /* non-admin, fallthrough */ }
 
-      // Fallback: fetch from CoachProfile entity (accessible to all roles)
+      // Always also pull from CoachProfile to get business names
       try {
         const profiles = await base44.entities.CoachProfile.list();
-        const coaches = profiles.map(p => ({
-          email: p.created_by,
-          full_name: p.business_name || p.created_by,
-          id: p.id,
-        })).filter(c => c.email);
-        // Always include current user
-        if (user?.user_type === 'student_coach' && !coaches.find(c => c.email === user.email)) {
-          coaches.push({ email: user.email, full_name: user.full_name, id: user.id });
+        for (const p of profiles) {
+          if (!p.created_by) continue;
+          const name = p.business_name || p.full_name || p.created_by;
+          if (!seen.has(p.created_by)) {
+            seen.add(p.created_by);
+            result.push({ email: p.created_by, full_name: name, id: p.id });
+          } else {
+            // Update name if we already have the entry
+            const existing = result.find(r => r.email === p.created_by);
+            if (existing && (p.business_name || p.full_name)) {
+              existing.full_name = p.business_name || p.full_name || existing.full_name;
+            }
+          }
         }
-        return coaches;
-      } catch (e) {
-        // Last resort: just return current user if they're a coach
-        if (user?.user_type === 'student_coach') {
-          return [{ email: user.email, full_name: user.full_name, id: user.id }];
-        }
-        return [];
+      } catch (e) { /* ignore */ }
+
+      // Always include current user if they're a coach
+      if (user?.user_type === 'student_coach' && !seen.has(user.email)) {
+        result.push({ email: user.email, full_name: user.full_name || user.email, id: user.id });
       }
+
+      return result;
     },
     enabled: !!user,
     initialData: [],
