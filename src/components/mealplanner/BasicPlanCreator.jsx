@@ -135,8 +135,7 @@ export default function BasicPlanCreator({ client, onBack, onPlanSaved }) {
         await base44.entities.MealPlan.update(generatedPlan.id, { active: true });
         toast.success("Plan saved and assigned to client!");
       } else {
-        // Plan already created in DB (inactive), just confirm save
-        await base44.entities.MealPlan.update(generatedPlan.id, { active: false });
+        // Plan already created in DB as inactive — nothing more to do
         toast.success("Plan saved!");
       }
       await queryClient.invalidateQueries({ queryKey: ["clientMealPlans", client.id] });
