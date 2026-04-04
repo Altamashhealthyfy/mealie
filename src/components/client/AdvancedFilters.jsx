@@ -232,13 +232,11 @@ export default function AdvancedFilters({
             </Select>
           </div>
 
-          {/* Handled By Coach Filter (assigned_coach) */}
-          {(healthCoaches?.length > 0) && (
-            <div>
-              <Label className="text-xs mb-1 block">Filter by Health Coach</Label>
-              <CoachSearchSelect value={coachFilter} onChange={setCoachFilter} healthCoaches={healthCoaches} showUnassigned />
-            </div>
-          )}
+          {/* Health Coach Filter - always visible */}
+          <div>
+            <Label className="text-xs mb-1 block">Health Coach</Label>
+            <CoachSearchSelect value={coachFilter} onChange={setCoachFilter} healthCoaches={healthCoaches || []} showUnassigned />
+          </div>
 
           {/* Sort By */}
           <div>
