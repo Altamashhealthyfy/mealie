@@ -138,13 +138,12 @@ export default function BasicPlanCreator({ client, onBack, onPlanSaved }) {
         // Plan already created in DB as inactive — nothing more to do
         toast.success("Plan saved!");
       }
-      await queryClient.invalidateQueries({ queryKey: ["clientMealPlans", client.id] });
-      await queryClient.refetchQueries({ queryKey: ["clientMealPlans", client.id] });
-      onPlanSaved?.();
+      queryClient.invalidateQueries({ queryKey: ["clientMealPlans", client.id] });
     } catch (err) {
       toast.error("Save failed: " + err.message);
     } finally {
       setSaving(false);
+      onPlanSaved?.();
     }
   };
 
