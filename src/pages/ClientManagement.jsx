@@ -107,7 +107,7 @@ function ClientManagementInner() {
     queryKey: ['clients', user?.email],
     queryFn: async () => {
       if (!user?.email) return [];
-      if (user?.user_type === 'super_admin' || user?.role === 'super_admin') {
+      if (user?.user_type === 'super_admin' || user?.role === 'admin' || user?.data?.user_type === 'super_admin') {
         return await base44.entities.Client.list();
       }
       const byCreated = await base44.entities.Client.filter({ created_by: user.email });
@@ -124,7 +124,7 @@ function ClientManagementInner() {
     queryKey: ['mealPlans'],
     queryFn: async () => {
       const allPlans = await base44.entities.MealPlan.list('-created_date');
-      if (user?.user_type === 'super_admin') return allPlans;
+      if (user?.user_type === 'super_admin' || user?.role === 'admin' || user?.data?.user_type === 'super_admin') return allPlans;
       return allPlans.filter(plan => plan.created_by === user?.email);
     },
     enabled: !!user,
@@ -136,13 +136,16 @@ function ClientManagementInner() {
   const { data: teamMembers } = useQuery({
     queryKey: ['teamMembers', user?.email],
     queryFn: async () => {
-      if (user?.user_type === 'super_admin') {
+      if (user?.user_type === 'super_admin' || user?.role === 'admin' || user?.data?.user_type === 'super_admin') {
         const allUsers = await base44.entities.User.list();
-        return allUsers.filter(u => u.user_type === 'team_member' || u.user_type === 'student_team_member');
+        return allUsers.filter(u => {
+          const utype = u.user_type || u.data?.user_type;
+          return utype === 'team_member' || utype === 'student_team_member';
+        });
       }
       return [];
     },
-    enabled: !!user && user?.user_type === 'super_admin',
+    enabled: !!user && (user?.user_type === 'super_admin' || user?.role === 'admin' || user?.data?.user_type === 'super_admin'),
     initialData: [],
     retry: 0,
     staleTime: 5 * 60 * 1000,
@@ -162,8 +165,11 @@ function ClientManagementInner() {
         // Build email→full_name map for all users
         allUsers.forEach(u => { if (u.email) userNameMap[u.email] = u.full_name || u.email; });
         const coaches = allUsers.filter(u => {
+          // user_type can be at top level OR nested inside data{}
           const utype = u.user_type || u.data?.user_type;
-          return utype === 'student_coach' || utype === 'super_admin' || utype === 'team_member';
+          // role 'admin' at top level = platform owner (super_admin)
+          const urole = u.role || u.data?.role;
+          return utype === 'student_coach' || utype === 'super_admin' || utype === 'team_member' || urole === 'admin';
         });
         for (const c of coaches) {
           if (c.email && !seen.has(c.email)) {
@@ -446,7 +452,7 @@ function ClientManagementInner() {
     });
 
     // Super admin only: show clients with assigned coaches first
-    if (user?.user_type === 'super_admin') {
+    if (user?.user_type === 'super_admin' || user?.role === 'admin' || user?.data?.user_type === 'super_admin') {
       filtered.sort((a, b) => {
         const aHasCoach = Array.isArray(a.assigned_coach) ? a.assigned_coach.length > 0 : !!a.assigned_coach;
         const bHasCoach = Array.isArray(b.assigned_coach) ? b.assigned_coach.length > 0 : !!b.assigned_coach;
@@ -547,7 +553,7 @@ function ClientManagementInner() {
           </div>
         </div>
 
-        <AdvancedFilters searchQuery={searchQuery} setSearchQuery={setSearchQuery} statusFilter={statusFilter} setStatusFilter={setStatusFilter} coachFilter={coachFilter} setCoachFilter={setCoachFilter} addedByCoachFilter={addedByCoachFilter} setAddedByCoachFilter={setAddedByCoachFilter} goalFilter={goalFilter} setGoalFilter={setGoalFilter} sortBy={sortBy} setSortBy={setSortBy} sortOrder={sortOrder} setSortOrder={setSortOrder} lastActiveFilter={lastActiveFilter} setLastActiveFilter={setLastActiveFilter} hasActivePlan={hasActivePlan} setHasActivePlan={setHasActivePlan} healthCoaches={healthCoaches} showCoachFilter={user?.user_type === 'super_admin'} activeFiltersCount={activeFiltersCount} />
+        <AdvancedFilters searchQuery={searchQuery} setSearchQuery={setSearchQuery} statusFilter={statusFilter} setStatusFilter={setStatusFilter} coachFilter={coachFilter} setCoachFilter={setCoachFilter} addedByCoachFilter={addedByCoachFilter} setAddedByCoachFilter={setAddedByCoachFilter} goalFilter={goalFilter} setGoalFilter={setGoalFilter} sortBy={sortBy} setSortBy={setSortBy} sortOrder={sortOrder} setSortOrder={setSortOrder} lastActiveFilter={lastActiveFilter} setLastActiveFilter={setLastActiveFilter} hasActivePlan={hasActivePlan} setHasActivePlan={setHasActivePlan} healthCoaches={healthCoaches} showCoachFilter={user?.user_type === 'super_admin' || user?.role === 'admin' || user?.data?.user_type === 'super_admin'} activeFiltersCount={activeFiltersCount} />
 
         {selectedClients.length > 0 && (
           <BulkActionsPanel selectedClients={filteredAndSortedClients.filter(c => selectedClients.includes(c.id))} onClose={() => setSelectedClients([])} onSuccess={() => { setSelectedClients([]); queryClient.invalidateQueries(); }} />
