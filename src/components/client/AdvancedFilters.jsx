@@ -275,11 +275,13 @@ export default function AdvancedFilters({
             </Select>
           </div>
 
-          {/* Health Coach Filter - always visible */}
-          <div>
-            <Label className="text-xs mb-1 block">Health Coach</Label>
-            <CoachSearchSelect value={coachFilter} onChange={setCoachFilter} healthCoaches={healthCoaches || []} showUnassigned />
-          </div>
+          {/* Health Coach Filter - only for super_admin */}
+          {showCoachFilter && (
+            <div>
+              <Label className="text-xs mb-1 block">Health Coach</Label>
+              <CoachSearchSelect value={coachFilter} onChange={setCoachFilter} healthCoaches={healthCoaches || []} showUnassigned />
+            </div>
+          )}
 
           {/* Sort By */}
           <div>
