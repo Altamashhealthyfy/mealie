@@ -1,20 +1,25 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChefHat, Search, Star, CheckCircle, Loader2, BookOpen } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ChefHat, Search, CheckCircle, Loader2, BookOpen, Eye, Pencil, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import MealPlanViewer from "@/components/client/MealPlanViewer";
+import MealPlanEditor from "@/components/client/MealPlanEditor";
 
 export default function MealPlanTemplateSelector({ client, onAssigned, onClose }) {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [assigning, setAssigning] = useState(null);
+  const [viewingTemplate, setViewingTemplate] = useState(null);
+  const [editingTemplate, setEditingTemplate] = useState(null);
 
-  const { data: templates = [], isLoading } = useQuery({
+  const { data: templates = [], isLoading, refetch } = useQuery({
     queryKey: ["mealPlanTemplates"],
     queryFn: () => base44.entities.MealPlanTemplate.list("-times_used", 100),
   });
@@ -30,11 +35,9 @@ export default function MealPlanTemplateSelector({ client, onAssigned, onClose }
   const handleAssign = async (template) => {
     setAssigning(template.id);
     try {
-      // Get existing plans to deactivate
       const existingPlans = await base44.entities.MealPlan.filter({ client_id: client.id });
       await Promise.all(existingPlans.map(p => base44.entities.MealPlan.update(p.id, { active: false })));
 
-      // Create new plan from template
       await base44.entities.MealPlan.create({
         client_id: client.id,
         name: `${template.name} — ${client.full_name}`,
@@ -49,7 +52,6 @@ export default function MealPlanTemplateSelector({ client, onAssigned, onClose }
         decision_rules_applied: [`Assigned from template: ${template.name}`],
       });
 
-      // Increment usage count
       await base44.entities.MealPlanTemplate.update(template.id, {
         times_used: (template.times_used || 0) + 1,
       });
@@ -61,6 +63,38 @@ export default function MealPlanTemplateSelector({ client, onAssigned, onClose }
     }
     setAssigning(null);
   };
+
+  const handleEditSaved = async (updatedMeals) => {
+    if (!editingTemplate) return;
+    try {
+      await base44.entities.MealPlanTemplate.update(editingTemplate.id, { meals: updatedMeals });
+      toast.success("Template updated!");
+      refetch();
+      setEditingTemplate(null);
+    } catch (e) {
+      toast.error("Failed to save template: " + e.message);
+    }
+  };
+
+  // ── Inline edit view ──
+  if (editingTemplate) {
+    return (
+      <div className="space-y-3">
+        <button
+          onClick={() => setEditingTemplate(null)}
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to Templates
+        </button>
+        <p className="text-sm font-semibold text-gray-700">Editing: {editingTemplate.name}</p>
+        <MealPlanEditor
+          plan={editingTemplate}
+          onSaved={handleEditSaved}
+          onCancel={() => setEditingTemplate(null)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -129,26 +163,61 @@ export default function MealPlanTemplateSelector({ client, onAssigned, onClose }
                       )}
                     </div>
                   </div>
-                  <Button
-                    size="sm"
-                    onClick={() => handleAssign(template)}
-                    disabled={assigning === template.id}
-                    className="bg-green-500 hover:bg-green-600 shrink-0"
-                  >
-                    {assigning === template.id ? (
-                      <Loader2 className="w-3 h-3 animate-spin" />
-                    ) : (
-                      <>
-                        <CheckCircle className="w-3 h-3 mr-1" /> Assign
-                      </>
-                    )}
-                  </Button>
+
+                  {/* Actions */}
+                  <div className="flex flex-col gap-1.5 shrink-0">
+                    <Button
+                      size="sm"
+                      onClick={() => handleAssign(template)}
+                      disabled={assigning === template.id}
+                      className="bg-green-500 hover:bg-green-600 text-xs h-7"
+                    >
+                      {assigning === template.id ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <><CheckCircle className="w-3 h-3 mr-1" /> Assign</>
+                      )}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setViewingTemplate(template)}
+                      className="text-blue-600 border-blue-200 text-xs h-7"
+                    >
+                      <Eye className="w-3 h-3 mr-1" /> View
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setEditingTemplate(template)}
+                      className="text-amber-700 border-amber-300 text-xs h-7"
+                    >
+                      <Pencil className="w-3 h-3 mr-1" /> Edit
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      {/* View Template Dialog */}
+      <Dialog open={!!viewingTemplate} onOpenChange={() => setViewingTemplate(null)}>
+        <DialogContent className="max-w-[95vw] w-full max-h-[95vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="truncate">{viewingTemplate?.name}</DialogTitle>
+          </DialogHeader>
+          {viewingTemplate && (
+            <MealPlanViewer
+              plan={viewingTemplate}
+              allPlanIds={[]}
+              hideActions={true}
+              isCoach={true}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
