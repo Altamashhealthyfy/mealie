@@ -344,7 +344,7 @@ function ModeDropdown({ onSelect, isBasicUser }) {
 }
 
 // ── PlanCard ───────────────────────────────────────────────────────────────────
-function PlanCard({ plan, onView, onSetActive, onSaveTemplate, onDelete, allPlanIds, isPending, isBasicUser }) {
+function PlanCard({ plan, onView, onSetActive, onSaveTemplate, onDelete, onSchedule, allPlanIds, isPending, isBasicUser }) {
   const typeLabel = getPlanTypeLabel(plan);
   const isBasicPlan = typeLabel === "⚡ Basic";
   return (
@@ -382,6 +382,10 @@ function PlanCard({ plan, onView, onSetActive, onSaveTemplate, onDelete, allPlan
                 Assign
               </Button>
             )}
+            <Button size="sm" variant="outline" className="text-blue-600 border-blue-200 text-xs h-7"
+              onClick={() => onSchedule(plan)}>
+              <Calendar className="w-3 h-3 mr-1" /> Schedule
+            </Button>
             <Button size="sm" variant="outline" className="text-orange-600 border-orange-200 text-xs h-7"
               onClick={() => onSaveTemplate(plan)}>
               <Save className="w-3 h-3 mr-1" /> Template
@@ -450,6 +454,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
   const [viewingPlan, setViewingPlan] = useState(null);
   const [showTemplateSelector, setShowTemplateSelector] = useState(null);
   const [savingTemplate, setSavingTemplate] = useState(null);
+  const [schedulingPlan, setSchedulingPlan] = useState(null);
   const [filterType, setFilterType] = useState("all");
 
   const invalidatePlans = () => queryClient.invalidateQueries(["clientMealPlans", clientId]);
@@ -644,6 +649,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
               onView={setViewingPlan}
               onSetActive={(planId) => setActivePlanMutation.mutate({ planId, allPlanIds })}
               onSaveTemplate={setSavingTemplate}
+              onSchedule={setSchedulingPlan}
               onDelete={(id) => deletePlanMutation.mutate(id)}
               isPending={deletePlanMutation.isPending || setActivePlanMutation.isPending}
               isBasicUser={isBasicUser}
@@ -683,6 +689,23 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
               plan={savingTemplate}
               onSuccess={() => setSavingTemplate(null)}
               onCancel={() => setSavingTemplate(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Schedule Dialog ── */}
+      <Dialog open={!!schedulingPlan} onOpenChange={() => setSchedulingPlan(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-blue-600" /> Schedule Plan — {schedulingPlan?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {schedulingPlan && (
+            <ModeB_ChooseSchedule
+              client={client}
+              onSaved={() => { setSchedulingPlan(null); invalidatePlans(); toast.success("Schedule saved!"); }}
             />
           )}
         </DialogContent>
