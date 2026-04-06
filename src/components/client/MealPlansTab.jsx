@@ -19,6 +19,7 @@ import MealPlanTemplateSelector from "@/components/mealplanner/MealPlanTemplateS
 import SaveAsTemplateDialog from "@/components/mealplanner/SaveAsTemplateDialog";
 import ModeB_ChooseSchedule from "@/components/mealplanner/ModeB_ChooseSchedule";
 import ModeC_BuildFromScratch from "@/components/mealplanner/ModeC_BuildFromScratch";
+import PlanScheduleDialog from "@/components/mealplanner/PlanScheduleDialog";
 import BasicPlanCreator from "@/components/mealplanner/BasicPlanCreator";
 
 // ── Config ─────────────────────────────────────────────────────────────────────
@@ -382,7 +383,7 @@ function PlanCard({ plan, onView, onSetActive, onSaveTemplate, onDelete, onSched
                 Assign
               </Button>
             )}
-            {(typeLabel === "🤖 AI Generated" || typeLabel === "🏥 Clinical") && (
+            {(typeLabel === "⚡ Basic" || typeLabel === "🏥 Clinical") && (
               <Button size="sm" variant="outline" className="text-blue-600 border-blue-200 text-xs h-7"
                 onClick={() => onSchedule(plan)}>
                 <Calendar className="w-3 h-3 mr-1" /> Schedule
@@ -698,17 +699,17 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
 
       {/* ── Schedule Dialog ── */}
       <Dialog open={!!schedulingPlan} onOpenChange={() => setSchedulingPlan(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-blue-600" /> Schedule Plan — {schedulingPlan?.name}
+              <Calendar className="w-5 h-5 text-blue-600" /> Schedule Plan
             </DialogTitle>
           </DialogHeader>
           {schedulingPlan && (
-            <ModeB_ChooseSchedule
-              client={client}
-              skipSetup={true}
-              onSaved={() => { setSchedulingPlan(null); invalidatePlans(); toast.success("Schedule saved!"); }}
+            <PlanScheduleDialog
+              plan={schedulingPlan}
+              onSuccess={() => { setSchedulingPlan(null); invalidatePlans(); }}
+              onCancel={() => setSchedulingPlan(null)}
             />
           )}
         </DialogContent>

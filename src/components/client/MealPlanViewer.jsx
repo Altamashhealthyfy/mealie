@@ -3,9 +3,8 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Download, Send, CheckCircle, ChefHat, Loader2, LayoutList, Table2, Pencil, CalendarDays } from "lucide-react";
+import { Download, Send, CheckCircle, ChefHat, Loader2, LayoutList, Table2, Pencil } from "lucide-react";
 import MealPlanEditor from "@/components/client/MealPlanEditor";
-import ModeB_ChooseSchedule from "@/components/mealplanner/ModeB_ChooseSchedule";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -287,7 +286,7 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
   const [viewMode, setViewMode] = useState("detail"); // "detail" | "table"
   const [editMode, setEditMode] = useState(false);
   const [localPlan, setLocalPlan] = useState(plan);
-  const [showSchedule, setShowSchedule] = useState(false);
+
 
   // Keep localPlan in sync if parent `plan` prop changes
   useEffect(() => { setLocalPlan(plan); }, [plan]);
@@ -694,13 +693,6 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
                   Download PDF
                 </Button>
 
-                {/* Schedule */}
-                {isCoach && (
-                  <Button size="sm" variant="outline" onClick={() => setShowSchedule(true)} className="border-blue-300 text-blue-600 hover:bg-blue-50">
-                    <CalendarDays className="w-3 h-3 mr-1" /> Schedule
-                  </Button>
-                )}
-
                 {/* Assign */}
                 {!activePlan.active ? (
                   <Button size="sm" onClick={handleAssign} disabled={assigning} className="bg-green-500 hover:bg-green-600">
@@ -738,21 +730,7 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
         </div>
       )}
 
-      {/* Schedule Dialog */}
-      <Dialog open={showSchedule} onOpenChange={setShowSchedule}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <CalendarDays className="w-5 h-5 text-blue-600" /> Schedule — {activePlan.name}
-            </DialogTitle>
-          </DialogHeader>
-          <ModeB_ChooseSchedule
-            client={{ id: activePlan.client_id }}
-            skipSetup={true}
-            onSaved={() => { setShowSchedule(false); toast.success("Schedule saved!"); }}
-          />
-        </DialogContent>
-      </Dialog>
+
     </div>
   );
 }
