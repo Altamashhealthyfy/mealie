@@ -748,6 +748,7 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
           </DialogHeader>
           <ModeB_ChooseSchedule
             client={{ id: activePlan.client_id }}
+            skipSetup={true}
             onSaved={() => { setShowSchedule(false); toast.success("Schedule saved!"); }}
           />
         </DialogContent>

@@ -707,6 +707,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
           {schedulingPlan && (
             <ModeB_ChooseSchedule
               client={client}
+              skipSetup={true}
               onSaved={() => { setSchedulingPlan(null); invalidatePlans(); toast.success("Schedule saved!"); }}
             />
           )}

@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -276,9 +277,9 @@ const SlotSection = React.memo(function SlotSection({
 // ─────────────────────────────────────────────────────────────
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────
-export default function ModeB_ChooseSchedule({ client, onSaved }) {
+export default function ModeB_ChooseSchedule({ client, onSaved, skipSetup = false }) {
   const queryClient = useQueryClient();
-  const [step, setStep]                   = useState(1);
+  const [step, setStep]                   = useState(skipSetup ? 2 : 1);
   const [planDuration, setPlanDuration]   = useState(10);
   const [validFrom, setValidFrom]         = useState(format(new Date(), "yyyy-MM-dd"));
   const [slots, setSlots]                 = useState({});
@@ -484,6 +485,13 @@ export default function ModeB_ChooseSchedule({ client, onSaved }) {
       setIsSending(false);
     }
   };
+
+  // Auto-generate when skipSetup=true (triggered from existing plan)
+  useEffect(() => {
+    if (skipSetup) {
+      runGenerate();
+    }
+  }, []);
 
   const hasAtLeastOneValidSlot = SLOT_DEFS.some(sd => (slots[sd.key] || []).length >= 2);
   const allSlotsMinOptions = SLOT_DEFS.every(sd => {
