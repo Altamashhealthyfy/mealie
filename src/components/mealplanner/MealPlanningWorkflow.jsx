@@ -324,7 +324,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
 
 
       {/* ─ STEP 3: Generate Plan ─ */}
-      <SectionShell sectionKey="s3" icon={<Sparkles />} title="Step 3 — Generate Meal Plan" subtitle="Generate the plan using clinical data, calorie targets, macro ratios, and all override rules." color="green" openSections={openSections} onToggle={toggle}>
+      <SectionShell sectionKey="s3" icon={<Sparkles />} title="Step 2 — Generate Meal Plan" subtitle="Generate the plan using clinical data, calorie targets, macro ratios, and all override rules." color="green" openSections={openSections} onToggle={toggle}>
         {!selectedIntake ? (
           <Alert className="bg-amber-50 border-amber-300"><AlertTriangle className="w-4 h-4 text-amber-600" /><AlertDescription className="text-sm"><strong>Step 1 not completed.</strong> Select a clinical intake first.</AlertDescription></Alert>
         ) : (
@@ -354,7 +354,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       {generatedPlan && (
         <>
           {/* ─ STEP 5: Advise & Modify ─ */}
-          <SectionShell sectionKey="s5" icon={<MessageSquare />} title="Step 5 — Review, Advise & Modify" subtitle="Review the generated plan. Request changes. AI will try database first, LLM only if needed." color="pink" openSections={openSections} onToggle={toggle}>
+          <SectionShell sectionKey="s5" icon={<MessageSquare />} title="Step 3 — Review, Advise & Modify" subtitle="Review the generated plan. Request changes. AI will try database first, LLM only if needed." color="pink" openSections={openSections} onToggle={toggle}>
             {generatedPlan?.meals && (
               <AuditCard
                 meals={generatedPlan.meals}
@@ -394,7 +394,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
           </SectionShell>
 
           {/* ─ STEP 6: Save & Assign ─ */}
-          <SectionShell sectionKey="s6" icon={<Save />} title="Step 6 — Save & Assign" subtitle="Save the plan to the client's records or assign it as the active plan." color="emerald" openSections={openSections} onToggle={toggle}>
+          <SectionShell sectionKey="s6" icon={<Save />} title="Step 4 — Save & Assign" subtitle="Save the plan to the client's records or assign it as the active plan." color="emerald" openSections={openSections} onToggle={toggle}>
             <Card className="border-none shadow-sm bg-emerald-50">
               <CardContent className="p-4 text-sm space-y-2">
                 <p className="font-semibold text-emerald-800">{generatedPlan.name}</p>
