@@ -152,16 +152,7 @@ function ModeDropdown({ onSelect, isBasicUser }) {
       comingSoon: false,
       proOnly: true,
     },
-    {
-      key: "mode_b",
-      icon: <Calendar className="w-5 h-5 text-blue-600" />,
-      label: "Clinical Plan + My Schedule",
-      description: "AI creates options. You decide how many days each meal repeats.",
-      bestFor: "structured 10-day cycles",
-      popular: false,
-      comingSoon: false,
-      proOnly: true,
-    },
+
     {
       key: "mode_c",
       icon: <PenLine className="w-5 h-5 text-indigo-600" />,
