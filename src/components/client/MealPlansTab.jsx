@@ -166,14 +166,13 @@ function ModeDropdown({ onSelect, isBasicUser }) {
     },
     {
       key: "mode_d",
-      icon: <BookOpen className="w-5 h-5 text-gray-400" />,
+      icon: <BookOpen className="w-5 h-5 text-teal-600" />,
       label: "Use a Template",
       description: "Pick from Dr. Sheenu's library or your saved plans.",
-      bestFor: null,
+      bestFor: "reusing proven plans",
       popular: false,
       comingSoon: false,
       proOnly: true,
-      comingSoonLabel: true,
     },
     {
       key: "mode_e",
@@ -519,9 +518,8 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
     else if (modeKey === "clinical_diet") setActiveMode("clinical");
     else if (modeKey === "mode_b")       setActiveMode("ai_schedule");
     else if (modeKey === "mode_c")       setActiveMode("my_own");
-    else if (modeKey === "mode_d" || modeKey === "mode_e") {
-      toast.info("Coming Soon");
-    }
+    else if (modeKey === "mode_d") setShowTemplateSelector(true);
+    else if (modeKey === "mode_e") toast.info("Coming Soon");
   };
 
   // ── Fullscreen mode views ─────────────────────────────────────────────────
