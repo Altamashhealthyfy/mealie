@@ -6,12 +6,34 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, Loader2, FileSpreadsheet, CheckCircle, AlertTriangle, Sparkles, PenLine, Plus, Trash2 } from "lucide-react";
+import { Upload, Loader2, FileSpreadsheet, CheckCircle, AlertTriangle, Sparkles, PenLine, Plus, Trash2, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 import { toast } from "sonner";
 
 const MEAL_TYPES = ["early_morning", "breakfast", "mid_morning", "lunch", "evening_snack", "dinner", "post_dinner"];
 
 // ── Tab 1: File Upload ──────────────────────────────────────────────────────
+function downloadSample() {
+  const rows = [
+    ["Day", "Meal Type", "Meal Name", "Food Items (comma separated)", "Portion Sizes (comma separated)", "Calories (kcal)", "Protein (g)", "Carbs (g)", "Fats (g)"],
+    [1, "early_morning", "Warm Lemon Water", "Warm water, Lemon juice", "1 glass, 1 tsp", 10, 0, 2, 0],
+    [1, "breakfast", "Oats Porridge", "Rolled oats, Milk, Banana", "1 bowl, 150ml, 1 small", 320, 12, 55, 6],
+    [1, "mid_morning", "Apple", "Apple", "1 medium", 80, 0.5, 20, 0],
+    [1, "lunch", "Dal Rice", "Moong dal, Brown rice, Salad", "1 katori, 1 cup, 1 plate", 450, 18, 72, 5],
+    [1, "evening_snack", "Green Tea + Almonds", "Green tea, Almonds", "1 cup, 5 nos", 70, 3, 4, 5],
+    [1, "dinner", "Sabzi Roti", "Palak sabzi, Wheat roti, Curd", "1 katori, 2 rotis, 1 katori", 380, 14, 58, 8],
+    [2, "breakfast", "Besan Cheela", "Besan, Onion, Tomato", "2 medium cheelas", 280, 14, 40, 6],
+    [2, "lunch", "Rajma Rice", "Rajma, Brown rice, Salad", "1 katori, 1 cup, 1 plate", 480, 20, 78, 6],
+    [2, "dinner", "Moong Dal Khichdi", "Yellow moong dal, Rice, Ghee", "1 bowl, 1 cup, 1 tsp", 350, 15, 60, 5],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  // Column widths
+  ws["!cols"] = [{ wch: 6 }, { wch: 16 }, { wch: 22 }, { wch: 38 }, { wch: 32 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 10 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Meal Plan");
+  XLSX.writeFile(wb, "sample_meal_plan.xlsx");
+}
+
 function FileUploadTab({ client, onSaved }) {
   const fileInputRef = useRef(null);
   const [file, setFile] = useState(null);
@@ -108,6 +130,17 @@ function FileUploadTab({ client, onSaved }) {
 
   return (
     <div className="space-y-4">
+      {/* Download sample */}
+      <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-xl">
+        <div>
+          <p className="text-xs font-semibold text-blue-800">📄 Not sure about the format?</p>
+          <p className="text-xs text-blue-600 mt-0.5">Download our sample Excel file to get started.</p>
+        </div>
+        <Button size="sm" variant="outline" onClick={downloadSample} className="border-blue-400 text-blue-700 hover:bg-blue-100 gap-1.5 shrink-0">
+          <Download className="w-3.5 h-3.5" /> Sample
+        </Button>
+      </div>
+
       {/* Plan name */}
       <div className="space-y-1">
         <Label className="text-xs font-medium">Plan Name</Label>
