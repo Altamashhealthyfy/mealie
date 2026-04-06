@@ -21,6 +21,7 @@ import ModeB_ChooseSchedule from "@/components/mealplanner/ModeB_ChooseSchedule"
 import ModeC_BuildFromScratch from "@/components/mealplanner/ModeC_BuildFromScratch";
 import PlanScheduleDialog from "@/components/mealplanner/PlanScheduleDialog";
 import BasicPlanCreator from "@/components/mealplanner/BasicPlanCreator";
+import UploadMealPlan from "@/components/mealplanner/UploadMealPlan";
 
 // ── Config ─────────────────────────────────────────────────────────────────────
 const UPGRADE_WHATSAPP_NUMBER = "919911510377"; // easy to change
@@ -176,14 +177,13 @@ function ModeDropdown({ onSelect, isBasicUser }) {
     },
     {
       key: "mode_e",
-      icon: <Upload className="w-5 h-5 text-gray-400" />,
+      icon: <Upload className="w-5 h-5 text-blue-600" />,
       label: "Upload My Plan",
-      description: "Upload Excel or PDF meal plan.",
-      bestFor: null,
+      description: "Upload Excel, CSV or PDF. AI extracts the meal data automatically.",
+      bestFor: "existing plans",
       popular: false,
       comingSoon: false,
       proOnly: true,
-      comingSoonLabel: true,
     },
   ];
 
@@ -316,7 +316,7 @@ function ModeDropdown({ onSelect, isBasicUser }) {
                     </div>
                   )}
 
-                  {/* Divider before coming-soon section */}
+                  {/* Divider before template/upload section */}
                   {mode.key === "mode_c" && (
                     <div className="border-t border-gray-100 my-1" />
                   )}
@@ -519,7 +519,7 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
     else if (modeKey === "mode_b")       setActiveMode("ai_schedule");
     else if (modeKey === "mode_c")       setActiveMode("my_own");
     else if (modeKey === "mode_d") setShowTemplateSelector(true);
-    else if (modeKey === "mode_e") toast.info("Coming Soon");
+    else if (modeKey === "mode_e") setActiveMode("upload");
   };
 
   // ── Fullscreen mode views ─────────────────────────────────────────────────
@@ -589,6 +589,24 @@ export default function MealPlansTab({ client, clinicalIntakes, mealPlans, isBas
           mealPlans={mealPlans}
           onPlanSaved={handlePlanSaved}
           onPlanAssigned={handlePlanSaved}
+        />
+      </div>
+    );
+  }
+
+  if (activeMode === "upload") {
+    return (
+      <div className="space-y-3">
+        <button
+          onClick={() => setActiveMode(null)}
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back to Meal Plans
+        </button>
+        <UploadMealPlan
+          client={client}
+          onSaved={handlePlanSaved}
+          onBack={() => setActiveMode(null)}
         />
       </div>
     );
