@@ -19,6 +19,7 @@ import { createPageUrl } from "@/utils";
 import { format } from "date-fns";
 import InlineProfileEditor from "@/components/client/InlineProfileEditor";
 import InlineAppointmentManager from "@/components/client/InlineAppointmentManager";
+import RealtimeChat from "@/components/communication/RealtimeChat";
 
 export default function ClientDetailSidePanel({
   client,
@@ -53,15 +54,6 @@ export default function ClientDetailSidePanel({
       return await base44.entities.MealPlan.filter({ client_id: client.id }, '-created_date');
     },
     enabled: !!client?.id,
-  });
-
-  const { data: messages } = useQuery({
-    queryKey: ['clientMessages', client?.id],
-    queryFn: async () => {
-      if (!client?.id) return [];
-      return await base44.entities.Message.filter({ client_id: client.id }, '-created_date', 50);
-    },
-    enabled: !!client?.id && activeTab === "messages",
   });
 
   const { data: progressLogs } = useQuery({
@@ -330,31 +322,12 @@ export default function ClientDetailSidePanel({
             </TabsContent>
 
             {/* Messages Tab */}
-            <TabsContent value="messages" className="space-y-3 mt-4">
-              {messages && messages.length > 0 ? (
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {messages.map((msg) => (
-                    <div key={msg.id} className={`p-3 rounded-lg ${msg.sender_type === 'dietitian' ? 'bg-orange-50 border-l-4 border-orange-500' : 'bg-blue-50 border-l-4 border-blue-500'}`}>
-                      <p className="text-xs font-semibold text-gray-700">{msg.sender_name}</p>
-                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">{msg.message}</p>
-                      <p className="text-xs text-gray-500 mt-1">{format(new Date(msg.created_date), 'MMM d, HH:mm')}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-6">
-                  <MessageSquare className="w-12 h-12 mx-auto text-gray-300 mb-2" />
-                  <p className="text-sm text-gray-600">No messages yet</p>
-                </div>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate(`${createPageUrl("Communication")}?client=${client.id}`)}
-                className="w-full text-xs"
-              >
-                <MessageSquare className="w-3 h-3 mr-1" /> Open Chat
-              </Button>
+            <TabsContent value="messages" className="mt-4">
+              <RealtimeChat
+                recipientId={client.id}
+                recipientName={client.full_name}
+                isCoach={true}
+              />
             </TabsContent>
 
             {/* Appointments Tab */}
