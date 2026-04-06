@@ -314,28 +314,14 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
                 )}
               </CardContent>
             </Card>
-            <Button onClick={() => setOpenSections(prev => ({ ...prev, s1: false, s2: true }))} className="w-full bg-purple-600 hover:bg-purple-700">
-              <ArrowRight className="w-4 h-4 mr-2" /> Proceed to Coach Override Rules
+            <Button onClick={() => setOpenSections(prev => ({ ...prev, s1: false, s3: true }))} className="w-full bg-purple-600 hover:bg-purple-700">
+              <ArrowRight className="w-4 h-4 mr-2" /> Proceed to Generate
             </Button>
           </>
         )}
       </SectionShell>
 
-      {/* ─ STEP 2: Coach Override Rules ─ */}
-      <SectionShell sectionKey="s2" icon={<Stethoscope />} title="Step 2 — Coach Override Rules" subtitle="Auto-populated from clinical intake. Edit or add any custom rules before generating." color="orange" openSections={openSections} onToggle={toggle}>
-        <textarea
-          key="override-rules-stable"
-          defaultValue={defaultOverrideRules}
-          onBlur={(e) => { overrideRulesRef.current = e.target.value; }}
-          placeholder="e.g. Target 1511 kcal. No millets. Include karela daily. Increase protein at breakfast."
-          rows={5}
-          style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #e0d9ff', fontSize: '14px', resize: 'vertical', fontFamily: 'inherit', lineHeight: '1.6' }}
-        />
-        <p className="text-xs text-gray-400">These rules are passed directly to the AI and override all other instructions.</p>
-        <Button onClick={() => setOpenSections(prev => ({ ...prev, s2: false, s3: true }))} className="w-full bg-orange-500 hover:bg-orange-600">
-          <ArrowRight className="w-4 h-4 mr-2" /> Proceed to Generate
-        </Button>
-      </SectionShell>
+
 
       {/* ─ STEP 3: Generate Plan ─ */}
       <SectionShell sectionKey="s3" icon={<Sparkles />} title="Step 3 — Generate Meal Plan" subtitle="Generate the plan using clinical data, calorie targets, macro ratios, and all override rules." color="green" openSections={openSections} onToggle={toggle}>
