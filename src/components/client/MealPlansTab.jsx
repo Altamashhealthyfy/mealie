@@ -382,10 +382,12 @@ function PlanCard({ plan, onView, onSetActive, onSaveTemplate, onDelete, onSched
                 Assign
               </Button>
             )}
-            <Button size="sm" variant="outline" className="text-blue-600 border-blue-200 text-xs h-7"
-              onClick={() => onSchedule(plan)}>
-              <Calendar className="w-3 h-3 mr-1" /> Schedule
-            </Button>
+            {(typeLabel === "🤖 AI Generated" || typeLabel === "🏥 Clinical") && (
+              <Button size="sm" variant="outline" className="text-blue-600 border-blue-200 text-xs h-7"
+                onClick={() => onSchedule(plan)}>
+                <Calendar className="w-3 h-3 mr-1" /> Schedule
+              </Button>
+            )}
             <Button size="sm" variant="outline" className="text-orange-600 border-orange-200 text-xs h-7"
               onClick={() => onSaveTemplate(plan)}>
               <Save className="w-3 h-3 mr-1" /> Template
