@@ -4,15 +4,151 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ClipboardList, Plus, CheckCircle, Clock } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, ClipboardList, Plus, CheckCircle, Clock, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
+const QUESTION_TYPES = [
+  { value: "text", label: "Short Text" },
+  { value: "textarea", label: "Long Text" },
+  { value: "number", label: "Number" },
+  { value: "select", label: "Single Choice" },
+  { value: "multiselect", label: "Multiple Choice" },
+  { value: "rating", label: "Rating (1–10)" },
+  { value: "yesno", label: "Yes / No" },
+];
+
+const emptyQuestion = () => ({ text: "", type: "text", options: "" });
+
+// ── Create Assessment Form ──────────────────────────────────────────────────
+function CreateAssessmentForm({ client, onSuccess, onCancel }) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [questions, setQuestions] = useState([emptyQuestion()]);
+  const [saving, setSaving] = useState(false);
+
+  const updateQ = (idx, field, value) =>
+    setQuestions(prev => prev.map((q, i) => i === idx ? { ...q, [field]: value } : q));
+
+  const addQ = () => setQuestions(prev => [...prev, emptyQuestion()]);
+  const removeQ = (idx) => setQuestions(prev => prev.filter((_, i) => i !== idx));
+
+  const handleSave = async () => {
+    if (!title.trim()) { toast.error("Please enter an assessment title"); return; }
+    if (questions.some(q => !q.text.trim())) { toast.error("Please fill in all question texts"); return; }
+    setSaving(true);
+    try {
+      const formattedQuestions = questions.map((q, i) => ({
+        id: `q${i + 1}`,
+        question: q.text,
+        type: q.type,
+        options: (q.type === "select" || q.type === "multiselect")
+          ? q.options.split(",").map(o => o.trim()).filter(Boolean)
+          : [],
+        required: true,
+      }));
+
+      await base44.entities.ClientAssessment.create({
+        client_id: client.id,
+        title,
+        description,
+        client_name: client.full_name,
+        client_email: client.email,
+        status: "pending",
+        assigned_date: new Date().toISOString().split("T")[0],
+        questions: formattedQuestions,
+        source: "custom",
+      });
+      toast.success("Assessment created and sent!");
+      onSuccess();
+    } catch (e) {
+      toast.error("Failed: " + e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+      {/* Title & Description */}
+      <div className="space-y-3">
+        <div className="space-y-1">
+          <Label className="text-xs font-medium">Assessment Title *</Label>
+          <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Weekly Health Check-in" className="text-sm" />
+        </div>
+        <div className="space-y-1">
+          <Label className="text-xs font-medium">Description (optional)</Label>
+          <Textarea value={description} onChange={e => setDescription(e.target.value)}
+            placeholder="Brief instructions for the client..." rows={2} className="text-sm" />
+        </div>
+      </div>
+
+      {/* Questions */}
+      <div className="space-y-3">
+        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Questions ({questions.length})</p>
+        {questions.map((q, idx) => (
+          <div key={idx} className="border border-gray-200 rounded-xl p-3 bg-gray-50 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-gray-500">Q{idx + 1}</span>
+              {questions.length > 1 && (
+                <button onClick={() => removeQ(idx)} className="text-red-400 hover:text-red-600">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+            <Input
+              value={q.text}
+              onChange={e => updateQ(idx, "text", e.target.value)}
+              placeholder="Question text..."
+              className="text-sm"
+            />
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Select value={q.type} onValueChange={v => updateQ(idx, "type", v)}>
+                  <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {QUESTION_TYPES.map(t => (
+                      <SelectItem key={t.value} value={t.value} className="text-xs">{t.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {(q.type === "select" || q.type === "multiselect") && (
+              <Input
+                value={q.options}
+                onChange={e => updateQ(idx, "options", e.target.value)}
+                placeholder="Options (comma separated): Yes, No, Maybe"
+                className="text-xs h-8"
+              />
+            )}
+          </div>
+        ))}
+
+        <Button variant="outline" onClick={addQ} className="w-full text-xs border-dashed gap-1 text-blue-600 border-blue-300 hover:bg-blue-50">
+          <Plus className="w-3.5 h-3.5" /> Add Question
+        </Button>
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-2 pt-1 sticky bottom-0 bg-white pb-1">
+        <Button variant="outline" onClick={onCancel} className="flex-1 text-sm">Cancel</Button>
+        <Button onClick={handleSave} disabled={saving} className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-sm">
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create & Send"}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Component ──────────────────────────────────────────────────────────
 export default function AssessmentsTab({ clientId, client }) {
-  const [showSendForm, setShowSendForm] = useState(false);
+  const [mode, setMode] = useState(null); // null | "template" | "create"
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const qc = useQueryClient();
 
@@ -42,7 +178,7 @@ export default function AssessmentsTab({ clientId, client }) {
     },
     onSuccess: () => {
       toast.success("Assessment sent!");
-      setShowSendForm(false);
+      setMode(null);
       setSelectedTemplate("");
       qc.invalidateQueries(["clientAssessmentsTab", clientId]);
     },
@@ -60,9 +196,14 @@ export default function AssessmentsTab({ clientId, client }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-bold text-gray-900">Assessments</h2>
-        <Button size="sm" onClick={() => setShowSendForm(true)} className="bg-blue-500 hover:bg-blue-600 text-white">
-          <Plus className="w-4 h-4 mr-1" /> Send Assessment
-        </Button>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => setMode("template")} className="text-sm border-blue-300 text-blue-700 hover:bg-blue-50">
+            <ClipboardList className="w-4 h-4 mr-1" /> Use Template
+          </Button>
+          <Button size="sm" onClick={() => setMode("create")} className="bg-blue-500 hover:bg-blue-600 text-white">
+            <Plus className="w-4 h-4 mr-1" /> Create New
+          </Button>
+        </div>
       </div>
 
       {assessments.length === 0 ? (
@@ -97,7 +238,8 @@ export default function AssessmentsTab({ clientId, client }) {
         </div>
       )}
 
-      <Dialog open={showSendForm} onOpenChange={setShowSendForm}>
+      {/* Use Template Dialog */}
+      <Dialog open={mode === "template"} onOpenChange={open => !open && setMode(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader><DialogTitle>Send Assessment to {client?.full_name}</DialogTitle></DialogHeader>
           <div className="space-y-3">
@@ -113,12 +255,24 @@ export default function AssessmentsTab({ clientId, client }) {
               </Select>
             </div>
             <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setShowSendForm(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setMode(null)}>Cancel</Button>
               <Button disabled={!selectedTemplate || sendMutation.isPending} onClick={() => sendMutation.mutate()} className="bg-blue-500 hover:bg-blue-600 text-white">
                 {sendMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "Send"}
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Assessment Dialog */}
+      <Dialog open={mode === "create"} onOpenChange={open => !open && setMode(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Create Assessment for {client?.full_name}</DialogTitle></DialogHeader>
+          <CreateAssessmentForm
+            client={client}
+            onSuccess={() => { setMode(null); qc.invalidateQueries(["clientAssessmentsTab", clientId]); }}
+            onCancel={() => setMode(null)}
+          />
         </DialogContent>
       </Dialog>
     </div>
