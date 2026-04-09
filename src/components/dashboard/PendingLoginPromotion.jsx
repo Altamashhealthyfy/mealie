@@ -4,13 +4,14 @@ import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, UserCheck, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { Clock, UserCheck, Loader2, ChevronDown, ChevronUp, Users } from "lucide-react";
 import { format } from "date-fns";
 
 export default function PendingLoginPromotion({ userType }) {
   const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState(false);
   const [promotingId, setPromotingId] = useState(null);
+  const [promotingAll, setPromotingAll] = useState(false);
 
   const { data: history = [] } = useQuery({
     queryKey: ["coachSubscriptionHistory"],
@@ -64,6 +65,24 @@ export default function PendingLoginPromotion({ userType }) {
     return { label: "Registered – Needs Promotion", color: "bg-orange-100 text-orange-700", canPromote: true, userId: user.id };
   };
 
+  const promoteAllEligible = async () => {
+    const eligible = pendingCoaches.filter(h => getUserStatus(h.coach_email).canPromote);
+    if (eligible.length === 0) return alert("No coaches ready to promote yet (they must log in first).");
+    if (!window.confirm(`Promote all ${eligible.length} registered coach(es) to Health Coach role?`)) return;
+    setPromotingAll(true);
+    try {
+      await Promise.all(eligible.map(h => {
+        const user = allUsers.find(u => u.email?.toLowerCase() === h.coach_email?.toLowerCase());
+        return base44.entities.User.update(user.id, { user_type: "student_coach" });
+      }));
+      queryClient.invalidateQueries(["allUsersForPromotion"]);
+    } catch (err) {
+      alert("❌ Some promotions failed: " + err.message);
+    } finally {
+      setPromotingAll(false);
+    }
+  };
+
   return (
     <Card className="border-2 border-yellow-300 bg-yellow-50 shadow-md">
       <CardHeader className="pb-2">
@@ -74,15 +93,26 @@ export default function PendingLoginPromotion({ userType }) {
             <Badge className="bg-yellow-500 text-white ml-1">{pendingCoaches.length}</Badge>
             <Badge variant="outline" className="border-yellow-400 text-yellow-700 text-xs">Awaiting First Login</Badge>
           </CardTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setExpanded(!expanded)}
-            className="text-yellow-700 hover:bg-yellow-100"
-          >
-            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            {expanded ? "Hide" : "Show"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              onClick={promoteAllEligible}
+              disabled={promotingAll}
+              className="bg-orange-500 hover:bg-orange-600 text-white text-xs"
+            >
+              {promotingAll ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Users className="w-3 h-3 mr-1" />}
+              Promote All
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setExpanded(!expanded)}
+              className="text-yellow-700 hover:bg-yellow-100"
+            >
+              {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              {expanded ? "Hide" : "Show"}
+            </Button>
+          </div>
         </div>
         <p className="text-xs text-yellow-700 mt-1">
           These coaches have been invited but haven't logged in yet. Once they log in, they'll be auto-promoted to Health Coach role.
