@@ -27,7 +27,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
   );
   const latestIntake = sortedIntakes[0];
 
-  const [openSections, setOpenSections] = useState({ s1: true, s2: true, s3: false, s5: true, s6: true });
+  const [openSections, setOpenSections] = useState({ s1: true, s2: false, s3: false, s5: true, s6: true });
   const [selectedIntakeId, setSelectedIntakeId] = useState(latestIntake?.id || null);
   const [duration, setDuration] = useState(10);
   const [customDuration, setCustomDuration] = useState("");
@@ -43,6 +43,12 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
     latestIntake?.egg_preferred_meals?.length ? `Egg meal times: ${latestIntake.egg_preferred_meals.join(', ')}` : '',
   ].filter(Boolean).join('\n');
   const overrideRulesRef = useRef(defaultOverrideRules);
+  const [overrideRules, setOverrideRules] = useState(defaultOverrideRules);
+  // Keep ref in sync with state
+  const handleOverrideRulesChange = (val) => {
+    setOverrideRules(val);
+    overrideRulesRef.current = val;
+  };
 
   // Step 4: Generated plan
   const [generating, setGenerating] = useState(false);
@@ -314,7 +320,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
                 )}
               </CardContent>
             </Card>
-            <Button onClick={() => setOpenSections(prev => ({ ...prev, s1: false, s3: true }))} className="w-full bg-purple-600 hover:bg-purple-700">
+            <Button onClick={() => setOpenSections(prev => ({ ...prev, s1: false, s2: true }))} className="w-full bg-purple-600 hover:bg-purple-700">
               <ArrowRight className="w-4 h-4 mr-2" /> Proceed to Generate
             </Button>
           </>
@@ -323,8 +329,28 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
 
 
 
+      {/* ─ STEP 2: Coach Override Rules ─ */}
+      <SectionShell sectionKey="s2" icon={<MessageSquare />} title="Step 2 — Coach Override Rules" subtitle="Add or edit rules the AI must follow when generating the plan (calorie targets, restrictions, non-veg frequency, etc)." color="orange" openSections={openSections} onToggle={toggle}>
+        <Card className="border-none shadow-sm">
+          <CardContent className="p-4 space-y-2">
+            <p className="text-xs text-gray-500">Pre-filled from clinical intake. Edit as needed before generating.</p>
+            <textarea
+              value={overrideRules}
+              onChange={e => handleOverrideRulesChange(e.target.value)}
+              rows={8}
+              placeholder="e.g. Target 1600 kcal/day. No dairy. Non-veg 3 times in 10 days at dinner only. Avoid brinjal."
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-y"
+            />
+            <p className="text-xs text-gray-400">💡 Tip: Mention calorie target, foods to avoid, meal frequency, or any clinical notes here.</p>
+          </CardContent>
+        </Card>
+        <Button onClick={() => setOpenSections(prev => ({ ...prev, s2: false, s3: true }))} className="w-full bg-orange-500 hover:bg-orange-600">
+          <ArrowRight className="w-4 h-4 mr-2" /> Proceed to Generate
+        </Button>
+      </SectionShell>
+
       {/* ─ STEP 3: Generate Plan ─ */}
-      <SectionShell sectionKey="s3" icon={<Sparkles />} title="Step 2 — Generate Meal Plan" subtitle="Generate the plan using clinical data, calorie targets, macro ratios, and all override rules." color="green" openSections={openSections} onToggle={toggle}>
+      <SectionShell sectionKey="s3" icon={<Sparkles />} title="Step 3 — Generate Meal Plan" subtitle="Generate the plan using clinical data, calorie targets, macro ratios, and all override rules." color="green" openSections={openSections} onToggle={toggle}>
         {!selectedIntake ? (
           <Alert className="bg-amber-50 border-amber-300"><AlertTriangle className="w-4 h-4 text-amber-600" /><AlertDescription className="text-sm"><strong>Step 1 not completed.</strong> Select a clinical intake first.</AlertDescription></Alert>
         ) : (
@@ -335,7 +361,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
               <p>🥗 Diet: <strong>{selectedIntake?.diet_type || client.food_preference || 'veg'}</strong></p>
               <p>🎯 Condition: <strong>{diagnostic?.primary_conditions?.[0] || selectedIntake?.health_conditions?.[0] || 'none'}</strong></p>
               <p>🔥 Calories: <strong>{client.target_calories || 1800} kcal (override from rules if specified)</strong></p>
-              {overrideRulesRef.current && <p className="text-orange-700 mt-1">⚙️ Override rules: {overrideRulesRef.current.slice(0, 100)}{overrideRulesRef.current.length > 100 ? '...' : ''}</p>}
+              {overrideRules && <p className="text-orange-700 mt-1">⚙️ Override rules: {overrideRules.slice(0, 100)}{overrideRules.length > 100 ? '...' : ''}</p>}
             </CardContent>
           </Card>
         )}
@@ -354,7 +380,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       {generatedPlan && (
         <>
           {/* ─ STEP 5: Advise & Modify ─ */}
-          <SectionShell sectionKey="s5" icon={<MessageSquare />} title="Step 3 — Review, Advise & Modify" subtitle="Review the generated plan. Request changes. AI will try database first, LLM only if needed." color="pink" openSections={openSections} onToggle={toggle}>
+          <SectionShell sectionKey="s5" icon={<MessageSquare />} title="Step 4 — Review, Advise & Modify" subtitle="Review the generated plan. Request changes. AI will try database first, LLM only if needed." color="pink" openSections={openSections} onToggle={toggle}>
             {generatedPlan?.meals && (
               <AuditCard
                 meals={generatedPlan.meals}
@@ -394,7 +420,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
           </SectionShell>
 
           {/* ─ STEP 6: Save & Assign ─ */}
-          <SectionShell sectionKey="s6" icon={<Save />} title="Step 4 — Save & Assign" subtitle="Save the plan to the client's records or assign it as the active plan." color="emerald" openSections={openSections} onToggle={toggle}>
+          <SectionShell sectionKey="s6" icon={<Save />} title="Step 5 — Save & Assign" subtitle="Save the plan to the client's records or assign it as the active plan." color="emerald" openSections={openSections} onToggle={toggle}>
             <Card className="border-none shadow-sm bg-emerald-50">
               <CardContent className="p-4 text-sm space-y-2">
                 <p className="font-semibold text-emerald-800">{generatedPlan.name}</p>
