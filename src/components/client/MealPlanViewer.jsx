@@ -3,7 +3,8 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Download, Send, CheckCircle, ChefHat, Loader2, LayoutList, Table2, Pencil } from "lucide-react";
+import { Download, Send, CheckCircle, ChefHat, Loader2, LayoutList, Table2, Pencil, FileSpreadsheet } from "lucide-react";
+import * as XLSX from "xlsx";
 import MealPlanEditor from "@/components/client/MealPlanEditor";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
@@ -691,6 +692,38 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
                 <Button size="sm" variant="outline" onClick={handleDownloadPDF} disabled={downloading}>
                   {downloading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3 mr-1" />}
                   Download PDF
+                </Button>
+
+                {/* Download Excel */}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-green-400 text-green-700 hover:bg-green-50"
+                  onClick={() => {
+                    const rows = [
+                      ["Day", "Meal Type", "Meal Name", "Food Items", "Portion Sizes", "Calories (kcal)", "Protein (g)", "Carbs (g)", "Fats (g)", "Nutritional Tip"],
+                      ...(activePlan.meals || []).map(m => [
+                        m.day,
+                        m.meal_type?.replace(/_/g, " "),
+                        m.meal_name || "",
+                        (m.items || []).join(", "),
+                        (m.portion_sizes || []).join(", "),
+                        m.calories || 0,
+                        m.protein || 0,
+                        m.carbs || 0,
+                        m.fats || 0,
+                        m.nutritional_tip || "",
+                      ])
+                    ];
+                    const ws = XLSX.utils.aoa_to_sheet(rows);
+                    ws["!cols"] = [{wch:6},{wch:16},{wch:22},{wch:38},{wch:32},{wch:16},{wch:12},{wch:12},{wch:10},{wch:40}];
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "Meal Plan");
+                    XLSX.writeFile(wb, `${activePlan.name?.replace(/\s+/g, "_") || "meal_plan"}.xlsx`);
+                    toast.success("Excel downloaded!");
+                  }}
+                >
+                  <FileSpreadsheet className="w-3 h-3 mr-1" /> Excel
                 </Button>
 
                 {/* Assign */}
