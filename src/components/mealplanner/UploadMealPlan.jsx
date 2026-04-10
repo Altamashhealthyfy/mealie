@@ -54,10 +54,83 @@ function FileUploadTab({ client, onSaved }) {
     extractFile(f);
   };
 
+  // Try to parse Excel directly (works for our known format)
+  const tryDirectExcelParse = (f) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const wb = XLSX.read(e.target.result, { type: "array" });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+          if (rows.length < 2) { reject(new Error("No data")); return; }
+
+          // Detect header row — look for "Day" in first column
+          const header = rows[0].map(h => String(h).toLowerCase().trim());
+          const dayIdx = header.findIndex(h => h === "day");
+          if (dayIdx === -1) { reject(new Error("No Day column")); return; }
+
+          const mealTypeIdx = header.findIndex(h => h.includes("meal type") || h.includes("meal_type"));
+          const mealNameIdx = header.findIndex(h => h.includes("meal name") || h.includes("meal_name"));
+          const foodItemsIdx = header.findIndex(h => h.includes("food item") || h.includes("items"));
+          const portionIdx = header.findIndex(h => h.includes("portion"));
+          const calIdx = header.findIndex(h => h.includes("calor"));
+          const protIdx = header.findIndex(h => h.includes("protein"));
+          const carbIdx = header.findIndex(h => h.includes("carb"));
+          const fatIdx = header.findIndex(h => h.includes("fat"));
+
+          if (mealTypeIdx === -1 || mealNameIdx === -1) { reject(new Error("Missing columns")); return; }
+
+          const meals = [];
+          for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            const day = parseInt(row[dayIdx]) || 0;
+            if (!day) continue;
+            const mealType = String(row[mealTypeIdx] || "").toLowerCase().replace(/\s+/g, "_");
+            if (!mealType) continue;
+            const itemsRaw = foodItemsIdx !== -1 ? String(row[foodItemsIdx] || "") : "";
+            const portionsRaw = portionIdx !== -1 ? String(row[portionIdx] || "") : "";
+            meals.push({
+              day,
+              meal_type: mealType,
+              meal_name: String(row[mealNameIdx] || ""),
+              items: itemsRaw ? itemsRaw.split(",").map(s => s.trim()).filter(Boolean) : [],
+              portion_sizes: portionsRaw ? portionsRaw.split(",").map(s => s.trim()).filter(Boolean) : [],
+              calories: calIdx !== -1 ? parseFloat(row[calIdx]) || 0 : 0,
+              protein: protIdx !== -1 ? parseFloat(row[protIdx]) || 0 : 0,
+              carbs: carbIdx !== -1 ? parseFloat(row[carbIdx]) || 0 : 0,
+              fats: fatIdx !== -1 ? parseFloat(row[fatIdx]) || 0 : 0,
+            });
+          }
+
+          if (meals.length === 0) { reject(new Error("No meal rows found")); return; }
+          const duration = Math.max(...meals.map(m => m.day));
+          resolve({ meals, duration });
+        } catch (err) {
+          reject(err);
+        }
+      };
+      reader.onerror = () => reject(new Error("File read error"));
+      reader.readAsArrayBuffer(f);
+    });
+  };
+
   const extractFile = async (f) => {
     setExtracting(true);
     setError(null);
     try {
+      // Try direct parse first (fast, works for our Excel format)
+      if (f.name.match(/\.(xlsx|xls|csv)$/i)) {
+        try {
+          const result = await tryDirectExcelParse(f);
+          setExtracted(result);
+          toast.success(`Extracted ${result.meals.length} meal entries!`);
+          return;
+        } catch {
+          // Fall through to AI extraction
+        }
+      }
+
       const { file_url } = await base44.integrations.Core.UploadFile({ file: f });
       const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
         file_url,
