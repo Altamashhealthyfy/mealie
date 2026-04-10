@@ -318,18 +318,35 @@ export default function ManualMealPlanBuilder({ client, onSave, isSaving }) {
     toast.success('✅ Meal added!');
   };
 
-  const handleSavePlan = () => {
+  const [isSavingLocal, setIsSavingLocal] = useState(false);
+
+  const handleSavePlan = async (assign = false) => {
     if (meals.length === 0) { toast.error('Please add at least one meal'); return; }
-    onSave({
-      client_id: client.id,
-      plan_name: `Manual Plan - ${client.full_name}`,
-      duration,
-      meal_pattern: 'daily',
-      target_calories: client.target_calories,
-      food_preference: client.food_preference,
-      regional_preference: client.regional_preference,
-      meals,
-    });
+    setIsSavingLocal(true);
+    try {
+      if (assign) {
+        const existingPlans = await base44.entities.MealPlan.filter({ client_id: client.id });
+        await Promise.all(existingPlans.map(p => base44.entities.MealPlan.update(p.id, { active: false })));
+      }
+      await base44.entities.MealPlan.create({
+        client_id: client.id,
+        name: `Manual Plan — ${client.full_name}`,
+        duration,
+        meals,
+        food_preference: client.food_preference,
+        regional_preference: client.regional_preference,
+        plan_tier: 'basic',
+        meal_pattern: 'daily',
+        active: assign,
+        decision_rules_applied: ['Manually entered via Manual Builder'],
+      });
+      toast.success(assign ? 'Plan saved and assigned!' : 'Plan saved!');
+      onSave?.();
+    } catch (e) {
+      toast.error('Save failed: ' + e.message);
+    } finally {
+      setIsSavingLocal(false);
+    }
   };
 
   const getDailyTotals = (day) => meals.filter(m => m.day === day).reduce(
@@ -579,9 +596,14 @@ export default function ManualMealPlanBuilder({ client, onSave, isSaving }) {
           <CardHeader className="bg-teal-700 text-white">
             <div className="flex items-center justify-between">
               <CardTitle>Plan Summary ({meals.length} meals)</CardTitle>
-              <Button onClick={handleSavePlan} disabled={isSaving} className="bg-white text-teal-700 hover:bg-teal-50">
-                {isSaving ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Saving...</> : <><Save className="w-4 h-4 mr-2" />Save & Assign</>}
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={() => handleSavePlan(false)} disabled={isSavingLocal} variant="outline" className="bg-white/20 border-white text-white hover:bg-white/30 text-sm">
+                  {isSavingLocal ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Save className="w-4 h-4 mr-1" />}Save Only
+                </Button>
+                <Button onClick={() => handleSavePlan(true)} disabled={isSavingLocal} className="bg-white text-teal-700 hover:bg-teal-50">
+                  {isSavingLocal ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}Save & Assign
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="p-6 space-y-4">
