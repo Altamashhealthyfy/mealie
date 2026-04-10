@@ -158,6 +158,12 @@ const ALL_FOODS = [
   }))
 ];
 
+// Extract numeric gram/ml value from serving string e.g. "30g (1 roti)" → 30
+const parseServingGrams = (servingStr = '') => {
+  const match = servingStr.match(/^(\d+(?:\.\d+)?)(g|ml)/i);
+  return match ? parseFloat(match[1]) : null;
+};
+
 export default function ManualMealPlanBuilder({ client, onSave, isSaving }) {
   const [duration, setDuration] = useState(7);
   const [meals, setMeals] = useState([]);
@@ -425,26 +431,47 @@ export default function ManualMealPlanBuilder({ client, onSave, isSaving }) {
             {/* Dropdown */}
             {filteredFoods.length > 0 && !selectedFood && (
               <div className="bg-white border rounded-lg shadow-lg max-h-72 overflow-y-auto">
-                {filteredFoods.map((food, i) => (
-                  <div key={i} className="p-3 hover:bg-teal-50 cursor-pointer border-b last:border-b-0"
-                    onClick={() => { setSelectedFood(food); setSearchTerm(food.name); }}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <p className="font-medium text-sm truncate">{food.name}</p>
-                          <Badge className={`text-xs flex-shrink-0 ${food.isRecipe ? 'bg-teal-100 text-teal-700' : 'bg-blue-100 text-blue-700'}`}>
-                            {food.isRecipe ? '🍽 Recipe' : '🥕 Ingredient'}
-                          </Badge>
+                {filteredFoods.map((food, i) => {
+                  // For ingredients: show kcal for the actual serving size, not per 100g
+                  const displayKcal = food.isIngredient
+                    ? (() => {
+                        const g = parseServingGrams(food.unit);
+                        return g ? Math.round(food.kcalPer100 * g / 100) : food.cal;
+                      })()
+                    : food.cal;
+
+                  return (
+                    <div
+                      key={i}
+                      className="p-3 hover:bg-teal-50 cursor-pointer border-b last:border-b-0"
+                      onClick={() => {
+                        setSelectedFood(food);
+                        setSearchTerm(food.name);
+                        if (food.isIngredient) {
+                          // Auto-set gramAmount to the ingredient's standard serving size
+                          const g = parseServingGrams(food.unit);
+                          setGramAmount(g || 100);
+                        }
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-medium text-sm truncate">{food.name}</p>
+                            <Badge className={`text-xs flex-shrink-0 ${food.isRecipe ? 'bg-teal-100 text-teal-700' : 'bg-blue-100 text-blue-700'}`}>
+                              {food.isRecipe ? '🍽 Recipe' : '🥕 Ingredient'}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-gray-500">{food.unit}</p>
                         </div>
-                        <p className="text-xs text-gray-500">{food.unit}</p>
-                      </div>
-                      <div className="text-right ml-3 flex-shrink-0">
-                        <p className="text-sm font-bold text-orange-600">{food.cal} kcal</p>
-                        <p className="text-xs text-gray-500">P:{food.protein}g C:{food.carbs}g F:{food.fats}g</p>
+                        <div className="text-right ml-3 flex-shrink-0">
+                          <p className="text-sm font-bold text-orange-600">{displayKcal} kcal</p>
+                          <p className="text-xs text-gray-500">P:{food.protein}g C:{food.carbs}g F:{food.fats}g</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -469,7 +496,13 @@ export default function ManualMealPlanBuilder({ client, onSave, isSaving }) {
                     <p className="text-xs text-gray-600">{selectedFood.unit}</p>
                   </div>
                   <div className="text-right text-xs text-gray-500">
-                    <p className="font-bold text-orange-600 text-sm">{selectedFood.cal} kcal/serving</p>
+                    {selectedFood.isIngredient ? (
+                      <p className="font-bold text-orange-600 text-sm">
+                        {Math.round(selectedFood.kcalPer100 * gramAmount / 100)} kcal / {gramAmount}{selectedFood.servingUnit || 'g'}
+                      </p>
+                    ) : (
+                      <p className="font-bold text-orange-600 text-sm">{selectedFood.cal} kcal/serving</p>
+                    )}
                   </div>
                 </div>
 
