@@ -87,7 +87,7 @@ function FileUploadTab({ client, onSaved }) {
         }
       });
       if (result.status !== "success" || !result.output?.meals?.length) {
-        throw new Error("Could not extract meal data. Please ensure the file contains structured meal plan data.");
+        throw new Error(`Could not extract meal data from this file. ${result.details ? result.details : ""} \n\nTip: Download our sample Excel file above to see the expected format, then re-upload.`);
       }
       setExtracted(result.output);
       toast.success(`Extracted ${result.output.meals.length} meal entries!`);
@@ -177,8 +177,16 @@ function FileUploadTab({ client, onSaved }) {
       {/* Error */}
       {error && (
         <Alert className="bg-red-50 border-red-200">
-          <AlertTriangle className="w-4 h-4 text-red-600" />
-          <AlertDescription className="text-red-700 text-xs">{error}</AlertDescription>
+          <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+          <AlertDescription className="text-red-700 text-xs whitespace-pre-line">
+            {error}
+            <button
+              onClick={() => file && extractFile(file)}
+              className="mt-2 block underline text-red-600 hover:text-red-800 font-medium"
+            >
+              Try again
+            </button>
+          </AlertDescription>
         </Alert>
       )}
 
