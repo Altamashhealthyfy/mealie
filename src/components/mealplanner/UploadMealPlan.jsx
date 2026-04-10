@@ -211,6 +211,28 @@ function FileUploadTab({ client, onSaved }) {
               <p className="font-bold text-gray-800">{extracted.target_calories || "—"}</p>
             </div>
           </div>
+          <Button
+            variant="outline"
+            onClick={() => {
+              const rows = [
+                ["Day", "Meal Type", "Meal Name", "Food Items", "Portion Sizes", "Calories (kcal)", "Protein (g)", "Carbs (g)", "Fats (g)"],
+                ...extracted.meals.map(m => [
+                  m.day, m.meal_type, m.meal_name,
+                  (m.items || []).join(", "),
+                  (m.portion_sizes || []).join(", "),
+                  m.calories, m.protein, m.carbs, m.fats
+                ])
+              ];
+              const ws = XLSX.utils.aoa_to_sheet(rows);
+              ws["!cols"] = [{wch:6},{wch:16},{wch:22},{wch:38},{wch:32},{wch:16},{wch:12},{wch:12},{wch:10}];
+              const wb = XLSX.utils.book_new();
+              XLSX.utils.book_append_sheet(wb, ws, "Meal Plan");
+              XLSX.writeFile(wb, `${planName || "meal_plan"}.xlsx`);
+            }}
+            className="w-full text-sm border-green-300 text-green-700 hover:bg-green-50 gap-2"
+          >
+            <Download className="w-4 h-4" /> Download as Excel
+          </Button>
           <div className="grid grid-cols-2 gap-2">
             <Button variant="outline" onClick={() => handleSave(false)} disabled={saving} className="text-sm">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Only"}
