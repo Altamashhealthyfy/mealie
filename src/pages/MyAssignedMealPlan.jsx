@@ -429,30 +429,8 @@ export default function MyAssignedMealPlan() {
   }, [displayedPlan]);
 
   const toggleMealComplete = async (day, meal) => {
-    const key = `${day}-${meal.meal_type}`;
-    const isNowCompleted = !completedMeals[key];
-
-    setCompletedMeals(prev => ({
-      ...prev,
-      [key]: isNowCompleted
-    }));
-
-    if (isNowCompleted && clientProfile?.id) {
-      // Auto-create food log entry from prescribed meal
-      await base44.entities.FoodLog.create({
-        client_id: clientProfile.id,
-        date: format(new Date(), 'yyyy-MM-dd'),
-        meal_type: meal.meal_type,
-        meal_name: meal.meal_name,
-        items: meal.items || [],
-        portion_sizes: meal.portion_sizes || [],
-        calories: meal.calories || 0,
-        protein: meal.protein || 0,
-        carbs: meal.carbs || 0,
-        fats: meal.fats || 0,
-        notes: 'Followed prescribed plan ✅',
-      });
-    }
+    // Delegated to handleMealTick
+    handleMealTick(meal);
   };
 
   if (!clientProfile) {

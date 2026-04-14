@@ -264,7 +264,7 @@ export default function ProMealPlanView({ plan, onPlanUpdated }) {
               <p className="text-sm text-gray-600">Variety Check</p>
               <p className="text-sm font-bold">
                 {plan.audit_snapshot.variety_check ? (
-                  <span className="text-green-600">✓ >20 unique items</span>
+                  <span className="text-green-600">{"✓ >20 unique items"}</span>
                 ) : (
                   <span className="text-orange-600">⚠ Limited variety</span>
                 )}

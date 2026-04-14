@@ -147,7 +147,6 @@ export default function RealtimeChat({ recipientId, recipientName, isCoach = fal
 
   const addEmoji = (emoji) => {
     setMessageText(messageText + emoji.native);
-    setShowEmojiPicker(false);
   };
 
   const formatFileSize = (bytes) => {

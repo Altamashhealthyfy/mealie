@@ -96,38 +96,6 @@ export default function TemplateLibraryManager() {
     is_premium: false
   });
 
-  // Check access for student_coach
-  if (!permissionsLoading && user?.user_type === 'student_coach' && !canAccessTemplateManager) {
-    return (
-      <div className="min-h-screen p-8 flex items-center justify-center">
-        <Card className="max-w-md border-none shadow-xl bg-gradient-to-br from-amber-50 to-yellow-50">
-          <CardHeader>
-            <Lock className="w-16 h-16 mx-auto text-amber-500 mb-4" />
-            <CardTitle className="text-center text-2xl">Feature Not Available</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <p className="text-gray-600">
-              Template Manager is not included in your current plan.
-            </p>
-            <Alert className="bg-white border-amber-300">
-              <Crown className="w-5 h-5 text-amber-600" />
-              <AlertDescription>
-                Upgrade your plan to manage and upload templates.
-              </AlertDescription>
-            </Alert>
-            <Button 
-              onClick={() => window.location.href = createPageUrl('CoachSubscriptions')}
-              className="w-full bg-gradient-to-r from-amber-500 to-orange-500"
-            >
-              <Crown className="w-4 h-4 mr-2" />
-              Upgrade Plan
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   const { data: coachSubscription } = useQuery({
     queryKey: ['coachSubscription', user?.email],
     queryFn: async () => {
@@ -639,6 +607,30 @@ Extract:
       alert("Error saving templates");
     }
   };
+
+  // Check access for student_coach — after all hooks
+  if (!permissionsLoading && user?.user_type === 'student_coach' && !canAccessTemplateManager) {
+    return (
+      <div className="min-h-screen p-8 flex items-center justify-center">
+        <Card className="max-w-md border-none shadow-xl bg-gradient-to-br from-amber-50 to-yellow-50">
+          <CardHeader>
+            <Lock className="w-16 h-16 mx-auto text-amber-500 mb-4" />
+            <CardTitle className="text-center text-2xl">Feature Not Available</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-gray-600">Template Manager is not included in your current plan.</p>
+            <Alert className="bg-white border-amber-300">
+              <Crown className="w-5 h-5 text-amber-600" />
+              <AlertDescription>Upgrade your plan to manage and upload templates.</AlertDescription>
+            </Alert>
+            <Button onClick={() => window.location.href = createPageUrl('CoachSubscriptions')} className="w-full bg-gradient-to-r from-amber-500 to-orange-500">
+              <Crown className="w-4 h-4 mr-2" />Upgrade Plan
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const userType = user?.user_type || 'client';
   const canUploadTemplates = userType === 'super_admin' || 

@@ -123,6 +123,7 @@ export default function ResourceLibraryEnhanced() {
   });
 
   const { data: clients = [] } = useQuery({
+
     queryKey: ["clientsForAssignment", user?.email],
     queryFn: async () => {
       if (!user?.email) return [];
@@ -226,7 +227,7 @@ export default function ResourceLibraryEnhanced() {
       setAssignForm({ client_ids: [], notes: "" });
       setShowAssignDialog(false);
       setSelectedResource(null);
-      toast.success(`Resource assigned to ${data.client_ids.length} client(s)!`);
+      toast.success(`Resource assigned to ${assignForm.client_ids.length} client(s)!`);
     },
   });
 

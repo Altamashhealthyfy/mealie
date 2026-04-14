@@ -85,19 +85,7 @@ export default function TokenUsageDashboard() {
     refetchInterval: 60000,
   });
 
-  if (currentUser && currentUser.user_type !== 'super_admin') {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="text-center">
-          <Shield className="w-16 h-16 mx-auto text-red-400 mb-4" />
-          <h2 className="text-xl font-bold text-gray-800">Access Restricted</h2>
-          <p className="text-gray-500 mt-1">Only Platform Owners can view token usage.</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Calculate metrics
+  // Calculate metrics — must be unconditional (before any early return)
   const metrics = useMemo(() => {
     const successLogs = logs.filter(log => log.status === 'success');
     const totalTokens = logs.reduce((sum, log) => sum + (log.total_tokens || 0), 0);
@@ -164,6 +152,18 @@ export default function TokenUsageDashboard() {
       byCoach,
     };
   }, [logs]);
+
+  if (currentUser && currentUser.user_type !== 'super_admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center">
+          <Shield className="w-16 h-16 mx-auto text-red-400 mb-4" />
+          <h2 className="text-xl font-bold text-gray-800">Access Restricted</h2>
+          <p className="text-gray-500 mt-1">Only Platform Owners can view token usage.</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleExportCsv = () => {
     const headers = [

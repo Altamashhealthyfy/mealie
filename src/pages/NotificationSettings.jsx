@@ -76,8 +76,8 @@ export default function NotificationSettings() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          project: process.env.AISENSY_PROJECT_ID || "YOUR_PROJECT_ID",
-          key: process.env.AISENSY_PROJECT_PASSWORD || "YOUR_PROJECT_PASSWORD",
+          project: "YOUR_PROJECT_ID",
+          key: "YOUR_PROJECT_PASSWORD",
           campaign_name: "test_message",
           destination: formattedPhone,
           userName: user?.full_name || "Test User",

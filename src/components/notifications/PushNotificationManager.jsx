@@ -38,7 +38,7 @@ export default function PushNotificationManager({ userEmail }) {
             // Subscribe to push notifications
             const subscription = await registration.pushManager.subscribe({
               userVisibleOnly: true,
-              applicationServerKey: process.env.REACT_APP_VAPID_PUBLIC_KEY,
+              applicationServerKey: null,
             });
 
             // Save subscription to backend

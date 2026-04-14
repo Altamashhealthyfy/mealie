@@ -667,7 +667,7 @@ export default function MealPlanner() {
 
           await new Promise((resolve, reject) => {
             const options = {
-              key: process.env.RAZORPAY_KEY_ID || 'rzp_test_key',
+              key: window.RAZORPAY_KEY_ID || 'rzp_test_key',
               amount: totalCost * 100,
               currency: 'INR',
               name: 'Mealie Pro',

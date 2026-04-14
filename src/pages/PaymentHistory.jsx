@@ -111,6 +111,8 @@ export default function PaymentHistory() {
     initialData: [],
   });
 
+  // All useMemo hooks must be unconditional — moved before any early returns
+
   const filteredSubscriptions = React.useMemo(() => subscriptions.filter(sub => {
     const matchesSearch = 
       sub.client_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -221,7 +223,9 @@ export default function PaymentHistory() {
     return false;
   };
 
-  if (!canViewPaymentHistory()) {
+  const canView = canViewPaymentHistory();
+
+  if (!canView) {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
         <Card className="max-w-md border-none shadow-xl bg-red-50">
