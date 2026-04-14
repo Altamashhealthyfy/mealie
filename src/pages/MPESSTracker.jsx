@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Heart, Brain, Activity, Smile, Users, Sparkles, Save, TrendingUp } from "lucide-react";
+import { logAction } from "@/lib/logAction";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -66,9 +67,13 @@ export default function MPESSTracker() {
       return base44.entities.MPESSTracker.create(data);
     },
     onSuccess: () => {
+      logAction({ action: "submit_mpess", status: "success", pageSection: "MPESSTracker", userEmail: user?.email, userType: "client", metadata: { date: format(selectedDate, 'yyyy-MM-dd'), completion_rate: getCompletionRate(), overall_rating: trackingData.overall_rating } });
       queryClient.invalidateQueries(['todayTracking']);
       queryClient.invalidateQueries(['recentTracking']);
       alert('Progress saved successfully!');
+    },
+    onError: (err) => {
+      logAction({ action: "submit_mpess", status: "error", pageSection: "MPESSTracker", userEmail: user?.email, userType: "client", errorMessage: err.message });
     },
   });
 

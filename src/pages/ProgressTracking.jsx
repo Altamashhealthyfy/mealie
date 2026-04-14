@@ -15,6 +15,7 @@ import { TrendingUp, TrendingDown, Plus, Scale, Calendar, Edit, Trash2, Camera, 
 import { format } from "date-fns";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import GoalCard from "../components/progress/GoalCard";
+import { logAction } from "@/lib/logAction";
 import WellnessCharts from "../components/progress/WellnessCharts";
 import AdvancedAnalyticsDashboard from "../components/progress/AdvancedAnalyticsDashboard";
 import DailyProgressLogger from "../components/progress/DailyProgressLogger";
@@ -129,6 +130,7 @@ export default function ProgressTracking() {
       return base44.entities.ProgressLog.create({ ...data, client_id: clientProfile.id });
     },
     onSuccess: async () => {
+      logAction({ action: "submit_progress", status: "success", pageSection: "ProgressLog", userEmail: user?.email, userType: "client", metadata: { client_id: clientProfile?.id, weight: formData.weight, is_edit: !!editingLog } });
       await queryClient.invalidateQueries(['myProgressLogs']);
       
       // Auto-update goal current values based on latest log
@@ -154,6 +156,9 @@ export default function ProgressTracking() {
     onSuccess: () => {
       queryClient.invalidateQueries(['myProgressLogs']);
       alert('Progress entry deleted!');
+    },
+    onError: (err) => {
+      logAction({ action: "submit_progress", status: "error", pageSection: "ProgressLog", userEmail: user?.email, userType: "client", errorMessage: err.message });
     },
   });
 

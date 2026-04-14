@@ -37,6 +37,7 @@ import QuickActionsPanel from "@/components/dietitian/QuickActionsPanel";
 import ClientLoginHelpCard from "@/components/client/ClientLoginHelpCard";
 import ClientDetailDialog from "@/components/client/ClientDetailDialog";
 import ClientDetailSidePanel from "@/components/client/ClientDetailSidePanel";
+import { logAction } from "@/lib/logAction";
 import ClientHubButton from "@/components/client/ClientHubButton";
 
 function ClientList() {
@@ -263,6 +264,7 @@ function ClientManagementInner() {
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries(['clients']);
+      logAction({ action: "save_client", status: "success", pageSection: "ClientProfile", userEmail: user?.email, metadata: { client_email: variables.email, is_edit: !!editingClient } });
       setShowAddDialog(false);
       setEditingClient(null);
       setFormData({ full_name: "", email: "", phone: "", profile_photo_url: "", age: "", gender: "male", height: "", weight: "", target_weight: "", activity_level: "moderately_active", goal: "weight_loss", food_preference: "veg", regional_preference: "north", status: "active", join_date: format(new Date(), 'yyyy-MM-dd'), notes: '' });
@@ -274,7 +276,7 @@ function ClientManagementInner() {
         alert("Client added successfully!\n\n" + notifications.join("\n") + "\n\n⚠️ Important: Share login password 'Client@123' with the client securely!");
       }
     },
-    onError: (error) => { console.error("Error saving client:", error); alert(`Error saving client: ${error.message || 'Please try again'}`); }
+    onError: (error) => { logAction({ action: "save_client", status: "error", pageSection: "ClientProfile", userEmail: user?.email, errorMessage: error.message }); console.error("Error saving client:", error); alert(`Error saving client: ${error.message || 'Please try again'}`); }
   });
 
   const deleteClientMutation = useMutation({

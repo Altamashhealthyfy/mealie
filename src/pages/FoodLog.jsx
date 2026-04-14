@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Utensils, Camera, Trash2, Edit, CheckCircle2, AlertTriangle } from "lucide-react";
+import { logAction } from "@/lib/logAction";
 import { format, isToday } from "date-fns";
 
 const MEAL_SLOTS = [
@@ -104,18 +105,23 @@ export default function FoodLog() {
 
   const saveDeviation = async (slotKey) => {
     const form = deviationForms[slotKey];
-    await base44.entities.FoodLog.create({
-      client_id: clientProfile?.id,
-      date: format(selectedDate, 'yyyy-MM-dd'),
-      meal_type: slotKey,
-      food_items: form.foodItems,
-      meal_name: form.foodItems,
-      calories: parseFloat(form.calories) || 0,
-      notes: form.notes,
-      source: 'manual',
-      plan_adherent: false,
-      meal_plan_id: activeMealPlan?.id,
-    });
+    try {
+      await base44.entities.FoodLog.create({
+        client_id: clientProfile?.id,
+        date: format(selectedDate, 'yyyy-MM-dd'),
+        meal_type: slotKey,
+        food_items: form.foodItems,
+        meal_name: form.foodItems,
+        calories: parseFloat(form.calories) || 0,
+        notes: form.notes,
+        source: 'manual',
+        plan_adherent: false,
+        meal_plan_id: activeMealPlan?.id,
+      });
+      logAction({ action: "log_food", status: "success", pageSection: "FoodLog", userEmail: user?.email, userType: "client", metadata: { client_id: clientProfile?.id, meal_type: slotKey, deviation: true } });
+    } catch (e) {
+      logAction({ action: "log_food", status: "error", pageSection: "FoodLog", userEmail: user?.email, userType: "client", errorMessage: e.message });
+    }
     queryClient.invalidateQueries(['todayFoodLogs']);
     queryClient.invalidateQueries(['foodLogs']);
     closeDeviationForm(slotKey);
@@ -142,11 +148,15 @@ export default function FoodLog() {
       });
     },
     onSuccess: () => {
+      logAction({ action: "log_food", status: "success", pageSection: "FoodLog", userEmail: user?.email, userType: "client", metadata: { client_id: clientProfile?.id, meal_type: formData.meal_type, is_edit: !!editingLog } });
       queryClient.invalidateQueries(['todayFoodLogs']);
       setShowAddDialog(false);
       setEditingLog(null);
       setFormData({ meal_type: 'breakfast', date: format(new Date(), 'yyyy-MM-dd'), photo_url: null });
       alert(editingLog ? 'Food log updated!' : 'Food log saved!');
+    },
+    onError: (err) => {
+      logAction({ action: "log_food", status: "error", pageSection: "FoodLog", userEmail: user?.email, userType: "client", errorMessage: err.message });
     },
   });
 

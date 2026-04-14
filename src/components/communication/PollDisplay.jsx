@@ -12,16 +12,6 @@ export default function PollDisplay({ message, currentUserId }) {
   const queryClient = useQueryClient();
   const pollData = message.poll_data;
 
-  if (!pollData) return null;
-
-  const totalVotes = pollData.options.reduce((sum, opt) => sum + (opt.votes?.length || 0), 0);
-  const userVotes = pollData.options
-    .map((opt, idx) => ({ idx, voted: opt.votes?.some(v => v.user_id === currentUserId) }))
-    .filter(o => o.voted)
-    .map(o => o.idx);
-
-  const hasVoted = userVotes.length > 0;
-
   const voteMutation = useMutation({
     mutationFn: async (optionIndex) => {
       const updatedOptions = [...pollData.options];
@@ -60,6 +50,16 @@ export default function PollDisplay({ message, currentUserId }) {
     },
     onError: () => toast.error('Failed to vote')
   });
+
+  if (!pollData) return null;
+
+  const totalVotes = pollData.options.reduce((sum, opt) => sum + (opt.votes?.length || 0), 0);
+  const userVotes = pollData.options
+    .map((opt, idx) => ({ idx, voted: opt.votes?.some(v => v.user_id === currentUserId) }))
+    .filter(o => o.voted)
+    .map(o => o.idx);
+
+  const hasVoted = userVotes.length > 0;
 
   return (
     <Card className="mt-3 border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-purple-50">

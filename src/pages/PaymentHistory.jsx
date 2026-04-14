@@ -225,6 +225,76 @@ export default function PaymentHistory() {
 
   const canView = canViewPaymentHistory();
 
+  // All useMemo hooks must be before any early return
+  // Generate chart data by month
+  const chartData = React.useMemo(() => {
+    const monthlyData = {};
+    coachSubscriptions
+      .filter(sub => sub.status === 'active')
+      .forEach(sub => {
+        const month = format(new Date(sub.created_date), 'MMM yyyy');
+        if (!monthlyData[month]) monthlyData[month] = 0;
+        monthlyData[month] += sub.amount || 0;
+      });
+    return Object.keys(monthlyData)
+      .sort((a, b) => new Date(a) - new Date(b))
+      .map(month => ({ month: month.split(' ')[0], earnings: monthlyData[month] }));
+  }, [coachSubscriptions]);
+
+  // Earnings by plan
+  const earningsByPlan = React.useMemo(() => {
+    const planEarnings = {};
+    coachSubscriptions
+      .filter(sub => sub.status === 'active')
+      .forEach(sub => {
+        const plan = sub.plan_name || 'Unknown Plan';
+        if (!planEarnings[plan]) planEarnings[plan] = 0;
+        planEarnings[plan] += sub.amount || 0;
+      });
+    return Object.entries(planEarnings)
+      .sort((a, b) => b[1] - a[1])
+      .map(([plan, earnings]) => ({ plan, earnings }));
+  }, [coachSubscriptions]);
+
+  // AI Credits purchased per coach
+  const creditsPurchasedByCoach = React.useMemo(() => {
+    const coachCredits = {};
+    aiCreditsTransactions
+      .filter(txn => txn.transaction_type === 'purchase' && txn.payment_status === 'completed')
+      .forEach(txn => {
+        const coach = txn.coach_email || 'Unknown';
+        if (!coachCredits[coach]) coachCredits[coach] = { credits: 0, spent: 0 };
+        coachCredits[coach].credits += txn.credits_amount || 0;
+        coachCredits[coach].spent += txn.cost || 0;
+      });
+    return Object.entries(coachCredits)
+      .sort((a, b) => b[1].credits - a[1].credits)
+      .map(([coach, data]) => ({ coach, credits: data.credits, spent: data.spent }));
+  }, [aiCreditsTransactions]);
+
+  // Client revenue by coach with unread messages
+  const clientRevenueByCoach = React.useMemo(() => {
+    const coachRevenue = {};
+    clientPlanPurchases
+      .filter(purchase => purchase.payment_status === 'completed')
+      .forEach(purchase => {
+        const coach = purchase.coach_email || 'Unknown';
+        if (!coachRevenue[coach]) coachRevenue[coach] = { revenue: 0, unreadMessages: 0 };
+        coachRevenue[coach].revenue += purchase.amount || 0;
+      });
+    messages.forEach(msg => {
+      const clientPurchase = clientPlanPurchases.find(p => p.client_email === msg.created_by);
+      if (clientPurchase?.coach_email) {
+        const coach = clientPurchase.coach_email;
+        if (!coachRevenue[coach]) coachRevenue[coach] = { revenue: 0, unreadMessages: 0 };
+        coachRevenue[coach].unreadMessages += 1;
+      }
+    });
+    return Object.entries(coachRevenue)
+      .sort((a, b) => b[1].revenue - a[1].revenue)
+      .map(([coach, data]) => ({ coach, revenue: data.revenue, unreadMessages: data.unreadMessages }));
+  }, [clientPlanPurchases, messages]);
+
   if (!canView) {
     return (
       <div className="min-h-screen p-8 flex items-center justify-center">
@@ -268,103 +338,6 @@ export default function PaymentHistory() {
     a.click();
     window.URL.revokeObjectURL(url);
   };
-
-  // Generate chart data by month
-  const chartData = React.useMemo(() => {
-    const monthlyData = {};
-    
-    coachSubscriptions
-      .filter(sub => sub.status === 'active')
-      .forEach(sub => {
-        const month = format(new Date(sub.created_date), 'MMM yyyy');
-        if (!monthlyData[month]) {
-          monthlyData[month] = 0;
-        }
-        monthlyData[month] += sub.amount || 0;
-      });
-
-    return Object.keys(monthlyData)
-      .sort((a, b) => new Date(a) - new Date(b))
-      .map(month => ({
-        month: month.split(' ')[0],
-        earnings: monthlyData[month]
-      }));
-  }, [coachSubscriptions]);
-
-  // Earnings by plan
-  const earningsByPlan = React.useMemo(() => {
-    const planEarnings = {};
-    
-    coachSubscriptions
-      .filter(sub => sub.status === 'active')
-      .forEach(sub => {
-        const plan = sub.plan_name || 'Unknown Plan';
-        if (!planEarnings[plan]) {
-          planEarnings[plan] = 0;
-        }
-        planEarnings[plan] += sub.amount || 0;
-      });
-
-    return Object.entries(planEarnings)
-      .sort((a, b) => b[1] - a[1])
-      .map(([plan, earnings]) => ({ plan, earnings }));
-  }, [coachSubscriptions]);
-
-  // AI Credits purchased per coach
-  const creditsPurchasedByCoach = React.useMemo(() => {
-    const coachCredits = {};
-    
-    aiCreditsTransactions
-      .filter(txn => txn.transaction_type === 'purchase' && txn.payment_status === 'completed')
-      .forEach(txn => {
-        const coach = txn.coach_email || 'Unknown';
-        if (!coachCredits[coach]) {
-          coachCredits[coach] = { credits: 0, spent: 0 };
-        }
-        coachCredits[coach].credits += txn.credits_amount || 0;
-        coachCredits[coach].spent += txn.cost || 0;
-      });
-
-    return Object.entries(coachCredits)
-      .sort((a, b) => b[1].credits - a[1].credits)
-      .map(([coach, data]) => ({ coach, credits: data.credits, spent: data.spent }));
-  }, [aiCreditsTransactions]);
-
-  // Client revenue by coach with unread messages
-  const clientRevenueByCoach = React.useMemo(() => {
-    const coachRevenue = {};
-    
-    clientPlanPurchases
-      .filter(purchase => purchase.payment_status === 'completed')
-      .forEach(purchase => {
-        const coach = purchase.coach_email || 'Unknown';
-        if (!coachRevenue[coach]) {
-          coachRevenue[coach] = { revenue: 0, unreadMessages: 0 };
-        }
-        coachRevenue[coach].revenue += purchase.amount || 0;
-      });
-
-    // Count unread messages per coach by matching client emails
-    messages.forEach(msg => {
-      // Find which coach this client belongs to
-      const clientPurchase = clientPlanPurchases.find(p => p.client_email === msg.created_by);
-      if (clientPurchase?.coach_email) {
-        const coach = clientPurchase.coach_email;
-        if (!coachRevenue[coach]) {
-          coachRevenue[coach] = { revenue: 0, unreadMessages: 0 };
-        }
-        coachRevenue[coach].unreadMessages += 1;
-      }
-    });
-
-    return Object.entries(coachRevenue)
-      .sort((a, b) => b[1].revenue - a[1].revenue)
-      .map(([coach, data]) => ({ 
-        coach, 
-        revenue: data.revenue, 
-        unreadMessages: data.unreadMessages 
-      }));
-  }, [clientPlanPurchases, messages]);
 
   return (
     <div className="min-h-screen p-4 lg:p-8 bg-gray-50 overflow-hidden">

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Calendar, ChefHat, Utensils, Lightbulb, CheckCircle2, History, CalendarDays } from "lucide-react";
+import { logAction } from "@/lib/logAction";
 
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -247,7 +248,9 @@ export default function MyAssignedMealPlan() {
         .slice(0, 50);
       doc.save(`${safeName}.pdf`);
 
+    logAction({ action: "export_meal_plan", status: "success", pageSection: "ClientMealPlan", metadata: { plan_name: displayedPlan?.name, client_id: clientProfile?.id } }).catch(() => {});
     } catch(err) {
+      logAction({ action: "export_meal_plan", status: "error", pageSection: "ClientMealPlan", errorMessage: err.message }).catch(() => {});
       console.error('PDF error:', err);
       alert('Could not generate PDF: ' + err.message);
     } finally {
@@ -318,6 +321,13 @@ export default function MyAssignedMealPlan() {
     refetchOnWindowFocus: true,
     refetchInterval: 30000,
   });
+
+  // Log view_meal_plan when plan is loaded
+  useEffect(() => {
+    if (assignedPlan && clientProfile) {
+      logAction({ action: "view_meal_plan", status: "success", pageSection: "ClientMealPlan", userEmail: user?.email, userType: "client", metadata: { plan_id: assignedPlan.id, plan_name: assignedPlan.name, client_id: clientProfile.id } });
+    }
+  }, [assignedPlan?.id]);
 
   // Real-time subscription: auto-refetch when coach saves a new plan for this client
   useEffect(() => {

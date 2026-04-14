@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import { base44 } from "@/api/base44Client";
+import { logAction } from "@/lib/logAction";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -82,10 +83,12 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
   const generatePlan = async () => {
     console.log('🚀 generatePlan fired');
     setGenerating(true);
+    const _genStart = Date.now();
     
     const timeoutId = setTimeout(() => {
       setGenerating(false);
       toast.error('⏱️ Generation took too long (3 min) — try a shorter plan (3-5 days)');
+      logAction({ action: "generate_meal_plan", status: "error", pageSection: "MealPlanner", errorMessage: "AI generation timed out after 3 minutes", errorCode: "AI_TIMEOUT", userEmail: client?.created_by, metadata: { client_id: client?.id, plan_duration: effectiveDuration } });
     }, 180000);
     
     try {
@@ -126,6 +129,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       if (!d || !d.meals || d.meals.length === 0) {
         console.error('❌ No meals in response:', d);
         toast.error('Generation returned empty plan. Check backend logs.');
+        logAction({ action: "generate_meal_plan", status: "error", pageSection: "MealPlanner", errorMessage: "AI returned empty meal plan", errorCode: "AI_EMPTY_RESPONSE", userEmail: client?.created_by, metadata: { client_id: client?.id, plan_duration: effectiveDuration } });
         setGenerating(false);
         return;
       }
@@ -150,6 +154,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       if (d.conversationContext) {
         setConversationContext(d.conversationContext);
       }
+      logAction({ action: "generate_meal_plan", status: "success", pageSection: "MealPlanner", durationMs: Date.now() - _genStart, metadata: { client_id: client?.id, plan_duration: effectiveDuration, food_preference: selectedIntake?.diet_type || client?.food_preference, meals_count: d.meals.length } });
       toast.success('✅ AI meal plan generated with HMRE engine!');
       setOpenSections(prev => ({ ...prev, s5: true, s6: true }));
     } catch (err) {
@@ -157,7 +162,8 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
       console.error('❌ generatePlan error:', err);
       const errMsg = err.message || 'Unknown error';
       toast.error('❌ ' + errMsg);
-      // Log full error for debugging
+      const errCode = errMsg.toLowerCase().includes('json') ? 'AI_PARSE_ERROR' : errMsg.toLowerCase().includes('timeout') ? 'AI_TIMEOUT' : null;
+      logAction({ action: "generate_meal_plan", status: "error", pageSection: "MealPlanner", errorMessage: errMsg, errorCode: errCode, durationMs: Date.now() - _genStart, metadata: { client_id: client?.id, plan_duration: effectiveDuration } });
       if (err.response?.data) console.error('API error details:', err.response.data);
     }
     setGenerating(false);
@@ -248,15 +254,16 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
         },
       });
 
+      logAction({ action: "save_meal_plan", status: "success", pageSection: "MealPlanner", metadata: { client_id: client.id, plan_name: generatedPlan.name, assigned: assign } });
       toast.success(assign ? '✅ Plan saved and assigned to client!' : '✅ Plan saved!');
       queryClient.invalidateQueries(['clientMealPlans', client.id]);
       queryClient.refetchQueries(['clientMealPlans', client.id]);
       if (assign) setSavingAssign(false);
       else setSavingOnly(false);
-      // Navigate back immediately after save
       if (assign && onPlanAssigned) onPlanAssigned();
       else if (onPlanSaved) onPlanSaved();
     } catch (err) {
+      logAction({ action: "save_meal_plan", status: "error", pageSection: "MealPlanner", errorMessage: err.message, metadata: { client_id: client.id } });
       toast.error('Save failed: ' + (err.message || 'Unknown error'));
       if (assign) setSavingAssign(false);
       else setSavingOnly(false);

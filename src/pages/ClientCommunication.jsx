@@ -14,6 +14,7 @@ import {
   Info, Calendar, Star, Zap, Heart, ThumbsUp, Clock, Menu
 } from "lucide-react";
 import VideoCallRoom from "@/components/communication/VideoCallRoom";
+import { logAction } from "@/lib/logAction";
 import VideoCallHistory from "@/components/communication/VideoCallHistory";
 import { createSignalingChannel } from "@/components/communication/VideoCallSignaling";
 import InitiateConversation from "@/components/communication/InitiateConversation";
@@ -183,7 +184,8 @@ export default function ClientCommunication() {
       }
       return result;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      logAction({ action: "send_message", status: "success", pageSection: "Messages", userEmail: user?.email, userType: "client", metadata: { client_id: clientProfile?.id, has_attachment: !!variables.attachment_url } });
       queryClient.invalidateQueries(['myMessages']);
       setMessageText("");
       setAttachedFile(null);
@@ -191,7 +193,10 @@ export default function ClientCommunication() {
       setTimeout(() => scrollToBottom("smooth"), 100);
       setTimeout(() => textareaRef.current?.focus(), 150);
     },
-    onError: () => alert("❌ Failed to send message. Please try again."),
+    onError: (err) => {
+      logAction({ action: "send_message", status: "error", pageSection: "Messages", userEmail: user?.email, userType: "client", errorMessage: err.message });
+      alert("❌ Failed to send message. Please try again.");
+    },
   });
 
   const markAsReadMutation = useMutation({

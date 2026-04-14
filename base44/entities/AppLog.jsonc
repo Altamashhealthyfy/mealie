@@ -1,0 +1,62 @@
+{
+  "name": "AppLog",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user who triggered the action"
+    },
+    "user_type": {
+      "type": "string",
+      "enum": [
+        "coach",
+        "client",
+        "admin",
+        "unknown"
+      ],
+      "description": "Role of the user"
+    },
+    "action": {
+      "type": "string",
+      "description": "Action identifier (e.g. generate_meal_plan, log_food)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "warning"
+      ],
+      "description": "Outcome of the action"
+    },
+    "page_section": {
+      "type": "string",
+      "description": "Page or section where action occurred"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Error message if status is error"
+    },
+    "error_code": {
+      "type": "string",
+      "description": "Error code (e.g. AI_TIMEOUT, AI_EMPTY_RESPONSE, AI_PARSE_ERROR)"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional context (client_id, plan_duration, token_count, etc.)"
+    },
+    "duration_ms": {
+      "type": "number",
+      "description": "Duration of the action in milliseconds"
+    },
+    "resolved": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the error has been resolved"
+    }
+  },
+  "required": [
+    "action",
+    "status"
+  ]
+}
