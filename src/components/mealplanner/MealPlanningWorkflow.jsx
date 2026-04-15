@@ -184,6 +184,7 @@ export default function MealPlanningWorkflow({ client, clinicalIntakes, mealPlan
         originalPrompt: conversationContext.originalPrompt,
         originalResponse: conversationContext.assistantResponse,
         modificationRequest: modificationText,
+        currentMeals: generatedPlan.meals,
         clientId: client.id,
         clientName: client.full_name,
         clientEmail: client.email,

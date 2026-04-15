@@ -138,6 +138,32 @@ Deno.serve(async (req) => {
 
     const callStartTime = Date.now();
 
+    // ─── Parse egg/non-veg slot constraints from coachRules ───
+    // Detect if coach has restricted eggs to specific meal slots
+    const eggSlotMatch = coachRules.match(/egg[s]?\s*(?:only\s*(?:at|in|for)|meal times?:?)\s*([a-z_,\s]+)/i)
+      || coachRules.match(/egg[s]?\s*preferred meals?:?\s*([a-z_,\s]+)/i);
+    let allowedEggSlots = null; // null = no restriction
+    if (eggSlotMatch) {
+      const rawSlots = eggSlotMatch[1].toLowerCase();
+      const slotAliases = {
+        'evening snack': 'snack', 'evening_snack': 'snack', 'snack': 'snack',
+        'breakfast': 'breakfast', 'lunch': 'lunch_dal', 'dinner': 'dinner_prot',
+        'mid morning': 'mid_morning', 'mid_morning': 'mid_morning',
+        'early morning': 'early_morning',
+      };
+      allowedEggSlots = [];
+      for (const [alias, slot] of Object.entries(slotAliases)) {
+        if (rawSlots.includes(alias)) allowedEggSlots.push(slot);
+      }
+      if (allowedEggSlots.length === 0) allowedEggSlots = null;
+      console.log(`🥚 Egg slot constraint detected: ${allowedEggSlots?.join(', ')}`);
+    }
+
+    // Build egg constraint rule text for prompt
+    const eggSlotRule = allowedEggSlots
+      ? `EGG RULE: Egg dishes may ONLY be placed in these slots: ${allowedEggSlots.join(', ')}. Do NOT put egg dishes in breakfast or any other slot not listed here.`
+      : 'Egg dishes may go in breakfast, mid_morning, or snack slots.';
+
     const systemPrompt = `You are HMRE — Healthyfy Meal Rule Engine. Generate exactly 5 meal plan templates (A,B,C,D,E) using ONLY dishes from the provided lists.
 
 RULES — follow strictly:
@@ -150,9 +176,10 @@ RULES — follow strictly:
 7. Dinner grain must be DIFFERENT from lunch grain in same template
 8. Lunch sabzi and dinner sabzi must be DIFFERENT in same template
 9. Non-veg only at lunch_dal or dinner_prot slots — never early_morning or snack
-${hasDiabetes ? '10. DIABETES: Prefer low GI dishes. Include karela max 2 templates. Include methi in at least 1 template.' : ''}
-${hasThyroid ? '10. THYROID: Include mushroom or egg dishes for selenium. No soy anywhere.' : ''}
-${hasHP ? '10. HYPERTENSION: Avoid high sodium dishes. Prefer light sabzi.' : ''}
+10. ${eggSlotRule}
+${hasDiabetes ? '11. DIABETES: Prefer low GI dishes. Include karela max 2 templates. Include methi in at least 1 template.' : ''}
+${hasThyroid ? '11. THYROID: Include mushroom or egg dishes for selenium. No soy anywhere.' : ''}
+${hasHP ? '11. HYPERTENSION: Avoid high sodium dishes. Prefer light sabzi.' : ''}
 
 Return ONLY valid JSON — no explanation, no markdown:
 {

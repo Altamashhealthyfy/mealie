@@ -21,20 +21,28 @@ Deno.serve(async (req) => {
 
     const callStartTime = Date.now();
 
+    // If currentMeals is provided, build the modification from the actual meal plan
+    // rather than just continuing the template conversation
+    const currentMealsSummary = currentMeals && currentMeals.length > 0
+      ? `\n\nCURRENT BUILT MEAL PLAN (${currentMeals.length} entries):\n${JSON.stringify(currentMeals, null, 2)}`
+      : '';
+
     // Build the modification instruction as a follow-up turn
     const modificationPrompt = `The nutritionist wants to modify the meal plan. Apply the following changes and return the COMPLETE updated meal plan (all days, all slots — not just the changed ones).
 
 MODIFICATION REQUEST: "${modificationRequest}"
+${currentMealsSummary}
 
 RULES (same as before):
 - Only use dishes from the AVAILABLE DISHES list provided in the original prompt above.
 - Do NOT introduce any new dishes not in that list.
 - Maintain calorie targets, slot distribution, and all dietary/disease rules.
+- CRITICAL: Strictly follow the modification request. If the coach says "eggs only at evening_snack", move ALL egg dishes to evening_snack slot only and remove eggs from breakfast or any other slot.
 - Return ONLY raw JSON in the same format as before.
 - Start with { and end with }.
 - Do NOT wrap in markdown or code fences.
 
-Return the full updated plan: {"meals": [...all meals...], "mpess": [...]}`;
+Return the full updated plan: {"meals": [...all meals with day, meal_type, meal_name, items, portion_sizes, calories, protein, carbs, fats...], "mpess": [...]}`;
 
     const aiResponse = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
