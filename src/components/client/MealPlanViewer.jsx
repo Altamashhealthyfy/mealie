@@ -3,13 +3,14 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Download, Send, CheckCircle, ChefHat, Loader2, LayoutList, Table2, Pencil, FileSpreadsheet } from "lucide-react";
+import { Download, Send, CheckCircle, ChefHat, Loader2, LayoutList, Table2, Pencil, FileSpreadsheet, FileText } from "lucide-react";
 import * as XLSX from "xlsx";
 import MealPlanEditor from "@/components/client/MealPlanEditor";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
+import AdvancedPlanPDFExport from "@/components/mealplanner/AdvancedPlanPDFExport";
 
 const MEAL_ORDER = ["early_morning", "breakfast", "mid_morning", "lunch", "evening_snack", "dinner", "post_dinner"];
 const MEAL_LABELS = {
@@ -287,6 +288,7 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
   const [viewMode, setViewMode] = useState("detail"); // "detail" | "table"
   const [editMode, setEditMode] = useState(false);
   const [localPlan, setLocalPlan] = useState(plan);
+  const [showAdvancedPDF, setShowAdvancedPDF] = useState(false);
 
 
   // Keep localPlan in sync if parent `plan` prop changes
@@ -691,8 +693,20 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
                 {/* Download PDF */}
                 <Button size="sm" variant="outline" onClick={handleDownloadPDF} disabled={downloading}>
                   {downloading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3 mr-1" />}
-                  Download PDF
+                  PDF
                 </Button>
+
+                {/* Advanced/Pro Branded PDF Export */}
+                {activePlan.plan_tier === "advanced" && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowAdvancedPDF(true)}
+                    className="border-purple-400 text-purple-700 hover:bg-purple-50"
+                  >
+                    <FileText className="w-3 h-3 mr-1" /> Export Pro PDF
+                  </Button>
+                )}
 
                 {/* Download Excel */}
                 <Button
@@ -763,6 +777,15 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
         </div>
       )}
 
+      {/* Advanced Branded PDF Export Dialog */}
+      {showAdvancedPDF && (
+        <AdvancedPlanPDFExport
+          plan={activePlan}
+          clientName={activePlan?.client_name || ""}
+          open={showAdvancedPDF}
+          onOpenChange={setShowAdvancedPDF}
+        />
+      )}
 
     </div>
   );
