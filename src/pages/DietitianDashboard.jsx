@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import ActionItemsPanel from "@/components/dashboard/ActionItemsPanel";
+import SymptomAlertsPanel from "@/components/dashboard/SymptomAlertsPanel";
 import CoachGuidePanel from "@/components/common/CoachGuidePanel";
 import PendingLoginPromotion from "@/components/dashboard/PendingLoginPromotion";
 import { Switch } from "@/components/ui/switch";
@@ -381,6 +382,8 @@ export default function DietitianDashboard() {
             </CardContent>
           </Card>
         )}
+
+        <SymptomAlertsPanel userEmail={user?.email} />
 
         <CoachGuidePanel />
 
