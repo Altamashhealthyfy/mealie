@@ -5,6 +5,7 @@ import UserActivityLog from './pages/UserActivityLog';
 import TokenUsageDashboard from './pages/TokenUsageDashboard';
 import BillingPortal from './pages/BillingPortal';
 import ClientSelfEditProfile from './pages/ClientSelfEditProfile';
+import PatientIntakeForm from './pages/PatientIntakeForm';
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
@@ -64,6 +65,7 @@ const AuthenticatedApp = () => {
         <Route path="/TokenUsageDashboard" element={<LayoutWrapper currentPageName="TokenUsageDashboard"><TokenUsageDashboard /></LayoutWrapper>} />
         <Route path="/BillingPortal" element={<LayoutWrapper currentPageName="BillingPortal"><BillingPortal /></LayoutWrapper>} />
         <Route path="/ClientSelfEditProfile" element={<LayoutWrapper currentPageName="ClientSelfEditProfile"><ClientSelfEditProfile /></LayoutWrapper>} />
+        <Route path="/PatientIntakeForm" element={<PatientIntakeForm />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </LayoutWrapper>
