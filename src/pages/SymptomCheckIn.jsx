@@ -131,7 +131,14 @@ export default function SymptomCheckIn() {
               {energyLevel && <p className="text-gray-600">Energy level: <strong>{energyLevel}/5</strong></p>}
               {digestiveHealth && <p className="text-gray-600">Digestive: <strong>{digestiveHealth}</strong></p>}
             </div>
-            <p className="text-xs text-gray-400">You may close this window. Your coach will review your response.</p>
+            <div className="flex gap-3 justify-center flex-wrap">
+              <a href="/ProgressTracking">
+                <Button variant="outline" size="sm" className="text-green-700 border-green-300 hover:bg-green-50">
+                  View My Progress →
+                </Button>
+              </a>
+            </div>
+            <p className="text-xs text-gray-400">Your coach will review your response shortly.</p>
           </CardContent>
         </Card>
       </div>

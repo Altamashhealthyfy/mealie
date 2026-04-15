@@ -11,7 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
-import { TrendingUp, TrendingDown, Plus, Scale, Calendar, Edit, Trash2, Camera, Ruler, Activity, Target, Smile, Zap, Moon, CloudRain, Droplets, Dumbbell } from "lucide-react";
+import { TrendingUp, TrendingDown, Plus, Scale, Calendar, Edit, Trash2, Camera, Ruler, Activity, Target, Smile, Zap, Moon, CloudRain, Droplets, Dumbbell, Heart, CheckCircle2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import GoalCard from "../components/progress/GoalCard";
@@ -272,6 +273,18 @@ export default function ProgressTracking() {
       date: format(new Date(log.date), 'MMM d'),
       weight: log.weight,
     }));
+
+  // Symptom check-ins (from SymptomCheckIn page, type=symptom_checkin)
+  const { data: symptomLogs } = useQuery({
+    queryKey: ['mySymptomCheckIns', clientProfile?.id],
+    queryFn: async () => {
+      const logs = await base44.entities.ProgressLog.filter({ client_id: clientProfile?.id, log_type: 'symptom_checkin' });
+      return logs.sort((a, b) => new Date(b.date) - new Date(a.date));
+    },
+    enabled: !!clientProfile?.id,
+    initialData: [],
+    staleTime: 30000,
+  });
 
   const { data: mealPlan } = useQuery({
     queryKey: ['activeMealPlan', clientProfile?.id],
@@ -594,6 +607,44 @@ export default function ProgressTracking() {
           </Card>
         </div>
 
+        {/* Symptom Check-in Banner */}
+        {(() => {
+          const lastCheckIn = symptomLogs[0];
+          const daysSince = lastCheckIn
+            ? Math.floor((Date.now() - new Date(lastCheckIn.date)) / 86400000)
+            : null;
+          const isWorse = lastCheckIn?.symptom_status === 'worsening' || lastCheckIn?.symptom_status === 'much_worse';
+          const sympBg = isWorse ? 'bg-red-50 border-red-300' : daysSince !== null && daysSince <= 3 ? 'bg-green-50 border-green-300' : 'bg-blue-50 border-blue-300';
+          return (
+            <Card className={`border-2 shadow-md ${sympBg}`}>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between gap-4 flex-wrap">
+                  <div className="flex items-center gap-3">
+                    <Heart className="w-6 h-6 text-green-600 shrink-0" />
+                    <div>
+                      <p className="font-semibold text-gray-800 text-sm">Symptom Check-ins</p>
+                      {lastCheckIn ? (
+                        <p className="text-xs text-gray-600">
+                          Last: <strong className="capitalize">{lastCheckIn.symptom_status?.replace('_', ' ')}</strong>
+                          {' '}· {daysSince === 0 ? 'Today' : `${daysSince} day${daysSince > 1 ? 's' : ''} ago`}
+                          {lastCheckIn.energy_level ? ` · Energy: ${lastCheckIn.energy_level}/5` : ''}
+                        </p>
+                      ) : (
+                        <p className="text-xs text-gray-500">No check-ins yet — submit one below</p>
+                      )}
+                    </div>
+                  </div>
+                  <Link to={`/SymptomCheckIn?clientId=${clientProfile?.id}&email=${encodeURIComponent(user?.email || '')}`}>
+                    <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white shrink-0">
+                      <CheckCircle2 className="w-4 h-4 mr-1" /> Submit Check-in
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
+
         {/* Daily Progress Logger */}
         <DailyProgressLogger clientId={clientProfile?.id} />
 
@@ -688,7 +739,7 @@ export default function ProgressTracking() {
 
         {/* Charts Tabs */}
         <Tabs defaultValue="weight" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid grid-cols-3 bg-white/80 backdrop-blur w-full h-auto">
+          <TabsList className="grid grid-cols-4 bg-white/80 backdrop-blur w-full h-auto">
             <TabsTrigger value="weight" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
               <Scale className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">Weight</span>
@@ -700,6 +751,10 @@ export default function ProgressTracking() {
             <TabsTrigger value="history" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
               <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">History</span>
+            </TabsTrigger>
+            <TabsTrigger value="symptoms" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
+              <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Symptoms</span>
             </TabsTrigger>
           </TabsList>
 
@@ -887,6 +942,58 @@ export default function ProgressTracking() {
                               {mpess.mind_practices?.notes || mpess.emotional_practices?.notes}
                             </p>
                           )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="symptoms">
+            <Card className="border-none shadow-lg">
+              <CardHeader className="p-4 md:p-6">
+                <CardTitle className="flex items-center justify-between text-base sm:text-lg md:text-xl">
+                  <span className="flex items-center gap-2"><Heart className="w-5 h-5 text-green-500" /> Symptom Check-in History</span>
+                  <Link to={`/SymptomCheckIn?clientId=${clientProfile?.id}&email=${encodeURIComponent(user?.email || '')}`}>
+                    <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                      <Plus className="w-4 h-4 mr-1" /> New Check-in
+                    </Button>
+                  </Link>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 md:p-6">
+                {symptomLogs.length === 0 ? (
+                  <div className="text-center py-10 space-y-3">
+                    <Heart className="w-12 h-12 mx-auto text-gray-300" />
+                    <p className="text-gray-500 text-sm">No symptom check-ins yet.</p>
+                    <p className="text-gray-400 text-xs">Your coach sends one every 3 days, or you can submit one anytime.</p>
+                    <Link to={`/SymptomCheckIn?clientId=${clientProfile?.id}&email=${encodeURIComponent(user?.email || '')}`}>
+                      <Button className="mt-2 bg-green-600 hover:bg-green-700 text-white" size="sm">Submit First Check-in</Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {symptomLogs.map(log => {
+                      const COLORS = { improving: 'border-l-green-500 bg-green-50', same: 'border-l-blue-400 bg-blue-50', worsening: 'border-l-orange-500 bg-orange-50', much_worse: 'border-l-red-600 bg-red-50' };
+                      const LABELS = { improving: '😊 Improving', same: '😐 Same', worsening: '😟 Worsening', much_worse: '😰 Much Worse' };
+                      const cls = COLORS[log.symptom_status] || 'border-l-gray-300 bg-gray-50';
+                      return (
+                        <div key={log.id} className={`p-4 rounded-xl border-l-4 ${cls}`}>
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <p className="font-semibold text-gray-900 text-sm">{log.date ? format(new Date(log.date), 'MMMM d, yyyy') : '—'}</p>
+                              <div className="flex flex-wrap gap-2 mt-1 text-xs">
+                                <span className="font-medium">{LABELS[log.symptom_status] || log.symptom_status}</span>
+                                {log.energy_level && <span>⚡ Energy: {log.energy_level}/5</span>}
+                                {log.digestive_health && <span>🫁 {log.digestive_health}</span>}
+                              </div>
+                            </div>
+                          </div>
+                          {log.worsening_details && (
+                            <p className="text-xs text-red-700 italic mt-2 bg-white rounded p-2">"{log.worsening_details}"</p>
+                          )}
+                          {log.notes && <p className="text-xs text-gray-600 italic mt-1 bg-white rounded p-2">"{log.notes}"</p>}
                         </div>
                       );
                     })}
