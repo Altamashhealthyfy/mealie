@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
   try {
@@ -20,12 +20,12 @@ Deno.serve(async (req) => {
 
     if (!finalEmail) return Response.json({ error: 'Email is required' }, { status: 400 });
 
-    // Check if user already exists by listing all users and matching email
-    const allUsers = await base44.asServiceRole.entities.User.list();
-    const existingUser = allUsers.find(u => u.email?.toLowerCase() === finalEmail);
+    // Check if user already exists — filter by email directly instead of listing all
+    const existingUsers = await base44.asServiceRole.entities.User.filter({ email: finalEmail });
+    const existingUser = existingUsers[0];
 
     if (existingUser) {
-      // Already exists — just promote their role
+      // Already exists — just update role
       await base44.asServiceRole.entities.User.update(existingUser.id, {
         full_name: finalFullName,
         user_type: finalUserType,
@@ -39,34 +39,29 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Send invite (this triggers the Base44 account creation flow)
+    // Send invite (triggers Base44 account creation)
     try {
       await base44.users.inviteUser(finalEmail, 'user');
     } catch (inviteError) {
       if (!inviteError.message?.includes('already exists')) throw inviteError;
     }
 
-    // Re-apply correct user_type immediately after invite, in case invite resets it
-    // Try to find the user after invite with retries (up to ~12 seconds)
+    // Poll for the new user with 3 attempts × 2s = 6s max (reduced from 12s)
     let foundUser = null;
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 3; i++) {
       await new Promise(resolve => setTimeout(resolve, 2000));
-      const users = await base44.asServiceRole.entities.User.list();
-      foundUser = users.find(u => u.email?.toLowerCase() === finalEmail);
+      const users = await base44.asServiceRole.entities.User.filter({ email: finalEmail });
+      foundUser = users[0];
       if (foundUser) break;
     }
 
     if (foundUser) {
-      // Always re-set user_type AFTER invite to prevent invite system from overwriting it
       await base44.asServiceRole.entities.User.update(foundUser.id, {
         full_name: finalFullName,
         user_type: finalUserType,
       });
 
-      // Verify the write persisted
-      const verifiedUsers = await base44.asServiceRole.entities.User.list();
-      const verifiedUser = verifiedUsers.find(u => u.email?.toLowerCase() === finalEmail);
-      console.log('createUserWithPassword result:', finalEmail, finalUserType, verifiedUser?.user_type);
+      console.log('createUserWithPassword: activated', finalEmail, 'as', finalUserType);
 
       return Response.json({
         success: true,
@@ -74,12 +69,10 @@ Deno.serve(async (req) => {
         email: finalEmail,
         user_id: foundUser.id,
         activated: true,
-        verified_type: verifiedUser?.user_type,
       });
     }
 
-    // User not found yet — will be auto-activated via automation when they first log in
-    // The CoachSubscriptionHistory record (action_type: account_created) acts as the trigger
+    // Not found yet — will be auto-activated on first login via automation
     return Response.json({
       success: true,
       message: `Invitation sent to ${finalEmail}. Coach will appear as "Pending Login" until they log in.`,

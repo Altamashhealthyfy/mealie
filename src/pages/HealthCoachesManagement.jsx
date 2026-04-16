@@ -242,60 +242,6 @@ export default function HealthCoachesManagement() {
         }
       }
 
-      // Assign plan if selected
-      if (coachData.plan_id) {
-        const plan = plans.find(p => p.id === coachData.plan_id);
-        if (plan) {
-          // Calculate end date based on billing cycle
-          const startDate = new Date(coachData.start_date);
-          let endDate;
-          if (coachData.end_date) {
-            endDate = new Date(coachData.end_date);
-          } else {
-            endDate = new Date(startDate);
-            if (coachData.billing_cycle === 'monthly') {
-              endDate.setMonth(endDate.getMonth() + 1);
-            } else {
-              endDate.setFullYear(endDate.getFullYear() + 1);
-            }
-            // Add extra months if specified
-            if (coachData.extra_months > 0) {
-              endDate.setMonth(endDate.getMonth() + parseInt(coachData.extra_months));
-            }
-          }
-
-          await base44.entities.HealthCoachSubscription.create({
-            coach_email: coachData.email,
-            coach_name: coachData.full_name,
-            plan_id: plan.id,
-            plan_name: plan.plan_name,
-            billing_cycle: coachData.billing_cycle,
-            amount: coachData.billing_cycle === 'monthly' ? plan.monthly_price : plan.yearly_price,
-            currency: 'INR',
-            start_date: coachData.start_date,
-            end_date: endDate.toISOString().split('T')[0],
-            next_billing_date: endDate.toISOString().split('T')[0],
-            status: 'active',
-            payment_method: 'manual',
-            auto_renew: false,
-            manually_granted: true,
-            granted_by: user.email,
-            ai_credits_used_this_month: 0,
-            ai_credits_purchased: 0,
-            ai_credits_reset_date: coachData.start_date,
-          });
-
-          await base44.entities.CoachSubscriptionHistory.create({
-            coach_email: coachData.email,
-            coach_name: coachData.full_name,
-            action_type: 'plan_assigned',
-            new_value: plan.plan_name,
-            plan_name: plan.plan_name,
-            performed_by: user.email,
-          });
-        }
-      }
-
       return response.data;
     },
     onSuccess: () => {
