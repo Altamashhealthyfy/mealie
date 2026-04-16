@@ -74,6 +74,7 @@ export default function HealthCoachesManagement() {
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [changePasswordDialog, setChangePasswordDialog] = useState(false);
   const [selectedCoach, setSelectedCoach] = useState(null);
+  const [selectedPending, setSelectedPending] = useState([]);
   const [fixRolesRunning, setFixRolesRunning] = useState(false);
   const [fixRolesResult, setFixRolesResult] = useState(null);
 
@@ -633,6 +634,32 @@ export default function HealthCoachesManagement() {
     onError: (error) => toast.error(error.message),
   });
 
+  // Promote all selected pending coaches
+  const [promoteAllRunning, setPromoteAllRunning] = useState(false);
+  const handlePromoteAll = async () => {
+    if (selectedPending.length === 0) return;
+    setPromoteAllRunning(true);
+    let successCount = 0;
+    let failCount = 0;
+    for (const email of selectedPending) {
+      try {
+        const response = await base44.functions.invoke('createUserWithPassword', {
+          email,
+          user_type: 'student_coach',
+        });
+        if (response.data?.error) throw new Error(response.data.error);
+        successCount++;
+      } catch {
+        failCount++;
+      }
+    }
+    setPromoteAllRunning(false);
+    setSelectedPending([]);
+    queryClient.invalidateQueries(['allHealthCoaches']);
+    queryClient.invalidateQueries(['coachHistory']);
+    toast.success(`Promoted ${successCount} coach(es)${failCount > 0 ? `, ${failCount} failed` : ''}.`);
+  };
+
   // Fix role for a coach already in the table but with wrong role
   const fixRoleMutation = useMutation({
     mutationFn: async (coach) => {
@@ -1041,10 +1068,21 @@ export default function HealthCoachesManagement() {
         {pendingCoaches.length > 0 && (
           <Card className="border-2 border-amber-300 bg-amber-50/80 shadow">
             <CardHeader className="border-b border-amber-200 py-3">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Clock className="w-4 h-4 text-amber-600" />
                 <CardTitle className="text-base text-amber-800">Pending Login ({pendingCoaches.length})</CardTitle>
                 <Badge className="bg-amber-200 text-amber-800 text-xs">Awaiting First Login</Badge>
+                {selectedPending.length > 0 && (
+                  <Button
+                    size="sm"
+                    className="ml-auto h-7 text-xs bg-green-600 hover:bg-green-700 text-white"
+                    onClick={handlePromoteAll}
+                    disabled={promoteAllRunning}
+                  >
+                    <CheckCircle2 className="w-3 h-3 mr-1" />
+                    {promoteAllRunning ? 'Promoting...' : `Promote Selected (${selectedPending.length})`}
+                  </Button>
+                )}
               </div>
               <p className="text-xs text-amber-700 mt-1">These coaches have been invited but haven't logged in yet. Once they log in, they'll be auto-promoted to Health Coach role.</p>
             </CardHeader>
@@ -1052,6 +1090,20 @@ export default function HealthCoachesManagement() {
               <Table className="text-sm">
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="text-xs py-2 w-8">
+                      <input
+                        type="checkbox"
+                        className="rounded border-gray-300"
+                        checked={selectedPending.length === pendingCoaches.length && pendingCoaches.length > 0}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedPending(pendingCoaches.map(h => h.coach_email));
+                          } else {
+                            setSelectedPending([]);
+                          }
+                        }}
+                      />
+                    </TableHead>
                     <TableHead className="text-xs py-2">Name</TableHead>
                     <TableHead className="text-xs py-2">Email</TableHead>
                     <TableHead className="text-xs py-2">Invited On</TableHead>
@@ -1060,7 +1112,21 @@ export default function HealthCoachesManagement() {
                 </TableHeader>
                 <TableBody>
                   {pendingCoaches.map((h, idx) => (
-                    <TableRow key={idx} className="hover:bg-amber-100/50">
+                    <TableRow key={idx} className={`hover:bg-amber-100/50 ${selectedPending.includes(h.coach_email) ? 'bg-amber-100' : ''}`}>
+                      <TableCell className="py-2 w-8">
+                        <input
+                          type="checkbox"
+                          className="rounded border-gray-300"
+                          checked={selectedPending.includes(h.coach_email)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedPending(prev => [...prev, h.coach_email]);
+                            } else {
+                              setSelectedPending(prev => prev.filter(em => em !== h.coach_email));
+                            }
+                          }}
+                        />
+                      </TableCell>
                       <TableCell className="py-2 text-xs font-medium">{h.coach_name || '—'}</TableCell>
                       <TableCell className="py-2 text-xs text-gray-600">{h.coach_email}</TableCell>
                       <TableCell className="py-2 text-xs text-gray-500">
