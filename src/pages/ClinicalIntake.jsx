@@ -76,14 +76,14 @@ export default function ClinicalIntake() {
   const [aiFileUploading, setAiFileUploading] = useState(false);
   const [activeTab, setActiveTab] = useState('intake');
   
-  // Collapsible states - all closed by default except basic info
-  const [isHealthConditionsOpen, setIsHealthConditionsOpen] = useState(false);
+  // Collapsible states - health conditions and goals open by default since they are required
+  const [isHealthConditionsOpen, setIsHealthConditionsOpen] = useState(true);
   const [isMedicationsOpen, setIsMedicationsOpen] = useState(false);
   const [isLabValuesOpen, setIsLabValuesOpen] = useState(false);
   const [isDietPreferencesOpen, setIsDietPreferencesOpen] = useState(true);
   const [isDailyRoutineOpen, setIsDailyRoutineOpen] = useState(false);
   const [isCookingStyleOpen, setIsCookingStyleOpen] = useState(false);
-  const [isGoalsOpen, setIsGoalsOpen] = useState(false);
+  const [isGoalsOpen, setIsGoalsOpen] = useState(true);
   const [isMpessOpen, setIsMpessOpen] = useState(false);
   const [isUploadReportOpen, setIsUploadReportOpen] = useState(false);
 
@@ -385,7 +385,9 @@ Return ONLY valid JSON, no explanation.`;
       return;
     }
     if (!formData.health_conditions.length) {
+      setIsHealthConditionsOpen(true);
       toast.error('Please select at least one health condition');
+      setTimeout(() => document.getElementById('health-conditions-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
       return;
     }
     if (!formData.diet_type) {
@@ -393,7 +395,9 @@ Return ONLY valid JSON, no explanation.`;
       return;
     }
     if (!formData.goal?.length) {
+      setIsGoalsOpen(true);
       toast.error('Please select at least one goal');
+      setTimeout(() => document.getElementById('goals-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
       return;
     }
 
@@ -622,6 +626,7 @@ Return ONLY valid JSON, no explanation.`;
 
           {/* Section 2: Health Conditions */}
           <Collapsible open={isHealthConditionsOpen} onOpenChange={setIsHealthConditionsOpen}>
+          <div id="health-conditions-section" />
           <Card className="border-none shadow-lg">
             <CollapsibleTrigger asChild>
             <CardHeader className="bg-gradient-to-r from-red-500 to-orange-500 text-white cursor-pointer hover:opacity-90 transition-opacity flex flex-row items-center justify-between p-6">
@@ -1252,6 +1257,7 @@ Return ONLY valid JSON, no explanation.`;
 
           {/* Section 8: Goals */}
           <Collapsible open={isGoalsOpen} onOpenChange={setIsGoalsOpen}>
+          <div id="goals-section" />
           <Card className="border-none shadow-lg">
             <CollapsibleTrigger asChild>
             <CardHeader className="bg-slate-100 cursor-pointer hover:bg-slate-200 transition-colors flex flex-row items-center justify-between p-6">
