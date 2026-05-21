@@ -77,6 +77,7 @@ export default function ClinicalIntake() {
   const [activeTab, setActiveTab] = useState('intake');
   
   // Collapsible states - health conditions and goals open by default since they are required
+  const hasLoadedIntake = React.useRef(false);
   const [isHealthConditionsOpen, setIsHealthConditionsOpen] = useState(true);
   const [isMedicationsOpen, setIsMedicationsOpen] = useState(false);
   const [isLabValuesOpen, setIsLabValuesOpen] = useState(false);
@@ -128,7 +129,8 @@ export default function ClinicalIntake() {
       return intakes.length > 0 ? intakes[0] : null;
     },
     enabled: !!formData.client_id,
-    staleTime: 0,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   // Debug logging — remove after confirming pre-fill works
@@ -136,10 +138,11 @@ export default function ClinicalIntake() {
   console.log('🔍 client object:', client);
   console.log('🔍 intakeLoading:', intakeLoading, 'clientLoading:', clientLoading);
 
-  // Load existing intake OR pre-fill from basic profile
-  // Wait until BOTH queries resolve before deciding
+  // Load existing intake OR pre-fill from basic profile — runs ONCE per client selection
   useEffect(() => {
     if (!formData.client_id || intakeLoading || clientLoading) return;
+    if (hasLoadedIntake.current) return; // prevent re-runs on refetch
+    hasLoadedIntake.current = true;
 
     if (existingIntake) {
       // Load existing intake data
@@ -194,6 +197,15 @@ export default function ClinicalIntake() {
       }));
     }
   }, [formData.client_id, existingIntake, intakeLoading, clientLoading, client?.id]);
+
+  // Reset the loaded flag when client changes so new client re-initializes
+  const prevClientId = React.useRef(null);
+  useEffect(() => {
+    if (formData.client_id !== prevClientId.current) {
+      prevClientId.current = formData.client_id;
+      hasLoadedIntake.current = false;
+    }
+  }, [formData.client_id]);
 
   // Auto-calculate BMI
   useEffect(() => {
