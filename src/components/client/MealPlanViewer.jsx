@@ -696,17 +696,15 @@ export default function MealPlanViewer({ plan, allPlanIds, onClose, onAssigned, 
                   PDF
                 </Button>
 
-                {/* Advanced/Pro Branded PDF Export */}
-                {activePlan.plan_tier === "advanced" && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setShowAdvancedPDF(true)}
-                    className="border-purple-400 text-purple-700 hover:bg-purple-50"
-                  >
-                    <FileText className="w-3 h-3 mr-1" /> Export Pro PDF
-                  </Button>
-                )}
+                {/* Professional Branded PDF Export — available for all plans */}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowAdvancedPDF(true)}
+                  className="border-purple-400 text-purple-700 hover:bg-purple-50"
+                >
+                  <FileText className="w-3 h-3 mr-1" /> Professional PDF
+                </Button>
 
                 {/* Download Excel */}
                 <Button
