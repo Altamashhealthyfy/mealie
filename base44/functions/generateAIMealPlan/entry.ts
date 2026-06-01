@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
   try {
@@ -38,10 +38,22 @@ Deno.serve(async (req) => {
     // Use is_latest record; fall back to most recent by date if none flagged
     const intake = intakeArr?.sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0] || null;
 
+    // Helper: calculate TDEE from basic_info using Mifflin-St Jeor
+    function calcTDEE(bi) {
+      const age = parseFloat(bi?.age), h = parseFloat(bi?.height), w = parseFloat(bi?.weight);
+      if (!age || !h || !w) return null;
+      const bmr = bi.gender === 'female'
+        ? 10 * w + 6.25 * h - 5 * age - 161
+        : 10 * w + 6.25 * h - 5 * age + 5;
+      const actMult = { sedentary: 1.2, lightly_active: 1.375, moderately_active: 1.55, very_active: 1.725, extremely_active: 1.9 };
+      return Math.round(bmr * (actMult[bi.activity_level] || 1.375));
+    }
+
     // ─── STEP 2: Resolve plan parameters ───
     const dietTypeRaw = overrideDietType || dietType || intake?.diet_type || client.food_preference || 'veg';
     const resolvedDiet = dietTypeRaw.toLowerCase().replace(/[\s-]/g, '_');
-    const targetCal = parseInt(overrideCalories) || parseInt(calorieTarget) || parseInt(intake?.target_calories) || client.target_calories || 1500;
+    const targetCal = parseInt(overrideCalories) || parseInt(calorieTarget) || parseInt(client.target_calories)
+      || calcTDEE(intake?.basic_info) || 1500;
     const conditions = [...new Set([
       ...(intake?.health_conditions || []),
       ...(condition ? [condition] : []),

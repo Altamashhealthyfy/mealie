@@ -376,42 +376,6 @@ Return ONLY valid JSON, no explanation.`;
       toast.error('Please select a client');
       return;
     }
-    if (!formData.basic_info.age || parseFloat(formData.basic_info.age) <= 0) {
-      toast.error('Please enter a valid age');
-      return;
-    }
-    if (!formData.basic_info.gender) {
-      toast.error('Please select a gender');
-      return;
-    }
-    if (!formData.basic_info.height || parseFloat(formData.basic_info.height) <= 0) {
-      toast.error('Please enter a valid height');
-      return;
-    }
-    if (!formData.basic_info.weight || parseFloat(formData.basic_info.weight) <= 0) {
-      toast.error('Please enter a valid weight');
-      return;
-    }
-    if (!formData.basic_info.activity_level) {
-      toast.error('Please select an activity level');
-      return;
-    }
-    if (!formData.health_conditions.length) {
-      setIsHealthConditionsOpen(true);
-      toast.error('Please select at least one health condition');
-      setTimeout(() => document.getElementById('health-conditions-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
-      return;
-    }
-    if (!formData.diet_type) {
-      toast.error('Please select diet type');
-      return;
-    }
-    if (!formData.goal?.length) {
-      setIsGoalsOpen(true);
-      toast.error('Please select at least one goal');
-      setTimeout(() => document.getElementById('goals-section')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
-      return;
-    }
 
     const finalData = {
       ...formData,
