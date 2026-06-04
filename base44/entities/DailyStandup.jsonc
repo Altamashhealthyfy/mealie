@@ -1,0 +1,45 @@
+{
+  "name": "DailyStandup",
+  "type": "object",
+  "properties": {
+    "team_member": {
+      "type": "string",
+      "description": "Email of team member"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "yesterday_completed": {
+      "type": "string",
+      "description": "What did I complete yesterday"
+    },
+    "today_plan": {
+      "type": "string",
+      "description": "What will I do today"
+    },
+    "blockers": {
+      "type": "string",
+      "description": "Any blockers or issues"
+    },
+    "mood": {
+      "type": "string",
+      "enum": [
+        "great",
+        "good",
+        "okay",
+        "tired",
+        "stressed"
+      ],
+      "default": "good"
+    },
+    "hours_worked": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "team_member",
+    "date",
+    "today_plan"
+  ]
+}

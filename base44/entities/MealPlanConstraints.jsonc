@@ -1,0 +1,78 @@
+{
+  "name": "MealPlanConstraints",
+  "type": "object",
+  "properties": {
+    "coach_email": {
+      "type": "string",
+      "description": "Coach who set these constraints"
+    },
+    "constraint_name": {
+      "type": "string",
+      "description": "Name of this constraint set (e.g., 'Weight Loss Restrictions')"
+    },
+    "excluded_meals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of meals to exclude (e.g., 'palak paneer', 'fried items')"
+    },
+    "excluded_ingredients": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Ingredients to avoid (e.g., 'sesame', 'coconut')"
+    },
+    "dietary_restrictions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional restrictions (e.g., 'no night milk', 'no fruits after 6pm')"
+    },
+    "preferred_meal_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Prefer certain meals (e.g., 'grilled options', 'light meals')"
+    },
+    "applies_to_goal": {
+      "type": "string",
+      "enum": [
+        "weight_loss",
+        "weight_gain",
+        "muscle_gain",
+        "maintenance",
+        "diabetes",
+        "pcos",
+        "thyroid",
+        "kidney",
+        "heart",
+        "all"
+      ],
+      "description": "Which client goals this applies to"
+    },
+    "applies_to_condition": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Which health conditions this applies to"
+    },
+    "is_default": {
+      "type": "boolean",
+      "default": false,
+      "description": "Use this as default for future meal plans"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Coaching notes about why these restrictions exist"
+    }
+  },
+  "required": [
+    "coach_email",
+    "constraint_name"
+  ]
+}

@@ -1,0 +1,151 @@
+{
+  "name": "Resource",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Resource title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the resource"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "pdf",
+        "article",
+        "video",
+        "infographic",
+        "guide",
+        "workbook",
+        "worksheet",
+        "other"
+      ],
+      "description": "Type of educational material"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "nutrition",
+        "fitness",
+        "mental_health",
+        "disease_management",
+        "meal_planning",
+        "cooking",
+        "lifestyle",
+        "supplements",
+        "hydration",
+        "sleep",
+        "stress_management",
+        "behavior_change",
+        "other"
+      ],
+      "description": "Resource category"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Searchable tags for the resource"
+    },
+    "conditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Health conditions this resource applies to (e.g., diabetes, hypertension)"
+    },
+    "goals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Fitness/health goals this resource targets"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL to the uploaded resource file"
+    },
+    "file_type": {
+      "type": "string",
+      "description": "MIME type of the file"
+    },
+    "file_size": {
+      "type": "number",
+      "description": "File size in bytes"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "description": "Duration in minutes (for videos/audio)"
+    },
+    "thumbnail_url": {
+      "type": "string",
+      "description": "Thumbnail image URL"
+    },
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the coach who uploaded this resource"
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this resource public or private to coach's clients"
+    },
+    "difficulty_level": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "default": "intermediate",
+      "description": "Difficulty level for the resource"
+    },
+    "reading_time_minutes": {
+      "type": "number",
+      "description": "Estimated reading time in minutes"
+    },
+    "key_takeaways": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Key learning points from this resource"
+    },
+    "assignment_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of times this resource has been assigned"
+    },
+    "completion_rate": {
+      "type": "number",
+      "default": 0,
+      "description": "Percentage of clients who completed this resource"
+    },
+    "average_rating": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5,
+      "description": "Average client rating"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published",
+        "archived"
+      ],
+      "default": "draft",
+      "description": "Publication status"
+    }
+  },
+  "required": [
+    "title",
+    "type",
+    "category",
+    "file_url",
+    "coach_email"
+  ]
+}

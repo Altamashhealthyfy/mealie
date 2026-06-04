@@ -1,0 +1,37 @@
+{
+  "name": "MPESSTracker",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "Email or ID of the client who submitted the assessment"
+    },
+    "submission_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of MPESS assessment submission"
+    },
+    "submission_data": {
+      "type": "object",
+      "description": "Complete MPESS assessment data submitted"
+    },
+    "coach_reviewed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has the coach reviewed this submission"
+    },
+    "coach_notes": {
+      "type": "string",
+      "description": "Coach's notes on the assessment"
+    },
+    "coach_review_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the coach reviewed the submission"
+    }
+  },
+  "required": [
+    "client_id",
+    "submission_date"
+  ]
+}

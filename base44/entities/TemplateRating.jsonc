@@ -1,0 +1,37 @@
+{
+  "name": "TemplateRating",
+  "type": "object",
+  "properties": {
+    "template_id": {
+      "type": "string",
+      "description": "ID of the template being rated"
+    },
+    "template_name": {
+      "type": "string",
+      "description": "Name of the template"
+    },
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the coach who created the rating"
+    },
+    "coach_name": {
+      "type": "string",
+      "description": "Name of the coach who created the rating"
+    },
+    "rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Star rating (1-5)"
+    },
+    "review": {
+      "type": "string",
+      "description": "Review text"
+    }
+  },
+  "required": [
+    "template_id",
+    "coach_email",
+    "rating"
+  ]
+}

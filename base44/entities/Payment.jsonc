@@ -1,0 +1,69 @@
+{
+  "name": "Payment",
+  "type": "object",
+  "properties": {
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the health coach making payment"
+    },
+    "subscription_id": {
+      "type": "string",
+      "description": "Related subscription ID"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Payment amount"
+    },
+    "currency": {
+      "type": "string",
+      "default": "INR"
+    },
+    "payment_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "razorpay",
+        "stripe",
+        "bank_transfer",
+        "upi",
+        "cash"
+      ]
+    },
+    "transaction_id": {
+      "type": "string",
+      "description": "Payment gateway transaction ID"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed",
+        "failed",
+        "refunded"
+      ],
+      "default": "pending"
+    },
+    "invoice_number": {
+      "type": "string"
+    },
+    "payment_for": {
+      "type": "string",
+      "description": "Description of what payment is for"
+    },
+    "receipt_url": {
+      "type": "string",
+      "description": "URL to payment receipt"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "coach_email",
+    "amount",
+    "payment_date"
+  ]
+}

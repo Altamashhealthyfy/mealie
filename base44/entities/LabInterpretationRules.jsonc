@@ -1,0 +1,210 @@
+{
+  "name": "LabInterpretationRules",
+  "type": "object",
+  "properties": {
+    "marker_name": {
+      "type": "string",
+      "description": "Name of the lab marker (e.g., Hemoglobin, FBS, TSH, LDL, CRP)"
+    },
+    "marker_alias": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Alternative names or abbreviations for this marker (e.g., ['HbA1c', 'Glycated Hemoglobin'])"
+    },
+    "test_panel": {
+      "type": "string",
+      "enum": [
+        "CBC",
+        "LFT",
+        "KFT",
+        "Lipid Profile",
+        "Diabetes Panel",
+        "Thyroid Panel",
+        "Inflammation Panel",
+        "Iron Studies",
+        "Vitamin Panel",
+        "Hormone Panel",
+        "Urine Analysis",
+        "Other"
+      ],
+      "description": "The primary lab panel this marker belongs to"
+    },
+    "normal_range_male": {
+      "type": "string",
+      "description": "Normal reference range for males (e.g., '13.5-17.5 g/dL')"
+    },
+    "normal_range_female": {
+      "type": "string",
+      "description": "Normal reference range for females (e.g., '12.0-15.5 g/dL')"
+    },
+    "normal_range_general": {
+      "type": "string",
+      "description": "General normal range when gender-specific range is not applicable"
+    },
+    "units": {
+      "type": "string",
+      "description": "Units of measurement (e.g., 'mg/dL', '\u00b5IU/mL', 'ng/mL', 'g/dL')"
+    },
+    "optimal_range": {
+      "type": "string",
+      "description": "Optimal (not just normal) range for best health outcomes"
+    },
+    "low_threshold": {
+      "type": "number",
+      "description": "Numeric value below which the marker is considered low"
+    },
+    "high_threshold": {
+      "type": "number",
+      "description": "Numeric value above which the marker is considered high"
+    },
+    "low_implication": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Clinical implications or possible causes if the marker value is LOW"
+    },
+    "high_implication": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Clinical implications or possible causes if the marker value is HIGH"
+    },
+    "hidden_insights": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "description": "Combination pattern triggering the insight (e.g., 'Low MCV + High RDW')"
+          },
+          "implication": {
+            "type": "string",
+            "description": "The clinical insight derived from this pattern (e.g., Iron deficiency anemia)"
+          },
+          "action": {
+            "type": "string",
+            "description": "Recommended action for this pattern"
+          }
+        }
+      },
+      "description": "Specific insights from combinations of multiple markers"
+    },
+    "dietary_recommendations_low": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Dietary recommendations when the marker value is LOW"
+    },
+    "dietary_recommendations_high": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Dietary recommendations when the marker value is HIGH"
+    },
+    "foods_to_avoid_low": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Foods to avoid when marker is LOW"
+    },
+    "foods_to_avoid_high": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Foods to avoid when marker is HIGH"
+    },
+    "lifestyle_recommendations_low": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Lifestyle changes recommended when the marker is LOW"
+    },
+    "lifestyle_recommendations_high": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Lifestyle changes recommended when the marker is HIGH"
+    },
+    "ayurvedic_support_low": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Ayurvedic herbs, teas, or practices for LOW values"
+    },
+    "ayurvedic_support_high": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Ayurvedic herbs, teas, or practices for HIGH values"
+    },
+    "supplements_low": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Supplements recommended when marker is LOW"
+    },
+    "supplements_high": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Supplements recommended when marker is HIGH"
+    },
+    "medication_considerations": {
+      "type": "string",
+      "description": "How this marker relates to or is affected by specific medications"
+    },
+    "related_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Health conditions strongly associated with abnormal values of this marker"
+    },
+    "urgency_flag_low": {
+      "type": "string",
+      "enum": [
+        "monitor",
+        "consult_doctor",
+        "urgent"
+      ],
+      "description": "Urgency level when marker is critically low"
+    },
+    "urgency_flag_high": {
+      "type": "string",
+      "enum": [
+        "monitor",
+        "consult_doctor",
+        "urgent"
+      ],
+      "description": "Urgency level when marker is critically high"
+    },
+    "source_document": {
+      "type": "string",
+      "description": "Reference to the source PDF this data was extracted from"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this rule is active and should be used by the AI"
+    }
+  },
+  "required": [
+    "marker_name",
+    "test_panel"
+  ]
+}

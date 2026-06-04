@@ -1,0 +1,239 @@
+{
+  "name": "WebinarAnalytics",
+  "type": "object",
+  "properties": {
+    "webinar_title": {
+      "type": "string",
+      "description": "Webinar name"
+    },
+    "webinar_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "webinar_type": {
+      "type": "string",
+      "enum": [
+        "live",
+        "recorded_replay",
+        "hybrid"
+      ],
+      "description": "Live or recorded"
+    },
+    "business_vertical": {
+      "type": "string",
+      "enum": [
+        "health_coach_training",
+        "health_disease_management",
+        "prosperity_program"
+      ]
+    },
+    "coach_name": {
+      "type": "string",
+      "description": "Who conducted the webinar"
+    },
+    "coach_dress": {
+      "type": "string",
+      "enum": [
+        "professional",
+        "casual",
+        "traditional",
+        "branded"
+      ],
+      "description": "How was coach dressed"
+    },
+    "coach_energy": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Coach energy level (1-10)"
+    },
+    "presentation_quality": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Overall presentation quality"
+    },
+    "overall_audience_quality": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Quality of audience (1-10)"
+    },
+    "total_registrations": {
+      "type": "number",
+      "description": "Total people registered"
+    },
+    "total_attendees": {
+      "type": "number",
+      "description": "Total who attended"
+    },
+    "show_up_rate": {
+      "type": "number",
+      "description": "Attendance % (attendees/registrations)"
+    },
+    "peak_attendance": {
+      "type": "number",
+      "description": "Max concurrent viewers"
+    },
+    "average_watch_time": {
+      "type": "number",
+      "description": "Average minutes watched"
+    },
+    "completion_rate": {
+      "type": "number",
+      "description": "% who watched till end"
+    },
+    "drop_off_points": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "minute": {
+            "type": "number"
+          },
+          "people_left": {
+            "type": "number"
+          },
+          "topic_at_that_time": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "When did people drop off"
+    },
+    "engagement_metrics": {
+      "type": "object",
+      "properties": {
+        "total_chat_messages": {
+          "type": "number"
+        },
+        "total_questions": {
+          "type": "number"
+        },
+        "polls_responded": {
+          "type": "number"
+        },
+        "engagement_rate": {
+          "type": "number"
+        }
+      }
+    },
+    "ad_campaign": {
+      "type": "string",
+      "description": "Which ad campaign drove traffic"
+    },
+    "ad_spend": {
+      "type": "number",
+      "description": "Total ad spend for this webinar"
+    },
+    "lead_sources_breakdown": {
+      "type": "object",
+      "properties": {
+        "facebook": {
+          "type": "number"
+        },
+        "instagram": {
+          "type": "number"
+        },
+        "google": {
+          "type": "number"
+        },
+        "referral": {
+          "type": "number"
+        },
+        "organic": {
+          "type": "number"
+        }
+      }
+    },
+    "sales_metrics": {
+      "type": "object",
+      "properties": {
+        "silver_sales": {
+          "type": "number"
+        },
+        "diploma_sales": {
+          "type": "number"
+        },
+        "diamond_sales": {
+          "type": "number"
+        },
+        "total_revenue": {
+          "type": "number"
+        },
+        "conversion_rate": {
+          "type": "number"
+        }
+      }
+    },
+    "roas": {
+      "type": "number",
+      "description": "Return on Ad Spend (Revenue / Ad Spend)"
+    },
+    "cost_per_registration": {
+      "type": "number",
+      "description": "Ad Spend / Registrations"
+    },
+    "cost_per_attendee": {
+      "type": "number",
+      "description": "Ad Spend / Attendees"
+    },
+    "cost_per_sale": {
+      "type": "number",
+      "description": "Ad Spend / Total Sales"
+    },
+    "hot_leads": {
+      "type": "number",
+      "description": "Number of hot leads generated"
+    },
+    "warm_leads": {
+      "type": "number"
+    },
+    "cold_leads": {
+      "type": "number"
+    },
+    "follow_up_status": {
+      "type": "object",
+      "properties": {
+        "not_contacted": {
+          "type": "number"
+        },
+        "contacted": {
+          "type": "number"
+        },
+        "interested": {
+          "type": "number"
+        },
+        "not_interested": {
+          "type": "number"
+        },
+        "sold": {
+          "type": "number"
+        }
+      }
+    },
+    "team_notes": {
+      "type": "string",
+      "description": "Overall team observations"
+    },
+    "what_worked": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "What went well"
+    },
+    "what_needs_improvement": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Areas to improve"
+    }
+  },
+  "required": [
+    "webinar_title",
+    "webinar_date",
+    "coach_name"
+  ]
+}

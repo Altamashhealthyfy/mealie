@@ -1,0 +1,182 @@
+{
+  "name": "WebinarAttendance",
+  "type": "object",
+  "properties": {
+    "webinar_id": {
+      "type": "string",
+      "description": "ID of the webinar analytics record"
+    },
+    "webinar_title": {
+      "type": "string",
+      "description": "Webinar name"
+    },
+    "webinar_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "full_name": {
+      "type": "string",
+      "description": "Attendee name"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "registration_source": {
+      "type": "string",
+      "enum": [
+        "facebook_ad",
+        "instagram_ad",
+        "google_ad",
+        "referral",
+        "organic",
+        "other"
+      ],
+      "description": "How they registered"
+    },
+    "ad_campaign": {
+      "type": "string",
+      "description": "Which ad campaign"
+    },
+    "audience_profile": {
+      "type": "object",
+      "description": "Profile data collected during registration",
+      "properties": {
+        "age": {
+          "type": "number"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "occupation": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "health_goal": {
+          "type": "string"
+        },
+        "biggest_challenge": {
+          "type": "string"
+        },
+        "previous_programs": {
+          "type": "string"
+        }
+      }
+    },
+    "attendance_status": {
+      "type": "string",
+      "enum": [
+        "registered",
+        "attended",
+        "no_show",
+        "watched_replay"
+      ],
+      "default": "registered"
+    },
+    "join_time": {
+      "type": "string",
+      "description": "When they joined"
+    },
+    "leave_time": {
+      "type": "string",
+      "description": "When they left"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "description": "How long they attended"
+    },
+    "attendance_percentage": {
+      "type": "number",
+      "description": "% of webinar attended"
+    },
+    "chat_messages_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of chat messages"
+    },
+    "engagement_score": {
+      "type": "string",
+      "enum": [
+        "hot",
+        "warm",
+        "cold"
+      ],
+      "description": "Auto-calculated based on attendance + chat"
+    },
+    "dropped_at_minute": {
+      "type": "number",
+      "description": "At what minute they left (for drop-off analysis)"
+    },
+    "sales_outcome": {
+      "type": "string",
+      "enum": [
+        "no_contact",
+        "not_interested",
+        "thinking",
+        "bought_silver",
+        "bought_diploma",
+        "bought_diamond",
+        "follow_up_pending"
+      ],
+      "default": "no_contact",
+      "description": "What happened after webinar"
+    },
+    "product_bought": {
+      "type": "string",
+      "description": "Which product they bought"
+    },
+    "amount_paid": {
+      "type": "number",
+      "description": "How much they paid"
+    },
+    "sale_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "follow_up_notes": {
+      "type": "string",
+      "description": "Team notes on follow-up"
+    },
+    "call_attempts": {
+      "type": "number",
+      "default": 0,
+      "description": "How many times called"
+    },
+    "last_call_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Team member assigned for follow-up"
+    },
+    "journey_path": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Track full journey: Webinar \u2192 Silver \u2192 Diploma Showcase \u2192 Diploma \u2192 Diamond Showcase \u2192 Diamond"
+    }
+  },
+  "required": [
+    "webinar_title",
+    "full_name",
+    "phone"
+  ]
+}

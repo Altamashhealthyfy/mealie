@@ -1,0 +1,159 @@
+{
+  "name": "WearableData",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "Client ID"
+    },
+    "device_id": {
+      "type": "string",
+      "description": "WearableDevice ID"
+    },
+    "device_type": {
+      "type": "string",
+      "enum": [
+        "fitbit",
+        "garmin",
+        "apple_health",
+        "google_fit",
+        "oura_ring",
+        "whoop"
+      ],
+      "description": "Type of device this data came from"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the data"
+    },
+    "steps": {
+      "type": "number",
+      "description": "Number of steps taken"
+    },
+    "heart_rate": {
+      "type": "object",
+      "properties": {
+        "resting": {
+          "type": "number",
+          "description": "Resting heart rate (bpm)"
+        },
+        "average": {
+          "type": "number",
+          "description": "Average heart rate (bpm)"
+        },
+        "max": {
+          "type": "number",
+          "description": "Maximum heart rate (bpm)"
+        },
+        "min": {
+          "type": "number",
+          "description": "Minimum heart rate (bpm)"
+        }
+      },
+      "description": "Heart rate data throughout the day"
+    },
+    "sleep": {
+      "type": "object",
+      "properties": {
+        "total_minutes": {
+          "type": "number",
+          "description": "Total sleep duration in minutes"
+        },
+        "deep_minutes": {
+          "type": "number",
+          "description": "Deep sleep duration in minutes"
+        },
+        "light_minutes": {
+          "type": "number",
+          "description": "Light sleep duration in minutes"
+        },
+        "rem_minutes": {
+          "type": "number",
+          "description": "REM sleep duration in minutes"
+        },
+        "awake_minutes": {
+          "type": "number",
+          "description": "Time awake during sleep in minutes"
+        },
+        "sleep_score": {
+          "type": "number",
+          "description": "Overall sleep score (0-100)"
+        }
+      },
+      "description": "Sleep metrics"
+    },
+    "calories": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "number",
+          "description": "Total calories burned"
+        },
+        "active": {
+          "type": "number",
+          "description": "Active calories burned"
+        },
+        "resting": {
+          "type": "number",
+          "description": "Resting metabolic rate calories"
+        }
+      },
+      "description": "Calorie data"
+    },
+    "active_minutes": {
+      "type": "number",
+      "description": "Total active/exercise minutes"
+    },
+    "distance": {
+      "type": "number",
+      "description": "Distance traveled in kilometers"
+    },
+    "elevation": {
+      "type": "number",
+      "description": "Elevation gained in meters"
+    },
+    "blood_oxygen": {
+      "type": "number",
+      "description": "Blood oxygen saturation percentage"
+    },
+    "stress": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "number",
+          "description": "Stress score (0-100)"
+        },
+        "level": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "description": "Stress level category"
+        }
+      },
+      "description": "Stress metrics"
+    },
+    "body_temperature": {
+      "type": "number",
+      "description": "Body temperature in Celsius"
+    },
+    "synced_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this data was synced"
+    },
+    "raw_data": {
+      "type": "object",
+      "description": "Raw API response data for reference"
+    }
+  },
+  "required": [
+    "client_id",
+    "device_id",
+    "device_type",
+    "date"
+  ]
+}

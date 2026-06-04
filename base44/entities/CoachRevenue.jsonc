@@ -1,0 +1,111 @@
+{
+  "name": "CoachRevenue",
+  "type": "object",
+  "properties": {
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the coach"
+    },
+    "transaction_type": {
+      "type": "string",
+      "enum": [
+        "appointment",
+        "program_enrollment",
+        "subscription",
+        "custom_service"
+      ],
+      "description": "Type of transaction"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client (optional)"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Name of the client"
+    },
+    "description": {
+      "type": "string",
+      "description": "Transaction description"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Transaction amount"
+    },
+    "currency": {
+      "type": "string",
+      "default": "INR",
+      "description": "Currency"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "razorpay",
+        "stripe",
+        "bank_transfer",
+        "cash",
+        "manual"
+      ],
+      "description": "Payment method used"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed",
+        "failed",
+        "refunded"
+      ],
+      "default": "pending",
+      "description": "Payment status"
+    },
+    "transaction_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of transaction"
+    },
+    "payment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date when payment was received"
+    },
+    "reference_id": {
+      "type": "string",
+      "description": "Razorpay or payment gateway reference ID"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "related_appointment_id": {
+      "type": "string",
+      "description": "ID of related appointment if any"
+    },
+    "related_program_id": {
+      "type": "string",
+      "description": "ID of related program if any"
+    },
+    "invoice_url": {
+      "type": "string",
+      "description": "URL to invoice document"
+    },
+    "tax_amount": {
+      "type": "number",
+      "description": "Tax amount if applicable"
+    },
+    "commission_amount": {
+      "type": "number",
+      "description": "Platform commission amount"
+    },
+    "net_amount": {
+      "type": "number",
+      "description": "Net amount after commission"
+    }
+  },
+  "required": [
+    "coach_email",
+    "transaction_type",
+    "amount",
+    "transaction_date"
+  ]
+}

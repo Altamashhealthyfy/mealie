@@ -1,0 +1,156 @@
+{
+  "name": "EmailSequenceLog",
+  "type": "object",
+  "properties": {
+    "sequence_id": {
+      "type": "string",
+      "description": "ID of the email sequence"
+    },
+    "sequence_name": {
+      "type": "string",
+      "description": "Name of the sequence"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Name of the client"
+    },
+    "trigger": {
+      "type": "string",
+      "description": "Trigger that started this sequence"
+    },
+    "trigger_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the trigger occurred"
+    },
+    "emails_sent": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step": {
+            "type": "number"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "sent_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "sent",
+              "failed"
+            ]
+          },
+          "error": {
+            "type": "string"
+          },
+          "opened": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether the email was opened (tracked via pixel)"
+          },
+          "link_clicked": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether the tracking link was clicked"
+          },
+          "opened_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "clicked_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "gmail_message_id": {
+            "type": "string",
+            "description": "Gmail message ID for tracking"
+          },
+          "condition_evaluated": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether conditional branching has been evaluated for this step"
+          },
+          "branch_taken": {
+            "type": "string",
+            "description": "Which branch was taken after this email"
+          }
+        }
+      },
+      "description": "Log of sent emails"
+    },
+    "next_step": {
+      "type": "number",
+      "description": "Index of next email to send (0-based)"
+    },
+    "next_send_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When to send the next email"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "paused",
+        "completed",
+        "cancelled",
+        "failed"
+      ],
+      "default": "active",
+      "description": "Overall status of this sequence run"
+    },
+    "paused_reason": {
+      "type": "string",
+      "description": "Reason for pausing (manual or system)"
+    },
+    "paused_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "awaiting_condition_check": {
+      "type": "object",
+      "description": "If set, the processor will evaluate this condition before advancing",
+      "properties": {
+        "step": {
+          "type": "number"
+        },
+        "condition": {
+          "type": "string"
+        },
+        "check_after_days": {
+          "type": "number"
+        },
+        "action": {
+          "type": "string"
+        },
+        "branch_step": {
+          "type": "number"
+        },
+        "sent_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "sequence_id",
+    "client_id",
+    "client_email",
+    "trigger",
+    "trigger_date"
+  ]
+}

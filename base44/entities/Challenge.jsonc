@@ -1,0 +1,170 @@
+{
+  "name": "Challenge",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Challenge title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Challenge description and rules"
+    },
+    "challenge_type": {
+      "type": "string",
+      "enum": [
+        "weight_loss",
+        "consistency",
+        "hydration",
+        "exercise",
+        "sleep",
+        "meal_adherence",
+        "custom"
+      ],
+      "description": "Type of challenge"
+    },
+    "duration_days": {
+      "type": "number",
+      "description": "Challenge duration in days"
+    },
+    "is_recurring": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is a recurring daily/weekly challenge"
+    },
+    "recurring_pattern": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly"
+      ],
+      "description": "How often the challenge recurs"
+    },
+    "target_metric": {
+      "type": "string",
+      "description": "What metric to track (e.g., weight, water_intake, steps)"
+    },
+    "target_value": {
+      "type": "number",
+      "description": "Target value to achieve"
+    },
+    "points_reward": {
+      "type": "number",
+      "description": "Points awarded for completion"
+    },
+    "badge_reward_id": {
+      "type": "string",
+      "description": "Badge ID to award on completion"
+    },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage_number": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "target_value": {
+            "type": "number"
+          },
+          "points_reward": {
+            "type": "number"
+          },
+          "badge_reward_id": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Multi-stage challenge progression"
+    },
+    "auto_completion_rules": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "data_source": {
+          "type": "string",
+          "enum": [
+            "progress_log",
+            "food_log",
+            "mpess_tracker",
+            "custom_metric"
+          ],
+          "description": "Where to check the data"
+        },
+        "metric_field": {
+          "type": "string",
+          "description": "Field to check (e.g., water_intake, exercise_minutes)"
+        },
+        "condition": {
+          "type": "string",
+          "enum": [
+            "greater_than",
+            "less_than",
+            "equals",
+            "greater_or_equal",
+            "consecutive_days"
+          ],
+          "description": "Comparison condition"
+        },
+        "threshold_value": {
+          "type": "number",
+          "description": "Value to compare against"
+        },
+        "consecutive_days_required": {
+          "type": "number",
+          "description": "For consecutive_days condition"
+        }
+      },
+      "description": "Rules for automatic completion based on client data"
+    },
+    "created_by_coach": {
+      "type": "string",
+      "description": "Email of coach who created this"
+    },
+    "is_template": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this a reusable template"
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can other clients see and join this challenge"
+    },
+    "created_by_client": {
+      "type": "string",
+      "description": "Email of client who created this (for client-created public challenges)"
+    },
+    "participant_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of participants in this challenge"
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": [
+        "easy",
+        "medium",
+        "hard",
+        "expert"
+      ],
+      "default": "medium"
+    }
+  },
+  "required": [
+    "title",
+    "challenge_type",
+    "duration_days",
+    "points_reward"
+  ]
+}

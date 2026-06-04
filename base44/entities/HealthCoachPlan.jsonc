@@ -1,0 +1,251 @@
+{
+  "name": "HealthCoachPlan",
+  "type": "object",
+  "properties": {
+    "plan_name": {
+      "type": "string",
+      "description": "Name of the health coach plan tier"
+    },
+    "plan_description": {
+      "type": "string",
+      "description": "What this plan offers to health coaches"
+    },
+    "monthly_price": {
+      "type": "number",
+      "description": "Monthly subscription price"
+    },
+    "yearly_price": {
+      "type": "number",
+      "description": "Yearly subscription price"
+    },
+    "access_duration_months": {
+      "type": "number",
+      "description": "Number of months of access granted (for one-time payment plans). Leave null for recurring subscriptions."
+    },
+    "currency": {
+      "type": "string",
+      "default": "INR"
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Features included in this coach plan"
+    },
+    "max_clients": {
+      "type": "number",
+      "description": "Maximum clients allowed, -1 for unlimited"
+    },
+    "can_add_payment_gateway": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can integrate own Razorpay/Stripe"
+    },
+    "can_create_client_plans": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can create paid client subscription plans"
+    },
+    "can_custom_domain": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can use custom domain"
+    },
+    "ai_credits_included": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of AI credits included per month (0 = none, -1 = unlimited)"
+    },
+    "ai_credit_price": {
+      "type": "number",
+      "default": 10,
+      "description": "Price per additional AI credit in INR"
+    },
+    "ai_generation_limit": {
+      "type": "number",
+      "description": "Monthly AI generation limit, -1 for unlimited (DEPRECATED - use ai_credits_included)"
+    },
+    "can_access_pro_plans": {
+      "type": "boolean",
+      "default": false,
+      "description": "Access to disease-specific Pro meal plans"
+    },
+    "can_access_basic_meal_plans": {
+      "type": "boolean",
+      "default": true,
+      "description": "Access to basic meal planning"
+    },
+    "can_use_ai_generation": {
+      "type": "boolean",
+      "default": true,
+      "description": "Can generate AI meal plans"
+    },
+    "can_generate_ai_templates": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can use AI to generate meal plan templates"
+    },
+    "can_access_templates": {
+      "type": "boolean",
+      "default": true,
+      "description": "Access to meal plan templates"
+    },
+    "can_create_templates": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can create and save custom templates"
+    },
+    "can_contribute_templates": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can upload and share templates in marketplace"
+    },
+    "can_access_recipes": {
+      "type": "boolean",
+      "default": true,
+      "description": "Access to recipe library"
+    },
+    "can_create_recipes": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can add custom recipes"
+    },
+    "can_use_food_lookup": {
+      "type": "boolean",
+      "default": true,
+      "description": "Access to AI food lookup tool"
+    },
+    "can_manage_team": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can add team members"
+    },
+    "max_team_members": {
+      "type": "number",
+      "default": 0,
+      "description": "Maximum team members allowed"
+    },
+    "can_access_finance_manager": {
+      "type": "boolean",
+      "default": false,
+      "description": "Access to Finance Manager for client finance tracking"
+    },
+    "can_access_marketing_hub": {
+      "type": "boolean",
+      "default": false,
+      "description": "Access to Marketing Hub for templates and content"
+    },
+    "can_access_business_gpts": {
+      "type": "boolean",
+      "default": false,
+      "description": "Access to Business GPTs AI assistants"
+    },
+    "can_access_template_manager": {
+      "type": "boolean",
+      "default": false,
+      "description": "Access to Template Manager for managing templates"
+    },
+    "can_access_verticals": {
+      "type": "boolean",
+      "default": false,
+      "description": "Access to Verticals Dashboard for business management"
+    },
+    "can_access_team_attendance": {
+      "type": "boolean",
+      "default": false,
+      "description": "Access to Team Attendance tracking"
+    },
+    "can_manage_client_access": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can control individual client menu access"
+    },
+    "can_access_gamification": {
+      "type": "boolean",
+      "default": false,
+      "description": "Access to Gamification features (points, badges, leaderboard, challenges)"
+    },
+    "can_access_business_tools": {
+      "type": "boolean",
+      "default": false,
+      "description": "Access to marketing hub, GPTs, finance manager (DEPRECATED - use individual flags)"
+    },
+    "can_access_analytics": {
+      "type": "boolean",
+      "default": false,
+      "description": "Access to advanced analytics and reports"
+    },
+    "can_use_bulk_import": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can bulk import clients/data"
+    },
+    "can_white_label": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can use custom branding"
+    },
+    "storage_limit_mb": {
+      "type": "number",
+      "default": 100,
+      "description": "File storage limit in MB"
+    },
+    "can_send_whatsapp": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can send WhatsApp messages to clients"
+    },
+    "can_send_email": {
+      "type": "boolean",
+      "default": true,
+      "description": "Can send email to clients"
+    },
+    "whatsapp_message_limit": {
+      "type": "number",
+      "default": 0,
+      "description": "Monthly WhatsApp message limit, -1 for unlimited"
+    },
+    "email_limit": {
+      "type": "number",
+      "default": 100,
+      "description": "Monthly email limit, -1 for unlimited"
+    },
+    "can_access_clinical_intake": {
+      "type": "boolean",
+      "default": false,
+      "description": "Access to clinical intake forms"
+    },
+    "can_track_mpess": {
+      "type": "boolean",
+      "default": true,
+      "description": "Can track MPESS wellness"
+    },
+    "support_level": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "priority",
+        "dedicated"
+      ],
+      "default": "basic",
+      "description": "Level of customer support"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active"
+    },
+    "sort_order": {
+      "type": "number",
+      "description": "Display order"
+    }
+  },
+  "required": [
+    "plan_name",
+    "monthly_price"
+  ]
+}

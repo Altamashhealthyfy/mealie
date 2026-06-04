@@ -1,0 +1,49 @@
+{
+  "name": "FileVersion",
+  "type": "object",
+  "properties": {
+    "original_file_id": {
+      "type": "string",
+      "description": "ID of the original file (from first upload)"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL of this file version"
+    },
+    "file_name": {
+      "type": "string",
+      "description": "File name"
+    },
+    "file_type": {
+      "type": "string",
+      "description": "MIME type"
+    },
+    "file_size": {
+      "type": "number",
+      "description": "File size in bytes"
+    },
+    "version_number": {
+      "type": "number",
+      "description": "Version number (1, 2, 3...)"
+    },
+    "uploaded_by": {
+      "type": "string",
+      "description": "Email of uploader"
+    },
+    "change_notes": {
+      "type": "string",
+      "description": "What changed in this version"
+    },
+    "is_current": {
+      "type": "boolean",
+      "default": true,
+      "description": "Is this the current version"
+    }
+  },
+  "required": [
+    "original_file_id",
+    "file_url",
+    "file_name",
+    "version_number"
+  ]
+}

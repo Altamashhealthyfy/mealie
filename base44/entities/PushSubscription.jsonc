@@ -1,0 +1,37 @@
+{
+  "name": "PushSubscription",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User email or ID"
+    },
+    "endpoint": {
+      "type": "string",
+      "description": "Push service endpoint URL"
+    },
+    "p256dh": {
+      "type": "string",
+      "description": "ECDH public key (base64)"
+    },
+    "auth": {
+      "type": "string",
+      "description": "Authentication secret (base64)"
+    },
+    "user_agent": {
+      "type": "string",
+      "description": "Device/browser user agent"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether subscription is active"
+    }
+  },
+  "required": [
+    "user_id",
+    "endpoint",
+    "p256dh",
+    "auth"
+  ]
+}

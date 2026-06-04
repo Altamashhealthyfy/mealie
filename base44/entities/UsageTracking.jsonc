@@ -1,0 +1,95 @@
+{
+  "name": "UsageTracking",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user"
+    },
+    "user_plan": {
+      "type": "string",
+      "enum": [
+        "student_499",
+        "professional_999",
+        "premium_1999",
+        "enterprise_custom"
+      ],
+      "default": "student_499",
+      "description": "Subscription plan tier"
+    },
+    "month": {
+      "type": "string",
+      "description": "Month in YYYY-MM format"
+    },
+    "ai_meal_plans_generated": {
+      "type": "number",
+      "default": 0,
+      "description": "AI meal plans generated this month (COSTS MONEY)"
+    },
+    "ai_recipes_generated": {
+      "type": "number",
+      "default": 0,
+      "description": "AI recipes generated this month (COSTS MONEY)"
+    },
+    "food_lookups": {
+      "type": "number",
+      "default": 0,
+      "description": "Food lookup queries this month (COSTS MONEY)"
+    },
+    "business_gpt_queries": {
+      "type": "number",
+      "default": 0,
+      "description": "Business GPT queries this month (COSTS MONEY)"
+    },
+    "templates_used": {
+      "type": "number",
+      "default": 0,
+      "description": "Master templates cloned (FREE)"
+    },
+    "master_recipes_used": {
+      "type": "number",
+      "default": 0,
+      "description": "Master recipes used (FREE)"
+    },
+    "food_database_lookups": {
+      "type": "number",
+      "default": 0,
+      "description": "Food database lookups (FREE)"
+    },
+    "plan_limits": {
+      "type": "object",
+      "description": "Monthly AI generation limits based on plan",
+      "properties": {
+        "ai_meal_plans": {
+          "type": "number",
+          "default": 5,
+          "description": "For student plan: only 5 AI generations allowed"
+        },
+        "ai_recipes": {
+          "type": "number",
+          "default": 10,
+          "description": "For student plan: only 10 AI recipes allowed"
+        },
+        "food_lookups": {
+          "type": "number",
+          "default": 20,
+          "description": "For student plan: only 20 AI food lookups"
+        },
+        "business_gpts": {
+          "type": "number",
+          "default": 5,
+          "description": "For student plan: only 5 business GPT queries"
+        }
+      }
+    },
+    "overage_charges": {
+      "type": "number",
+      "default": 0,
+      "description": "Additional charges for exceeding limits"
+    }
+  },
+  "required": [
+    "user_email",
+    "month"
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "name": "ReminderSettings",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the coach who set the reminder"
+    },
+    "reminder_type": {
+      "type": "string",
+      "enum": [
+        "daily_progress",
+        "food_log",
+        "appointment",
+        "challenge",
+        "meal_plan_review",
+        "custom"
+      ],
+      "description": "Type of reminder"
+    },
+    "title": {
+      "type": "string",
+      "description": "Reminder title"
+    },
+    "message": {
+      "type": "string",
+      "description": "Custom reminder message"
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "biweekly",
+        "monthly",
+        "custom"
+      ],
+      "default": "daily",
+      "description": "How often to send the reminder"
+    },
+    "time_of_day": {
+      "type": "string",
+      "description": "Time to send reminder (HH:MM format)"
+    },
+    "days_of_week": {
+      "type": "array",
+      "items": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 6
+      },
+      "description": "Days to send (0=Sunday, 6=Saturday)"
+    },
+    "notification_method": {
+      "type": "string",
+      "enum": [
+        "in_app",
+        "email",
+        "both"
+      ],
+      "default": "both",
+      "description": "How to send the reminder"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether reminder is active"
+    },
+    "last_sent": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When reminder was last sent"
+    },
+    "conditions": {
+      "type": "object",
+      "properties": {
+        "only_if_not_completed": {
+          "type": "boolean",
+          "default": true,
+          "description": "Only send if action not completed today"
+        },
+        "check_data_source": {
+          "type": "string",
+          "enum": [
+            "progress_log",
+            "food_log",
+            "appointment",
+            "challenge"
+          ],
+          "description": "What data to check for completion"
+        },
+        "grace_period_hours": {
+          "type": "number",
+          "default": 2,
+          "description": "Hours before deadline to send reminder"
+        }
+      }
+    },
+    "linked_entity_id": {
+      "type": "string",
+      "description": "ID of related entity (appointment, challenge, etc.)"
+    }
+  },
+  "required": [
+    "client_id",
+    "coach_email",
+    "reminder_type",
+    "title"
+  ]
+}

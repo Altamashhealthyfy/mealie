@@ -1,0 +1,172 @@
+{
+  "name": "CoachProgram",
+  "type": "object",
+  "properties": {
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the coach who created the program"
+    },
+    "program_name": {
+      "type": "string",
+      "description": "Name of the program (e.g., 90-Day Transformation)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the program"
+    },
+    "program_type": {
+      "type": "string",
+      "enum": [
+        "challenge",
+        "course",
+        "transformation",
+        "wellness",
+        "custom"
+      ],
+      "description": "Type of program"
+    },
+    "thumbnail_url": {
+      "type": "string",
+      "description": "Program cover image URL"
+    },
+    "duration_days": {
+      "type": "number",
+      "description": "Total duration in days"
+    },
+    "max_participants": {
+      "type": "number",
+      "default": -1,
+      "description": "Maximum participants (-1 for unlimited)"
+    },
+    "is_paid": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this a paid program"
+    },
+    "price": {
+      "type": "number",
+      "description": "Program price if paid"
+    },
+    "currency": {
+      "type": "string",
+      "default": "INR",
+      "description": "Currency for pricing"
+    },
+    "goals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Key goals of the program"
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Features included in program"
+    },
+    "weekly_schedule": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "number",
+            "description": "Day number (1-based)"
+          },
+          "activity": {
+            "type": "string",
+            "description": "Activity or task"
+          },
+          "duration_minutes": {
+            "type": "number",
+            "description": "Duration in minutes"
+          },
+          "instructions": {
+            "type": "string",
+            "description": "Detailed instructions"
+          }
+        }
+      },
+      "description": "Weekly activity schedule"
+    },
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Resource IDs (recipes, workouts, etc.)"
+    },
+    "milestones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "number",
+            "description": "Day milestone occurs"
+          },
+          "title": {
+            "type": "string",
+            "description": "Milestone title"
+          },
+          "description": {
+            "type": "string",
+            "description": "Milestone description"
+          }
+        }
+      },
+      "description": "Key milestones in the program"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "archived"
+      ],
+      "default": "draft",
+      "description": "Program status"
+    },
+    "enrolled_clients": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of enrolled clients"
+    },
+    "current_enrollment": {
+      "type": "number",
+      "default": 0,
+      "description": "Current number of enrolled clients"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Program start date (optional)"
+    },
+    "completion_rate": {
+      "type": "number",
+      "description": "Average completion rate percentage"
+    },
+    "rating": {
+      "type": "number",
+      "description": "Average rating from clients (1-5)"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for categorization"
+    }
+  },
+  "required": [
+    "coach_email",
+    "program_name",
+    "description",
+    "program_type",
+    "duration_days"
+  ]
+}

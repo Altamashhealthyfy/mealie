@@ -1,0 +1,124 @@
+{
+  "name": "ClientChallenge",
+  "type": "object",
+  "properties": {
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the coach who created the challenge"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client participating in challenge"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "challenge_title": {
+      "type": "string",
+      "description": "Title of the challenge"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the challenge"
+    },
+    "challenge_type": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly",
+        "one_time"
+      ],
+      "description": "Type of challenge"
+    },
+    "difficulty_level": {
+      "type": "string",
+      "enum": [
+        "easy",
+        "medium",
+        "hard"
+      ],
+      "default": "medium"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the challenge starts"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the challenge ends"
+    },
+    "target_metric": {
+      "type": "string",
+      "enum": [
+        "steps",
+        "water_intake",
+        "meals_logged",
+        "workouts",
+        "weight",
+        "sleep_hours",
+        "meditation",
+        "custom"
+      ],
+      "description": "What metric the challenge tracks"
+    },
+    "target_value": {
+      "type": "number",
+      "description": "Target value to achieve"
+    },
+    "current_progress": {
+      "type": "number",
+      "default": 0,
+      "description": "Current progress toward target"
+    },
+    "points_reward": {
+      "type": "number",
+      "description": "Points awarded on completion"
+    },
+    "badge_reward": {
+      "type": "string",
+      "description": "Badge ID awarded on completion"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "assigned",
+        "in_progress",
+        "completed",
+        "failed",
+        "abandoned"
+      ],
+      "default": "assigned"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When challenge was completed"
+    },
+    "completion_percentage": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0
+    },
+    "coach_notes": {
+      "type": "string",
+      "description": "Coach's notes or feedback"
+    },
+    "client_notes": {
+      "type": "string",
+      "description": "Client's notes on the challenge"
+    }
+  },
+  "required": [
+    "coach_email",
+    "client_id",
+    "client_email",
+    "challenge_title",
+    "challenge_type",
+    "target_metric"
+  ]
+}

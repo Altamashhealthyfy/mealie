@@ -1,0 +1,35 @@
+{
+  "name": "CustomResourceCategory",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Category name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Category description"
+    },
+    "color": {
+      "type": "string",
+      "description": "Color code for the category (hex)"
+    },
+    "icon_emoji": {
+      "type": "string",
+      "description": "Emoji icon for the category"
+    },
+    "coach_email": {
+      "type": "string",
+      "description": "Email of coach who created this category"
+    },
+    "resource_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of resources in this category"
+    }
+  },
+  "required": [
+    "name",
+    "coach_email"
+  ]
+}

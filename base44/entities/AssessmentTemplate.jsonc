@@ -1,0 +1,189 @@
+{
+  "name": "AssessmentTemplate",
+  "type": "object",
+  "properties": {
+    "template_name": {
+      "type": "string",
+      "description": "Name of the template"
+    },
+    "description": {
+      "type": "string",
+      "description": "Template description"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "Email of coach who created"
+    },
+    "is_default": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this a default system template"
+    },
+    "custom_sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "section_title": {
+            "type": "string"
+          },
+          "section_key": {
+            "type": "string"
+          },
+          "section_description": {
+            "type": "string"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "question_id": {
+                  "type": "string"
+                },
+                "question_text": {
+                  "type": "string"
+                },
+                "question_type": {
+                  "type": "string",
+                  "enum": [
+                    "text",
+                    "textarea",
+                    "number",
+                    "select",
+                    "multiselect",
+                    "checkbox",
+                    "radio",
+                    "scale",
+                    "date",
+                    "file"
+                  ]
+                },
+                "options": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "scale_min": {
+                  "type": "number"
+                },
+                "scale_max": {
+                  "type": "number"
+                },
+                "scale_labels": {
+                  "type": "object",
+                  "properties": {
+                    "min_label": {
+                      "type": "string"
+                    },
+                    "max_label": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "placeholder": {
+                  "type": "string"
+                },
+                "help_text": {
+                  "type": "string"
+                },
+                "conditional_logic": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "default": false
+                    },
+                    "depends_on": {
+                      "type": "string",
+                      "description": "Question ID this depends on"
+                    },
+                    "condition": {
+                      "type": "string",
+                      "enum": [
+                        "equals",
+                        "not_equals",
+                        "contains",
+                        "greater_than",
+                        "less_than"
+                      ]
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "validation": {
+                  "type": "object",
+                  "properties": {
+                    "min_length": {
+                      "type": "number"
+                    },
+                    "max_length": {
+                      "type": "number"
+                    },
+                    "min_value": {
+                      "type": "number"
+                    },
+                    "max_value": {
+                      "type": "number"
+                    },
+                    "pattern": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "description": "Custom sections and questions"
+    },
+    "include_medical_history": {
+      "type": "boolean",
+      "default": true
+    },
+    "include_lifestyle_habits": {
+      "type": "boolean",
+      "default": true
+    },
+    "include_dietary_preferences": {
+      "type": "boolean",
+      "default": true
+    },
+    "include_fitness_level": {
+      "type": "boolean",
+      "default": true
+    },
+    "include_health_goals": {
+      "type": "boolean",
+      "default": true
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "version": {
+      "type": "number",
+      "default": 1,
+      "description": "Template version number"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for categorization"
+    }
+  },
+  "required": [
+    "template_name",
+    "created_by"
+  ]
+}

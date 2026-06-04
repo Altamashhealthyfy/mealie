@@ -1,0 +1,221 @@
+{
+  "name": "ProgressGoal",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "goal_type": {
+      "type": "string",
+      "enum": [
+        "weight",
+        "body_measurement",
+        "wellness",
+        "habit",
+        "custom"
+      ],
+      "description": "Type of goal"
+    },
+    "title": {
+      "type": "string",
+      "description": "Goal title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Goal description"
+    },
+    "target_value": {
+      "type": "number",
+      "description": "Target value to achieve"
+    },
+    "current_value": {
+      "type": "number",
+      "description": "Current value"
+    },
+    "start_value": {
+      "type": "number",
+      "description": "Starting value"
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit of measurement"
+    },
+    "target_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "paused",
+        "cancelled"
+      ],
+      "default": "active"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "metric_key": {
+      "type": "string",
+      "description": "Key to track in ProgressLog.wellness_metrics"
+    },
+    "tracking_frequency": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "biweekly",
+        "monthly"
+      ],
+      "default": "daily"
+    },
+    "is_coach_set": {
+      "type": "boolean",
+      "default": false
+    },
+    "auto_track": {
+      "type": "boolean",
+      "default": false
+    },
+    "points_reward": {
+      "type": "number",
+      "description": "Points awarded on completion"
+    },
+    "badge_reward": {
+      "type": "string"
+    },
+    "progress_history": {
+      "type": "array",
+      "description": "Time-series log of value entries",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "value": {
+            "type": "number"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "Multi-phase sub-goals",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "target_value": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "points_reward": {
+            "type": "number"
+          },
+          "completed": {
+            "type": "boolean",
+            "default": false
+          },
+          "completed_date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    },
+    "recurring_config": {
+      "type": "object",
+      "description": "Settings for recurring goals",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false
+        },
+        "recurrence": {
+          "type": "string",
+          "enum": [
+            "daily",
+            "weekly",
+            "monthly"
+          ]
+        },
+        "period_target": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "period_points": {
+          "type": "number"
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "increase",
+            "decrease"
+          ]
+        },
+        "current_period_value": {
+          "type": "number"
+        },
+        "last_reset_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "periods_completed": {
+          "type": "number",
+          "default": 0
+        }
+      }
+    },
+    "milestone_alerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "percentage": {
+            "type": "number"
+          },
+          "message": {
+            "type": "string"
+          },
+          "triggered": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "client_id",
+    "goal_type",
+    "title",
+    "target_value"
+  ]
+}

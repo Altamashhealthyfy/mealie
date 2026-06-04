@@ -1,0 +1,252 @@
+{
+  "name": "Recipe",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Recipe name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "main_course",
+        "side_dish",
+        "appetizer",
+        "dessert",
+        "beverage",
+        "soup",
+        "salad",
+        "snack"
+      ],
+      "description": "Recipe category"
+    },
+    "meal_type": {
+      "type": "string",
+      "enum": [
+        "breakfast",
+        "lunch",
+        "dinner",
+        "snack",
+        "post_dinner"
+      ],
+      "description": "Type of meal"
+    },
+    "food_preference": {
+      "type": "string",
+      "enum": [
+        "veg",
+        "non_veg",
+        "jain",
+        "eggetarian"
+      ],
+      "description": "Dietary preference"
+    },
+    "regional_cuisine": {
+      "type": "string",
+      "enum": [
+        "north",
+        "south",
+        "west",
+        "east",
+        "fusion",
+        "continental",
+        "asian",
+        "mediterranean"
+      ],
+      "description": "Regional cuisine type"
+    },
+    "portion_label": {
+      "type": "string",
+      "description": "Portion size label (e.g. 1 bowl, 2 pieces)"
+    },
+    "cooking_method": {
+      "type": "string",
+      "description": "How the dish is cooked (e.g. boiled, stir-fried, baked)"
+    },
+    "dish_type": {
+      "type": "string",
+      "description": "Type of dish (e.g. curry, salad, soup)"
+    },
+    "pairing_notes": {
+      "type": "string",
+      "description": "Serving suggestions or pairing notes"
+    },
+    "ingredients": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "grams",
+              "kg",
+              "ml",
+              "liters",
+              "cups",
+              "tbsp",
+              "tsp",
+              "pieces",
+              "to_taste"
+            ]
+          }
+        }
+      }
+    },
+    "instructions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Step by step instructions"
+    },
+    "prep_time": {
+      "type": "number",
+      "description": "Preparation time in minutes"
+    },
+    "cook_time": {
+      "type": "number",
+      "description": "Cooking time in minutes"
+    },
+    "servings": {
+      "type": "number",
+      "description": "Number of servings"
+    },
+    "nutritional_info": {
+      "type": "object",
+      "properties": {
+        "calories": {
+          "type": "number",
+          "description": "Calories per serving"
+        },
+        "protein": {
+          "type": "number",
+          "description": "Protein in grams per serving"
+        },
+        "carbs": {
+          "type": "number",
+          "description": "Carbs in grams per serving"
+        },
+        "fats": {
+          "type": "number",
+          "description": "Fats in grams per serving"
+        },
+        "fiber": {
+          "type": "number",
+          "description": "Fiber in grams per serving"
+        },
+        "sugar": {
+          "type": "number",
+          "description": "Sugar in grams per serving"
+        },
+        "sodium": {
+          "type": "number",
+          "description": "Sodium in mg per serving"
+        },
+        "cholesterol": {
+          "type": "number",
+          "description": "Cholesterol in mg per serving"
+        },
+        "vitamin_a": {
+          "type": "number",
+          "description": "Vitamin A in mcg"
+        },
+        "vitamin_c": {
+          "type": "number",
+          "description": "Vitamin C in mg"
+        },
+        "vitamin_d": {
+          "type": "number",
+          "description": "Vitamin D in mcg"
+        },
+        "calcium": {
+          "type": "number",
+          "description": "Calcium in mg"
+        },
+        "iron": {
+          "type": "number",
+          "description": "Iron in mg"
+        }
+      }
+    },
+    "dietary_tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "vegan",
+          "vegetarian",
+          "gluten_free",
+          "dairy_free",
+          "nut_free",
+          "low_carb",
+          "high_protein",
+          "keto",
+          "paleo",
+          "diabetic_friendly",
+          "heart_healthy",
+          "low_sodium",
+          "low_calorie",
+          "high_fiber"
+        ]
+      },
+      "description": "Dietary tags"
+    },
+    "allergens": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of allergens"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Custom tags"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Recipe image URL"
+    },
+    "difficulty_level": {
+      "type": "string",
+      "enum": [
+        "easy",
+        "medium",
+        "hard"
+      ],
+      "description": "Difficulty level"
+    },
+    "is_published": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether recipe is visible"
+    },
+    "rating": {
+      "type": "number",
+      "description": "Average rating"
+    },
+    "usage_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Times used in meal plans"
+    }
+  },
+  "required": [
+    "name",
+    "meal_type",
+    "food_preference"
+  ]
+}

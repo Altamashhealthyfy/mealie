@@ -1,0 +1,179 @@
+{
+  "name": "ClientReport",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client who uploaded the report"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Name of the client"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "report_type": {
+      "type": "string",
+      "enum": [
+        "blood_report",
+        "ultrasound_report",
+        "xray_report",
+        "doctor_prescription"
+      ],
+      "description": "Type of medical report"
+    },
+    "report_title": {
+      "type": "string",
+      "description": "Title/name of the report"
+    },
+    "report_file_url": {
+      "type": "string",
+      "description": "URL of the uploaded report file"
+    },
+    "file_name": {
+      "type": "string",
+      "description": "Original file name"
+    },
+    "upload_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the report was uploaded"
+    },
+    "report_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the medical report/test"
+    },
+    "description": {
+      "type": "string",
+      "description": "Additional notes about the report"
+    },
+    "assigned_coach": {
+      "type": "string",
+      "description": "Email of the assigned health coach"
+    },
+    "coach_notes": {
+      "type": "string",
+      "description": "Coach's notes/analysis of the report"
+    },
+    "coach_reviewed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has the coach reviewed this report"
+    },
+    "coach_review_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When coach reviewed the report"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending_review",
+        "reviewed",
+        "actioned"
+      ],
+      "default": "pending_review",
+      "description": "Status of the report"
+    },
+    "ai_analysis_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed",
+        "failed"
+      ],
+      "default": "pending",
+      "description": "Status of AI analysis"
+    },
+    "ai_analysis": {
+      "type": "object",
+      "description": "AI-generated analysis of the report",
+      "properties": {
+        "key_metrics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Metric name (e.g., Hemoglobin, Glucose)"
+              },
+              "value": {
+                "type": "string",
+                "description": "Metric value with unit"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "normal",
+                  "abnormal",
+                  "critical"
+                ],
+                "description": "Whether metric is within normal range"
+              },
+              "reference_range": {
+                "type": "string",
+                "description": "Normal range for this metric"
+              }
+            }
+          }
+        },
+        "abnormalities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "finding": {
+                "type": "string",
+                "description": "Description of abnormality"
+              },
+              "severity": {
+                "type": "string",
+                "enum": [
+                  "mild",
+                  "moderate",
+                  "severe"
+                ],
+                "description": "Severity level"
+              },
+              "implication": {
+                "type": "string",
+                "description": "What this abnormality might mean"
+              }
+            }
+          }
+        },
+        "summary": {
+          "type": "string",
+          "description": "Simplified summary of the report for client"
+        },
+        "coach_summary": {
+          "type": "string",
+          "description": "Detailed summary for health coach"
+        },
+        "next_steps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Suggested next steps or follow-up tests"
+        },
+        "discussion_points": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Key points for coach to discuss with client"
+        }
+      }
+    }
+  },
+  "required": [
+    "client_id",
+    "report_type",
+    "report_file_url"
+  ]
+}

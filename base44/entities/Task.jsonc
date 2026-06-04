@@ -1,0 +1,90 @@
+{
+  "name": "Task",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Task title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Task details"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Email of team member"
+    },
+    "assigned_by": {
+      "type": "string",
+      "description": "Who created this task"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "Related project ID"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "todo",
+        "in_progress",
+        "review",
+        "done"
+      ],
+      "default": "todo"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "estimated_hours": {
+      "type": "number"
+    },
+    "actual_hours": {
+      "type": "number"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "comments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "comment": {
+            "type": "string"
+          },
+          "by": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "title",
+    "assigned_to"
+  ]
+}

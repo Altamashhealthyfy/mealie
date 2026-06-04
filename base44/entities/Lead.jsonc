@@ -1,0 +1,229 @@
+{
+  "name": "Lead",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Lead's full name"
+    },
+    "email": {
+      "type": "string",
+      "description": "Lead's email"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Lead's phone number"
+    },
+    "business_vertical": {
+      "type": "string",
+      "enum": [
+        "health_coach_training",
+        "health_disease_management",
+        "prosperity_program"
+      ],
+      "description": "Which business vertical this lead belongs to"
+    },
+    "lead_source": {
+      "type": "string",
+      "enum": [
+        "facebook_ad",
+        "instagram_ad",
+        "google_ad",
+        "linkedin",
+        "referral",
+        "organic",
+        "webinar",
+        "existing_client",
+        "health_coach_student",
+        "archit_community",
+        "other"
+      ],
+      "description": "Where did lead come from"
+    },
+    "lead_status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "contacted",
+        "qualified",
+        "interested",
+        "not_interested",
+        "dnd"
+      ],
+      "default": "new",
+      "description": "Current lead status"
+    },
+    "pipeline_stage": {
+      "type": "string",
+      "enum": [
+        "lead",
+        "webinar_registered",
+        "webinar_attended",
+        "silver_buyer",
+        "diploma_showcase_registered",
+        "diploma_showcase_attended",
+        "diploma_buyer",
+        "diamond_showcase_registered",
+        "diamond_showcase_attended",
+        "diamond_buyer",
+        "challenge_registered",
+        "challenge_attended",
+        "low_ticket_buyer",
+        "high_ticket_prospect",
+        "high_ticket_buyer",
+        "upgrade_client",
+        "prosperity_registered",
+        "prosperity_attended",
+        "prosperity_buyer"
+      ],
+      "default": "lead",
+      "description": "Current stage in sales pipeline"
+    },
+    "lead_score": {
+      "type": "string",
+      "enum": [
+        "hot",
+        "warm",
+        "cold"
+      ],
+      "default": "warm",
+      "description": "Lead temperature"
+    },
+    "student_profile": {
+      "type": "object",
+      "description": "Complete student journey profile",
+      "properties": {
+        "first_interaction_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "silver_purchase_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "silver_amount": {
+          "type": "number"
+        },
+        "diploma_showcase_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "diploma_purchase_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "diploma_amount": {
+          "type": "number"
+        },
+        "diamond_showcase_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "diamond_purchase_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "diamond_amount": {
+          "type": "number"
+        },
+        "upgrade_path": {
+          "type": "string",
+          "enum": [
+            "webinar_to_silver",
+            "silver_to_diploma",
+            "diploma_to_diamond",
+            "silver_to_diamond_direct",
+            "webinar_to_diamond_direct"
+          ],
+          "description": "Which path they took"
+        },
+        "total_lifetime_value": {
+          "type": "number"
+        }
+      }
+    },
+    "assigned_to": {
+      "type": "string",
+      "enum": [
+        "sheenu",
+        "sanjeev",
+        "fatima",
+        "sikha",
+        "shweta",
+        "altmash",
+        "rajnee"
+      ],
+      "description": "Team member assigned to this lead"
+    },
+    "last_contacted": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When was lead last contacted"
+    },
+    "next_follow_up": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When to follow up next"
+    },
+    "purchased_products": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "product": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "description": "List of products they bought"
+    },
+    "total_spent": {
+      "type": "number",
+      "default": 0,
+      "description": "Total amount spent"
+    },
+    "upgrade_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of times they upgraded"
+    },
+    "ad_campaign": {
+      "type": "string",
+      "description": "Which ad campaign did they come from"
+    },
+    "city": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string",
+      "description": "All notes about this lead"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for categorization"
+    },
+    "did_not_buy_reason": {
+      "type": "string",
+      "description": "Why they didn't purchase (for follow-up)"
+    },
+    "offer_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Was special offer sent to non-buyer"
+    }
+  },
+  "required": [
+    "full_name",
+    "phone"
+  ]
+}

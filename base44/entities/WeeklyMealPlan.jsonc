@@ -1,0 +1,137 @@
+{
+  "name": "WeeklyMealPlan",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "week_start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Start date of the week"
+    },
+    "week_end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "End date of the week"
+    },
+    "daily_calorie_goal": {
+      "type": "number",
+      "description": "Daily calorie target"
+    },
+    "daily_protein_goal": {
+      "type": "number",
+      "description": "Daily protein target in grams"
+    },
+    "daily_carbs_goal": {
+      "type": "number",
+      "description": "Daily carbs target in grams"
+    },
+    "daily_fats_goal": {
+      "type": "number",
+      "description": "Daily fats target in grams"
+    },
+    "meals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string",
+            "enum": [
+              "monday",
+              "tuesday",
+              "wednesday",
+              "thursday",
+              "friday",
+              "saturday",
+              "sunday"
+            ]
+          },
+          "meal_type": {
+            "type": "string",
+            "enum": [
+              "breakfast",
+              "lunch",
+              "dinner",
+              "snack"
+            ]
+          },
+          "recipe_id": {
+            "type": "string"
+          },
+          "recipe_name": {
+            "type": "string"
+          },
+          "servings": {
+            "type": "number",
+            "default": 1
+          },
+          "calories": {
+            "type": "number"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "carbs": {
+            "type": "number"
+          },
+          "fats": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "completed"
+      ],
+      "default": "draft"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Dietitian notes for the client"
+    },
+    "client_feedback": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "day": {
+            "type": "string"
+          },
+          "meal_type": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "comment": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "client_id",
+    "week_start_date",
+    "meals"
+  ]
+}

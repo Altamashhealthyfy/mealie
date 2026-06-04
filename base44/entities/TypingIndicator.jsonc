@@ -1,0 +1,39 @@
+{
+  "name": "TypingIndicator",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client (for direct messages)"
+    },
+    "group_id": {
+      "type": "string",
+      "description": "ID of the group (for group messages)"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user who is typing"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Name of the user who is typing"
+    },
+    "user_type": {
+      "type": "string",
+      "enum": [
+        "dietitian",
+        "client"
+      ],
+      "description": "Type of user typing"
+    },
+    "is_typing": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the user is currently typing"
+    }
+  },
+  "required": [
+    "user_email",
+    "user_type"
+  ]
+}

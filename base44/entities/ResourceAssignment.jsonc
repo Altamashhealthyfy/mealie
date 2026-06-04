@@ -1,0 +1,104 @@
+{
+  "name": "ResourceAssignment",
+  "type": "object",
+  "properties": {
+    "resource_id": {
+      "type": "string",
+      "description": "ID of the resource being assigned"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client receiving the assignment"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the coach assigning the resource"
+    },
+    "assigned_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the resource was assigned"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Optional deadline for completing the resource"
+    },
+    "assignment_reason": {
+      "type": "string",
+      "description": "Why this resource was assigned (coach's note)"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "default": "medium",
+      "description": "Assignment priority"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "assigned",
+        "viewed",
+        "in_progress",
+        "completed",
+        "overdue"
+      ],
+      "default": "assigned",
+      "description": "Current status of the assignment"
+    },
+    "first_viewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the client first viewed the resource"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the client completed the resource"
+    },
+    "time_spent_minutes": {
+      "type": "number",
+      "description": "Total time spent on this resource (in minutes)"
+    },
+    "completion_percentage": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Percentage of resource consumed"
+    },
+    "client_notes": {
+      "type": "string",
+      "description": "Client's notes or feedback on the resource"
+    },
+    "client_rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Client's rating of the resource"
+    },
+    "coach_feedback": {
+      "type": "string",
+      "description": "Coach's feedback after client completes resource"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has the client viewed the assignment notification"
+    }
+  },
+  "required": [
+    "resource_id",
+    "client_id",
+    "client_email",
+    "coach_email"
+  ]
+}

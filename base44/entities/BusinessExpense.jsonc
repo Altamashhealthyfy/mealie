@@ -1,0 +1,96 @@
+{
+  "name": "BusinessExpense",
+  "type": "object",
+  "properties": {
+    "vertical": {
+      "type": "string",
+      "enum": [
+        "HFS",
+        "HFI",
+        "Common"
+      ],
+      "description": "Business vertical - HFS, HFI, or Common for shared expenses"
+    },
+    "expense_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of expense"
+    },
+    "expense_category": {
+      "type": "string",
+      "enum": [
+        "Salary",
+        "Tools/Vendors",
+        "Learning",
+        "FB Ads",
+        "Google Ads",
+        "Office Rent",
+        "Utilities",
+        "Travel",
+        "Others"
+      ],
+      "description": "Category of expense"
+    },
+    "expense_description": {
+      "type": "string",
+      "description": "Description of the expense"
+    },
+    "ad_account_name": {
+      "type": "string",
+      "description": "Ad account name (for FB Ads or Google Ads)"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Expense amount"
+    },
+    "paid_via": {
+      "type": "string",
+      "enum": [
+        "HFICICI",
+        "HFIIDFC",
+        "RZPHFI",
+        "SKMGPAY",
+        "CASH",
+        "TAGMANGO",
+        "HFSPAYTM",
+        "HFSICICI",
+        "HFSIDFC",
+        "RZPHFS",
+        "Credit Card",
+        "Others"
+      ],
+      "description": "Payment method used"
+    },
+    "credit_card_details": {
+      "type": "string",
+      "description": "Credit card details (last 4 digits, bank name, etc.) if Credit Card is selected"
+    },
+    "paid_via_other": {
+      "type": "string",
+      "description": "Specify payment method if Others is selected"
+    },
+    "vendor_name": {
+      "type": "string",
+      "description": "Vendor or supplier name"
+    },
+    "invoice_number": {
+      "type": "string",
+      "description": "Invoice or bill number"
+    },
+    "receipt_url": {
+      "type": "string",
+      "description": "Receipt/invoice file URL"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "vertical",
+    "expense_date",
+    "expense_category",
+    "amount",
+    "paid_via"
+  ]
+}

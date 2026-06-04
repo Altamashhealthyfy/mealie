@@ -1,0 +1,100 @@
+{
+  "name": "CustomMealTemplate",
+  "type": "object",
+  "properties": {
+    "coach_email": {
+      "type": "string",
+      "description": "Coach who created this template"
+    },
+    "template_name": {
+      "type": "string",
+      "description": "Name of the custom meal template"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of what this template is for"
+    },
+    "meal_type": {
+      "type": "string",
+      "enum": [
+        "breakfast",
+        "midmorning",
+        "lunch",
+        "evening_snack",
+        "dinner",
+        "post_dinner"
+      ],
+      "description": "Type of meal this template covers"
+    },
+    "meal_options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "meal_name": {
+            "type": "string",
+            "description": "Name of the meal option"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Food items in this meal"
+          },
+          "portion_sizes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Portion sizes for each item"
+          },
+          "calories": {
+            "type": "number",
+            "description": "Total calories"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "carbs": {
+            "type": "number"
+          },
+          "fats": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Array of meal options to choose from"
+    },
+    "dietary_tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags like 'vegan', 'gluten_free', 'low_carb', etc."
+    },
+    "is_public": {
+      "type": "boolean",
+      "default": false,
+      "description": "Share with other coaches"
+    },
+    "usage_count": {
+      "type": "integer",
+      "default": 0,
+      "description": "How many times this template was used"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Searchable tags"
+    }
+  },
+  "required": [
+    "coach_email",
+    "template_name",
+    "meal_type",
+    "meal_options"
+  ]
+}

@@ -1,0 +1,205 @@
+{
+  "name": "Showcase",
+  "type": "object",
+  "properties": {
+    "lead_id": {
+      "type": "string",
+      "description": "ID of the lead"
+    },
+    "full_name": {
+      "type": "string",
+      "description": "Attendee name"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "showcase_type": {
+      "type": "string",
+      "enum": [
+        "diploma_showcase",
+        "diamond_showcase"
+      ],
+      "description": "Type of showcase"
+    },
+    "showcase_title": {
+      "type": "string",
+      "description": "Name of this showcase event"
+    },
+    "showcase_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When is the showcase"
+    },
+    "coach_name": {
+      "type": "string",
+      "description": "Who conducted the showcase"
+    },
+    "coach_dress": {
+      "type": "string",
+      "enum": [
+        "professional",
+        "casual",
+        "traditional",
+        "branded"
+      ],
+      "description": "Coach dress code"
+    },
+    "coach_energy": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Coach energy level"
+    },
+    "presentation_quality": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Overall presentation quality"
+    },
+    "audience_quality": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Quality of audience"
+    },
+    "registration_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "attendance_status": {
+      "type": "string",
+      "enum": [
+        "registered",
+        "attended",
+        "no_show"
+      ],
+      "default": "registered"
+    },
+    "duration_attended": {
+      "type": "number",
+      "description": "Minutes attended"
+    },
+    "engagement_level": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "description": "How engaged were they"
+    },
+    "purchased": {
+      "type": "boolean",
+      "default": false,
+      "description": "Did they buy?"
+    },
+    "product_bought": {
+      "type": "string",
+      "description": "What did they buy (Diploma/Diamond)"
+    },
+    "amount_paid": {
+      "type": "number",
+      "description": "How much they paid"
+    },
+    "purchase_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "came_from": {
+      "type": "string",
+      "enum": [
+        "silver_buyer",
+        "diploma_buyer",
+        "outside_lead",
+        "webinar_attendee"
+      ],
+      "description": "Where they came from"
+    },
+    "previous_purchases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "product": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "description": "History of what they bought before"
+    },
+    "student_journey": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Full journey: Webinar \u2192 Silver \u2192 Diploma Showcase \u2192 Diploma \u2192 Diamond Showcase \u2192 Diamond"
+    },
+    "follow_up_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "offer_sent",
+        "called",
+        "not_interested",
+        "sold"
+      ],
+      "default": "pending",
+      "description": "For non-buyers follow-up"
+    },
+    "special_offer_sent": {
+      "type": "boolean",
+      "default": false
+    },
+    "offer_details": {
+      "type": "string",
+      "description": "Details of special offer"
+    },
+    "call_attempts": {
+      "type": "number",
+      "default": 0
+    },
+    "last_contact_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Team member for follow-up"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "team_observations": {
+      "type": "string",
+      "description": "Team notes about this showcase"
+    }
+  },
+  "required": [
+    "full_name",
+    "phone",
+    "showcase_type",
+    "showcase_date"
+  ]
+}

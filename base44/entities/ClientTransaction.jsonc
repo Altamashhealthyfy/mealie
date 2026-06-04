@@ -1,0 +1,195 @@
+{
+  "name": "ClientTransaction",
+  "type": "object",
+  "properties": {
+    "vertical": {
+      "type": "string",
+      "enum": [
+        "HFS",
+        "HFI"
+      ],
+      "description": "Business vertical"
+    },
+    "transaction_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of transaction"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Client full name"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Client phone number"
+    },
+    "email": {
+      "type": "string",
+      "description": "Client email"
+    },
+    "lead_source": {
+      "type": "string",
+      "description": "Where did lead come from (ScaleX, Facebook, Referral, etc.)"
+    },
+    "programme_type": {
+      "type": "string",
+      "enum": [
+        "Silver",
+        "Gold",
+        "Diploma",
+        "Diamond",
+        "FOP",
+        "MOP",
+        "One Month Programme",
+        "3 Month Programme",
+        "12 Month Programme",
+        "7 Days Detox",
+        "Workshop",
+        "Affiliate Income",
+        "University Fee (Separate)",
+        "Retreat Fee",
+        "Others"
+      ],
+      "description": "Programme/Income type"
+    },
+    "programme_details": {
+      "type": "string",
+      "description": "For Workshop/Affiliate/Others - specify name/details"
+    },
+    "previous_programme": {
+      "type": "string",
+      "enum": [
+        "None (New Customer)",
+        "Silver",
+        "Gold",
+        "Diploma",
+        "Diamond",
+        "FOP",
+        "MOP",
+        "One Month Programme",
+        "3 Month Programme",
+        "12 Month Programme",
+        "7 Days Detox"
+      ],
+      "description": "Previous programme if upgrading"
+    },
+    "customer_type": {
+      "type": "string",
+      "enum": [
+        "New Customer",
+        "Upgrade"
+      ],
+      "description": "New or upgrading customer"
+    },
+    "payment_type": {
+      "type": "string",
+      "enum": [
+        "Full Payment",
+        "Booking Amount",
+        "1st Installment",
+        "2nd Installment",
+        "3rd Installment",
+        "4th Installment",
+        "Final Installment"
+      ],
+      "description": "Type of payment"
+    },
+    "installment_count": {
+      "type": "number",
+      "description": "Number of future installments (for Booking Amount)"
+    },
+    "installments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "installment_number": {
+            "type": "number"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Future installment details (for Booking Amount)"
+    },
+    "total_programme_fee": {
+      "type": "number",
+      "description": "Total programme fee"
+    },
+    "amount_received": {
+      "type": "number",
+      "description": "Amount received in this transaction"
+    },
+    "university_fee": {
+      "type": "number",
+      "default": 0,
+      "description": "University fee (if applicable)"
+    },
+    "amount_to_company": {
+      "type": "number",
+      "description": "Amount Received - University Fee (auto-calculated)"
+    },
+    "value_without_gst": {
+      "type": "number",
+      "description": "Value excluding GST (auto-calculated)"
+    },
+    "gst_amount": {
+      "type": "number",
+      "description": "18% GST amount (auto-calculated)"
+    },
+    "payment_mode": {
+      "type": "string",
+      "enum": [
+        "HFICICI",
+        "HFIIDFC",
+        "RZPHFI",
+        "SKMGPAY",
+        "CASH",
+        "TAGMANGO",
+        "HFSPAYTM",
+        "HFSICICI",
+        "HFSIDFC",
+        "RZPHFS",
+        "Others"
+      ],
+      "description": "Payment receiving mode"
+    },
+    "payment_mode_other": {
+      "type": "string",
+      "description": "Specify payment mode if Others is selected"
+    },
+    "balance_due": {
+      "type": "number",
+      "description": "Remaining balance (auto-calculated)"
+    },
+    "next_installment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Next payment due date"
+    },
+    "transaction_notes": {
+      "type": "string",
+      "description": "Any additional notes"
+    },
+    "invoice_number": {
+      "type": "string",
+      "description": "Invoice/Receipt number"
+    },
+    "registration_number": {
+      "type": "string",
+      "description": "Auto-generated registration number for new customers"
+    }
+  },
+  "required": [
+    "vertical",
+    "transaction_date",
+    "client_name",
+    "programme_type",
+    "amount_received"
+  ]
+}

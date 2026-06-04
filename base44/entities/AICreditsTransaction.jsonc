@@ -1,0 +1,64 @@
+{
+  "name": "AICreditsTransaction",
+  "type": "object",
+  "properties": {
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the health coach"
+    },
+    "subscription_id": {
+      "type": "string",
+      "description": "Related subscription ID"
+    },
+    "transaction_type": {
+      "type": "string",
+      "enum": [
+        "usage",
+        "purchase",
+        "refund",
+        "plan_renewal"
+      ],
+      "description": "Type of transaction"
+    },
+    "credits_amount": {
+      "type": "number",
+      "description": "Number of credits (positive for purchase/renewal, negative for usage)"
+    },
+    "cost": {
+      "type": "number",
+      "description": "Cost in INR (for purchase transactions)"
+    },
+    "usage_type": {
+      "type": "string",
+      "enum": [
+        "meal_plan_generation",
+        "recipe_generation",
+        "food_lookup",
+        "other"
+      ],
+      "description": "What the credits were used for"
+    },
+    "payment_id": {
+      "type": "string",
+      "description": "Razorpay payment ID for credit purchases"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed",
+        "failed"
+      ],
+      "default": "completed"
+    },
+    "description": {
+      "type": "string",
+      "description": "Transaction description"
+    }
+  },
+  "required": [
+    "coach_email",
+    "transaction_type",
+    "credits_amount"
+  ]
+}

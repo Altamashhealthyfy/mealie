@@ -1,0 +1,142 @@
+{
+  "name": "Appointment",
+  "type": "object",
+  "properties": {
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the health coach"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Name of the client"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "title": {
+      "type": "string",
+      "description": "Appointment title (e.g., Consultation, Check-in)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Appointment details and notes"
+    },
+    "appointment_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Start date and time of appointment"
+    },
+    "end_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "End date and time of appointment"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "description": "Duration in minutes"
+    },
+    "appointment_type": {
+      "type": "string",
+      "enum": [
+        "consultation",
+        "follow_up",
+        "session",
+        "assessment",
+        "review"
+      ],
+      "description": "Type of appointment"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "confirmed",
+        "completed",
+        "cancelled",
+        "no_show"
+      ],
+      "default": "scheduled",
+      "description": "Appointment status"
+    },
+    "location": {
+      "type": "string",
+      "description": "Physical location or video call link"
+    },
+    "is_virtual": {
+      "type": "boolean",
+      "default": true,
+      "description": "Is this a virtual appointment"
+    },
+    "google_event_id": {
+      "type": "string",
+      "description": "Google Calendar event ID for sync"
+    },
+    "reminder_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether reminder notification was sent"
+    },
+    "client_notes": {
+      "type": "string",
+      "description": "Notes from client during appointment"
+    },
+    "coach_notes": {
+      "type": "string",
+      "description": "Coach's notes after appointment"
+    },
+    "follow_up_required": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether follow-up is needed"
+    },
+    "follow_up_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Suggested follow-up date"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "paid",
+        "waived"
+      ],
+      "default": "pending",
+      "description": "Payment status if billable"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Amount charged for this appointment"
+    },
+    "is_recurring": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this part of a recurring schedule"
+    },
+    "recurring_pattern": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "biweekly",
+        "monthly"
+      ],
+      "description": "Recurring pattern if applicable"
+    },
+    "parent_recurring_id": {
+      "type": "string",
+      "description": "ID of parent recurring appointment"
+    }
+  },
+  "required": [
+    "coach_email",
+    "client_id",
+    "appointment_date",
+    "duration_minutes"
+  ]
+}

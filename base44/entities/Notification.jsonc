@@ -1,0 +1,54 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user receiving the notification"
+    },
+    "title": {
+      "type": "string",
+      "description": "Notification title"
+    },
+    "message": {
+      "type": "string",
+      "description": "Notification message"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "announcement",
+        "reminder",
+        "update",
+        "alert",
+        "promotion"
+      ],
+      "description": "Type of notification"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high"
+      ],
+      "default": "normal",
+      "description": "Priority level"
+    },
+    "link": {
+      "type": "string",
+      "description": "Optional link to redirect user"
+    },
+    "read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether notification has been read"
+    }
+  },
+  "required": [
+    "user_email",
+    "title",
+    "message",
+    "type"
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "name": "CoachPaymentGateway",
+  "type": "object",
+  "properties": {
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the health coach"
+    },
+    "gateway_type": {
+      "type": "string",
+      "enum": [
+        "razorpay",
+        "stripe"
+      ],
+      "description": "Payment gateway provider"
+    },
+    "razorpay_key_id": {
+      "type": "string",
+      "description": "Razorpay API Key ID"
+    },
+    "razorpay_key_secret": {
+      "type": "string",
+      "description": "Razorpay API Key Secret (encrypted)"
+    },
+    "stripe_publishable_key": {
+      "type": "string",
+      "description": "Stripe Publishable Key"
+    },
+    "stripe_secret_key": {
+      "type": "string",
+      "description": "Stripe Secret Key (encrypted)"
+    },
+    "webhook_secret": {
+      "type": "string",
+      "description": "Webhook secret for payment verification"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": false
+    },
+    "setup_completed": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "coach_email",
+    "gateway_type"
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "name": "NutritionalIngredient",
+  "type": "object",
+  "properties": {
+    "ingredient_name": {
+      "type": "string",
+      "description": "Name of the ingredient"
+    },
+    "food_code": {
+      "type": "string",
+      "description": "Unique food code from Anuvaad database"
+    },
+    "food_type": {
+      "type": "string",
+      "enum": [
+        "VEG",
+        "NON_VEG",
+        "EGG",
+        "VEGAN"
+      ],
+      "description": "Dietary classification"
+    },
+    "meal_category": {
+      "type": "string",
+      "description": "Primary meal category"
+    },
+    "primary_source": {
+      "type": "string",
+      "description": "Source of nutritional data"
+    },
+    "kcal_100g": {
+      "type": "number",
+      "description": "Calories per 100g"
+    },
+    "protein_100g": {
+      "type": "number",
+      "description": "Protein in grams per 100g"
+    },
+    "carbs_100g": {
+      "type": "number",
+      "description": "Carbohydrates in grams per 100g"
+    },
+    "fat_100g": {
+      "type": "number",
+      "description": "Fat in grams per 100g"
+    },
+    "fibre_100g": {
+      "type": "number",
+      "description": "Dietary fibre in grams per 100g"
+    },
+    "freesugar_100g": {
+      "type": "number",
+      "description": "Free sugars in grams per 100g"
+    },
+    "sodium_mg_100g": {
+      "type": "number",
+      "description": "Sodium in mg per 100g"
+    },
+    "potassium_mg_100g": {
+      "type": "number",
+      "description": "Potassium in mg per 100g"
+    },
+    "calcium_mg_100g": {
+      "type": "number",
+      "description": "Calcium in mg per 100g"
+    },
+    "iron_mg_100g": {
+      "type": "number",
+      "description": "Iron in mg per 100g"
+    },
+    "density_g_per_ml": {
+      "type": "number",
+      "description": "Density for liquid-to-gram conversion"
+    },
+    "servings_unit": {
+      "type": "string",
+      "description": "Standard serving unit description"
+    },
+    "unit_serving_kcal": {
+      "type": "number",
+      "description": "Calories per standard serving unit"
+    },
+    "unit_serving_protein_g": {
+      "type": "number",
+      "description": "Protein per standard serving"
+    },
+    "unit_serving_carbs_g": {
+      "type": "number",
+      "description": "Carbs per standard serving"
+    },
+    "unit_serving_fat_g": {
+      "type": "number",
+      "description": "Fat per standard serving"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes about the ingredient"
+    }
+  },
+  "required": [
+    "ingredient_name",
+    "kcal_100g"
+  ]
+}

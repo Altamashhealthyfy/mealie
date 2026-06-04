@@ -1,0 +1,63 @@
+{
+  "name": "ResourceProgress",
+  "type": "object",
+  "properties": {
+    "assignment_id": {
+      "type": "string",
+      "description": "ID of the resource assignment"
+    },
+    "resource_id": {
+      "type": "string",
+      "description": "ID of the resource"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "session_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the client accessed the resource"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "description": "Time spent in this session (minutes)"
+    },
+    "progress_percentage": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Progress through the resource"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "opened",
+        "reading",
+        "video_playing",
+        "completed",
+        "bookmarked"
+      ],
+      "description": "Type of interaction"
+    },
+    "device_type": {
+      "type": "string",
+      "enum": [
+        "mobile",
+        "tablet",
+        "desktop"
+      ],
+      "description": "Device used to access the resource"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Client notes from this session"
+    }
+  },
+  "required": [
+    "assignment_id",
+    "resource_id",
+    "client_id",
+    "session_date"
+  ]
+}

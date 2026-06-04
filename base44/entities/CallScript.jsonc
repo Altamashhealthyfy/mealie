@@ -1,0 +1,63 @@
+{
+  "name": "CallScript",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Script name"
+    },
+    "script_type": {
+      "type": "string",
+      "enum": [
+        "cold_call",
+        "webinar_followup",
+        "low_ticket_pitch",
+        "high_ticket_pitch",
+        "objection_handling"
+      ],
+      "description": "Type of script"
+    },
+    "opening_line": {
+      "type": "string",
+      "description": "How to start the call"
+    },
+    "qualification_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Questions to ask"
+    },
+    "value_proposition": {
+      "type": "string",
+      "description": "Key pitch points"
+    },
+    "objection_responses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "objection": {
+            "type": "string"
+          },
+          "response": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "closing_technique": {
+      "type": "string",
+      "description": "How to close"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "title",
+    "script_type",
+    "opening_line"
+  ]
+}

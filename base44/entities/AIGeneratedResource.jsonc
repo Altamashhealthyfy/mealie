@@ -1,0 +1,135 @@
+{
+  "name": "AIGeneratedResource",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "Client this resource was generated for"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the coach who generated it"
+    },
+    "resource_type": {
+      "type": "string",
+      "enum": [
+        "article",
+        "recipe_collection",
+        "workout_routine",
+        "meal_plan",
+        "educational_guide"
+      ],
+      "description": "Type of AI-generated content"
+    },
+    "title": {
+      "type": "string",
+      "description": "Generated resource title"
+    },
+    "content": {
+      "type": "string",
+      "description": "Full generated content"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Brief summary of the resource"
+    },
+    "client_goals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Client goals this addresses"
+    },
+    "identified_gaps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Progress gaps this resource addresses"
+    },
+    "personalization_notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "How this was personalized for the client"
+    },
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "string"
+          },
+          "details": {
+            "type": "string"
+          },
+          "servings": {
+            "type": "string"
+          },
+          "duration": {
+            "type": "string"
+          },
+          "difficulty": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Specific resources (recipes, exercises, etc.)"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Searchable tags"
+    },
+    "difficulty_level": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "description": "Difficulty level"
+    },
+    "estimated_value": {
+      "type": "string",
+      "description": "Value/benefit for the client"
+    },
+    "accepted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Client accepted this resource"
+    },
+    "assigned_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When resource was assigned to client"
+    },
+    "average_rating": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5,
+      "description": "Average rating from clients"
+    },
+    "rating_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of ratings received"
+    }
+  },
+  "required": [
+    "client_id",
+    "client_email",
+    "coach_email",
+    "resource_type",
+    "title",
+    "content"
+  ]
+}

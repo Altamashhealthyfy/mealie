@@ -1,0 +1,179 @@
+{
+  "name": "Client",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Client's full name"
+    },
+    "email": {
+      "type": "string",
+      "format": "email",
+      "description": "Client email address"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number"
+    },
+    "profile_photo_url": {
+      "type": "string",
+      "description": "Profile photo URL"
+    },
+    "age": {
+      "type": "number",
+      "description": "Age in years"
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female",
+        "other"
+      ],
+      "description": "Gender"
+    },
+    "height": {
+      "type": "number",
+      "description": "Height in cm"
+    },
+    "weight": {
+      "type": "number",
+      "description": "Current weight in kg"
+    },
+    "initial_weight": {
+      "type": "number",
+      "description": "Initial weight when client joined"
+    },
+    "target_weight": {
+      "type": "number",
+      "description": "Target weight in kg"
+    },
+    "activity_level": {
+      "type": "string",
+      "enum": [
+        "sedentary",
+        "lightly_active",
+        "moderately_active",
+        "very_active",
+        "extremely_active"
+      ],
+      "description": "Physical activity level"
+    },
+    "goal": {
+      "type": "string",
+      "enum": [
+        "weight_loss",
+        "weight_gain",
+        "maintenance",
+        "muscle_gain",
+        "health_improvement",
+        "disease_reversal"
+      ],
+      "description": "Primary health goal"
+    },
+    "food_preference": {
+      "type": "string",
+      "enum": [
+        "veg",
+        "non_veg",
+        "eggetarian",
+        "jain",
+        "mixed"
+      ],
+      "description": "Dietary preference"
+    },
+    "regional_preference": {
+      "type": "string",
+      "enum": [
+        "north",
+        "south",
+        "west",
+        "east",
+        "all"
+      ],
+      "description": "Regional cuisine preference"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "completed",
+        "on_hold"
+      ],
+      "default": "active",
+      "description": "Client status"
+    },
+    "join_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date client joined"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Dietitian notes about client"
+    },
+    "bmr": {
+      "type": "number",
+      "description": "Basal Metabolic Rate"
+    },
+    "tdee": {
+      "type": "number",
+      "description": "Total Daily Energy Expenditure"
+    },
+    "target_calories": {
+      "type": "number",
+      "description": "Daily calorie target"
+    },
+    "target_protein": {
+      "type": "number",
+      "description": "Daily protein target in grams"
+    },
+    "target_carbs": {
+      "type": "number",
+      "description": "Daily carbs target in grams"
+    },
+    "target_fats": {
+      "type": "number",
+      "description": "Daily fats target in grams"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "Email of team member assigned to this client"
+    },
+    "assigned_coach": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails of health coaches assigned to this client"
+    },
+    "plan_tier": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "advanced"
+      ],
+      "description": "Client's meal plan tier"
+    },
+    "onboarding_completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has client completed onboarding wizard"
+    },
+    "tutorial_completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has client completed the app tutorial"
+    },
+    "welcome_message_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Has coach sent welcome message"
+    }
+  },
+  "required": [
+    "full_name",
+    "email"
+  ]
+}

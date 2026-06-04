@@ -1,0 +1,350 @@
+{
+  "name": "MealPlan",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "plan_tier": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "advanced"
+      ],
+      "default": "basic"
+    },
+    "duration": {
+      "type": "number"
+    },
+    "meal_pattern": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "3-3-4"
+      ]
+    },
+    "target_calories": {
+      "type": "number"
+    },
+    "disease_focus": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "meals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "number"
+          },
+          "meal_type": {
+            "type": "string"
+          },
+          "meal_name": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "portion_sizes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "calories": {
+            "type": "number"
+          },
+          "protein": {
+            "type": "number"
+          },
+          "carbs": {
+            "type": "number"
+          },
+          "fats": {
+            "type": "number"
+          },
+          "sodium": {
+            "type": "number"
+          },
+          "potassium": {
+            "type": "number"
+          },
+          "nutritional_tip": {
+            "type": "string"
+          },
+          "disease_rationale": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "food_preference": {
+      "type": "string",
+      "enum": [
+        "veg",
+        "non_veg",
+        "jain",
+        "eggetarian",
+        "mixed"
+      ]
+    },
+    "regional_preference": {
+      "type": "string",
+      "enum": [
+        "north",
+        "south",
+        "west",
+        "east",
+        "all"
+      ]
+    },
+    "active": {
+      "type": "boolean",
+      "default": true
+    },
+    "mpess": {
+      "type": "array",
+      "description": "Array of MPESS wellness recommendations (one per day or single entry for all days)",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "number",
+            "description": "Day number (1-based)"
+          },
+          "sleep": {
+            "type": "string",
+            "description": "Sleep recommendation"
+          },
+          "stress": {
+            "type": "string",
+            "description": "Stress management recommendation"
+          },
+          "movement": {
+            "type": "string",
+            "description": "Physical movement/exercise recommendation"
+          },
+          "mindfulness": {
+            "type": "string",
+            "description": "Mindfulness/mental practice recommendation"
+          },
+          "pranayam": {
+            "type": "string",
+            "description": "Pranayam/breathing practice recommendation"
+          }
+        }
+      }
+    },
+    "mpess_integration": {
+      "type": "object",
+      "properties": {
+        "mind_practices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "physical_practices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "emotional_practices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "social_practices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "spiritual_practices": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "audit_snapshot": {
+      "type": "object",
+      "properties": {
+        "avg_calories_per_day": {
+          "type": "number"
+        },
+        "calorie_range": {
+          "type": "string"
+        },
+        "macro_percentages": {
+          "type": "object",
+          "properties": {
+            "carbs": {
+              "type": "number"
+            },
+            "protein": {
+              "type": "number"
+            },
+            "fats": {
+              "type": "number"
+            }
+          }
+        },
+        "sodium_compliance": {
+          "type": "string"
+        },
+        "potassium_compliance": {
+          "type": "string"
+        },
+        "medication_conflicts": {
+          "type": "boolean"
+        },
+        "variety_check": {
+          "type": "boolean"
+        },
+        "mpess_integrated": {
+          "type": "boolean"
+        }
+      }
+    },
+    "decision_rules_applied": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "conflict_resolution": {
+      "type": "string"
+    },
+    "kb_snapshot": {
+      "type": "array",
+      "description": "Exact snapshot of all KB entries used at the time this plan was generated",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kb_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "version_label": {
+            "type": "string"
+          },
+          "version_number": {
+            "type": "number"
+          },
+          "ai_instruction": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "kb_snapshot_generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "generation_parameters": {
+      "type": "object",
+      "description": "Full set of parameters used when this plan was generated \u2014 for diagnostics and re-generation",
+      "properties": {
+        "duration": {
+          "type": "number"
+        },
+        "target_calories": {
+          "type": "number"
+        },
+        "target_protein": {
+          "type": "number"
+        },
+        "target_carbs": {
+          "type": "number"
+        },
+        "target_fats": {
+          "type": "number"
+        },
+        "goal": {
+          "type": "string"
+        },
+        "food_preference": {
+          "type": "string"
+        },
+        "regional_preference": {
+          "type": "string"
+        },
+        "snack_preference": {
+          "type": "string"
+        },
+        "meal_frequency": {
+          "type": "number"
+        },
+        "cuisine_notes": {
+          "type": "string"
+        },
+        "adapt_from_feedback": {
+          "type": "boolean"
+        },
+        "override_goal": {
+          "type": "string"
+        },
+        "focus_areas": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "additional_restrictions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "additional_allergies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "additional_conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "modification_instructions": {
+          "type": "string",
+          "description": "AI chat instructions used to regenerate/modify this plan"
+        },
+        "generation_count": {
+          "type": "number",
+          "description": "How many times this plan was regenerated (1 = first gen)"
+        }
+      }
+    }
+  },
+  "required": [
+    "client_id",
+    "name",
+    "duration",
+    "meals"
+  ]
+}

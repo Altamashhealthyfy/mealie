@@ -1,0 +1,60 @@
+{
+  "name": "PantryIngredient",
+  "type": "object",
+  "properties": {
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client who owns this ingredient"
+    },
+    "ingredient_name": {
+      "type": "string",
+      "description": "Name of the ingredient (e.g., paneer, tomato, onion)"
+    },
+    "quantity": {
+      "type": "number",
+      "description": "Quantity available"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "grams",
+        "kg",
+        "ml",
+        "liters",
+        "cups",
+        "tbsp",
+        "tsp",
+        "pieces"
+      ],
+      "description": "Unit of measurement"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When the ingredient expires"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "vegetables",
+        "fruits",
+        "dairy",
+        "protein",
+        "grains",
+        "spices",
+        "oils",
+        "condiments",
+        "other"
+      ],
+      "description": "Category of ingredient"
+    },
+    "barcode": {
+      "type": "string",
+      "description": "Barcode number if scanned"
+    }
+  },
+  "required": [
+    "client_email",
+    "ingredient_name"
+  ]
+}

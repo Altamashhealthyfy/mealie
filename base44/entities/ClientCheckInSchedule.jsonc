@@ -1,0 +1,120 @@
+{
+  "name": "ClientCheckInSchedule",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "Client ID to receive check-ins"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Client email address"
+    },
+    "coach_email": {
+      "type": "string",
+      "description": "Coach email who created the schedule"
+    },
+    "message_type": {
+      "type": "string",
+      "enum": [
+        "meal_logging",
+        "water_intake",
+        "workout",
+        "wellbeing",
+        "custom"
+      ],
+      "description": "Type of check-in message"
+    },
+    "custom_message": {
+      "type": "string",
+      "description": "Custom message text if message_type is 'custom'"
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "biweekly",
+        "monthly"
+      ],
+      "description": "How often to send reminders"
+    },
+    "schedule_time": {
+      "type": "string",
+      "description": "Time to send message in HH:MM format (e.g., 09:00)"
+    },
+    "days_of_week": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "description": "Days to send (0=Sun, 6=Sat). Required for weekly schedules"
+    },
+    "day_of_month": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 31,
+      "description": "Day of month for monthly schedules"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this schedule is active"
+    },
+    "last_sent_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When was the last message sent"
+    },
+    "next_send_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When is the next message scheduled"
+    },
+    "send_push_notification": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether to send push notification along with message"
+    },
+    "max_sends": {
+      "type": "integer",
+      "description": "Maximum number of times to send (optional, leave empty for unlimited)"
+    },
+    "times_sent": {
+      "type": "integer",
+      "default": 0,
+      "description": "Count of how many times this schedule has sent"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Start date for this schedule"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "End date for this schedule (optional)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Coach notes about this schedule"
+    }
+  },
+  "required": [
+    "client_id",
+    "client_email",
+    "coach_email",
+    "message_type",
+    "frequency",
+    "schedule_time"
+  ]
+}

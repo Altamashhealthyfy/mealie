@@ -1,0 +1,140 @@
+{
+  "name": "ProgramEnrollment",
+  "type": "object",
+  "properties": {
+    "program_id": {
+      "type": "string",
+      "description": "ID of the CoachProgram"
+    },
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the coach"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Name of the client"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "enrollment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date client enrolled"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Program start date for this client"
+    },
+    "expected_completion_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Expected completion date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "dropped",
+        "paused"
+      ],
+      "default": "active",
+      "description": "Enrollment status"
+    },
+    "progress_percentage": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0,
+      "description": "Progress percentage (0-100)"
+    },
+    "current_day": {
+      "type": "number",
+      "default": 1,
+      "description": "Current day in program"
+    },
+    "completed_activities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "number"
+          },
+          "activity": {
+            "type": "string"
+          },
+          "completion_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Completed activities tracking"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "paid",
+        "waived"
+      ],
+      "default": "pending",
+      "description": "Payment status for enrollment"
+    },
+    "amount_paid": {
+      "type": "number",
+      "description": "Amount paid for enrollment"
+    },
+    "payment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date payment was received"
+    },
+    "satisfaction_rating": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Client satisfaction rating"
+    },
+    "feedback": {
+      "type": "string",
+      "description": "Client feedback on program"
+    },
+    "coach_feedback": {
+      "type": "string",
+      "description": "Coach feedback to client"
+    },
+    "completion_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Actual completion date"
+    },
+    "results": {
+      "type": "string",
+      "description": "Summary of results achieved"
+    },
+    "certificate_issued": {
+      "type": "boolean",
+      "default": false,
+      "description": "Was completion certificate issued"
+    }
+  },
+  "required": [
+    "program_id",
+    "coach_email",
+    "client_id",
+    "enrollment_date",
+    "start_date"
+  ]
+}

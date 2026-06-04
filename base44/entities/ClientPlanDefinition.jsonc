@@ -1,0 +1,65 @@
+{
+  "name": "ClientPlanDefinition",
+  "type": "object",
+  "properties": {
+    "plan_name": {
+      "type": "string",
+      "description": "Name of the client plan (e.g., Weight Loss Plan, Diabetes Management)"
+    },
+    "plan_description": {
+      "type": "string",
+      "description": "Detailed description of the plan"
+    },
+    "thumbnail_url": {
+      "type": "string",
+      "description": "Plan thumbnail/cover image URL"
+    },
+    "health_focus": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Health conditions this plan targets"
+    },
+    "coach_email": {
+      "type": "string",
+      "description": "Email of coach who created this plan (or global if created by admin)"
+    },
+    "is_global": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, available to all coaches"
+    },
+    "duration_days": {
+      "type": "number",
+      "description": "Plan duration in days"
+    },
+    "price": {
+      "type": "number",
+      "description": "Plan price"
+    },
+    "currency": {
+      "type": "string",
+      "default": "INR"
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of features included"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "plan_name",
+    "price"
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "name": "ClientSubscription",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Client's email"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Client's name"
+    },
+    "plan_tier": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "advanced",
+        "pro"
+      ],
+      "description": "Subscription plan tier"
+    },
+    "billing_cycle": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "yearly"
+      ],
+      "description": "Billing frequency"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Subscription amount"
+    },
+    "currency": {
+      "type": "string",
+      "default": "INR"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "cancelled",
+        "expired",
+        "pending"
+      ],
+      "default": "pending"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "next_billing_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "payment_gateway": {
+      "type": "string",
+      "enum": [
+        "razorpay",
+        "manual",
+        "upi"
+      ],
+      "default": "razorpay"
+    },
+    "razorpay_subscription_id": {
+      "type": "string",
+      "description": "Razorpay subscription ID"
+    },
+    "razorpay_payment_id": {
+      "type": "string",
+      "description": "Last payment ID"
+    },
+    "coach_email": {
+      "type": "string",
+      "description": "Email of coach who receives payment"
+    },
+    "auto_renew": {
+      "type": "boolean",
+      "default": true
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "client_id",
+    "plan_tier",
+    "amount"
+  ]
+}

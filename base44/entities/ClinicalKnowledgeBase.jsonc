@@ -1,0 +1,213 @@
+{
+  "name": "ClinicalKnowledgeBase",
+  "type": "object",
+  "properties": {
+    "condition_name": {
+      "type": "string",
+      "description": "Name of the health condition (e.g., PCOS, Hypothyroidism, Fatty Liver)"
+    },
+    "condition_category": {
+      "type": "string",
+      "enum": [
+        "hormonal",
+        "metabolic",
+        "liver",
+        "cardiovascular",
+        "autoimmune",
+        "digestive",
+        "thyroid",
+        "reproductive",
+        "body_type",
+        "other"
+      ],
+      "description": "Category of the condition"
+    },
+    "sub_type": {
+      "type": "string",
+      "description": "Sub-type or variant (e.g., Hashimoto's, Grade 1 Fatty Liver, Lean PCOS)"
+    },
+    "stage_severity": {
+      "type": "string",
+      "description": "Stage or severity levels applicable (e.g., mild, moderate, severe, Stage 1-4)"
+    },
+    "root_causes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Primary root causes or triggers of this condition"
+    },
+    "key_symptoms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Common symptoms associated with this condition"
+    },
+    "diagnostic_markers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Lab markers or diagnostic criteria used to identify this condition"
+    },
+    "foods_to_include": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Foods and nutrients strongly recommended for this condition"
+    },
+    "foods_to_avoid": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Foods and substances that must be avoided or limited"
+    },
+    "meal_timing_guidelines": {
+      "type": "string",
+      "description": "Specific meal timing, fasting, or eating pattern recommendations"
+    },
+    "calorie_guidelines": {
+      "type": "string",
+      "description": "Calorie range or deficit/surplus guidelines specific to this condition"
+    },
+    "macro_guidelines": {
+      "type": "object",
+      "properties": {
+        "carbs_percent": {
+          "type": "string"
+        },
+        "protein_percent": {
+          "type": "string"
+        },
+        "fat_percent": {
+          "type": "string"
+        },
+        "special_notes": {
+          "type": "string"
+        }
+      },
+      "description": "Macronutrient distribution guidelines"
+    },
+    "micronutrient_focus": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Key micronutrients to prioritize (e.g., Magnesium, Zinc, Vitamin D, Iodine)"
+    },
+    "supplements_recommended": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Supplements commonly recommended for this condition"
+    },
+    "herbal_remedies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Ayurvedic herbs, teas, or natural remedies specific to this condition"
+    },
+    "lifestyle_recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Lifestyle modifications: sleep, stress, exercise recommendations"
+    },
+    "exercise_guidelines": {
+      "type": "string",
+      "description": "Specific exercise type, frequency, and intensity recommendations"
+    },
+    "therapies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Therapeutic approaches: yoga, meditation, detox protocols, hydrotherapy, etc."
+    },
+    "medication_interactions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Common medications used and their dietary interactions or considerations"
+    },
+    "comorbidities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Conditions frequently associated or co-occurring with this condition"
+    },
+    "conflict_rules": {
+      "type": "string",
+      "description": "Special rules when this condition conflicts with other conditions (e.g., PCOS + Hypothyroid)"
+    },
+    "mpess_recommendations": {
+      "type": "object",
+      "properties": {
+        "mind": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "physical": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "emotional": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "social": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "spiritual": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "MPESS holistic practice recommendations for this condition"
+    },
+    "body_type_connection": {
+      "type": "string",
+      "enum": [
+        "liver",
+        "adrenal",
+        "thyroid",
+        "pituitary",
+        "ovarian",
+        "none"
+      ],
+      "description": "Associated body type classification from holistic body type framework"
+    },
+    "source_document": {
+      "type": "string",
+      "description": "Reference to the source PDF or document this data was extracted from"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this knowledge record is active and should be used by the AI"
+    }
+  },
+  "required": [
+    "condition_name",
+    "condition_category"
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "name": "InstallmentPayment",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Client name"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Client email"
+    },
+    "client_phone": {
+      "type": "string",
+      "description": "Client phone"
+    },
+    "total_amount": {
+      "type": "number",
+      "description": "Total program amount"
+    },
+    "amount_paid": {
+      "type": "number",
+      "default": 0,
+      "description": "Amount paid so far"
+    },
+    "balance_amount": {
+      "type": "number",
+      "description": "Remaining balance"
+    },
+    "installments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "installment_number": {
+            "type": "number"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "paid",
+              "overdue"
+            ]
+          },
+          "paid_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "transaction_id": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "List of installments"
+    },
+    "program_name": {
+      "type": "string",
+      "description": "What program they enrolled in"
+    },
+    "payment_plan": {
+      "type": "string",
+      "description": "e.g., 3 months, 6 months"
+    },
+    "next_reminder_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When to send next reminder"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "defaulted"
+      ],
+      "default": "active"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "client_name",
+    "client_phone",
+    "total_amount",
+    "installments"
+  ]
+}

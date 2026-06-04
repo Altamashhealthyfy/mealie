@@ -1,0 +1,114 @@
+{
+  "name": "AICallLog",
+  "type": "object",
+  "properties": {
+    "function_name": {
+      "type": "string",
+      "description": "Backend function that made the LLM call (e.g. generateAIMealPlan, modifyMealPlan)"
+    },
+    "model": {
+      "type": "string",
+      "description": "LLM model used (e.g. claude-sonnet-4-5)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "timeout"
+      ],
+      "description": "Outcome of the LLM call"
+    },
+    "client_id": {
+      "type": "string",
+      "description": "Client ID the call was made for"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Client full name"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Client email"
+    },
+    "triggered_by": {
+      "type": "string",
+      "description": "Email of the coach/admin who triggered the call"
+    },
+    "prompt_tokens": {
+      "type": "number",
+      "description": "Input tokens used"
+    },
+    "completion_tokens": {
+      "type": "number",
+      "description": "Output tokens generated"
+    },
+    "total_tokens": {
+      "type": "number",
+      "description": "Total tokens (prompt + completion)"
+    },
+    "estimated_cost_usd": {
+      "type": "number",
+      "description": "Estimated cost in USD based on model pricing"
+    },
+    "duration_ms": {
+      "type": "number",
+      "description": "Time taken for the LLM call in milliseconds"
+    },
+    "prompt_summary": {
+      "type": "string",
+      "description": "First 500 chars of the prompt for quick inspection"
+    },
+    "response_summary": {
+      "type": "string",
+      "description": "First 500 chars of the response for quick inspection"
+    },
+    "full_prompt": {
+      "type": "string",
+      "description": "Full prompt sent to LLM"
+    },
+    "full_response": {
+      "type": "string",
+      "description": "Full raw response from LLM"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Error message if status is error"
+    },
+    "context_metadata": {
+      "type": "object",
+      "description": "Additional context: diet type, conditions, duration, calorie target, etc.",
+      "properties": {
+        "duration_days": {
+          "type": "number"
+        },
+        "calorie_target": {
+          "type": "number"
+        },
+        "diet_type": {
+          "type": "string"
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "catalog_dishes_count": {
+          "type": "number"
+        },
+        "modification_request": {
+          "type": "string"
+        },
+        "generation_count": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  "required": [
+    "function_name",
+    "model",
+    "status"
+  ]
+}

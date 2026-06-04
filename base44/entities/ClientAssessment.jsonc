@@ -1,0 +1,326 @@
+{
+  "name": "ClientAssessment",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Name of the client"
+    },
+    "assigned_by": {
+      "type": "string",
+      "description": "Email of coach who assigned"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed"
+      ],
+      "default": "pending",
+      "description": "Assessment status"
+    },
+    "assessment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date assessment was completed"
+    },
+    "medical_history": {
+      "type": "object",
+      "properties": {
+        "current_medications": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allergies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "chronic_conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "past_surgeries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "family_history": {
+          "type": "string"
+        },
+        "current_symptoms": {
+          "type": "string"
+        }
+      }
+    },
+    "lifestyle_habits": {
+      "type": "object",
+      "properties": {
+        "sleep_hours": {
+          "type": "number"
+        },
+        "sleep_quality": {
+          "type": "string",
+          "enum": [
+            "poor",
+            "fair",
+            "good",
+            "excellent"
+          ]
+        },
+        "stress_level": {
+          "type": "string",
+          "enum": [
+            "low",
+            "moderate",
+            "high",
+            "very_high"
+          ]
+        },
+        "alcohol_consumption": {
+          "type": "string",
+          "enum": [
+            "none",
+            "occasional",
+            "moderate",
+            "heavy"
+          ]
+        },
+        "smoking_status": {
+          "type": "string",
+          "enum": [
+            "never",
+            "former",
+            "current"
+          ]
+        },
+        "water_intake_liters": {
+          "type": "number"
+        },
+        "screen_time_hours": {
+          "type": "number"
+        },
+        "work_type": {
+          "type": "string",
+          "enum": [
+            "sedentary",
+            "moderately_active",
+            "very_active"
+          ]
+        }
+      }
+    },
+    "dietary_preferences": {
+      "type": "object",
+      "properties": {
+        "diet_type": {
+          "type": "string",
+          "enum": [
+            "veg",
+            "non_veg",
+            "eggetarian",
+            "vegan",
+            "jain"
+          ]
+        },
+        "meal_frequency": {
+          "type": "number"
+        },
+        "eating_out_frequency": {
+          "type": "string",
+          "enum": [
+            "rarely",
+            "1-2_times_week",
+            "3-5_times_week",
+            "daily"
+          ]
+        },
+        "favorite_foods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "foods_to_avoid": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "snacking_habits": {
+          "type": "string"
+        },
+        "cooking_skills": {
+          "type": "string",
+          "enum": [
+            "beginner",
+            "intermediate",
+            "advanced"
+          ]
+        },
+        "supplements_taken": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "fitness_level": {
+      "type": "object",
+      "properties": {
+        "current_activity_level": {
+          "type": "string",
+          "enum": [
+            "sedentary",
+            "lightly_active",
+            "moderately_active",
+            "very_active",
+            "extremely_active"
+          ]
+        },
+        "exercise_frequency": {
+          "type": "string",
+          "enum": [
+            "never",
+            "1-2_times_week",
+            "3-4_times_week",
+            "5-6_times_week",
+            "daily"
+          ]
+        },
+        "exercise_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "exercise_duration_minutes": {
+          "type": "number"
+        },
+        "fitness_barriers": {
+          "type": "string"
+        },
+        "previous_fitness_experience": {
+          "type": "string"
+        }
+      }
+    },
+    "health_goals": {
+      "type": "object",
+      "properties": {
+        "primary_goal": {
+          "type": "string",
+          "enum": [
+            "weight_loss",
+            "weight_gain",
+            "muscle_gain",
+            "disease_management",
+            "improved_energy",
+            "better_sleep",
+            "stress_reduction"
+          ]
+        },
+        "secondary_goals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "target_weight": {
+          "type": "number"
+        },
+        "timeline": {
+          "type": "string",
+          "enum": [
+            "1_month",
+            "3_months",
+            "6_months",
+            "1_year",
+            "ongoing"
+          ]
+        },
+        "motivation_level": {
+          "type": "string",
+          "enum": [
+            "low",
+            "moderate",
+            "high",
+            "very_high"
+          ]
+        },
+        "previous_attempts": {
+          "type": "string"
+        },
+        "support_system": {
+          "type": "string"
+        },
+        "specific_goals": {
+          "type": "string"
+        }
+      }
+    },
+    "additional_notes": {
+      "type": "string",
+      "description": "Any additional information"
+    },
+    "coach_notes": {
+      "type": "string",
+      "description": "Coach's private notes"
+    },
+    "report_generated": {
+      "type": "boolean",
+      "default": false
+    },
+    "report_url": {
+      "type": "string",
+      "description": "URL to generated report"
+    },
+    "template_id": {
+      "type": "string",
+      "description": "Assessment template used"
+    },
+    "uploaded_files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "file_name": {
+            "type": "string"
+          },
+          "file_url": {
+            "type": "string"
+          },
+          "file_type": {
+            "type": "string"
+          },
+          "uploaded_date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "description": "Supporting documents and images"
+    },
+    "custom_responses": {
+      "type": "object",
+      "description": "Responses to custom template questions"
+    }
+  },
+  "required": [
+    "client_id",
+    "client_name",
+    "assigned_by"
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "name": "WorkoutPlan",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client assigned to this plan"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "dietitian_email": {
+      "type": "string",
+      "description": "Email of the dietitian who created the plan"
+    },
+    "plan_name": {
+      "type": "string",
+      "description": "Name of the workout plan"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description and goals of the workout plan"
+    },
+    "difficulty_level": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ],
+      "description": "Difficulty level of the plan"
+    },
+    "duration_weeks": {
+      "type": "number",
+      "description": "Duration of the plan in weeks"
+    },
+    "frequency_per_week": {
+      "type": "number",
+      "description": "Number of workout days per week"
+    },
+    "workout_type": {
+      "type": "string",
+      "enum": [
+        "cardio",
+        "strength",
+        "flexibility",
+        "mixed",
+        "sports"
+      ],
+      "description": "Type of workouts included"
+    },
+    "workouts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "number",
+            "description": "Day number in the plan"
+          },
+          "day_name": {
+            "type": "string",
+            "description": "Name of the day (e.g., Monday, Day 1)"
+          },
+          "exercise_name": {
+            "type": "string",
+            "description": "Name of the exercise"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed description and form tips"
+          },
+          "sets": {
+            "type": "number",
+            "description": "Number of sets"
+          },
+          "reps": {
+            "type": "string",
+            "description": "Number of repetitions or duration"
+          },
+          "rest_seconds": {
+            "type": "number",
+            "description": "Rest time between sets in seconds"
+          },
+          "modifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Exercise modifications for different fitness levels"
+          }
+        }
+      },
+      "description": "Array of exercises in the plan"
+    },
+    "equipment_needed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Equipment required for the workout plan"
+    },
+    "progression_notes": {
+      "type": "string",
+      "description": "Notes on how to progress the plan"
+    },
+    "precautions": {
+      "type": "string",
+      "description": "Safety precautions and injury prevention tips"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the plan is currently active"
+    },
+    "assigned_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the plan was assigned to the client"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Planned start date for the client"
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the client has completed the plan"
+    },
+    "completion_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the plan was completed"
+    },
+    "client_notes": {
+      "type": "string",
+      "description": "Client's feedback and notes on the plan"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for easy searching and filtering"
+    }
+  },
+  "required": [
+    "client_id",
+    "client_email",
+    "dietitian_email",
+    "plan_name",
+    "workouts"
+  ]
+}

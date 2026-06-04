@@ -1,0 +1,81 @@
+{
+  "name": "ClientPlanPurchase",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Name of the client"
+    },
+    "plan_id": {
+      "type": "string",
+      "description": "ID of ClientPlanDefinition"
+    },
+    "plan_name": {
+      "type": "string",
+      "description": "Name of purchased plan"
+    },
+    "coach_email": {
+      "type": "string",
+      "description": "Email of coach whose plan was purchased"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Amount paid"
+    },
+    "currency": {
+      "type": "string",
+      "default": "INR"
+    },
+    "purchase_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "expired",
+        "cancelled"
+      ],
+      "default": "active"
+    },
+    "payment_gateway": {
+      "type": "string",
+      "description": "Which gateway was used"
+    },
+    "payment_id": {
+      "type": "string",
+      "description": "Payment transaction ID"
+    },
+    "manually_granted": {
+      "type": "boolean",
+      "default": false
+    },
+    "granted_by": {
+      "type": "string",
+      "description": "Admin who granted manual access"
+    }
+  },
+  "required": [
+    "client_id",
+    "plan_id",
+    "amount",
+    "purchase_date"
+  ]
+}

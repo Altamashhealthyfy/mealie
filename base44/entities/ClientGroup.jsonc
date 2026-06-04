@@ -1,0 +1,87 @@
+{
+  "name": "ClientGroup",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Group name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Group description"
+    },
+    "criteria": {
+      "type": "object",
+      "description": "Criteria for auto-grouping clients",
+      "properties": {
+        "health_conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Matching health conditions"
+        },
+        "goal": {
+          "type": "string",
+          "description": "Matching goal"
+        },
+        "food_preference": {
+          "type": "string",
+          "description": "Matching food preference"
+        }
+      }
+    },
+    "client_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of clients in this group"
+    },
+    "admin_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of group admins (dietitians/coaches)"
+    },
+    "member_count": {
+      "type": "number",
+      "default": 0
+    },
+    "is_auto_group": {
+      "type": "boolean",
+      "default": false,
+      "description": "Auto-created based on criteria"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "only_admins_can_pin": {
+          "type": "boolean",
+          "default": true
+        },
+        "only_admins_can_send": {
+          "type": "boolean",
+          "default": false
+        },
+        "allow_file_sharing": {
+          "type": "boolean",
+          "default": true
+        },
+        "allow_threads": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    }
+  },
+  "required": [
+    "name",
+    "client_ids"
+  ]
+}

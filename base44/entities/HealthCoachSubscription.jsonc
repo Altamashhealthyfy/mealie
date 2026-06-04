@@ -1,0 +1,130 @@
+{
+  "name": "HealthCoachSubscription",
+  "type": "object",
+  "properties": {
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the health coach"
+    },
+    "coach_name": {
+      "type": "string",
+      "description": "Name of the health coach"
+    },
+    "plan_id": {
+      "type": "string",
+      "description": "ID of the HealthCoachPlan"
+    },
+    "plan_name": {
+      "type": "string",
+      "description": "Name of the subscribed plan"
+    },
+    "billing_cycle": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "yearly"
+      ],
+      "description": "Billing frequency"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Subscription amount paid"
+    },
+    "currency": {
+      "type": "string",
+      "default": "INR"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "next_billing_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "cancelled",
+        "expired",
+        "pending",
+        "trial"
+      ],
+      "default": "pending",
+      "description": "trial = 7-day free trial period"
+    },
+    "is_trial": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is a trial subscription"
+    },
+    "trial_start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When trial started"
+    },
+    "trial_end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When trial expires"
+    },
+    "trial_expired_notified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether trial expiration notification was sent"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "razorpay",
+        "stripe",
+        "manual"
+      ],
+      "default": "razorpay"
+    },
+    "razorpay_payment_id": {
+      "type": "string"
+    },
+    "razorpay_order_id": {
+      "type": "string"
+    },
+    "auto_renew": {
+      "type": "boolean",
+      "default": true
+    },
+    "manually_granted": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if admin manually granted access"
+    },
+    "granted_by": {
+      "type": "string",
+      "description": "Email of admin who granted manual access"
+    },
+    "ai_credits_used_this_month": {
+      "type": "number",
+      "default": 0,
+      "description": "AI credits consumed this billing cycle"
+    },
+    "ai_credits_purchased": {
+      "type": "number",
+      "default": 0,
+      "description": "Additional AI credits purchased beyond plan"
+    },
+    "ai_credits_reset_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date when AI credits reset (usually start of billing cycle)"
+    }
+  },
+  "required": [
+    "coach_email",
+    "plan_id",
+    "start_date"
+  ]
+}

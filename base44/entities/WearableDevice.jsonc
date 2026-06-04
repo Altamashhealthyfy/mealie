@@ -1,0 +1,116 @@
+{
+  "name": "WearableDevice",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "Client ID this device is connected to"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Client email"
+    },
+    "device_type": {
+      "type": "string",
+      "enum": [
+        "fitbit",
+        "garmin",
+        "apple_health",
+        "google_fit",
+        "oura_ring",
+        "whoop"
+      ],
+      "description": "Type of wearable device"
+    },
+    "device_name": {
+      "type": "string",
+      "description": "User-friendly device name (e.g., 'My Fitbit Charge 5')"
+    },
+    "access_token": {
+      "type": "string",
+      "description": "OAuth access token (encrypted)"
+    },
+    "refresh_token": {
+      "type": "string",
+      "description": "OAuth refresh token (encrypted)"
+    },
+    "token_expiry": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the access token expires"
+    },
+    "device_id": {
+      "type": "string",
+      "description": "Unique ID from the wearable platform"
+    },
+    "is_syncing": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether auto-sync is enabled"
+    },
+    "last_sync_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When data was last synced"
+    },
+    "sync_frequency": {
+      "type": "string",
+      "enum": [
+        "hourly",
+        "every_6_hours",
+        "daily"
+      ],
+      "default": "daily",
+      "description": "How often to sync data"
+    },
+    "data_types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "steps",
+          "heart_rate",
+          "sleep",
+          "calories",
+          "active_minutes",
+          "distance",
+          "elevation",
+          "blood_oxygen",
+          "stress",
+          "temperature"
+        ]
+      },
+      "description": "Types of data being synced from this device"
+    },
+    "is_connected": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether device is currently connected"
+    },
+    "connection_status": {
+      "type": "string",
+      "enum": [
+        "connected",
+        "disconnected",
+        "expired",
+        "error"
+      ],
+      "default": "disconnected",
+      "description": "Connection status"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Error message if connection failed"
+    },
+    "notes": {
+      "type": "string",
+      "description": "User notes about this device"
+    }
+  },
+  "required": [
+    "client_id",
+    "client_email",
+    "device_type",
+    "device_name"
+  ]
+}

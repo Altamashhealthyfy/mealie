@@ -1,0 +1,26 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "user_type": {
+      "type": "string",
+      "enum": [
+        "super_admin",
+        "team_member",
+        "student_coach",
+        "student_team_member",
+        "client"
+      ],
+      "description": "Type of user access in the platform"
+    },
+    "phone": {
+      "type": "string",
+      "description": "User phone number"
+    },
+    "profile_photo_url": {
+      "type": "string",
+      "description": "User profile photo URL"
+    }
+  },
+  "required": []
+}

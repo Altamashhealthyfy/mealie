@@ -1,0 +1,52 @@
+{
+  "name": "AppointmentAuditLog",
+  "type": "object",
+  "properties": {
+    "appointment_id": {
+      "type": "string",
+      "description": "ID of the appointment"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "created",
+        "updated",
+        "cancelled",
+        "rescheduled",
+        "completed",
+        "note_added"
+      ],
+      "description": "Action performed"
+    },
+    "performed_by": {
+      "type": "string",
+      "description": "Email of user who performed action"
+    },
+    "old_values": {
+      "type": "object",
+      "description": "Previous values before update"
+    },
+    "new_values": {
+      "type": "object",
+      "description": "New values after update"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes about the action"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "voice"
+      ],
+      "default": "manual",
+      "description": "How action was triggered"
+    }
+  },
+  "required": [
+    "appointment_id",
+    "action",
+    "performed_by"
+  ]
+}

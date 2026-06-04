@@ -1,0 +1,79 @@
+{
+  "name": "Badge",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Badge name"
+    },
+    "description": {
+      "type": "string",
+      "description": "What this badge represents"
+    },
+    "icon": {
+      "type": "string",
+      "description": "Emoji or icon identifier"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "weight_loss",
+        "consistency",
+        "wellness",
+        "nutrition",
+        "milestone",
+        "special"
+      ],
+      "description": "Badge category"
+    },
+    "unlock_criteria": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "points",
+            "streak",
+            "weight_loss",
+            "goal_completion",
+            "custom"
+          ],
+          "description": "Type of criteria"
+        },
+        "value": {
+          "type": "number",
+          "description": "Target value to unlock"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable criteria"
+        }
+      },
+      "description": "Criteria to unlock this badge"
+    },
+    "points_required": {
+      "type": "number",
+      "description": "Points needed to unlock (if points-based)"
+    },
+    "rarity": {
+      "type": "string",
+      "enum": [
+        "common",
+        "rare",
+        "epic",
+        "legendary"
+      ],
+      "default": "common"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "description",
+    "icon",
+    "category"
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "name": "AwardHistory",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client who received the award"
+    },
+    "rule_id": {
+      "type": "string",
+      "description": "ID of the auto-award rule that triggered this"
+    },
+    "rule_name": {
+      "type": "string",
+      "description": "Name of the rule at time of award"
+    },
+    "award_type": {
+      "type": "string",
+      "enum": [
+        "points",
+        "badge",
+        "both"
+      ],
+      "description": "What was awarded"
+    },
+    "points_awarded": {
+      "type": "number",
+      "description": "Points awarded"
+    },
+    "badge_awarded": {
+      "type": "string",
+      "description": "Badge ID awarded"
+    },
+    "trigger_data": {
+      "type": "object",
+      "description": "Data that triggered the award"
+    },
+    "awarded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the award was given"
+    }
+  },
+  "required": [
+    "client_id",
+    "rule_id",
+    "award_type"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "FavoriteResource",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "resource_id": {
+      "type": "string",
+      "description": "ID of the resource"
+    },
+    "resource_title": {
+      "type": "string",
+      "description": "Resource title for quick reference"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Personal notes about the resource"
+    }
+  },
+  "required": [
+    "client_id",
+    "resource_id"
+  ]
+}

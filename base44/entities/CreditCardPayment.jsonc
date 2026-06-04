@@ -1,0 +1,59 @@
+{
+  "name": "CreditCardPayment",
+  "type": "object",
+  "properties": {
+    "card_name": {
+      "type": "string",
+      "description": "Credit card identifier (e.g., ICICI Platinum, HDFC Regalia)"
+    },
+    "payment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of payment made to credit card"
+    },
+    "amount_paid": {
+      "type": "number",
+      "description": "Amount paid to credit card"
+    },
+    "paid_from": {
+      "type": "string",
+      "enum": [
+        "HFICICI",
+        "HFIIDFC",
+        "HFSICICI",
+        "HFSIDFC",
+        "CASH",
+        "Others"
+      ],
+      "description": "Account from which payment was made"
+    },
+    "paid_from_other": {
+      "type": "string",
+      "description": "Specify if Others is selected"
+    },
+    "payment_type": {
+      "type": "string",
+      "enum": [
+        "Minimum Due",
+        "Total Due",
+        "Partial Payment",
+        "Full Statement"
+      ],
+      "description": "Type of credit card payment"
+    },
+    "statement_month": {
+      "type": "string",
+      "description": "Credit card statement month (e.g., Nov 2024)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "card_name",
+    "payment_date",
+    "amount_paid",
+    "paid_from"
+  ]
+}

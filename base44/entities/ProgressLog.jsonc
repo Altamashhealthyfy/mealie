@@ -1,0 +1,248 @@
+{
+  "name": "ProgressLog",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "weight": {
+      "type": "number",
+      "description": "Weight in kg"
+    },
+    "measurements": {
+      "type": "object",
+      "properties": {
+        "neck": {
+          "type": "number",
+          "description": "Neck circumference in cm"
+        },
+        "chest": {
+          "type": "number",
+          "description": "Chest circumference in cm"
+        },
+        "upper_abdomen": {
+          "type": "number",
+          "description": "Upper abdomen in cm"
+        },
+        "abdomen": {
+          "type": "number",
+          "description": "Abdomen at navel in cm"
+        },
+        "lower_abdomen": {
+          "type": "number",
+          "description": "Lower abdomen in cm"
+        },
+        "hips": {
+          "type": "number",
+          "description": "Hip circumference in cm"
+        },
+        "left_arm": {
+          "type": "number",
+          "description": "Left arm circumference in cm"
+        },
+        "right_arm": {
+          "type": "number",
+          "description": "Right arm circumference in cm"
+        },
+        "thighs": {
+          "type": "number",
+          "description": "Thigh circumference in cm"
+        },
+        "calves": {
+          "type": "number",
+          "description": "Calf circumference in cm"
+        }
+      }
+    },
+    "photos": {
+      "type": "object",
+      "properties": {
+        "front": {
+          "type": "string",
+          "description": "Front body photo URL"
+        },
+        "side": {
+          "type": "string",
+          "description": "Side body photo URL"
+        },
+        "back": {
+          "type": "string",
+          "description": "Back body photo URL"
+        }
+      }
+    },
+    "wellness_metrics": {
+      "type": "object",
+      "properties": {
+        "mood": {
+          "type": "string",
+          "enum": [
+            "very_poor",
+            "poor",
+            "neutral",
+            "good",
+            "excellent"
+          ],
+          "description": "Overall mood"
+        },
+        "energy_level": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Energy level 1-10"
+        },
+        "sleep_quality": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Sleep quality 1-10"
+        },
+        "sleep_hours": {
+          "type": "number",
+          "description": "Hours of sleep"
+        },
+        "stress_level": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Stress level 1-10"
+        },
+        "water_intake": {
+          "type": "number",
+          "description": "Water intake in liters"
+        },
+        "exercise_minutes": {
+          "type": "number",
+          "description": "Minutes of exercise"
+        },
+        "digestion_quality": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Digestive health 1-10"
+        },
+        "hunger_levels": {
+          "type": "string",
+          "enum": [
+            "very_low",
+            "low",
+            "normal",
+            "high",
+            "very_high"
+          ],
+          "description": "Average hunger throughout day"
+        },
+        "cravings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Food cravings experienced"
+        },
+        "bowel_movement": {
+          "type": "string",
+          "enum": [
+            "regular",
+            "irregular",
+            "constipation",
+            "diarrhea"
+          ],
+          "description": "Bowel movement pattern"
+        },
+        "menstrual_cycle_day": {
+          "type": "number",
+          "description": "Day of menstrual cycle (for female clients)"
+        },
+        "menstrual_symptoms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "PMS or menstrual symptoms"
+        }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "description": "Client's progress notes"
+    },
+    "meal_adherence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Percentage of meal plan followed"
+    },
+    "symptoms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Any symptoms experienced"
+    },
+    "symptom_severity": {
+      "type": "object",
+      "description": "Severity rating for specific symptoms",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 10
+      }
+    },
+    "custom_metrics": {
+      "type": "object",
+      "description": "Custom tracking fields set by coach",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "coach_feedback": {
+      "type": "object",
+      "properties": {
+        "reviewed_by": {
+          "type": "string",
+          "description": "Email of coach who reviewed"
+        },
+        "reviewed_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the feedback was given"
+        },
+        "feedback_text": {
+          "type": "string",
+          "description": "Coach's feedback and observations"
+        },
+        "rating": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Coach's rating of progress (1-5 stars)"
+        },
+        "suggestions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specific suggestions for improvement"
+        },
+        "celebration_notes": {
+          "type": "string",
+          "description": "Positive achievements to celebrate"
+        }
+      }
+    },
+    "reviewed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether coach has reviewed this log"
+    }
+  },
+  "required": [
+    "client_id",
+    "date"
+  ]
+}

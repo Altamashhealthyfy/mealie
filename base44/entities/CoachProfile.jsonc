@@ -1,0 +1,234 @@
+{
+  "name": "CoachProfile",
+  "type": "object",
+  "properties": {
+    "business_name": {
+      "type": "string",
+      "description": "Coach's business/practice name"
+    },
+    "custom_branding_name": {
+      "type": "string",
+      "description": "Custom branding name to display in the platform (defaults to business_name)"
+    },
+    "tagline": {
+      "type": "string",
+      "description": "Business tagline"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "whatsapp": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "Business logo"
+    },
+    "specializations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Areas of expertise"
+    },
+    "certifications": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "bio": {
+      "type": "string",
+      "description": "Professional bio"
+    },
+    "consultation_fee": {
+      "type": "number",
+      "description": "Standard consultation fee"
+    },
+    "location": {
+      "type": "string",
+      "description": "City/Location"
+    },
+    "languages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "social_media": {
+      "type": "object",
+      "properties": {
+        "instagram": {
+          "type": "string"
+        },
+        "facebook": {
+          "type": "string"
+        },
+        "linkedin": {
+          "type": "string"
+        },
+        "youtube": {
+          "type": "string"
+        }
+      }
+    },
+    "bank_details": {
+      "type": "object",
+      "properties": {
+        "account_name": {
+          "type": "string"
+        },
+        "account_number": {
+          "type": "string"
+        },
+        "ifsc_code": {
+          "type": "string"
+        },
+        "bank_name": {
+          "type": "string"
+        },
+        "upi_id": {
+          "type": "string"
+        }
+      }
+    },
+    "business_hours": {
+      "type": "string",
+      "description": "Working hours"
+    },
+    "total_clients_served": {
+      "type": "number",
+      "default": 0
+    },
+    "years_of_experience": {
+      "type": "number"
+    },
+    "white_label_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can use own branding"
+    },
+    "custom_domain": {
+      "type": "string",
+      "description": "Custom domain (e.g., coaching.mysite.com)"
+    },
+    "custom_domain_status": {
+      "type": "string",
+      "enum": [
+        "not_configured",
+        "pending_verification",
+        "active",
+        "failed"
+      ],
+      "default": "not_configured",
+      "description": "Domain verification status"
+    },
+    "domain_verification_code": {
+      "type": "string",
+      "description": "TXT record verification code"
+    },
+    "domain_configured_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When domain was successfully configured"
+    },
+    "theme_colors": {
+      "type": "object",
+      "description": "Custom theme colors for platform",
+      "properties": {
+        "primary_from": {
+          "type": "string",
+          "default": "#f97316",
+          "description": "Primary gradient start color (hex)"
+        },
+        "primary_to": {
+          "type": "string",
+          "default": "#dc2626",
+          "description": "Primary gradient end color (hex)"
+        },
+        "sidebar_bg": {
+          "type": "string",
+          "default": "#ffffff",
+          "description": "Sidebar background color (hex)"
+        },
+        "health_coach_sidebar_bg": {
+          "type": "string",
+          "default": "#ffffff",
+          "description": "Health Coach panel sidebar background color (hex)"
+        },
+        "client_sidebar_bg": {
+          "type": "string",
+          "default": "#ffffff",
+          "description": "Client panel sidebar background color (hex)"
+        },
+        "accent_color": {
+          "type": "string",
+          "default": "#f97316",
+          "description": "Accent/highlight color (hex)"
+        },
+        "menu_text_color": {
+          "type": "string",
+          "default": "#22c55e",
+          "description": "Menu text color (hex)"
+        },
+        "highlight_button_color": {
+          "type": "string",
+          "default": "#f97316",
+          "description": "Active/highlight button color (hex)"
+        }
+      }
+    },
+    "availability_settings": {
+      "type": "object",
+      "description": "Coach availability and capacity settings",
+      "properties": {
+        "accepting_new_clients": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether coach is accepting new clients"
+        },
+        "max_client_capacity": {
+          "type": "number",
+          "default": 50,
+          "description": "Maximum number of clients coach can handle"
+        },
+        "preferred_client_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Preferred client profiles or conditions"
+        },
+        "available_days": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "monday",
+              "tuesday",
+              "wednesday",
+              "thursday",
+              "friday",
+              "saturday",
+              "sunday"
+            ]
+          },
+          "description": "Days available for consultations"
+        },
+        "consultation_hours": {
+          "type": "string",
+          "description": "Available hours for consultations"
+        }
+      }
+    },
+    "matching_priority": {
+      "type": "number",
+      "default": 0,
+      "description": "Priority score for auto-assignment (higher = more priority)"
+    }
+  },
+  "required": []
+}

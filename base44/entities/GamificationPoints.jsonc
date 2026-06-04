@@ -1,0 +1,45 @@
+{
+  "name": "GamificationPoints",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "progress_logged",
+        "meal_logged",
+        "goal_achieved",
+        "challenge_completed",
+        "appointment_attended",
+        "weekly_streak",
+        "perfect_adherence",
+        "custom"
+      ],
+      "description": "What action earned the points"
+    },
+    "points_earned": {
+      "type": "number",
+      "description": "Number of points earned"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the achievement"
+    },
+    "date_earned": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "related_entity_id": {
+      "type": "string",
+      "description": "ID of related record (goal, challenge, etc.)"
+    }
+  },
+  "required": [
+    "client_id",
+    "action_type",
+    "points_earned"
+  ]
+}

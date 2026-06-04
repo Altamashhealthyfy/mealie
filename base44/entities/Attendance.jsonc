@@ -1,0 +1,48 @@
+{
+  "name": "Attendance",
+  "type": "object",
+  "properties": {
+    "team_member_email": {
+      "type": "string",
+      "description": "Email of team member"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Attendance date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "present",
+        "absent",
+        "half_day",
+        "leave",
+        "work_from_home"
+      ],
+      "default": "present",
+      "description": "Attendance status"
+    },
+    "check_in_time": {
+      "type": "string",
+      "description": "Check-in time"
+    },
+    "check_out_time": {
+      "type": "string",
+      "description": "Check-out time"
+    },
+    "hours_worked": {
+      "type": "number",
+      "description": "Total hours worked"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Any notes or remarks"
+    }
+  },
+  "required": [
+    "team_member_email",
+    "date",
+    "status"
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "name": "EmailSequence",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the email sequence"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the sequence"
+    },
+    "trigger": {
+      "type": "string",
+      "enum": [
+        "new_client",
+        "onboarding_complete",
+        "meal_plan_assigned",
+        "no_activity_7_days",
+        "no_activity_14_days",
+        "birthday",
+        "manual"
+      ],
+      "description": "Event that triggers this sequence"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this sequence is active"
+    },
+    "emails": {
+      "type": "array",
+      "description": "List of emails in the sequence",
+      "items": {
+        "type": "object",
+        "properties": {
+          "step": {
+            "type": "number",
+            "description": "Step number (1, 2, 3...)"
+          },
+          "delay_days": {
+            "type": "number",
+            "description": "Days after trigger (or previous email) to send"
+          },
+          "subject": {
+            "type": "string",
+            "description": "Email subject"
+          },
+          "body": {
+            "type": "string",
+            "description": "Email body (HTML supported)"
+          },
+          "tracking_link": {
+            "type": "string",
+            "description": "Optional URL to track clicks on (replaces {{tracked_link}} in body)"
+          },
+          "conditions": {
+            "type": "array",
+            "description": "Conditional branches: if condition met, go to branch_step instead of next sequential step",
+            "items": {
+              "type": "object",
+              "properties": {
+                "condition": {
+                  "type": "string",
+                  "enum": [
+                    "email_not_opened",
+                    "link_clicked",
+                    "link_not_clicked"
+                  ],
+                  "description": "Condition to check after this email is sent"
+                },
+                "check_after_days": {
+                  "type": "number",
+                  "description": "Days after sending to evaluate the condition"
+                },
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "go_to_step",
+                    "resend_email",
+                    "end_sequence"
+                  ],
+                  "description": "What to do if condition is met"
+                },
+                "branch_step": {
+                  "type": "number",
+                  "description": "Step number to jump to (used with go_to_step action)"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "coach_email": {
+      "type": "string",
+      "description": "Email of coach who owns this sequence"
+    }
+  },
+  "required": [
+    "name",
+    "trigger"
+  ]
+}

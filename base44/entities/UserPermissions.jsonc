@@ -1,0 +1,32 @@
+{
+  "name": "UserPermissions",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user with custom permissions"
+    },
+    "user_type": {
+      "type": "string",
+      "enum": [
+        "super_admin",
+        "team_member",
+        "student_coach",
+        "client"
+      ],
+      "description": "User role type"
+    },
+    "custom_permissions": {
+      "type": "object",
+      "description": "Custom permission overrides for this user"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Admin notes about this user's permissions"
+    }
+  },
+  "required": [
+    "user_email",
+    "user_type"
+  ]
+}

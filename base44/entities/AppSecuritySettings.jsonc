@@ -1,0 +1,1270 @@
+{
+  "name": "AppSecuritySettings",
+  "type": "object",
+  "properties": {
+    "membership_plans": {
+      "type": "object",
+      "description": "Define membership plans with pricing and features",
+      "properties": {
+        "basic_plan": {
+          "type": "object",
+          "properties": {
+            "plan_name": {
+              "type": "string",
+              "default": "Basic Plan"
+            },
+            "monthly_price": {
+              "type": "number",
+              "default": 999
+            },
+            "yearly_price": {
+              "type": "number",
+              "default": 9999
+            },
+            "currency": {
+              "type": "string",
+              "default": "INR"
+            },
+            "features": {
+              "type": "object",
+              "properties": {
+                "show_meal_plan": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_meal_plan_comments": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "show_food_log": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_food_log_edit": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_food_log_delete": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "show_progress_tracking": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_progress_edit": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_progress_delete": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "show_mpess_tracker": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_mpess_edit": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_messages": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_message_sending": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_appointments": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_appointment_booking": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "show_profile": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_profile_edit": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_upload_profile_photo": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_nutritional_info": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_recipes": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_recipe_download": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_recipe_upload": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "allow_ai_recipe_generation": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "show_dashboard_stats": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_export_data": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "can_upload_progress_photos": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_upload_food_photos": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_upload_lab_reports": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_upload_recipes": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "can_upload_documents": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "can_use_food_lookup_ai": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_generate_meal_plans": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_generate_recipes": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_use_wellness_insights": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "can_use_chat_assistant": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "monthly_ai_meal_plan_limit": {
+                  "type": "number",
+                  "default": 5,
+                  "description": "Monthly AI meal plan generation limit"
+                },
+                "monthly_ai_recipe_limit": {
+                  "type": "number",
+                  "default": 5,
+                  "description": "Monthly AI recipe generation limit"
+                },
+                "monthly_ai_requests_limit": {
+                  "type": "number",
+                  "default": 50
+                },
+                "max_file_size_mb": {
+                  "type": "number",
+                  "default": 10
+                },
+                "can_download_unlimited": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Unlimited downloads of recipes and templates"
+                }
+              }
+            }
+          }
+        },
+        "advanced_plan": {
+          "type": "object",
+          "properties": {
+            "plan_name": {
+              "type": "string",
+              "default": "Advanced Plan"
+            },
+            "monthly_price": {
+              "type": "number",
+              "default": 2999
+            },
+            "yearly_price": {
+              "type": "number",
+              "default": 29999
+            },
+            "currency": {
+              "type": "string",
+              "default": "INR"
+            },
+            "features": {
+              "type": "object",
+              "properties": {
+                "show_meal_plan": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_meal_plan_comments": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_food_log": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_food_log_edit": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_food_log_delete": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_progress_tracking": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_progress_edit": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_progress_delete": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_mpess_tracker": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_mpess_edit": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_messages": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_message_sending": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_appointments": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_appointment_booking": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_profile": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_profile_edit": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_upload_profile_photo": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_nutritional_info": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_recipes": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_recipe_download": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_recipe_upload": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "allow_ai_recipe_generation": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_dashboard_stats": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_export_data": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_upload_progress_photos": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_upload_food_photos": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_upload_lab_reports": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_upload_recipes": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "can_upload_documents": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_use_food_lookup_ai": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_generate_meal_plans": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_generate_recipes": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_use_wellness_insights": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_use_chat_assistant": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "monthly_ai_meal_plan_limit": {
+                  "type": "number",
+                  "default": 40,
+                  "description": "Monthly AI meal plan generation limit"
+                },
+                "monthly_ai_recipe_limit": {
+                  "type": "number",
+                  "default": 40,
+                  "description": "Monthly AI recipe generation limit"
+                },
+                "monthly_ai_requests_limit": {
+                  "type": "number",
+                  "default": 200
+                },
+                "max_file_size_mb": {
+                  "type": "number",
+                  "default": 20
+                },
+                "can_download_unlimited": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Unlimited downloads of recipes and templates"
+                }
+              }
+            }
+          }
+        },
+        "pro_plan": {
+          "type": "object",
+          "properties": {
+            "plan_name": {
+              "type": "string",
+              "default": "Pro Plan"
+            },
+            "monthly_price": {
+              "type": "number",
+              "default": 4999
+            },
+            "yearly_price": {
+              "type": "number",
+              "default": 49999
+            },
+            "currency": {
+              "type": "string",
+              "default": "INR"
+            },
+            "features": {
+              "type": "object",
+              "properties": {
+                "show_meal_plan": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_meal_plan_comments": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_food_log": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_food_log_edit": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_food_log_delete": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_progress_tracking": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_progress_edit": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_progress_delete": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_mpess_tracker": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_mpess_edit": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_messages": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_message_sending": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_appointments": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_appointment_booking": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_profile": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_profile_edit": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_upload_profile_photo": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_nutritional_info": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_recipes": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_recipe_download": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_recipe_upload": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_ai_recipe_generation": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "show_dashboard_stats": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "allow_export_data": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_upload_progress_photos": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_upload_food_photos": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_upload_lab_reports": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_upload_recipes": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_upload_documents": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_use_food_lookup_ai": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_generate_meal_plans": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_generate_recipes": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_use_wellness_insights": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_use_chat_assistant": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_use_advanced_analytics": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_access_business_tools": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Access to business sheets, design, webinar tracker, lead management, social media tools"
+                },
+                "can_manage_team": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Can add and manage team members"
+                },
+                "can_access_webinar_tracker": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_access_lead_management": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_access_social_media_tools": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "can_access_finance_manager": {
+                  "type": "boolean",
+                  "default": true
+                },
+                "monthly_ai_meal_plan_limit": {
+                  "type": "number",
+                  "default": -1,
+                  "description": "Monthly AI meal plan generation limit (-1 for unlimited)"
+                },
+                "monthly_ai_recipe_limit": {
+                  "type": "number",
+                  "default": -1,
+                  "description": "Monthly AI recipe generation limit (-1 for unlimited)"
+                },
+                "monthly_ai_requests_limit": {
+                  "type": "number",
+                  "default": -1
+                },
+                "max_file_size_mb": {
+                  "type": "number",
+                  "default": 50
+                },
+                "can_download_unlimited": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Unlimited downloads of recipes and templates"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "super_admin_permissions": {
+      "type": "object",
+      "description": "Granular permissions for super admin actions",
+      "properties": {
+        "can_view_dashboard": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_manage_users": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_invite_users": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_users": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_modify_user_roles": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_all_clients": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_create_clients": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_all_clients": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_clients": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_all_meal_plans": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_create_meal_plans": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_all_meal_plans": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_meal_plans": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_all_messages": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_send_messages": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_messages": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_financial_data": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_financial_data": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_financial_data": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_templates": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_create_templates": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_templates": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_templates": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_recipes": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_create_recipes": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_all_recipes": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_recipes": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_upload_files": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_files": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_access_business_analytics": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_modify_app_settings": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_manage_permissions": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_manage_team_members": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_upload_profile_photo": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_manage_payment_gateway": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_manage_client_plans": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_payment_history": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "team_member_permissions": {
+      "type": "object",
+      "description": "Permissions for team members",
+      "properties": {
+        "can_view_dashboard": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_only_own_clients": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_all_clients": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_create_clients": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_own_clients": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_all_clients": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_own_clients": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_all_clients": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_view_own_meal_plans": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_all_meal_plans": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_create_meal_plans": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_own_meal_plans": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_all_meal_plans": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_own_meal_plans": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_all_meal_plans": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_view_own_messages": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_all_messages": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_send_messages": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_own_messages": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_all_messages": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_view_financial_data": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_edit_financial_data": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_financial_data": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_view_templates": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_create_templates": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_edit_own_templates": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_edit_all_templates": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_own_templates": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_all_templates": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_view_recipes": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_create_recipes": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_own_recipes": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_all_recipes": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_own_recipes": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_all_recipes": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_upload_files": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_own_files": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_all_files": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_upload_profile_photo": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_manage_payment_gateway": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_manage_client_plans": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_payment_history": {
+          "type": "boolean",
+          "default": true
+        },
+        "max_clients_allowed": {
+          "type": "number",
+          "default": -1
+        },
+        "max_file_size_mb": {
+          "type": "number",
+          "default": 10
+        }
+      }
+    },
+    "student_coach_permissions": {
+      "type": "object",
+      "description": "Permissions for student coaches",
+      "properties": {
+        "can_view_dashboard": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_only_own_clients": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_all_clients": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_create_clients": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_own_clients": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_all_clients": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_own_clients": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_all_clients": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_view_own_meal_plans": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_all_meal_plans": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_create_meal_plans": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_own_meal_plans": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_all_meal_plans": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_own_meal_plans": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_all_meal_plans": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_view_own_messages": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_all_messages": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_send_messages": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_own_messages": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_all_messages": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_view_financial_data": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_financial_data": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_financial_data": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_view_templates": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_create_templates": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_own_templates": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_all_templates": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_own_templates": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_all_templates": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_view_recipes": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_create_recipes": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_own_recipes": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_all_recipes": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_delete_own_recipes": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_all_recipes": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_upload_files": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_own_files": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_all_files": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_access_business_tools": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_manage_team": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_upload_profile_photo": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_manage_payment_gateway": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_manage_client_plans": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_payment_history": {
+          "type": "boolean",
+          "default": true
+        },
+        "max_clients_allowed": {
+          "type": "number",
+          "default": 50
+        },
+        "max_file_size_mb": {
+          "type": "number",
+          "default": 20
+        }
+      }
+    },
+    "client_restrictions": {
+      "type": "object",
+      "description": "Base restrictions for all clients (applies when no plan assigned)",
+      "properties": {
+        "can_view_meal_plan": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_comment_on_meal_plan": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_view_food_log": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_food_log": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_food_log": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_view_progress": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_progress": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_delete_progress": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_view_mpess": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_mpess": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_messages": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_send_messages": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_appointments": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_book_appointments": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_view_profile": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_edit_profile": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_upload_profile_photo": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_view_recipes": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_download_recipes": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_upload_recipes": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_generate_ai_recipes": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_upload_progress_photos": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_upload_food_photos": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_upload_lab_reports": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_upload_documents": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_export_data": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_use_food_lookup_ai": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_use_wellness_insights": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_use_chat_assistant": {
+          "type": "boolean",
+          "default": false
+        },
+        "monthly_ai_requests_limit": {
+          "type": "number",
+          "default": 30
+        },
+        "max_file_size_mb": {
+          "type": "number",
+          "default": 10
+        }
+      }
+    },
+    "settings_metadata": {
+      "type": "object",
+      "properties": {
+        "last_modified_by": {
+          "type": "string"
+        },
+        "last_modified_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "version": {
+          "type": "number",
+          "default": 1
+        }
+      }
+    }
+  },
+  "required": []
+}

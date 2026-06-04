@@ -1,0 +1,99 @@
+{
+  "name": "AutoAwardRule",
+  "type": "object",
+  "properties": {
+    "rule_name": {
+      "type": "string",
+      "description": "Name of the auto-award rule"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of what triggers this award"
+    },
+    "trigger_type": {
+      "type": "string",
+      "enum": [
+        "progress_log_count",
+        "food_log_count",
+        "weight_loss_milestone",
+        "consecutive_days",
+        "workout_count",
+        "meal_adherence",
+        "water_intake_goal",
+        "custom_metric"
+      ],
+      "description": "Type of trigger for this rule"
+    },
+    "trigger_condition": {
+      "type": "object",
+      "properties": {
+        "threshold": {
+          "type": "number",
+          "description": "Number to reach for trigger"
+        },
+        "comparison": {
+          "type": "string",
+          "enum": [
+            "equals",
+            "greater_than",
+            "greater_or_equal",
+            "less_than"
+          ],
+          "description": "Comparison operator"
+        },
+        "time_period_days": {
+          "type": "number",
+          "description": "Time period in days to check (e.g., last 30 days)"
+        },
+        "metric_field": {
+          "type": "string",
+          "description": "Field to check for custom metrics"
+        }
+      }
+    },
+    "award_type": {
+      "type": "string",
+      "enum": [
+        "points",
+        "badge",
+        "both"
+      ],
+      "description": "What to award"
+    },
+    "points_to_award": {
+      "type": "number",
+      "description": "Points to award if award_type includes points"
+    },
+    "badge_to_award": {
+      "type": "string",
+      "description": "Badge ID to award if award_type includes badge"
+    },
+    "award_message": {
+      "type": "string",
+      "description": "Message to display when award is given"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Is this rule currently active"
+    },
+    "is_repeatable": {
+      "type": "boolean",
+      "default": false,
+      "description": "Can this award be given multiple times"
+    },
+    "cooldown_days": {
+      "type": "number",
+      "description": "Days to wait before re-awarding (if repeatable)"
+    },
+    "created_by_coach": {
+      "type": "string",
+      "description": "Coach who created this rule"
+    }
+  },
+  "required": [
+    "rule_name",
+    "trigger_type",
+    "award_type"
+  ]
+}

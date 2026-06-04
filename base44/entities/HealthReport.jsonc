@@ -1,0 +1,188 @@
+{
+  "name": "HealthReport",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "report_title": {
+      "type": "string",
+      "description": "Title of the report"
+    },
+    "report_type": {
+      "type": "string",
+      "description": "Type of health report (e.g. Blood Test, Thyroid Panel, CBC, LFT, KFT, Full Body)"
+    },
+    "report_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date when report was taken"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL of uploaded report file"
+    },
+    "extracted_data": {
+      "type": "object",
+      "description": "Raw lab values extracted from the report (e.g., { Hemoglobin: 13.2, TSH: 4.5 })"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Coach notes about the report"
+    },
+    "coach_notes": {
+      "type": "string",
+      "description": "Additional coach notes"
+    },
+    "ai_analysis": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string",
+          "description": "Overall summary of the blood report analysis"
+        },
+        "key_findings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "marker": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "normal",
+                  "high",
+                  "critical"
+                ]
+              },
+              "implication": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "List of individual marker findings"
+        },
+        "hidden_insights": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "pattern": {
+                "type": "string"
+              },
+              "implication": {
+                "type": "string"
+              },
+              "action": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Cross-marker pattern insights detected"
+        },
+        "dietary_considerations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specific dietary recommendations derived from the report"
+        },
+        "lifestyle_considerations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Lifestyle adjustments recommended based on report findings"
+        },
+        "supplement_recommendations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Supplements suggested based on deficiencies or elevations found"
+        },
+        "ayurvedic_recommendations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Herbal and Ayurvedic support recommended based on findings"
+        },
+        "red_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Critical markers requiring urgent attention or doctor referral"
+        },
+        "recommendations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "General recommendations for the dietitian"
+        }
+      }
+    },
+    "analysis_audit": {
+      "type": "object",
+      "description": "Full audit trail of how the analysis was performed",
+      "properties": {
+        "analyzed_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when analysis was run"
+        },
+        "analyzed_by": {
+          "type": "string",
+          "description": "Email of the dietitian who triggered the analysis"
+        },
+        "markers_analyzed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of all lab markers that were processed"
+        },
+        "rule_based_markers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Markers that were successfully interpreted using LabInterpretationRules (from your PDF knowledge base)"
+        },
+        "ai_fallback_markers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Markers that had NO matching rule in LabInterpretationRules and required AI (LLM) fallback"
+        },
+        "ai_fallback_used": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether AI fallback was needed for any marker"
+        },
+        "rules_applied_count": {
+          "type": "number",
+          "description": "Number of LabInterpretationRules records successfully matched and applied"
+        },
+        "analysis_source_breakdown": {
+          "type": "string",
+          "description": "Human-readable summary: e.g. '12 markers from Knowledge Base, 2 markers from AI fallback'"
+        }
+      }
+    }
+  },
+  "required": [
+    "client_id",
+    "file_url"
+  ]
+}

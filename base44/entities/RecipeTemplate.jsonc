@@ -1,0 +1,112 @@
+{
+  "name": "RecipeTemplate",
+  "type": "object",
+  "properties": {
+    "dish_name": {
+      "type": "string",
+      "description": "Name of the dish"
+    },
+    "template_code": {
+      "type": "string",
+      "description": "Unique template code (e.g. ROTI_PLAIN)"
+    },
+    "portion_label": {
+      "type": "string",
+      "description": "Portion label (e.g. roti_medium, bowl_rice_200g)"
+    },
+    "default_servings": {
+      "type": "number",
+      "description": "Default number of servings"
+    },
+    "cooking_method": {
+      "type": "string",
+      "description": "Cooking method used"
+    },
+    "meal_type": {
+      "type": "string",
+      "enum": [
+        "breakfast",
+        "midmorning",
+        "lunch",
+        "evening_snack",
+        "dinner",
+        "early_morning",
+        "any"
+      ],
+      "description": "Which meal this recipe belongs to"
+    },
+    "food_preference": {
+      "type": "string",
+      "enum": [
+        "veg",
+        "non_veg",
+        "egg",
+        "vegan",
+        "any"
+      ],
+      "description": "Dietary classification"
+    },
+    "ingredients": {
+      "type": "array",
+      "description": "List of ingredients with quantities",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ingredient_name": {
+            "type": "string"
+          },
+          "qty": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "calculated_nutrition_per_serving": {
+      "type": "object",
+      "description": "Pre-calculated nutrition per single serving (computed from ingredients)",
+      "properties": {
+        "kcal": {
+          "type": "number"
+        },
+        "protein_g": {
+          "type": "number"
+        },
+        "carbs_g": {
+          "type": "number"
+        },
+        "fat_g": {
+          "type": "number"
+        },
+        "fibre_g": {
+          "type": "number"
+        },
+        "sodium_mg": {
+          "type": "number"
+        },
+        "potassium_mg": {
+          "type": "number"
+        }
+      }
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this recipe is available for use"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for filtering (e.g. weight_loss, diabetes, high_protein)"
+    }
+  },
+  "required": [
+    "dish_name",
+    "template_code",
+    "ingredients"
+  ]
+}

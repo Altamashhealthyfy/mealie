@@ -1,0 +1,87 @@
+{
+  "name": "ClientAccessControl",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Email of the client"
+    },
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the coach managing access"
+    },
+    "show_my_dashboard": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show My Dashboard section"
+    },
+    "show_my_plans": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show My Plans section"
+    },
+    "show_my_meal_plan": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show My Meal Plan section"
+    },
+    "show_food_log": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show Food Log section"
+    },
+    "show_my_progress": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show My Progress section"
+    },
+    "show_mpess_wellness": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show MPESS Wellness section"
+    },
+    "show_messages": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show Messages section"
+    },
+    "show_my_assessments": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show My Assessments section"
+    },
+    "show_my_appointments": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show My Appointments section"
+    },
+    "show_recipe_library": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show Recipe Library section"
+    },
+    "show_food_lookup": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show Food Lookup section"
+    },
+    "show_resources": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show Resources section"
+    },
+    "show_my_profile": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show My Profile section"
+    }
+  },
+  "required": [
+    "client_id",
+    "coach_email"
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "name": "CoachSubscriptionHistory",
+  "type": "object",
+  "properties": {
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the health coach"
+    },
+    "coach_name": {
+      "type": "string",
+      "description": "Name of the health coach"
+    },
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "account_created",
+        "plan_assigned",
+        "plan_upgraded",
+        "plan_downgraded",
+        "plan_extended",
+        "credits_added",
+        "access_enabled",
+        "access_disabled",
+        "account_deleted"
+      ],
+      "description": "Type of action performed"
+    },
+    "old_value": {
+      "type": "string",
+      "description": "Previous value (plan name, credit amount, etc)"
+    },
+    "new_value": {
+      "type": "string",
+      "description": "New value after change"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Amount for credit additions"
+    },
+    "plan_name": {
+      "type": "string",
+      "description": "Plan name involved in the action"
+    },
+    "performed_by": {
+      "type": "string",
+      "description": "Email of admin who performed the action"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes about the change"
+    }
+  },
+  "required": [
+    "coach_email",
+    "action_type",
+    "performed_by"
+  ]
+}

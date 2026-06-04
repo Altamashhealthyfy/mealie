@@ -1,0 +1,417 @@
+{
+  "name": "UserProfile",
+  "type": "object",
+  "properties": {
+    "age": {
+      "type": "number"
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female",
+        "other"
+      ]
+    },
+    "height": {
+      "type": "number"
+    },
+    "weight": {
+      "type": "number"
+    },
+    "activity_level": {
+      "type": "string",
+      "enum": [
+        "sedentary",
+        "lightly_active",
+        "moderately_active",
+        "very_active",
+        "extremely_active"
+      ]
+    },
+    "goal": {
+      "type": "string",
+      "enum": [
+        "weight_loss",
+        "weight_gain",
+        "maintenance",
+        "muscle_gain",
+        "disease_reversal",
+        "heart_health",
+        "diabetes_management",
+        "gut_health",
+        "energy_boost"
+      ]
+    },
+    "food_preference": {
+      "type": "string",
+      "enum": [
+        "veg",
+        "non_veg",
+        "jain",
+        "mixed",
+        "vegan",
+        "eggetarian"
+      ]
+    },
+    "regional_preference": {
+      "type": "string",
+      "enum": [
+        "north",
+        "south",
+        "west",
+        "east",
+        "all",
+        "continental",
+        "mediterranean",
+        "asian"
+      ]
+    },
+    "dietary_restrictions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "General dietary restrictions (e.g. no_sugar, no_salt, no_fried)"
+    },
+    "allergies": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "gluten",
+          "dairy",
+          "nuts",
+          "peanuts",
+          "soy",
+          "eggs",
+          "shellfish",
+          "fish",
+          "sesame",
+          "mustard",
+          "nightshades",
+          "coconut",
+          "onion",
+          "garlic"
+        ]
+      },
+      "description": "Specific food allergies to strictly avoid"
+    },
+    "intolerances": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "lactose",
+          "fructose",
+          "fodmap",
+          "histamine",
+          "gluten_sensitivity",
+          "spicy_food"
+        ]
+      },
+      "description": "Food intolerances (less strict than allergies)"
+    },
+    "health_conditions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "diabetes_type1",
+          "diabetes_type2",
+          "pcos",
+          "hypothyroid",
+          "hyperthyroid",
+          "hypertension",
+          "high_cholesterol",
+          "ibs",
+          "kidney_disease",
+          "liver_disease",
+          "anemia",
+          "osteoporosis",
+          "arthritis",
+          "gerd",
+          "fatty_liver"
+        ]
+      },
+      "description": "Active health conditions affecting diet"
+    },
+    "cuisine_preferences": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "north_indian",
+          "south_indian",
+          "gujarati",
+          "maharashtrian",
+          "bengali",
+          "punjabi",
+          "rajasthani",
+          "kerala",
+          "continental",
+          "mediterranean",
+          "chinese",
+          "mexican"
+        ]
+      },
+      "description": "Specific cuisines user enjoys"
+    },
+    "meal_preferences": {
+      "type": "object",
+      "description": "Meal timing and type preferences",
+      "properties": {
+        "preferred_meal_types": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "breakfast",
+              "lunch",
+              "dinner",
+              "snack",
+              "post_dinner"
+            ]
+          }
+        },
+        "max_prep_time_minutes": {
+          "type": "number",
+          "description": "Max cooking time willing to spend"
+        },
+        "prefer_quick_meals": {
+          "type": "boolean"
+        },
+        "prefer_high_fiber": {
+          "type": "boolean"
+        },
+        "prefer_high_protein": {
+          "type": "boolean"
+        },
+        "prefer_low_carb": {
+          "type": "boolean"
+        },
+        "prefer_low_fat": {
+          "type": "boolean"
+        },
+        "prefer_low_sodium": {
+          "type": "boolean"
+        }
+      }
+    },
+    "disliked_ingredients": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Specific ingredients the user dislikes (e.g. bitter gourd, drumstick)"
+    },
+    "liked_ingredients": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Specific ingredients the user particularly enjoys"
+    },
+    "bmr": {
+      "type": "number"
+    },
+    "tdee": {
+      "type": "number"
+    },
+    "target_calories": {
+      "type": "number"
+    },
+    "target_protein": {
+      "type": "number"
+    },
+    "target_carbs": {
+      "type": "number"
+    },
+    "target_fats": {
+      "type": "number"
+    },
+    "health_metrics": {
+      "type": "object",
+      "description": "Detailed health markers",
+      "properties": {
+        "bp_systolic": {
+          "type": "number"
+        },
+        "bp_diastolic": {
+          "type": "number"
+        },
+        "total_cholesterol": {
+          "type": "number"
+        },
+        "ldl": {
+          "type": "number"
+        },
+        "hdl": {
+          "type": "number"
+        },
+        "triglycerides": {
+          "type": "number"
+        },
+        "fasting_glucose": {
+          "type": "number"
+        },
+        "pp_glucose": {
+          "type": "number"
+        },
+        "hba1c": {
+          "type": "number"
+        },
+        "tsh": {
+          "type": "number"
+        },
+        "t3": {
+          "type": "number"
+        },
+        "t4": {
+          "type": "number"
+        },
+        "haemoglobin": {
+          "type": "number"
+        },
+        "vitamin_d": {
+          "type": "number"
+        },
+        "vitamin_b12": {
+          "type": "number"
+        },
+        "uric_acid": {
+          "type": "number"
+        },
+        "creatinine": {
+          "type": "number"
+        },
+        "resting_heart_rate": {
+          "type": "number"
+        },
+        "last_lab_date": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "lifestyle": {
+      "type": "object",
+      "description": "Lifestyle details",
+      "properties": {
+        "smoking_status": {
+          "type": "string"
+        },
+        "alcohol_consumption": {
+          "type": "string"
+        },
+        "sleep_hours": {
+          "type": "number"
+        },
+        "sleep_quality": {
+          "type": "string"
+        },
+        "stress_level": {
+          "type": "string"
+        },
+        "work_nature": {
+          "type": "string"
+        },
+        "occupation": {
+          "type": "string"
+        },
+        "water_intake_litres": {
+          "type": "number"
+        },
+        "exercise_days_per_week": {
+          "type": "number"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "family_history": {
+      "type": "object",
+      "description": "Family health history",
+      "properties": {
+        "conditions": {
+          "type": "object"
+        },
+        "relatives_affected": {
+          "type": "string"
+        },
+        "primary_concern": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "consents": {
+      "type": "object",
+      "description": "Client consent records",
+      "properties": {
+        "data_storage": {
+          "type": "boolean"
+        },
+        "data_sharing_coach": {
+          "type": "boolean"
+        },
+        "anonymous_research": {
+          "type": "boolean"
+        },
+        "progress_photos": {
+          "type": "boolean"
+        },
+        "third_party_labs": {
+          "type": "boolean"
+        },
+        "consent_date": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "preferences": {
+      "type": "object",
+      "description": "Communication and notification preferences",
+      "properties": {
+        "contact_method": {
+          "type": "string"
+        },
+        "preferred_language": {
+          "type": "string"
+        },
+        "notification_frequency": {
+          "type": "string"
+        },
+        "checkin_time": {
+          "type": "string"
+        },
+        "notify_meal_reminders": {
+          "type": "boolean"
+        },
+        "notify_progress_reminders": {
+          "type": "boolean"
+        },
+        "notify_appointment": {
+          "type": "boolean"
+        },
+        "notify_new_plans": {
+          "type": "boolean"
+        },
+        "notify_coach_messages": {
+          "type": "boolean"
+        },
+        "notify_achievements": {
+          "type": "boolean"
+        },
+        "special_notes": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "required": []
+}

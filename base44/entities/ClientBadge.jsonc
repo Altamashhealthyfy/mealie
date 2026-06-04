@@ -1,0 +1,28 @@
+{
+  "name": "ClientBadge",
+  "type": "object",
+  "properties": {
+    "client_id": {
+      "type": "string",
+      "description": "ID of the client"
+    },
+    "badge_id": {
+      "type": "string",
+      "description": "ID of the badge earned"
+    },
+    "earned_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the badge was earned"
+    },
+    "is_new": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether client has seen this badge"
+    }
+  },
+  "required": [
+    "client_id",
+    "badge_id"
+  ]
+}

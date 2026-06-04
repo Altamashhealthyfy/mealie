@@ -1,0 +1,36 @@
+{
+  "name": "TemplateComment",
+  "type": "object",
+  "properties": {
+    "template_id": {
+      "type": "string",
+      "description": "ID of the template being commented on"
+    },
+    "template_name": {
+      "type": "string",
+      "description": "Name of the template"
+    },
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the coach making the comment"
+    },
+    "coach_name": {
+      "type": "string",
+      "description": "Name of the coach making the comment"
+    },
+    "comment": {
+      "type": "string",
+      "description": "Comment text"
+    },
+    "helpful_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of coaches who found this helpful"
+    }
+  },
+  "required": [
+    "template_id",
+    "coach_email",
+    "comment"
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "name": "MessageTemplate",
+  "type": "object",
+  "properties": {
+    "coach_email": {
+      "type": "string",
+      "description": "Email of the coach who created this template"
+    },
+    "title": {
+      "type": "string",
+      "description": "Template name/title (e.g., 'Follow-up Check-in')"
+    },
+    "content": {
+      "type": "string",
+      "description": "Template message content"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "greeting",
+        "check_in",
+        "motivation",
+        "meal_plan",
+        "progress_feedback",
+        "appointment_reminder",
+        "congratulations",
+        "assistance",
+        "other"
+      ],
+      "description": "Template category"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description of when to use this template"
+    },
+    "is_personal": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is this template private to the coach or shared"
+    },
+    "usage_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of times this template was used"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for easy searching"
+    },
+    "variables": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Placeholders like {client_name}, {weight}, {goal}"
+    },
+    "last_used": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this template was last used"
+    }
+  },
+  "required": [
+    "coach_email",
+    "title",
+    "content",
+    "category"
+  ]
+}

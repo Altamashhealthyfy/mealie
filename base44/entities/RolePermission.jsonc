@@ -1,0 +1,66 @@
+{
+  "name": "RolePermission",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "super_admin",
+        "team_member",
+        "student_coach",
+        "student_team_member",
+        "client"
+      ],
+      "description": "User role type"
+    },
+    "section": {
+      "type": "string",
+      "description": "Page or section name (e.g., ClientManagement, MealPlanner, Recipes)"
+    },
+    "permissions": {
+      "type": "object",
+      "properties": {
+        "can_view": {
+          "type": "boolean",
+          "default": false,
+          "description": "Can view this section"
+        },
+        "can_create": {
+          "type": "boolean",
+          "default": false,
+          "description": "Can create new items"
+        },
+        "can_edit": {
+          "type": "boolean",
+          "default": false,
+          "description": "Can edit items"
+        },
+        "can_delete": {
+          "type": "boolean",
+          "default": false,
+          "description": "Can delete items"
+        },
+        "can_edit_own_only": {
+          "type": "boolean",
+          "default": true,
+          "description": "Can only edit their own items"
+        },
+        "can_delete_own_only": {
+          "type": "boolean",
+          "default": true,
+          "description": "Can only delete their own items"
+        }
+      }
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this permission rule is active"
+    }
+  },
+  "required": [
+    "role",
+    "section",
+    "permissions"
+  ]
+}
