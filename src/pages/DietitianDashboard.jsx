@@ -101,7 +101,7 @@ export default function DietitianDashboard() {
 
   const { data: appointments } = useQuery({
     queryKey: ['dashboardAppointments'],
-    queryFn: () => base44.entities.Appointment.filter({ status: 'scheduled' }, '-date', 5),
+    queryFn: () => base44.entities.Appointment.filter({ status: 'scheduled' }, '-appointment_date', 5),
     initialData: [],
     staleTime: 30000,
     refetchOnWindowFocus: false,
