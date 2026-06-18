@@ -11,7 +11,7 @@ import { Calendar, Save, RefreshCw, ChefHat, Lightbulb, Edit, Check, X, Download
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { base44 } from "@/api/base44Client";
 import MealPlanChatModifier from "./MealPlanChatModifier";
-import MealPlanPDFDownload from "./MealPlanPDFDownload";
+import AdvancedPlanPDFExport from "./AdvancedPlanPDFExport";
 
 export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGenerateNew, isSaving }) {
   const [editablePlan, setEditablePlan] = useState(plan);
@@ -23,6 +23,7 @@ export default function GeneratedMealPlan({ plan, onSave, onSaveAsTemplate, onGe
   const [copiedText, setCopiedText] = useState(false);
   const [recalculating, setRecalculating] = useState(false);
   const [showPDFDialog, setShowPDFDialog] = useState(false);
+  const clientName = editablePlan?.client_name || "";
 
   React.useEffect(() => {
     setEditablePlan(plan);
@@ -244,7 +245,7 @@ Use ICMR data and standard Indian portion sizes. Be precise.`;
                 className="border-purple-500 text-purple-600 hover:bg-purple-50"
               >
                 <Download className="w-4 h-4 mr-2" />
-                Download PDF
+                Export PDF
               </Button>
             </div>
           </div>
@@ -690,9 +691,9 @@ Use ICMR data and standard Indian portion sizes. Be precise.`;
         </DialogContent>
       </Dialog>
 
-      <MealPlanPDFDownload
+      <AdvancedPlanPDFExport
         plan={editablePlan}
-        mpessData={editablePlan?.mpess_integration}
+        clientName={clientName}
         open={showPDFDialog}
         onOpenChange={setShowPDFDialog}
       />
