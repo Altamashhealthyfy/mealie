@@ -224,41 +224,73 @@ DINNER SABZI: ${slotList('lunch_sabzi')}
 
 Generate 5 templates and MPESS for ${conditions.join('+')||'general health'} client.`;
 
-    console.log('📤 Sending to Claude Haiku...');
+    // ─── STEP 6: Try Claude, fall back to rule-based selection ───
+    let parsed = null;
+    let rawText = '';
+    const callDurationMs_start = Date.now();
+    let promptTokens = 0, completionTokens = 0, estimatedCost = 0;
 
-    // ─── STEP 6: Call Claude ───
-    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': Deno.env.get('CLAUDE'),
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2000,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userPrompt }],
-      }),
-    });
+    try {
+      console.log('📤 Sending to Claude Haiku...');
+      const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': Deno.env.get('CLAUDE'),
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 2000,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userPrompt }],
+        }),
+      });
+      const claudeData = await claudeResponse.json();
+      if (!claudeData.error) {
+        promptTokens = claudeData.usage?.input_tokens || 0;
+        completionTokens = claudeData.usage?.output_tokens || 0;
+        estimatedCost = (promptTokens * 0.80 + completionTokens * 4) / 1_000_000;
+        rawText = claudeData.content?.[0]?.text || '';
+        const cleanText = rawText.replace(/```json|```/g, '').trim();
+        parsed = JSON.parse(cleanText);
+        console.log(`✅ Claude templates: ${Object.keys(parsed).filter(k => k.length === 1).join(',')}`);
+      } else {
+        console.warn('⚠️ Claude unavailable:', claudeData.error.message, '— using rule-based fallback');
+      }
+    } catch(e) {
+      console.warn('⚠️ Claude error:', e.message, '— using rule-based fallback');
+    }
 
-    const claudeData = await claudeResponse.json();
-    const callDurationMs = Date.now() - callStartTime;
+    const callDurationMs = Date.now() - callDurationMs_start;
 
-    if (claudeData.error) throw new Error('Claude API: ' + claudeData.error.message);
+    // ─── Rule-based fallback: build 5 templates by shuffling dishes per slot ───
+    if (!parsed) {
+      parsed = {};
+      const templateKeys = ['A','B','C','D','E'];
+      const slotKeys = ['early_morning','breakfast','mid_morning','lunch_grain','lunch_dal','lunch_sabzi','snack','dinner_grain','dinner_prot','dinner_sabzi'];
+      for (let ti = 0; ti < templateKeys.length; ti++) {
+        const tmpl = {};
+        for (const slot of slotKeys) {
+          const dishes = bySlot[slot] || [];
+          if (dishes.length > 0) {
+            const dish = dishes[ti % dishes.length];
+            tmpl[slot] = `${dish.dish_id}:${dish.name}`;
+          }
+        }
+        parsed[templateKeys[ti]] = tmpl;
+      }
+      parsed.mpess = {
+        sleep: 'Aim for 7-8 hours of sleep each night.',
+        stress: 'Practice 5-10 minutes of deep breathing daily.',
+        movement: 'Walk 30 minutes daily at a moderate pace.',
+        mindfulness: 'Start your day with 5 minutes of quiet reflection.',
+        pranayam: 'Practice anulom-vilom pranayam for 5 minutes each morning.',
+      };
+      console.log('✅ Rule-based templates generated as fallback');
+    }
 
-    const promptTokens = claudeData.usage?.input_tokens || 0;
-    const completionTokens = claudeData.usage?.output_tokens || 0;
-    const estimatedCost = (promptTokens * 0.80 + completionTokens * 4) / 1_000_000;
-
-    const rawText = claudeData.content?.[0]?.text || '';
-    const cleanText = rawText.replace(/```json|```/g, '').trim();
-
-    let parsed;
-    try { parsed = JSON.parse(cleanText); }
-    catch(e) { throw new Error('Claude returned invalid JSON: ' + rawText.slice(0, 300)); }
-
-    console.log(`✅ Templates received: ${Object.keys(parsed).filter(k => k.length === 1).join(',')}`);
+    console.log(`✅ Templates ready: ${Object.keys(parsed).filter(k => k.length === 1).join(',')}`);
 
     // ─── STEP 7: Build catalog lookup map ───
     const catalogMap = {};

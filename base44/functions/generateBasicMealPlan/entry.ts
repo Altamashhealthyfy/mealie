@@ -241,40 +241,52 @@ Evening Snack: ${slotList('snack')}
 Dinner Grain: ${slotList('dinner_grain')}
 Dinner Protein: ${slotList('dinner_prot')}`;
 
-    const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type':    'application/json',
-        'x-api-key':       Deno.env.get('CLAUDE'),
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model:      'claude-haiku-4-5-20251001',
-        max_tokens: 1500,
-        system:     systemPrompt,
-        messages:   [{ role: 'user', content: userPrompt }],
-      }),
-    });
+    let parsed = null;
 
-    const apiData = await claudeRes.json();
-    if (apiData.error) throw new Error('Claude API: ' + apiData.error.message);
-
-    const raw = apiData.content?.[0]?.text || '';
-    // Strip markdown fences if present
-    const clean = raw.replace(/```json[\s\S]*?```|```[\s\S]*?```/g, match =>
-      match.replace(/```json|```/g, '').trim()
-    ).trim();
-
-    let parsed;
     try {
-      // Find first { ... } block
-      const jsonMatch = clean.match(/\{[\s\S]*\}/);
-      parsed = JSON.parse(jsonMatch ? jsonMatch[0] : clean);
+      const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type':    'application/json',
+          'x-api-key':       Deno.env.get('CLAUDE'),
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model:      'claude-haiku-4-5-20251001',
+          max_tokens: 1500,
+          system:     systemPrompt,
+          messages:   [{ role: 'user', content: userPrompt }],
+        }),
+      });
+      const apiData = await claudeRes.json();
+      if (!apiData.error) {
+        const raw = apiData.content?.[0]?.text || '';
+        const clean = raw.replace(/```json[\s\S]*?```|```[\s\S]*?```/g, m => m.replace(/```json|```/g, '').trim()).trim();
+        const jsonMatch = clean.match(/\{[\s\S]*\}/);
+        parsed = JSON.parse(jsonMatch ? jsonMatch[0] : clean);
+        console.log('Claude returned templates:', Object.keys(parsed).filter(k => k !== 'mpess'));
+      } else {
+        console.warn('⚠️ Claude unavailable:', apiData.error.message, '— using rule-based fallback');
+      }
     } catch(e) {
-      throw new Error('Claude returned invalid JSON: ' + raw.slice(0, 300));
+      console.warn('⚠️ Claude error:', e.message, '— using rule-based fallback');
     }
 
-    console.log('Claude returned templates:', Object.keys(parsed).filter(k => k !== 'mpess'));
+    // ─── Rule-based fallback: deterministically pick dishes per slot ───
+    if (!parsed) {
+      parsed = {};
+      const TEMPLATE_KEYS = ['A','B','C','D','E'];
+      const SLOT_KEYS = ['early_morning','breakfast','mid_morning','lunch_grain','lunch_dal','lunch_sabzi','snack','dinner_grain','dinner_prot'];
+      for (let ti = 0; ti < TEMPLATE_KEYS.length; ti++) {
+        const tmpl = {};
+        for (const slot of SLOT_KEYS) {
+          const dishes = bySlot[slot] || [];
+          if (dishes.length > 0) tmpl[slot] = dishes[ti % dishes.length].name;
+        }
+        parsed[TEMPLATE_KEYS[ti]] = tmpl;
+      }
+      console.log('✅ Rule-based fallback templates generated');
+    }
 
     // ─── STEP 6: Build catalog lookup map ───
     const catalogByName = {};
