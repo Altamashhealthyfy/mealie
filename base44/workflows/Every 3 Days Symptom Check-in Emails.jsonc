@@ -1,0 +1,44 @@
+{
+  "name": "Every 3 Days Symptom Check-in Emails",
+  "description": "Sends symptom check-in emails to all active clients every 3 days. Clients who report worsening symptoms are automatically flagged and coaches are notified.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "interval",
+      "cron_expression": null,
+      "one_time_date": null,
+      "timezone": "UTC",
+      "interval_value": 3,
+      "interval_unit": "days",
+      "interval_anchor": "2026-05-23T12:55:01.536000",
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "every_3_days_symptom_check_in_emails",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "sendSymptomCheckIn",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "sendSymptomCheckIn"
+  }
+}
